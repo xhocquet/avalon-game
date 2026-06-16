@@ -1,0 +1,16 @@
+# Editor / IDE
+.idea/
+.vscode/
+.vs/
+*.user
+*.suo
+
+# Server build outputs and runtime logs
+server/bin/
+server/obj/
+
+# Logs
+server/Logs/*
+!server/Logs/.keep
+/Logs/*
+!/Logs/.keep
