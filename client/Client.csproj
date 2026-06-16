@@ -1,0 +1,22 @@
+<!--
+  Client — standalone Godot 3D Avalon client (Server-Driven UI, Join/Ready/Stop).
+  Self-contained: the ECS sim (Sim/), the client simulation callbacks (Game/)
+  and the data asset (Data/Assets.bytes) are copied in, with no reference to an external starter project.
+  The dedicated server is owned under Server/ (separate Microsoft.NET.Sdk exe — run it first).
+  Godot.NET.Sdk game project; ProjectReferences the Godot adapter library (core transitively).
+  KlothoGenerator emits the [KlothoOrder]/[KlothoDataAsset] partials.
+-->
+<Project Sdk="Godot.NET.Sdk/4.6.3">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>Meesles.Avalon.Client</AssemblyName>
+    <RootNamespace>Meesles.Avalon.Client</RootNamespace>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <Import Project="addons/klotho/Klotho.props" />
+
+</Project>
