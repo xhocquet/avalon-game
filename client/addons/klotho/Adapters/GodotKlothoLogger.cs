@@ -1,14 +1,12 @@
 using xpTURN.Klotho.Logging;
 
-namespace xpTURN.Klotho.Godot
-{
+namespace xpTURN.Klotho.Godot {
   // Convenience entry point: GodotLogSink (console) + RollingFileSink under user://logs.
   //
   // Factory Dispose limitation: only IKLogger is returned; the internal IKLoggerFactory
   // cannot be Disposed by the caller. For explicit flush/close on shutdown, build the
   // factory directly with KLoggerFactory.Create and store it separately (see samples).
-  public static class GodotKlothoLogger
-  {
+  public static class GodotKlothoLogger {
     public static IKLogger CreateDefault(
         KLogLevel level = KLogLevel.Information,
         string filePrefix = "Client",
@@ -20,16 +18,14 @@ namespace xpTURN.Klotho.Godot
           ?? global::Godot.ProjectSettings.GlobalizePath("user://logs");
       System.IO.Directory.CreateDirectory(logDir);
 
-      var factory = KLoggerFactory.Create(builder =>
-      {
+      var factory = KLoggerFactory.Create(builder => {
         builder.SetMinimumLevel(level);
         builder.AddSink(new GodotLogSink());
-        builder.AddRollingFile(options =>
-              {
-            options.FilePrefix = filePrefix;
-            options.RollingSizeKB = rollingSizeKB;
-            options.Directory = logDir;
-          });
+        builder.AddRollingFile(options => {
+          options.FilePrefix = filePrefix;
+          options.RollingSizeKB = rollingSizeKB;
+          options.Directory = logDir;
+        });
       });
 
       return factory.CreateLogger(categoryName);

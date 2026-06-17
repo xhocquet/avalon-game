@@ -9,18 +9,15 @@ using System.Threading.Tasks;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Network;
 
-namespace xpTURN.Klotho.Godot
-{
-  public static class GodotSessionFlowAsync
-  {
+namespace xpTURN.Klotho.Godot {
+  public static class GodotSessionFlowAsync {
     // P2P guest join — no room handshake. roomId is -1 (P2P has no rooms).
     public static async Task<KlothoSession> JoinP2PAsync(
         this KlothoSessionFlow flow,
         INetworkTransport transport,
         string host, int port,
         ISessionConfig sessionConfigSeed,
-        Action<KlothoConnection> onStarted = null)
-    {
+        Action<KlothoConnection> onStarted = null) {
       var result = await GodotConnectionAsync.ConnectAsync(
           transport, host, port,
           logger: flow.Logger,
@@ -36,8 +33,7 @@ namespace xpTURN.Klotho.Godot
         INetworkTransport transport,
         string host, int port, int roomId,
         ISessionConfig sessionConfigSeed,
-        Action<KlothoConnection> onStarted = null)
-    {
+        Action<KlothoConnection> onStarted = null) {
       var result = await GodotConnectionAsync.ConnectAsync(
           transport, host, port,
           logger: flow.Logger,
@@ -55,8 +51,7 @@ namespace xpTURN.Klotho.Godot
         INetworkTransport transport,
         PersistedReconnectCredentials creds,
         ISessionConfig sessionConfigSeed,
-        Action<KlothoConnection> onStarted = null)
-    {
+        Action<KlothoConnection> onStarted = null) {
       var result = await GodotConnectionAsync.ReconnectAsync(
           transport, creds,
           logger: flow.Logger,

@@ -2,11 +2,9 @@ using xpTURN.Klotho.Core;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Serialization;
 
-namespace Meesles.Avalon
-{
+namespace Meesles.Avalon {
   [KlothoSerializable(101)]
-  public partial class GameOverEvent : SimulationEvent, IMatchEndEvent
-  {
+  public partial class GameOverEvent : SimulationEvent, IMatchEndEvent {
     public override EventMode Mode => EventMode.Synced;
 
     [KlothoOrder(0)] public int WinnerPlayerId;

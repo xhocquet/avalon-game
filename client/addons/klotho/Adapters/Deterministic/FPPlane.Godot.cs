@@ -9,10 +9,8 @@
 // the sign would be wrong and all distance/side queries would return inverted results.
 using xpTURN.Klotho.Deterministic.Math;
 
-namespace xpTURN.Klotho.Deterministic.Geometry
-{
-  public static class FPPlaneExtensions
-  {
+namespace xpTURN.Klotho.Deterministic.Geometry {
+  public static class FPPlaneExtensions {
     public static global::Godot.Plane ToPlane(this FPPlane @this)
         => new global::Godot.Plane(@this.normal.ToVector3(), -@this.distance.ToFloat());
 

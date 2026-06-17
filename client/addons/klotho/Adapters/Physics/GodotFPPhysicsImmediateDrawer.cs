@@ -10,20 +10,16 @@ using xpTURN.Klotho.Deterministic.Math;       // FPVector3.ToVector3(), FPQuater
 using xpTURN.Klotho.Deterministic.Geometry;
 using xpTURN.Klotho.Deterministic.Physics;
 
-namespace xpTURN.Klotho.Godot
-{
-  internal sealed class GodotFPPhysicsImmediateDrawer
-  {
+namespace xpTURN.Klotho.Godot {
+  internal sealed class GodotFPPhysicsImmediateDrawer {
     readonly ImmediateMesh _mesh;
     readonly StandardMaterial3D _mat;
     Surf _surf;
     Color _curColor = Colors.White;
 
-    public GodotFPPhysicsImmediateDrawer(ImmediateMesh mesh)
-    {
+    public GodotFPPhysicsImmediateDrawer(ImmediateMesh mesh) {
       _mesh = mesh;
-      _mat = new StandardMaterial3D
-      {
+      _mat = new StandardMaterial3D {
         ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
         Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
         CullMode = BaseMaterial3D.CullModeEnum.Disabled,
@@ -33,8 +29,7 @@ namespace xpTURN.Klotho.Godot
 
     // ---- Pass control ----
 
-    public void Begin(bool alwaysOnTop)
-    {
+    public void Begin(bool alwaysOnTop) {
       _mesh.ClearSurfaces();
       _mat.SetFlag(BaseMaterial3D.Flags.DisableDepthTest, alwaysOnTop);
       _surf = new Surf(_mesh, Mesh.PrimitiveType.Lines, _mat);
@@ -49,11 +44,9 @@ namespace xpTURN.Klotho.Godot
 
     // ---- Shape dispatchers ----
 
-    public void DrawStaticColliderShape(ref FPStaticCollider sc, Color color)
-    {
+    public void DrawStaticColliderShape(ref FPStaticCollider sc, Color color) {
       _curColor = color;
-      switch (sc.collider.type)
-      {
+      switch (sc.collider.type) {
         case ShapeType.Sphere:
           DrawSphereWire(sc.collider.sphere.position.ToVector3(),
                          sc.collider.sphere.radius.ToFloat());
@@ -77,11 +70,9 @@ namespace xpTURN.Klotho.Godot
       }
     }
 
-    public void DrawBodyShape(ref FPPhysicsBody body, Color color)
-    {
+    public void DrawBodyShape(ref FPPhysicsBody body, Color color) {
       _curColor = color;
-      switch (body.collider.type)
-      {
+      switch (body.collider.type) {
         case ShapeType.Sphere:
           DrawSphereWire(body.collider.sphere.position.ToVector3(),
                          body.collider.sphere.radius.ToFloat());
@@ -105,26 +96,22 @@ namespace xpTURN.Klotho.Godot
       }
     }
 
-    public void DrawAABB(FPBounds3 bounds, Color color)
-    {
+    public void DrawAABB(FPBounds3 bounds, Color color) {
       _curColor = color;
       DrawBoxWire(bounds.center.ToVector3(), Quaternion.Identity, bounds.extents.ToVector3());
     }
 
     // ---- Primitive wire drawers (verbatim geometry from FPPhysicsGLDrawer) ----
 
-    void DrawSphereWire(Vector3 center, float radius)
-    {
+    void DrawSphereWire(Vector3 center, float radius) {
       DrawCircle(center, Vector3.Right, Vector3.Forward, radius); // XZ plane
       DrawCircle(center, Vector3.Right, Vector3.Up, radius);      // XY plane
       DrawCircle(center, Vector3.Up, Vector3.Forward, radius);    // YZ plane
     }
 
-    void DrawCircle(Vector3 center, Vector3 tangent, Vector3 bitangent, float radius, int segments = 16)
-    {
+    void DrawCircle(Vector3 center, Vector3 tangent, Vector3 bitangent, float radius, int segments = 16) {
       Vector3 prev = center + tangent * radius;
-      for (int i = 1; i <= segments; i++)
-      {
+      for (int i = 1; i <= segments; i++) {
         float angle = i * 2f * Mathf.Pi / segments;
         Vector3 curr = center + (Mathf.Cos(angle) * tangent + Mathf.Sin(angle) * bitangent) * radius;
         Line(prev, curr);
@@ -132,8 +119,7 @@ namespace xpTURN.Klotho.Godot
       }
     }
 
-    void DrawBoxWire(Vector3 position, Quaternion rotation, Vector3 halfExtents)
-    {
+    void DrawBoxWire(Vector3 position, Quaternion rotation, Vector3 halfExtents) {
       float hx = halfExtents.X, hy = halfExtents.Y, hz = halfExtents.Z;
 
       var c = new Vector3[8];
@@ -158,8 +144,7 @@ namespace xpTURN.Klotho.Godot
       Line(c[0], c[4]); Line(c[1], c[5]); Line(c[2], c[6]); Line(c[3], c[7]);
     }
 
-    void DrawCapsuleWire(Vector3 position, Quaternion rotation, float radius, float halfHeight)
-    {
+    void DrawCapsuleWire(Vector3 position, Quaternion rotation, float radius, float halfHeight) {
       Vector3 axis = rotation * Vector3.Up;
       Vector3 top = position + axis * halfHeight;
       Vector3 bottom = position - axis * halfHeight;
@@ -182,11 +167,9 @@ namespace xpTURN.Klotho.Godot
       DrawHemiArc(bottom, -axis, perp2, radius);
     }
 
-    void DrawHemiArc(Vector3 center, Vector3 poleDir, Vector3 tangent, float radius, int segments = 8)
-    {
+    void DrawHemiArc(Vector3 center, Vector3 poleDir, Vector3 tangent, float radius, int segments = 8) {
       Vector3 prev = center + tangent * radius;
-      for (int i = 1; i <= segments; i++)
-      {
+      for (int i = 1; i <= segments; i++) {
         float angle = i * Mathf.Pi / segments;
         Vector3 curr = center + (Mathf.Cos(angle) * tangent + Mathf.Sin(angle) * poleDir) * radius;
         Line(prev, curr);
@@ -194,14 +177,12 @@ namespace xpTURN.Klotho.Godot
       }
     }
 
-    void DrawMeshWire(Vector3 position, Quaternion rotation, FPMeshData data)
-    {
+    void DrawMeshWire(Vector3 position, Quaternion rotation, FPMeshData data) {
       if (data == null) return;
       var trs = new Transform3D(new Basis(rotation), position);
       var verts = data.vertices;
       var idx = data.indices;
-      for (int i = 0; i < idx.Length; i += 3)
-      {
+      for (int i = 0; i < idx.Length; i += 3) {
         Vector3 v0 = trs * verts[idx[i]].ToVector3();
         Vector3 v1 = trs * verts[idx[i + 1]].ToVector3();
         Vector3 v2 = trs * verts[idx[i + 2]].ToVector3();
@@ -213,8 +194,7 @@ namespace xpTURN.Klotho.Godot
 
     // ---- Arrow ----
 
-    public void DrawArrowFromVelocity(Vector3 origin, Vector3 dir, float scale, Color color)
-    {
+    public void DrawArrowFromVelocity(Vector3 origin, Vector3 dir, float scale, Color color) {
       if (dir.LengthSquared() < 0.0001f) return;
       _curColor = color;
       Vector3 dn = dir.Normalized();
@@ -223,16 +203,14 @@ namespace xpTURN.Klotho.Godot
       DrawArrowHead(origin, end, dn, headLen);
     }
 
-    public void DrawArrowFromNormal(Vector3 origin, Vector3 dir, float length, Color color)
-    {
+    public void DrawArrowFromNormal(Vector3 origin, Vector3 dir, float length, Color color) {
       _curColor = color;
       Vector3 end = origin + dir * length;
       float headLen = length * 0.2f;
       DrawArrowHead(origin, end, dir, headLen);
     }
 
-    void DrawArrowHead(Vector3 origin, Vector3 end, Vector3 dn, float headLen)
-    {
+    void DrawArrowHead(Vector3 origin, Vector3 end, Vector3 dn, float headLen) {
       Vector3 right = dn.Cross(Vector3.Up).Normalized();
       if (right.LengthSquared() < 0.001f) right = Vector3.Right;
 
@@ -244,8 +222,7 @@ namespace xpTURN.Klotho.Godot
     // ---- Contact ----
 
     public void DrawContact(ref FPContact c, Color pointColor, Color normalColor,
-                            float normalScale, float pointRadius, bool drawNormal)
-    {
+                            float normalScale, float pointRadius, bool drawNormal) {
       Vector3 pt = c.point.ToVector3();
       Vector3 n = c.normal.ToVector3();
       float d = Mathf.Abs(c.depth.ToFloat());
@@ -257,8 +234,7 @@ namespace xpTURN.Klotho.Godot
       Line(pt + Vector3.Up * r, pt - Vector3.Up * r);
       Line(pt + Vector3.Forward * r, pt - Vector3.Forward * r);
 
-      if (drawNormal && n.LengthSquared() > 0.001f)
-      {
+      if (drawNormal && n.LengthSquared() > 0.001f) {
         Color nc = isCCD ? normalColor.Lerp(Colors.Cyan, 0.5f) : normalColor;
         float len = Mathf.Max(d * normalScale, 0.1f);
         DrawArrowFromNormal(pt, n, len, nc);
@@ -268,24 +244,20 @@ namespace xpTURN.Klotho.Godot
     // ---- Surface helper (ported from GodotFPNavMeshOverlay.Surf): lazy SurfaceBegin so an
     // empty surface (zero vertices) is never opened -> avoids "Surface must have at least one vertex". ----
 
-    sealed class Surf
-    {
+    sealed class Surf {
       readonly ImmediateMesh _m;
       readonly Mesh.PrimitiveType _prim;
       readonly Material _mat;
       bool _open;
 
-      public Surf(ImmediateMesh m, Mesh.PrimitiveType prim, Material mat)
-      {
+      public Surf(ImmediateMesh m, Mesh.PrimitiveType prim, Material mat) {
         _m = m;
         _prim = prim;
         _mat = mat;
       }
 
-      public void Vert(Color c, Vector3 v)
-      {
-        if (!_open)
-        {
+      public void Vert(Color c, Vector3 v) {
+        if (!_open) {
           _m.SurfaceBegin(_prim, _mat);
           _open = true;
         }
@@ -293,10 +265,8 @@ namespace xpTURN.Klotho.Godot
         _m.SurfaceAddVertex(v);
       }
 
-      public void End()
-      {
-        if (_open)
-        {
+      public void End() {
+        if (_open) {
           _m.SurfaceEnd();
           _open = false;
         }

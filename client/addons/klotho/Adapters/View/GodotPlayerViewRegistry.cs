@@ -8,10 +8,8 @@ using System;
 using System.Collections.Generic;
 using xpTURN.Klotho.Core;
 
-namespace xpTURN.Klotho.Godot
-{
-  public sealed class GodotPlayerViewRegistry<TView> where TView : EntityViewNode
-  {
+namespace xpTURN.Klotho.Godot {
+  public sealed class GodotPlayerViewRegistry<TView> where TView : EntityViewNode {
     private readonly Dictionary<int, TView> _views;
     private readonly IKlothoEngine _engine;
 
@@ -20,8 +18,7 @@ namespace xpTURN.Klotho.Godot
     public event Action<TView> OnLocalViewRegistered;
     public event Action<TView> OnLocalViewUnregistered;
 
-    public GodotPlayerViewRegistry(IKlothoEngine engine, int capacity)
-    {
+    public GodotPlayerViewRegistry(IKlothoEngine engine, int capacity) {
       _engine = engine;
       _views = new Dictionary<int, TView>(capacity);
     }
@@ -35,8 +32,7 @@ namespace xpTURN.Klotho.Godot
     private bool IsActuallyLocal(int playerId)
         => !_engine.IsSpectatorMode && playerId == _engine.LocalPlayerId;
 
-    internal void Register(int playerId, TView view)
-    {
+    internal void Register(int playerId, TView view) {
       if (view == null) return;
       if (_views.TryGetValue(playerId, out var existing) && existing == view) return; // same instance — skip
 
@@ -45,8 +41,7 @@ namespace xpTURN.Klotho.Godot
       if (IsActuallyLocal(playerId)) OnLocalViewRegistered?.Invoke(view);
     }
 
-    internal void Unregister(int playerId, TView view)
-    {
+    internal void Unregister(int playerId, TView view) {
       // Only the currently-mapped view may unregister itself (a rebind may have replaced it).
       if (_views.TryGetValue(playerId, out var current) && current != view) return;
       if (!_views.Remove(playerId)) return;

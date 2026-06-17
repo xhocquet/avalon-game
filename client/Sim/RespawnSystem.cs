@@ -1,16 +1,12 @@
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
-namespace Meesles.Avalon
-{
-  public class RespawnSystem : ISystem
-  {
-    public void Update(ref Frame frame)
-    {
+namespace Meesles.Avalon {
+  public class RespawnSystem : ISystem {
+    public void Update(ref Frame frame) {
       var stats = frame.AssetRegistry.Get<PlayerStatsAsset>();
       var filter = frame.Filter<PlayerComponent, TransformComponent, PhysicsBodyComponent>();
-      while (filter.Next(out var entity))
-      {
+      while (filter.Next(out var entity)) {
         ref var t = ref frame.Get<TransformComponent>(entity);
         if (t.Position.y >= stats.FallThresholdY) continue;
 

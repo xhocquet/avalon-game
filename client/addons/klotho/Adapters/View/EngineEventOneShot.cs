@@ -2,8 +2,7 @@
 using System;
 using xpTURN.Klotho.Core;
 
-namespace xpTURN.Klotho.Godot
-{
+namespace xpTURN.Klotho.Godot {
   /// <summary>
   /// Helper that bundles the three-way event subscription pattern (Predicted + Confirmed → onPlay,
   /// Canceled → onCancel) with optional actor filter and late-dispatch guard.
@@ -14,16 +13,14 @@ namespace xpTURN.Klotho.Godot
   ///   - lateGuard (optional) returns false to skip stale onPlay — typically checks ActionLockTicks > 0
   ///     to avoid late-rollback (rollback delay > action duration) firing onPlay after action's natural end.
   /// </summary>
-  public static class EngineEventOneShot
-  {
+  public static class EngineEventOneShot {
     public static EngineEventSubscription Subscribe<TEvent>(
         IKlothoEngine engine,
         Predicate<TEvent> filter,
         Action<TEvent> onPlay,
         Action<TEvent> onCancel = null,
         Func<bool> lateGuard = null)
-        where TEvent : SimulationEvent
-    {
+        where TEvent : SimulationEvent {
       var sub = new EngineEventSubscription();
       sub.Bind(engine, filter, onPlay, onCancel, lateGuard);
       return sub;
@@ -35,8 +32,7 @@ namespace xpTURN.Klotho.Godot
   /// Dispose unsubscribes all event channels and releases captured lambdas — required at OnDeactivate
   /// to avoid keeping the view alive via engine event delegate references.
   /// </summary>
-  public sealed class EngineEventSubscription : IDisposable
-  {
+  public sealed class EngineEventSubscription : IDisposable {
     private IKlothoEngine _engine;
     private Action<int, SimulationEvent> _predictedHandler;
     private Action<int, SimulationEvent> _confirmedHandler;
@@ -52,30 +48,25 @@ namespace xpTURN.Klotho.Godot
         Action<TEvent> onPlay,
         Action<TEvent> onCancel,
         Func<bool> lateGuard)
-        where TEvent : SimulationEvent
-    {
+        where TEvent : SimulationEvent {
       _engine = engine;
 
-      _predictedHandler = (tick, e) =>
-      {
+      _predictedHandler = (tick, e) => {
         if (e is TEvent te && (filter == null || filter(te))
-                  && (lateGuard == null || lateGuard()))
+            && (lateGuard == null || lateGuard()))
           onPlay(te);
       };
-      _confirmedHandler = (tick, e) =>
-      {
+      _confirmedHandler = (tick, e) => {
         if (e is TEvent te && (filter == null || filter(te))
-                  && (lateGuard == null || lateGuard()))
+            && (lateGuard == null || lateGuard()))
           onPlay(te);
       };
 
       engine.OnEventPredicted += _predictedHandler;
       engine.OnEventConfirmed += _confirmedHandler;
 
-      if (onCancel != null)
-      {
-        _canceledHandler = (tick, e) =>
-        {
+      if (onCancel != null) {
+        _canceledHandler = (tick, e) => {
           if (e is TEvent te && (filter == null || filter(te)))
             onCancel(te);
         };
@@ -83,8 +74,7 @@ namespace xpTURN.Klotho.Godot
       }
     }
 
-    public void Dispose()
-    {
+    public void Dispose() {
       if (_engine == null) return;
       if (_predictedHandler != null) _engine.OnEventPredicted -= _predictedHandler;
       if (_confirmedHandler != null) _engine.OnEventConfirmed -= _confirmedHandler;

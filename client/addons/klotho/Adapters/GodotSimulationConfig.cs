@@ -6,11 +6,9 @@ using global::Godot;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Network;
 
-namespace xpTURN.Klotho.Godot
-{
+namespace xpTURN.Klotho.Godot {
   [GlobalClass]
-  public partial class GodotSimulationConfig : Resource, ISimulationConfig
-  {
+  public partial class GodotSimulationConfig : Resource, ISimulationConfig {
     [Export] public int TickIntervalMs { get; set; } = 25;
     [Export] public int MaxEntities { get; set; } = 256;
     [Export] public int CatchupMaxTicksPerFrame { get; set; } = 200;

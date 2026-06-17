@@ -6,10 +6,8 @@
 // Return detaches the node from its parent and parks it (it stops _Process while out of the tree).
 using global::Godot;
 
-namespace xpTURN.Klotho.Godot
-{
-  public interface IGodotEntityViewPool
-  {
+namespace xpTURN.Klotho.Godot {
+  public interface IGodotEntityViewPool {
     // Reuse an idle instance of the scene if one exists, otherwise instantiate. The returned node
     // is detached (no parent) and ready for the caller to add to the scene tree.
     EntityViewNode Rent(PackedScene scene);
