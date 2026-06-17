@@ -1,0 +1,7 @@
+[gd_scene format=3]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ground"]
+size = Vector2(10, 10)
+
+[node name="Ground" type="MeshInstance3D"]
+mesh = SubResource("PlaneMesh_ground")

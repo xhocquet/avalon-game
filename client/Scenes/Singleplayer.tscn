@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://dugvx87stopsf"]
+
+[ext_resource type="Script" uid="uid://d1gyr3ev6vvbg" path="res://Scripts/GameNode.cs" id="1_game"]
+[ext_resource type="PackedScene" path="res://Shared/Menu.tscn" id="2_menu"]
+[ext_resource type="PackedScene" path="res://Shared/Hud.tscn" id="3_hud"]
+[ext_resource type="PackedScene" path="res://Shared/Camera3D.tscn" id="4_camera"]
+[ext_resource type="PackedScene" path="res://Shared/Ground.tscn" id="5_ground"]
+
+[node name="Singleplayer" type="Node" unique_id=1024759278]
+script = ExtResource("1_game")
+
+[node name="Camera3D" parent="." instance=ExtResource("4_camera")]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=202422723]
+transform = Transform3D(1, 0, 0, 0, 0.707, -0.707, 0, 0.707, 0.707, 0, 6, 0)
+shadow_enabled = true
+
+[node name="Ground" parent="." instance=ExtResource("5_ground")]
+
+[node name="UILayer" type="CanvasLayer" parent="." unique_id=2041974958]
+
+[node name="Menu" parent="UILayer" instance=ExtResource("2_menu")]
+
+[node name="Hud" parent="UILayer" instance=ExtResource("3_hud")]

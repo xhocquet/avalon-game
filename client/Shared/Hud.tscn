@@ -1,0 +1,55 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://dmre4bujrf1ng" path="res://Shared/Hud.cs" id="1_hud"]
+
+[node name="Hud" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_hud")
+
+[node name="StateLabel" type="Label" parent="." unique_id=983614347]
+layout_mode = 0
+offset_left = 300.0
+offset_top = 16.0
+offset_right = 600.0
+offset_bottom = 40.0
+text = "None"
+
+[node name="Score0Label" type="Label" parent="." unique_id=1043673252]
+layout_mode = 0
+offset_left = 300.0
+offset_top = 44.0
+offset_right = 600.0
+offset_bottom = 68.0
+text = "P1: 0"
+
+[node name="Score1Label" type="Label" parent="." unique_id=132960654]
+layout_mode = 0
+offset_left = 300.0
+offset_top = 72.0
+offset_right = 600.0
+offset_bottom = 96.0
+text = "P2: 0"
+
+[node name="TimerLabel" type="Label" parent="." unique_id=2079269166]
+layout_mode = 0
+offset_left = 300.0
+offset_top = 100.0
+offset_right = 600.0
+offset_bottom = 124.0
+text = "0s"
+
+[node name="ResultPanel" type="Panel" parent="." unique_id=416147441]
+layout_mode = 0
+offset_left = 300.0
+offset_top = 140.0
+offset_right = 460.0
+offset_bottom = 200.0
+
+[node name="ResultLabel" type="Label" parent="ResultPanel" unique_id=680849989]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 152.0
+offset_bottom = 52.0
+text = "RESULT"
