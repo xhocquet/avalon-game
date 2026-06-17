@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3]
 
-[ext_resource type="Script" path="res://PlayerView.cs" id="1_pv"]
+[ext_resource type="Script" uid="uid://bww68re5skcjc" path="res://Shared/PlayerView.cs" id="1_pv"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_1"]
 

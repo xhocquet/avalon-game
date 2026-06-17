@@ -1,4 +1,3 @@
-// Godot input capture for Avalon: WASD and arrow keys -> FP64 H/V in [-1,1].
 using System;
 using global::Godot;
 using xpTURN.Klotho.Deterministic.Math;

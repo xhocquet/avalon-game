@@ -1,4 +1,3 @@
-// Session-control menu: Join/Ready/Stop buttons + IP/Port.
 using System;
 using global::Godot;
 
@@ -12,6 +11,7 @@ namespace Meesles.Avalon
     private LineEdit _ipField;
     private LineEdit _portField;
 
+    public event Action OnResetClicked;
     public event Action OnJoinClicked;
     public event Action OnReadyClicked;
     public event Action OnStopClicked;
@@ -32,6 +32,28 @@ namespace Meesles.Avalon
       _stopButton.Pressed += () => OnStopClicked?.Invoke();
     }
 
+    public void SetSingleplayerMode()
+    {
+      _joinButton.Text = "Reset Sandbox";
+      _readyButton.Visible = false;
+      _stopButton.Visible = false;
+      _ipField.Visible = false;
+      _portField.Visible = false;
+      OnJoinClicked = null;
+      _joinButton.Pressed -= EmitSingleplayerReset;
+      _joinButton.Pressed += EmitSingleplayerReset;
+    }
+
+    public void SetMultiplayerMode()
+    {
+      _joinButton.Text = "Join";
+      _readyButton.Visible = true;
+      _stopButton.Visible = true;
+      _ipField.Visible = true;
+      _portField.Visible = true;
+      _joinButton.Pressed -= EmitSingleplayerReset;
+    }
+
     public void SetInitialHost(string host, int port)
     {
       if (_ipField != null) _ipField.Text = host;
@@ -46,6 +68,11 @@ namespace Meesles.Avalon
     public void SetStopEnabled(bool enabled)
     {
       if (_stopButton != null) _stopButton.Disabled = !enabled;
+    }
+
+    private void EmitSingleplayerReset()
+    {
+      OnResetClicked?.Invoke();
     }
   }
 }

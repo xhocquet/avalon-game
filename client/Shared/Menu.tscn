@@ -1,0 +1,37 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://fhlblu66sbp3" path="res://Scripts/Menu.cs" id="1_menu"]
+
+[node name="Menu" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_menu")
+
+[node name="VBox" type="VBoxContainer" parent="." unique_id=572994814]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 216.0
+offset_bottom = 200.0
+
+[node name="JoinButton" type="Button" parent="VBox" unique_id=1054354483]
+layout_mode = 2
+text = "Join"
+
+[node name="ReadyButton" type="Button" parent="VBox" unique_id=1718296729]
+layout_mode = 2
+text = "Ready"
+
+[node name="StopButton" type="Button" parent="VBox" unique_id=153279542]
+layout_mode = 2
+text = "Stop"
+
+[node name="IpField" type="LineEdit" parent="VBox" unique_id=1160764696]
+layout_mode = 2
+text = "127.0.0.1"
+placeholder_text = "IP"
+
+[node name="PortField" type="LineEdit" parent="VBox" unique_id=1380196736]
+layout_mode = 2
+text = "7777"
+placeholder_text = "Port"

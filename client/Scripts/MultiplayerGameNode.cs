@@ -11,7 +11,7 @@ using xpTURN.Klotho.Network;
 
 namespace Meesles.Avalon
 {
-  public partial class GameNode : Node
+  public partial class MultiplayerGameNode : Node
   {
     private const string ConnectionKey = "Meesles.Avalon";
     private const int RoomId = 0;
@@ -52,7 +52,9 @@ namespace Meesles.Avalon
       _transport = new LiteNetLibTransport(_logger, connectionKey: ConnectionKey);
 
       _menu = GetNode<Menu>("UILayer/Menu");
+      _menu.SetMultiplayerMode();
       _hud = GetNode<Hud>("UILayer/Hud");
+      _hud.SetMultiplayerMode();
       _viewCallbacks = new ViewCallbacks(_hud);
 
       _flow = new KlothoSessionFlow(
@@ -65,7 +67,7 @@ namespace Meesles.Avalon
               .Build()
       );
 
-      var playerScene = GD.Load<PackedScene>("res://player.tscn");
+      var playerScene = GD.Load<PackedScene>("res://Shared/Player.tscn");
       _factory = new PlayerViewFactory(playerScene);
       _pool = new DefaultGodotEntityViewPool();
       _pool.Prewarm(playerScene, _sesCfg.MaxPlayers);
@@ -136,13 +138,15 @@ namespace Meesles.Avalon
         if (_joinTask.IsFaulted)
         {
           _logger.KError($"[Client] join failed (server running?): {_joinTask.Exception?.GetBaseException().Message}");
-          _joining = false; _joinTask = null;
+          _joining = false;
+          _joinTask = null;
           if (_autoJoin && DisplayServer.GetName() == "headless") GetTree().Quit(1);
         }
         else if (_joinTask.IsCompleted)
         {
           _session = _joinTask.Result;
-          _joining = false; _joinTask = null;
+          _joining = false;
+          _joinTask = null;
           OnSessionReady();
         }
       }
