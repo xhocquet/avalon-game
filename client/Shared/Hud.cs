@@ -8,6 +8,7 @@ namespace Meesles.Avalon
   {
     private bool _sandboxMode = true;
     private Label _state;
+    private Label _playerId;
     private Label _score0;
     private Label _score1;
     private Label _timer;
@@ -17,6 +18,7 @@ namespace Meesles.Avalon
     public override void _Ready()
     {
       _state = GetNode<Label>("StateLabel");
+      _playerId = GetNode<Label>("PlayerIdLabel");
       _score0 = GetNode<Label>("Score0Label");
       _score1 = GetNode<Label>("Score1Label");
       _timer = GetNode<Label>("TimerLabel");
@@ -30,6 +32,7 @@ namespace Meesles.Avalon
     {
       _sandboxMode = true;
       _state.Text = "Local Sandbox";
+      SetLocalPlayerId(null);
       _score0.Text = "Move: WASD or arrow keys";
       _score1.Text = "Reset: button on the left";
       _timer.Text = "Idle";
@@ -39,10 +42,25 @@ namespace Meesles.Avalon
     {
       _sandboxMode = false;
       _state.Text = "Disconnected";
+      SetLocalPlayerId(null);
       _score0.Text = "P1: 0";
       _score1.Text = "P2: 0";
       _timer.Text = "0s";
       HideStatus();
+    }
+
+    public void SetLocalPlayerId(int? playerId)
+    {
+      if (playerId.HasValue && playerId.Value > 0)
+      {
+        _playerId.Text = $"You: P{playerId.Value}";
+        _playerId.Visible = true;
+      }
+      else
+      {
+        _playerId.Text = "";
+        _playerId.Visible = false;
+      }
     }
 
     public void SyncSandbox(Vector3 position, Vector3 movement)

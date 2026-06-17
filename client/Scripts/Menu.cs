@@ -5,6 +5,7 @@ namespace Meesles.Avalon
 {
   public partial class Menu : Control
   {
+    private bool _singleplayerMode;
     private Button _joinButton;
     private Button _readyButton;
     private Button _stopButton;
@@ -27,31 +28,30 @@ namespace Meesles.Avalon
       _ipField = GetNode<LineEdit>("VBox/IpField");
       _portField = GetNode<LineEdit>("VBox/PortField");
 
-      _joinButton.Pressed += () => OnJoinClicked?.Invoke();
+      _joinButton.Pressed += HandleJoinPressed;
       _readyButton.Pressed += () => OnReadyClicked?.Invoke();
       _stopButton.Pressed += () => OnStopClicked?.Invoke();
     }
 
     public void SetSingleplayerMode()
     {
+      _singleplayerMode = true;
       _joinButton.Text = "Reset Sandbox";
       _readyButton.Visible = false;
       _stopButton.Visible = false;
       _ipField.Visible = false;
       _portField.Visible = false;
       OnJoinClicked = null;
-      _joinButton.Pressed -= EmitSingleplayerReset;
-      _joinButton.Pressed += EmitSingleplayerReset;
     }
 
     public void SetMultiplayerMode()
     {
+      _singleplayerMode = false;
       _joinButton.Text = "Join";
       _readyButton.Visible = true;
       _stopButton.Visible = true;
       _ipField.Visible = true;
       _portField.Visible = true;
-      _joinButton.Pressed -= EmitSingleplayerReset;
     }
 
     public void SetInitialHost(string host, int port)
@@ -70,9 +70,10 @@ namespace Meesles.Avalon
       if (_stopButton != null) _stopButton.Disabled = !enabled;
     }
 
-    private void EmitSingleplayerReset()
+    private void HandleJoinPressed()
     {
-      OnResetClicked?.Invoke();
+      if (_singleplayerMode) OnResetClicked?.Invoke();
+      else OnJoinClicked?.Invoke();
     }
   }
 }
