@@ -5,15 +5,14 @@
 [ext_resource type="PackedScene" path="res://Shared/Hud.tscn" id="3_hud"]
 [ext_resource type="PackedScene" path="res://Shared/Camera3D.tscn" id="4_camera"]
 [ext_resource type="PackedScene" path="res://Shared/Ground.tscn" id="5_ground"]
+[ext_resource type="PackedScene" path="res://Shared/DirectionalLight3D.tscn" id="6_light"]
 
 [node name="Multiplayer" type="Node" unique_id=1309111642]
 script = ExtResource("1_game")
 
 [node name="Camera3D" parent="." instance=ExtResource("4_camera")]
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1140287484]
-transform = Transform3D(1, 0, 0, 0, 0.707, -0.707, 0, 0.707, 0.707, 0, 6, 0)
-shadow_enabled = true
+[node name="DirectionalLight3D" parent="." instance=ExtResource("6_light")]
 
 [node name="Ground" parent="." instance=ExtResource("5_ground")]
 

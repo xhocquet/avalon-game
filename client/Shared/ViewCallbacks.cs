@@ -20,6 +20,7 @@ namespace Meesles.Avalon
     {
       _engine = session.Engine;
       _gameOverShown = false;
+      _hud.SetLocalPlayerId(_engine != null && _engine.LocalPlayerId > 0 ? _engine.LocalPlayerId : null);
       _hud.HideResult();
     }
 
@@ -44,6 +45,7 @@ namespace Meesles.Avalon
       DetachEngine();
       _engine = null;
       _gameOverShown = false;
+      _hud.SetLocalPlayerId(null);
       _hud.HideResult();
     }
 
@@ -52,6 +54,7 @@ namespace Meesles.Avalon
       DetachEngine();
       _engine = null;
       _gameOverShown = false;
+      _hud.SetLocalPlayerId(null);
       _hud.HideResult();
     }
 

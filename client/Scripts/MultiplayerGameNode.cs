@@ -11,7 +11,7 @@ using xpTURN.Klotho.Network;
 
 namespace Meesles.Avalon
 {
-  public partial class MultiplayerGameNode : Node
+  public partial class MultiplayerGameNode : GameNode
   {
     private const string ConnectionKey = "Meesles.Avalon";
     private const int RoomId = 0;
@@ -19,7 +19,6 @@ namespace Meesles.Avalon
     private IKLogger _logger;
     private IDataAssetRegistry _registry;
     private LiteNetLibTransport _transport;
-    private InputCapture _input;
     private KlothoSessionFlow _flow;
     private KlothoSession _session;
     private ViewCallbacks _viewCallbacks;
@@ -27,9 +26,6 @@ namespace Meesles.Avalon
     private PlayerViewFactory _factory;
     private DefaultGodotEntityViewPool _pool;
     private GodotSessionDriver _driver;
-    private Menu _menu;
-    private Hud _hud;
-
     private ISimulationConfig _simCfg;
     private ISessionConfig _sesCfg;
     private Task<KlothoSession> _joinTask;
@@ -48,18 +44,16 @@ namespace Meesles.Avalon
       _registry = LoadAssetRegistry();
       _simCfg = new SimulationConfig();
       _sesCfg = new SessionConfig { MaxPlayers = 2, MinPlayers = 2, CountdownDurationMs = 3000 };
-      _input = new InputCapture();
+      InitializeSharedNodes();
       _transport = new LiteNetLibTransport(_logger, connectionKey: ConnectionKey);
 
-      _menu = GetNode<Menu>("UILayer/Menu");
-      _menu.SetMultiplayerMode();
-      _hud = GetNode<Hud>("UILayer/Hud");
-      _hud.SetMultiplayerMode();
-      _viewCallbacks = new ViewCallbacks(_hud);
+      Menu.SetMultiplayerMode();
+      Hud.SetMultiplayerMode();
+      _viewCallbacks = new ViewCallbacks(Hud);
 
       _flow = new KlothoSessionFlow(
           new KlothoFlowSetupBuilder((s, ss) =>
-                  new SessionCallbacks(new SimulationCallbacks(_input), _viewCallbacks))
+                  new SessionCallbacks(new SimulationCallbacks(Input), _viewCallbacks))
               .WithLogger(_logger)
               .WithTransport(_transport)
               .WithAssetRegistry(_registry)
@@ -77,14 +71,14 @@ namespace Meesles.Avalon
       _driver = new GodotSessionDriver();
       AddChild(_driver);
       _driver.BindTransport(_transport);
-      _driver.PreSessionUpdate += (s, dt) => { if (s.State == KlothoState.Running) _input.CaptureInput(); };
+      _driver.PreSessionUpdate += (s, dt) => { if (s.State == KlothoState.Running) Input.CaptureInput(); };
 
-      _menu.OnJoinClicked += OnJoin;
-      _menu.OnReadyClicked += OnReady;
-      _menu.OnStopClicked += OnStop;
-      _menu.SetInitialHost("127.0.0.1", 7777);
-      _menu.SetReadyEnabled(false);
-      _menu.SetStopEnabled(false);
+      Menu.OnJoinClicked += OnJoin;
+      Menu.OnReadyClicked += OnReady;
+      Menu.OnStopClicked += OnStop;
+      Menu.SetInitialHost("127.0.0.1", 7777);
+      Menu.SetReadyEnabled(false);
+      Menu.SetStopEnabled(false);
 
       SetupView3D();
 
@@ -98,13 +92,13 @@ namespace Meesles.Avalon
     {
       if (_session != null || _joining) return;
       _joining = true;
-      _joinTask = _flow.JoinServerDrivenAsync(_transport, _menu.Host, _menu.Port, RoomId, _sesCfg);
+      _joinTask = _flow.JoinServerDrivenAsync(_transport, Menu.Host, Menu.Port, RoomId, _sesCfg);
     }
 
     private void OnReady()
     {
       if (_session == null) return;
-      _hud.SetLocalReady(true);
+      Hud.SetLocalReady(true);
       _session.SetReady(true);
     }
 
@@ -115,18 +109,18 @@ namespace Meesles.Avalon
       _view.Cleanup();
       _viewCallbacks.Cleanup();
       _session = null;
-      _menu.SetReadyEnabled(false);
-      _menu.SetStopEnabled(false);
-      _hud.SetLocalReady(false);
+      Menu.SetReadyEnabled(false);
+      Menu.SetStopEnabled(false);
+      Hud.SetLocalReady(false);
     }
 
     private void OnSessionReady()
     {
       _view.Initialize(_session.Engine, _factory, _pool);
       _driver.Attach(_session);
-      _hud.SetPhase(_session.Phase);
-      _menu.SetReadyEnabled(true);
-      _menu.SetStopEnabled(true);
+      Hud.SetPhase(_session.Phase);
+      Menu.SetReadyEnabled(true);
+      Menu.SetStopEnabled(true);
     }
 
     public override void _Process(double delta)
@@ -153,7 +147,7 @@ namespace Meesles.Avalon
 
       if (_session == null) return;
 
-      _hud.SetPhase(_session.Phase);
+      Hud.SetPhase(_session.Phase);
 
       if (_autoJoin) AutoTestStep();
     }
@@ -181,26 +175,6 @@ namespace Meesles.Avalon
     private static IKLogger CreateLogger()
         => GodotKlothoLogger.CreateDefault(filePrefix: "Client", categoryName: "Client");
 
-    private void SetupView3D()
-    {
-      var cam = GetNodeOrNull<Camera3D>("Camera3D");
-      if (cam != null)
-      {
-        cam.LookAtFromPosition(new Vector3(0, 7, 0), Vector3.Zero, new Vector3(0, 0, -1));
-        cam.Environment = new global::Godot.Environment
-        {
-          BackgroundMode = global::Godot.Environment.BGMode.Color,
-          BackgroundColor = new Color(0.12f, 0.13f, 0.18f),
-          AmbientLightSource = global::Godot.Environment.AmbientSource.Color,
-          AmbientLightColor = new Color(0.5f, 0.5f, 0.5f),
-          AmbientLightEnergy = 1.0f,
-        };
-      }
-
-      var light = GetNodeOrNull<DirectionalLight3D>("DirectionalLight3D");
-      light?.LookAtFromPosition(new Vector3(4, 10, 4), Vector3.Zero, Vector3.Up);
-    }
-
     private IDataAssetRegistry LoadAssetRegistry()
     {
       byte[] bytes = global::Godot.FileAccess.GetFileAsBytes("res://Data/Assets.bytes");
@@ -221,7 +195,7 @@ namespace Meesles.Avalon
       _view?.Cleanup();
       _viewCallbacks?.Cleanup();
       _pool?.Dispose();
-      _input?.Dispose();
+      base._ExitTree();
     }
   }
 }

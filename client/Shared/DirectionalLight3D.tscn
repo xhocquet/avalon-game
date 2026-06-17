@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://viinxjf0q77b"]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" unique_id=647415988]
+shadow_enabled = true
+directional_shadow_mode = 1
