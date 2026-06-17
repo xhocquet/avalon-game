@@ -5,10 +5,8 @@ using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
-namespace xpTURN.Klotho.Godot
-{
-  public partial class EntityViewNode : Node3D
-  {
+namespace xpTURN.Klotho.Godot {
+  public partial class EntityViewNode : Node3D {
     public EntityRef EntityRef { get; set; }
     public IKlothoEngine Engine { get; set; }
 
@@ -32,8 +30,7 @@ namespace xpTURN.Klotho.Godot
 
     private bool _hasInitialized;
 
-    internal void EnsureInitialized()
-    {
+    internal void EnsureInitialized() {
       if (_hasInitialized) return;
       _hasInitialized = true;
       OnInitialize();
@@ -42,8 +39,7 @@ namespace xpTURN.Klotho.Godot
     // Per-view desync error-blending state. Config is preserved across pool reuse; accumulation is reset on activate.
     private ErrorVisualState _errorVisual = ErrorVisualState.Default;
 
-    internal void InternalActivate(FrameRef frame)
-    {
+    internal void InternalActivate(FrameRef frame) {
       _errorVisual.Reset();
       OnActivate(frame);
     }
@@ -55,8 +51,7 @@ namespace xpTURN.Klotho.Godot
     public virtual void OnLateUpdateView() { }
     public virtual void OnDeactivate() { }
 
-    internal virtual void InternalUpdateView()
-    {
+    internal virtual void InternalUpdateView() {
       if ((ViewFlags & ViewFlags.DisableUpdate) != 0) return;
       if (Engine == null || !EntityRef.IsValid) return;
       OnUpdateView();
@@ -64,8 +59,7 @@ namespace xpTURN.Klotho.Godot
 
     // Per-frame interpolation + transform apply.
     // dt is the frame delta (seconds), forwarded from EntityViewUpdaterNode._Process for the error-visual decay.
-    internal virtual void InternalLateUpdateView(float dt = 0f)
-    {
+    internal virtual void InternalLateUpdateView(float dt = 0f) {
       if ((ViewFlags & ViewFlags.DisableUpdate) != 0) return;
       if (Engine == null || !EntityRef.IsValid) return;
 
@@ -81,18 +75,15 @@ namespace xpTURN.Klotho.Godot
       Quaternion newRot = currRot;
 
       bool snapshot = (ViewFlags & ViewFlags.EnableSnapshotInterpolation) != 0;
-      if (snapshot)
-      {
+      if (snapshot) {
         // Smooth between two adjacent Verified frames.
         newPos = VerifiedFrameInterpolator.InterpolatePosition(EntityRef, Engine, currPos);
         newRot = VerifiedFrameInterpolator.InterpolateRotation(EntityRef, Engine, currRot);
       }
-      else
-      {
+      else {
         // Lerp between PredictedPrevious and Predicted by the per-frame render alpha.
         var prev = Engine.PredictedPreviousFrame.Frame;
-        if (prev != null && prev.Has<TransformComponent>(EntityRef))
-        {
+        if (prev != null && prev.Has<TransformComponent>(EntityRef)) {
           ref readonly var prevT = ref prev.GetReadOnly<TransformComponent>(EntityRef);
           float alpha = Engine.RenderClock.PredictedAlpha;
           newPos = prevT.Position.ToVector3().Lerp(currPos, alpha);
@@ -117,8 +108,7 @@ namespace xpTURN.Klotho.Godot
     // accumulation with this frame's rollback delta. skipPosError follows DisablePositionUpdate|snapshot;
     // skipYawError follows snapshot only — rotation error still applies under DisablePositionUpdate.
     // The yaw error is radians, applied as a pre-multiplied quaternion (error * rotation).
-    private void ApplyErrorVisual(ref Vector3 newPos, ref Quaternion newRot, bool snapshot, float dt)
-    {
+    private void ApplyErrorVisual(ref Vector3 newPos, ref Quaternion newRot, bool snapshot, float dt) {
       bool skipPosError = snapshot || (ViewFlags & ViewFlags.DisablePositionUpdate) != 0;
 
       if (!skipPosError)

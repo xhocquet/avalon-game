@@ -8,12 +8,9 @@ using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
-namespace xpTURN.Klotho.Godot
-{
-  public static class VerifiedFrameInterpolator
-  {
-    public static Vector3 InterpolatePosition(EntityRef entity, IKlothoEngine engine, Vector3 fallbackPos)
-    {
+namespace xpTURN.Klotho.Godot {
+  public static class VerifiedFrameInterpolator {
+    public static Vector3 InterpolatePosition(EntityRef entity, IKlothoEngine engine, Vector3 fallbackPos) {
       int baseTick = engine.RenderClock.VerifiedBaseTick;
       bool hasA = engine.TryGetFrameAtTick(baseTick, out var a);
       bool hasB = engine.TryGetFrameAtTick(baseTick + 1, out var b);
@@ -30,8 +27,7 @@ namespace xpTURN.Klotho.Godot
       return ta.Position.ToVector3().Lerp(tb.Position.ToVector3(), engine.RenderClock.VerifiedAlpha); // (a)
     }
 
-    public static Quaternion InterpolateRotation(EntityRef entity, IKlothoEngine engine, Quaternion fallbackRot)
-    {
+    public static Quaternion InterpolateRotation(EntityRef entity, IKlothoEngine engine, Quaternion fallbackRot) {
       int baseTick = engine.RenderClock.VerifiedBaseTick;
       bool hasA = engine.TryGetFrameAtTick(baseTick, out var a);
       bool hasB = engine.TryGetFrameAtTick(baseTick + 1, out var b);

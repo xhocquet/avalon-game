@@ -4,16 +4,12 @@
 using Newtonsoft.Json;
 using xpTURN.Klotho.Network;
 
-namespace xpTURN.Klotho.Godot
-{
-  public class GodotReconnectCredentialsStore : IReconnectCredentialsStore
-  {
+namespace xpTURN.Klotho.Godot {
+  public class GodotReconnectCredentialsStore : IReconnectCredentialsStore {
     private const string Path = "user://klotho_reconnect.json";
 
-    public void Save(PersistedReconnectCredentials creds)
-    {
-      if (creds == null)
-      {
+    public void Save(PersistedReconnectCredentials creds) {
+      if (creds == null) {
         Clear();
         return;
       }
@@ -23,38 +19,32 @@ namespace xpTURN.Klotho.Godot
       f.StoreString(json);
     }
 
-    public PersistedReconnectCredentials Load()
-    {
+    public PersistedReconnectCredentials Load() {
       if (!global::Godot.FileAccess.FileExists(Path)) return null;
 
       string json;
-      using (var f = global::Godot.FileAccess.Open(Path, global::Godot.FileAccess.ModeFlags.Read))
-      {
+      using (var f = global::Godot.FileAccess.Open(Path, global::Godot.FileAccess.ModeFlags.Read)) {
         if (f == null) return null;
         json = f.GetAsText();
       }
       if (string.IsNullOrEmpty(json)) return null;
 
-      try
-      {
+      try {
         return JsonConvert.DeserializeObject<PersistedReconnectCredentials>(json);
       }
-      catch
-      {
+      catch {
         Clear();
         return null;
       }
     }
 
-    public void Clear()
-    {
+    public void Clear() {
       if (!global::Godot.FileAccess.FileExists(Path)) return;
       using var dir = global::Godot.DirAccess.Open("user://");
       dir?.Remove(Path);
     }
 
-    public bool IsValid(PersistedReconnectCredentials creds, long nowUnixMs, string currentAppVersion)
-    {
+    public bool IsValid(PersistedReconnectCredentials creds, long nowUnixMs, string currentAppVersion) {
       if (creds == null) return false;
       if (creds.AppVersion != currentAppVersion) return false;
       if (nowUnixMs - creds.SavedAtUnixMs > creds.ReconnectTimeoutMs) return false;

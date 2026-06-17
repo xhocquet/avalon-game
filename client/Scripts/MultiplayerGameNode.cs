@@ -177,11 +177,11 @@ namespace Meesles.Avalon
 
     private IDataAssetRegistry LoadAssetRegistry()
     {
-      byte[] bytes = global::Godot.FileAccess.GetFileAsBytes("res://Data/Assets.bytes");
+      byte[] bytes = global::Godot.FileAccess.GetFileAsBytes("res://Sim/Data/Assets.bytes");
       if (bytes == null || bytes.Length == 0)
       {
         var err = global::Godot.FileAccess.GetOpenError();
-        throw new System.IO.FileNotFoundException($"res://Data/Assets.bytes not found (err={err})");
+        throw new System.IO.FileNotFoundException($"res://Sim/Data/Assets.bytes not found (err={err})");
       }
       var assets = DataAssetReader.LoadMixedCollectionFromBytes(bytes);
       IDataAssetRegistryBuilder builder = new DataAssetRegistry();

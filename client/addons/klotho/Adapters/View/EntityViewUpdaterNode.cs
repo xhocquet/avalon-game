@@ -10,10 +10,8 @@ using global::Godot;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.ECS;
 
-namespace xpTURN.Klotho.Godot
-{
-  public partial class EntityViewUpdaterNode : Node
-  {
+namespace xpTURN.Klotho.Godot {
+  public partial class EntityViewUpdaterNode : Node {
     private EntityViewFactory _factory;
     private IKlothoEngine _engine;
 
@@ -28,8 +26,7 @@ namespace xpTURN.Klotho.Godot
     private GodotPlayerViewRegistry<EntityViewNode> _playerViews;
     public GodotPlayerViewRegistry<EntityViewNode> PlayerViews => _playerViews;
 
-    public void Initialize(IKlothoEngine engine, EntityViewFactory factory, IGodotEntityViewPool pool = null)
-    {
+    public void Initialize(IKlothoEngine engine, EntityViewFactory factory, IGodotEntityViewPool pool = null) {
       Cleanup();
       _engine = engine;
       _factory = factory;
@@ -44,11 +41,9 @@ namespace xpTURN.Klotho.Godot
     // Initialize populates views. Equivalent to the explicit ProcessViews() call kept below.
     public override void _Process(double delta) => ProcessViews(delta);
 
-    public void Cleanup()
-    {
+    public void Cleanup() {
       if (_engine != null) _engine.OnTickExecuted -= OnTickExecuted;
-      foreach (var view in _viewsByEntityIndex.Values)
-      {
+      foreach (var view in _viewsByEntityIndex.Values) {
         view.OnDeactivate();
         _factory?.Destroy(view);
       }
@@ -58,8 +53,7 @@ namespace xpTURN.Klotho.Godot
       _engine = null;
     }
 
-    private void OnTickExecuted(int tick)
-    {
+    private void OnTickExecuted(int tick) {
       Reconcile();
       foreach (var view in _viewsByEntityIndex.Values)
         view.InternalUpdateView();
@@ -67,14 +61,12 @@ namespace xpTURN.Klotho.Godot
 
     // Per-frame interpolation pass. Call once per frame after session.Update.
     // delta is the frame time (seconds), forwarded to each view for the error-visual decay.
-    public void ProcessViews(double delta = 0)
-    {
+    public void ProcessViews(double delta = 0) {
       foreach (var view in _viewsByEntityIndex.Values)
         view.InternalLateUpdateView((float)delta);
     }
 
-    private void Reconcile()
-    {
+    private void Reconcile() {
       if (_factory == null) return;
 
       _presentEntityVersions.Clear();
@@ -90,16 +82,14 @@ namespace xpTURN.Klotho.Godot
       DestroyStale();
     }
 
-    private void CollectPresent(FrameRef frameRef, BindBehaviour matchBehaviour)
-    {
+    private void CollectPresent(FrameRef frameRef, BindBehaviour matchBehaviour) {
       var frame = frameRef.Frame;
       int maxEntities = frame.MaxEntities;
       if (_entityScratch == null || _entityScratch.Length < maxEntities)
         _entityScratch = new EntityRef[maxEntities];
 
       int count = frame.GetAllLiveEntities(_entityScratch);
-      for (int i = 0; i < count; i++)
-      {
+      for (int i = 0; i < count; i++) {
         var entity = _entityScratch[i];
 
         if (!_factory.TryGetBindBehaviour(frame, entity, out var behaviour)) continue;
@@ -110,10 +100,8 @@ namespace xpTURN.Klotho.Godot
       }
     }
 
-    private void TrySpawn(EntityRef entity, FrameRef frame, BindBehaviour behaviour)
-    {
-      if (_viewsByEntityIndex.TryGetValue(entity.Index, out var existing))
-      {
+    private void TrySpawn(EntityRef entity, FrameRef frame, BindBehaviour behaviour) {
+      if (_viewsByEntityIndex.TryGetValue(entity.Index, out var existing)) {
         bool versionMatch = existing.EntityRef.Version == entity.Version;
         bool ownerMatch = OwnersMatch(existing, entity, frame.Frame);
         if (versionMatch && ownerMatch) return; // same entity — keep the view
@@ -143,8 +131,7 @@ namespace xpTURN.Klotho.Godot
 
     // Spawn-side: read OwnerComponent from the spawn-decision frame, cache it on the view (the stable
     // unregister key), and register. Owner-agnostic views (no OwnerComponent) are not registered.
-    private void TryRegisterPlayerView(EntityRef entity, EntityViewNode view, FrameRef frame)
-    {
+    private void TryRegisterPlayerView(EntityRef entity, EntityViewNode view, FrameRef frame) {
       if (_playerViews == null) return;
       var f = frame.Frame;
       if (f == null || !f.Has<OwnerComponent>(entity)) return;
@@ -155,30 +142,26 @@ namespace xpTURN.Klotho.Godot
 
     // Unbind-side: OwnerComponent may already be absent on the live frame at despawn, so the cached
     // owner is the unregister key. Called from rebind and DestroyStale.
-    private void TryUnregisterPlayerView(EntityViewNode view)
-    {
+    private void TryUnregisterPlayerView(EntityViewNode view) {
       if (_playerViews == null) return;
       if (!view.TryGetCachedOwner(out int ownerId)) return;
       _playerViews.Unregister(ownerId, view);
       view.ClearCachedOwner();
     }
 
-    private static bool OwnersMatch(EntityViewNode view, EntityRef entity, Frame frame)
-    {
+    private static bool OwnersMatch(EntityViewNode view, EntityRef entity, Frame frame) {
       if (!frame.Has<OwnerComponent>(entity)) return true;
       int currentOwner = frame.GetReadOnly<OwnerComponent>(entity).OwnerId;
       return view.OwnerMatches(currentOwner);
     }
 
-    private void DestroyStale()
-    {
+    private void DestroyStale() {
       _staleIndices.Clear();
       foreach (var kvp in _viewsByEntityIndex)
         if (!_presentEntityVersions.ContainsKey(kvp.Key))
           _staleIndices.Add(kvp.Key);
 
-      foreach (var key in _staleIndices)
-      {
+      foreach (var key in _staleIndices) {
         var view = _viewsByEntityIndex[key];
         view.OnDeactivate();
         TryUnregisterPlayerView(view);   // unbind site 2: stale despawn

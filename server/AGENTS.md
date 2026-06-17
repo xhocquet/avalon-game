@@ -3,7 +3,7 @@
 - This directory is the backend server executable. Default to a backend/networking/runtime mindset, not a Godot editor mindset.
 - Primary entrypoints: `Program.cs`, `AvalonServerCallbacks.cs`, `Server.csproj`, `simulationconfig.json`, `sessionconfig.json`.
 - The server compiles shared deterministic gameplay from `../client/Sim/`. Treat that folder as shared code and keep client/server behavior aligned when editing it.
-- The server also copies `.bytes` data assets from `../client/Data/` at build/runtime. Be aware of that dependency when changing data loading.
+- The server also copies `.bytes` data assets from `../client/Sim/Data/` at build/runtime. Be aware of that dependency when changing data loading.
 
 # Working Rules
 

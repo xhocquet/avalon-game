@@ -3,8 +3,7 @@
 // smooths the result for the view to consume.
 using global::Godot;
 
-namespace xpTURN.Klotho.Godot
-{
+namespace xpTURN.Klotho.Godot {
   /// <summary>
   /// Struct that bundles the state and tuning parameters of the per-view error visual pipeline.
   /// Operates independently from the engine-side delta filters (ErrorCorrectionSettings.PosMinCorrection, RotMinCorrectionDeg).
@@ -16,8 +15,7 @@ namespace xpTURN.Klotho.Godot
   ///   4. Apply variable decay rate proportional to accumulated magnitude (pos/rot independent)
   ///   5. Exp-blend smoothing based on SmoothingRate
   /// </summary>
-  public struct ErrorVisualState
-  {
+  public struct ErrorVisualState {
     // ── Decay rate (1, 4) ──
 
     /// <summary>Decay rate lower bound. Applied when the error is at or below PosBlendStart (RotBlendStartDeg for Rot).</summary>
@@ -70,8 +68,7 @@ namespace xpTURN.Klotho.Godot
     private float _smoothedYawError;
 
     /// <summary>Default values. Uses the same initial thresholds as the engine filter.</summary>
-    public static ErrorVisualState Default => new()
-    {
+    public static ErrorVisualState Default => new() {
       MinRate = 3f,
       MaxRate = 10f,
       PosBlendStart = 0.01f,
@@ -98,11 +95,9 @@ namespace xpTURN.Klotho.Godot
     /// <param name="rollbackYawDelta">Same as above, Y-axis radians.</param>
     /// <param name="deltaTime">Per-frame delta time (seconds).</param>
     /// <param name="teleported">Engine-confirmed teleport. Resets immediately when true.</param>
-    public void Tick(Vector3 rollbackDelta, float rollbackYawDelta, float deltaTime, bool teleported)
-    {
+    public void Tick(Vector3 rollbackDelta, float rollbackYawDelta, float deltaTime, bool teleported) {
       // Engine-confirmed teleport — highest priority
-      if (teleported)
-      {
+      if (teleported) {
         Reset();
         return;
       }
@@ -113,14 +108,12 @@ namespace xpTURN.Klotho.Godot
 
       // Threshold A. Teleport-snap upper bound — excessive accumulation → reset immediately
       float posMag = _accumulatedPosError.Length();
-      if (posMag >= PosTeleportDistance)
-      {
+      if (posMag >= PosTeleportDistance) {
         Reset();
         return;
       }
       float yawAbs = Mathf.Abs(_accumulatedYawError);
-      if (yawAbs >= Mathf.DegToRad(RotTeleportDeg))
-      {
+      if (yawAbs >= Mathf.DegToRad(RotTeleportDeg)) {
         Reset();
         return;
       }
@@ -136,15 +129,13 @@ namespace xpTURN.Klotho.Godot
       // Variable-rate decay. pos/rot are handled independently.
       // A linear approximation like (1 - rate*dt) can flip sign and oscillate when rate*dt > 1, so exp is used.
       float posMagAfter = _accumulatedPosError.Length();
-      if (posMagAfter > 0f)
-      {
+      if (posMagAfter > 0f) {
         float rate = ComputeDecayRatePos(posMagAfter);
         _accumulatedPosError *= Mathf.Exp(-rate * deltaTime);
       }
 
       float yawAbsAfter = Mathf.Abs(_accumulatedYawError);
-      if (yawAbsAfter > 0f)
-      {
+      if (yawAbsAfter > 0f) {
         float rate = ComputeDecayRateRot(yawAbsAfter);
         _accumulatedYawError *= Mathf.Exp(-rate * deltaTime);
       }
@@ -156,8 +147,7 @@ namespace xpTURN.Klotho.Godot
     }
 
     /// <summary>Immediately initializes accumulation/interpolation state. Configuration fields are preserved.</summary>
-    public void Reset()
-    {
+    public void Reset() {
       _accumulatedPosError = Vector3.Zero;
       _accumulatedYawError = 0f;
       _smoothedPosError = Vector3.Zero;
@@ -166,16 +156,14 @@ namespace xpTURN.Klotho.Godot
 
     // ── Independent position/rotation decay rate calculation ──
 
-    private readonly float ComputeDecayRatePos(float errorMag_m)
-    {
+    private readonly float ComputeDecayRatePos(float errorMag_m) {
       if (errorMag_m <= PosBlendStart) return MinRate;
       if (errorMag_m >= PosBlendEnd) return MaxRate;
       float t = (errorMag_m - PosBlendStart) / (PosBlendEnd - PosBlendStart);
       return MinRate + t * (MaxRate - MinRate);
     }
 
-    private readonly float ComputeDecayRateRot(float errorMag_rad)
-    {
+    private readonly float ComputeDecayRateRot(float errorMag_rad) {
       float startRad = Mathf.DegToRad(RotBlendStartDeg);
       float endRad = Mathf.DegToRad(RotBlendEndDeg);
       if (errorMag_rad <= startRad) return MinRate;

@@ -10,10 +10,8 @@ using xpTURN.Klotho.Deterministic.Math;        // FP64.ToFloat()
 using xpTURN.Klotho.Deterministic.Geometry;    // FPContact, FPBounds3
 using xpTURN.Klotho.Deterministic.Physics;     // FPPhysicsBody, FPStaticCollider
 
-namespace xpTURN.Klotho.Godot
-{
-  public partial class GodotFPPhysicsDebugPanel : CanvasLayer
-  {
+namespace xpTURN.Klotho.Godot {
+  public partial class GodotFPPhysicsDebugPanel : CanvasLayer {
     public enum PanelCorner { TopLeft, TopRight, BottomLeft, BottomRight }
 
     [Export] public bool Enabled = false;
@@ -21,8 +19,7 @@ namespace xpTURN.Klotho.Godot
 
     // Which screen corner the HUD docks to (game UI usually occupies the top-left).
     [Export]
-    public PanelCorner Corner
-    {
+    public PanelCorner Corner {
       get => _corner;
       set { _corner = value; if (_root != null) ApplyCorner(); }
     }
@@ -37,13 +34,11 @@ namespace xpTURN.Klotho.Godot
     Label _detail;
     Control _root;
 
-    public override void _Ready()
-    {
+    public override void _Ready() {
       BuildUi();
     }
 
-    void BuildUi()
-    {
+    void BuildUi() {
       if (_root != null) return;
 
       var panel = new PanelContainer { Name = "FPPhysicsDebugPanel" };
@@ -90,8 +85,7 @@ namespace xpTURN.Klotho.Godot
 
     // Dock the panel to the chosen corner: collapse all anchors to that corner point, then grow
     // inward (away from the edges) with content. Robust for every corner (no negative-size cases).
-    void ApplyCorner()
-    {
+    void ApplyCorner() {
       if (_root == null) return;
       const float m = 10f;
       bool right = _corner == PanelCorner.TopRight || _corner == PanelCorner.BottomRight;
@@ -111,8 +105,7 @@ namespace xpTURN.Klotho.Godot
       _root.GrowVertical = bottom ? Control.GrowDirection.Begin : Control.GrowDirection.End;
     }
 
-    void SetViewing(bool bodies)
-    {
+    void SetViewing(bool bodies) {
       if (Visualizer == null) return;
       Visualizer.viewingBodies = bodies;
       Visualizer.selectedIndex = 0;
@@ -120,14 +113,12 @@ namespace xpTURN.Klotho.Godot
       _staticTab.ButtonPressed = !bodies;
     }
 
-    void Step(int delta)
-    {
+    void Step(int delta) {
       if (Visualizer == null) return;
       Visualizer.selectedIndex += delta;
     }
 
-    public override void _Process(double delta)
-    {
+    public override void _Process(double delta) {
       bool show = Enabled && Visualizer != null;
       if (_root != null) _root.Visible = show;
       if (!show) return;
@@ -150,10 +141,8 @@ namespace xpTURN.Klotho.Godot
 
     // ---- Detail text (used for both the panel label and clipboard) ----
 
-    static string BuildDetailText(GodotFPPhysicsWorldVisualizer vis)
-    {
-      if (vis.viewingBodies)
-      {
+    static string BuildDetailText(GodotFPPhysicsWorldVisualizer vis) {
+      if (vis.viewingBodies) {
         if (vis.currentBodies == null || vis.selectedIndex >= vis.bodyCount) return string.Empty;
         return BuildBodyText(vis);
       }
@@ -161,8 +150,7 @@ namespace xpTURN.Klotho.Godot
       return BuildStaticText(vis);
     }
 
-    static string BuildBodyText(GodotFPPhysicsWorldVisualizer vis)
-    {
+    static string BuildBodyText(GodotFPPhysicsWorldVisualizer vis) {
       FPPhysicsBody b = vis.currentBodies[vis.selectedIndex];
       var rb = b.rigidBody;
       var sb = new StringBuilder();
@@ -181,8 +169,7 @@ namespace xpTURN.Klotho.Godot
       return sb.ToString();
     }
 
-    static string BuildStaticText(GodotFPPhysicsWorldVisualizer vis)
-    {
+    static string BuildStaticText(GodotFPPhysicsWorldVisualizer vis) {
       FPStaticCollider sc = vis.currentStatics[vis.selectedIndex];
       var bounds = sc.collider.GetWorldBounds(sc.meshData);
       var sb = new StringBuilder();
@@ -194,8 +181,7 @@ namespace xpTURN.Klotho.Godot
       return sb.ToString();
     }
 
-    static void AppendContactList(StringBuilder sb, GodotFPPhysicsWorldVisualizer vis)
-    {
+    static void AppendContactList(StringBuilder sb, GodotFPPhysicsWorldVisualizer vis) {
       int bodyIdx = vis.selectedIndex;
       int dynCount = 0, staCount = 0;
 
@@ -213,10 +199,8 @@ namespace xpTURN.Klotho.Godot
       sb.AppendLine();
       sb.AppendLine($"Contacts  Dyn:{dynCount}  Static:{staCount}");
 
-      if (vis.currentContacts != null)
-      {
-        for (int i = 0; i < vis.currentContactCount; i++)
-        {
+      if (vis.currentContacts != null) {
+        for (int i = 0; i < vis.currentContactCount; i++) {
           FPContact c = vis.currentContacts[i];
           if (c.entityA != bodyIdx && c.entityB != bodyIdx) continue;
           int other = c.entityA == bodyIdx ? c.entityB : c.entityA;
@@ -226,10 +210,8 @@ namespace xpTURN.Klotho.Godot
         }
       }
 
-      if (vis.currentSContacts != null)
-      {
-        for (int i = 0; i < vis.currentSContactCount; i++)
-        {
+      if (vis.currentSContacts != null) {
+        for (int i = 0; i < vis.currentSContactCount; i++) {
           FPContact c = vis.currentSContacts[i];
           if (c.entityA != bodyIdx && c.entityB != bodyIdx) continue;
           string tag = c.isSpeculative ? " [CCD]" : "";
@@ -246,14 +228,12 @@ namespace xpTURN.Klotho.Godot
     static string FmtV3(FPVector3 v)
         => $"({v.x.ToFloat():F2}, {v.y.ToFloat():F2}, {v.z.ToFloat():F2})";
 
-    static string FmtEuler(FPQuaternion q)
-    {
+    static string FmtEuler(FPQuaternion q) {
       var e = new Quaternion(q.x.ToFloat(), q.y.ToFloat(), q.z.ToFloat(), q.w.ToFloat()).GetEuler();
       return $"({Mathf.RadToDeg(e.X):F0}°, {Mathf.RadToDeg(e.Y):F0}°, {Mathf.RadToDeg(e.Z):F0}°)";
     }
 
-    static string BodyTypeStr(FPPhysicsBody b)
-    {
+    static string BodyTypeStr(FPPhysicsBody b) {
       if (b.rigidBody.isStatic) return "Static";
       if (b.rigidBody.isKinematic) return "Kinematic";
       return "Dynamic";

@@ -5,11 +5,9 @@
 using global::Godot;
 using xpTURN.Klotho.Core;
 
-namespace xpTURN.Klotho.Godot
-{
+namespace xpTURN.Klotho.Godot {
   [GlobalClass]
-  public partial class GodotSessionConfig : Resource, ISessionConfig
-  {
+  public partial class GodotSessionConfig : Resource, ISessionConfig {
     // Determinism
     [Export] public int RandomSeed { get; set; } = 0;
 

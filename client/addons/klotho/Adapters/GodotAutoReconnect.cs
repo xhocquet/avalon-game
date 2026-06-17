@@ -3,10 +3,8 @@ using System;
 using System.Threading;
 using xpTURN.Klotho.Network;
 
-namespace xpTURN.Klotho.Godot
-{
-  public static class GodotAutoReconnect
-  {
+namespace xpTURN.Klotho.Godot {
+  public static class GodotAutoReconnect {
     // Cold-start reconnect from persisted credentials.
     // Returns true when reconnectFn was invoked (credentials valid).
     // Returns false when there were no credentials, or they failed validity / version check.
@@ -16,12 +14,10 @@ namespace xpTURN.Klotho.Godot
         long nowUnixMs,
         string currentAppVersion,
         Action<CancellationToken> reconnectFn,
-        CancellationToken ct)
-    {
+        CancellationToken ct) {
       var creds = store.Load();
       if (creds == null) return false;
-      if (!store.IsValid(creds, nowUnixMs, currentAppVersion))
-      {
+      if (!store.IsValid(creds, nowUnixMs, currentAppVersion)) {
         store.Clear();
         return false;
       }

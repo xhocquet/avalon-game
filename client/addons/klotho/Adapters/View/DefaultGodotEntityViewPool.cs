@@ -5,15 +5,12 @@
 using System.Collections.Generic;
 using global::Godot;
 
-namespace xpTURN.Klotho.Godot
-{
-  public sealed class DefaultGodotEntityViewPool : IGodotEntityViewPool
-  {
+namespace xpTURN.Klotho.Godot {
+  public sealed class DefaultGodotEntityViewPool : IGodotEntityViewPool {
     private readonly Dictionary<PackedScene, Queue<EntityViewNode>> _idle = new();
     private readonly Dictionary<EntityViewNode, PackedScene> _source = new();
 
-    public EntityViewNode Rent(PackedScene scene)
-    {
+    public EntityViewNode Rent(PackedScene scene) {
       if (scene == null) return null;
 
       if (_idle.TryGetValue(scene, out var queue) && queue.Count > 0)
@@ -25,38 +22,32 @@ namespace xpTURN.Klotho.Godot
       return view;
     }
 
-    public void Return(EntityViewNode view)
-    {
+    public void Return(EntityViewNode view) {
       if (view == null) return;
 
       view.GetParent()?.RemoveChild(view);   // leave the active tree → stops _Process
 
-      if (!_source.TryGetValue(view, out var scene))
-      {
+      if (!_source.TryGetValue(view, out var scene)) {
         view.QueueFree();   // foreign view (created outside the pool)
         return;
       }
 
-      if (!_idle.TryGetValue(scene, out var queue))
-      {
+      if (!_idle.TryGetValue(scene, out var queue)) {
         queue = new Queue<EntityViewNode>();
         _idle[scene] = queue;
       }
       queue.Enqueue(view);
     }
 
-    public void Prewarm(PackedScene scene, int count)
-    {
+    public void Prewarm(PackedScene scene, int count) {
       if (scene == null || count <= 0) return;
 
-      if (!_idle.TryGetValue(scene, out var queue))
-      {
+      if (!_idle.TryGetValue(scene, out var queue)) {
         queue = new Queue<EntityViewNode>();
         _idle[scene] = queue;
       }
 
-      for (int i = 0; i < count; i++)
-      {
+      for (int i = 0; i < count; i++) {
         var view = scene.Instantiate<EntityViewNode>();
         if (view == null) continue;
         _source[view] = scene;
@@ -64,8 +55,7 @@ namespace xpTURN.Klotho.Godot
       }
     }
 
-    public void Dispose()
-    {
+    public void Dispose() {
       foreach (var queue in _idle.Values)
         while (queue.Count > 0)
           queue.Dequeue().QueueFree();

@@ -1,29 +1,23 @@
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.ECS;
 
-namespace Meesles.Avalon
-{
-  public class SimulationCallbacks : ISimulationCallbacks
-  {
+namespace Meesles.Avalon {
+  public class SimulationCallbacks : ISimulationCallbacks {
     private readonly InputCapture _input;
 
-    public SimulationCallbacks(InputCapture input)
-    {
+    public SimulationCallbacks(InputCapture input) {
       _input = input;
     }
 
-    public void RegisterSystems(EcsSimulation simulation)
-    {
+    public void RegisterSystems(EcsSimulation simulation) {
       SimulationSetup.RegisterSystems(simulation);
     }
 
-    public void OnInitializeWorld(IKlothoEngine engine)
-    {
+    public void OnInitializeWorld(IKlothoEngine engine) {
       SimulationSetup.InitializeWorld(engine, engine.SessionConfig.MaxPlayers);
     }
 
-    public void OnPollInput(int playerId, int tick, ICommandSender sender)
-    {
+    public void OnPollInput(int playerId, int tick, ICommandSender sender) {
       sender.Send(new MoveCommand { H = _input.Horizontal, V = _input.Vertical });
     }
   }

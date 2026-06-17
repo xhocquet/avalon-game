@@ -5,18 +5,15 @@ using global::Godot;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.ECS;
 
-namespace xpTURN.Klotho.Godot
-{
-  public abstract class EntityViewFactory
-  {
+namespace xpTURN.Klotho.Godot {
+  public abstract class EntityViewFactory {
     // Injected by the EntityViewUpdaterNode at Initialize time.
     public IKlothoEngine Engine { get; private set; }
 
     // Optional view pool. When null, Create/Destroy instantiate/free directly (default).
     public IGodotEntityViewPool Pool { get; private set; }
 
-    internal void Attach(IKlothoEngine engine, IGodotEntityViewPool pool = null)
-    {
+    internal void Attach(IKlothoEngine engine, IGodotEntityViewPool pool = null) {
       Engine = engine;
       Pool = pool;
     }
@@ -26,16 +23,13 @@ namespace xpTURN.Klotho.Godot
     protected abstract bool ShouldRender(Frame frame, EntityRef entity);
 
     // ── Framework default decisions ──
-    public virtual bool TryGetBindBehaviour(Frame frame, EntityRef entity, out BindBehaviour behaviour)
-    {
-      if (!ShouldRender(frame, entity))
-      {
+    public virtual bool TryGetBindBehaviour(Frame frame, EntityRef entity, out BindBehaviour behaviour) {
+      if (!ShouldRender(frame, entity)) {
         behaviour = BindBehaviour.Verified;
         return false;
       }
 
-      if (frame.Has<OwnerComponent>(entity))
-      {
+      if (frame.Has<OwnerComponent>(entity)) {
         ref readonly var owner = ref frame.GetReadOnly<OwnerComponent>(entity);
         behaviour = IsPredictedRender(owner.OwnerId)
             ? BindBehaviour.NonVerified
@@ -48,8 +42,7 @@ namespace xpTURN.Klotho.Godot
       return true;
     }
 
-    public virtual ViewFlags GetViewFlags(Frame frame, EntityRef entity)
-    {
+    public virtual ViewFlags GetViewFlags(Frame frame, EntityRef entity) {
       bool hasOwner = frame.Has<OwnerComponent>(entity);
       int ownerId = hasOwner ? frame.GetReadOnly<OwnerComponent>(entity).OwnerId : -1;
 
@@ -64,8 +57,7 @@ namespace xpTURN.Klotho.Godot
     protected bool IsPredictedRender(int ownerId)
         => !UseVerifiedPath() || Engine.IsReplayMode || (ownerId == Engine.LocalPlayerId);
 
-    protected bool UseVerifiedPath()
-    {
+    protected bool UseVerifiedPath() {
       bool isSDClient = (Engine.SimulationConfig.Mode == NetworkMode.ServerDriven) && !Engine.IsServer;
       return isSDClient || Engine.IsSpectatorMode;
     }
@@ -73,15 +65,13 @@ namespace xpTURN.Klotho.Godot
     // ── Instantiate / Destroy default ──
     // Instantiates the resolved PackedScene (root must be an EntityViewNode). Returns null to skip.
     // The caller (EntityViewUpdaterNode) attaches the node to the scene tree.
-    public virtual EntityViewNode Create(Frame frame, EntityRef entity, BindBehaviour behaviour, ViewFlags flags)
-    {
+    public virtual EntityViewNode Create(Frame frame, EntityRef entity, BindBehaviour behaviour, ViewFlags flags) {
       var prefab = ResolvePrefab(frame, entity);
       if (prefab == null) return null;
       return Pool != null ? Pool.Rent(prefab) : prefab.Instantiate<EntityViewNode>();
     }
 
-    public virtual void Destroy(EntityViewNode view)
-    {
+    public virtual void Destroy(EntityViewNode view) {
       if (view == null) return;
       if (Pool != null) Pool.Return(view);
       else view.QueueFree();

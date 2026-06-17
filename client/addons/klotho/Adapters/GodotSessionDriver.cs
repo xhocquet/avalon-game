@@ -15,10 +15,8 @@ using global::Godot;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Network;
 
-namespace xpTURN.Klotho.Godot
-{
-  public partial class GodotSessionDriver : Node
-  {
+namespace xpTURN.Klotho.Godot {
+  public partial class GodotSessionDriver : Node {
     public KlothoSession Session { get; private set; }
 
     // Steady-state hooks (fired with the same dt that drives the session). PreSessionUpdate is the
@@ -37,8 +35,7 @@ namespace xpTURN.Klotho.Godot
 
     // Bind the main transport once (in _Ready) so it is pumped while idle — the connect handshake
     // completes via PollEvents before any session exists. Also routes transport disconnects.
-    public void BindTransport(INetworkTransport transport)
-    {
+    public void BindTransport(INetworkTransport transport) {
       if (_transport != null) _transport.OnDisconnected -= OnTransportDisconnected;
       _transport = transport;
       if (_transport != null) _transport.OnDisconnected += OnTransportDisconnected;
@@ -49,16 +46,14 @@ namespace xpTURN.Klotho.Godot
     public void TrackConnection(KlothoConnection connection) => _inflight = connection;
 
     // Attach a session created by an entry method (StartHostAndListen / CreateForConnection).
-    public void Attach(KlothoSession session)
-    {
+    public void Attach(KlothoSession session) {
       Session = session;
       _lastMs = 0;
     }
 
     // Stop intent: fire Stopping, then Stop the session. try/finally guarantees the session stops and
     // is detached even if a Stopping subscriber throws.
-    public void DetachAndStop(bool keepReconnectCredentials = false, bool saveReplay = true)
-    {
+    public void DetachAndStop(bool keepReconnectCredentials = false, bool saveReplay = true) {
       if (_stopping) return;
       var s = Session;
       if (s == null) return;
@@ -71,8 +66,7 @@ namespace xpTURN.Klotho.Godot
     public override void _Process(double delta) => Tick(StepDt());
 
     // Drive one step. Public so headless/deterministic loops can pump with an explicit dt.
-    public void Tick(float dt)
-    {
+    public void Tick(float dt) {
       _transport?.PollEvents();   // idle pump — lets the connect/reconnect handshake complete
       PumpInflight();             // timeout watchdog for an in-flight connect/reconnect
 
@@ -88,8 +82,7 @@ namespace xpTURN.Klotho.Godot
       PostSessionUpdate?.Invoke(s, dt);
     }
 
-    private void PumpInflight()
-    {
+    private void PumpInflight() {
       if (_inflight == null) return;
       if (_inflight.IsCompleted) { _inflight = null; return; }
       _inflight.Update();
@@ -97,8 +90,7 @@ namespace xpTURN.Klotho.Godot
 
     // Transport disconnect routing. The in-flight gate
     // replaces the flow.IsConnecting check.
-    private void OnTransportDisconnected(DisconnectReason reason)
-    {
+    private void OnTransportDisconnected(DisconnectReason reason) {
       if (_inflight != null && !_inflight.IsCompleted) return;   // handshake — connect Task owns it
       if (Session == null) { OnIdleDisconnected?.Invoke(reason); return; }
 
@@ -111,22 +103,19 @@ namespace xpTURN.Klotho.Godot
 
     // The session stopped without DetachAndStop (framework-internal stop). Fire Stopping once and
     // detach so this does not re-fire every frame.
-    private void SelfDetach(KlothoSession s)
-    {
+    private void SelfDetach(KlothoSession s) {
       try { Stopping?.Invoke(s); }
       finally { Session = null; }
     }
 
-    public override void _ExitTree()
-    {
+    public override void _ExitTree() {
       if (_transport != null) _transport.OnDisconnected -= OnTransportDisconnected;
       DetachAndStop(keepReconnectCredentials: true, saveReplay: false);
     }
 
     private static long NowMs() => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
-    private float StepDt()
-    {
+    private float StepDt() {
       long now = NowMs();
       float dt = (_lastMs > 0) ? (now - _lastMs) * 0.001f : 0f;
       _lastMs = now;

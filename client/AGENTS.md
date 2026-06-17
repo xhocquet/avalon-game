@@ -6,7 +6,7 @@
 - Repeated scene nodes that are identical across modes should become `Shared/*.tscn` subscenes.
 - Shared deterministic gameplay code lives in `Sim/`. Changes there also affect the server build.
 - Godot/Klotho integration lives under `addons/klotho/`. Treat copied vendor/framework code there as integration context; avoid casual edits unless the task is specifically about that layer.
-- Client-owned assets/data live in `Data/`.
+- Shared deterministic sim data lives in `Sim/Data/`.
 
 # Working Rules
 

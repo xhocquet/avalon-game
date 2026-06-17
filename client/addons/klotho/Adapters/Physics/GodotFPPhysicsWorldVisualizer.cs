@@ -16,10 +16,8 @@ using xpTURN.Klotho.Deterministic.Math;        // FPVector3.ToVector3()
 using xpTURN.Klotho.Deterministic.Geometry;    // FPBounds3
 using xpTURN.Klotho.Deterministic.Physics;     // FPPhysicsBody, FPStaticCollider, FPContact, IFPPhysics*
 
-namespace xpTURN.Klotho.Godot
-{
-  public partial class GodotFPPhysicsWorldVisualizer : Node3D
-  {
+namespace xpTURN.Klotho.Godot {
+  public partial class GodotFPPhysicsWorldVisualizer : Node3D {
     // ---- Inspector ([Export] display toggles + colors) ----
 
     [ExportGroup("General")]
@@ -101,25 +99,21 @@ namespace xpTURN.Klotho.Godot
 
     // ---- Lifecycle ----
 
-    public override void _Ready()
-    {
+    public override void _Ready() {
       EnsureNodes();
     }
 
-    public override void _EnterTree()
-    {
+    public override void _EnterTree() {
       EnsureNodes();
       KlothoSession.OnSessionCreated += HandleSessionCreated;
     }
 
-    public override void _ExitTree()
-    {
+    public override void _ExitTree() {
       KlothoSession.OnSessionCreated -= HandleSessionCreated;
       DetachSession();
     }
 
-    void EnsureNodes()
-    {
+    void EnsureNodes() {
       if (_dynamicMI != null) return;
 
       var staticMesh = new ImmediateMesh();
@@ -136,8 +130,7 @@ namespace xpTURN.Klotho.Godot
     void HandleSessionCreated(KlothoSession session) => Bind(session);
 
     // Dynamic-spawn path: the game hands the session in explicitly (no current-session accessor exists).
-    public void Bind(KlothoSession session)
-    {
+    public void Bind(KlothoSession session) {
       if (session == null) return;
       DetachSession();
       _session = session;
@@ -145,16 +138,14 @@ namespace xpTURN.Klotho.Godot
         Provider = src.PhysicsProvider;
 
       var engine = session.Engine;
-      if (engine != null)
-      {
+      if (engine != null) {
         _onTick = _ => _dynamicDirty = true;
         engine.OnTickExecuted += _onTick;
         _dynamicDirty = true;   // first paint
       }
     }
 
-    void DetachSession()
-    {
+    void DetachSession() {
       if (_session?.Engine != null && _onTick != null)
         _session.Engine.OnTickExecuted -= _onTick;
       _onTick = null;
@@ -164,8 +155,7 @@ namespace xpTURN.Klotho.Godot
 
     // ---- Per-frame: rebuild at most once when a tick advanced ----
 
-    public override void _Process(double delta)
-    {
+    public override void _Process(double delta) {
       // Visibility follows Enabled every frame: the early-return below only stops *updating* the
       // ImmediateMesh; the baked geometry would otherwise keep rendering when disabled or after the
       // session ends. Hide the overlay nodes instead of relying on stale surfaces (mirrors P5 panel).
@@ -187,8 +177,7 @@ namespace xpTURN.Klotho.Godot
       currentContacts = contacts; currentContactCount = cc;
       currentSContacts = sContacts; currentSContactCount = scc;
 
-      if (ShowCollisionHighlight)
-      {
+      if (ShowCollisionHighlight) {
         RebuildIdMaps(bodies, bc, statics, sc);
         MarkCollidingBodies(bc, contacts, cc, sContacts, scc);
         MarkTriggerBodies(bc, sc, triggerPairs, tc);
@@ -202,13 +191,10 @@ namespace xpTURN.Klotho.Godot
       RebuildDynamic(bodies, bc, statics, sc, contacts, cc, sContacts, scc);
     }
 
-    void RebuildStatic(FPStaticCollider[] statics, int sc)
-    {
+    void RebuildStatic(FPStaticCollider[] statics, int sc) {
       _staticDrawer.Begin(AlwaysOnTop);
-      if (ShowStaticColliders)
-      {
-        for (int i = 0; i < sc; i++)
-        {
+      if (ShowStaticColliders) {
+        for (int i = 0; i < sc; i++) {
           if (ShowStaticShape)
             _staticDrawer.DrawStaticColliderShape(ref statics[i], SceneStaticColor);
           if (ShowStaticAABB)
@@ -221,8 +207,7 @@ namespace xpTURN.Klotho.Godot
     void RebuildDynamic(FPPhysicsBody[] bodies, int bc,
                         FPStaticCollider[] statics, int sc,
                         FPContact[] contacts, int cc,
-                        FPContact[] sContacts, int scc)
-    {
+                        FPContact[] sContacts, int scc) {
       _dynamicDrawer.Begin(AlwaysOnTop);
 
       if (ShowBodies)
@@ -232,10 +217,8 @@ namespace xpTURN.Klotho.Godot
       // Collision/trigger highlight overlay (re-draws marked shapes in highlight colors).
       if (ShowCollisionHighlight
           && _collidingMark != null && _collidingMark.Length >= bc
-          && _triggerMark != null && _triggerMark.Length >= bc)
-      {
-        for (int i = 0; i < bc; i++)
-        {
+          && _triggerMark != null && _triggerMark.Length >= bc) {
+        for (int i = 0; i < bc; i++) {
           if (_collidingMark[i])
             _dynamicDrawer.DrawBodyShape(ref bodies[i], CollisionHighlightColor);
           if (_triggerMark[i])
@@ -247,8 +230,7 @@ namespace xpTURN.Klotho.Godot
               _dynamicDrawer.DrawStaticColliderShape(ref statics[i], TriggerHighlightColor);
       }
 
-      if (ShowContacts)
-      {
+      if (ShowContacts) {
         for (int i = 0; i < cc; i++)
           _dynamicDrawer.DrawContact(ref contacts[i], ContactPointColor, ContactNormalColor,
               ContactNormalScale, ContactPointRadius, ShowContactNormals);
@@ -263,17 +245,14 @@ namespace xpTURN.Klotho.Godot
       _dynamicDrawer.End();
     }
 
-    void DrawSelectedHighlight(FPPhysicsBody[] bodies, int bc, FPStaticCollider[] statics, int sc)
-    {
+    void DrawSelectedHighlight(FPPhysicsBody[] bodies, int bc, FPStaticCollider[] statics, int sc) {
       // ImmediateMesh lines have no width, so the bright SelectedShapeColor (not a thicker
       // outline) is what distinguishes the selected item.
-      if (viewingBodies && selectedIndex >= 0 && selectedIndex < bc)
-      {
+      if (viewingBodies && selectedIndex >= 0 && selectedIndex < bc) {
         _dynamicDrawer.DrawBodyShape(ref bodies[selectedIndex], SelectedShapeColor);
         _dynamicDrawer.DrawAABB(bodies[selectedIndex].collider.GetWorldBounds(bodies[selectedIndex].meshData), SelectedAABBColor);
       }
-      else if (!viewingBodies && selectedIndex >= 0 && selectedIndex < sc)
-      {
+      else if (!viewingBodies && selectedIndex >= 0 && selectedIndex < sc) {
         _dynamicDrawer.DrawStaticColliderShape(ref statics[selectedIndex], SelectedShapeColor);
         _dynamicDrawer.DrawAABB(statics[selectedIndex].collider.GetWorldBounds(statics[selectedIndex].meshData), SelectedAABBColor);
       }
@@ -282,14 +261,12 @@ namespace xpTURN.Klotho.Godot
     // ---- Collision / trigger marking (verbatim logic from FPPhysicsWorldVisualizer:265-328) ----
 
     void MarkCollidingBodies(int bodyCount, FPContact[] contacts, int cCount,
-                             FPContact[] sContacts, int scCount)
-    {
+                             FPContact[] sContacts, int scCount) {
       if (_collidingMark == null || _collidingMark.Length < bodyCount)
         _collidingMark = new bool[bodyCount];
       for (int i = 0; i < bodyCount; i++) _collidingMark[i] = false;
 
-      for (int i = 0; i < cCount; i++)
-      {
+      for (int i = 0; i < cCount; i++) {
         if (contacts[i].isSpeculative) continue;
         int a = contacts[i].entityA;
         int b = contacts[i].entityB;
@@ -297,8 +274,7 @@ namespace xpTURN.Klotho.Godot
         if (b >= 0 && b < bodyCount) _collidingMark[b] = true;
       }
 
-      for (int i = 0; i < scCount; i++)
-      {
+      for (int i = 0; i < scCount; i++) {
         if (sContacts[i].isSpeculative) continue;
         int a = sContacts[i].entityA;
         int b = sContacts[i].entityB;
@@ -307,8 +283,7 @@ namespace xpTURN.Klotho.Godot
       }
     }
 
-    void MarkTriggerBodies(int bodyCount, int staticCount, (int idA, int idB)[] pairs, int count)
-    {
+    void MarkTriggerBodies(int bodyCount, int staticCount, (int idA, int idB)[] pairs, int count) {
       if (_triggerMark == null || _triggerMark.Length < bodyCount)
         _triggerMark = new bool[bodyCount];
       for (int i = 0; i < bodyCount; i++) _triggerMark[i] = false;
@@ -317,23 +292,20 @@ namespace xpTURN.Klotho.Godot
         _triggerStaticMark = new bool[staticCount];
       for (int i = 0; i < staticCount; i++) _triggerStaticMark[i] = false;
 
-      for (int i = 0; i < count; i++)
-      {
+      for (int i = 0; i < count; i++) {
         TryMarkTriggerId(pairs[i].Item1, bodyCount, staticCount);
         TryMarkTriggerId(pairs[i].Item2, bodyCount, staticCount);
       }
     }
 
-    void TryMarkTriggerId(int id, int bodyCount, int staticCount)
-    {
+    void TryMarkTriggerId(int id, int bodyCount, int staticCount) {
       if (_idToIndex.TryGetValue(id, out int bi) && bi < bodyCount)
         _triggerMark[bi] = true;
       else if (_staticIdToIndex.TryGetValue(id, out int si) && si < staticCount)
         _triggerStaticMark[si] = true;
     }
 
-    void RebuildIdMaps(FPPhysicsBody[] bodies, int bodyCount, FPStaticCollider[] statics, int staticCount)
-    {
+    void RebuildIdMaps(FPPhysicsBody[] bodies, int bodyCount, FPStaticCollider[] statics, int staticCount) {
       _idToIndex.Clear();
       for (int i = 0; i < bodyCount; i++)
         _idToIndex[bodies[i].id] = i;
@@ -343,8 +315,7 @@ namespace xpTURN.Klotho.Godot
         _staticIdToIndex[statics[i].id] = i;
     }
 
-    void DrawBody(ref FPPhysicsBody body)
-    {
+    void DrawBody(ref FPPhysicsBody body) {
       Color color = BodyColor(ref body);
 
       if (ShowBodyShape)
@@ -356,10 +327,8 @@ namespace xpTURN.Klotho.Godot
             body.rigidBody.velocity.ToVector3(), VelocityArrowScale, VelocityColor);
     }
 
-    Color BodyColor(ref FPPhysicsBody body)
-    {
-      if (body.isTrigger)
-      {
+    Color BodyColor(ref FPPhysicsBody body) {
+      if (body.isTrigger) {
         Color b = body.rigidBody.isStatic ? StaticBodyShapeColor
                 : body.rigidBody.isKinematic ? KinematicShapeColor
                                              : DynamicShapeColor;

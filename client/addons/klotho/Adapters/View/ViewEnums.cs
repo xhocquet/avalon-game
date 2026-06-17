@@ -1,18 +1,15 @@
 // BindBehaviour / ViewFlags for the Godot view layer.
 using System;
 
-namespace xpTURN.Klotho.Godot
-{
+namespace xpTURN.Klotho.Godot {
   // Whether a view tracks the Verified frame or the (predicted) NonVerified frame.
-  public enum BindBehaviour
-  {
+  public enum BindBehaviour {
     NonVerified,
     Verified,
   }
 
   [Flags]
-  public enum ViewFlags
-  {
+  public enum ViewFlags {
     None = 0,
     DisableUpdate = 1 << 0,
     DisablePositionUpdate = 1 << 1,

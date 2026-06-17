@@ -26,9 +26,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- DataAsset (.bytes) — the copy owned by client/Data, placed next to the executable
+    <!-- DataAsset (.bytes) — the copy owned by client/Sim/Data, placed next to the executable
          under Data/ so the server loads the same asset the client does. -->
-    <Content Include="..\client\Data\*.bytes">
+    <Content Include="..\client\Sim\Data\*.bytes">
       <Link>Data\%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
