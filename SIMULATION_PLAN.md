@@ -48,3 +48,8 @@ The server links `client/Sim/**/*.cs`, so anything here must be engine-agnostic 
 3. Update `SimulationSetup` to spawn two bases and one hero per player.
 4. Register early systems: unit spawn, combat, death, victory.
 5. Add targeted commands after identity is stable: attack, cast ability, maybe rally/move target.
+
+## Current Slice
+
+- `UnitIdState` stores the next deterministic unit id as singleton sim state.
+- `UnitIdGenerator` owns allocation policy and can be replaced without changing spawn call sites.

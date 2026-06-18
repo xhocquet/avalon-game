@@ -9,10 +9,8 @@ using xpTURN.Klotho.LiteNetLib;
 using xpTURN.Klotho.Logging;
 using xpTURN.Klotho.Network;
 
-namespace Meesles.Avalon
-{
-  public partial class MultiplayerGameNode : GameNode
-  {
+namespace Meesles.Avalon {
+  public partial class MultiplayerGameNode : GameNode {
     private const string ConnectionKey = "Meesles.Avalon";
     private const int RoomId = 0;
 
@@ -34,10 +32,11 @@ namespace Meesles.Avalon
     private bool _autoJoin;
     private bool _autoReadySent;
     private bool _verified;
+    private SessionPhase _lastPhase = SessionPhase.None;
+    private ulong _countdownStartedAtMs;
     private const int VerifyTick = 120;
 
-    public override void _Ready()
-    {
+    public override void _Ready() {
       WarmupRegistry.RunAll();
 
       _logger = CreateLogger();
@@ -82,28 +81,29 @@ namespace Meesles.Avalon
 
       SetupView3D();
 
-      foreach (var a in OS.GetCmdlineUserArgs())
-      {
-        if (a == "join") { _autoJoin = true; OnJoin(); }
+      foreach (var a in OS.GetCmdlineUserArgs()) {
+        if (a == "join") _autoJoin = true;
       }
+
+#if DEBUG
+      _autoJoin = true;
+#endif
+      if (_autoJoin) OnJoin();
     }
 
-    private void OnJoin()
-    {
+    private void OnJoin() {
       if (_session != null || _joining) return;
       _joining = true;
       _joinTask = _flow.JoinServerDrivenAsync(_transport, Menu.Host, Menu.Port, RoomId, _sesCfg);
     }
 
-    private void OnReady()
-    {
+    private void OnReady() {
       if (_session == null) return;
       Hud.SetLocalReady(true);
       _session.SetReady(true);
     }
 
-    private void OnStop()
-    {
+    private void OnStop() {
       if (_session == null) return;
       _driver.DetachAndStop();
       _view.Cleanup();
@@ -114,8 +114,7 @@ namespace Meesles.Avalon
       Hud.SetLocalReady(false);
     }
 
-    private void OnSessionReady()
-    {
+    private void OnSessionReady() {
       _view.Initialize(_session.Engine, _factory, _pool);
       _driver.Attach(_session);
       Hud.SetPhase(_session.Phase);
@@ -123,21 +122,17 @@ namespace Meesles.Avalon
       Menu.SetStopEnabled(true);
     }
 
-    public override void _Process(double delta)
-    {
+    public override void _Process(double delta) {
       if (_transport == null) return;
 
-      if (_joining && _joinTask != null)
-      {
-        if (_joinTask.IsFaulted)
-        {
+      if (_joining && _joinTask != null) {
+        if (_joinTask.IsFaulted) {
           _logger.KError($"[Client] join failed (server running?): {_joinTask.Exception?.GetBaseException().Message}");
           _joining = false;
           _joinTask = null;
           if (_autoJoin && DisplayServer.GetName() == "headless") GetTree().Quit(1);
         }
-        else if (_joinTask.IsCompleted)
-        {
+        else if (_joinTask.IsCompleted) {
           _session = _joinTask.Result;
           _joining = false;
           _joinTask = null;
@@ -148,21 +143,34 @@ namespace Meesles.Avalon
       if (_session == null) return;
 
       Hud.SetPhase(_session.Phase);
+      UpdateCountdownHud(_session.Phase);
 
       if (_autoJoin) AutoTestStep();
     }
 
-    private void AutoTestStep()
-    {
-      if (!_autoReadySent && _session.Phase == SessionPhase.Synchronized)
-      {
+    private void UpdateCountdownHud(SessionPhase phase) {
+      if (phase != _lastPhase) {
+        _lastPhase = phase;
+        if (phase == SessionPhase.Countdown) {
+          _countdownStartedAtMs = Time.GetTicksMsec();
+          Hud.SetCountdownRemaining(_sesCfg.CountdownDurationMs / 1000.0);
+        }
+      }
+
+      if (phase != SessionPhase.Countdown) return;
+
+      double elapsedSeconds = (Time.GetTicksMsec() - _countdownStartedAtMs) / 1000.0;
+      Hud.SetCountdownRemaining((_sesCfg.CountdownDurationMs / 1000.0) - elapsedSeconds);
+    }
+
+    private void AutoTestStep() {
+      if (!_autoReadySent && _session.Phase == SessionPhase.Synchronized) {
         OnReady();
         _autoReadySent = true;
         _logger.KInformation($"[Client] auto-join ready sent.");
       }
 
-      if (!_verified && _session.State == KlothoState.Running && _session.Engine.CurrentTick >= VerifyTick)
-      {
+      if (!_verified && _session.State == KlothoState.Running && _session.Engine.CurrentTick >= VerifyTick) {
         _verified = true;
         int n = _view.GetChildCount();
         _logger.KInformation($"[Client] auto-join tick={_session.Engine.CurrentTick} viewNodes={n}");
@@ -175,11 +183,9 @@ namespace Meesles.Avalon
     private static IKLogger CreateLogger()
         => GodotKlothoLogger.CreateDefault(filePrefix: "Client", categoryName: "Client");
 
-    private IDataAssetRegistry LoadAssetRegistry()
-    {
+    private IDataAssetRegistry LoadAssetRegistry() {
       byte[] bytes = global::Godot.FileAccess.GetFileAsBytes("res://Sim/Data/Assets.bytes");
-      if (bytes == null || bytes.Length == 0)
-      {
+      if (bytes == null || bytes.Length == 0) {
         var err = global::Godot.FileAccess.GetOpenError();
         throw new System.IO.FileNotFoundException($"res://Sim/Data/Assets.bytes not found (err={err})");
       }
@@ -189,8 +195,7 @@ namespace Meesles.Avalon
       return builder.Build();
     }
 
-    public override void _ExitTree()
-    {
+    public override void _ExitTree() {
       if (_session != null) { _driver?.DetachAndStop(); _session = null; }
       _view?.Cleanup();
       _viewCallbacks?.Cleanup();
