@@ -1,9 +1,12 @@
 using global::Godot;
 using xpTURN.Klotho.Core;
+using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Godot;
 
 namespace Meesles.Avalon {
-  public partial class BaseView : EntityViewNode {
+  // Milestone M2: renders a minion as a team-colored cube. View-only — the minion's
+  // existence, team, and (later) movement all live in the deterministic sim.
+  public partial class MinionView : EntityViewNode {
     public override void OnActivate(FrameRef frame) {
       base.OnActivate(frame);
 

@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" uid="uid://drxwt8mq0b2k8" path="res://Shared/MinionView.cs" id="1_mv"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_minion"]
+size = Vector3(0.8, 0.8, 0.8)
+
+[node name="Minion" type="Node3D"]
+script = ExtResource("1_mv")
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.4, 0)
+mesh = SubResource("BoxMesh_minion")

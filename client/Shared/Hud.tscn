@@ -48,6 +48,14 @@ offset_right = 600.0
 offset_bottom = 152.0
 text = "0s"
 
+[node name="MinionCountLabel" type="Label" parent="." unique_id=1991238744]
+layout_mode = 0
+offset_left = 300.0
+offset_top = 156.0
+offset_right = 600.0
+offset_bottom = 180.0
+text = "Minions: 0"
+
 [node name="ResultPanel" type="Panel" parent="." unique_id=416147441]
 layout_mode = 0
 offset_left = 300.0
