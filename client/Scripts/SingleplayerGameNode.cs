@@ -1,17 +1,14 @@
 using global::Godot;
 
-namespace Meesles.Avalon
-{
-  public partial class SingleplayerGameNode : GameNode
-  {
+namespace Meesles.Avalon {
+  public partial class SingleplayerGameNode : GameNode {
     private static readonly Vector3 SpawnPosition = new(0f, 0.5f, 0f);
     private const float MoveSpeed = 5f;
     private const float FallThresholdY = -2f;
 
     private Node3D _player;
 
-    public override void _Ready()
-    {
+    public override void _Ready() {
       InitializeSharedNodes();
       Menu.SetSingleplayerMode();
       Menu.OnResetClicked += ResetSandbox;
@@ -19,11 +16,11 @@ namespace Meesles.Avalon
 
       SetupView3D();
       EnsurePlayer();
+      GetNodeOrNull<CameraController>("Camera3D")?.SetFollowTarget(_player);
       ResetSandbox();
     }
 
-    public override void _Process(double delta)
-    {
+    public override void _Process(double delta) {
       if (_player == null) return;
 
       Input.CaptureInput();
@@ -35,8 +32,7 @@ namespace Meesles.Avalon
       if (movement.LengthSquared() > 0.001f)
         _player.Rotation = new Vector3(0f, Mathf.Atan2(movement.X, movement.Z), 0f);
 
-      if (_player.Position.Y < FallThresholdY)
-      {
+      if (_player.Position.Y < FallThresholdY) {
         ResetSandbox();
         return;
       }
@@ -44,8 +40,7 @@ namespace Meesles.Avalon
       Hud.SyncSandbox(_player.Position, movement);
     }
 
-    private void EnsurePlayer()
-    {
+    private void EnsurePlayer() {
       if (_player != null) return;
 
       var playerScene = GD.Load<PackedScene>("res://Shared/Player.tscn");
@@ -53,17 +48,14 @@ namespace Meesles.Avalon
       AddChild(_player);
 
       var mesh = _player.GetNodeOrNull<MeshInstance3D>("Mesh");
-      if (mesh != null)
-      {
-        mesh.MaterialOverride = new StandardMaterial3D
-        {
+      if (mesh != null) {
+        mesh.MaterialOverride = new StandardMaterial3D {
           AlbedoColor = new Color(0.28f, 0.55f, 0.95f),
         };
       }
     }
 
-    private void ResetSandbox()
-    {
+    private void ResetSandbox() {
       EnsurePlayer();
       _player.Position = SpawnPosition;
       _player.Rotation = Vector3.Zero;
