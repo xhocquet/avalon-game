@@ -5,7 +5,8 @@
 - Put cross-mode client code and reusable scene assets in `Shared/`.
 - Repeated scene nodes that are identical across modes should become `Shared/*.tscn` subscenes.
 - Shared deterministic gameplay code lives in `Sim/`. Changes there also affect the server build.
-- Godot/Klotho integration lives under `addons/klotho/`. Treat copied vendor/framework code there as integration context; avoid casual edits unless the task is specifically about that layer.
+- Godot/Klotho integration lives under `addons/klotho/`. This is the packaged Godot addon: adapter code is source, while `lib/*.dll` is the prebuilt runtime referenced by the client.
+- Klotho runtime/framework source lives in `../vendor/Klotho/`. Inspect it when enhancing or debugging behavior that crosses into the prebuilt runtime; avoid editing vendored code unless the task explicitly targets Klotho itself.
 - Shared deterministic sim data lives in `Sim/Data/`.
 
 # Working Rules
