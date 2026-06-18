@@ -24,6 +24,7 @@ namespace Meesles.Avalon {
     private PlayerViewFactory _factory;
     private DefaultGodotEntityViewPool _pool;
     private GodotSessionDriver _driver;
+    private CameraController _camera;
     private ISimulationConfig _simCfg;
     private ISessionConfig _sesCfg;
     private Task<KlothoSession> _joinTask;
@@ -61,9 +62,11 @@ namespace Meesles.Avalon {
       );
 
       var playerScene = GD.Load<PackedScene>("res://Shared/Player.tscn");
-      _factory = new PlayerViewFactory(playerScene);
+      var baseScene = GD.Load<PackedScene>("res://Shared/Base.tscn");
+      _factory = new PlayerViewFactory(playerScene, baseScene);
       _pool = new DefaultGodotEntityViewPool();
       _pool.Prewarm(playerScene, _sesCfg.MaxPlayers);
+      _pool.Prewarm(baseScene, _sesCfg.MaxPlayers);
       _view = new EntityViewUpdaterNode();
       AddChild(_view);
 
@@ -80,6 +83,7 @@ namespace Meesles.Avalon {
       Menu.SetStopEnabled(false);
 
       SetupView3D();
+      _camera = GetNodeOrNull<CameraController>("Camera3D");
 
       foreach (var a in OS.GetCmdlineUserArgs()) {
         if (a == "join") _autoJoin = true;
@@ -106,6 +110,7 @@ namespace Meesles.Avalon {
     private void OnStop() {
       if (_session == null) return;
       _driver.DetachAndStop();
+      UnbindCameraFollow();
       _view.Cleanup();
       _viewCallbacks.Cleanup();
       _session = null;
@@ -116,10 +121,29 @@ namespace Meesles.Avalon {
 
     private void OnSessionReady() {
       _view.Initialize(_session.Engine, _factory, _pool);
+      _view.PlayerViews.OnLocalViewRegistered += OnLocalViewRegistered;
+      _view.PlayerViews.OnLocalViewUnregistered += OnLocalViewUnregistered;
       _driver.Attach(_session);
       Hud.SetPhase(_session.Phase);
       Menu.SetReadyEnabled(true);
       Menu.SetStopEnabled(true);
+    }
+
+    private void OnLocalViewRegistered(EntityViewNode view) {
+      _camera?.SetFollowTarget(view);
+    }
+
+    private void OnLocalViewUnregistered(EntityViewNode view) {
+      _camera?.SetFollowTarget(null);
+    }
+
+    private void UnbindCameraFollow() {
+      if (_view?.PlayerViews != null) {
+        _view.PlayerViews.OnLocalViewRegistered -= OnLocalViewRegistered;
+        _view.PlayerViews.OnLocalViewUnregistered -= OnLocalViewUnregistered;
+      }
+
+      _camera?.SetFollowTarget(null);
     }
 
     public override void _Process(double delta) {
@@ -196,6 +220,7 @@ namespace Meesles.Avalon {
     }
 
     public override void _ExitTree() {
+      UnbindCameraFollow();
       if (_session != null) { _driver?.DetachAndStop(); _session = null; }
       _view?.Cleanup();
       _viewCallbacks?.Cleanup();

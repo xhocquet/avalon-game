@@ -53,3 +53,7 @@ The server links `client/Sim/**/*.cs`, so anything here must be engine-agnostic 
 
 - `UnitIdState` stores the next deterministic unit id as singleton sim state.
 - `UnitIdGenerator` owns allocation policy and can be replaced without changing spawn call sites.
+- `TeamAssignment` maps player ids to team ids. Current rule: one player per team.
+- `SimulationSetup` spawns one base/spawn point per team, using opposite corners first and the other two corners for teams 3/4.
+- Hero initial spawn and fall respawn now resolve through the team's spawn point with a small inward offset.
+- Multiplayer renders base entities as large team-colored box meshes.

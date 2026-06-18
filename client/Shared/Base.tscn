@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" uid="uid://klwtgqhk2kgd" path="res://Shared/BaseView.cs" id="1_base_view"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_base"]
+size = Vector3(6, 4, 6)
+
+[node name="Base" type="Node3D"]
+script = ExtResource("1_base_view")
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+position = Vector3(0, 2, 0)
+mesh = SubResource("BoxMesh_base")

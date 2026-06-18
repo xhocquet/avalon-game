@@ -11,11 +11,14 @@
 script = ExtResource("1_game")
 
 [node name="Camera3D" parent="." unique_id=188994774 instance=ExtResource("4_camera")]
+Height = 14.0
+BackDistance = 24.0
 
 [node name="DirectionalLight3D" parent="." unique_id=100617642 instance=ExtResource("6_light")]
 transform = Transform3D(1, 0, 0, 0, 0.64278764, 0.76604444, 0, -0.76604444, 0.64278764, 0, 12, 8)
 
 [node name="Ground" parent="." unique_id=1965852601 instance=ExtResource("5_ground")]
+transform = Transform3D(10, 0, 0, 0, 1, 0, 0, 0, 10, 0, 0, 0)
 
 [node name="UILayer" type="CanvasLayer" parent="." unique_id=2041974958]
 
