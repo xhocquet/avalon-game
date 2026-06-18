@@ -9,3 +9,11 @@ server:
 
 client:
     & "C:\Users\meesles\Coding\Godot-4.6-mono\Godot_v4.6.3-stable_mono_win64.exe" -e ".\client\project.godot"
+
+# Headless smoke test: server + two headless clients, asserts the in-engine self-check.
+smoke port="7777":
+    & "{{justfile_directory()}}\scripts\smoke.ps1" -Port {{port}}
+
+# Visual solo run: solo server (MinPlayers=1) + one windowed client to watch. Close window to stop.
+play port="7777":
+    & "{{justfile_directory()}}\scripts\play.ps1" -Port {{port}}

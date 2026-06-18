@@ -8,6 +8,7 @@ using xpTURN.Klotho.ECS.Systems;
 namespace Meesles.Avalon {
   public static class SimulationSetup {
     private const int PlayerUnitTypeId = 1;
+    public const int MinionUnitTypeId = 2;
     private const int BaseUnitTypeId = 100;
     private const int BaseHealth = 1000;
     private const int MapHalfExtent = 50;
@@ -15,10 +16,14 @@ namespace Meesles.Avalon {
     private const int HeroSpawnInset = 8;
 
     public static void RegisterSystems(EcsSimulation simulation) {
-      var physics = new PhysicsSystem(64);
+      // Size physics body buffers to the world's entity capacity. The buffer is indexed by
+      // live body count with no bounds check, so it must hold every physics-bodied entity.
+      var physics = new PhysicsSystem(simulation.Frame.MaxEntities);
       physics.LoadStaticColliders("", new List<FPStaticCollider> { CreateGroundCollider() });
       simulation.AddSystem(physics, SystemPhase.Update);
       simulation.AddSystem(new MovementSystem(), SystemPhase.Update);
+      simulation.AddSystem(new WaveSpawnSystem(), SystemPhase.Update);
+      simulation.AddSystem(new MinionMoveSystem(), SystemPhase.Update);
       simulation.AddSystem(new RespawnSystem(), SystemPhase.Update);
       simulation.AddSystem(new ScoreSystem(), SystemPhase.LateUpdate);
       simulation.AddSystem(new EventSystem(), SystemPhase.LateUpdate);

@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>Meesles.Avalon.AssetGen</AssemblyName>
+    <RootNamespace>Meesles.Avalon.AssetGen</RootNamespace>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <!-- Pulls in the Klotho runtime DLL + analyzer (same as the server). -->
+  <Import Project="../../client/addons/klotho/Klotho.Server.props" />
+
+  <PropertyGroup>
+    <!-- Compile the deterministic sim so its IDataAsset types (e.g. WaveRulesAsset)
+         are loaded in this process — the JSON $type binder discovers them by reflection. -->
+    <SimRoot>../../client/Sim</SimRoot>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="$(SimRoot)\**\*.cs" Link="Game\%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+</Project>

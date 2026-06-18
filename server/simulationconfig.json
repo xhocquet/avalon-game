@@ -5,7 +5,7 @@
   "MaxRollbackTicks": 50,
   "SyncCheckInterval": 30,
   "UsePrediction": false,
-  "MaxEntities": 256,
+  "MaxEntities": 1024,
   "SDInputLeadTicks": 2,
   "InputResendIntervalMs": 150,
   "MaxUnackedInputs": 30,

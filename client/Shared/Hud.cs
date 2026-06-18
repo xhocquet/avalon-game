@@ -10,6 +10,7 @@ namespace Meesles.Avalon {
     private Label _score0;
     private Label _score1;
     private Label _timer;
+    private Label _minionCount;
     private Panel _resultPanel;
     private Label _resultLabel;
 
@@ -19,6 +20,7 @@ namespace Meesles.Avalon {
       _score0 = GetNode<Label>("Score0Label");
       _score1 = GetNode<Label>("Score1Label");
       _timer = GetNode<Label>("TimerLabel");
+      _minionCount = GetNode<Label>("MinionCountLabel");
       _resultPanel = GetNode<Panel>("ResultPanel");
       _resultLabel = GetNode<Label>("ResultPanel/ResultLabel");
       _resultPanel.Visible = false;
@@ -41,6 +43,7 @@ namespace Meesles.Avalon {
       _score0.Text = "P1: 0";
       _score1.Text = "P2: 0";
       _timer.Text = "0s";
+      _minionCount.Text = "Minions: 0";
       HideStatus();
     }
 
@@ -100,6 +103,19 @@ namespace Meesles.Avalon {
 
       _score0.Text = $"P1: {p1}";
       _score1.Text = $"P2: {p2}";
+
+      int m1 = 0;
+      int m2 = 0;
+      int mOther = 0;
+      var minionFilter = frame.Filter<Minion, Team>();
+      while (minionFilter.Next(out var entity)) {
+        ref readonly var team = ref frame.GetReadOnly<Team>(entity);
+        if (team.TeamId == 1) m1++;
+        else if (team.TeamId == 2) m2++;
+        else mOther++;
+      }
+      int total = m1 + m2 + mOther;
+      _minionCount.Text = $"Minions: {total}  (T1: {m1}  T2: {m2})";
 
       double remaining = frame.AssetRegistry.Get<PlayerStatsAsset>().MatchDuration.ToDouble()
           - ((frame.Tick * frame.DeltaTimeMs) / 1000.0);
