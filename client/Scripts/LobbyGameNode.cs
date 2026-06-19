@@ -18,7 +18,7 @@ namespace Meesles.Avalon {
     private LiteNetLibTransport _transport;
     private KlothoSessionFlow _flow;
     private KlothoSession _session;
-    private SimulationCallbacks _simulationCallbacks;
+    private ClientSimCallbacks _simulationCallbacks;
     private ViewCallbacks _viewCallbacks;
     private GodotSessionDriver _driver;
     private ISimulationConfig _simCfg;
@@ -42,7 +42,7 @@ namespace Meesles.Avalon {
       Menu.SetLobbyMode();
       Hud.SetLobbyMode();
 
-      _simulationCallbacks = new SimulationCallbacks(Input);
+      _simulationCallbacks = new ClientSimCallbacks(Input);
       _viewCallbacks = new ViewCallbacks(Hud);
       _transport = new LiteNetLibTransport(_logger, connectionKey: ConnectionKey);
       _flow = new KlothoSessionFlow(

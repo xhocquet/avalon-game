@@ -112,9 +112,9 @@ namespace Meesles.Avalon {
 
       int p1 = 0;
       int p2 = 0;
-      var filter = frame.Filter<PlayerComponent>();
+      var filter = frame.Filter<Player>();
       while (filter.Next(out var entity)) {
-        ref readonly var player = ref frame.GetReadOnly<PlayerComponent>(entity);
+        ref readonly var player = ref frame.GetReadOnly<Player>(entity);
         if (player.PlayerId <= 1) p1 = player.Score;
         else if (player.PlayerId == 2) p2 = player.Score;
       }

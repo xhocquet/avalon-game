@@ -1,15 +1,15 @@
-// Maps player entities to the player PackedScene. Mirrors the Unity factory.
+// Maps renderable unit entities to their PackedScene.
 using global::Godot;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Godot;
 
 namespace Meesles.Avalon {
-  public class PlayerViewFactory : EntityViewFactory {
+  public class UnitViewFactory : EntityViewFactory {
     private readonly PackedScene _playerScene;
     private readonly PackedScene _baseScene;
     private readonly PackedScene _minionScene;
 
-    public PlayerViewFactory(PackedScene playerScene, PackedScene baseScene, PackedScene minionScene) {
+    public UnitViewFactory(PackedScene playerScene, PackedScene baseScene, PackedScene minionScene) {
       _playerScene = playerScene;
       _baseScene = baseScene;
       _minionScene = minionScene;
@@ -22,7 +22,7 @@ namespace Meesles.Avalon {
     }
 
     protected override bool ShouldRender(Frame frame, EntityRef entity) {
-      return frame.Has<PlayerComponent>(entity) || frame.Has<Base>(entity) || frame.Has<Minion>(entity);
+      return frame.Has<Player>(entity) || frame.Has<Base>(entity) || frame.Has<Minion>(entity);
     }
   }
 }

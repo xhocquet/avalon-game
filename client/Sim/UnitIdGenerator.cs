@@ -5,16 +5,16 @@ namespace Meesles.Avalon {
     public const int FirstUnitId = 1;
 
     public static void Initialize(ref Frame frame, int nextUnitId = FirstUnitId) {
-      if (frame.TryGetSingleton<UnitIdState>(out _)) return;
+      if (frame.TryGetSingleton<UnitIdCounter>(out _)) return;
 
       var entity = frame.CreateEntity();
-      frame.Add(entity, new UnitIdState { NextUnitId = nextUnitId });
+      frame.Add(entity, new UnitIdCounter { NextUnitId = nextUnitId });
     }
 
     public static int Next(ref Frame frame) {
       Initialize(ref frame);
 
-      ref var state = ref frame.GetSingleton<UnitIdState>();
+      ref var state = ref frame.GetSingleton<UnitIdCounter>();
       int unitId = state.NextUnitId;
       state.NextUnitId += 1;
       return unitId;

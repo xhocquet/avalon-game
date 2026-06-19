@@ -55,9 +55,9 @@ namespace Meesles.Avalon {
     }
 
     private static void ApplyLocalHeroTarget(ref Frame frame, int playerId, FPVector3 target) {
-      var filter = frame.Filter<PlayerComponent>();
+      var filter = frame.Filter<Player>();
       while (filter.Next(out var entity)) {
-        ref readonly var player = ref frame.Get<PlayerComponent>(entity);
+        ref readonly var player = ref frame.Get<Player>(entity);
         if (player.PlayerId != playerId) continue;
         SetTarget(ref frame, entity, target);
         return;

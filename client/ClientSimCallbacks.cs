@@ -2,10 +2,10 @@ using xpTURN.Klotho.Core;
 using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon {
-  public class SimulationCallbacks : ISimulationCallbacks {
+  public class ClientSimCallbacks : ISimulationCallbacks {
     private InputCapture _input;
 
-    public SimulationCallbacks(InputCapture input) {
+    public ClientSimCallbacks(InputCapture input) {
       _input = input;
     }
 

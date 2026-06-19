@@ -47,7 +47,7 @@ if (!transport.Listen("0.0.0.0", port, maxRooms * maxPlayers)) {
 // RoomRouter consumes the RoomHandshakeMessage and routes peers to the room; RoomManager
 // wires EcsSimulation / ServerNetworkService / KlothoEngine / CommandFactory per room internally.
 var router = new RoomRouter(transport, logger);
-var roomManagerConfig = new RoomManagerConfigBuilder((roomLogger) => new AvalonServerCallbacks(roomLogger, maxPlayers))
+var roomManagerConfig = new RoomManagerConfigBuilder((roomLogger) => new ServerSimCallbacks(roomLogger, maxPlayers))
     .WithRoomLimits(maxRooms, maxPlayers, maxSpectatorsPerRoom: 0)
     .WithSimulationConfig(simConfig)
     .WithSessionConfig(sessionConfig)

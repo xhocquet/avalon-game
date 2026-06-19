@@ -41,7 +41,7 @@ namespace Meesles.Avalon {
       _transport = new LiteNetLibTransport(logger, connectionKey: ConnectionKey);
       _flow = new KlothoSessionFlow(
           new KlothoFlowSetupBuilder((s, ss) =>
-                  new SessionCallbacks(new SimulationCallbacks(Input), _viewCallbacks))
+                  new SessionCallbacks(new ClientSimCallbacks(Input), _viewCallbacks))
               .WithLogger(logger)
               .WithTransport(_transport)
               .WithAssetRegistry(registry)
@@ -98,11 +98,11 @@ namespace Meesles.Avalon {
       Input.BindViewRoot(_view);
     }
 
-    private PlayerViewFactory CreateFactory() {
+    private UnitViewFactory CreateFactory() {
       var playerScene = GD.Load<PackedScene>("res://Shared/Player.tscn");
       var baseScene = GD.Load<PackedScene>("res://Shared/Base.tscn");
       var minionScene = GD.Load<PackedScene>("res://Shared/Minion.tscn");
-      return new PlayerViewFactory(playerScene, baseScene, minionScene);
+      return new UnitViewFactory(playerScene, baseScene, minionScene);
     }
 
     private void OnLocalViewRegistered(EntityViewNode view) {

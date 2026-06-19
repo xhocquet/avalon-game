@@ -21,7 +21,7 @@ namespace Meesles.Avalon {
     private LiteNetLibTransport _transport;
     private KlothoSessionFlow _flow;
     private KlothoSession _session;
-    private SimulationCallbacks _simulationCallbacks;
+    private ClientSimCallbacks _simulationCallbacks;
     private ViewCallbacks _viewCallbacks;
     private EntityViewUpdaterNode _view;
     private DefaultGodotEntityViewPool _pool;
@@ -82,7 +82,7 @@ namespace Meesles.Avalon {
       _simCfg = new SimulationConfig { Mode = NetworkMode.ServerDriven };
       _sesCfg = new SessionConfig { MaxPlayers = 2, MinPlayers = 2, CountdownDurationMs = 0 };
       _transport = new LiteNetLibTransport(_logger, connectionKey: ConnectionKey);
-      _simulationCallbacks = new SimulationCallbacks(Input);
+      _simulationCallbacks = new ClientSimCallbacks(Input);
       _viewCallbacks = new ViewCallbacks(Hud);
 
       _flow = new KlothoSessionFlow(
@@ -125,11 +125,11 @@ namespace Meesles.Avalon {
       Input.BindViewRoot(_view);
     }
 
-    private PlayerViewFactory CreateFactory() {
+    private UnitViewFactory CreateFactory() {
       var playerScene = GD.Load<PackedScene>("res://Shared/Player.tscn");
       var baseScene = GD.Load<PackedScene>("res://Shared/Base.tscn");
       var minionScene = GD.Load<PackedScene>("res://Shared/Minion.tscn");
-      return new PlayerViewFactory(playerScene, baseScene, minionScene);
+      return new UnitViewFactory(playerScene, baseScene, minionScene);
     }
 
     private void OnSessionReady(bool autoReady) {

@@ -11,7 +11,7 @@ namespace Meesles.Avalon {
     public LiteNetLibTransport Transport { get; init; }
     public KlothoSessionFlow Flow { get; init; }
     public KlothoSession Session { get; init; }
-    public SimulationCallbacks SimulationCallbacks { get; init; }
+    public ClientSimCallbacks SimulationCallbacks { get; init; }
     public ViewCallbacks ViewCallbacks { get; init; }
     public GodotSessionDriver Driver { get; init; }
     public ISimulationConfig SimulationConfig { get; init; }
