@@ -44,6 +44,11 @@ namespace Meesles.Avalon {
       var assets = DataAssetReader.LoadMixedCollectionFromBytes(bytes);
       IDataAssetRegistryBuilder builder = new DataAssetRegistry();
       builder.RegisterRange(assets);
+
+      byte[] layoutBytes = global::Godot.FileAccess.GetFileAsBytes("res://Sim/Data/MapLayout.bytes");
+      if (layoutBytes != null && layoutBytes.Length > 0)
+        builder.RegisterRange(DataAssetReader.LoadMixedCollectionFromBytes(layoutBytes));
+
       return builder.Build();
     }
 

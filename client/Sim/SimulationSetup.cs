@@ -31,7 +31,8 @@ namespace Meesles.Avalon {
     public static void InitializeWorld(ref Frame frame, int maxPlayers) {
       UnitIdGenerator.Initialize(ref frame);
       var playerIds = GetPlayerIds(ref frame, maxPlayers);
-      SpawnTeamBases(ref frame, playerIds.Count);
+      frame.AssetRegistry.TryGet<MapLayoutAsset>(out var layout);
+      SpawnTeamBases(ref frame, playerIds.Count, layout);
 
       for (int playerIndex = 0; playerIndex < playerIds.Count; playerIndex++) {
         int playerId = playerIds[playerIndex];
@@ -83,11 +84,13 @@ namespace Meesles.Avalon {
       return spawnPosition + GetHeroSpawnOffset(teamId);
     }
 
-    private static void SpawnTeamBases(ref Frame frame, int maxPlayers) {
+    private static void SpawnTeamBases(ref Frame frame, int maxPlayers, MapLayoutAsset layout) {
       for (int playerId = 1; playerId <= maxPlayers; playerId++) {
         int teamId = playerId;
         var entity = frame.CreateEntity();
-        FPVector3 position = GetTeamSpawnPosition(teamId);
+        FPVector3 position = layout != null && layout.TryGetByTypeAndTeam(MapMarkerType.Base, teamId, out var layoutPos)
+          ? layoutPos
+          : GetTeamSpawnPosition(teamId);
 
         frame.Add(entity, new TransformComponent {
           Position = position,

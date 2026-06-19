@@ -32,20 +32,39 @@ Target shape: Warcraft/Dota-like top-down combat with a handful of human players
 
 ## Klotho Ids
 
-- `KlothoComponent`: 100-109 used, next free 110.
+- `KlothoComponent`: 100-110 used (110 = `UnitMoveTarget`), next free 111.
 - `KlothoSerializable`: 100 `MoveCommand`, 101 `GameOverEvent`, next free 102.
-- `KlothoDataAsset`: 100 `PlayerStats`, 101 `WaveRules`, next free 102.
+- `KlothoDataAsset`: 100 `PlayerStats`, 101 `WaveRules`, 102 `MapLayout`, next free 103.
+- Note: `NavAgentComponent` uses Klotho-internal ID 11 — no conflict with project range.
 
 ## Done
 
 - ServerDriven client/server flow is wired.
 - Shared sim bootstrap creates bases, spawn points, heroes, teams, health, and stable unit ids.
 - Minion waves exist through `WaveRulesAsset` and `WaveSpawnSystem`.
-- Minion view exists through `PlayerViewFactory`.
+- Minion view exists through `UnitViewFactory`.
 - Minions move deterministically toward center with transform-only movement.
 - Player movement no longer uses `PhysicsBodyComponent`; it directly integrates `TransformComponent.Position.x/z`.
 - Klotho physics is no longer registered for core gameplay movement.
 - `UnitIdGenerator` provides stable sim-level unit identity.
+- `SimMarkerNode` ([Tool][GlobalClass] Node3D) places Base/SpawnPoint/Shop/Turret markers in the editor.
+- `MapLayoutAsset` (KlothoDataAsset 102) stores marker positions; `GodotFPMapLayoutExporter` bakes them to `Sim/Data/MapLayout.bytes`.
+- `SimulationSetup` uses `MapLayoutAsset` for base/spawn positions when available, falls back to hardcoded corners.
+
+## Next Slice: Map Layout Foundation
+
+Goal: replace hardcoded positions in `SimulationSetup` with editor-authored data so bases, spawn points, turrets, and shops can be placed and adjusted visually without touching code.
+
+1. `SimMarkerNode` (`[GlobalClass]`, `[Tool]`, extends `Node3D`): fields `MarkerId`, `MarkerType` (`Base` | `SpawnPoint` | `Shop` | `Turret`), `Team`. Place in Godot scene alongside visual and collision geometry.
+2. `GodotFPMapLayoutExporter` (`#if TOOLS`): scans scene for `SimMarkerNode` instances, reads `GlobalTransform.Origin.ToFPVector3()`, writes `MapLayout.bytes` + JSON sidecar next to scene file. Follows `GodotFPNavMeshExporter` pattern exactly.
+3. `MapLayoutAsset` (`KlothoDataAsset(102)`): deserializes marker positions; exposes `GetPosition(markerId)`, `GetMarkersByType(markerType)`.
+4. `SimulationSetup` loads `MapLayoutAsset` and uses it for all spawn/base positions instead of hardcoded offsets.
+5. Structure collision nodes (`StaticBody3D` + `CollisionShape3D`) under each marker node participate in navmesh baking automatically.
+
+Acceptance:
+
+- Moving a marker in the Godot editor and re-exporting changes sim spawn/entity positions without a code change.
+- Bases, spawn points, and future turret/shop positions are all driven by layout data.
 
 ## Next Slice: Command And Unit Identity Foundation
 
@@ -53,19 +72,15 @@ Goal: make commands ready for real unit orders before adding deeper combat.
 
 1. Add shared helpers for resolving `UnitId -> entity`.
 2. Add ownership/team validation helpers for command systems.
-3. Add SIM-owned selection state per player.
-4. Add `SelectCommand` carrying deterministic selection input:
-   - click point / drag rectangle in planar world space.
-   - selection mode, such as replace/add/remove if needed.
-5. Add `MoveToCommand` as the first non-WASD order command. It applies to the player's current SIM selection.
-6. Keep existing WASD `MoveCommand` only as a temporary debug path until click-to-move works.
+3. Add `MoveToCommand`: carries an explicit list of `UnitId`s (client-side selection is view-only and not recorded). Applies movement to owned units.
+4. Add `AttackCommand { caster UnitId, target UnitId }`.
+5. Selection is client-side UI state only — not SIM state, not in the command stream, not in recordings.
 
 Acceptance:
 
-- A command can reference a unit by `UnitId`.
-- SIM can deterministically resolve, validate, select, and no-op stale unit references.
+- A command can reference units by `UnitId`.
+- SIM can deterministically resolve, validate, and no-op stale unit references.
 - No command depends on Godot node paths or transient ECS entity ids.
-- Given the same input command stream and unit positions, all peers derive the same selected units.
 
 ## Milestone A: Combat And Death
 
@@ -74,10 +89,7 @@ Goal: make minions meet, fight, die, and reduce live entity counts deterministic
 1. `UnitDiedEvent` (`KlothoSerializable(102)`): `{ UnitId, UnitTypeId, Position }`.
 2. `DeathSystem`: remove entities with `Health.Current <= 0`; raise `UnitDiedEvent`.
 3. `CombatSystem`: deterministic nearest-enemy acquisition using `Team`, `Unit`, `TransformComponent`, `Health`, and `Combat`.
-4. Stable targeting priority:
-   - hero/champion
-   - minion
-   - structure
+4. Stable targeting priority: hero/champion → minion → structure.
 5. View reacts to synced attack/death events for VFX only.
 
 Acceptance:
@@ -86,65 +98,69 @@ Acceptance:
 - Death removes entities from the deterministic sim.
 - High-count waves do not rely on physics bodies or Godot overlap triggers.
 
-## Milestone B: Structures And Win Condition
+## Milestone B: Navigation
 
-Goal: first playable deterministic Footmen-Frenzy slice.
+Goal: replace straight-line marching with deterministic A* pathing so minions route around structures and the map has meaningful shape.
 
-1. Bases already spawn with `Health`; make base death end the match.
-2. Add or extend victory logic to emit `GameOverEvent`.
-3. Add turret units as stationary combat entities.
+Navmesh is needed now, not later: without it, minions pile at the center regardless of map geometry, and turrets/structures have no spatial meaning.
+
+1. Bake `NavigationRegion3D` in Godot using the Klotho plugin's `GodotFPNavMeshExporter`. Structure `StaticBody3D` nodes block the bake automatically.
+2. Load `FPNavMesh` from the exported `.bytes` file in `SimulationSetup` before `InitializeWorld()`.
+3. Instantiate `FPNavMeshQuery`, `FPNavMeshPathfinder`, `FPNavMeshFunnel`, `FPNavAgentSystem`.
+4. Add `NavAgentComponent` to minions and heroes at spawn; call `NavAgentComponent.SetDestination()` with enemy base position.
+5. Replace `MinionMoveSystem` straight-line integration with `FPNavAgentSystem.Update()` + write `nav.Position` back to `TransformComponent`.
+6. `NavAgentComponent.Stop()` / `SetDestination()` is the hook for combat interruption and resume.
+7. Wire `FPNavAvoidance` (ORCA) for minion separation if counts justify it.
+
+Acceptance:
+
+- Minions path around structure footprints deterministically.
+- Commands remain intent-only (target position or `UnitId`), not path samples.
+- All peers derive identical paths from the same navmesh and start position.
+
+## Milestone C: Structures And Win Condition
+
+Goal: first playable deterministic Footmen-Frenzy slice. Nav is a prerequisite so turrets have spatial meaning.
+
+1. Bases already spawn with `Health`; make base death emit `GameOverEvent`.
+2. Add turret units: stationary, have `Combat` component, are targeted by `CombatSystem`, attack enemies in range.
+3. Turrets are nav obstacles at bake time (their `StaticBody3D` blocks the navmesh).
 4. Add simple structure views and team tinting.
 
 Acceptance:
 
-- Minions can eventually destroy a base.
+- Minions path through the map, encounter turrets, fight them, and eventually reach and destroy a base.
 - Server and clients agree on winner through synced deterministic state.
 
-## Milestone C: Selection And Click Orders
+## Milestone D: Click Orders
 
-Goal: replace direct WASD with command-based MOBA control.
+Goal: replace direct WASD hero movement with command-based MOBA control.
 
 1. Client raycasts mouse input into deterministic planar world coordinates.
-2. Client sends `SelectCommand`; SIM derives selected units from that input plus current unit positions.
-3. Client sends `MoveToCommand` / `AttackCommand` without listing every selected unit.
-4. SIM validates ownership, reads the player's current selection, and applies orders.
-5. View renders selection from SIM state.
-6. Remove WASD `MoveCommand` from normal gameplay once this path works.
+2. Client maintains selection locally (view-only); sends `MoveToCommand` / `AttackCommand` with explicit `UnitId` list.
+3. SIM validates ownership and applies orders.
+4. View renders selection indicators from local client state.
+5. WASD free-camera stays as a permanent debug/spectator tool; it is not a gameplay command.
 
 Acceptance:
 
-- Right-click ground moves an owned unit by command.
-- Right-click enemy targets by `UnitId`.
-- Selection is deterministic SIM state; orders are deterministic commands.
+- Right-click ground issues a `MoveToCommand` for selected units by `UnitId`.
+- Right-click enemy issues `AttackCommand` by target `UnitId`.
+- Selection does not appear in the command recording.
 
-## Milestone D: Lightweight Movement And Avoidance
+## Milestone E: Avoidance And Scale
 
-Goal: scale toward hundreds or thousands of units without physics.
+Goal: scale toward hundreds or thousands of units without physics. Nav paths are handled by `FPNavAgentSystem`; this milestone is about agent separation and iteration cost.
 
-1. Add unit radius data where needed.
-2. Add simple deterministic separation or lane spacing.
-3. Add a spatial grid if proximity scans become expensive.
-4. Keep all iteration order stable.
-5. Use fixed-point math only.
+1. Enable `FPNavAvoidance` (ORCA) if not already wired in Milestone B.
+2. Add spatial grid for proximity scans in `CombatSystem` if needed.
+3. Keep all iteration order stable.
+4. Profile and tune at target unit counts.
 
 Acceptance:
 
 - Large minion counts remain stable and cheap.
 - No dynamic physics bodies are required for normal unit movement.
-
-## Milestone E: Navigation
-
-Goal: upgrade straight-line movement only when the simpler model is proven.
-
-1. Decide whether full Klotho navmesh is actually needed for the map shape.
-2. If yes, export deterministic nav data and load it in shared sim setup.
-3. Apply nav to hero/minion orders through SIM systems.
-4. Keep command payloads as intent: target position or target `UnitId`, not path samples.
-
-Acceptance:
-
-- Units path around real blockers deterministically.
-- Commands remain compact and replayable.
 
 ## Milestone F: HUD, Camera, And Polish
 
@@ -154,8 +170,4 @@ Acceptance:
 
 ## Open Decisions
 
-1. Exact `SelectCommand` shape: click point, drag rectangle, add/remove modes, double-click type selection.
-2. Aggro model: always push lane until blocked, or divert to nearby enemies.
-3. Whether formations matter for footmen-scale groups.
-4. Whether navmesh is needed early, or simple planar steering carries the first playable slice.
-5. When to delete WASD debug movement entirely.
+1. MapLayout export trigger: manual editor button in Klotho dock, or auto-export on scene save via `@tool`.
