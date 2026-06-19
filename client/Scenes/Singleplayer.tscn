@@ -16,7 +16,6 @@ script = ExtResource("1_game")
 transform = Transform3D(1, 0, 0, 0, 0.64278764, 0.76604444, 0, -0.76604444, 0.64278764, 0, 12, 8)
 
 [node name="World" parent="." unique_id=1965852601 instance=ExtResource("5_world")]
-transform = Transform3D(10, 0, 0, 0, 1, 0, 0, 0, 10, 0, 0, 0)
 
 [node name="UILayer" type="CanvasLayer" parent="." unique_id=2041974958]
 
