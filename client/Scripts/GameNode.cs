@@ -1,4 +1,8 @@
 using global::Godot;
+using xpTURN.Klotho.Core;
+using xpTURN.Klotho.ECS;
+using xpTURN.Klotho.Godot;
+using xpTURN.Klotho.Logging;
 
 namespace Meesles.Avalon {
   public abstract partial class GameNode : Node {
@@ -26,6 +30,21 @@ namespace Meesles.Avalon {
 
       var light = GetNodeOrNull<DirectionalLight3D>("DirectionalLight3D");
       light?.LookAtFromPosition(new Vector3(4, 10, 4), Vector3.Zero, Vector3.Up);
+    }
+
+    protected IKLogger CreateLogger(string filePrefix = "Client")
+        => GodotKlothoLogger.CreateDefault(filePrefix: filePrefix, categoryName: "Client");
+
+    protected IDataAssetRegistry LoadAssetRegistry() {
+      byte[] bytes = global::Godot.FileAccess.GetFileAsBytes("res://Sim/Data/Assets.bytes");
+      if (bytes == null || bytes.Length == 0) {
+        var err = global::Godot.FileAccess.GetOpenError();
+        throw new System.IO.FileNotFoundException($"res://Sim/Data/Assets.bytes not found (err={err})");
+      }
+      var assets = DataAssetReader.LoadMixedCollectionFromBytes(bytes);
+      IDataAssetRegistryBuilder builder = new DataAssetRegistry();
+      builder.RegisterRange(assets);
+      return builder.Build();
     }
 
     public override void _UnhandledInput(InputEvent @event) {

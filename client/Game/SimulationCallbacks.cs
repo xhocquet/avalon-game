@@ -3,9 +3,13 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon {
   public class SimulationCallbacks : ISimulationCallbacks {
-    private readonly InputCapture _input;
+    private InputCapture _input;
 
     public SimulationCallbacks(InputCapture input) {
+      _input = input;
+    }
+
+    public void SetInput(InputCapture input) {
       _input = input;
     }
 
@@ -18,7 +22,7 @@ namespace Meesles.Avalon {
     }
 
     public void OnPollInput(int playerId, int tick, ICommandSender sender) {
-      if (_input.TryConsumeMoveCommand(out var command))
+      if (_input != null && _input.TryConsumeMoveCommand(out var command))
         sender.Send(command);
     }
   }

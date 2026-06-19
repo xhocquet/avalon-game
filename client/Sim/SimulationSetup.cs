@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
@@ -29,10 +30,12 @@ namespace Meesles.Avalon {
 
     public static void InitializeWorld(ref Frame frame, int maxPlayers) {
       UnitIdGenerator.Initialize(ref frame);
-      SpawnTeamBases(ref frame, maxPlayers);
+      var playerIds = GetPlayerIds(ref frame, maxPlayers);
+      SpawnTeamBases(ref frame, playerIds.Count);
 
-      for (int playerId = 0; playerId < maxPlayers; playerId++) {
-        int teamId = TeamAssignment.GetTeamIdForPlayer(playerId + 1);
+      for (int playerIndex = 0; playerIndex < playerIds.Count; playerIndex++) {
+        int playerId = playerIds[playerIndex];
+        int teamId = playerIndex + 1;
         var entity = frame.CreateEntity();
         FPVector3 initialPos = GetHeroSpawnPositionForTeam(ref frame, teamId);
 
@@ -41,11 +44,11 @@ namespace Meesles.Avalon {
           Rotation = FP64.Zero,
           Scale = FPVector3.One,
         });
-        frame.Add(entity, new OwnerComponent { OwnerId = playerId + 1 });
-        frame.Add(entity, new PlayerComponent { PlayerId = playerId + 1 });
+        frame.Add(entity, new OwnerComponent { OwnerId = playerId });
+        frame.Add(entity, new PlayerComponent { PlayerId = playerId });
         frame.Add(entity, new Team { TeamId = teamId });
         frame.Add(entity, new Hero {
-          PlayerId = playerId + 1,
+          PlayerId = playerId,
           Level = 1,
           Experience = 0,
         });
@@ -54,6 +57,23 @@ namespace Meesles.Avalon {
           UnitTypeId = PlayerUnitTypeId,
         });
       }
+    }
+
+    private static List<int> GetPlayerIds(ref Frame frame, int maxPlayers) {
+      var playerIds = new List<int>();
+      var filter = frame.Filter<SessionParticipantComponent>();
+      while (filter.Next(out var entity)) {
+        ref readonly var participant = ref frame.GetReadOnly<SessionParticipantComponent>(entity);
+        playerIds.Add(participant.PlayerId);
+      }
+
+      if (playerIds.Count == 0) {
+        for (int playerId = 1; playerId <= maxPlayers; playerId++)
+          playerIds.Add(playerId);
+      }
+
+      playerIds.Sort();
+      return playerIds;
     }
 
     public static FPVector3 GetHeroSpawnPositionForTeam(ref Frame frame, int teamId) {

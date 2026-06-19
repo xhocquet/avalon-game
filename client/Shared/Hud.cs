@@ -38,7 +38,7 @@ namespace Meesles.Avalon {
 
     public void SetMultiplayerMode() {
       _sandboxMode = false;
-      _state.Text = "Disconnected";
+      _state.Text = "Starting";
       SetLocalPlayerId(null);
       _score0.Text = "P1: 0";
       _score1.Text = "P2: 0";
@@ -47,9 +47,21 @@ namespace Meesles.Avalon {
       HideStatus();
     }
 
+    public void SetLobbyMode() {
+      _sandboxMode = false;
+      _state.Text = "Lobby";
+      SetLocalPlayerId(null);
+      _score0.Text = "Waiting for players";
+      _score1.Text = "Ready up";
+      _timer.Text = "0s";
+      _minionCount.Text = "";
+      HideStatus();
+    }
+
     public void SetLocalPlayerId(int? playerId) {
-      if (playerId.HasValue && playerId.Value > 0) {
-        _playerId.Text = $"You: P{playerId.Value}";
+      if (playerId.HasValue && playerId.Value >= 0) {
+        int displayId = playerId.Value <= 0 ? 1 : playerId.Value;
+        _playerId.Text = $"You: P{displayId}";
         _playerId.Visible = true;
       }
       else {
@@ -84,6 +96,12 @@ namespace Meesles.Avalon {
       _timer.Text = $"{seconds:0.0}s";
     }
 
+    public void SetStartDelayRemaining(double seconds) {
+      if (_sandboxMode) return;
+      if (seconds < 0) seconds = 0;
+      _timer.Text = $"Start: {seconds:0.0}s";
+    }
+
     public void SetLocalReady(bool ready) {
       if (_sandboxMode) _timer.Text = ready ? "Ready" : "Idle";
       else _state.Text = ready ? "Ready" : _state.Text;
@@ -97,7 +115,7 @@ namespace Meesles.Avalon {
       var filter = frame.Filter<PlayerComponent>();
       while (filter.Next(out var entity)) {
         ref readonly var player = ref frame.GetReadOnly<PlayerComponent>(entity);
-        if (player.PlayerId == 1) p1 = player.Score;
+        if (player.PlayerId <= 1) p1 = player.Score;
         else if (player.PlayerId == 2) p2 = player.Score;
       }
 

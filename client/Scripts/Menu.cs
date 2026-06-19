@@ -1,10 +1,8 @@
 using System;
 using global::Godot;
 
-namespace Meesles.Avalon
-{
-  public partial class Menu : Control
-  {
+namespace Meesles.Avalon {
+  public partial class Menu : Control {
     private bool _singleplayerMode;
     private Button _joinButton;
     private Button _readyButton;
@@ -20,8 +18,7 @@ namespace Meesles.Avalon
     public string Host => _ipField?.Text?.Trim();
     public int Port => int.TryParse(_portField?.Text, out int p) ? p : 7777;
 
-    public override void _Ready()
-    {
+    public override void _Ready() {
       _joinButton = GetNode<Button>("VBox/JoinButton");
       _readyButton = GetNode<Button>("VBox/ReadyButton");
       _stopButton = GetNode<Button>("VBox/StopButton");
@@ -33,8 +30,7 @@ namespace Meesles.Avalon
       _stopButton.Pressed += () => OnStopClicked?.Invoke();
     }
 
-    public void SetSingleplayerMode()
-    {
+    public void SetSingleplayerMode() {
       _singleplayerMode = true;
       _joinButton.Text = "Reset Sandbox";
       _readyButton.Visible = false;
@@ -44,8 +40,7 @@ namespace Meesles.Avalon
       OnJoinClicked = null;
     }
 
-    public void SetMultiplayerMode()
-    {
+    public void SetLobbyMode() {
       _singleplayerMode = false;
       _joinButton.Text = "Join";
       _readyButton.Visible = true;
@@ -54,24 +49,24 @@ namespace Meesles.Avalon
       _portField.Visible = true;
     }
 
-    public void SetInitialHost(string host, int port)
-    {
+    public void SetGameMode() {
+      Visible = false;
+    }
+
+    public void SetInitialHost(string host, int port) {
       if (_ipField != null) _ipField.Text = host;
       if (_portField != null) _portField.Text = port.ToString();
     }
 
-    public void SetReadyEnabled(bool enabled)
-    {
+    public void SetReadyEnabled(bool enabled) {
       if (_readyButton != null) _readyButton.Disabled = !enabled;
     }
 
-    public void SetStopEnabled(bool enabled)
-    {
+    public void SetStopEnabled(bool enabled) {
       if (_stopButton != null) _stopButton.Disabled = !enabled;
     }
 
-    private void HandleJoinPressed()
-    {
+    private void HandleJoinPressed() {
       if (_singleplayerMode) OnResetClicked?.Invoke();
       else OnJoinClicked?.Invoke();
     }
