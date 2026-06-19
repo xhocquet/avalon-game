@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://dbqi6ag4yuwg0"
-path="res://.godot/imported/Turret.glb-7f4c863a11cf3ae8537cb7d9ebdc100f.scn"
+uid="uid://ck44yj5h17mi7"
+path="res://.godot/imported/RockC.glb-890e5084f828ed9268c6bb24627085f7.scn"
 
 [deps]
 
-source_file="res://Assets/Models/Turret.glb"
-dest_files=["res://.godot/imported/Turret.glb-7f4c863a11cf3ae8537cb7d9ebdc100f.scn"]
+source_file="res://Assets/Materials/Rock/RockC.glb"
+dest_files=["res://.godot/imported/RockC.glb-890e5084f828ed9268c6bb24627085f7.scn"]
 
 [params]
 
@@ -34,9 +34,9 @@ animation/trimming=false
 animation/remove_immutable_tracks=true
 animation/import_rest_as_RESET=false
 import_script/path=""
-materials/extract=1
+materials/extract=0
 materials/extract_format=0
-materials/extract_path="res://Assets/Materials/Turret"
+materials/extract_path=""
 _subresources={}
 gltf/naming_version=2
 gltf/embedded_image_handling=1

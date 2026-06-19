@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://s8vgmb0tvxtk"]
+
+[ext_resource type="PackedScene" uid="uid://dhaaeca50xwng" path="res://Assets/Models/Minion.glb" id="1_uc222"]
+
+[node name="Minion" instance=ExtResource("1_uc222")]
+transform = Transform3D(0.005, 0, 0, 0, 0.005, 0, 0, 0, 0.005, 0, 0, 0)

@@ -3,17 +3,17 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://dbqi6ag4yuwg0"
-path="res://.godot/imported/Turret.glb-7f4c863a11cf3ae8537cb7d9ebdc100f.scn"
+uid="uid://uwdel6dc2hp7"
+path="res://.godot/imported/FirTree.glb-531672cb3b481641aba667a9833a54b6.scn"
 
 [deps]
 
-source_file="res://Assets/Models/Turret.glb"
-dest_files=["res://.godot/imported/Turret.glb-7f4c863a11cf3ae8537cb7d9ebdc100f.scn"]
+source_file="res://Assets/Materials/FirTree/FirTree.glb"
+dest_files=["res://.godot/imported/FirTree.glb-531672cb3b481641aba667a9833a54b6.scn"]
 
 [params]
 
-nodes/root_type=""
+nodes/root_type="Node3D"
 nodes/root_name=""
 nodes/root_script=null
 nodes/apply_root_scale=true
@@ -28,7 +28,7 @@ meshes/light_baking=1
 meshes/lightmap_texel_size=0.2
 meshes/force_disable_compression=false
 skins/use_named_skins=true
-animation/import=true
+animation/import=false
 animation/fps=30
 animation/trimming=false
 animation/remove_immutable_tracks=true
@@ -36,7 +36,15 @@ animation/import_rest_as_RESET=false
 import_script/path=""
 materials/extract=1
 materials/extract_format=0
-materials/extract_path="res://Assets/Materials/Turret"
-_subresources={}
+materials/extract_path=""
+_subresources={
+"materials": {
+"material_0": {
+"use_external/enabled": true,
+"use_external/fallback_path": "res://Assets/Materials/FirTree/material_0.tres",
+"use_external/path": "uid://b7sjebhwumow7"
+}
+}
+}
 gltf/naming_version=2
 gltf/embedded_image_handling=1
