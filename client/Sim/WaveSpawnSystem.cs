@@ -63,11 +63,8 @@ namespace Meesles.Avalon {
       }
     }
 
-    // Minions are intentionally NOT given a PhysicsBodyComponent: the prebuilt Klotho
-    // runtime sizes contact-snapshot buffers to 256 with no clamp, so hundreds of bodies
-    // resting on the ground would overflow it. Minions live as transform-only entities;
-    // movement (M3) integrates the transform directly and combat (Milestone A) uses
-    // deterministic proximity queries — neither needs the physics world.
+    // Minions live as transform-only entities. Movement integrates the transform
+    // directly and combat uses deterministic proximity queries; neither needs physics.
     private static void SpawnMinion(ref Frame frame, WaveRulesAsset rules, FPVector3 position, int teamId, int waveId) {
       var entity = frame.CreateEntity();
 

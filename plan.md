@@ -1,133 +1,161 @@
-# Moboids → Avalon Integration Plan
+# Avalon Simulation Plan
 
-Source prototype: `C:\Users\meesles\Documents\moboids` (Godot 4.5, GDScript, GD-Sync RPC networking, node-based gameplay).
-Target: this repo (Godot 4.6 Mono/.NET client + C# server, **Klotho deterministic ECS** shared by client and server).
+Target shape: Warcraft/Dota-like top-down combat with a handful of human players and large deterministic armies. The server is authoritative. Clients send commands, predict locally, then reconcile against server-verified state.
 
-## Locked decisions
+## Current Model
 
-- **Movement model:** moboids 100% — full MOBA **deterministic click-to-move** (navmesh + commands). WASD direct-drive is transitional and gets removed once nav is in.
-- **Lanes:** single lane for now; minions/units target the **center of the map**.
-- **Team size:** keep everything **generic** so larger teams are possible later, but ship 1v1-sized milestones now. Bigger teams are a later problem.
-- **Priority:** **minions first.** The immediate goal is to watch many networked minion entities behave under the deterministic Klotho model before building polish around them.
+- `client/Sim/**` is shared deterministic gameplay code compiled by both client and server.
+- Godot nodes are view/input only. They do not own authoritative gameplay state.
+- Klotho ServerDriven mode is not classic wait-for-all lockstep. The server advances fixed ticks, substitutes empty input when needed, broadcasts verified state, and clients rollback/reconcile.
+- Keep network and replay data command-centric. Commands are the durable record of player intent.
+- Keep sim state light. Do not network or store per-frame unit transforms as the gameplay protocol.
+- Movement is planar. `TransformComponent.Position.x/z` is authoritative; `y` is not gameplay.
+- Avoid dynamic physics bodies for units. Use deterministic transform integration, radii, proximity queries, grids, and stable iteration order.
 
-## The one rule that shapes everything
+## Identity And Command Rules
 
-Moboids gameplay is **non-deterministic node logic** (`move_and_slide`, `NavigationAgent3D`, `Area3D` overlap triggers, per-node signals, GD-Sync RPCs). None of it ports directly.
+- Use stable `Unit.UnitId` for command references, events, selection, targeting, replay, and UI bookkeeping.
+- Do not put transient ECS entity ids in command payloads.
+- Validate every command in SIM:
+  - `PlayerId` must own or be allowed to command the referenced unit.
+  - referenced `UnitId`s must still exist at execution time.
+  - stale commands should no-op deterministically, not throw.
+- Prefer compact intent commands:
+  - `SelectCommand { selection input shape }`
+  - `MoveToCommand { target position }`
+  - `AttackCommand { target UnitId }`
+  - `Spawn/Buy/TrainCommand { unit type, source structure UnitId }`
+  - `AbilityCommand { caster UnitId, ability id, target UnitId/position }`
+- Selection is gameplay state. The command stream should send deterministic mouse/input facts, and SIM derives selected units from player ownership plus current unit positions.
+- Group orders act on the player's current SIM selection. Do not send hundreds of unit ids as normal order payload.
+- Commands should carry enough intent to reproduce behavior, not sampled movement state.
 
-Per `AGENTS.md` + `klotho-docs/`, authoritative gameplay lives in `client/Sim/**` (linked into `server/Server.csproj`) and must be **deterministic**: fixed-point (`FP64`), Klotho `PhysicsSystem` / `FPNavMesh`, ECS components + systems, commands injected via `OnPollInput`. The Godot scene tree is a **view** driven by `EntityViewNode` / `EntityViewFactory`.
+## Klotho Ids
 
-Each feature splits into:
+- `KlothoComponent`: 100-109 used, next free 110.
+- `KlothoSerializable`: 100 `MoveCommand`, 101 `GameOverEvent`, next free 102.
+- `KlothoDataAsset`: 100 `PlayerStats`, 101 `WaveRules`, next free 102.
 
-- **SIM** (`client/Sim/`): deterministic components, systems, commands, data assets. Runs identically on client + server.
-- **VIEW** (`client/Shared/`, scenes): rendering, VFX, HUD, input, selection. Client-only, non-deterministic.
+## Done
 
-*If it changes who wins, it's SIM; if it only changes what you see, it's VIEW.*
+- ServerDriven client/server flow is wired.
+- Shared sim bootstrap creates bases, spawn points, heroes, teams, health, and stable unit ids.
+- Minion waves exist through `WaveRulesAsset` and `WaveSpawnSystem`.
+- Minion view exists through `PlayerViewFactory`.
+- Minions move deterministically toward center with transform-only movement.
+- Player movement no longer uses `PhysicsBodyComponent`; it directly integrates `TransformComponent.Position.x/z`.
+- Klotho physics is no longer registered for core gameplay movement.
+- `UnitIdGenerator` provides stable sim-level unit identity.
 
-### ID bookkeeping (next free Klotho IDs)
+## Next Slice: Command And Unit Identity Foundation
 
-- `KlothoComponent`: 100–109 used → **next free 110**.
-- `KlothoSerializable` (commands/events): 100 (`MoveCommand`), 101 (`GameOverEvent`) → **next free 102**.
-- `KlothoDataAsset`: 100 (`PlayerStats`) → **next free 101**.
+Goal: make commands ready for real unit orders before adding deeper combat.
 
----
+1. Add shared helpers for resolving `UnitId -> entity`.
+2. Add ownership/team validation helpers for command systems.
+3. Add SIM-owned selection state per player.
+4. Add `SelectCommand` carrying deterministic selection input:
+   - click point / drag rectangle in planar world space.
+   - selection mode, such as replace/add/remove if needed.
+5. Add `MoveToCommand` as the first non-WASD order command. It applies to the player's current SIM selection.
+6. Keep existing WASD `MoveCommand` only as a temporary debug path until click-to-move works.
 
-## What we discard outright
+Acceptance:
 
-- **GD-Sync** (`addons/GD-Sync`, all RPC/sync-node usage) — fully replaced by Klotho.
-- **`GameState` autoload as authoritative state** — match lifecycle/scores/timer/win belong in SIM (`ScoreSystem`, `GameOverEvent`, future `VictorySystem`) + Klotho session phase. Salvage only view-only `focus`/`selection` and HUD state labels.
-- **`PlayerSettings.gd`** — empty stub.
-- **Node-physics movement + `NavigationAgent3D`** — replaced by Klotho `PhysicsSystem` + `FPNavMesh`/`NavAgentComponent`.
-- **`Area3D` overlap targeting** — replaced by deterministic proximity queries in sim systems.
-- **Godmode free-fly camera** — defer indefinitely (debug toy).
-- **`Main.gd` bootstrap reflection / runtime group rules** — avalon already bootstraps via `GameNode`/`MultiplayerGameNode`.
-- **WASD direct-drive** (`MoveCommand` H/V path) — removed once click-to-move lands (Milestone D).
+- A command can reference a unit by `UnitId`.
+- SIM can deterministically resolve, validate, select, and no-op stale unit references.
+- No command depends on Godot node paths or transient ECS entity ids.
+- Given the same input command stream and unit positions, all peers derive the same selected units.
 
----
+## Milestone A: Combat And Death
 
-## Milestones (bite-size, minions-first)
+Goal: make minions meet, fight, die, and reduce live entity counts deterministically.
 
-Each chunk ≈ one focused checkpoint. ✅ = already exists in avalon and just needs extending.
+1. `UnitDiedEvent` (`KlothoSerializable(102)`): `{ UnitId, UnitTypeId, Position }`.
+2. `DeathSystem`: remove entities with `Health.Current <= 0`; raise `UnitDiedEvent`.
+3. `CombatSystem`: deterministic nearest-enemy acquisition using `Team`, `Unit`, `TransformComponent`, `Health`, and `Combat`.
+4. Stable targeting priority:
+   - hero/champion
+   - minion
+   - structure
+5. View reacts to synced attack/death events for VFX only.
 
-### Milestone M — Minions on the wire (THE PRIORITY)
+Acceptance:
 
-Goal: spawn lots of minions and watch them sync deterministically. Deliberately avoids the navmesh dependency at first so we get entities on screen fast.
+- Opposing minions damage each other and die in sync.
+- Death removes entities from the deterministic sim.
+- High-count waves do not rely on physics bodies or Godot overlap triggers.
 
-- **M1 — Wave spawning (SIM).**
-  Add `WaveSpawnSystem : ISystem` driven by `frame.Tick`. Spawn interval + `MinionsPerWave` from a new `WaveRulesAsset` (`KlothoDataAsset(101)`) — easy to crank up for stress testing. For each `SpawnPoint`, every N ticks create minion entities: `Unit{UnitTypeId=Minion}`, `Team`, `Health`, `Minion{LaneId=0,WaveId}`, `TransformComponent`, `PhysicsBodyComponent`. No movement yet.
-  *Discard:* `Spawner.gd` `Timer`, stubbed `spawn_*` methods.
+## Milestone B: Structures And Win Condition
 
-- **M2 — Minion VIEW + count readout.**
-  Extend `PlayerViewFactory` to render `UnitTypeId=Minion` (start with a cheap box mesh; real mesh comes in H). Add a live entity/minion count to the HUD so we can quantify what the networking model handles. **This is the actual stress-test deliverable.**
+Goal: first playable deterministic Footmen-Frenzy slice.
 
-- **M3 — Simple deterministic movement toward center (SIM).**
-  Add `MinionMoveSystem`: steer each minion straight toward map center (`FPVector3.Zero`) by integrating `TransformComponent.Position` directly (FP64, no navmesh, **no physics body** — see capacity note below). Lets us watch hundreds of minions move + converge under rollback before investing in nav.
-  *Later replaced by nav in Milestone D.*
+1. Bases already spawn with `Health`; make base death end the match.
+2. Add or extend victory logic to emit `GameOverEvent`.
+3. Add turret units as stationary combat entities.
+4. Add simple structure views and team tinting.
 
-> **Capacity constraint (discovered in M2):** the prebuilt Klotho `PhysicsSystem`/`FPPhysicsWorld` have unclamped fixed buffers — body array sized by the ctor arg (now `MaxEntities`), but contact-snapshot buffers hard-fixed at 256 (every grounded body = 1 static contact). Hundreds of physics-bodied units crash with `Index was outside the bounds of the array` in `PhysicsSystem.Update`. **Therefore minions are transform-only entities (no `PhysicsBodyComponent`)** — movement integrates the transform, combat uses deterministic proximity queries; only heroes use physics. `MaxEntities` is 1024 (`server/simulationconfig.json`, propagated to clients) and `WaveRulesAsset.MaxConcurrentMinions` (800) keeps minions under it.
+Acceptance:
 
-**Acceptance:** waves spawn on a tunable cadence; N minions per team render and march to center; headless client+server stay in sync at high counts; HUD shows the count.
+- Minions can eventually destroy a base.
+- Server and clients agree on winner through synced deterministic state.
 
-### Milestone A — Combat & death (SIM)
+## Milestone C: Selection And Click Orders
 
-Makes the existing unused `Combat`/`Health` components real; gives minions something to do when they meet.
+Goal: replace direct WASD with command-based MOBA control.
 
-- **A1 — DeathSystem + `UnitDiedEvent`.** Scan `Health`; on `Current<=0` raise a `KlothoSerializable(102)` Synced `UnitDiedEvent{UnitId,Position,UnitTypeId}` and destroy the entity (players fall-respawn instead). VIEW plays death VFX off the event.
-- **A2 — CombatSystem (auto-attack).** On `Unit,Team,Transform,Combat`: reacquire nearest enemy-team `Unit` within `AttackRange` (deterministic FP64 filter, no Area3D), tick `CooldownRemainingTicks`, on ready+in-range subtract `AttackDamage` from target `Health`, raise `AttackEvent` for VIEW FX. One system serves minions, heroes, and turrets — they differ only by stats/priority.
-- **A3 — Targeting + team helpers.** Static `Targeting` (priority: champion > minion > structure) + `TeamColors` (port `Spawner._static_team_color`) shared by SIM-adjacent logic and HUD.
+1. Client raycasts mouse input into deterministic planar world coordinates.
+2. Client sends `SelectCommand`; SIM derives selected units from that input plus current unit positions.
+3. Client sends `MoveToCommand` / `AttackCommand` without listing every selected unit.
+4. SIM validates ownership, reads the player's current selection, and applies orders.
+5. View renders selection from SIM state.
+6. Remove WASD `MoveCommand` from normal gameplay once this path works.
 
-**Acceptance:** opposing minions meeting at center trade damage and die deterministically; counts drop correctly on every peer.
+Acceptance:
 
-### Milestone B — Structures & win condition (SIM + VIEW)
+- Right-click ground moves an owned unit by command.
+- Right-click enemy targets by `UnitId`.
+- Selection is deterministic SIM state; orders are deterministic commands.
 
-- **B1 — Bases lose.** Bases already spawn with `Health`. Add `VictorySystem` (or extend `ScoreSystem`): `Base.Health<=0` → `GameOverEvent` for the surviving team (`Reason="nexus"`). (moboids `Crystal.core_destroyed`, deterministic.)
-- **B2 — Turrets.** Spawn stationary `Combat` units per team near the lane; A2 drives them. Tiering deferred.
-- **B3 — Structure VIEW.** Map `UnitTypeId`→turret/crystal scenes; team-tint via `BaseView`-style `OnActivate`.
+## Milestone D: Lightweight Movement And Avoidance
 
-### Milestone D — Navigation & click-to-move (SIM + VIEW + tooling)
+Goal: scale toward hundreds or thousands of units without physics.
 
-Implements the "moboids 100%" movement decision; upgrades M3's straight-line steering.
+1. Add unit radius data where needed.
+2. Add simple deterministic separation or lane spacing.
+3. Add a spatial grid if proximity scans become expensive.
+4. Keep all iteration order stable.
+5. Use fixed-point math only.
 
-- **D1 — Bake navmesh.** Per `klotho-docs/Navigation.md` + `NavMeshVisualizer.Godot.md`: `NavigationRegion3D` in the map scene → Godot Klotho exporter → `client/Sim/Data/Nav.bytes`; load in `RegisterSystems` and register `FPNavAgentSystem`.
-- **D2 — Minions + heroes on NavAgent.** Give minions `NavAgentComponent` (destination = center, later enemy base); replace M3 steering. Add `MoveToCommand{FPVector3 Target}` + `AttackCommand{int TargetUnitId}`; new `HeroOrderSystem` sets `NavAgentComponent.Destination` / `Combat.Target`. **Remove WASD `MoveCommand`.** VIEW raycasts mouse→ground/unit and sends the command via `OnPollInput`.
+Acceptance:
 
-### Milestone E — Selection & focus (VIEW only)
+- Large minion counts remain stable and cheap.
+- No dynamic physics bodies are required for normal unit movement.
 
-- **E1 — Selection + ring overlay.** Port `FocusRingOverlay.gd` + selection half of `GameUI.gd` (click-select, box-select via screen→ground quad) to C#. Selection = client list of `EntityViewNode`→`UnitId`.
-- **E2 — Pointer→command.** Selected owned units + right-click → `MoveToCommand`/`AttackCommand`; ownership validated in SIM via `OwnerComponent`.
+## Milestone E: Navigation
 
-### Milestone F — Camera polish (VIEW only)
+Goal: upgrade straight-line movement only when the simpler model is proven.
 
-Extend existing `CameraController`: **scroll-wheel zoom** (`_zoom_t` FOV/height lerp) + **WASD/edge pan with follow-resume**, ported from `GameCamera.gd`. Drop godmode.
+1. Decide whether full Klotho navmesh is actually needed for the map shape.
+2. If yes, export deterministic nav data and load it in shared sim setup.
+3. Apply nav to hero/minion orders through SIM systems.
+4. Keep command payloads as intent: target position or target `UnitId`, not path samples.
 
-### Milestone G — HUD & overlays (VIEW only)
+Acceptance:
 
-- **G1** world-space health bars (`HealthBars.gd` → C#, `TeamColors`).
-- **G2** minimap blips (`Minimap.gd` → C#).
-- **G3** scoreboard/Tab panel + match clock (extend `Hud.cs` `SyncFromFrame`).
-- **G4** VFX: port `ExplosionFX.tscn` + shot-line; spawn from VIEW on `UnitDiedEvent`/`AttackEvent`.
+- Units path around real blockers deterministically.
+- Commands remain compact and replayable.
 
-### Milestone H — Assets & polish (VIEW only)
+## Milestone F: HUD, Camera, And Polish
 
-Import moboids assets (regenerate `.import` on first 4.6 open).
+- Health bars, minimap, scoreboard, and match clock are view-only.
+- Camera pan/zoom/follow stays client-only.
+- VFX and audio are event-driven from synced events, not gameplay authority.
 
-- **H1** unit meshes: `Player/Minion/Turret.glb`, `CrystalC.tscn` → view scenes (replace placeholder boxes).
-- **H2** environment: `FirTree*`, `Rock*`, `Platform`, materials. Decorative = VIEW-only; if they should block, bake into navmesh + add Klotho static colliders.
-- **H3** UI textures: `bars/border/topbar/player_avatar.png` → HUD theming.
+## Open Decisions
 
----
-
-## Execution order
-
-1. **M1 → M2 → M3** — minions on the wire + stress test (priority).
-2. **A1 → A2 → A3** — combat/death so minions fight at center.
-3. **B1 → B2 → B3** — structures + win condition → first real match.
-4. **D1 → D2** — navmesh + click-to-move (replaces M3 + WASD).
-5. **E**, then **F / G / H** polish in parallel once gameplay is stable.
-
-Milestone M alone answers the networking question. M+A+B is a playable deterministic Footmen-Frenzy slice; D–H make it feel like the moboids prototype.
-
-## Still-open (resolve before D/E)
-
-1. Aggro behavior: do minions divert to nearby enemies, or always push to center until blocked? (Affects A2/D2.)
-2. Turret count/placement on the single center lane (B2).
-3. When to formally drop WASD (D2) vs. keep it as a debug fallback.
+1. Exact `SelectCommand` shape: click point, drag rectangle, add/remove modes, double-click type selection.
+2. Aggro model: always push lane until blocked, or divert to nearby enemies.
+3. Whether formations matter for footmen-scale groups.
+4. Whether navmesh is needed early, or simple planar steering carries the first playable slice.
+5. When to delete WASD debug movement entirely.
