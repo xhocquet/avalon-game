@@ -14,8 +14,8 @@ namespace Meesles.Avalon {
       if (live != null && live.Has<OwnerComponent>(EntityRef))
         _ownerId = live.GetReadOnly<OwnerComponent>(EntityRef).OwnerId;
 
-      if (live != null && live.Has<PlayerComponent>(EntityRef)) {
-        int playerId = live.GetReadOnly<PlayerComponent>(EntityRef).PlayerId;
+      if (live != null && live.Has<Player>(EntityRef)) {
+        int playerId = live.GetReadOnly<Player>(EntityRef).PlayerId;
         var mesh = GetNodeOrNull<MeshInstance3D>("Mesh");
         if (mesh != null) {
           mesh.MaterialOverride = new StandardMaterial3D {

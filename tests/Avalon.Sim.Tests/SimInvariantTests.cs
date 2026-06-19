@@ -126,9 +126,9 @@ public class SimInvariantTests {
   private static PlayerSnapshot[] GetPlayerSnapshots(SimHarness harness) {
     var frame = harness.Frame;
     var players = new List<PlayerSnapshot>();
-    var filter = frame.Filter<PlayerComponent, Team>();
+    var filter = frame.Filter<Player, Team>();
     while (filter.Next(out var entity)) {
-      ref readonly var player = ref frame.Get<PlayerComponent>(entity);
+      ref readonly var player = ref frame.Get<Player>(entity);
       ref readonly var team = ref frame.Get<Team>(entity);
       players.Add(new PlayerSnapshot(
           player.PlayerId,
@@ -144,9 +144,9 @@ public class SimInvariantTests {
   private static VelocitySnapshot[] GetPlayerVelocities(SimHarness harness) {
     var frame = harness.Frame;
     var velocities = new List<VelocitySnapshot>();
-    var filter = frame.Filter<PlayerComponent, PhysicsBodyComponent>();
+    var filter = frame.Filter<Player, PhysicsBodyComponent>();
     while (filter.Next(out var entity)) {
-      ref readonly var player = ref frame.Get<PlayerComponent>(entity);
+      ref readonly var player = ref frame.Get<Player>(entity);
       ref readonly var physics = ref frame.Get<PhysicsBodyComponent>(entity);
       velocities.Add(new VelocitySnapshot(
           player.PlayerId,
@@ -161,9 +161,9 @@ public class SimInvariantTests {
   private static PlayerTransformSnapshot[] GetPlayerTransforms(SimHarness harness) {
     var frame = harness.Frame;
     var transforms = new List<PlayerTransformSnapshot>();
-    var filter = frame.Filter<PlayerComponent, TransformComponent>();
+    var filter = frame.Filter<Player, TransformComponent>();
     while (filter.Next(out var entity)) {
-      ref readonly var player = ref frame.Get<PlayerComponent>(entity);
+      ref readonly var player = ref frame.Get<Player>(entity);
       ref readonly var transform = ref frame.Get<TransformComponent>(entity);
       transforms.Add(new PlayerTransformSnapshot(player.PlayerId, transform.Position));
     }
@@ -188,9 +188,9 @@ public class SimInvariantTests {
   private static void ForcePlayerFall(SimHarness harness, int playerId) {
     var frame = harness.Frame;
     var stats = harness.AssetRegistry.Get<PlayerStatsAsset>();
-    var filter = frame.Filter<PlayerComponent, TransformComponent, PhysicsBodyComponent>();
+    var filter = frame.Filter<Player, TransformComponent, PhysicsBodyComponent>();
     while (filter.Next(out var entity)) {
-      ref readonly var player = ref frame.Get<PlayerComponent>(entity);
+      ref readonly var player = ref frame.Get<Player>(entity);
       if (player.PlayerId != playerId)
         continue;
 

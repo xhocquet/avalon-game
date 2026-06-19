@@ -45,7 +45,7 @@ namespace Meesles.Avalon {
           Scale = FPVector3.One,
         });
         frame.Add(entity, new OwnerComponent { OwnerId = playerId });
-        frame.Add(entity, new PlayerComponent { PlayerId = playerId });
+        frame.Add(entity, new Player { PlayerId = playerId });
         frame.Add(entity, new Team { TeamId = teamId });
         frame.Add(entity, new Hero {
           PlayerId = playerId,
@@ -85,7 +85,7 @@ namespace Meesles.Avalon {
 
     private static void SpawnTeamBases(ref Frame frame, int maxPlayers) {
       for (int playerId = 1; playerId <= maxPlayers; playerId++) {
-        int teamId = TeamAssignment.GetTeamIdForPlayer(playerId);
+        int teamId = playerId;
         var entity = frame.CreateEntity();
         FPVector3 position = GetTeamSpawnPosition(teamId);
 

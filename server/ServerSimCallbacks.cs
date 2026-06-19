@@ -3,11 +3,11 @@ using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Logging;
 
 namespace Meesles.Avalon.Server {
-  public class AvalonServerCallbacks : ISimulationCallbacks {
+  public class ServerSimCallbacks : ISimulationCallbacks {
     private readonly IKLogger _logger;
     private readonly int _maxPlayers;
 
-    public AvalonServerCallbacks(IKLogger logger, int maxPlayers) {
+    public ServerSimCallbacks(IKLogger logger, int maxPlayers) {
       _logger = logger;
       _maxPlayers = maxPlayers;
     }

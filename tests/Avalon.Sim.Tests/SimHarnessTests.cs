@@ -15,7 +15,7 @@ public class SimHarnessTests {
     harness.Count<Hero>().Should().Be(2);
     harness.Count<Base>().Should().Be(2);
     harness.Count<SpawnPoint>().Should().Be(2);
-    harness.Count<UnitIdState>().Should().Be(1);
+    harness.Count<UnitIdCounter>().Should().Be(1);
     harness.Frame.Tick.Should().Be(0);
   }
 }
