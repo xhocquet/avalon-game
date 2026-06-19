@@ -31,6 +31,10 @@ namespace Meesles.Avalon {
 
     public static void InitializeWorld(IKlothoEngine engine, int maxPlayers) {
       var frame = engine.PredictedFrame.Frame;
+      InitializeWorld(ref frame, maxPlayers);
+    }
+
+    public static void InitializeWorld(ref Frame frame, int maxPlayers) {
       var stats = frame.AssetRegistry.Get<PlayerStatsAsset>();
       UnitIdGenerator.Initialize(ref frame);
       SpawnTeamBases(ref frame, maxPlayers);

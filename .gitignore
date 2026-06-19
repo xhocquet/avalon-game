@@ -14,3 +14,8 @@ server/Logs/*
 !server/Logs/.keep
 /Logs/*
 !/Logs/.keep
+
+# Test outputs
+TestResults/
+tests/**/bin/
+tests/**/obj/
