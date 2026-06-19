@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>Meesles.Avalon.Sim.Tests</AssemblyName>
+    <RootNamespace>Meesles.Avalon.Sim.Tests</RootNamespace>
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <!-- Pulls in the same packaged Klotho runtime DLL + analyzer as the dedicated server. -->
+  <Import Project="../../client/addons/klotho/Klotho.Server.props" />
+
+  <PropertyGroup>
+    <!-- Compile the same deterministic sim source used by both client and server. -->
+    <SimRoot>../../client/Sim</SimRoot>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="$(SimRoot)\**\*.cs" Link="Game\%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\client\Sim\Data\*.bytes">
+      <Link>Data\%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="FluentAssertions" Version="6.12.2" />
+    <PackageReference Include="CsvHelper" Version="33.0.1" />
+  </ItemGroup>
+</Project>
