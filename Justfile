@@ -13,9 +13,6 @@ client:
 test:
     dotnet test .\tests\Avalon.Sim.Tests\Avalon.Sim.Tests.csproj
 
-test-sim:
-    dotnet test .\tests\Avalon.Sim.Tests\Avalon.Sim.Tests.csproj
-
 # Headless smoke test: server + two headless clients, asserts the in-engine self-check.
 smoke port="7777":
     & "{{justfile_directory()}}\scripts\smoke.ps1" -Port {{port}}
