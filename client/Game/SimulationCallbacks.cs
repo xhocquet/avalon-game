@@ -18,7 +18,8 @@ namespace Meesles.Avalon {
     }
 
     public void OnPollInput(int playerId, int tick, ICommandSender sender) {
-      sender.Send(new MoveCommand { H = _input.Horizontal, V = _input.Vertical });
+      if (_input.TryConsumeMoveCommand(out var command))
+        sender.Send(command);
     }
   }
 }
