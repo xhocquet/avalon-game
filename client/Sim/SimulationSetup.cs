@@ -17,7 +17,6 @@ namespace Meesles.Avalon {
     public static void RegisterSystems(EcsSimulation simulation) {
       simulation.AddSystem(new MovementSystem(), SystemPhase.Update);
       simulation.AddSystem(new WaveSpawnSystem(), SystemPhase.Update);
-      simulation.AddSystem(new MinionMoveSystem(), SystemPhase.Update);
       simulation.AddSystem(new RespawnSystem(), SystemPhase.Update);
       simulation.AddSystem(new ScoreSystem(), SystemPhase.LateUpdate);
       simulation.AddSystem(new EventSystem(), SystemPhase.LateUpdate);

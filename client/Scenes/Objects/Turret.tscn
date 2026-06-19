@@ -4,8 +4,6 @@
 [ext_resource type="Script" uid="uid://jt4rwdk0j6k6" path="res://Scripts/SimMarkerNode.cs" id="2_mum06"]
 
 [node name="Turret" unique_id=84568969 instance=ExtResource("1_fuepy")]
-
-[node name="SimMarkerNode" type="Node3D" parent="." index="0" unique_id=1215327892]
 script = ExtResource("2_mum06")
 MarkerType = 3
 metadata/_custom_type_script = "uid://jt4rwdk0j6k6"

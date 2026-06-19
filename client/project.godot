@@ -114,6 +114,13 @@ toggle_pause={
 ]
 }
 
+[physics]
+
+jolt_physics_3d/simulation/use_enhanced_internal_edge_removal=false
+jolt_physics_3d/simulation/allow_sleep=false
+jolt_physics_3d/simulation/body_pair_contact_cache_enabled=false
+jolt_physics_3d/motion_queries/use_enhanced_internal_edge_removal=false
+
 [rendering]
 
 textures/vram_compression/import_etc2_astc=true
