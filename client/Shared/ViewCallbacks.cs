@@ -2,76 +2,71 @@
 using System;
 using xpTURN.Klotho.Core;
 
-namespace Meesles.Avalon
-{
-  public class ViewCallbacks : IViewCallbacks
-  {
-    private readonly Hud _hud;
+namespace Meesles.Avalon {
+  public class ViewCallbacks : IViewCallbacks {
+    private Hud _hud;
     private IKlothoEngine _engine;
     private bool _gameOverShown;
     private Action<int, SimulationEvent> _eventConfirmedHandler;
 
-    public ViewCallbacks(Hud hud)
-    {
+    public ViewCallbacks(Hud hud) {
       _hud = hud;
     }
 
-    public void OnSessionCreated(IKlothoSession session)
-    {
+    public void SetHud(Hud hud) {
+      _hud = hud;
+      if (_engine != null)
+        _hud.SetLocalPlayerId(_engine.LocalPlayerId >= 0 ? _engine.LocalPlayerId : null);
+    }
+
+    public void OnSessionCreated(IKlothoSession session) {
       _engine = session.Engine;
       _gameOverShown = false;
-      _hud.SetLocalPlayerId(_engine != null && _engine.LocalPlayerId > 0 ? _engine.LocalPlayerId : null);
-      _hud.HideResult();
+      _hud?.SetLocalPlayerId(_engine != null && _engine.LocalPlayerId >= 0 ? _engine.LocalPlayerId : null);
+      _hud?.HideResult();
     }
 
-    public void OnGameStart(IKlothoEngine engine)
-    {
+    public void OnGameStart(IKlothoEngine engine) {
       AttachEngine(engine);
     }
 
-    public void OnLateJoinActivated(IKlothoEngine engine)
-    {
+    public void OnLateJoinActivated(IKlothoEngine engine) {
       AttachEngine(engine);
     }
 
-    public void OnTickExecuted(int tick)
-    {
+    public void OnTickExecuted(int tick) {
       if (_engine == null || _engine.PredictedFrame.Frame == null) return;
-      _hud.SyncFromFrame(_engine.PredictedFrame.Frame);
+      _hud?.SyncFromFrame(_engine.PredictedFrame.Frame);
     }
 
-    public void OnSessionStopped()
-    {
+    public void OnSessionStopped() {
       DetachEngine();
       _engine = null;
       _gameOverShown = false;
-      _hud.SetLocalPlayerId(null);
-      _hud.HideResult();
+      _hud?.SetLocalPlayerId(null);
+      _hud?.HideResult();
     }
 
-    public void Cleanup()
-    {
+    public void Cleanup() {
       DetachEngine();
       _engine = null;
       _gameOverShown = false;
-      _hud.SetLocalPlayerId(null);
-      _hud.HideResult();
+      _hud?.SetLocalPlayerId(null);
+      _hud?.HideResult();
     }
 
-    private void AttachEngine(IKlothoEngine engine)
-    {
+    private void AttachEngine(IKlothoEngine engine) {
       if (ReferenceEquals(_engine, engine) && _eventConfirmedHandler != null) return;
 
       DetachEngine();
       _engine = engine;
-      _eventConfirmedHandler = (_, evt) =>
-      {
+      _eventConfirmedHandler = (_, evt) => {
         if (_gameOverShown) return;
         if (evt is not GameOverEvent gameOver) return;
 
         _gameOverShown = true;
-        _hud.ShowResult(gameOver.WinnerPlayerId switch
-        {
+        _hud?.ShowResult(gameOver.WinnerPlayerId switch {
+          0 => "P1 Wins",
           1 => "P1 Wins",
           2 => "P2 Wins",
           _ => "Draw",
@@ -80,8 +75,7 @@ namespace Meesles.Avalon
       _engine.OnEventConfirmed += _eventConfirmedHandler;
     }
 
-    private void DetachEngine()
-    {
+    private void DetachEngine() {
       if (_engine != null && _eventConfirmedHandler != null)
         _engine.OnEventConfirmed -= _eventConfirmedHandler;
       _eventConfirmedHandler = null;

@@ -1,87 +1,136 @@
 using global::Godot;
+using xpTURN.Klotho.Core;
+using xpTURN.Klotho.ECS;
+using xpTURN.Klotho.Godot;
+using xpTURN.Klotho.LiteNetLib;
 
 namespace Meesles.Avalon {
   public partial class SingleplayerGameNode : GameNode {
-    private static readonly Vector3 SpawnPosition = new(0f, 0.5f, 0f);
-    private const float MoveSpeed = 5f;
-    private const float FallThresholdY = -2f;
-    private const float StopDistance = 0.15f;
+    private const string ConnectionKey = "Meesles.Avalon.Singleplayer";
 
-    private Node3D _player;
-    private Node3D _moveTarget;
+    private LiteNetLibTransport _transport;
+    private KlothoSessionFlow _flow;
+    private KlothoSession _session;
+    private ViewCallbacks _viewCallbacks;
+    private EntityViewUpdaterNode _view;
+    private DefaultGodotEntityViewPool _pool;
+    private GodotSessionDriver _driver;
+    private CameraController _camera;
+    private ISimulationConfig _simCfg;
+    private ISessionConfig _sesCfg;
 
     public override void _Ready() {
+      WarmupRegistry.RunAll();
+
+      var logger = CreateLogger("Singleplayer");
+      var registry = LoadAssetRegistry();
+      _simCfg = new SimulationConfig();
+      _sesCfg = new SessionConfig { MaxPlayers = 1, MinPlayers = 1, CountdownDurationMs = 0 };
+
       InitializeSharedNodes();
       Menu.SetSingleplayerMode();
-      Menu.OnResetClicked += ResetSandbox;
-      Hud.SetSandboxMode();
+      Menu.OnResetClicked += ResetSession;
+      Hud.SetMultiplayerMode();
+      Hud.SetPhase(xpTURN.Klotho.Network.SessionPhase.Playing);
 
       SetupView3D();
-      EnsurePlayer();
-      EnsureMoveTarget();
-      var camera = GetNodeOrNull<CameraController>("Camera3D");
-      camera?.SetFollowTarget(_player);
-      Input.BindCamera(camera);
-      Input.BindSingleplayerMoveTarget(_moveTarget);
-      ResetSandbox();
+      _camera = GetNodeOrNull<CameraController>("Camera3D");
+      Input.BindCamera(_camera);
+
+      _viewCallbacks = new ViewCallbacks(Hud);
+      _transport = new LiteNetLibTransport(logger, connectionKey: ConnectionKey);
+      _flow = new KlothoSessionFlow(
+          new KlothoFlowSetupBuilder((s, ss) =>
+                  new SessionCallbacks(new SimulationCallbacks(Input), _viewCallbacks))
+              .WithLogger(logger)
+              .WithTransport(_transport)
+              .WithAssetRegistry(registry)
+              .WithGodotDefaults()
+              .Build()
+      );
+
+      _driver = new GodotSessionDriver();
+      AddChild(_driver);
+      _driver.BindTransport(_transport);
+      _driver.PreSessionUpdate += (s, dt) => { if (s.State == KlothoState.Running) Input.CaptureInput(); };
+
+      CreateView();
+      StartLocalSession();
     }
 
-    public override void _Process(double delta) {
-      if (_player == null) return;
-
-      Input.CaptureInput();
-      var movement = Vector3.Zero;
-      if (Input.HasSingleplayerTarget) {
-        Vector3 toTarget = Input.SingleplayerTarget - _player.GlobalPosition;
-        toTarget.Y = 0f;
-        if (toTarget.Length() <= StopDistance) {
-          Input.ClearSingleplayerTarget();
-        }
-        else {
-          movement = toTarget.Normalized();
-          _player.GlobalPosition += movement * MoveSpeed * (float)delta;
-        }
-      }
-
-      if (movement.LengthSquared() > 0.001f)
-        _player.Rotation = new Vector3(0f, Mathf.Atan2(movement.X, movement.Z), 0f);
-
-      if (_player.Position.Y < FallThresholdY) {
-        ResetSandbox();
-        return;
-      }
-
-      Hud.SyncSandbox(_player.Position, movement);
+    private void ResetSession() {
+      StopSession();
+      StartLocalSession();
     }
 
-    private void EnsurePlayer() {
-      if (_player != null) return;
+    private void StartLocalSession() {
+      _session = _flow.StartHost(_simCfg, _sesCfg);
+      _session.HostGame("Local", _sesCfg.MaxPlayers);
 
+      _view.Initialize(_session.Engine, CreateFactory(), _pool);
+      _view.PlayerViews.OnLocalViewRegistered += OnLocalViewRegistered;
+      _view.PlayerViews.OnLocalViewUnregistered += OnLocalViewUnregistered;
+
+      _driver.Attach(_session);
+      Hud.SetLocalPlayerId(_session.LocalPlayerId);
+      Hud.HideResult();
+      _session.SetReady(true);
+    }
+
+    private void StopSession() {
+      UnbindCameraFollow();
+      _driver?.DetachAndStop(saveReplay: false);
+      _view?.Cleanup();
+      _session = null;
+    }
+
+    private void CreateView() {
+      _pool = new DefaultGodotEntityViewPool();
       var playerScene = GD.Load<PackedScene>("res://Shared/Player.tscn");
-      _player = playerScene.Instantiate<Node3D>();
-      AddChild(_player);
+      var baseScene = GD.Load<PackedScene>("res://Shared/Base.tscn");
+      var minionScene = GD.Load<PackedScene>("res://Shared/Minion.tscn");
+      _pool.Prewarm(playerScene, _sesCfg.MaxPlayers);
+      _pool.Prewarm(baseScene, _sesCfg.MaxPlayers);
+      _pool.Prewarm(minionScene, 64);
 
-      var mesh = _player.GetNodeOrNull<MeshInstance3D>("Mesh");
-      if (mesh != null) {
-        mesh.MaterialOverride = new StandardMaterial3D {
-          AlbedoColor = new Color(0.28f, 0.55f, 0.95f),
-        };
+      _view = new EntityViewUpdaterNode();
+      AddChild(_view);
+      Input.BindViewRoot(_view);
+    }
+
+    private PlayerViewFactory CreateFactory() {
+      var playerScene = GD.Load<PackedScene>("res://Shared/Player.tscn");
+      var baseScene = GD.Load<PackedScene>("res://Shared/Base.tscn");
+      var minionScene = GD.Load<PackedScene>("res://Shared/Minion.tscn");
+      return new PlayerViewFactory(playerScene, baseScene, minionScene);
+    }
+
+    private void OnLocalViewRegistered(EntityViewNode view) {
+      _camera?.SetFollowTarget(view);
+      var frame = view.Engine?.PredictedFrame.Frame;
+      if (frame != null && frame.Has<OwnerComponent>(view.EntityRef))
+        Input.SetLocalOwnerId(frame.GetReadOnly<OwnerComponent>(view.EntityRef).OwnerId);
+      Input.SelectSingleView(view);
+    }
+
+    private void OnLocalViewUnregistered(EntityViewNode view) {
+      _camera?.SetFollowTarget(null);
+    }
+
+    private void UnbindCameraFollow() {
+      if (_view?.PlayerViews != null) {
+        _view.PlayerViews.OnLocalViewRegistered -= OnLocalViewRegistered;
+        _view.PlayerViews.OnLocalViewUnregistered -= OnLocalViewUnregistered;
       }
+
+      _camera?.SetFollowTarget(null);
     }
 
-    private void ResetSandbox() {
-      EnsurePlayer();
-      _player.Position = SpawnPosition;
-      _player.Rotation = Vector3.Zero;
-      Input.ClearSingleplayerTarget();
-      Hud.ShowStatus("Local play only");
-      Hud.SyncSandbox(_player.Position, Vector3.Zero);
-    }
-
-    private void EnsureMoveTarget() {
-      if (_moveTarget != null) return;
-      _moveTarget = new Node3D { Name = "MoveTarget" };
-      AddChild(_moveTarget);
+    public override void _ExitTree() {
+      StopSession();
+      _pool?.Dispose();
+      _viewCallbacks?.Cleanup();
+      base._ExitTree();
     }
   }
 }

@@ -1,0 +1,14 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Scripts/LobbyGameNode.cs" id="1_game"]
+[ext_resource type="PackedScene" path="res://Shared/Menu.tscn" id="2_menu"]
+[ext_resource type="PackedScene" path="res://Shared/Hud.tscn" id="3_hud"]
+
+[node name="Lobby" type="Node"]
+script = ExtResource("1_game")
+
+[node name="UILayer" type="CanvasLayer" parent="."]
+
+[node name="Menu" parent="UILayer" instance=ExtResource("2_menu")]
+
+[node name="Hud" parent="UILayer" instance=ExtResource("3_hud")]
