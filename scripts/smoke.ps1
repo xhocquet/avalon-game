@@ -89,6 +89,11 @@ try {
     Write-Host "[smoke] FAIL - see logs in $logDir" -ForegroundColor Red
     $exit = 1
   }
+
+  Write-Host ""
+  Write-Host "--- server log ---"
+  if (Test-Path $srvOut) { Get-Content $srvOut | Write-Host }
+  if (Test-Path $srvErr) { Get-Content $srvErr | Write-Host }
 }
 finally {
   Stop-Tree

@@ -10,7 +10,13 @@
     <ServerGarbageCollection>true</ServerGarbageCollection>
   </PropertyGroup>
 
+  <!-- Klotho framework (SOURCE BUILD: vendor edits active — see AGENTS.md to revert to prebuilt). -->
   <Import Project="../client/addons/klotho/Klotho.Server.props" />
+  <ItemGroup>
+    <Reference Remove="xpTURN.Klotho.Runtime" />
+    <Reference Remove="KlothoServer" />
+    <ProjectReference Include="../vendor/Klotho/com.xpturn.klotho/Server~/KlothoServer/KlothoServer.csproj" />
+  </ItemGroup>
 
   <PropertyGroup>
     <!-- Deterministic sim copied into client/Sim — same .cs the Godot client compiles,

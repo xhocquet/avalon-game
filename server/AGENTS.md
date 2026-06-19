@@ -6,6 +6,23 @@
 - The server also copies `.bytes` data assets from `../client/Sim/Data/` at build/runtime. Be aware of that dependency when changing data loading.
 - The server imports Klotho from `../client/addons/klotho/Klotho.Server.props`, which references packaged prebuilt runtime DLLs. Inspect `../vendor/Klotho/` for upstream Klotho source when runtime behavior matters.
 
+# Klotho Build Mode
+
+**Default — prebuilt DLLs** (`client/addons/klotho/lib/`): fastest build, matches the shipped client binaries. No changes needed; `Klotho.Server.props` wires everything automatically.
+
+**Source build** — compile Klotho from `vendor/` so edits to framework internals (e.g. `vendor/Klotho/com.xpturn.klotho/Runtime/Network/Services/ServerNetworkService.cs`) take effect. Switch by adding an `ItemGroup` after the `<Import>` in `Server.csproj`:
+
+```xml
+<!-- Switch to vendor source build (remove when done debugging) -->
+<ItemGroup>
+  <Reference Remove="xpTURN.Klotho.Runtime" />
+  <Reference Remove="KlothoServer" />
+  <ProjectReference Include="../vendor/Klotho/com.xpturn.klotho/Server~/KlothoServer/KlothoServer.csproj" />
+</ItemGroup>
+```
+
+The `<Import>` stays — it supplies the `KlothoGenerator.dll` analyzer and NuGet package references. Only the two `<Reference>` DLLs are replaced with their source equivalents. Revert the `ItemGroup` to go back to prebuilt.
+
 # Working Rules
 
 - Prefer changes that keep build/run behavior explicit in `Server.csproj` and `Program.cs`.
