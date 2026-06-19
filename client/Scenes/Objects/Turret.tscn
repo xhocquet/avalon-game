@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://bw00gejcd6ugv"]
+
+[ext_resource type="PackedScene" uid="uid://dbqi6ag4yuwg0" path="res://Assets/Models/Turret.glb" id="1_fuepy"]
+
+[node name="Turret" unique_id=84568969 instance=ExtResource("1_fuepy")]

@@ -1,0 +1,18 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://b7sjebhwumow7"]
+
+[ext_resource type="Texture2D" uid="uid://bd6eyb76e0nio" path="res://Assets/Materials/FirTree/FirTree_0.jpg" id="1_sk6rn"]
+[ext_resource type="Texture2D" uid="uid://ch1hf1soh7ib" path="res://Assets/Materials/FirTree/FirTree_1.jpg" id="2_qhh8j"]
+[ext_resource type="Texture2D" uid="uid://cb1ctx1xgpgas" path="res://Assets/Materials/FirTree/FirTree_2.jpg" id="3_t31x4"]
+
+[resource]
+resource_name = "material_0"
+cull_mode = 2
+albedo_texture = ExtResource("1_sk6rn")
+metallic = 1.0
+metallic_texture = ExtResource("2_qhh8j")
+metallic_texture_channel = 2
+roughness_texture = ExtResource("2_qhh8j")
+roughness_texture_channel = 1
+emission_enabled = true
+normal_enabled = true
+normal_texture = ExtResource("3_t31x4")
