@@ -5,8 +5,10 @@ namespace Meesles.Avalon {
     private static readonly Vector3 SpawnPosition = new(0f, 0.5f, 0f);
     private const float MoveSpeed = 5f;
     private const float FallThresholdY = -2f;
+    private const float StopDistance = 0.15f;
 
     private Node3D _player;
+    private Node3D _moveTarget;
 
     public override void _Ready() {
       InitializeSharedNodes();
@@ -16,7 +18,11 @@ namespace Meesles.Avalon {
 
       SetupView3D();
       EnsurePlayer();
-      GetNodeOrNull<CameraController>("Camera3D")?.SetFollowTarget(_player);
+      EnsureMoveTarget();
+      var camera = GetNodeOrNull<CameraController>("Camera3D");
+      camera?.SetFollowTarget(_player);
+      Input.BindCamera(camera);
+      Input.BindSingleplayerMoveTarget(_moveTarget);
       ResetSandbox();
     }
 
@@ -24,10 +30,18 @@ namespace Meesles.Avalon {
       if (_player == null) return;
 
       Input.CaptureInput();
-      var movement = new Vector3(Input.Horizontal.ToFloat(), 0f, Input.Vertical.ToFloat());
-      if (movement.LengthSquared() > 1f) movement = movement.Normalized();
-
-      _player.Position += movement * MoveSpeed * (float)delta;
+      var movement = Vector3.Zero;
+      if (Input.HasSingleplayerTarget) {
+        Vector3 toTarget = Input.SingleplayerTarget - _player.GlobalPosition;
+        toTarget.Y = 0f;
+        if (toTarget.Length() <= StopDistance) {
+          Input.ClearSingleplayerTarget();
+        }
+        else {
+          movement = toTarget.Normalized();
+          _player.GlobalPosition += movement * MoveSpeed * (float)delta;
+        }
+      }
 
       if (movement.LengthSquared() > 0.001f)
         _player.Rotation = new Vector3(0f, Mathf.Atan2(movement.X, movement.Z), 0f);
@@ -59,8 +73,15 @@ namespace Meesles.Avalon {
       EnsurePlayer();
       _player.Position = SpawnPosition;
       _player.Rotation = Vector3.Zero;
+      Input.ClearSingleplayerTarget();
       Hud.ShowStatus("Local play only");
       Hud.SyncSandbox(_player.Position, Vector3.Zero);
+    }
+
+    private void EnsureMoveTarget() {
+      if (_moveTarget != null) return;
+      _moveTarget = new Node3D { Name = "MoveTarget" };
+      AddChild(_moveTarget);
     }
   }
 }

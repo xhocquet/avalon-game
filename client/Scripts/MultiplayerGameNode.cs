@@ -71,6 +71,7 @@ namespace Meesles.Avalon {
       _pool.Prewarm(minionScene, 64);
       _view = new EntityViewUpdaterNode();
       AddChild(_view);
+      Input.BindViewRoot(_view);
 
       _driver = new GodotSessionDriver();
       AddChild(_driver);
@@ -86,6 +87,7 @@ namespace Meesles.Avalon {
 
       SetupView3D();
       _camera = GetNodeOrNull<CameraController>("Camera3D");
+      Input.BindCamera(_camera);
 
       foreach (var a in OS.GetCmdlineUserArgs()) {
         if (a == "join") _autoJoin = true;
@@ -133,6 +135,10 @@ namespace Meesles.Avalon {
 
     private void OnLocalViewRegistered(EntityViewNode view) {
       _camera?.SetFollowTarget(view);
+      var frame = view.Engine?.PredictedFrame.Frame;
+      if (frame != null && frame.Has<OwnerComponent>(view.EntityRef))
+        Input.SetLocalOwnerId(frame.GetReadOnly<OwnerComponent>(view.EntityRef).OwnerId);
+      Input.SelectSingleView(view);
     }
 
     private void OnLocalViewUnregistered(EntityViewNode view) {
