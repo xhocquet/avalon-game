@@ -2,9 +2,9 @@
 
 [ext_resource type="PackedScene" uid="uid://btidcylufoptp" path="res://assets/models/Player.glb" id="1_uyr3s"]
 
-[node name="Sketchfab_Scene" instance=ExtResource("1_uyr3s")]
+[node name="Player" instance=ExtResource("1_uyr3s")]
 
-[node name="Skeleton3D" parent="Sketchfab_model/Player Character Project_ Playtime_fbx/Object_2/RootNode/SK_PlayerDefault_ao/Object_5" index="0"]
+[node name="Skeleton3D" parent="Model/PlayerFBX/SceneRoot/RootNode/PlayerArmature/Skeleton" index="0"]
 bones/2/position = Vector3(-0.0029114808, 0.39684248, -0.011465397)
 bones/3/position = Vector3(0, -6.5750783e-09, -4.7293724e-11)
 bones/3/rotation = Quaternion(0.06858853, 0.035814848, -0.014938064, 0.99689007)

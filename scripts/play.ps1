@@ -30,7 +30,7 @@ try {
   Write-Host "[play] starting server on port $Port..."
   $server = Start-Process -FilePath "dotnet" `
     -ArgumentList @("run", "--project", (Join-Path $repoRoot "server/Server.csproj"), "--", "$Port") `
-    -WorkingDirectory $repoRoot -PassThru -WindowStyle Hidden
+    -WorkingDirectory $repoRoot -PassThru -WindowStyle Normal
   Start-Sleep -Seconds 6
 
   Write-Host "[play] launching client 1..."
