@@ -1,4 +1,5 @@
 using xpTURN.Klotho.Core;
+using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon {
@@ -18,13 +19,13 @@ namespace Meesles.Avalon {
 
     public void Update(ref Frame frame) {
       var stats = frame.AssetRegistry.Get<PlayerStatsAsset>();
-      var filter = frame.Filter<PlayerComponent, PhysicsBodyComponent>();
+      FP64 dt = FP64.FromInt(frame.DeltaTimeMs) / FP64.FromInt(1000);
+      var filter = frame.Filter<PlayerComponent, TransformComponent>();
       while (filter.Next(out var entity)) {
         ref var p = ref frame.Get<PlayerComponent>(entity);
-        ref var phys = ref frame.Get<PhysicsBodyComponent>(entity);
-        phys.RigidBody.velocity.x = p.LastInputH * stats.MoveSpeed;
-        phys.RigidBody.velocity.z = p.LastInputV * stats.MoveSpeed;
-        // velocity.y left to the engine gravity (PhysicsSystem) + static ground resting-contact.
+        ref var transform = ref frame.Get<TransformComponent>(entity);
+        transform.Position.x += p.LastInputH * stats.MoveSpeed * dt;
+        transform.Position.z += p.LastInputV * stats.MoveSpeed * dt;
       }
     }
   }

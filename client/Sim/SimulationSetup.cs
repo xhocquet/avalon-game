@@ -1,7 +1,5 @@
-using System.Collections.Generic;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
-using xpTURN.Klotho.Deterministic.Physics;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.ECS.Systems;
 
@@ -16,11 +14,6 @@ namespace Meesles.Avalon {
     private const int HeroSpawnInset = 8;
 
     public static void RegisterSystems(EcsSimulation simulation) {
-      // Size physics body buffers to the world's entity capacity. The buffer is indexed by
-      // live body count with no bounds check, so it must hold every physics-bodied entity.
-      var physics = new PhysicsSystem(simulation.Frame.MaxEntities);
-      physics.LoadStaticColliders("", new List<FPStaticCollider> { CreateGroundCollider() });
-      simulation.AddSystem(physics, SystemPhase.Update);
       simulation.AddSystem(new MovementSystem(), SystemPhase.Update);
       simulation.AddSystem(new WaveSpawnSystem(), SystemPhase.Update);
       simulation.AddSystem(new MinionMoveSystem(), SystemPhase.Update);
@@ -35,7 +28,6 @@ namespace Meesles.Avalon {
     }
 
     public static void InitializeWorld(ref Frame frame, int maxPlayers) {
-      var stats = frame.AssetRegistry.Get<PlayerStatsAsset>();
       UnitIdGenerator.Initialize(ref frame);
       SpawnTeamBases(ref frame, maxPlayers);
 
@@ -43,17 +35,11 @@ namespace Meesles.Avalon {
         int teamId = TeamAssignment.GetTeamIdForPlayer(playerId + 1);
         var entity = frame.CreateEntity();
         FPVector3 initialPos = GetHeroSpawnPositionForTeam(ref frame, teamId);
-        FPVector3 halfExt = new FPVector3(stats.PlayerHalfExtent, stats.PlayerHalfExtent, stats.PlayerHalfExtent);
 
         frame.Add(entity, new TransformComponent {
           Position = initialPos,
           Rotation = FP64.Zero,
           Scale = FPVector3.One,
-        });
-        frame.Add(entity, new PhysicsBodyComponent {
-          RigidBody = FPRigidBody.CreateDynamic(stats.PlayerMass),
-          Collider = FPCollider.FromBox(new FPBoxShape(halfExt, FPVector3.Zero)),
-          ColliderOffset = FPVector3.Zero,
         });
         frame.Add(entity, new OwnerComponent { OwnerId = playerId + 1 });
         frame.Add(entity, new PlayerComponent { PlayerId = playerId + 1 });
@@ -136,23 +122,13 @@ namespace Meesles.Avalon {
 
     private static FPVector3 GetHeroSpawnOffset(int teamId) {
       FP64 inset = FP64.FromInt(HeroSpawnInset);
-      FP64 height = FP64.One;
 
       return teamId switch {
-        1 => new FPVector3(inset, height, inset),
-        2 => new FPVector3(-inset, height, -inset),
-        3 => new FPVector3(-inset, height, inset),
-        4 => new FPVector3(inset, height, -inset),
-        _ => new FPVector3(FP64.Zero, height, FP64.Zero),
-      };
-    }
-
-    private static FPStaticCollider CreateGroundCollider() {
-      return new FPStaticCollider {
-        id = -1,
-        collider = FPCollider.FromBox(new FPBoxShape(
-          new FPVector3(FP64.FromInt(MapHalfExtent), FP64.FromFloat(0.1f), FP64.FromInt(MapHalfExtent)),
-          new FPVector3(FP64.Zero, FP64.FromFloat(-0.1f), FP64.Zero))),
+        1 => new FPVector3(inset, FP64.Zero, inset),
+        2 => new FPVector3(-inset, FP64.Zero, -inset),
+        3 => new FPVector3(-inset, FP64.Zero, inset),
+        4 => new FPVector3(inset, FP64.Zero, -inset),
+        _ => FPVector3.Zero,
       };
     }
   }
