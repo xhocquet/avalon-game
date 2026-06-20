@@ -83,6 +83,12 @@ namespace Meesles.Avalon {
         Current = rules.MinionHealth,
         Max = rules.MinionHealth,
       });
+      frame.Add(entity, new Combat {
+        AttackDamage = rules.MinionAttackDamage,
+        AttackRange = rules.MinionAttackRange,
+        AttackCooldownTicks = rules.MinionAttackCooldownTicks,
+        CooldownRemainingTicks = 0,
+      });
     }
   }
 }

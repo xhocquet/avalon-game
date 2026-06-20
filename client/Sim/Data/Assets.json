@@ -22,6 +22,9 @@
     "MinionSpacing": 1.2,
     "MaxConcurrentMinions": 800,
     "SpawnForwardOffset": 12.0,
-    "MinionMoveSpeed": 5.0
+    "MinionMoveSpeed": 5.0,
+    "MinionAttackDamage": 10,
+    "MinionAttackRange": 2.0,
+    "MinionAttackCooldownTicks": 30
   }
 ]
