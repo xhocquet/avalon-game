@@ -3,7 +3,7 @@ using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Network;
 
 namespace Meesles.Avalon {
-  public partial class LobbyUI : Control {
+  public partial class LobbyUI : Control, IViewHud {
     private Label _state;
     private Label _room;
     private Label _playerId;

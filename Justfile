@@ -21,6 +21,10 @@ smoke port="7777":
 play port="7777":
     & "{{justfile_directory()}}\scripts\play.ps1" -Port {{port}}
 
+# Multiplayer run with auto-join and auto-ready: same build as `play` but skips the lobby UI.
+quickplay port="7777":
+    & "{{justfile_directory()}}\scripts\quickplay.ps1" -Port {{port}}
+
 # Wipe Godot's compiled DLL cache so the next build/play starts clean.
 clean:
     Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "{{justfile_directory()}}\client\.godot\mono\temp\bin"

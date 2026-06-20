@@ -27,17 +27,15 @@ namespace Meesles.Avalon {
       _simCfg = new SimulationConfig();
       _sesCfg = new SessionConfig { MaxPlayers = 1, MinPlayers = 1, CountdownDurationMs = 0 };
 
-      InitializeSharedNodes();
-      Menu.SetSingleplayerMode();
-      Menu.OnResetClicked += ResetSession;
-      LobbyUI.SetMultiplayerMode();
-      LobbyUI.SetPhase(xpTURN.Klotho.Network.SessionPhase.Playing);
+      InitializeGameUI();
+      GameUI.SetMultiplayerMode();
+      GameUI.SetPhase(xpTURN.Klotho.Network.SessionPhase.Playing);
 
       SetupView3D();
       _camera = GetNodeOrNull<CameraController>("Camera3D");
       Input.BindCamera(_camera);
 
-      _viewCallbacks = new ViewCallbacks(LobbyUI);
+      _viewCallbacks = new ViewCallbacks(GameUI);
       _transport = new LiteNetLibTransport(logger, connectionKey: ConnectionKey);
       _flow = new KlothoSessionFlow(
           new KlothoFlowSetupBuilder((s, ss) =>
@@ -72,8 +70,8 @@ namespace Meesles.Avalon {
       _view.PlayerViews.OnLocalViewUnregistered += OnLocalViewUnregistered;
 
       _driver.Attach(_session);
-      LobbyUI.SetLocalPlayerId(_session.LocalPlayerId);
-      LobbyUI.HideResult();
+      GameUI.SetLocalPlayerId(_session.LocalPlayerId);
+      GameUI.HideResult();
       _session.SetReady(true);
     }
 

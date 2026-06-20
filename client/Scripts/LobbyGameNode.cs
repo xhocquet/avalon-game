@@ -12,6 +12,7 @@ namespace Meesles.Avalon {
     private const string ConnectionKey = "Meesles.Avalon";
     private const int RoomId = 0;
     private const string GameScenePath = "res://Scenes/Multiplayer.tscn";
+    private const int CountdownMs = 1000;
 
     private IKLogger _logger;
     private IDataAssetRegistry _registry;
@@ -27,6 +28,7 @@ namespace Meesles.Avalon {
     private bool _joining;
     private bool _handoffStarted;
     private bool _autoReadySent;
+    private bool _quickplay;
     private SessionPhase _lastPhase = SessionPhase.None;
     private ulong _countdownStartedAtMs;
 
@@ -36,7 +38,7 @@ namespace Meesles.Avalon {
       _logger = CreateLogger();
       _registry = LoadAssetRegistry();
       _simCfg = new SimulationConfig { Mode = NetworkMode.ServerDriven };
-      _sesCfg = new SessionConfig { MaxPlayers = 2, MinPlayers = 2, CountdownDurationMs = 3000 };
+      _sesCfg = new SessionConfig { MaxPlayers = 2, MinPlayers = 2, CountdownDurationMs = CountdownMs };
 
       InitializeSharedNodes();
       Menu.SetLobbyMode();
@@ -67,9 +69,8 @@ namespace Meesles.Avalon {
       Menu.SetReadyEnabled(false);
       Menu.SetStopEnabled(false);
 
-// #if DEBUG
-//       OnJoin();
-// #endif
+      _quickplay = System.Array.IndexOf(OS.GetCmdlineUserArgs(), "--quickplay") >= 0;
+      if (_quickplay) CallDeferred(MethodName.OnJoin);
     }
 
     private void OnJoin() {
@@ -149,7 +150,7 @@ namespace Meesles.Avalon {
 
     private void AutoReadyHeadless() {
       if (_autoReadySent) return;
-      if (DisplayServer.GetName() != "headless") return;
+      if (DisplayServer.GetName() != "headless" && !_quickplay) return;
       if (_session.Phase != SessionPhase.Synchronized) return;
 
       OnReady();

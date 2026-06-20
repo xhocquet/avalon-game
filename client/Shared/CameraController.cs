@@ -2,26 +2,20 @@ using global::Godot;
 
 namespace Meesles.Avalon {
   public partial class CameraController : Camera3D {
-    private const float CameraTiltDegrees = 55f;
-    private const float CameraFollowHeight = 7.5f;
-
-    [Export] public float FollowSpeed = 5f;
-    [Export] public float FollowHeightAtMinZoom = 3.5f;
-    [Export] public float GodmodeMouseSensitivity = 0.002f;
-    [Export] public float GodmodeMoveSpeed = 25f;
-    [Export] public float GodmodePitchMaxDegrees = 89f;
-    [Export] public float GodmodePitchMinDegrees = -89f;
-    [Export] public float GodmodeVerticalSpeed = 15f;
-    [Export] public float PanMoveSpeed = 20f;
-    [Export] public float FovMax = 75f;
-    [Export] public float FovMin = 20f;
-    [Export] public float FovZoomLerpSpeed = 12f;
-    [Export] public float FovZoomStep = 5f;
-    [Export] public float PitchAtMinFovDegrees = 10f;
+    private const float TiltDegrees = 45f;
+    private const float ZoomStep = 2f;
+    private const float ZoomMin = 5f;
+    private const float ZoomMax = 30f;
+    private const float FollowSpeed = 5f;
+    private const float PanSpeed = 18f;
+    private const float MouseSensitivity = 0.002f;
+    private const float GodmodeMoveSpeed = 25f;
+    private const float GodmodeVerticalSpeed = 15f;
+    private const float GodmodePitchMaxDeg = 89f;
+    private const float GodmodePitchMinDeg = -89f;
 
     private Node3D _followTarget;
-    private float _targetFov = 75f;
-    private float _zoomT = 1f;
+    private float _zoomDistance = 15f;
     private float _godmodePitch;
     private float _godmodeYaw;
     private bool _godmodeEnabled;
@@ -31,18 +25,16 @@ namespace Meesles.Avalon {
     public void SetFollowTarget(Node3D target) {
       _followTarget = target;
       _justExitedGodmode = false;
-      if (_followTarget != null) SnapToFollowTarget();
+      if (_followTarget != null) SnapToTarget();
     }
 
     public override void _Ready() {
-      InitializeFov();
-      Position = new Vector3(Position.X, CameraFollowHeight, Position.Z);
-      GlobalTransform = new Transform3D(GetFollowBasisWithPitch(Mathf.DegToRad(-CameraTiltDegrees)), GlobalPosition);
-      SyncGodmodeRotationFromTransform();
+      GlobalTransform = new Transform3D(FollowBasis(), GlobalPosition);
+      SyncGodmodeFromTransform();
     }
 
     public override void _Input(InputEvent @event) {
-      if (@event is InputEventKey keyEvent && keyEvent.IsActionPressed("toggle_godmode") && !keyEvent.Echo) {
+      if (@event is InputEventKey key && key.IsActionPressed("toggle_godmode") && !key.Echo) {
         _godmodeEnabled = !_godmodeEnabled;
         GetViewport().SetInputAsHandled();
         return;
@@ -53,17 +45,14 @@ namespace Meesles.Avalon {
         return;
       }
 
-      if (@event is InputEventMouseButton { Pressed: true } mouseButton) {
-        if (mouseButton.ButtonIndex == MouseButton.WheelUp) AdjustTargetFov(-FovZoomStep);
-        else if (mouseButton.ButtonIndex == MouseButton.WheelDown) AdjustTargetFov(FovZoomStep);
+      if (@event is InputEventMouseButton { Pressed: true } mb) {
+        if (mb.ButtonIndex == MouseButton.WheelUp) _zoomDistance = Mathf.Clamp(_zoomDistance - ZoomStep, ZoomMin, ZoomMax);
+        if (mb.ButtonIndex == MouseButton.WheelDown) _zoomDistance = Mathf.Clamp(_zoomDistance + ZoomStep, ZoomMin, ZoomMax);
       }
     }
 
     public override void _Process(double delta) {
       float dt = (float)delta;
-      _zoomT = Mathf.Lerp(_zoomT, GetZoomTFromFov(_targetFov), FovZoomLerpSpeed * dt);
-      _zoomT = Mathf.Clamp(_zoomT, 0f, 1f);
-      Fov = Mathf.Lerp(FovMin, FovMax, _zoomT);
 
       UpdateMouseCapture();
       if (_godmodeEnabled) {
@@ -74,14 +63,13 @@ namespace Meesles.Avalon {
 
       if (_justExitedGodmode) return;
 
-      UpdateFollowBasisFromZoom();
       if (_followTarget != null) SmoothFollow(dt);
-      else ProcessPanNoTarget(dt);
+      else ProcessPan(dt);
     }
 
-    public Vector3? ScreenToGround(Vector2 screenPosition) {
-      Vector3 origin = ProjectRayOrigin(screenPosition);
-      Vector3 dir = ProjectRayNormal(screenPosition);
+    public Vector3? ScreenToGround(Vector2 screenPos) {
+      Vector3 origin = ProjectRayOrigin(screenPos);
+      Vector3 dir = ProjectRayNormal(screenPos);
       if (Mathf.Abs(dir.Y) < 0.0001f) return null;
       float t = -origin.Y / dir.Y;
       if (t < 0f) return null;
@@ -89,143 +77,83 @@ namespace Meesles.Avalon {
     }
 
     private void ProcessGodmode(float dt) {
-      Vector3 dir = GetWasdDirectionXz();
+      Vector3 dir = WasdDirectionXz();
       if (dir.LengthSquared() > 0f) GlobalPosition += dir * GodmodeMoveSpeed * dt;
       if (Input.IsActionPressed("move_up")) GlobalPosition += Vector3.Up * GodmodeVerticalSpeed * dt;
       if (Input.IsActionPressed("move_down")) GlobalPosition -= Vector3.Up * GodmodeVerticalSpeed * dt;
     }
 
-    private void ProcessPanNoTarget(float dt) {
-      Vector3 dir = GetWasdDirectionXz();
-      if (dir.LengthSquared() > 0f) GlobalPosition += dir * PanMoveSpeed * dt;
+    private void ProcessPan(float dt) {
+      Vector3 dir = WasdDirectionXz();
+      if (dir.LengthSquared() > 0f) GlobalPosition += dir * PanSpeed * dt;
     }
 
     private void SmoothFollow(float dt) {
-      Vector3 viewDir = -GlobalTransform.Basis.Z;
-      Vector3 targetPos = _followTarget.GlobalPosition;
-      float followHeight = GetFollowHeight();
-      float dy = targetPos.Y - followHeight;
-      Vector3 desiredPos;
-
-      if (Mathf.Abs(viewDir.Y) < 0.0001f) {
-        desiredPos = new Vector3(targetPos.X, followHeight, targetPos.Z);
-      }
-      else {
-        float t = dy / viewDir.Y;
-        desiredPos = targetPos - t * viewDir;
-        desiredPos.Y = followHeight;
-      }
-
-      float lerpT = Mathf.Clamp(FollowSpeed * dt, 0f, 1f);
-      GlobalPosition = new Vector3(
-          Mathf.Lerp(GlobalPosition.X, desiredPos.X, lerpT),
-          followHeight,
-          Mathf.Lerp(GlobalPosition.Z, desiredPos.Z, lerpT));
+      Vector3 desired = CameraPosForTarget(_followTarget.GlobalPosition);
+      GlobalPosition = GlobalPosition.Lerp(desired, Mathf.Clamp(FollowSpeed * dt, 0f, 1f));
     }
 
-    private void SnapToFollowTarget() {
-      Vector3 viewDir = -GlobalTransform.Basis.Z;
-      Vector3 targetPos = _followTarget.GlobalPosition;
-      float followHeight = GetFollowHeight();
-      float dy = targetPos.Y - followHeight;
+    private void SnapToTarget() {
+      GlobalPosition = CameraPosForTarget(_followTarget.GlobalPosition);
+    }
 
-      if (Mathf.Abs(viewDir.Y) < 0.0001f) {
-        GlobalPosition = new Vector3(targetPos.X, followHeight, targetPos.Z);
-        return;
-      }
-
-      float t = dy / viewDir.Y;
-      Vector3 desiredPos = targetPos - t * viewDir;
-      desiredPos.Y = followHeight;
-      GlobalPosition = desiredPos;
+    private Vector3 CameraPosForTarget(Vector3 targetPos) {
+      return targetPos + GlobalTransform.Basis.Z * _zoomDistance;
     }
 
     private void UpdateMouseCapture() {
       if (_godmodeEnabled && !_wasGodmode) OnEnterGodmode();
       else if (!_godmodeEnabled && _wasGodmode) OnExitGodmode();
-
       _wasGodmode = _godmodeEnabled;
     }
 
     private void OnEnterGodmode() {
       Input.MouseMode = Input.MouseModeEnum.Captured;
-      SyncGodmodeRotationFromTransform();
+      SyncGodmodeFromTransform();
     }
 
     private void OnExitGodmode() {
       _justExitedGodmode = true;
       Input.MouseMode = Input.MouseModeEnum.Visible;
-      GlobalTransform = new Transform3D(GetFollowBasisWithPitch(GetFollowPitchRadFromFov(Fov)), GlobalPosition);
-      if (_followTarget != null) SnapToFollowTarget();
+      GlobalTransform = new Transform3D(FollowBasis(), GlobalPosition);
+      if (_followTarget != null) SnapToTarget();
     }
 
-    private Vector3 GetWasdDirectionXz() {
-      Vector3 forwardXz = GlobalTransform.Basis.Z;
-      forwardXz.Y = 0f;
-      forwardXz = forwardXz.Normalized();
+    private Vector3 WasdDirectionXz() {
+      Vector3 forward = -GlobalTransform.Basis.Z;
+      forward.Y = 0f;
+      forward = forward.Normalized();
 
       Vector3 right = GlobalTransform.Basis.X;
       right.Y = 0f;
       right = right.Normalized();
 
       Vector3 dir = Vector3.Zero;
-      if (Input.IsActionPressed("move_forward")) dir -= forwardXz;
-      if (Input.IsActionPressed("move_backward")) dir += forwardXz;
+      if (Input.IsActionPressed("move_forward")) dir += forward;
+      if (Input.IsActionPressed("move_backward")) dir -= forward;
       if (Input.IsActionPressed("move_left")) dir -= right;
       if (Input.IsActionPressed("move_right")) dir += right;
       return dir.LengthSquared() > 0f ? dir.Normalized() : dir;
     }
 
-    private void ApplyGodmodeLook(Vector2 relative) {
-      _godmodeYaw -= relative.X * GodmodeMouseSensitivity;
-      _godmodePitch -= relative.Y * GodmodeMouseSensitivity;
+    private void ApplyGodmodeLook(Vector2 delta) {
+      _godmodeYaw -= delta.X * MouseSensitivity;
+      _godmodePitch -= delta.Y * MouseSensitivity;
       _godmodePitch = Mathf.Clamp(
           _godmodePitch,
-          Mathf.DegToRad(GodmodePitchMinDegrees),
-          Mathf.DegToRad(GodmodePitchMaxDegrees));
+          Mathf.DegToRad(GodmodePitchMinDeg),
+          Mathf.DegToRad(GodmodePitchMaxDeg));
       GlobalTransform = new Transform3D(Basis.FromEuler(new Vector3(_godmodePitch, _godmodeYaw, 0f), EulerOrder.Yxz), GlobalPosition);
     }
 
-    private void SyncGodmodeRotationFromTransform() {
+    private void SyncGodmodeFromTransform() {
       Vector3 euler = GlobalTransform.Basis.GetEuler(EulerOrder.Yxz);
       _godmodePitch = euler.X;
       _godmodeYaw = euler.Y;
     }
 
-    private void AdjustTargetFov(float step) {
-      _targetFov = Mathf.Clamp(_targetFov + step, FovMin, FovMax);
-    }
-
-    private void InitializeFov() {
-      Fov = Mathf.Clamp(Fov, FovMin, FovMax);
-      _targetFov = Fov;
-      _zoomT = GetZoomTFromFov(Fov);
-    }
-
-    private void UpdateFollowBasisFromZoom() {
-      GlobalTransform = new Transform3D(GetFollowBasisWithPitch(GetFollowPitchRadFromZoomT(_zoomT)), GlobalPosition);
-    }
-
-    private float GetFollowHeight() {
-      return Mathf.Lerp(FollowHeightAtMinZoom, CameraFollowHeight, _zoomT);
-    }
-
-    private float GetZoomTFromFov(float fovValue) {
-      return Mathf.Clamp((fovValue - FovMin) / (FovMax - FovMin), 0f, 1f);
-    }
-
-    private float GetFollowPitchRadFromZoomT(float t) {
-      t = Mathf.Clamp(t, 0f, 1f);
-      float pitchDeg = Mathf.Lerp(-PitchAtMinFovDegrees, -CameraTiltDegrees, t);
-      return Mathf.DegToRad(pitchDeg);
-    }
-
-    private float GetFollowPitchRadFromFov(float fovValue) {
-      return GetFollowPitchRadFromZoomT(GetZoomTFromFov(fovValue));
-    }
-
-    private static Basis GetFollowBasisWithPitch(float pitchRad) {
-      return Basis.FromEuler(new Vector3(pitchRad, Mathf.DegToRad(90f), 0f), EulerOrder.Yxz);
+    private static Basis FollowBasis() {
+      return Basis.FromEuler(new Vector3(Mathf.DegToRad(-TiltDegrees), Mathf.DegToRad(90f), 0f), EulerOrder.Yxz);
     }
   }
 }
