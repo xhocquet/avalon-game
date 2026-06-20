@@ -4,6 +4,7 @@ using global::Godot;
 namespace Meesles.Avalon {
   public partial class Menu : Control {
     private bool _singleplayerMode;
+    private bool _isReady;
     private Button _joinButton;
     private Button _readyButton;
     private Button _stopButton;
@@ -13,6 +14,7 @@ namespace Meesles.Avalon {
     public event Action OnResetClicked;
     public event Action OnJoinClicked;
     public event Action OnReadyClicked;
+    public event Action OnUnreadyClicked;
     public event Action OnStopClicked;
 
     public string Host => _ipField?.Text?.Trim();
@@ -26,7 +28,7 @@ namespace Meesles.Avalon {
       _portField = GetNode<LineEdit>("VBox/PortField");
 
       _joinButton.Pressed += HandleJoinPressed;
-      _readyButton.Pressed += () => OnReadyClicked?.Invoke();
+      _readyButton.Pressed += HandleReadyPressed;
       _stopButton.Pressed += () => OnStopClicked?.Invoke();
     }
 
@@ -58,6 +60,13 @@ namespace Meesles.Avalon {
       if (_portField != null) _portField.Text = port.ToString();
     }
 
+    public void SetReadyState(bool ready) {
+      _isReady = ready;
+      if (_readyButton == null) return;
+      _readyButton.Text = ready ? "Unready" : "Ready";
+      _readyButton.Disabled = false;
+    }
+
     public void SetReadyEnabled(bool enabled) {
       if (_readyButton != null) _readyButton.Disabled = !enabled;
     }
@@ -69,6 +78,11 @@ namespace Meesles.Avalon {
     private void HandleJoinPressed() {
       if (_singleplayerMode) OnResetClicked?.Invoke();
       else OnJoinClicked?.Invoke();
+    }
+
+    private void HandleReadyPressed() {
+      if (_isReady) OnUnreadyClicked?.Invoke();
+      else OnReadyClicked?.Invoke();
     }
   }
 }

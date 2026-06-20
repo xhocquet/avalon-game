@@ -47,7 +47,15 @@ try {
   Write-Host "[smoke] building server + client..."
   & dotnet build (Join-Path $repoRoot "server/Server.csproj") -c Debug | Out-Null
   if ($LASTEXITCODE -ne 0) { throw "server build failed" }
-  & dotnet build (Join-Path $repoRoot "client/Client.csproj") -c Debug | Out-Null
+
+  # Sync Klotho runtime DLL built from vendor source into the client addon.
+  Write-Host "[smoke] building Klotho runtime from source..."
+  & dotnet build (Join-Path $repoRoot "vendor/Klotho/com.xpturn.klotho/Godot~/xpTURN.Klotho.Runtime.csproj") -c Debug | Out-Null
+  if ($LASTEXITCODE -ne 0) { throw "Klotho runtime build failed" }
+  Copy-Item -Force (Join-Path $repoRoot "vendor/Klotho/com.xpturn.klotho/Godot~/bin/Debug/net8.0/xpTURN.Klotho.Runtime.dll") `
+                   (Join-Path $repoRoot "client/addons/klotho/lib/xpTURN.Klotho.Runtime.dll")
+
+  & dotnet build (Join-Path $repoRoot "client/Meesles.Avalon.Client.csproj") -c Debug | Out-Null
   if ($LASTEXITCODE -ne 0) { throw "client build failed" }
 
   Write-Host "[smoke] starting server on port $Port..."

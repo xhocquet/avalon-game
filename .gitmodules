@@ -1,3 +1,4 @@
 [submodule "vendor/Klotho"]
 	path = vendor/Klotho
 	url = https://github.com/xhocquet/Klotho
+	branch = avalon
