@@ -40,8 +40,12 @@ function Invoke-DotnetFormat {
 
 $clientFiles = @($staged | Where-Object { $_.StartsWith("client/") })
 $serverFiles = @($staged | Where-Object { $_.StartsWith("server/") })
+$testsFiles  = @($staged | Where-Object { $_.StartsWith("tests/") })
+$toolsFiles  = @($staged | Where-Object { $_.StartsWith("tools/") })
 
-Invoke-DotnetFormat "client/Client.csproj" $clientFiles
-Invoke-DotnetFormat "server/Server.csproj" $serverFiles
+Invoke-DotnetFormat "client/Meesles.Avalon.Client.csproj" $clientFiles
+Invoke-DotnetFormat "server/Server.csproj"                 $serverFiles
+Invoke-DotnetFormat "tests/Avalon.Sim.Tests/Avalon.Sim.Tests.csproj" $testsFiles
+Invoke-DotnetFormat "tools/AssetGen/AssetGen.csproj"       $toolsFiles
 
 git add -- $staged
