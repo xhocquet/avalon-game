@@ -33,7 +33,7 @@ Target shape: Warcraft/Dota-like top-down combat with a handful of human players
 ## Klotho Ids
 
 - `KlothoComponent`: 100-110 used (110 = `UnitMoveTarget`), next free 111.
-- `KlothoSerializable`: 100 `MoveCommand`, 101 `GameOverEvent`, next free 102.
+- `KlothoSerializable`: 100 `MoveCommand`, 101 `GameOverEvent`, 102 `AttackCommand`, next free 103.
 - `KlothoDataAsset`: 100 `PlayerStats`, 101 `WaveRules`, 102 `MapLayout`, next free 103.
 - Note: `NavAgentComponent` uses Klotho-internal ID 11 — no conflict with project range.
 
