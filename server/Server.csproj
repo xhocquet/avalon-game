@@ -27,8 +27,11 @@
   <ItemGroup>
     <!-- The generator emits cross-assembly registration for these types
          ([ModuleInitializer] + CommandRegistry/MessageRegistry), since CommandFactory
-         lives in the referenced Klotho runtime assembly. -->
+         lives in the referenced Klotho runtime assembly.
+         Tools/Generated/ exists for the Godot editor language server only — the Roslyn
+         analyzer emits identical code into obj/, so exclude the static copies here. -->
     <Compile Include="$(SimRoot)\**\*.cs" Link="Game\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Remove="$(SimRoot)\Tools\**\*.cs" />
   </ItemGroup>
 
   <ItemGroup>

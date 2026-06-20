@@ -20,5 +20,6 @@
 
   <ItemGroup>
     <Compile Include="$(SimRoot)\**\*.cs" Link="Game\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Remove="$(SimRoot)\Tools\**\*.cs" />
   </ItemGroup>
 </Project>

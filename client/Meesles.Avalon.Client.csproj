@@ -20,4 +20,10 @@
 
   <Import Project="addons/klotho/Klotho.props" />
 
+  <ItemGroup>
+    <!-- Tools/Generated/ exists for the Godot editor language server only.
+         The Roslyn analyzer emits identical code into obj/ during real builds. -->
+    <Compile Remove="Sim/Tools/**/*.cs" />
+  </ItemGroup>
+
 </Project>
