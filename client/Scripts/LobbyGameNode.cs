@@ -40,10 +40,10 @@ namespace Meesles.Avalon {
 
       InitializeSharedNodes();
       Menu.SetLobbyMode();
-      Hud.SetLobbyMode();
+      LobbyUI.SetLobbyMode();
 
       _simulationCallbacks = new ClientSimCallbacks(Input);
-      _viewCallbacks = new ViewCallbacks(Hud);
+      _viewCallbacks = new ViewCallbacks(LobbyUI);
       _transport = new LiteNetLibTransport(_logger, connectionKey: ConnectionKey);
       _flow = new KlothoSessionFlow(
           new KlothoFlowSetupBuilder((s, ss) =>
@@ -61,14 +61,15 @@ namespace Meesles.Avalon {
 
       Menu.OnJoinClicked += OnJoin;
       Menu.OnReadyClicked += OnReady;
+      Menu.OnUnreadyClicked += OnUnready;
       Menu.OnStopClicked += OnStop;
       Menu.SetInitialHost("127.0.0.1", 7777);
       Menu.SetReadyEnabled(false);
       Menu.SetStopEnabled(false);
 
-#if DEBUG
-      OnJoin();
-#endif
+// #if DEBUG
+//       OnJoin();
+// #endif
     }
 
     private void OnJoin() {
@@ -85,9 +86,16 @@ namespace Meesles.Avalon {
 
     private void OnReady() {
       if (_session == null) return;
-      Hud.SetLocalReady(true);
+      LobbyUI.SetLocalReady(true);
       _session.SetReady(true);
-      Menu.SetReadyEnabled(false);
+      Menu.SetReadyState(true);
+    }
+
+    private void OnUnready() {
+      if (_session == null) return;
+      LobbyUI.SetLocalReady(false);
+      _session.SetReady(false);
+      Menu.SetReadyState(false);
     }
 
     private void OnStop() {
@@ -97,14 +105,17 @@ namespace Meesles.Avalon {
       }
 
       Menu.SetReadyEnabled(false);
+      Menu.SetReadyState(false);
       Menu.SetStopEnabled(false);
-      Hud.SetLocalReady(false);
-      Hud.SetPhase(SessionPhase.Disconnected);
+      LobbyUI.SetLocalReady(false);
+      LobbyUI.SetPhase(SessionPhase.Disconnected);
+      LobbyUI.SetConnected(false);
     }
 
     private void OnSessionReady() {
       _driver.Attach(_session);
-      Hud.SetPhase(_session.Phase);
+      LobbyUI.SetPhase(_session.Phase);
+      LobbyUI.SetConnected(true, RoomId);
       Menu.SetReadyEnabled(true);
       Menu.SetStopEnabled(true);
     }
@@ -115,6 +126,7 @@ namespace Meesles.Avalon {
           _logger.KError($"[Client] join failed (server running?): {_joinTask.Exception?.GetBaseException().Message}");
           _joining = false;
           _joinTask = null;
+          LobbyUI.SetConnected(false);
         }
         else if (_joinTask.IsCompleted) {
           _session = _joinTask.Result;
@@ -126,9 +138,10 @@ namespace Meesles.Avalon {
 
       if (_session == null) return;
 
-      Hud.SetPhase(_session.Phase);
+      LobbyUI.SetPhase(_session.Phase);
       UpdateCountdownHud(_session.Phase);
       AutoReadyHeadless();
+      LobbyUI.SyncPlayers(_session.NetworkService.Players, _session.NetworkService.LocalPlayerId);
 
       if (_session.Phase == SessionPhase.Playing)
         StartGameScene();
@@ -149,14 +162,14 @@ namespace Meesles.Avalon {
         _lastPhase = phase;
         if (phase == SessionPhase.Countdown) {
           _countdownStartedAtMs = Time.GetTicksMsec();
-          Hud.SetCountdownRemaining(_sesCfg.CountdownDurationMs / 1000.0);
+          LobbyUI.SetCountdownRemaining(_sesCfg.CountdownDurationMs / 1000.0);
         }
       }
 
       if (phase != SessionPhase.Countdown) return;
 
       double elapsedSeconds = (Time.GetTicksMsec() - _countdownStartedAtMs) / 1000.0;
-      Hud.SetCountdownRemaining((_sesCfg.CountdownDurationMs / 1000.0) - elapsedSeconds);
+      LobbyUI.SetCountdownRemaining((_sesCfg.CountdownDurationMs / 1000.0) - elapsedSeconds);
     }
 
     private void StartGameScene() {

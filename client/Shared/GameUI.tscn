@@ -1,0 +1,213 @@
+[gd_scene format=3 uid="uid://bu5kshfajfcmv"]
+
+[ext_resource type="Script" uid="uid://cye43qws5a5eo" path="res://Shared/GameUI.cs" id="1_script"]
+[ext_resource type="PackedScene" path="res://Shared/Minimap.tscn" id="2_minimap"]
+[ext_resource type="PackedScene" path="res://Shared/HealthBars.tscn" id="3_healthbars"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_scoreboard"]
+content_margin_left = 16.0
+content_margin_top = 16.0
+content_margin_right = 16.0
+content_margin_bottom = 16.0
+bg_color = Color(0.08, 0.08, 0.12, 0.94)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.72, 0.55, 0.22, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[node name="GameUI" type="CanvasLayer" unique_id=1765081607 groups=["game_ui"]]
+process_mode = 3
+layer = 10
+script = ExtResource("1_script")
+
+[node name="MainUI" type="Control" parent="." unique_id=451884308]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="FocusTargetLabel" type="Label" parent="MainUI" unique_id=181137405]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 10.0
+offset_right = 280.0
+offset_bottom = 32.0
+theme_override_font_sizes/font_size = 13
+text = "—"
+
+[node name="BarLabel" type="Label" parent="MainUI" unique_id=1400288027]
+layout_mode = 0
+offset_left = 900.0
+offset_top = 16.0
+offset_right = 1020.0
+offset_bottom = 56.0
+theme_override_font_sizes/font_size = 24
+text = "0:00"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HealthBar" type="ColorRect" parent="MainUI" unique_id=1590907484]
+layout_mode = 0
+offset_left = 720.0
+offset_top = 975.0
+offset_right = 1200.0
+offset_bottom = 999.0
+color = Color(0.35, 0.55, 0.25, 0.9)
+
+[node name="HealthBarFill" type="ColorRect" parent="MainUI/HealthBar" unique_id=442099186]
+layout_mode = 0
+offset_right = 480.0
+offset_bottom = 24.0
+color = Color(0.45, 0.75, 0.3, 0.95)
+
+[node name="HealthBarLabel" type="Label" parent="MainUI/HealthBar" unique_id=2012157574]
+layout_mode = 0
+offset_left = 4.0
+offset_right = 476.0
+offset_bottom = 24.0
+theme_override_font_sizes/font_size = 14
+text = "HP 100 / 100"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ResultPanel" type="Panel" parent="MainUI" unique_id=44287559]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = -30.0
+offset_right = 100.0
+offset_bottom = 30.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ResultLabel" type="Label" parent="MainUI/ResultPanel" unique_id=1579442984]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "RESULT"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Minimap" parent="MainUI" unique_id=130697204 instance=ExtResource("2_minimap")]
+layout_mode = 0
+offset_left = 1710.0
+offset_top = 870.0
+offset_right = 1910.0
+offset_bottom = 1070.0
+
+[node name="HealthBars" parent="MainUI" unique_id=1496569716 instance=ExtResource("3_healthbars")]
+layout_mode = 1
+
+[node name="TabUI" type="Control" parent="." unique_id=313774460]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Dim" type="ColorRect" parent="TabUI" unique_id=1726730214]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.4)
+
+[node name="ScoreboardPanel" type="Panel" parent="TabUI" unique_id=116203776]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -500.0
+offset_top = -325.0
+offset_right = 500.0
+offset_bottom = 325.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_scoreboard")
+
+[node name="Header" type="PanelContainer" parent="TabUI/ScoreboardPanel" unique_id=485918300]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -200.0
+offset_top = 8.0
+offset_right = 200.0
+offset_bottom = 48.0
+grow_horizontal = 2
+
+[node name="ScoreLabel" type="Label" parent="TabUI/ScoreboardPanel/Header" unique_id=730195306]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "0 / 0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Body" type="HBoxContainer" parent="TabUI/ScoreboardPanel" unique_id=1874149714]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 108.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 2
+
+[node name="TeamLeft" type="VBoxContainer" parent="TabUI/ScoreboardPanel/Body" unique_id=1329728721]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="PlayerRow0" type="ColorRect" parent="TabUI/ScoreboardPanel/Body/TeamLeft" unique_id=1709655708]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+color = Color(0.12, 0.14, 0.2, 0.85)
+
+[node name="PlayerRow1" type="ColorRect" parent="TabUI/ScoreboardPanel/Body/TeamLeft" unique_id=672225406]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+color = Color(0.12, 0.14, 0.2, 0.85)
+
+[node name="Divider" type="ColorRect" parent="TabUI/ScoreboardPanel/Body" unique_id=1803236308]
+custom_minimum_size = Vector2(2, 0)
+layout_mode = 2
+color = Color(0.25, 0.22, 0.18, 0.9)
+
+[node name="TeamRight" type="VBoxContainer" parent="TabUI/ScoreboardPanel/Body" unique_id=241500946]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="PlayerRow0" type="ColorRect" parent="TabUI/ScoreboardPanel/Body/TeamRight" unique_id=1563996344]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+color = Color(0.2, 0.12, 0.14, 0.85)
+
+[node name="PlayerRow1" type="ColorRect" parent="TabUI/ScoreboardPanel/Body/TeamRight" unique_id=2127285868]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+color = Color(0.2, 0.12, 0.14, 0.85)

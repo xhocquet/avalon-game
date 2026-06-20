@@ -2,23 +2,26 @@
 
 [ext_resource type="Script" uid="uid://5fl0dgt2expw" path="res://Scripts/MultiplayerGameNode.cs" id="1_game"]
 [ext_resource type="PackedScene" path="res://Shared/Menu.tscn" id="2_menu"]
-[ext_resource type="PackedScene" path="res://Shared/Hud.tscn" id="3_hud"]
+[ext_resource type="PackedScene" path="res://Shared/LobbyUI.tscn" id="3_lobbyui"]
 [ext_resource type="PackedScene" path="res://Shared/Camera3D.tscn" id="4_camera"]
-[ext_resource type="PackedScene" uid="uid://clk3ykagonl6k" path="res://Shared/World.tscn" id="5_world"]
-[ext_resource type="PackedScene" uid="uid://viinxjf0q77b" path="res://Shared/DirectionalLight3D.tscn" id="6_light"]
+[ext_resource type="PackedScene" path="res://Shared/GameUI.tscn" id="5_gameui"]
+[ext_resource type="PackedScene" uid="uid://clk3ykagonl6k" path="res://Shared/World.tscn" id="6_world"]
+[ext_resource type="PackedScene" uid="uid://viinxjf0q77b" path="res://Shared/DirectionalLight3D.tscn" id="7_light"]
 
 [node name="Multiplayer" type="Node" unique_id=1309111642]
 script = ExtResource("1_game")
 
 [node name="Camera3D" parent="." unique_id=909657242 instance=ExtResource("4_camera")]
 
-[node name="DirectionalLight3D" parent="." unique_id=839519197 instance=ExtResource("6_light")]
+[node name="DirectionalLight3D" parent="." unique_id=839519197 instance=ExtResource("7_light")]
 
-[node name="World" parent="." unique_id=90756935 instance=ExtResource("5_world")]
+[node name="World" parent="." unique_id=90756935 instance=ExtResource("6_world")]
 transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, 0)
 
 [node name="UILayer" type="CanvasLayer" parent="." unique_id=1975931231]
 
 [node name="Menu" parent="UILayer" unique_id=1430401364 instance=ExtResource("2_menu")]
 
-[node name="Hud" parent="UILayer" unique_id=1390882163 instance=ExtResource("3_hud")]
+[node name="LobbyUI" parent="UILayer" unique_id=1390882163 instance=ExtResource("3_lobbyui")]
+
+[node name="GameUI" parent="." unique_id=1799832949 instance=ExtResource("5_gameui")]

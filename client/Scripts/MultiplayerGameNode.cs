@@ -41,7 +41,7 @@ namespace Meesles.Avalon {
 
       InitializeSharedNodes();
       Menu.SetGameMode();
-      Hud.SetMultiplayerMode();
+      LobbyUI.SetMultiplayerMode();
       SetupView3D();
 
       _camera = GetNodeOrNull<CameraController>("Camera3D");
@@ -71,7 +71,7 @@ namespace Meesles.Avalon {
       _sesCfg = handoff.SessionConfig;
 
       _simulationCallbacks.SetInput(Input);
-      _viewCallbacks.SetHud(Hud);
+      _viewCallbacks.SetLobbyUI(LobbyUI);
       _driver.PreSessionUpdate += CaptureRunningInput;
       OnSessionReady(autoReady: false);
     }
@@ -83,7 +83,7 @@ namespace Meesles.Avalon {
       _sesCfg = new SessionConfig { MaxPlayers = 2, MinPlayers = 2, CountdownDurationMs = 0 };
       _transport = new LiteNetLibTransport(_logger, connectionKey: ConnectionKey);
       _simulationCallbacks = new ClientSimCallbacks(Input);
-      _viewCallbacks = new ViewCallbacks(Hud);
+      _viewCallbacks = new ViewCallbacks(LobbyUI);
 
       _flow = new KlothoSessionFlow(
           new KlothoFlowSetupBuilder((s, ss) =>
@@ -136,7 +136,7 @@ namespace Meesles.Avalon {
       _view.Initialize(_session.Engine, CreateFactory(), _pool);
       _view.PlayerViews.OnLocalViewRegistered += OnLocalViewRegistered;
       _view.PlayerViews.OnLocalViewUnregistered += OnLocalViewUnregistered;
-      Hud.SetPhase(_session.Phase);
+      LobbyUI.SetPhase(_session.Phase);
 
       if (autoReady)
         SendReady();
@@ -144,7 +144,7 @@ namespace Meesles.Avalon {
 
     private void SendReady() {
       if (_session == null || _autoReadySent) return;
-      Hud.SetLocalReady(true);
+      LobbyUI.SetLocalReady(true);
       _session.SetReady(true);
       _autoReadySent = true;
       _logger?.KInformation($"[Client] auto-ready sent from multiplayer scene.");
@@ -196,7 +196,7 @@ namespace Meesles.Avalon {
 
       if (_session == null) return;
 
-      Hud.SetPhase(_session.Phase);
+      LobbyUI.SetPhase(_session.Phase);
       if (!_autoReadySent && _session.Phase == SessionPhase.Synchronized)
         SendReady();
 
@@ -207,7 +207,7 @@ namespace Meesles.Avalon {
       double elapsedSeconds = (Time.GetTicksMsec() - _sceneStartedAtMs) / 1000.0;
       double remaining = StartDelaySeconds - elapsedSeconds;
       if (remaining > 0)
-        Hud.SetStartDelayRemaining(remaining);
+        LobbyUI.SetStartDelayRemaining(remaining);
     }
 
     private void AutoTestStep() {

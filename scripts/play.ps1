@@ -24,7 +24,17 @@ try {
   Write-Host "[play] building server + client..."
   & dotnet build (Join-Path $repoRoot "server/Server.csproj") -c Debug | Out-Null
   if ($LASTEXITCODE -ne 0) { throw "server build failed" }
-  & dotnet build (Join-Path $repoRoot "client/Client.csproj") -c Debug | Out-Null
+
+  # Build Klotho runtime from the Godot-flavored source project and sync to the client addon,
+  # so any vendor/ edits (e.g. ServerDrivenClientService) are picked up by the client DLL.
+  Write-Host "[play] building Klotho runtime from source..."
+  & dotnet build (Join-Path $repoRoot "vendor/Klotho/com.xpturn.klotho/Godot~/xpTURN.Klotho.Runtime.csproj") -c Debug | Out-Null
+  if ($LASTEXITCODE -ne 0) { throw "Klotho runtime build failed" }
+  $runtimeSrc = Join-Path $repoRoot "vendor/Klotho/com.xpturn.klotho/Godot~/bin/Debug/net8.0/xpTURN.Klotho.Runtime.dll"
+  $runtimeDst = Join-Path $repoRoot "client/addons/klotho/lib/xpTURN.Klotho.Runtime.dll"
+  Copy-Item -Force $runtimeSrc $runtimeDst
+
+  & dotnet build (Join-Path $repoRoot "client/Meesles.Avalon.Client.csproj") -c Debug | Out-Null
   if ($LASTEXITCODE -ne 0) { throw "client build failed" }
 
   Write-Host "[play] starting server on port $Port..."

@@ -1,0 +1,152 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Shared/LobbyUI.cs" id="1_lobbyui"]
+
+[node name="LobbyUI" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_lobbyui")
+
+[node name="PhasePrefixLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 300.0
+offset_top = 16.0
+offset_right = 368.0
+offset_bottom = 36.0
+text = "Phase:"
+
+[node name="StateLabel" type="Label" parent="." unique_id=983614347]
+layout_mode = 0
+offset_left = 374.0
+offset_top = 16.0
+offset_right = 600.0
+offset_bottom = 36.0
+text = "—"
+
+[node name="RoomPrefixLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 300.0
+offset_top = 40.0
+offset_right = 368.0
+offset_bottom = 60.0
+text = "Room:"
+
+[node name="RoomLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 374.0
+offset_top = 40.0
+offset_right = 600.0
+offset_bottom = 60.0
+text = "Not joined"
+
+[node name="YouPrefixLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 300.0
+offset_top = 64.0
+offset_right = 340.0
+offset_bottom = 84.0
+text = "You:"
+
+[node name="PlayerIdLabel" type="Label" parent="." unique_id=161337401]
+layout_mode = 0
+offset_left = 346.0
+offset_top = 64.0
+offset_right = 430.0
+offset_bottom = 84.0
+text = "—"
+
+[node name="ReadyPrefixLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 436.0
+offset_top = 64.0
+offset_right = 494.0
+offset_bottom = 84.0
+text = "Ready:"
+
+[node name="ReadyStatusLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 500.0
+offset_top = 64.0
+offset_right = 600.0
+offset_bottom = 84.0
+text = "—"
+
+[node name="Separator0" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = 300.0
+offset_top = 89.0
+offset_right = 600.0
+offset_bottom = 91.0
+color = Color(0.4, 0.4, 0.4, 0.4)
+
+[node name="PlayersHeaderLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 300.0
+offset_top = 96.0
+offset_right = 600.0
+offset_bottom = 114.0
+text = "Players:"
+
+[node name="PlayerRow0Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 308.0
+offset_top = 114.0
+offset_right = 600.0
+offset_bottom = 132.0
+text = "—"
+
+[node name="PlayerRow1Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 308.0
+offset_top = 132.0
+offset_right = 600.0
+offset_bottom = 150.0
+text = "—"
+
+[node name="Separator1" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = 300.0
+offset_top = 155.0
+offset_right = 600.0
+offset_bottom = 157.0
+color = Color(0.4, 0.4, 0.4, 0.4)
+
+[node name="StatusPrefixLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 300.0
+offset_top = 162.0
+offset_right = 368.0
+offset_bottom = 182.0
+text = "Status:"
+
+[node name="StatusLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 374.0
+offset_top = 162.0
+offset_right = 600.0
+offset_bottom = 182.0
+text = "—"
+
+[node name="TimerLabel" type="Label" parent="." unique_id=2079269166]
+layout_mode = 0
+offset_left = 300.0
+offset_top = 186.0
+offset_right = 600.0
+offset_bottom = 206.0
+text = "—"
+
+[node name="ResultPanel" type="Panel" parent="." unique_id=416147441]
+visible = false
+layout_mode = 0
+offset_left = 300.0
+offset_top = 214.0
+offset_right = 600.0
+offset_bottom = 274.0
+
+[node name="ResultLabel" type="Label" parent="ResultPanel" unique_id=680849989]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 292.0
+offset_bottom = 52.0
+text = "RESULT"
