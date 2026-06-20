@@ -39,9 +39,8 @@ namespace Meesles.Avalon {
     public override void _Ready() {
       WarmupRegistry.RunAll();
 
-      InitializeSharedNodes();
-      Menu.SetGameMode();
-      LobbyUI.SetMultiplayerMode();
+      InitializeGameUI();
+      GameUI.SetMultiplayerMode();
       SetupView3D();
 
       _camera = GetNodeOrNull<CameraController>("Camera3D");
@@ -71,7 +70,7 @@ namespace Meesles.Avalon {
       _sesCfg = handoff.SessionConfig;
 
       _simulationCallbacks.SetInput(Input);
-      _viewCallbacks.SetLobbyUI(LobbyUI);
+      _viewCallbacks.SetHud(GameUI);
       _driver.PreSessionUpdate += CaptureRunningInput;
       OnSessionReady(autoReady: false);
     }
@@ -83,7 +82,7 @@ namespace Meesles.Avalon {
       _sesCfg = new SessionConfig { MaxPlayers = 2, MinPlayers = 2, CountdownDurationMs = 0 };
       _transport = new LiteNetLibTransport(_logger, connectionKey: ConnectionKey);
       _simulationCallbacks = new ClientSimCallbacks(Input);
-      _viewCallbacks = new ViewCallbacks(LobbyUI);
+      _viewCallbacks = new ViewCallbacks(GameUI);
 
       _flow = new KlothoSessionFlow(
           new KlothoFlowSetupBuilder((s, ss) =>
@@ -136,7 +135,7 @@ namespace Meesles.Avalon {
       _view.Initialize(_session.Engine, CreateFactory(), _pool);
       _view.PlayerViews.OnLocalViewRegistered += OnLocalViewRegistered;
       _view.PlayerViews.OnLocalViewUnregistered += OnLocalViewUnregistered;
-      LobbyUI.SetPhase(_session.Phase);
+      GameUI.SetPhase(_session.Phase);
 
       if (autoReady)
         SendReady();
@@ -144,7 +143,7 @@ namespace Meesles.Avalon {
 
     private void SendReady() {
       if (_session == null || _autoReadySent) return;
-      LobbyUI.SetLocalReady(true);
+      GameUI.SetLocalReady(true);
       _session.SetReady(true);
       _autoReadySent = true;
       _logger?.KInformation($"[Client] auto-ready sent from multiplayer scene.");
@@ -196,7 +195,7 @@ namespace Meesles.Avalon {
 
       if (_session == null) return;
 
-      LobbyUI.SetPhase(_session.Phase);
+      GameUI.SetPhase(_session.Phase);
       if (!_autoReadySent && _session.Phase == SessionPhase.Synchronized)
         SendReady();
 
@@ -207,7 +206,7 @@ namespace Meesles.Avalon {
       double elapsedSeconds = (Time.GetTicksMsec() - _sceneStartedAtMs) / 1000.0;
       double remaining = StartDelaySeconds - elapsedSeconds;
       if (remaining > 0)
-        LobbyUI.SetStartDelayRemaining(remaining);
+        GameUI.SetStartDelayRemaining(remaining);
     }
 
     private void AutoTestStep() {

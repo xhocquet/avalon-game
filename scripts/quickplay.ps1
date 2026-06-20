@@ -1,5 +1,5 @@
-# Visual multiplayer run: boots the normal two-player server and opens two windowed
-# clients. Close both game windows to tear the server down.
+# Quick multiplayer run: same build + launch as `play`, but clients auto-join and
+# auto-ready so you land in-game without touching the lobby UI.
 param(
   [int]    $Port = 7777,
   [string] $Godot = $(if ($env:GODOT) { $env:GODOT } else { "C:\Users\meesles\Coding\Godot-4.6-mono\Godot_v4.6.3-stable_mono_win64.exe" })
@@ -21,12 +21,10 @@ function Stop-Server {
 try {
   if (-not (Test-Path $Godot)) { throw "Godot binary not found: $Godot (set `$env:GODOT to override)" }
 
-  Write-Host "[play] building server + client..."
+  Write-Host "[quickplay] building server + client..."
   & dotnet build (Join-Path $repoRoot "server/Server.csproj") -c Debug | Out-Null
   if ($LASTEXITCODE -ne 0) { throw "server build failed" }
 
-  # Build Klotho runtime from the Godot-flavored source project and sync to the client addon,
-  # so any vendor/ edits (e.g. ServerDrivenClientService) are picked up by the client DLL.
   $runtimeSrc = Join-Path $repoRoot "vendor/Klotho/com.xpturn.klotho/Godot~/bin/Debug/net8.0/xpTURN.Klotho.Runtime.dll"
   $runtimeDst = Join-Path $repoRoot "client/addons/klotho/lib/xpTURN.Klotho.Runtime.dll"
   $klothoSrcDir = Join-Path $repoRoot "vendor/Klotho/com.xpturn.klotho/Godot~"
@@ -37,9 +35,9 @@ try {
   $klothoUpToDate = (Test-Path $runtimeDst) -and $newestSrc -and
     ((Get-Item $runtimeDst).LastWriteTime -gt $newestSrc.LastWriteTime)
   if ($klothoUpToDate) {
-    Write-Host "[play] Klotho runtime up-to-date, skipping build."
+    Write-Host "[quickplay] Klotho runtime up-to-date, skipping build."
   } else {
-    Write-Host "[play] building Klotho runtime from source..."
+    Write-Host "[quickplay] building Klotho runtime from source..."
     & dotnet build (Join-Path $repoRoot "vendor/Klotho/com.xpturn.klotho/Godot~/xpTURN.Klotho.Runtime.csproj") -c Debug | Out-Null
     if ($LASTEXITCODE -ne 0) { throw "Klotho runtime build failed" }
     Copy-Item -Force $runtimeSrc $runtimeDst
@@ -48,17 +46,19 @@ try {
   & dotnet build (Join-Path $repoRoot "client/Meesles.Avalon.Client.csproj") -c Debug | Out-Null
   if ($LASTEXITCODE -ne 0) { throw "client build failed" }
 
-  Write-Host "[play] starting server on port $Port..."
+  Write-Host "[quickplay] starting server on port $Port..."
   $server = Start-Process -FilePath "dotnet" `
     -ArgumentList @("run", "--project", (Join-Path $repoRoot "server/Server.csproj"), "--", "$Port") `
     -WorkingDirectory $repoRoot -PassThru -WindowStyle Normal
   Start-Sleep -Seconds 6
 
-  Write-Host "[play] launching client 1..."
-  $client1 = Start-Process -FilePath $Godot -ArgumentList @("--path", (Join-Path $repoRoot "client")) -RedirectStandardError "NUL" -PassThru
-  Start-Sleep -Seconds 3
-  Write-Host "[play] launching client 2 - close both windows to stop."
-  $client2 = Start-Process -FilePath $Godot -ArgumentList @("--path", (Join-Path $repoRoot "client")) -RedirectStandardError "NUL" -PassThru
+  Write-Host "[quickplay] launching client 1..."
+  $client1 = Start-Process -FilePath $Godot `
+    -ArgumentList @("--path", (Join-Path $repoRoot "client"), "--", "--quickplay") -RedirectStandardError "NUL" -PassThru
+  Start-Sleep -Seconds 2
+  Write-Host "[quickplay] launching client 2 - close both windows to stop."
+  $client2 = Start-Process -FilePath $Godot `
+    -ArgumentList @("--path", (Join-Path $repoRoot "client"), "--", "--quickplay") -RedirectStandardError "NUL" -PassThru
 
   $client1 | Wait-Process
   $client2 | Wait-Process

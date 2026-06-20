@@ -6,58 +6,64 @@ using xpTURN.Klotho.Logging;
 
 namespace Meesles.Avalon {
   public abstract partial class GameNode : Node {
-	protected InputCapture Input;
-	protected Menu Menu;
-	protected LobbyUI LobbyUI;
+    protected InputCapture Input;
+    protected Menu Menu;
+    protected LobbyUI LobbyUI;
+    protected GameUI GameUI;
 
-	protected void InitializeSharedNodes() {
-	  Input = new InputCapture();
-	  Menu = GetNode<Menu>("UILayer/Menu");
-	  LobbyUI = GetNode<LobbyUI>("UILayer/LobbyUI");
-	}
+    protected void InitializeSharedNodes() {
+      Input = new InputCapture();
+      Menu = GetNode<Menu>("UILayer/Menu");
+      LobbyUI = GetNode<LobbyUI>("UILayer/LobbyUI");
+    }
 
-	protected void SetupView3D() {
-	  var cam = GetNodeOrNull<Camera3D>("Camera3D");
-	  if (cam != null) {
-		cam.Environment = new global::Godot.Environment {
-		  BackgroundMode = global::Godot.Environment.BGMode.Color,
-		  BackgroundColor = new Color(0.12f, 0.13f, 0.18f),
-		  AmbientLightSource = global::Godot.Environment.AmbientSource.Color,
-		  AmbientLightColor = new Color(0.5f, 0.5f, 0.5f),
-		  AmbientLightEnergy = 1.0f,
-		};
-	  }
+    protected void InitializeGameUI() {
+      Input = new InputCapture();
+      GameUI = GetNode<GameUI>("GameUI");
+    }
 
-	  var light = GetNodeOrNull<DirectionalLight3D>("DirectionalLight3D");
-	  light?.LookAtFromPosition(new Vector3(4, 10, 4), Vector3.Zero, Vector3.Up);
-	}
+    protected void SetupView3D() {
+      var cam = GetNodeOrNull<Camera3D>("Camera3D");
+      if (cam != null) {
+        cam.Environment = new global::Godot.Environment {
+          BackgroundMode = global::Godot.Environment.BGMode.Color,
+          BackgroundColor = new Color(0.12f, 0.13f, 0.18f),
+          AmbientLightSource = global::Godot.Environment.AmbientSource.Color,
+          AmbientLightColor = new Color(0.5f, 0.5f, 0.5f),
+          AmbientLightEnergy = 1.0f,
+        };
+      }
 
-	protected IKLogger CreateLogger(string filePrefix = "Client")
-		=> GodotKlothoLogger.CreateDefault(filePrefix: filePrefix, categoryName: "Client");
+      var light = GetNodeOrNull<DirectionalLight3D>("DirectionalLight3D");
+      light?.LookAtFromPosition(new Vector3(4, 10, 4), Vector3.Zero, Vector3.Up);
+    }
 
-	protected IDataAssetRegistry LoadAssetRegistry() {
-	  byte[] bytes = global::Godot.FileAccess.GetFileAsBytes("res://Sim/Data/Assets.bytes");
-	  if (bytes == null || bytes.Length == 0) {
-		var err = global::Godot.FileAccess.GetOpenError();
-		throw new System.IO.FileNotFoundException($"res://Sim/Data/Assets.bytes not found (err={err})");
-	  }
-	  var assets = DataAssetReader.LoadMixedCollectionFromBytes(bytes);
-	  IDataAssetRegistryBuilder builder = new DataAssetRegistry();
-	  builder.RegisterRange(assets);
+    protected IKLogger CreateLogger(string filePrefix = "Client")
+        => GodotKlothoLogger.CreateDefault(filePrefix: filePrefix, categoryName: "Client");
 
-	  byte[] layoutBytes = global::Godot.FileAccess.GetFileAsBytes("res://Sim/Data/MapLayout.bytes");
-	  if (layoutBytes != null && layoutBytes.Length > 0)
-		builder.RegisterRange(DataAssetReader.LoadMixedCollectionFromBytes(layoutBytes));
+    protected IDataAssetRegistry LoadAssetRegistry() {
+      byte[] bytes = global::Godot.FileAccess.GetFileAsBytes("res://Sim/Data/Assets.bytes");
+      if (bytes == null || bytes.Length == 0) {
+        var err = global::Godot.FileAccess.GetOpenError();
+        throw new System.IO.FileNotFoundException($"res://Sim/Data/Assets.bytes not found (err={err})");
+      }
+      var assets = DataAssetReader.LoadMixedCollectionFromBytes(bytes);
+      IDataAssetRegistryBuilder builder = new DataAssetRegistry();
+      builder.RegisterRange(assets);
 
-	  return builder.Build();
-	}
+      byte[] layoutBytes = global::Godot.FileAccess.GetFileAsBytes("res://Sim/Data/MapLayout.bytes");
+      if (layoutBytes != null && layoutBytes.Length > 0)
+        builder.RegisterRange(DataAssetReader.LoadMixedCollectionFromBytes(layoutBytes));
 
-	public override void _UnhandledInput(InputEvent @event) {
-	  Input?.HandleUnhandledInput(@event);
-	}
+      return builder.Build();
+    }
 
-	public override void _ExitTree() {
-	  Input?.Dispose();
-	}
+    public override void _UnhandledInput(InputEvent @event) {
+      Input?.HandleUnhandledInput(@event);
+    }
+
+    public override void _ExitTree() {
+      Input?.Dispose();
+    }
   }
 }

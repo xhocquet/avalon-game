@@ -3,7 +3,7 @@ using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Network;
 
 namespace Meesles.Avalon {
-  public partial class GameUI : CanvasLayer {
+  public partial class GameUI : CanvasLayer, IViewHud {
     [Export] public float FocusRingRadiusPx { get; set; } = 52.0f;
     [Export] public float FocusRingWidthPx { get; set; } = 2.5f;
     [Export] public Color FocusRingColor { get; set; } = new Color(0.88f, 0.72f, 0.22f, 0.92f);

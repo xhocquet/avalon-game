@@ -4,16 +4,16 @@ using xpTURN.Klotho.Core;
 
 namespace Meesles.Avalon {
   public class ViewCallbacks : IViewCallbacks {
-    private LobbyUI _hud;
+    private IViewHud _hud;
     private IKlothoEngine _engine;
     private bool _gameOverShown;
     private Action<int, SimulationEvent> _eventConfirmedHandler;
 
-    public ViewCallbacks(LobbyUI hud) {
+    public ViewCallbacks(IViewHud hud) {
       _hud = hud;
     }
 
-    public void SetLobbyUI(LobbyUI hud) {
+    public void SetHud(IViewHud hud) {
       _hud = hud;
       if (_engine != null)
         _hud.SetLocalPlayerId(_engine.LocalPlayerId >= 0 ? _engine.LocalPlayerId : null);
