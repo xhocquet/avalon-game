@@ -98,5 +98,5 @@ func _forward_3d_force_draw_over_viewport(overlay) -> void:
 		_vis.DrawLabels(overlay)
 
 func _process(delta) -> void:
-	if _vis:
+	if _vis and _vis.has_method(&"OnProcess"):
 		_vis.OnProcess(delta)

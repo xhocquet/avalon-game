@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://d1k4fk8laqf34"]
+
+[ext_resource type="PackedScene" uid="uid://cejod2af1omor" path="res://Assets/Materials/Shop/shop.glb" id="1_7j2oq"]
+[ext_resource type="Script" uid="uid://jt4rwdk0j6k6" path="res://Scripts/SimMarkerNode.cs" id="2_bpadh"]
+
+[node name="Sketchfab_Scene" unique_id=361766017 instance=ExtResource("1_7j2oq")]
+script = ExtResource("2_bpadh")
+MarkerType = 2
