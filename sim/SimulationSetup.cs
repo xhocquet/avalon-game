@@ -12,14 +12,26 @@ namespace Meesles.Avalon {
     private const int BaseHealth = 1000;
     private const int MapHalfExtent = 50;
     private const int BaseInset = 8;
-    private const int HeroSpawnInset = 8;
 
     public static void RegisterSystems(EcsSimulation simulation) {
-      simulation.AddSystem(new MovementSystem(), SystemPhase.Update);
+      simulation.AddSystem(new CommandSystem(), SystemPhase.Update);
       simulation.AddSystem(new WaveSpawnSystem(), SystemPhase.Update);
+
+      simulation.AddSystem(new SpatialIndexSystem(), SystemPhase.Update);
+      simulation.AddSystem(new TargetAcquisitionSystem(), SystemPhase.Update);
+      simulation.AddSystem(new PathRequestSystem(), SystemPhase.Update);
+      simulation.AddSystem(new PathfindingSystem(), SystemPhase.Update);
+      simulation.AddSystem(new PathFollowSystem(), SystemPhase.Update);
+      simulation.AddSystem(new LocalAvoidanceSystem(), SystemPhase.Update);
+      simulation.AddSystem(new MovementIntentSystem(), SystemPhase.Update);
       simulation.AddSystem(new MinionMoveSystem(), SystemPhase.Update);
-      simulation.AddSystem(new CombatSystem(), SystemPhase.Update);
+
+      simulation.AddSystem(new AttackIntentSystem(), SystemPhase.Update);
+      simulation.AddSystem(new AttackCooldownSystem(), SystemPhase.Update);
+      simulation.AddSystem(new DamageSystem(), SystemPhase.Update);
+      simulation.AddSystem(new DeathSystem(), SystemPhase.Update);
       simulation.AddSystem(new RespawnSystem(), SystemPhase.Update);
+      simulation.AddSystem(new RewardSystem(), SystemPhase.LateUpdate);
       simulation.AddSystem(new ScoreSystem(), SystemPhase.LateUpdate);
       simulation.AddSystem(new EventSystem(), SystemPhase.LateUpdate);
     }
@@ -79,40 +91,56 @@ namespace Meesles.Avalon {
     }
 
     public static FPVector3 GetHeroSpawnPositionForTeam(ref Frame frame, int teamId) {
-      if (!TryGetSpawnPointPosition(ref frame, teamId, out var spawnPosition))
-        spawnPosition = GetTeamSpawnPosition(teamId);
+      frame.AssetRegistry.TryGet<MapLayoutAsset>(out var layout);
+      if (layout != null && layout.TryGetByTypeAndTeam(MapMarkerType.SpawnPoint, teamId, out var pos)) {
+        return pos;
+      }
 
-      return spawnPosition + GetHeroSpawnOffset(teamId);
+      return GetTeamSpawnPosition(teamId);
     }
 
     private static void SpawnTeamBases(ref Frame frame, int maxPlayers, MapLayoutAsset layout) {
       for (int playerId = 1; playerId <= maxPlayers; playerId++) {
         int teamId = playerId;
-        var entity = frame.CreateEntity();
-        FPVector3 position = layout != null && layout.TryGetByTypeAndTeam(MapMarkerType.Base, teamId, out var layoutPos)
-          ? layoutPos
-          : GetTeamSpawnPosition(teamId);
 
-        frame.Add(entity, new TransformComponent {
-          Position = position,
+        var baseEntity = frame.CreateEntity();
+        FPVector3 basePosition =
+          layout != null && layout.TryGetByTypeAndTeam(MapMarkerType.Base, teamId, out var layoutBasePos)
+            ? layoutBasePos
+            : GetTeamSpawnPosition(teamId);
+
+        frame.Add(baseEntity, new TransformComponent {
+          Position = basePosition,
           Rotation = FP64.Zero,
           Scale = FPVector3.One,
         });
-        frame.Add(entity, new Unit {
+        frame.Add(baseEntity, new Unit {
           UnitId = UnitIdGenerator.Next(ref frame),
           UnitTypeId = BaseUnitTypeId,
         });
-        frame.Add(entity, new Team { TeamId = teamId });
-        frame.Add(entity, new Base { BaseId = teamId });
-        frame.Add(entity, new SpawnPoint {
-          SpawnPointId = teamId,
-          TeamId = teamId,
-          LaneId = 0,
-          UnitTypeId = PlayerUnitTypeId,
-        });
-        frame.Add(entity, new Health {
+        frame.Add(baseEntity, new Team { TeamId = teamId });
+        frame.Add(baseEntity, new Base { BaseId = teamId });
+        frame.Add(baseEntity, new Health {
           Current = BaseHealth,
           Max = BaseHealth,
+        });
+
+        var spawnEntity = frame.CreateEntity();
+        FPVector3 spawnPosition =
+          layout != null && layout.TryGetByTypeAndTeam(MapMarkerType.SpawnPoint, teamId, out var layoutSpawnPos)
+            ? layoutSpawnPos
+            : GetTeamSpawnPosition(teamId);
+
+        frame.Add(spawnEntity, new TransformComponent {
+          Position = spawnPosition,
+          Rotation = FP64.Zero,
+          Scale = FPVector3.One,
+        });
+        frame.Add(spawnEntity, new Team { TeamId = teamId });
+        frame.Add(spawnEntity, new SpawnPoint {
+          SpawnPointId = teamId,
+          TeamId = teamId,
+          UnitTypeId = MinionUnitTypeId,
         });
       }
     }
@@ -125,33 +153,6 @@ namespace Meesles.Avalon {
         2 => new FPVector3(corner, FP64.Zero, corner),
         3 => new FPVector3(corner, FP64.Zero, -corner),
         4 => new FPVector3(-corner, FP64.Zero, corner),
-        _ => FPVector3.Zero,
-      };
-    }
-
-    private static bool TryGetSpawnPointPosition(ref Frame frame, int teamId, out FPVector3 position) {
-      var filter = frame.Filter<SpawnPoint, TransformComponent>();
-      while (filter.Next(out var entity)) {
-        ref readonly var spawnPoint = ref frame.Get<SpawnPoint>(entity);
-        if (spawnPoint.TeamId != teamId) continue;
-
-        ref readonly var transform = ref frame.Get<TransformComponent>(entity);
-        position = transform.Position;
-        return true;
-      }
-
-      position = FPVector3.Zero;
-      return false;
-    }
-
-    private static FPVector3 GetHeroSpawnOffset(int teamId) {
-      FP64 inset = FP64.FromInt(HeroSpawnInset);
-
-      return teamId switch {
-        1 => new FPVector3(inset, FP64.Zero, inset),
-        2 => new FPVector3(-inset, FP64.Zero, -inset),
-        3 => new FPVector3(-inset, FP64.Zero, inset),
-        4 => new FPVector3(inset, FP64.Zero, -inset),
         _ => FPVector3.Zero,
       };
     }

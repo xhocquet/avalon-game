@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
-namespace Meesles.Avalon {
+namespace Meesles.Avalon.Client.Sim.Models {
   [KlothoComponent(108)]
   [StructLayout(LayoutKind.Sequential, Pack = 4)]
   public partial struct Combat : IComponent {

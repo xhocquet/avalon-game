@@ -14,10 +14,6 @@ namespace Meesles.Avalon {
     [KlothoOrder(4)] public FP64 MinionMass;
     [KlothoOrder(5)] public FP64 MinionHalfExtent;
     [KlothoOrder(6)] public FP64 MinionSpacing;
-    // Distance to push each wave out from the base toward map center (the lane direction),
-    // so minions spawn in front of the base instead of inside the base mesh.
-    [KlothoOrder(8)] public FP64 SpawnForwardOffset;
-    // Minion march speed toward center, units/sec (Milestone M3).
     [KlothoOrder(9)] public FP64 MinionMoveSpeed;
     // Hard ceiling on live minions. Until combat/death (Milestone A) removes them,
     // minions accumulate forever — this keeps the world under MaxEntities so the sim

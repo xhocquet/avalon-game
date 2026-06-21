@@ -1,7 +1,6 @@
 <!--
   Client — standalone Godot 3D Avalon client (Server-Driven UI, Join/Ready/Stop).
-  Self-contained: the ECS sim (Sim/), the client simulation callbacks
-  and the data asset (Sim/Data/Assets.bytes) are copied in, with no reference to an external starter project.
+  Shared ECS sim lives at root sim/; data assets live at Sim/Data/ (Godot res:// requires them here).
   The dedicated server is owned under Server/ (separate Microsoft.NET.Sdk exe — run it first).
   Godot.NET.Sdk game project; ProjectReferences the Godot adapter library (core transitively).
   KlothoGenerator emits the [KlothoOrder]/[KlothoDataAsset] partials.
@@ -20,9 +19,21 @@
 
   <Import Project="addons/klotho/Klotho.props" />
 
+  <PropertyGroup>
+    <SimRoot>../sim</SimRoot>
+  </PropertyGroup>
+
   <ItemGroup>
-    <!-- Tools/Generated/ exists for the Godot editor language server only.
-         The Roslyn analyzer emits identical code into obj/ during real builds. -->
+    <!-- Shared sim source lives outside the Godot project root; include it explicitly.
+         Include subdirs individually to avoid sim/Tools/ being compiled.
+         The Klotho generator writes static copies to client/Sim/Tools/Generated/ (from the
+         Link="Sim/..." paths below) for the Godot editor language server. Exclude those so
+         the Roslyn analyzer's obj/ output is the only compiled copy. -->
+    <Compile Include="$(SimRoot)/*.cs"     Link="Sim/%(Filename)%(Extension)" />
+    <Compile Include="$(SimRoot)/Assets/**/*.cs"   Link="Sim/Assets/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="$(SimRoot)/Commands/**/*.cs" Link="Sim/Commands/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="$(SimRoot)/Models/**/*.cs"   Link="Sim/Models/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="$(SimRoot)/Systems/**/*.cs"  Link="Sim/Systems/%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Remove="Sim/Tools/**/*.cs" />
   </ItemGroup>
 

@@ -3,7 +3,7 @@ using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon {
-  public class MovementSystem : ISystem, ICommandSystem {
+  public class CommandSystem : ISystem, ICommandSystem {
     private static readonly FP64 StopDistance = FP64.FromDouble(0.15);
 
     public void OnCommand(ref Frame frame, ICommand command) {

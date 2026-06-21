@@ -51,12 +51,12 @@ public sealed class SimHarness {
     Simulation.Tick(new List<ICommand>(commands));
   }
 
-  public static MoveCommand MoveCommand(int playerId, int tick, FP64 h, FP64 v) {
+  public static MoveCommand MoveCommand(int playerId, int tick, FP64 targetX, FP64 targetZ) {
     return new MoveCommand {
-        PlayerId = playerId,
-        Tick = tick,
-        H = h,
-        V = v,
+      PlayerId = playerId,
+      Tick = tick,
+      TargetX = targetX,
+      TargetZ = targetZ,
     };
   }
 

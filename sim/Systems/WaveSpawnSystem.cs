@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Meesles.Avalon.Client.Sim.Models;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
@@ -26,8 +27,6 @@ namespace Meesles.Avalon {
       var sources = new List<(FPVector3 Position, int TeamId)>();
       var filter = frame.Filter<SpawnPoint, Team, TransformComponent>();
       while (filter.Next(out var entity)) {
-        ref readonly var spawn = ref frame.Get<SpawnPoint>(entity);
-        if (spawn.LaneId != 0) continue;
         ref readonly var team = ref frame.Get<Team>(entity);
         ref readonly var transform = ref frame.Get<TransformComponent>(entity);
         sources.Add((transform.Position, team.TeamId));
@@ -46,12 +45,6 @@ namespace Meesles.Avalon {
 
     private static void SpawnWave(ref Frame frame, WaveRulesAsset rules, FPVector3 origin, int teamId, int waveId) {
       int count = rules.MinionsPerWave;
-
-      // Push the cluster out from the base toward map center so minions spawn in front of
-      // the base (the lane direction) instead of inside the base mesh.
-      FPVector3 toCenter = FPVector3.Zero - origin;
-      if (toCenter.magnitude > FP64.Epsilon)
-        origin = origin + toCenter.normalized * rules.SpawnForwardOffset;
 
       // Center the cluster laterally around the spawn point: lateral = (i - (n-1)/2) * spacing.
       FP64 centerOffset = FP64.FromInt(count - 1) * rules.MinionSpacing * FP64.Half;
@@ -78,7 +71,7 @@ namespace Meesles.Avalon {
         UnitTypeId = SimulationSetup.MinionUnitTypeId,
       });
       frame.Add(entity, new Team { TeamId = teamId });
-      frame.Add(entity, new Minion { LaneId = 0, WaveId = waveId });
+      frame.Add(entity, new Minion { WaveId = waveId });
       frame.Add(entity, new Health {
         Current = rules.MinionHealth,
         Max = rules.MinionHealth,

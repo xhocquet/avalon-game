@@ -15,7 +15,7 @@
   <PropertyGroup>
     <!-- Compile the deterministic sim so its IDataAsset types (e.g. WaveRulesAsset)
          are loaded in this process — the JSON $type binder discovers them by reflection. -->
-    <SimRoot>../../client/Sim</SimRoot>
+    <SimRoot>../../sim</SimRoot>
   </PropertyGroup>
 
   <ItemGroup>

@@ -31,11 +31,16 @@ var sessionConfig = SessionConfigLoader.Load(args, logger);
 int tickIntervalMs = simConfig.TickIntervalMs;
 int maxPlayers = sessionConfig.MaxPlayers;
 
-// Shared sim DataAsset (.bytes), copied from client/Sim/Data next to the executable under Data/.
+// Shared sim DataAssets (.bytes), copied from client/Sim/Data next to the executable under Data/.
 var assetPath = Path.Combine(AppContext.BaseDirectory, "Data", "Assets.bytes");
 var dataAssets = DataAssetReader.LoadMixedCollectionFromBytes(assetPath);
 IDataAssetRegistryBuilder registryBuilder = new DataAssetRegistry();
 registryBuilder.RegisterRange(dataAssets);
+
+var layoutPath = Path.Combine(AppContext.BaseDirectory, "Data", "MapLayout.bytes");
+if (File.Exists(layoutPath))
+  registryBuilder.RegisterRange(DataAssetReader.LoadMixedCollectionFromBytes(layoutPath));
+
 var sharedRegistry = registryBuilder.Build();
 
 var transport = new LiteNetLibTransport(logger, connectionKey: "Meesles.Avalon");

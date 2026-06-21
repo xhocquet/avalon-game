@@ -19,9 +19,9 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <!-- Deterministic sim copied into client/Sim — same .cs the Godot client compiles,
+    <!-- Shared deterministic sim at repo root sim/ — same .cs the Godot client compiles,
          built into this exe so server and client share an identical world. -->
-    <SimRoot>../client/Sim</SimRoot>
+    <SimRoot>../sim</SimRoot>
   </PropertyGroup>
 
   <ItemGroup>
