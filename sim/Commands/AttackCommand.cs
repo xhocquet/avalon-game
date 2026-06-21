@@ -1,7 +1,7 @@
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Serialization;
 
-namespace Meesles.Avalon {
+namespace Meesles.Avalon.Sim.Commands {
   [KlothoSerializable(102)]
   public partial class AttackCommand : CommandBase {
     public override bool IsContinuousInput => false;

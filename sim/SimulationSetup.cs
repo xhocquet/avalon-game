@@ -1,10 +1,12 @@
 using System.Collections.Generic;
+using Meesles.Avalon.Sim.Assets;
+using Meesles.Avalon.Sim.Models;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.ECS.Systems;
 
-namespace Meesles.Avalon {
+namespace Meesles.Avalon.Sim {
   public static class SimulationSetup {
     private const int PlayerUnitTypeId = 1;
     public const int MinionUnitTypeId = 2;

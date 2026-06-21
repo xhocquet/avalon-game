@@ -10,6 +10,9 @@ trim_trailing_whitespace = true
 
 [*.cs]
 csharp_new_line_before_open_brace = none
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = false
+resharper_csharp_empty_block_style = together_same_line
 
 [*.md]
 trim_trailing_whitespace = false

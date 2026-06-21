@@ -2,6 +2,7 @@ using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Godot;
 using xpTURN.Klotho.LiteNetLib;
 using xpTURN.Klotho.Logging;
+using Meesles.Avalon.Client;
 
 namespace Meesles.Avalon {
   public sealed class MultiplayerSessionHandoff {
@@ -11,7 +12,7 @@ namespace Meesles.Avalon {
     public LiteNetLibTransport Transport { get; init; }
     public KlothoSessionFlow Flow { get; init; }
     public KlothoSession Session { get; init; }
-    public ClientSimCallbacks SimulationCallbacks { get; init; }
+    public SimCallbacks SimulationCallbacks { get; init; }
     public ViewCallbacks ViewCallbacks { get; init; }
     public GodotSessionDriver Driver { get; init; }
     public ISimulationConfig SimulationConfig { get; init; }

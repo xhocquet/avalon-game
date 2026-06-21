@@ -1,8 +1,9 @@
-using global::Godot;
+using Godot;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Godot;
 using xpTURN.Klotho.LiteNetLib;
+using Meesles.Avalon.Client;
 
 namespace Meesles.Avalon {
   public partial class SingleplayerGameNode : GameNode {
@@ -28,29 +29,31 @@ namespace Meesles.Avalon {
       _sesCfg = new SessionConfig { MaxPlayers = 1, MinPlayers = 1, CountdownDurationMs = 0 };
 
       InitializeGameUI();
-      GameUI.SetMultiplayerMode();
-      GameUI.SetPhase(xpTURN.Klotho.Network.SessionPhase.Playing);
+      GameUi.SetMultiplayerMode();
+      GameUi.SetPhase(xpTURN.Klotho.Network.SessionPhase.Playing);
 
       SetupView3D();
       _camera = GetNodeOrNull<CameraController>("Camera3D");
       Input.BindCamera(_camera);
 
-      _viewCallbacks = new ViewCallbacks(GameUI);
+      _viewCallbacks = new ViewCallbacks(GameUi);
       _transport = new LiteNetLibTransport(logger, connectionKey: ConnectionKey);
       _flow = new KlothoSessionFlow(
-          new KlothoFlowSetupBuilder((s, ss) =>
-                  new SessionCallbacks(new ClientSimCallbacks(Input), _viewCallbacks))
-              .WithLogger(logger)
-              .WithTransport(_transport)
-              .WithAssetRegistry(registry)
-              .WithGodotDefaults()
-              .Build()
+        new KlothoFlowSetupBuilder((s, ss) =>
+            new SessionCallbacks(new SimCallbacks(Input), _viewCallbacks))
+          .WithLogger(logger)
+          .WithTransport(_transport)
+          .WithAssetRegistry(registry)
+          .WithGodotDefaults()
+          .Build()
       );
 
       _driver = new GodotSessionDriver();
       AddChild(_driver);
       _driver.BindTransport(_transport);
-      _driver.PreSessionUpdate += (s, dt) => { if (s.State == KlothoState.Running) Input.CaptureInput(); };
+      _driver.PreSessionUpdate += (s, dt) => {
+        if (s.State == KlothoState.Running) Input.CaptureInput();
+      };
 
       CreateView();
       StartLocalSession();
@@ -70,8 +73,8 @@ namespace Meesles.Avalon {
       _view.PlayerViews.OnLocalViewUnregistered += OnLocalViewUnregistered;
 
       _driver.Attach(_session);
-      GameUI.SetLocalPlayerId(_session.LocalPlayerId);
-      GameUI.HideResult();
+      GameUi.SetLocalPlayerId(_session.LocalPlayerId);
+      GameUi.HideResult();
       _session.SetReady(true);
     }
 

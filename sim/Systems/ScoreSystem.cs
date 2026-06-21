@@ -1,6 +1,9 @@
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
+using Meesles.Avalon.Sim;
+using Meesles.Avalon.Sim.Models;
+using Meesles.Avalon.Sim.Assets;
 
 namespace Meesles.Avalon {
   public class ScoreSystem : ISystem {
@@ -35,6 +38,7 @@ namespace Meesles.Avalon {
           tie = true;
         }
       }
+
       return tie ? -1 : bestId;
     }
   }

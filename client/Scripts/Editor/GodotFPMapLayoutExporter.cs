@@ -1,11 +1,13 @@
 // Collects SimMarkerNode instances from the edited scene and serializes
 // their world-space positions into MapLayout.bytes + JSON sidecar.
 // plugin.gd instantiates this [GlobalClass] and calls ExportMapLayout().
+
 using System.Collections.Generic;
 using global::Godot;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.ECS.Json;
+using Meesles.Avalon.Sim.Assets;
 
 namespace Meesles.Avalon {
   [Tool]
@@ -40,13 +42,14 @@ namespace Meesles.Avalon {
     }
 
     private static void CollectMarkers(
-        Node node,
-        List<int> types, List<int> teams, List<FPVector3> positions) {
+      Node node,
+      List<int> types, List<int> teams, List<FPVector3> positions) {
       if (node is SimMarkerNode marker) {
         types.Add((int)marker.MarkerType);
         teams.Add(marker.Team);
         positions.Add(marker.GlobalTransform.Origin.ToFPVector3());
       }
+
       foreach (Node child in node.GetChildren())
         CollectMarkers(child, types, teams, positions);
     }

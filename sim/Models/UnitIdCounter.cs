@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
 using xpTURN.Klotho.ECS;
 
-namespace Meesles.Avalon {
+namespace Meesles.Avalon.Sim.Models {
   [KlothoComponent(109)]
   [KlothoSingletonComponent]
   [StructLayout(LayoutKind.Sequential, Pack = 4)]

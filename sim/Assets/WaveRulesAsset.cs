@@ -2,7 +2,7 @@ using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Serialization;
 
-namespace Meesles.Avalon {
+namespace Meesles.Avalon.Sim.Assets {
   // Tunable minion-wave rules. Crank MinionsPerWave / shrink SpawnIntervalTicks to
   // stress-test how many deterministic minion entities the netcode handles (Milestone M).
   [KlothoDataAsset(101, AssetId = 101, Key = "WaveRules")]
@@ -14,7 +14,9 @@ namespace Meesles.Avalon {
     [KlothoOrder(4)] public FP64 MinionMass;
     [KlothoOrder(5)] public FP64 MinionHalfExtent;
     [KlothoOrder(6)] public FP64 MinionSpacing;
+
     [KlothoOrder(9)] public FP64 MinionMoveSpeed;
+
     // Hard ceiling on live minions. Until combat/death (Milestone A) removes them,
     // minions accumulate forever — this keeps the world under MaxEntities so the sim
     // doesn't blow the entity pool. Raise alongside MaxEntities to push the stress test.

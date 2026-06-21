@@ -2,7 +2,7 @@ using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.Serialization;
 
-namespace Meesles.Avalon {
+namespace Meesles.Avalon.Sim.Commands {
   [KlothoSerializable(100)]
   public partial class MoveCommand : CommandBase {
     public override bool IsContinuousInput => false;

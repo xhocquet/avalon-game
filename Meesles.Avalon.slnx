@@ -1,0 +1,25 @@
+<Solution>
+  <Folder Name="/client/">
+    <Project Path="client/Meesles.Avalon.Client.csproj" />
+  </Folder>
+  <Folder Name="/server/">
+    <Project Path="server/Server.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Avalon.Sim.Tests/Avalon.Sim.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/AssetGen/AssetGen.csproj" />
+  </Folder>
+  <Folder Name="/vendor/" />
+  <Folder Name="/vendor/Klotho/" />
+  <Folder Name="/vendor/Klotho/com.xpturn.klotho/" />
+  <Folder Name="/vendor/Klotho/com.xpturn.klotho/Server~/">
+    <Project Path="vendor/Klotho/com.xpturn.klotho/Server~/KlothoServer/KlothoServer.csproj" />
+    <Project Path="vendor/Klotho/com.xpturn.klotho/Server~/LiteNetLib/LiteNetLib.csproj" />
+    <Project Path="vendor/Klotho/com.xpturn.klotho/Server~/xpTURN.Klotho.Gameplay/xpTURN.Klotho.Gameplay.csproj" />
+    <Project Path="vendor/Klotho/com.xpturn.klotho/Server~/xpTURN.Klotho.LiteNetLib/xpTURN.Klotho.LiteNetLib.csproj" />
+    <Project Path="vendor/Klotho/com.xpturn.klotho/Server~/xpTURN.Klotho.Logging/xpTURN.Klotho.Logging.csproj" />
+    <Project Path="vendor/Klotho/com.xpturn.klotho/Server~/xpTURN.Klotho.Runtime/xpTURN.Klotho.Runtime.csproj" />
+  </Folder>
+</Solution>

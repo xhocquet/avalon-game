@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using global::Godot;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.Godot;
+using Meesles.Avalon.Sim.Commands;
+using Meesles.Avalon.Sim.Models;
 
 namespace Meesles.Avalon {
   public class InputCapture : IDisposable {
@@ -35,8 +37,7 @@ namespace Meesles.Avalon {
       _localOwnerId = ownerId;
     }
 
-    public void CaptureInput() {
-    }
+    public void CaptureInput() { }
 
     public bool TryConsumeMoveCommand(out MoveCommand command) {
       command = _pendingMoveCommand;

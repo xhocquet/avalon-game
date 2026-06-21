@@ -1,4 +1,4 @@
-namespace Meesles.Avalon {
+namespace Meesles.Avalon.Sim {
   public enum MapMarkerType {
     Base = 0,
     SpawnPoint = 1,

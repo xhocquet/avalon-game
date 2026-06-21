@@ -1,6 +1,7 @@
 using global::Godot;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Network;
+using Meesles.Avalon.Sim.Models;
 
 namespace Meesles.Avalon {
   public partial class GameUI : CanvasLayer, IViewHud {
