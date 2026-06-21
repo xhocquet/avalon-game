@@ -14,6 +14,5 @@ script = ExtResource("1_game")
 [node name="DirectionalLight3D" parent="." unique_id=839519197 instance=ExtResource("7_light")]
 
 [node name="World" parent="." unique_id=90756935 instance=ExtResource("6_world")]
-transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, 0)
 
 [node name="GameUI" parent="." unique_id=1799832949 instance=ExtResource("5_gameui")]
