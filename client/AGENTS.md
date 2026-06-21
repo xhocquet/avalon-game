@@ -1,7 +1,7 @@
 # Client Scope
 
 - This directory is the Godot 4.6 Mono client. Default to a Godot/gameplay mindset, not a generic backend mindset.
-- Primary entrypoints: `project.godot`, `Scenes/Singleplayer.tscn`, `Scenes/Multiplayer.tscn`, `Scripts/GameNode.cs`, `Shared/Hud.cs`, `Shared/Menu.tscn`.
+- Primary entrypoints: `project.godot`, `Scenes/Singleplayer.tscn`, `Scenes/Multiplayer.tscn`, `Scenes/Lobby.tscn`, `Scripts/GameNode.cs`, `Shared/GameUI.cs`, `Shared/Menu.tscn`.
 - Put cross-mode client code and reusable scene assets in `Shared/`.
 - Repeated scene nodes that are identical across modes should become `Shared/*.tscn` subscenes.
 - Shared deterministic gameplay code lives in `Sim/`. Changes there also affect the server build.

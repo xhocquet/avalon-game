@@ -6,9 +6,6 @@ using Meesles.Avalon.Sim.Models;
 using Meesles.Avalon.Sim.Assets;
 
 namespace Meesles.Avalon {
-  // Milestone M1: tick-driven minion waves. Spawn only — no movement or combat yet.
-  // Every spawn point emits MinionsPerWave minions on a fixed cadence so we can watch
-  // many networked entities stay in sync under the deterministic model.
   public class WaveSpawnSystem : ISystem {
     public void Update(ref Frame frame) {
       var rules = frame.AssetRegistry.Get<WaveRulesAsset>();
