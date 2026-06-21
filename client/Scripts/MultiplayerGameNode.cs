@@ -116,7 +116,7 @@ namespace Meesles.Avalon {
       _pool = new DefaultGodotEntityViewPool();
       var playerScene = GD.Load<PackedScene>("res://Shared/Player.tscn");
       var baseScene = GD.Load<PackedScene>("res://Shared/Base.tscn");
-      var minionScene = GD.Load<PackedScene>("res://Shared/Minion.tscn");
+      var minionScene = GD.Load<PackedScene>("res://Scenes/Objects/Minion.tscn");
       _pool.Prewarm(playerScene, 2);
       _pool.Prewarm(baseScene, 2);
       _pool.Prewarm(minionScene, 64);
@@ -129,7 +129,7 @@ namespace Meesles.Avalon {
     private UnitViewFactory CreateFactory() {
       var playerScene = GD.Load<PackedScene>("res://Shared/Player.tscn");
       var baseScene = GD.Load<PackedScene>("res://Shared/Base.tscn");
-      var minionScene = GD.Load<PackedScene>("res://Shared/Minion.tscn");
+      var minionScene = GD.Load<PackedScene>("res://Scenes/Objects/Minion.tscn");
       return new UnitViewFactory(playerScene, baseScene, minionScene);
     }
 
