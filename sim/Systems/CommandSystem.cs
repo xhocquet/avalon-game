@@ -1,13 +1,15 @@
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
+using Meesles.Avalon.Sim.Assets;
+using Meesles.Avalon.Sim.Models;
 
 namespace Meesles.Avalon {
   public class CommandSystem : ISystem, ICommandSystem {
     private static readonly FP64 StopDistance = FP64.FromDouble(0.15);
 
     public void OnCommand(ref Frame frame, ICommand command) {
-      if (command is not MoveCommand m) return;
+      if (command is not Sim.Commands.MoveCommand m) return;
 
       FPVector3 target = new FPVector3(m.TargetX, FP64.Zero, m.TargetZ);
       if (m.UnitIdCount > 0) {
@@ -45,7 +47,7 @@ namespace Meesles.Avalon {
       }
     }
 
-    private static void ApplySelectedUnitTargets(ref Frame frame, MoveCommand command, FPVector3 target) {
+    private static void ApplySelectedUnitTargets(ref Frame frame, Sim.Commands.MoveCommand command, FPVector3 target) {
       var filter = frame.Filter<Unit>();
       while (filter.Next(out var entity)) {
         ref readonly var unit = ref frame.Get<Unit>(entity);
@@ -64,7 +66,7 @@ namespace Meesles.Avalon {
       }
     }
 
-    private static bool CommandIncludesUnitId(MoveCommand command, int unitId) {
+    private static bool CommandIncludesUnitId(Sim.Commands.MoveCommand command, int unitId) {
       int count = command.UnitIdCount;
       if (count > 8) count = 8;
       for (int i = 0; i < count; i++)

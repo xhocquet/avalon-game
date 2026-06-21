@@ -1,5 +1,5 @@
 using System;
-using global::Godot;
+using Godot;
 
 namespace Meesles.Avalon {
   public partial class Menu : Control {

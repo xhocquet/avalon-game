@@ -1,7 +1,9 @@
 using System.Collections.Generic;
-using Meesles.Avalon.Client.Sim.Models;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
+using Meesles.Avalon.Sim;
+using Meesles.Avalon.Sim.Models;
+using Meesles.Avalon.Sim.Assets;
 
 namespace Meesles.Avalon {
   // Milestone M1: tick-driven minion waves. Spawn only — no movement or combat yet.

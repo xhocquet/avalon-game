@@ -1,7 +1,7 @@
 using global::Godot;
 using System.Collections.Generic;
-using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Godot;
+using Meesles.Avalon.Sim.Models;
 
 namespace Meesles.Avalon {
   public partial class Minimap : ColorRect {
@@ -51,6 +51,7 @@ namespace Meesles.Avalon {
         if (frame != null && frame.Has<Team>(evn.EntityRef))
           return TeamColors.Get(frame.GetReadOnly<Team>(evn.EntityRef).TeamId);
       }
+
       return new Color(0.8f, 0.8f, 0.8f);
     }
 

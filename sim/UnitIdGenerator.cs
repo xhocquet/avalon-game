@@ -1,6 +1,7 @@
+using Meesles.Avalon.Sim.Models;
 using xpTURN.Klotho.ECS;
 
-namespace Meesles.Avalon {
+namespace Meesles.Avalon.Sim {
   public static class UnitIdGenerator {
     public const int FirstUnitId = 1;
 

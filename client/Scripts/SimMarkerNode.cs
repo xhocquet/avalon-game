@@ -1,4 +1,5 @@
-using global::Godot;
+using Godot;
+using Meesles.Avalon.Sim;
 
 namespace Meesles.Avalon {
   [Tool]

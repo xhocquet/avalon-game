@@ -3,7 +3,7 @@ using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Serialization;
 
-namespace Meesles.Avalon {
+namespace Meesles.Avalon.Sim.Assets {
   [KlothoDataAsset(102, AssetId = 102, Key = "MapLayout")]
   public partial class MapLayoutAsset : IDataAsset {
     [KlothoOrder(0)] public int[] MarkerTypes;
@@ -30,6 +30,7 @@ namespace Meesles.Avalon {
           return true;
         }
       }
+
       return false;
     }
   }

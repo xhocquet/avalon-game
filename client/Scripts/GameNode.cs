@@ -1,5 +1,4 @@
-using global::Godot;
-using xpTURN.Klotho.Core;
+using Godot;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Godot;
 using xpTURN.Klotho.Logging;
@@ -8,27 +7,27 @@ namespace Meesles.Avalon {
   public abstract partial class GameNode : Node {
     protected InputCapture Input;
     protected Menu Menu;
-    protected LobbyUI LobbyUI;
-    protected GameUI GameUI;
+    protected LobbyUI LobbyUi;
+    protected GameUI GameUi;
 
     protected void InitializeSharedNodes() {
       Input = new InputCapture();
       Menu = GetNode<Menu>("UILayer/Menu");
-      LobbyUI = GetNode<LobbyUI>("UILayer/LobbyUI");
+      LobbyUi = GetNode<LobbyUI>("UILayer/LobbyUI");
     }
 
     protected void InitializeGameUI() {
       Input = new InputCapture();
-      GameUI = GetNode<GameUI>("GameUI");
+      GameUi = GetNode<GameUI>("GameUI");
     }
 
     protected void SetupView3D() {
       var cam = GetNodeOrNull<Camera3D>("Camera3D");
       if (cam != null) {
-        cam.Environment = new global::Godot.Environment {
-          BackgroundMode = global::Godot.Environment.BGMode.Color,
+        cam.Environment = new Environment {
+          BackgroundMode = Environment.BGMode.Color,
           BackgroundColor = new Color(0.12f, 0.13f, 0.18f),
-          AmbientLightSource = global::Godot.Environment.AmbientSource.Color,
+          AmbientLightSource = Environment.AmbientSource.Color,
           AmbientLightColor = new Color(0.5f, 0.5f, 0.5f),
           AmbientLightEnergy = 1.0f,
         };
@@ -39,19 +38,20 @@ namespace Meesles.Avalon {
     }
 
     protected IKLogger CreateLogger(string filePrefix = "Client")
-        => GodotKlothoLogger.CreateDefault(filePrefix: filePrefix, categoryName: "Client");
+      => GodotKlothoLogger.CreateDefault(filePrefix: filePrefix, categoryName: "Client");
 
     protected IDataAssetRegistry LoadAssetRegistry() {
-      byte[] bytes = global::Godot.FileAccess.GetFileAsBytes("res://Sim/Data/Assets.bytes");
+      byte[] bytes = FileAccess.GetFileAsBytes("res://Sim/Data/Assets.bytes");
       if (bytes == null || bytes.Length == 0) {
-        var err = global::Godot.FileAccess.GetOpenError();
+        var err = FileAccess.GetOpenError();
         throw new System.IO.FileNotFoundException($"res://Sim/Data/Assets.bytes not found (err={err})");
       }
+
       var assets = DataAssetReader.LoadMixedCollectionFromBytes(bytes);
       IDataAssetRegistryBuilder builder = new DataAssetRegistry();
       builder.RegisterRange(assets);
 
-      byte[] layoutBytes = global::Godot.FileAccess.GetFileAsBytes("res://Sim/Data/MapLayout.bytes");
+      byte[] layoutBytes = FileAccess.GetFileAsBytes("res://Sim/Data/MapLayout.bytes");
       if (layoutBytes != null && layoutBytes.Length > 0)
         builder.RegisterRange(DataAssetReader.LoadMixedCollectionFromBytes(layoutBytes));
 

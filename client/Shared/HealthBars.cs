@@ -1,6 +1,7 @@
 using global::Godot;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Godot;
+using Meesles.Avalon.Sim.Models;
 
 namespace Meesles.Avalon {
   public partial class HealthBars : ColorRect {

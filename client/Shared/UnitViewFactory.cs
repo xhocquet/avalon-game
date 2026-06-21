@@ -1,7 +1,9 @@
 // Maps renderable unit entities to their PackedScene.
+
 using global::Godot;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Godot;
+using Meesles.Avalon.Sim.Models;
 
 namespace Meesles.Avalon {
   public class UnitViewFactory : EntityViewFactory {

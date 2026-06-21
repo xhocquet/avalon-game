@@ -1,6 +1,8 @@
 // Avalon multiplayer game scene. Lobby readiness lives in LobbyGameNode; this scene renders play.
+
 using System.Threading.Tasks;
-using global::Godot;
+using Godot;
+using Meesles.Avalon.Client;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Godot;
@@ -21,7 +23,7 @@ namespace Meesles.Avalon {
     private LiteNetLibTransport _transport;
     private KlothoSessionFlow _flow;
     private KlothoSession _session;
-    private ClientSimCallbacks _simulationCallbacks;
+    private SimCallbacks _simulationCallbacks;
     private ViewCallbacks _viewCallbacks;
     private EntityViewUpdaterNode _view;
     private DefaultGodotEntityViewPool _pool;
@@ -40,7 +42,7 @@ namespace Meesles.Avalon {
       WarmupRegistry.RunAll();
 
       InitializeGameUI();
-      GameUI.SetMultiplayerMode();
+      GameUi.SetMultiplayerMode();
       SetupView3D();
 
       _camera = GetNodeOrNull<CameraController>("Camera3D");
@@ -70,7 +72,7 @@ namespace Meesles.Avalon {
       _sesCfg = handoff.SessionConfig;
 
       _simulationCallbacks.SetInput(Input);
-      _viewCallbacks.SetHud(GameUI);
+      _viewCallbacks.SetHud(GameUi);
       _driver.PreSessionUpdate += CaptureRunningInput;
       OnSessionReady(autoReady: false);
     }
@@ -81,17 +83,17 @@ namespace Meesles.Avalon {
       _simCfg = new SimulationConfig { Mode = NetworkMode.ServerDriven };
       _sesCfg = new SessionConfig { MaxPlayers = 2, MinPlayers = 2, CountdownDurationMs = 0 };
       _transport = new LiteNetLibTransport(_logger, connectionKey: ConnectionKey);
-      _simulationCallbacks = new ClientSimCallbacks(Input);
-      _viewCallbacks = new ViewCallbacks(GameUI);
+      _simulationCallbacks = new SimCallbacks(Input);
+      _viewCallbacks = new ViewCallbacks(GameUi);
 
       _flow = new KlothoSessionFlow(
-          new KlothoFlowSetupBuilder((s, ss) =>
-                  new SessionCallbacks(_simulationCallbacks, _viewCallbacks))
-              .WithLogger(_logger)
-              .WithTransport(_transport)
-              .WithAssetRegistry(_registry)
-              .WithGodotDefaults()
-              .Build()
+        new KlothoFlowSetupBuilder((s, ss) =>
+            new SessionCallbacks(_simulationCallbacks, _viewCallbacks))
+          .WithLogger(_logger)
+          .WithTransport(_transport)
+          .WithAssetRegistry(_registry)
+          .WithGodotDefaults()
+          .Build()
       );
 
       _driver = new GodotSessionDriver();
@@ -102,12 +104,12 @@ namespace Meesles.Avalon {
 
       _joining = true;
       _joinTask = _flow.JoinServerDrivenAsync(
-          _transport,
-          "127.0.0.1",
-          7777,
-          RoomId,
-          _sesCfg,
-          onStarted: _driver.TrackConnection);
+        _transport,
+        "127.0.0.1",
+        7777,
+        RoomId,
+        _sesCfg,
+        onStarted: _driver.TrackConnection);
     }
 
     private void CreateView() {
@@ -135,7 +137,7 @@ namespace Meesles.Avalon {
       _view.Initialize(_session.Engine, CreateFactory(), _pool);
       _view.PlayerViews.OnLocalViewRegistered += OnLocalViewRegistered;
       _view.PlayerViews.OnLocalViewUnregistered += OnLocalViewUnregistered;
-      GameUI.SetPhase(_session.Phase);
+      GameUi.SetPhase(_session.Phase);
 
       if (autoReady)
         SendReady();
@@ -143,7 +145,7 @@ namespace Meesles.Avalon {
 
     private void SendReady() {
       if (_session == null || _autoReadySent) return;
-      GameUI.SetLocalReady(true);
+      GameUi.SetLocalReady(true);
       _session.SetReady(true);
       _autoReadySent = true;
       _logger?.KInformation($"[Client] auto-ready sent from multiplayer scene.");
@@ -195,7 +197,7 @@ namespace Meesles.Avalon {
 
       if (_session == null) return;
 
-      GameUI.SetPhase(_session.Phase);
+      GameUi.SetPhase(_session.Phase);
       if (!_autoReadySent && _session.Phase == SessionPhase.Synchronized)
         SendReady();
 
@@ -206,7 +208,7 @@ namespace Meesles.Avalon {
       double elapsedSeconds = (Time.GetTicksMsec() - _sceneStartedAtMs) / 1000.0;
       double remaining = StartDelaySeconds - elapsedSeconds;
       if (remaining > 0)
-        GameUI.SetStartDelayRemaining(remaining);
+        GameUi.SetStartDelayRemaining(remaining);
     }
 
     private void AutoTestStep() {
@@ -229,6 +231,7 @@ namespace Meesles.Avalon {
         _driver?.DetachAndStop();
         _session = null;
       }
+
       _view?.Cleanup();
       _viewCallbacks?.Cleanup();
       _pool?.Dispose();

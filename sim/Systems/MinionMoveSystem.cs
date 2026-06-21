@@ -1,5 +1,7 @@
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
+using Meesles.Avalon.Sim.Models;
+using Meesles.Avalon.Sim.Assets;
 
 namespace Meesles.Avalon {
   // Milestone M3 (quick + dirty): march every minion straight at map center by integrating

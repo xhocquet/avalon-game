@@ -1,11 +1,12 @@
 using System.Threading.Tasks;
-using global::Godot;
+using Godot;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Godot;
 using xpTURN.Klotho.LiteNetLib;
 using xpTURN.Klotho.Logging;
 using xpTURN.Klotho.Network;
+using Meesles.Avalon.Client;
 
 namespace Meesles.Avalon {
   public partial class LobbyGameNode : GameNode {
@@ -19,7 +20,7 @@ namespace Meesles.Avalon {
     private LiteNetLibTransport _transport;
     private KlothoSessionFlow _flow;
     private KlothoSession _session;
-    private ClientSimCallbacks _simulationCallbacks;
+    private SimCallbacks _simulationCallbacks;
     private ViewCallbacks _viewCallbacks;
     private GodotSessionDriver _driver;
     private ISimulationConfig _simCfg;
@@ -42,19 +43,19 @@ namespace Meesles.Avalon {
 
       InitializeSharedNodes();
       Menu.SetLobbyMode();
-      LobbyUI.SetLobbyMode();
+      LobbyUi.SetLobbyMode();
 
-      _simulationCallbacks = new ClientSimCallbacks(Input);
-      _viewCallbacks = new ViewCallbacks(LobbyUI);
+      _simulationCallbacks = new SimCallbacks(Input);
+      _viewCallbacks = new ViewCallbacks(LobbyUi);
       _transport = new LiteNetLibTransport(_logger, connectionKey: ConnectionKey);
       _flow = new KlothoSessionFlow(
-          new KlothoFlowSetupBuilder((s, ss) =>
-                  new SessionCallbacks(_simulationCallbacks, _viewCallbacks))
-              .WithLogger(_logger)
-              .WithTransport(_transport)
-              .WithAssetRegistry(_registry)
-              .WithGodotDefaults()
-              .Build()
+        new KlothoFlowSetupBuilder((s, ss) =>
+            new SessionCallbacks(_simulationCallbacks, _viewCallbacks))
+          .WithLogger(_logger)
+          .WithTransport(_transport)
+          .WithAssetRegistry(_registry)
+          .WithGodotDefaults()
+          .Build()
       );
 
       _driver = new GodotSessionDriver { Name = "KlothoSessionDriver" };
@@ -77,24 +78,24 @@ namespace Meesles.Avalon {
       if (_session != null || _joining) return;
       _joining = true;
       _joinTask = _flow.JoinServerDrivenAsync(
-          _transport,
-          Menu.Host,
-          Menu.Port,
-          RoomId,
-          _sesCfg,
-          onStarted: _driver.TrackConnection);
+        _transport,
+        Menu.Host,
+        Menu.Port,
+        RoomId,
+        _sesCfg,
+        onStarted: _driver.TrackConnection);
     }
 
     private void OnReady() {
       if (_session == null) return;
-      LobbyUI.SetLocalReady(true);
+      LobbyUi.SetLocalReady(true);
       _session.SetReady(true);
       Menu.SetReadyState(true);
     }
 
     private void OnUnready() {
       if (_session == null) return;
-      LobbyUI.SetLocalReady(false);
+      LobbyUi.SetLocalReady(false);
       _session.SetReady(false);
       Menu.SetReadyState(false);
     }
@@ -108,15 +109,15 @@ namespace Meesles.Avalon {
       Menu.SetReadyEnabled(false);
       Menu.SetReadyState(false);
       Menu.SetStopEnabled(false);
-      LobbyUI.SetLocalReady(false);
-      LobbyUI.SetPhase(SessionPhase.Disconnected);
-      LobbyUI.SetConnected(false);
+      LobbyUi.SetLocalReady(false);
+      LobbyUi.SetPhase(SessionPhase.Disconnected);
+      LobbyUi.SetConnected(false);
     }
 
     private void OnSessionReady() {
       _driver.Attach(_session);
-      LobbyUI.SetPhase(_session.Phase);
-      LobbyUI.SetConnected(true, RoomId);
+      LobbyUi.SetPhase(_session.Phase);
+      LobbyUi.SetConnected(true, RoomId);
       Menu.SetReadyEnabled(true);
       Menu.SetStopEnabled(true);
     }
@@ -127,7 +128,7 @@ namespace Meesles.Avalon {
           _logger.KError($"[Client] join failed (server running?): {_joinTask.Exception?.GetBaseException().Message}");
           _joining = false;
           _joinTask = null;
-          LobbyUI.SetConnected(false);
+          LobbyUi.SetConnected(false);
         }
         else if (_joinTask.IsCompleted) {
           _session = _joinTask.Result;
@@ -139,10 +140,10 @@ namespace Meesles.Avalon {
 
       if (_session == null) return;
 
-      LobbyUI.SetPhase(_session.Phase);
+      LobbyUi.SetPhase(_session.Phase);
       UpdateCountdownHud(_session.Phase);
       AutoReadyHeadless();
-      LobbyUI.SyncPlayers(_session.NetworkService.Players, _session.NetworkService.LocalPlayerId);
+      LobbyUi.SyncPlayers(_session.NetworkService.Players, _session.NetworkService.LocalPlayerId);
 
       if (_session.Phase == SessionPhase.Playing)
         StartGameScene();
@@ -163,14 +164,14 @@ namespace Meesles.Avalon {
         _lastPhase = phase;
         if (phase == SessionPhase.Countdown) {
           _countdownStartedAtMs = Time.GetTicksMsec();
-          LobbyUI.SetCountdownRemaining(_sesCfg.CountdownDurationMs / 1000.0);
+          LobbyUi.SetCountdownRemaining(_sesCfg.CountdownDurationMs / 1000.0);
         }
       }
 
       if (phase != SessionPhase.Countdown) return;
 
       double elapsedSeconds = (Time.GetTicksMsec() - _countdownStartedAtMs) / 1000.0;
-      LobbyUI.SetCountdownRemaining((_sesCfg.CountdownDurationMs / 1000.0) - elapsedSeconds);
+      LobbyUi.SetCountdownRemaining((_sesCfg.CountdownDurationMs / 1000.0) - elapsedSeconds);
     }
 
     private void StartGameScene() {
