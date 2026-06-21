@@ -4,7 +4,7 @@ Target shape: Warcraft/Dota-like top-down combat with a handful of human players
 
 ## Current Model
 
-- `client/Sim/**` is shared deterministic gameplay code compiled by both client and server.
+- `sim/**` (repo root) is shared deterministic gameplay code compiled by both client and server. Data assets live at `client/Sim/Data/` (Godot `res://` requires them inside the Godot project).
 - Godot nodes are view/input only. They do not own authoritative gameplay state.
 - Klotho ServerDriven mode is not classic wait-for-all lockstep. The server advances fixed ticks, substitutes empty input when needed, broadcasts verified state, and clients rollback/reconcile.
 - Keep network and replay data command-centric. Commands are the durable record of player intent.

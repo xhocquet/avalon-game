@@ -49,17 +49,22 @@ public class SimInvariantTests {
 
     harness.Tick(SimHarness.MoveCommand(1, 0, FP64.One, -FP64.One));
 
-    PlayerSnapshot[] players = GetPlayerSnapshots(harness);
-    players.Should().Contain(new PlayerSnapshot(1, 1, FP64.One, -FP64.One, 0));
-    players.Should().Contain(new PlayerSnapshot(2, 2, FP64.Zero, FP64.Zero, 0));
-
-    VelocitySnapshot[] velocities = GetPlayerVelocities(harness);
-    velocities.Should().Contain(velocity => velocity.PlayerId == 1
-        && velocity.X == FP64.FromInt(5)
-        && velocity.Z == FP64.FromInt(-5));
-    velocities.Should().Contain(velocity => velocity.PlayerId == 2
-        && velocity.X == FP64.Zero
-        && velocity.Z == FP64.Zero);
+    var frame = harness.Frame;
+    bool player1HasTarget = false;
+    var filter = frame.Filter<Player, UnitMoveTarget>();
+    while (filter.Next(out var entity)) {
+      ref readonly var player = ref frame.Get<Player>(entity);
+      if (player.PlayerId == 1) {
+        ref readonly var target = ref frame.Get<UnitMoveTarget>(entity);
+        target.Target.x.Should().Be(FP64.One);
+        target.Target.z.Should().Be(-FP64.One);
+        player1HasTarget = true;
+      }
+      else {
+        Assert.Fail($"Player {player.PlayerId} should not have a UnitMoveTarget");
+      }
+    }
+    player1HasTarget.Should().BeTrue("Player 1 should have a move target after MoveCommand");
   }
 
   [Fact]
@@ -104,11 +109,6 @@ public class SimInvariantTests {
     PlayerTransformSnapshot transform = GetPlayerTransforms(simA).Single(snapshot => snapshot.PlayerId == 1);
     var frame = simA.Frame;
     transform.Position.Should().Be(SimulationSetup.GetHeroSpawnPositionForTeam(ref frame, teamId: 1));
-
-    VelocitySnapshot velocity = GetPlayerVelocities(simA).Single(snapshot => snapshot.PlayerId == 1);
-    velocity.X.Should().Be(FP64.Zero);
-    velocity.Y.Should().Be(FP64.Zero);
-    velocity.Z.Should().Be(FP64.Zero);
   }
 
   private static UnitSnapshot[] GetUnits(SimHarness harness) {
@@ -141,23 +141,6 @@ public class SimInvariantTests {
     return players.OrderBy(player => player.PlayerId).ToArray();
   }
 
-  private static VelocitySnapshot[] GetPlayerVelocities(SimHarness harness) {
-    var frame = harness.Frame;
-    var velocities = new List<VelocitySnapshot>();
-    var filter = frame.Filter<Player, PhysicsBodyComponent>();
-    while (filter.Next(out var entity)) {
-      ref readonly var player = ref frame.Get<Player>(entity);
-      ref readonly var physics = ref frame.Get<PhysicsBodyComponent>(entity);
-      velocities.Add(new VelocitySnapshot(
-          player.PlayerId,
-          physics.RigidBody.velocity.x,
-          physics.RigidBody.velocity.y,
-          physics.RigidBody.velocity.z));
-    }
-
-    return velocities.OrderBy(velocity => velocity.PlayerId).ToArray();
-  }
-
   private static PlayerTransformSnapshot[] GetPlayerTransforms(SimHarness harness) {
     var frame = harness.Frame;
     var transforms = new List<PlayerTransformSnapshot>();
@@ -188,16 +171,14 @@ public class SimInvariantTests {
   private static void ForcePlayerFall(SimHarness harness, int playerId) {
     var frame = harness.Frame;
     var stats = harness.AssetRegistry.Get<PlayerStatsAsset>();
-    var filter = frame.Filter<Player, TransformComponent, PhysicsBodyComponent>();
+    var filter = frame.Filter<Player, TransformComponent>();
     while (filter.Next(out var entity)) {
       ref readonly var player = ref frame.Get<Player>(entity);
       if (player.PlayerId != playerId)
         continue;
 
       ref var transform = ref frame.Get<TransformComponent>(entity);
-      ref var physics = ref frame.Get<PhysicsBodyComponent>(entity);
       transform.Position = new FPVector3(FP64.Zero, stats.FallThresholdY - FP64.One, FP64.Zero);
-      physics.RigidBody.velocity = new FPVector3(FP64.One, FP64.One, FP64.One);
       return;
     }
   }
@@ -205,8 +186,6 @@ public class SimInvariantTests {
   private sealed record UnitSnapshot(int UnitId, int UnitTypeId);
 
   private sealed record PlayerSnapshot(int PlayerId, int TeamId, FP64 LastInputH, FP64 LastInputV, int Score);
-
-  private sealed record VelocitySnapshot(int PlayerId, FP64 X, FP64 Y, FP64 Z);
 
   private sealed record PlayerTransformSnapshot(int PlayerId, FPVector3 Position);
 

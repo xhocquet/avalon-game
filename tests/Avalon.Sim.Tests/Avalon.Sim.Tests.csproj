@@ -16,7 +16,7 @@
 
   <PropertyGroup>
     <!-- Compile the same deterministic sim source used by both client and server. -->
-    <SimRoot>../../client/Sim</SimRoot>
+    <SimRoot>../../sim</SimRoot>
   </PropertyGroup>
 
   <ItemGroup>

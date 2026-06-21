@@ -1,5 +1,6 @@
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
+using Meesles.Avalon.Client.Sim.Models;
 
 namespace Meesles.Avalon {
   // Applies melee combat damage each tick. Generic over unit type: any entity with

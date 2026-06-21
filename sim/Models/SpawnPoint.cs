@@ -7,7 +7,6 @@ namespace Meesles.Avalon {
   public partial struct SpawnPoint : IComponent {
     public int SpawnPointId;
     public int TeamId;
-    public int LaneId;
     public int UnitTypeId;
   }
 }

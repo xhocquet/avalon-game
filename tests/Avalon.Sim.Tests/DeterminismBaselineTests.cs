@@ -95,17 +95,17 @@ public class DeterminismBaselineTests {
   }
 
   private static MoveCommand CreateCommand(int playerId, int tick, int phase) {
-    FP64 h = PatternValue(tick + phase);
-    FP64 v = PatternValue(tick + phase + 1);
-    return SimHarness.MoveCommand(playerId, tick, h, v);
+    FP64 targetX = PatternValue(tick + phase);
+    FP64 targetZ = PatternValue(tick + phase + 1);
+    return SimHarness.MoveCommand(playerId, tick, targetX, targetZ);
   }
 
   private static FP64 PatternValue(int value) {
     return Math.Abs(value) % 4 switch {
-        0 => FP64.Zero,
-        1 => FP64.One,
-        2 => FP64.Zero,
-        _ => -FP64.One,
+      0 => FP64.Zero,
+      1 => FP64.One,
+      2 => FP64.Zero,
+      _ => -FP64.One,
     };
   }
 

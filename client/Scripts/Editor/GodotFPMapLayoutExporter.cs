@@ -21,18 +21,16 @@ namespace Meesles.Avalon {
         return;
       }
 
-      var ids = new List<int>();
       var types = new List<int>();
       var teams = new List<int>();
       var positions = new List<FPVector3>();
 
-      CollectMarkers(root, ids, types, teams, positions);
+      CollectMarkers(root, types, teams, positions);
 
-      if (ids.Count == 0)
+      if (types.Count == 0)
         GD.PushWarning("[GodotFPMapLayoutExporter] No SimMarkerNode instances found in scene.");
 
       var asset = new MapLayoutAsset {
-        MarkerIds = ids.ToArray(),
         MarkerTypes = types.ToArray(),
         MarkerTeams = teams.ToArray(),
         MarkerPositions = positions.ToArray(),
@@ -43,15 +41,14 @@ namespace Meesles.Avalon {
 
     private static void CollectMarkers(
         Node node,
-        List<int> ids, List<int> types, List<int> teams, List<FPVector3> positions) {
+        List<int> types, List<int> teams, List<FPVector3> positions) {
       if (node is SimMarkerNode marker) {
-        ids.Add(marker.MarkerId);
         types.Add((int)marker.MarkerType);
         teams.Add(marker.Team);
         positions.Add(marker.GlobalTransform.Origin.ToFPVector3());
       }
       foreach (Node child in node.GetChildren())
-        CollectMarkers(child, ids, types, teams, positions);
+        CollectMarkers(child, types, teams, positions);
     }
 
     private static void Save(MapLayoutAsset asset) {
@@ -66,7 +63,7 @@ namespace Meesles.Avalon {
       System.IO.File.WriteAllText(absJson, json);
 
       EditorInterface.Singleton.GetResourceFilesystem().Scan();
-      GD.Print($"[GodotFPMapLayoutExporter] Exported {asset.MarkerIds.Length} markers → {OutputBytesPath}");
+      GD.Print($"[GodotFPMapLayoutExporter] Exported {asset.MarkerTypes.Length} markers → {OutputBytesPath}");
     }
   }
 }
