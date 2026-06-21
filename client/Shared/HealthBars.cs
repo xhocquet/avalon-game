@@ -34,7 +34,7 @@ namespace Meesles.Avalon {
         var frame = evn.Engine?.PredictedFrame.Frame;
         if (frame == null) continue;
 
-        // TODO: read a Health component here when added to the sim; defaults to full health
+        // TODO: read Health component from sim
         float ratio = 1.0f;
 
         var worldPoint = node3d.GlobalPosition + new Vector3(0f, BarWorldYOffset, 0f);
