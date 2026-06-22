@@ -27,9 +27,7 @@ quickplay port="7777":
 
 # Wipe Godot's compiled DLL cache so the next build/play starts clean.
 clean:
-    Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "{{justfile_directory()}}\client\.godot\mono\temp\bin"
-    Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "{{justfile_directory()}}\client\.godot\mono\temp\obj"
-    Write-Host "Godot mono cache cleared."
+    @& "{{justfile_directory()}}\scripts\clean.ps1"
 
 # Build Klotho runtime DLL from vendor source (Godot flavor) and sync it into the client addon.
 sync-klotho:
