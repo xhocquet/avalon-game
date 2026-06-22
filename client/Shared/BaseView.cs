@@ -1,4 +1,4 @@
-using global::Godot;
+using Godot;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Godot;
 using Meesles.Avalon.Sim.Models;
@@ -14,10 +14,6 @@ namespace Meesles.Avalon {
       int teamId = live.GetReadOnly<Team>(EntityRef).TeamId;
       var mesh = GetNodeOrNull<MeshInstance3D>("Mesh");
       if (mesh == null) return;
-
-      mesh.MaterialOverride = new StandardMaterial3D {
-        AlbedoColor = TeamColors.Get(teamId),
-      };
     }
   }
 }

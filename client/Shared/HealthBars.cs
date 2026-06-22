@@ -1,7 +1,5 @@
 using global::Godot;
-using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Godot;
-using Meesles.Avalon.Sim.Models;
 
 namespace Meesles.Avalon {
   public partial class HealthBars : ColorRect {
@@ -9,8 +7,8 @@ namespace Meesles.Avalon {
     [Export] public float BarHeight { get; set; } = 8.0f;
     [Export] public float BarWorldYOffset { get; set; } = 1.5f;
     [Export] public float BarScreenOffsetY { get; set; } = -10.0f;
-    [Export] public Color BackgroundColor { get; set; } = new Color(0f, 0f, 0f, 0.45f);
-    [Export] public Color FrameColor { get; set; } = new Color(0f, 0f, 0f, 0.75f);
+    [Export] public Color BackgroundColor { get; set; } = new(0f, 0f, 0f, 0.45f);
+    [Export] public Color FrameColor { get; set; } = new(0f, 0f, 0f, 0.75f);
 
     public override void _Ready() {
       MouseFilter = MouseFilterEnum.Ignore;
@@ -47,18 +45,12 @@ namespace Meesles.Avalon {
 
         var rectBg = new Rect2(x, y, BarWidth, BarHeight);
         var rectFill = new Rect2(x, y, BarWidth * ratio, BarHeight);
-        var fillColor = GetColorForEntity(evn, frame);
+        var fillColor = new Color(0.4f, 0.8f, 0.3f);
 
         DrawRect(rectBg, BackgroundColor);
         DrawRect(rectBg, FrameColor, filled: false, width: 1f);
         DrawRect(rectFill, fillColor);
       }
-    }
-
-    private static Color GetColorForEntity(EntityViewNode evn, Frame frame) {
-      if (frame.Has<Team>(evn.EntityRef))
-        return TeamColors.Get(frame.GetReadOnly<Team>(evn.EntityRef).TeamId);
-      return new Color(0.4f, 0.8f, 0.3f);
     }
   }
 }
