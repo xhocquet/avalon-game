@@ -1,8 +1,10 @@
 [gd_scene format=3 uid="uid://cim58hsj4bmai"]
 
+[ext_resource type="Script" path="res://Scripts/PlayerEntity.cs" id="1_pe"]
 [ext_resource type="PackedScene" uid="uid://gs4vrw2pklgt" path="res://Assets/Models/Player.glb" id="1_uyr3s"]
 
 [node name="Player" unique_id=1293732466 instance=ExtResource("1_uyr3s")]
+script = ExtResource("1_pe")
 
 [node name="Skeleton3D" parent="Model/PlayerFBX/SceneRoot/RootNode/PlayerArmature/Skeleton" parent_id_path=PackedInt32Array(777660138) index="0" unique_id=2128361715]
 bones/2/position = Vector3(-0.0029114808, 0.39684248, -0.011465397)
