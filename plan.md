@@ -26,14 +26,15 @@ Target shape: Warcraft/Dota-like top-down combat with a handful of human players
   - `AttackCommand { target UnitId }`
   - `Spawn/Buy/TrainCommand { unit type, source structure UnitId }`
   - `AbilityCommand { caster UnitId, ability id, target UnitId/position }`
-- Selection is gameplay state. The command stream should send deterministic mouse/input facts, and SIM derives selected units from player ownership plus current unit positions.
-- Group orders act on the player's current SIM selection. Do not send hundreds of unit ids as normal order payload.
+- Selection is client/view state for now. The command stream sends explicit `UnitId` targets for the current local selection.
+- Keep the design open to SIM-owned selection later by using stable `Unit.UnitId` references and deterministic validation helpers.
+- Group orders may carry explicit `UnitId`s for now, but keep payloads bounded and avoid making large per-frame selection lists part of the normal protocol.
 - Commands should carry enough intent to reproduce behavior, not sampled movement state.
 
 ## Klotho Ids
 
 - `KlothoComponent`: 100-110 used (110 = `UnitMoveTarget`), next free 111.
-- `KlothoSerializable`: 100 `MoveCommand`, 101 `GameOverEvent`, 102 `AttackCommand`, next free 103.
+- `KlothoSerializable`: 100 `MoveCommand`, 101 `GameOverEvent`, 102 reserved for `UnitDiedEvent`, 103 `AttackCommand`, next free 104.
 - `KlothoDataAsset`: 100 `PlayerStats`, 101 `WaveRules`, 102 `MapLayout`, next free 103.
 - Note: `NavAgentComponent` uses Klotho-internal ID 11 — no conflict with project range.
 
@@ -74,7 +75,7 @@ Goal: make commands ready for real unit orders before adding deeper combat.
 2. Add ownership/team validation helpers for command systems.
 3. Add `MoveToCommand`: carries an explicit list of `UnitId`s (client-side selection is view-only and not recorded). Applies movement to owned units.
 4. Add `AttackCommand { caster UnitId, target UnitId }`.
-5. Selection is client-side UI state only — not SIM state, not in the command stream, not in recordings.
+5. Selection is client-side UI state only for now — not SIM state, not in the command stream, not in recordings.
 
 Acceptance:
 
@@ -137,7 +138,7 @@ Acceptance:
 Goal: replace direct WASD hero movement with command-based MOBA control.
 
 1. Client raycasts mouse input into deterministic planar world coordinates.
-2. Client maintains selection locally (view-only); sends `MoveToCommand` / `AttackCommand` with explicit `UnitId` list.
+2. Client maintains selection locally (view-only); sends `MoveToCommand` / `AttackCommand` with explicit bounded `UnitId` list.
 3. SIM validates ownership and applies orders.
 4. View renders selection indicators from local client state.
 5. WASD free-camera stays as a permanent debug/spectator tool; it is not a gameplay command.

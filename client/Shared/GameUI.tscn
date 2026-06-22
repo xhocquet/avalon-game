@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://bu5kshfajfcmv"]
 
 [ext_resource type="Script" uid="uid://cye43qws5a5eo" path="res://Shared/GameUI.cs" id="1_script"]
-[ext_resource type="PackedScene" path="res://Shared/Minimap.tscn" id="2_minimap"]
 [ext_resource type="PackedScene" path="res://Shared/HealthBars.tscn" id="3_healthbars"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_scoreboard"]
@@ -99,13 +98,6 @@ grow_vertical = 2
 text = "RESULT"
 horizontal_alignment = 1
 vertical_alignment = 1
-
-[node name="Minimap" parent="MainUI" unique_id=130697204 instance=ExtResource("2_minimap")]
-layout_mode = 0
-offset_left = 1710.0
-offset_top = 870.0
-offset_right = 1910.0
-offset_bottom = 1070.0
 
 [node name="HealthBars" parent="MainUI" unique_id=1496569716 instance=ExtResource("3_healthbars")]
 layout_mode = 1
