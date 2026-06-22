@@ -24,3 +24,10 @@ tests/**/obj/
 # Tool build outputs
 tools/**/bin/
 tools/**/obj/
+
+# Local scratch space
+.tmp/
+
+# Klotho analyzer/editor snapshots. Builds use analyzer output from obj/.
+sim/Tools/Generated/
+client/Sim/Tools/Generated/

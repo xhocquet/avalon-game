@@ -25,10 +25,8 @@
 
   <ItemGroup>
     <!-- Shared sim source lives outside the Godot project root; include it explicitly.
-         Include subdirs individually to avoid sim/Tools/ being compiled.
-         The Klotho generator writes static copies to client/Sim/Tools/Generated/ (from the
-         Link="Sim/..." paths below) for the Godot editor language server. Exclude those so
-         the Roslyn analyzer's obj/ output is the only compiled copy. -->
+         Include subdirs individually to avoid generated/tooling code being compiled.
+         Klotho generated code is supplied by the analyzer under obj/. -->
     <Compile Include="$(SimRoot)/*.cs"     Link="Sim/%(Filename)%(Extension)" />
     <Compile Include="$(SimRoot)/Assets/**/*.cs"   Link="Sim/Assets/%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="$(SimRoot)/Commands/**/*.cs" Link="Sim/Commands/%(RecursiveDir)%(Filename)%(Extension)" />
