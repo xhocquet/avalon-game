@@ -51,21 +51,7 @@ Target shape: Warcraft/Dota-like top-down combat with a handful of human players
 - `SimMarkerNode` ([Tool][GlobalClass] Node3D) places Base/SpawnPoint/Shop/Turret markers in the editor.
 - `MapLayoutAsset` (KlothoDataAsset 102) stores marker positions; `GodotFPMapLayoutExporter` bakes them to `Sim/Data/MapLayout.bytes`.
 - `SimulationSetup` uses `MapLayoutAsset` for base/spawn positions when available, falls back to hardcoded corners.
-
-## Next Slice: Map Layout Foundation
-
-Goal: replace hardcoded positions in `SimulationSetup` with editor-authored data so bases, spawn points, turrets, and shops can be placed and adjusted visually without touching code.
-
-1. `SimMarkerNode` (`[GlobalClass]`, `[Tool]`, extends `Node3D`): fields `MarkerId`, `MarkerType` (`Base` | `SpawnPoint` | `Shop` | `Turret`), `Team`. Place in Godot scene alongside visual and collision geometry.
-2. `GodotFPMapLayoutExporter` (`#if TOOLS`): scans scene for `SimMarkerNode` instances, reads `GlobalTransform.Origin.ToFPVector3()`, writes `MapLayout.bytes` + JSON sidecar next to scene file. Follows `GodotFPNavMeshExporter` pattern exactly.
-3. `MapLayoutAsset` (`KlothoDataAsset(102)`): deserializes marker positions; exposes `GetPosition(markerId)`, `GetMarkersByType(markerType)`.
-4. `SimulationSetup` loads `MapLayoutAsset` and uses it for all spawn/base positions instead of hardcoded offsets.
-5. Structure collision nodes (`StaticBody3D` + `CollisionShape3D`) under each marker node participate in navmesh baking automatically.
-
-Acceptance:
-
-- Moving a marker in the Godot editor and re-exporting changes sim spawn/entity positions without a code change.
-- Bases, spawn points, and future turret/shop positions are all driven by layout data.
+- Map layout foundation is complete: editor-authored Base/SpawnPoint/Shop/Turret markers can drive baked layout data for sim spawn/base placement.
 
 ## Next Slice: Command And Unit Identity Foundation
 
@@ -172,3 +158,7 @@ Acceptance:
 ## Open Decisions
 
 1. MapLayout export trigger: manual editor button in Klotho dock, or auto-export on scene save via `@tool`.
+
+## Todo, No Particular Order
+
+- Add a dynamic view/object pool for minions; a fixed 64-object pool is probably too small once waves stack up.

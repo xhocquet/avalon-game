@@ -2,7 +2,14 @@
 
 [ext_resource type="Script" uid="uid://drxwt8mq0b2k8" path="res://Scripts/MinionEntity.cs" id="1_mv"]
 [ext_resource type="PackedScene" uid="uid://dhaaeca50xwng" path="res://Assets/Models/Minion.glb" id="1_uc222"]
+[ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Shared/SelectionIndicator.tscn" id="3_indicator"]
 
-[node name="Minion" instance=ExtResource("1_uc222")]
-transform = Transform3D(0.005, 0, 0, 0, 0.005, 0, 0, 0, 0.005, 0, 0, 0)
+[node name="Minion" unique_id=2050480386 instance=ExtResource("1_uc222")]
+transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 0, 0, 0)
 script = ExtResource("1_mv")
+
+[node name="Model" parent="." index="0" unique_id=36715113]
+transform = Transform3D(1, 0, 0, 0, 2.220446e-16, 1, 0, -1, 2.220446e-16, 0, 28.93648, 0)
+
+[node name="SelectionIndicator" parent="." index="1" unique_id=1272106412 instance=ExtResource("3_indicator")]
+transform = Transform3D(80, 0, 0, 0, 80, 0, 0, 0, 80, 0, 0.04, 0)

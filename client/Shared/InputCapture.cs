@@ -9,20 +9,30 @@ using Meesles.Avalon.Sim.Models;
 namespace Meesles.Avalon {
   public class InputCapture : IDisposable {
     private const int MaxSelectedUnitIds = 8;
+    private const float DragSelectionThresholdPx = 6f;
 
     private readonly List<EntityViewNode> _selectedViews = new();
     private CameraController _camera;
+    private GameUI _gameUI;
     private EntityViewUpdaterNode _viewRoot;
     private MoveCommand _pendingMoveCommand;
     private Node3D _singleplayerMoveTarget;
+    private Vector2 _dragStartScreen;
+    private Vector2 _dragCurrentScreen;
     private bool _hasSingleplayerTarget;
-    private int _localOwnerId = 1;
+    private bool _isLeftButtonDown;
+    private bool _isDraggingSelection;
+    private int _localTeamId = 1;
 
     public Vector3 SingleplayerTarget => _singleplayerMoveTarget?.GlobalPosition ?? Vector3.Zero;
     public bool HasSingleplayerTarget => _hasSingleplayerTarget;
 
     public void BindCamera(CameraController camera) {
       _camera = camera;
+    }
+
+    public void BindGameUI(GameUI gameUI) {
+      _gameUI = gameUI;
     }
 
     public void BindViewRoot(EntityViewUpdaterNode viewRoot) {
@@ -33,8 +43,8 @@ namespace Meesles.Avalon {
       _singleplayerMoveTarget = target;
     }
 
-    public void SetLocalOwnerId(int ownerId) {
-      _localOwnerId = ownerId;
+    public void SetLocalTeamId(int teamId) {
+      _localTeamId = teamId;
     }
 
     public void CaptureInput() { }
@@ -50,19 +60,32 @@ namespace Meesles.Avalon {
     }
 
     public void SelectSingleView(EntityViewNode view) {
-      _selectedViews.Clear();
-      if (view != null) _selectedViews.Add(view);
+      ClearSelectedViews();
+      if (view != null) {
+        _selectedViews.Add(view);
+        SetSelectionIndicator(view, true);
+      }
     }
 
     public void HandleUnhandledInput(InputEvent @event) {
-      if (_camera == null || @event is not InputEventMouseButton { Pressed: true } mouseButton) return;
+      if (_camera == null) return;
 
-      if (mouseButton.ButtonIndex == MouseButton.Left) {
-        SelectNearestOwnedView(mouseButton.Position);
+      if (@event is InputEventMouseMotion motion) {
+        UpdateDragSelection(motion.Position);
         return;
       }
 
-      if (mouseButton.ButtonIndex != MouseButton.Right) return;
+      if (@event is not InputEventMouseButton mouseButton) return;
+
+      if (mouseButton.ButtonIndex == MouseButton.Left) {
+        if (mouseButton.Pressed)
+          BeginDragSelection(mouseButton.Position);
+        else
+          EndDragSelection(mouseButton.Position);
+        return;
+      }
+
+      if (mouseButton.ButtonIndex != MouseButton.Right || !mouseButton.Pressed) return;
 
       Vector3? ground = _camera.ScreenToGround(mouseButton.Position);
       if (ground == null) return;
@@ -90,8 +113,42 @@ namespace Meesles.Avalon {
       _pendingMoveCommand = command;
     }
 
+    private void BeginDragSelection(Vector2 screenPosition) {
+      _isLeftButtonDown = true;
+      _isDraggingSelection = false;
+      _dragStartScreen = screenPosition;
+      _dragCurrentScreen = screenPosition;
+      _gameUI?.SetSelectionRectangle(null);
+    }
+
+    private void UpdateDragSelection(Vector2 screenPosition) {
+      if (!_isLeftButtonDown) return;
+
+      _dragCurrentScreen = screenPosition;
+      if (!_isDraggingSelection && _dragStartScreen.DistanceTo(_dragCurrentScreen) < DragSelectionThresholdPx)
+        return;
+
+      _isDraggingSelection = true;
+      _gameUI?.SetSelectionRectangle(GetSelectionRectangle(_dragStartScreen, _dragCurrentScreen));
+    }
+
+    private void EndDragSelection(Vector2 screenPosition) {
+      if (!_isLeftButtonDown) return;
+
+      _dragCurrentScreen = screenPosition;
+      bool wasDragging = _isDraggingSelection;
+      _isLeftButtonDown = false;
+      _isDraggingSelection = false;
+      _gameUI?.SetSelectionRectangle(null);
+
+      if (wasDragging)
+        SelectOwnedViewsInRectangle(GetSelectionRectangle(_dragStartScreen, _dragCurrentScreen));
+      else
+        SelectNearestOwnedView(screenPosition);
+    }
+
     private void SelectNearestOwnedView(Vector2 screenPosition) {
-      _selectedViews.Clear();
+      ClearSelectedViews();
       if (_viewRoot == null || _camera == null) return;
 
       EntityViewNode best = null;
@@ -99,7 +156,7 @@ namespace Meesles.Avalon {
 
       foreach (Node child in _viewRoot.GetChildren()) {
         if (child is not EntityViewNode view) continue;
-        if (!view.OwnerMatches(_localOwnerId)) continue;
+        if (!ViewTeamMatches(view)) continue;
 
         Vector2 screen = _camera.UnprojectPosition(view.GlobalPosition);
         float distSqr = screen.DistanceSquaredTo(screenPosition);
@@ -110,6 +167,45 @@ namespace Meesles.Avalon {
       }
 
       if (best != null) _selectedViews.Add(best);
+      if (best != null) SetSelectionIndicator(best, true);
+    }
+
+    private void SelectOwnedViewsInRectangle(Rect2 rectangle) {
+      ClearSelectedViews();
+      if (_viewRoot == null || _camera == null) return;
+
+      foreach (Node child in _viewRoot.GetChildren()) {
+        if (child is not EntityViewNode view) continue;
+        if (!ViewTeamMatches(view)) continue;
+
+        Vector2 screen = _camera.UnprojectPosition(view.GlobalPosition);
+        if (!rectangle.HasPoint(screen)) continue;
+
+        _selectedViews.Add(view);
+        SetSelectionIndicator(view, true);
+      }
+    }
+
+    private void ClearSelectedViews() {
+      foreach (var view in _selectedViews)
+        SetSelectionIndicator(view, false);
+      _selectedViews.Clear();
+    }
+
+    private static void SetSelectionIndicator(EntityViewNode view, bool selected) {
+      if (view == null || !GodotObject.IsInstanceValid(view)) return;
+      var indicator = view.GetNodeOrNull<SelectionIndicator>("SelectionIndicator");
+      indicator?.SetSelected(selected);
+    }
+
+    private bool ViewTeamMatches(EntityViewNode view) {
+      return view is ISelectableTeamView selectable && selectable.TeamMatches(_localTeamId);
+    }
+
+    private static Rect2 GetSelectionRectangle(Vector2 start, Vector2 end) {
+      Vector2 position = new(Mathf.Min(start.X, end.X), Mathf.Min(start.Y, end.Y));
+      Vector2 size = new(Mathf.Abs(end.X - start.X), Mathf.Abs(end.Y - start.Y));
+      return new Rect2(position, size);
     }
 
     private static bool TryGetUnitId(EntityViewNode view, out int unitId) {
@@ -122,9 +218,11 @@ namespace Meesles.Avalon {
     }
 
     public void Dispose() {
-      _selectedViews.Clear();
+      ClearSelectedViews();
       _pendingMoveCommand = null;
       _camera = null;
+      _gameUI?.SetSelectionRectangle(null);
+      _gameUI = null;
       _viewRoot = null;
       _singleplayerMoveTarget = null;
     }

@@ -180,6 +180,7 @@ namespace Meesles.Avalon {
 
       MultiplayerSessionHandoff.Store(new MultiplayerSessionHandoff {
         Logger = _logger,
+        LoggerFactory = LoggerFactory,
         Transport = _transport,
         Flow = _flow,
         Session = _session,
@@ -189,6 +190,7 @@ namespace Meesles.Avalon {
         SimulationConfig = _simCfg,
         SessionConfig = _sesCfg,
       });
+      LoggerFactory = null;
 
       GetTree().ChangeSceneToFile(GameScenePath);
     }

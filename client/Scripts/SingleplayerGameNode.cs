@@ -4,6 +4,7 @@ using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Godot;
 using xpTURN.Klotho.LiteNetLib;
 using Meesles.Avalon.Client;
+using Meesles.Avalon.Sim.Models;
 
 namespace Meesles.Avalon {
   public partial class SingleplayerGameNode : GameNode {
@@ -109,8 +110,8 @@ namespace Meesles.Avalon {
     private void OnLocalViewRegistered(EntityViewNode view) {
       _camera?.SetFollowTarget(view);
       var frame = view.Engine?.PredictedFrame.Frame;
-      if (frame != null && frame.Has<OwnerComponent>(view.EntityRef))
-        Input.SetLocalOwnerId(frame.GetReadOnly<OwnerComponent>(view.EntityRef).OwnerId);
+      if (frame != null && frame.Has<Team>(view.EntityRef))
+        Input.SetLocalTeamId(frame.GetReadOnly<Team>(view.EntityRef).TeamId);
       Input.SelectSingleView(view);
     }
 

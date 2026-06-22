@@ -9,6 +9,7 @@ namespace Meesles.Avalon {
     private static MultiplayerSessionHandoff _pending;
 
     public IKLogger Logger { get; init; }
+    public IKLoggerFactory LoggerFactory { get; init; }
     public LiteNetLibTransport Transport { get; init; }
     public KlothoSessionFlow Flow { get; init; }
     public KlothoSession Session { get; init; }

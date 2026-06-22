@@ -5,12 +5,13 @@ using xpTURN.Klotho.Godot;
 using Meesles.Avalon.Sim.Models;
 
 namespace Meesles.Avalon {
-  public partial class PlayerEntity : EntityViewNode {
+  public partial class PlayerEntity : EntityViewNode, ISelectableTeamView {
     private const string AnimIdle = "SK_PlayerDefault_ao|A_Player_CosmeticIdle";
     private const string AnimWalk = "SK_PlayerDefault_ao|A_Player_Walk";
 
     private AnimationPlayer _anim;
     private int _ownerId = -1;
+    private int _teamId = -1;
     private bool _isMoving;
 
     public override void OnInitialize() {
@@ -24,10 +25,13 @@ namespace Meesles.Avalon {
       var live = frame.Frame;
       if (live != null && live.Has<OwnerComponent>(EntityRef))
         _ownerId = live.GetReadOnly<OwnerComponent>(EntityRef).OwnerId;
+      if (live != null && live.Has<Team>(EntityRef))
+        _teamId = live.GetReadOnly<Team>(EntityRef).TeamId;
     }
 
     public override void OnDeactivate() {
       _ownerId = -1;
+      _teamId = -1;
     }
 
     public override void OnUpdateView() {
@@ -42,5 +46,6 @@ namespace Meesles.Avalon {
     }
 
     public override bool OwnerMatches(int ownerId) => _ownerId == ownerId;
+    public bool TeamMatches(int teamId) => _teamId == teamId;
   }
 }

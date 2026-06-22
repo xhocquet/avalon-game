@@ -26,7 +26,6 @@ namespace Meesles.Avalon.Sim {
       simulation.AddSystem(new PathFollowSystem(), SystemPhase.Update);
       simulation.AddSystem(new LocalAvoidanceSystem(), SystemPhase.Update);
       simulation.AddSystem(new MovementIntentSystem(), SystemPhase.Update);
-      simulation.AddSystem(new MinionMoveSystem(), SystemPhase.Update);
 
       simulation.AddSystem(new AttackIntentSystem(), SystemPhase.Update);
       simulation.AddSystem(new AttackCooldownSystem(), SystemPhase.Update);

@@ -9,6 +9,7 @@ using xpTURN.Klotho.Godot;
 using xpTURN.Klotho.LiteNetLib;
 using xpTURN.Klotho.Logging;
 using xpTURN.Klotho.Network;
+using Meesles.Avalon.Sim.Models;
 
 namespace Meesles.Avalon {
   public partial class MultiplayerGameNode : GameNode {
@@ -62,6 +63,7 @@ namespace Meesles.Avalon {
 
     private void AdoptHandoff(MultiplayerSessionHandoff handoff) {
       _logger = handoff.Logger;
+      LoggerFactory = handoff.LoggerFactory;
       _transport = handoff.Transport;
       _flow = handoff.Flow;
       _session = handoff.Session;
@@ -159,8 +161,8 @@ namespace Meesles.Avalon {
     private void OnLocalViewRegistered(EntityViewNode view) {
       _camera?.SetFollowTarget(view);
       var frame = view.Engine?.PredictedFrame.Frame;
-      if (frame != null && frame.Has<OwnerComponent>(view.EntityRef))
-        Input.SetLocalOwnerId(frame.GetReadOnly<OwnerComponent>(view.EntityRef).OwnerId);
+      if (frame != null && frame.Has<Team>(view.EntityRef))
+        Input.SetLocalTeamId(frame.GetReadOnly<Team>(view.EntityRef).TeamId);
       Input.SelectSingleView(view);
     }
 

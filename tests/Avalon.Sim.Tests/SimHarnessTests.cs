@@ -1,5 +1,7 @@
 using FluentAssertions;
 using Meesles.Avalon;
+using Meesles.Avalon.Sim.Assets;
+using Meesles.Avalon.Sim.Models;
 using Xunit;
 
 namespace Meesles.Avalon.Sim.Tests;

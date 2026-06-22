@@ -5,6 +5,7 @@ using Meesles.Avalon;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
+using AvalonMoveCommand = Meesles.Avalon.Sim.Commands.MoveCommand;
 
 namespace Meesles.Avalon.Sim.Tests;
 
@@ -51,8 +52,8 @@ public sealed class SimHarness {
     Simulation.Tick(new List<ICommand>(commands));
   }
 
-  public static MoveCommand MoveCommand(int playerId, int tick, FP64 targetX, FP64 targetZ) {
-    return new MoveCommand {
+  public static AvalonMoveCommand MoveCommand(int playerId, int tick, FP64 targetX, FP64 targetZ) {
+    return new AvalonMoveCommand {
       PlayerId = playerId,
       Tick = tick,
       TargetX = targetX,

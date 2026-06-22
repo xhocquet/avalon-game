@@ -69,6 +69,7 @@ namespace Meesles.Avalon {
         UnitId = UnitIdGenerator.Next(ref frame),
         UnitTypeId = SimulationSetup.MinionUnitTypeId,
       });
+      frame.Add(entity, new OwnerComponent { OwnerId = teamId });
       frame.Add(entity, new Team { TeamId = teamId });
       frame.Add(entity, new Minion { WaveId = waveId });
       frame.Add(entity, new Health {
