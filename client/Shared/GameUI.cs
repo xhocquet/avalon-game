@@ -10,14 +10,13 @@ namespace Meesles.Avalon {
     [Export] public Color FocusRingColor { get; set; } = new Color(0.88f, 0.72f, 0.22f, 0.92f);
 
     private Label _timerLabel;
-    private Label _scoreLabel;
-    private Label _score2Label;
     private Label _focusTargetLabel;
     private Control _tabUI;
     private Label _scoreboardScoreLabel;
     private ColorRect _healthBar;
     private ColorRect _healthBarFill;
     private Label _healthBarLabel;
+    private Control _selectionRectangle;
     private Panel _resultPanel;
     private Label _resultLabel;
 
@@ -25,19 +24,19 @@ namespace Meesles.Avalon {
       ProcessMode = ProcessModeEnum.Always;
       SetProcessInput(true);
 
-      _timerLabel = GetNode<Label>("MainUI/BarLabel");
-      _scoreLabel = GetNodeOrNull<Label>("MainUI/ScoreLabel");
-      _score2Label = GetNodeOrNull<Label>("MainUI/Score2Label");
-      _focusTargetLabel = GetNode<Label>("MainUI/FocusTargetLabel");
+      _timerLabel = GetNode<Label>("DefaultUI/Timer");
+      _focusTargetLabel = GetNode<Label>("DefaultUI/Focus");
       _tabUI = GetNode<Control>("TabUI");
       _scoreboardScoreLabel = GetNode<Label>("TabUI/ScoreboardPanel/Header/ScoreLabel");
-      _healthBar = GetNode<ColorRect>("MainUI/HealthBar");
-      _healthBarFill = GetNode<ColorRect>("MainUI/HealthBar/HealthBarFill");
-      _healthBarLabel = GetNode<Label>("MainUI/HealthBar/HealthBarLabel");
-      _resultPanel = GetNode<Panel>("MainUI/ResultPanel");
-      _resultLabel = GetNode<Label>("MainUI/ResultPanel/ResultLabel");
+      _healthBar = GetNode<ColorRect>("DefaultUI/HealthBar");
+      _healthBarFill = GetNode<ColorRect>("DefaultUI/HealthBar/HealthBarFill");
+      _healthBarLabel = GetNode<Label>("DefaultUI/HealthBar/HealthBarLabel");
+      _selectionRectangle = GetNode<Control>("DefaultUI/SelectionRectangle");
+      _resultPanel = GetNodeOrNull<Panel>("DefaultUI/ResultPanel");
+      _resultLabel = GetNodeOrNull<Label>("DefaultUI/ResultPanel/ResultLabel");
 
-      _resultPanel.Visible = false;
+      SetSelectionRectangle(null);
+      if (_resultPanel != null) _resultPanel.Visible = false;
       SetupTabUI();
     }
 
@@ -57,8 +56,6 @@ namespace Meesles.Avalon {
         else if (player.PlayerId == 2) p2 = player.Score;
       }
 
-      if (_scoreLabel != null) _scoreLabel.Text = $"{p1}";
-      if (_score2Label != null) _score2Label.Text = $"{p2}";
       if (_scoreboardScoreLabel != null)
         _scoreboardScoreLabel.Text = $"{p1} / {p2}";
 
@@ -89,20 +86,18 @@ namespace Meesles.Avalon {
     }
 
     public void SetMultiplayerMode() {
-      if (_scoreLabel != null) _scoreLabel.Text = "0";
-      if (_score2Label != null) _score2Label.Text = "0";
       if (_scoreboardScoreLabel != null) _scoreboardScoreLabel.Text = "0 / 0";
       SetTimerText("0:00");
-      _resultPanel.Visible = false;
+      if (_resultPanel != null) _resultPanel.Visible = false;
     }
 
     public void ShowResult(string text) {
-      _resultPanel.Visible = true;
-      _resultLabel.Text = text;
+      if (_resultPanel != null) _resultPanel.Visible = true;
+      if (_resultLabel != null) _resultLabel.Text = text;
     }
 
     public void HideResult() {
-      _resultPanel.Visible = false;
+      if (_resultPanel != null) _resultPanel.Visible = false;
     }
 
     public void SetFocusTargetLabel(string text) {
@@ -115,6 +110,18 @@ namespace Meesles.Avalon {
       _healthBarFill.Size = new Vector2(_healthBar.Size.X * ratio, _healthBar.Size.Y);
       if (_healthBarLabel != null)
         _healthBarLabel.Text = $"HP {(int)current} / {(int)maximum}";
+    }
+
+    public void SetSelectionRectangle(Rect2? rectangle) {
+      if (_selectionRectangle == null) return;
+      if (rectangle == null) {
+        _selectionRectangle.Visible = false;
+        return;
+      }
+
+      _selectionRectangle.Visible = true;
+      _selectionRectangle.Position = rectangle.Value.Position;
+      _selectionRectangle.Size = rectangle.Value.Size;
     }
 
     private void SetupTabUI() {

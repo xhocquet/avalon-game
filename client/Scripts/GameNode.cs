@@ -9,6 +9,7 @@ namespace Meesles.Avalon {
     protected Menu Menu;
     protected LobbyUI LobbyUi;
     protected GameUI GameUi;
+    protected IKLoggerFactory LoggerFactory;
 
     protected void InitializeSharedNodes() {
       Input = new InputCapture();
@@ -19,6 +20,7 @@ namespace Meesles.Avalon {
     protected void InitializeGameUI() {
       Input = new InputCapture();
       GameUi = GetNode<GameUI>("GameUI");
+      Input.BindGameUI(GameUi);
     }
 
     protected void SetupView3D() {
@@ -37,8 +39,29 @@ namespace Meesles.Avalon {
       light?.LookAtFromPosition(new Vector3(4, 10, 4), Vector3.Zero, Vector3.Up);
     }
 
-    protected IKLogger CreateLogger(string filePrefix = "Client")
-      => GodotKlothoLogger.CreateDefault(filePrefix: filePrefix, categoryName: "Client");
+    protected IKLogger CreateLogger(string filePrefix = "Client") {
+      DisposeLoggerFactory();
+
+      var logDir = ProjectSettings.GlobalizePath("user://logs");
+      System.IO.Directory.CreateDirectory(logDir);
+      var uniquePrefix = $"{filePrefix}_{System.Diagnostics.Process.GetCurrentProcess().Id}_{Time.GetTicksMsec()}";
+
+      LoggerFactory = KLoggerFactory.Create(builder => {
+        builder.SetMinimumLevel(KLogLevel.Information);
+        builder.AddSink(new GodotLogSink());
+        builder.AddRollingFile(options => {
+          options.FilePrefix = uniquePrefix;
+          options.Directory = logDir;
+        });
+      });
+
+      return LoggerFactory.CreateLogger("Client");
+    }
+
+    protected void DisposeLoggerFactory() {
+      LoggerFactory?.Dispose();
+      LoggerFactory = null;
+    }
 
     protected IDataAssetRegistry LoadAssetRegistry() {
       byte[] bytes = FileAccess.GetFileAsBytes("res://Sim/Data/Assets.bytes");
@@ -64,12 +87,13 @@ namespace Meesles.Avalon {
       return builder.Build();
     }
 
-    public override void _UnhandledInput(InputEvent @event) {
+    public override void _Input(InputEvent @event) {
       Input?.HandleUnhandledInput(@event);
     }
 
     public override void _ExitTree() {
       Input?.Dispose();
+      DisposeLoggerFactory();
     }
   }
 }

@@ -94,7 +94,7 @@ public class DeterminismBaselineTests {
     ];
   }
 
-  private static MoveCommand CreateCommand(int playerId, int tick, int phase) {
+  private static ICommand CreateCommand(int playerId, int tick, int phase) {
     FP64 targetX = PatternValue(tick + phase);
     FP64 targetZ = PatternValue(tick + phase + 1);
     return SimHarness.MoveCommand(playerId, tick, targetX, targetZ);

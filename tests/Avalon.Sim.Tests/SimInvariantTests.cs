@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using Meesles.Avalon;
+using Meesles.Avalon.Sim.Assets;
+using Meesles.Avalon.Sim.Models;
 using Xunit;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
@@ -85,7 +87,41 @@ public class SimInvariantTests {
     minions.Should().OnlyContain(minion => minion.WaveId == 0);
     minions.Count(minion => minion.TeamId == 1).Should().Be(rules.MinionsPerWave);
     minions.Count(minion => minion.TeamId == 2).Should().Be(rules.MinionsPerWave);
+    minions.Should().OnlyContain(minion => minion.OwnerId == minion.TeamId);
     minions.Select(minion => minion.UnitId).Should().OnlyHaveUniqueItems();
+  }
+
+  [Fact]
+  public void SelectedMoveCommands_AffectOwnedTeamMinions() {
+    var harness = SimHarness.CreateInitialized();
+    var rules = harness.AssetRegistry.Get<WaveRulesAsset>();
+
+    for (int tick = 0; tick <= rules.FirstWaveDelayTicks; tick++)
+      harness.Tick();
+
+    MinionSnapshot teamOneMinion = GetMinions(harness).First(minion => minion.TeamId == 1);
+    var command = SimHarness.MoveCommand(1, 0, FP64.One, -FP64.One);
+    command.UnitIdCount = 1;
+    command.SetUnitId(0, teamOneMinion.UnitId);
+
+    harness.Tick(command);
+
+    var frame = harness.Frame;
+    EntityRef minionEntity = default;
+    var filter = frame.Filter<Minion, Unit>();
+    while (filter.Next(out var entity)) {
+      ref readonly var unit = ref frame.Get<Unit>(entity);
+      if (unit.UnitId != teamOneMinion.UnitId) continue;
+
+      minionEntity = entity;
+      break;
+    }
+
+    minionEntity.IsValid.Should().BeTrue();
+    frame.Has<UnitMoveTarget>(minionEntity).Should().BeTrue();
+    ref readonly var target = ref frame.Get<UnitMoveTarget>(minionEntity);
+    target.Target.x.Should().Be(FP64.One);
+    target.Target.z.Should().Be(-FP64.One);
   }
 
   [Fact]
@@ -157,12 +193,13 @@ public class SimInvariantTests {
   private static MinionSnapshot[] GetMinions(SimHarness harness) {
     var frame = harness.Frame;
     var minions = new List<MinionSnapshot>();
-    var filter = frame.Filter<Minion, Team, Unit>();
+    var filter = frame.Filter<Minion, Team, Unit, OwnerComponent>();
     while (filter.Next(out var entity)) {
       ref readonly var minion = ref frame.Get<Minion>(entity);
       ref readonly var team = ref frame.Get<Team>(entity);
       ref readonly var unit = ref frame.Get<Unit>(entity);
-      minions.Add(new MinionSnapshot(minion.WaveId, team.TeamId, unit.UnitId));
+      ref readonly var owner = ref frame.Get<OwnerComponent>(entity);
+      minions.Add(new MinionSnapshot(minion.WaveId, team.TeamId, owner.OwnerId, unit.UnitId));
     }
 
     return minions.OrderBy(minion => minion.UnitId).ToArray();
@@ -189,5 +226,5 @@ public class SimInvariantTests {
 
   private sealed record PlayerTransformSnapshot(int PlayerId, FPVector3 Position);
 
-  private sealed record MinionSnapshot(int WaveId, int TeamId, int UnitId);
+  private sealed record MinionSnapshot(int WaveId, int TeamId, int OwnerId, int UnitId);
 }

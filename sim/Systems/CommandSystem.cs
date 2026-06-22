@@ -48,12 +48,30 @@ namespace Meesles.Avalon {
     }
 
     private static void ApplySelectedUnitTargets(ref Frame frame, Sim.Commands.MoveCommand command, FPVector3 target) {
-      var filter = frame.Filter<Unit>();
+      if (!TryGetPlayerTeamId(ref frame, command.PlayerId, out int teamId)) return;
+
+      var filter = frame.Filter<Unit, Team>();
       while (filter.Next(out var entity)) {
         ref readonly var unit = ref frame.Get<Unit>(entity);
+        ref readonly var team = ref frame.Get<Team>(entity);
+        if (team.TeamId != teamId) continue;
         if (!CommandIncludesUnitId(command, unit.UnitId)) continue;
         SetTarget(ref frame, entity, target);
       }
+    }
+
+    private static bool TryGetPlayerTeamId(ref Frame frame, int playerId, out int teamId) {
+      var filter = frame.Filter<Player, Team>();
+      while (filter.Next(out var entity)) {
+        ref readonly var player = ref frame.Get<Player>(entity);
+        if (player.PlayerId != playerId) continue;
+
+        teamId = frame.Get<Team>(entity).TeamId;
+        return true;
+      }
+
+      teamId = 0;
+      return false;
     }
 
     private static void ApplyLocalHeroTarget(ref Frame frame, int playerId, FPVector3 target) {
