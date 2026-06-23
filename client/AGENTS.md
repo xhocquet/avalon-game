@@ -1,13 +1,11 @@
 # Client Scope
 
 - This directory is the Godot 4.6 Mono client. Default to a Godot/gameplay mindset, not a generic backend mindset.
-- Primary entrypoints: `project.godot`, `Scenes/Singleplayer.tscn`, `Scenes/Multiplayer.tscn`, `Scenes/Lobby.tscn`, `Scripts/GameNode.cs`, `Shared/GameUI.cs`, `Shared/Menu.tscn`.
-- Put cross-mode client code and reusable scene assets in `Shared/`.
-- Repeated scene nodes that are identical across modes should become `Shared/*.tscn` subscenes.
-- Shared deterministic gameplay code lives in `Sim/`. Changes there also affect the server build.
-- Godot/Klotho integration lives under `addons/klotho/`. This is the packaged Godot addon: adapter code is source, while `lib/*.dll` is the prebuilt runtime referenced by the client.
-- Klotho runtime/framework source lives in `../vendor/Klotho/`. Inspect it when enhancing or debugging behavior that crosses into the prebuilt runtime; avoid editing vendored code unless the task explicitly targets Klotho itself.
+- Primary entrypoints: `project.godot`, `Scenes/Singleplayer.tscn`, `Scenes/Multiplayer.tscn`
 - Shared deterministic sim data lives in `Sim/Data/`.
+- Shared deterministic gameplay code lives in `Sim/`. Changes there also affect the server build.
+- Godot/Klotho integration lives under `addons/klotho/`. This is vendor code, avoid changing it whenever possible.
+- Klotho runtime/framework source lives in `../vendor/Klotho/`. Inspect it when enhancing or debugging behavior that crosses into the prebuilt runtime; avoid editing vendored code unless the task explicitly targets Klotho itself.
 
 # Working Rules
 
@@ -19,5 +17,4 @@
 
 # Commands
 
-- Open editor: `just client`
 - Build C# client code: `dotnet build .\Client.csproj`
