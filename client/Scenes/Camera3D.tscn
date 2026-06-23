@@ -1,0 +1,7 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://dftysf56fhh03" path="res://Scripts/CameraController.cs" id="1_camera_controller"]
+
+[node name="Camera3D" type="Camera3D"]
+current = true
+script = ExtResource("1_camera_controller")

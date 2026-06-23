@@ -1,7 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://bu5kshfajfcmv"]
+[gd_scene format=3 uid="uid://bu5kshfajfcmv"]
 
-[ext_resource type="Script" uid="uid://cye43qws5a5eo" path="res://Shared/GameUI.cs" id="1_script"]
-[ext_resource type="PackedScene" path="res://Shared/HealthBars.tscn" id="3_healthbars"]
+[ext_resource type="Script" uid="uid://cye43qws5a5eo" path="res://Scripts/UI/GameUI.cs" id="1_script"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/HealthBars.tscn" id="3_healthbars"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_2wl70"]
 font_size = 32

@@ -1,8 +1,8 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://bff2pmmwg5bnc"]
 
-[ext_resource type="Script" uid="uid://fhlblu66sbp3" path="res://Scripts/Menu.cs" id="1_menu"]
+[ext_resource type="Script" uid="uid://fhlblu66sbp3" path="res://Scripts/UI/Menu.cs" id="1_menu"]
 
-[node name="Menu" type="Control"]
+[node name="Menu" type="Control" unique_id=380014278]
 layout_mode = 3
 anchors_preset = 0
 script = ExtResource("1_menu")

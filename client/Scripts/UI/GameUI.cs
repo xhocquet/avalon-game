@@ -7,11 +7,11 @@ namespace Meesles.Avalon {
   public partial class GameUI : CanvasLayer, IViewHud {
     [Export] public float FocusRingRadiusPx { get; set; } = 52.0f;
     [Export] public float FocusRingWidthPx { get; set; } = 2.5f;
-    [Export] public Color FocusRingColor { get; set; } = new Color(0.88f, 0.72f, 0.22f, 0.92f);
+    [Export] public Color FocusRingColor { get; set; } = new(0.88f, 0.72f, 0.22f, 0.92f);
 
     private Label _timerLabel;
     private Label _focusTargetLabel;
-    private Control _tabUI;
+    private Control _tabUi;
     private Label _scoreboardScoreLabel;
     private ColorRect _healthBar;
     private ColorRect _healthBarFill;
@@ -26,7 +26,7 @@ namespace Meesles.Avalon {
 
       _timerLabel = GetNode<Label>("DefaultUI/Timer");
       _focusTargetLabel = GetNode<Label>("DefaultUI/Focus");
-      _tabUI = GetNode<Control>("TabUI");
+      _tabUi = GetNode<Control>("TabUI");
       _scoreboardScoreLabel = GetNode<Label>("TabUI/ScoreboardPanel/Header/ScoreLabel");
       _healthBar = GetNode<ColorRect>("DefaultUI/HealthBar");
       _healthBarFill = GetNode<ColorRect>("DefaultUI/HealthBar/HealthBarFill");
@@ -37,12 +37,12 @@ namespace Meesles.Avalon {
 
       SetSelectionRectangle(null);
       if (_resultPanel != null) _resultPanel.Visible = false;
-      SetupTabUI();
+      SetupTabUi();
     }
 
     public override void _Input(InputEvent @event) {
       if (@event is InputEventKey key && key.Keycode == Key.Tab && !key.Echo) {
-        if (_tabUI != null) _tabUI.Visible = key.Pressed;
+        if (_tabUi != null) _tabUi.Visible = key.Pressed;
         GetViewport().SetInputAsHandled();
       }
     }
@@ -124,19 +124,19 @@ namespace Meesles.Avalon {
       _selectionRectangle.Size = rectangle.Value.Size;
     }
 
-    private void SetupTabUI() {
-      if (_tabUI == null) return;
-      _tabUI.TopLevel = true;
-      _tabUI.Visible = false;
-      UpdateTabUISize(_tabUI);
-      GetViewport().SizeChanged += () => UpdateTabUISize(_tabUI);
+    private void SetupTabUi() {
+      if (_tabUi == null) return;
+      _tabUi.TopLevel = true;
+      _tabUi.Visible = false;
+      UpdateTabUiSize(_tabUi);
+      GetViewport().SizeChanged += () => UpdateTabUiSize(_tabUi);
     }
 
-    private void UpdateTabUISize(Control tabUI) {
+    private void UpdateTabUiSize(Control tabUi) {
       var viewport = GetViewport();
       if (viewport == null) return;
-      tabUI.Size = viewport.GetVisibleRect().Size;
-      tabUI.Position = Vector2.Zero;
+      tabUi.Size = viewport.GetVisibleRect().Size;
+      tabUi.Position = Vector2.Zero;
     }
 
     private void SetTimerText(string text) {

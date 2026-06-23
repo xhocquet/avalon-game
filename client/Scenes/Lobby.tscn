@@ -1,8 +1,8 @@
 [gd_scene format=3]
 
-[ext_resource type="Script" path="res://Scripts/LobbyGameNode.cs" id="1_game"]
-[ext_resource type="PackedScene" path="res://Shared/Menu.tscn" id="2_menu"]
-[ext_resource type="PackedScene" path="res://Shared/LobbyUI.tscn" id="3_hud"]
+[ext_resource type="Script" uid="uid://cb2larfrucr2e" path="res://Scripts/GameNode/LobbyGameNode.cs" id="1_game"]
+[ext_resource type="PackedScene" uid="uid://bff2pmmwg5bnc" path="res://Scenes/UI/Menu.tscn" id="2_menu"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/LobbyUI.tscn" id="3_hud"]
 
 [node name="Lobby" type="Node"]
 script = ExtResource("1_game")
