@@ -22,6 +22,10 @@ namespace xpTURN.Klotho.Godot {
     protected abstract PackedScene ResolvePrefab(Frame frame, EntityRef entity);
     protected abstract bool ShouldRender(Frame frame, EntityRef entity);
 
+    // Returns true if this entity represents a player and should be tracked in PlayerViews.
+    // Default: any entity with OwnerComponent. Override to restrict (e.g., require Player component).
+    public virtual bool IsPlayerView(Frame frame, EntityRef entity) => frame.Has<OwnerComponent>(entity);
+
     // ── Framework default decisions ──
     public virtual bool TryGetBindBehaviour(Frame frame, EntityRef entity, out BindBehaviour behaviour) {
       if (!ShouldRender(frame, entity)) {

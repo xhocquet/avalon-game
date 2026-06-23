@@ -134,7 +134,7 @@ namespace xpTURN.Klotho.Godot {
     private void TryRegisterPlayerView(EntityRef entity, EntityViewNode view, FrameRef frame) {
       if (_playerViews == null) return;
       var f = frame.Frame;
-      if (f == null || !f.Has<OwnerComponent>(entity)) return;
+      if (f == null || !_factory.IsPlayerView(f, entity)) return;
       int ownerId = f.GetReadOnly<OwnerComponent>(entity).OwnerId;
       view.SetCachedOwner(ownerId);
       _playerViews.Register(ownerId, view);
