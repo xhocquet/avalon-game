@@ -1,6 +1,7 @@
 // Abstract view factory: resolves a PackedScene per entity and decides BindBehaviour / ViewFlags.
 // Game-specific factories override ResolvePrefab + ShouldRender; the decision matrix and instantiate
 // paths are virtual defaults.
+
 using global::Godot;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.ECS;
@@ -22,10 +23,6 @@ namespace xpTURN.Klotho.Godot {
     protected abstract PackedScene ResolvePrefab(Frame frame, EntityRef entity);
     protected abstract bool ShouldRender(Frame frame, EntityRef entity);
 
-    // Returns true if this entity represents a player and should be tracked in PlayerViews.
-    // Default: any entity with OwnerComponent. Override to restrict (e.g., require Player component).
-    public virtual bool IsPlayerView(Frame frame, EntityRef entity) => frame.Has<OwnerComponent>(entity);
-
     // ── Framework default decisions ──
     public virtual bool TryGetBindBehaviour(Frame frame, EntityRef entity, out BindBehaviour behaviour) {
       if (!ShouldRender(frame, entity)) {
@@ -36,8 +33,8 @@ namespace xpTURN.Klotho.Godot {
       if (frame.Has<OwnerComponent>(entity)) {
         ref readonly var owner = ref frame.GetReadOnly<OwnerComponent>(entity);
         behaviour = IsPredictedRender(owner.OwnerId)
-            ? BindBehaviour.NonVerified
-            : BindBehaviour.Verified;
+          ? BindBehaviour.NonVerified
+          : BindBehaviour.Verified;
         return true;
       }
 
@@ -52,14 +49,14 @@ namespace xpTURN.Klotho.Godot {
 
       bool useVerifiedPath = UseVerifiedPath() && !Engine.IsReplayMode;
       bool predictedRender = hasOwner
-          ? !useVerifiedPath || (ownerId == Engine.LocalPlayerId)
-          : !useVerifiedPath;
+        ? !useVerifiedPath || (ownerId == Engine.LocalPlayerId)
+        : !useVerifiedPath;
 
       return predictedRender ? ViewFlags.None : ViewFlags.EnableSnapshotInterpolation;
     }
 
     protected bool IsPredictedRender(int ownerId)
-        => !UseVerifiedPath() || Engine.IsReplayMode || (ownerId == Engine.LocalPlayerId);
+      => !UseVerifiedPath() || Engine.IsReplayMode || (ownerId == Engine.LocalPlayerId);
 
     protected bool UseVerifiedPath() {
       bool isSDClient = (Engine.SimulationConfig.Mode == NetworkMode.ServerDriven) && !Engine.IsServer;

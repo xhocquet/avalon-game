@@ -129,19 +129,18 @@ namespace xpTURN.Klotho.Godot {
       TryRegisterPlayerView(entity, view, frame);
     }
 
-    // Spawn-side: read OwnerComponent from the spawn-decision frame, cache it on the view (the stable
-    // unregister key), and register. Owner-agnostic views (no OwnerComponent) are not registered.
+    // Spawn-side: register views that implement IPlayerView. The view supplies its own OwnerId,
+    // which is cached as the stable unregister key.
     private void TryRegisterPlayerView(EntityRef entity, EntityViewNode view, FrameRef frame) {
       if (_playerViews == null) return;
-      var f = frame.Frame;
-      if (f == null || !_factory.IsPlayerView(f, entity)) return;
-      int ownerId = f.GetReadOnly<OwnerComponent>(entity).OwnerId;
+      if (view is not IPlayerView playerView) return;
+      int ownerId = playerView.OwnerId;
       view.SetCachedOwner(ownerId);
       _playerViews.Register(ownerId, view);
     }
 
-    // Unbind-side: OwnerComponent may already be absent on the live frame at despawn, so the cached
-    // owner is the unregister key. Called from rebind and DestroyStale.
+    // Unbind-side: cached owner is the unregister key (the view may be gone from the frame at despawn).
+    // Called from rebind and DestroyStale.
     private void TryUnregisterPlayerView(EntityViewNode view) {
       if (_playerViews == null) return;
       if (!view.TryGetCachedOwner(out int ownerId)) return;

@@ -1,6 +1,6 @@
 [gd_scene format=3]
 
-[ext_resource type="Script" path="res://Shared/LobbyUI.cs" id="1_lobbyui"]
+[ext_resource type="Script" uid="uid://dmre4bujrf1ng" path="res://Scripts/UI/LobbyUI.cs" id="1_lobbyui"]
 
 [node name="LobbyUI" type="Control"]
 layout_mode = 3

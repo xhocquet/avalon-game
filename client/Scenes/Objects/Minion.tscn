@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://s8vgmb0tvxtk"]
 
-[ext_resource type="Script" uid="uid://drxwt8mq0b2k8" path="res://Scripts/MinionEntity.cs" id="1_mv"]
+[ext_resource type="Script" uid="uid://drxwt8mq0b2k8" path="res://Scripts/View/MinionEntity.cs" id="1_mv"]
 [ext_resource type="PackedScene" uid="uid://dhaaeca50xwng" path="res://Assets/Models/Minion.glb" id="1_uc222"]
-[ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Shared/SelectionIndicator.tscn" id="3_indicator"]
+[ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="3_indicator"]
 
 [node name="Minion" unique_id=2050480386 instance=ExtResource("1_uc222")]
 transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 0, 0, 0)

@@ -5,7 +5,7 @@ using xpTURN.Klotho.Godot;
 using Meesles.Avalon.Sim.Models;
 
 namespace Meesles.Avalon {
-  public partial class PlayerEntity : EntityViewNode, ISelectableTeamView {
+  public partial class PlayerEntity : EntityViewNode, ISelectableTeamView, IPlayerView {
     private const string AnimIdle = "SK_PlayerDefault_ao|A_Player_CosmeticIdle";
     private const string AnimWalk = "SK_PlayerDefault_ao|A_Player_Walk";
 
@@ -45,6 +45,7 @@ namespace Meesles.Avalon {
       _anim.Play(_isMoving ? AnimWalk : AnimIdle);
     }
 
+    public int OwnerId => _ownerId;
     public override bool OwnerMatches(int ownerId) => _ownerId == ownerId;
     public bool TeamMatches(int teamId) => _teamId == teamId;
   }

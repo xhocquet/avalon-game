@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://cim58hsj4bmai"]
 
-[ext_resource type="Script" uid="uid://cvasfy5yhl8gr" path="res://Scripts/PlayerEntity.cs" id="1_pe"]
+[ext_resource type="Script" uid="uid://cvasfy5yhl8gr" path="res://Scripts/View/PlayerEntity.cs" id="1_pe"]
 [ext_resource type="PackedScene" uid="uid://gs4vrw2pklgt" path="res://Assets/Models/Player.glb" id="1_uyr3s"]
-[ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Shared/SelectionIndicator.tscn" id="3_indicator"]
+[ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="3_indicator"]
 
 [node name="Player" unique_id=1293732466 instance=ExtResource("1_uyr3s")]
 script = ExtResource("1_pe")

@@ -1,6 +1,6 @@
 [gd_scene format=3]
 
-[ext_resource type="Script" path="res://Shared/HealthBars.cs" id="1_script"]
+[ext_resource type="Script" uid="uid://d0eqr0mp6qh1e" path="res://Scripts/UI/HealthBars.cs" id="1_script"]
 
 [node name="HealthBars" type="ColorRect"]
 anchors_preset = 15
