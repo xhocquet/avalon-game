@@ -26,5 +26,7 @@ namespace Meesles.Avalon {
     protected override bool ShouldRender(Frame frame, EntityRef entity) {
       return frame.Has<Player>(entity) || frame.Has<Base>(entity) || frame.Has<Minion>(entity);
     }
+
+    public override bool IsPlayerView(Frame frame, EntityRef entity) => frame.Has<Player>(entity);
   }
 }
