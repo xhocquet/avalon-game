@@ -7,43 +7,46 @@ namespace Meesles.Avalon.Sim.Commands {
   public partial class MoveCommand : CommandBase {
     public override bool IsContinuousInput => false;
 
-    [KlothoOrder(0)] public FP64 TargetX;
-    [KlothoOrder(1)] public FP64 TargetZ;
-    [KlothoOrder(2)] public int UnitIdCount;
-    [KlothoOrder(3)] public int UnitId0;
-    [KlothoOrder(4)] public int UnitId1;
-    [KlothoOrder(5)] public int UnitId2;
-    [KlothoOrder(6)] public int UnitId3;
-    [KlothoOrder(7)] public int UnitId4;
-    [KlothoOrder(8)] public int UnitId5;
-    [KlothoOrder(9)] public int UnitId6;
-    [KlothoOrder(10)] public int UnitId7;
+    public FP64 TargetX;
+    public FP64 TargetZ;
 
-    public int GetUnitId(int index) {
-      return index switch {
-        0 => UnitId0,
-        1 => UnitId1,
-        2 => UnitId2,
-        3 => UnitId3,
-        4 => UnitId4,
-        5 => UnitId5,
-        6 => UnitId6,
-        7 => UnitId7,
-        _ => 0,
-      };
+    private int _unitIdCount;
+    private int[] _unitIds = new int[8];
+
+    public int UnitIdCount => _unitIdCount;
+
+    public void ClearUnitIds() => _unitIdCount = 0;
+
+    public void AddUnitId(int unitId) {
+      if (_unitIdCount == _unitIds.Length) {
+        var grown = new int[_unitIds.Length * 2];
+        _unitIds.CopyTo(grown, 0);
+        _unitIds = grown;
+      }
+      _unitIds[_unitIdCount++] = unitId;
     }
 
-    public void SetUnitId(int index, int unitId) {
-      switch (index) {
-        case 0: UnitId0 = unitId; break;
-        case 1: UnitId1 = unitId; break;
-        case 2: UnitId2 = unitId; break;
-        case 3: UnitId3 = unitId; break;
-        case 4: UnitId4 = unitId; break;
-        case 5: UnitId5 = unitId; break;
-        case 6: UnitId6 = unitId; break;
-        case 7: UnitId7 = unitId; break;
-      }
+    public int GetUnitId(int index) => _unitIds[index];
+
+    // 12 header + 8 TargetX + 8 TargetZ + 2 count + 4 per id
+    public override int GetSerializedSize() => 30 + _unitIdCount * 4;
+
+    protected override void SerializeData(ref SpanWriter writer) {
+      writer.WriteFP(TargetX);
+      writer.WriteFP(TargetZ);
+      writer.WriteInt16((short)_unitIdCount);
+      for (int i = 0; i < _unitIdCount; i++)
+        writer.WriteInt32(_unitIds[i]);
+    }
+
+    protected override void DeserializeData(ref SpanReader reader) {
+      TargetX = reader.ReadFP64();
+      TargetZ = reader.ReadFP64();
+      _unitIdCount = reader.ReadInt16();
+      if (_unitIds.Length < _unitIdCount)
+        _unitIds = new int[_unitIdCount];
+      for (int i = 0; i < _unitIdCount; i++)
+        _unitIds[i] = reader.ReadInt32();
     }
   }
 }

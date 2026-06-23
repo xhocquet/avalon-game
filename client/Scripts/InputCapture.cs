@@ -8,7 +8,6 @@ using Meesles.Avalon.Sim.Models;
 
 namespace Meesles.Avalon {
   public class InputCapture : IDisposable {
-    private const int MaxSelectedUnitIds = 8;
     private const float DragSelectionThresholdPx = 6f;
 
     private readonly List<EntityViewNode> _selectedViews = new();
@@ -101,13 +100,11 @@ namespace Meesles.Avalon {
       var command = new MoveCommand {
         TargetX = FP64.FromFloat(ground.X),
         TargetZ = FP64.FromFloat(ground.Z),
-        UnitIdCount = 0,
       };
 
-      for (int i = 0; i < _selectedViews.Count && command.UnitIdCount < MaxSelectedUnitIds; i++) {
-        if (!TryGetUnitId(_selectedViews[i], out int unitId)) continue;
-        command.SetUnitId(command.UnitIdCount, unitId);
-        command.UnitIdCount++;
+      foreach (var view in _selectedViews) {
+        if (!TryGetUnitId(view, out int unitId)) continue;
+        command.AddUnitId(unitId);
       }
 
       _pendingMoveCommand = command;

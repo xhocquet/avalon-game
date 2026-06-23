@@ -36,12 +36,9 @@ namespace xpTURN.Klotho.Godot
             // Check triangle presence via indices — vertices may exist while polygon count is 0.
             if (indices.Length == 0) { GD.PushError("[GodotFPNavMeshExporter] No triangles. Bake the NavigationMesh first."); return; }
 
-            // Determine the output path (synchronous). Based on the edited scene's directory + region name.
-            // GetEditedSceneRoot(): provides the edited scene path independent of the Owner chain.
-            string sceneRes = EditorInterface.Singleton.GetEditedSceneRoot()?.SceneFilePath;
-            string dir = string.IsNullOrEmpty(sceneRes) ? "res://" : sceneRes.GetBaseDir();
-            // PathJoin: handles dir trailing slash ("res://") automatically — avoids "res:///" triple slash.
-            string outPath = dir.PathJoin($"{region.Name}.NavMeshData.bytes");
+            // Output always goes to res://Sim/Data/ so all sim data is co-located regardless of which
+            // scene is open when the export is triggered.
+            string outPath = "res://Sim/Data/".PathJoin($"{region.Name}.NavMeshData.bytes");
 
             FPNavMesh fpNavMesh = FPNavMeshBuildPipeline.Build(
                 vertices, indices, areas, DEFAULT_CELL_SIZE,

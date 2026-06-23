@@ -86,7 +86,6 @@ namespace Meesles.Avalon {
 
     private static bool CommandIncludesUnitId(Sim.Commands.MoveCommand command, int unitId) {
       int count = command.UnitIdCount;
-      if (count > 8) count = 8;
       for (int i = 0; i < count; i++)
         if (command.GetUnitId(i) == unitId)
           return true;

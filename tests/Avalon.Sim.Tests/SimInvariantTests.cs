@@ -101,8 +101,7 @@ public class SimInvariantTests {
 
     MinionSnapshot teamOneMinion = GetMinions(harness).First(minion => minion.TeamId == 1);
     var command = SimHarness.MoveCommand(1, 0, FP64.One, -FP64.One);
-    command.UnitIdCount = 1;
-    command.SetUnitId(0, teamOneMinion.UnitId);
+    command.AddUnitId(teamOneMinion.UnitId);
 
     harness.Tick(command);
 
