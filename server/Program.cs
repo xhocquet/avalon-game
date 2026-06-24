@@ -37,14 +37,12 @@ IDataAssetRegistryBuilder registryBuilder = new DataAssetRegistry();
 registryBuilder.RegisterRange(dataAssets);
 
 var layoutPath = Path.Combine(AppContext.BaseDirectory, "Data", "MapLayout.bytes");
-if (File.Exists(layoutPath)) {
-  var layoutAssets = DataAssetReader.LoadMixedCollectionFromBytes(layoutPath);
-  registryBuilder.RegisterRange(layoutAssets);
-  logger.KInformation($"[AvalonServer] MapLayout.bytes loaded: {layoutAssets.Count} asset(s) from {layoutPath}");
-}
-else {
-  logger.KWarning($"[AvalonServer] MapLayout.bytes not found at {layoutPath} — spawn positions will use hardcoded fallbacks");
-}
+if (!File.Exists(layoutPath))
+  throw new FileNotFoundException("Map layout asset was not copied to the server output.", layoutPath);
+
+var layoutAssets = DataAssetReader.LoadMixedCollectionFromBytes(layoutPath);
+registryBuilder.RegisterRange(layoutAssets);
+logger.KInformation($"[AvalonServer] MapLayout.bytes loaded: {layoutAssets.Count} asset(s) from {layoutPath}");
 
 var sharedRegistry = registryBuilder.Build();
 

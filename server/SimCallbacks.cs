@@ -31,7 +31,7 @@ namespace Meesles.Avalon.Server {
         }
       }
       else {
-        _logger.KWarning($"[SimCallbacks] No MapLayoutAsset in registry — all spawns use hardcoded fallbacks!");
+        _logger.KWarning($"[SimCallbacks] No MapLayoutAsset in registry.");
       }
 
       SimulationSetup.InitializeWorld(engine, _maxPlayers);

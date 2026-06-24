@@ -12,8 +12,6 @@ namespace Meesles.Avalon.Sim {
     public const int MinionUnitTypeId = 2;
     private const int BaseUnitTypeId = 100;
     private const int BaseHealth = 1000;
-    private const int MapHalfExtent = 50;
-    private const int BaseInset = 8;
 
     public static void RegisterSystems(EcsSimulation simulation) {
       simulation.AddSystem(new CommandSystem(), SystemPhase.Update);
@@ -93,11 +91,7 @@ namespace Meesles.Avalon.Sim {
 
     public static FPVector3 GetHeroSpawnPositionForTeam(ref Frame frame, int teamId) {
       frame.AssetRegistry.TryGet<MapLayoutAsset>(out var layout);
-      if (layout != null && layout.TryGetByTypeAndTeam(MapMarkerType.SpawnPoint, teamId, out var pos)) {
-        return pos;
-      }
-
-      return GetTeamSpawnPosition(teamId);
+      return RequireMarkerPosition(layout, MapMarkerType.SpawnPoint, teamId);
     }
 
     private static void SpawnTeamBases(ref Frame frame, int maxPlayers, MapLayoutAsset layout) {
@@ -105,10 +99,7 @@ namespace Meesles.Avalon.Sim {
         int teamId = playerId;
 
         var baseEntity = frame.CreateEntity();
-        FPVector3 basePosition =
-          layout != null && layout.TryGetByTypeAndTeam(MapMarkerType.Base, teamId, out var layoutBasePos)
-            ? layoutBasePos
-            : GetTeamSpawnPosition(teamId);
+        FPVector3 basePosition = RequireMarkerPosition(layout, MapMarkerType.Base, teamId);
 
         frame.Add(baseEntity, new TransformComponent {
           Position = basePosition,
@@ -127,10 +118,7 @@ namespace Meesles.Avalon.Sim {
         });
 
         var spawnEntity = frame.CreateEntity();
-        FPVector3 spawnPosition =
-          layout != null && layout.TryGetByTypeAndTeam(MapMarkerType.SpawnPoint, teamId, out var layoutSpawnPos)
-            ? layoutSpawnPos
-            : GetTeamSpawnPosition(teamId);
+        FPVector3 spawnPosition = RequireMarkerPosition(layout, MapMarkerType.SpawnPoint, teamId);
 
         frame.Add(spawnEntity, new TransformComponent {
           Position = spawnPosition,
@@ -146,16 +134,11 @@ namespace Meesles.Avalon.Sim {
       }
     }
 
-    private static FPVector3 GetTeamSpawnPosition(int teamId) {
-      FP64 corner = FP64.FromInt(MapHalfExtent - BaseInset);
+    private static FPVector3 RequireMarkerPosition(MapLayoutAsset layout, MapMarkerType type, int teamId) {
+      if (layout != null && layout.TryGetByTypeAndTeam(type, teamId, out var position))
+        return position;
 
-      return teamId switch {
-        1 => new FPVector3(-corner, FP64.Zero, -corner),
-        2 => new FPVector3(corner, FP64.Zero, corner),
-        3 => new FPVector3(corner, FP64.Zero, -corner),
-        4 => new FPVector3(-corner, FP64.Zero, corner),
-        _ => FPVector3.Zero,
-      };
+      throw new System.InvalidOperationException($"MapLayoutAsset is missing {type} marker for team {teamId}.");
     }
   }
 }
