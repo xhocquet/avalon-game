@@ -14,6 +14,7 @@ namespace Meesles.Avalon {
     private CameraController _camera;
     private GameUI _gameUI;
     private EntityViewUpdaterNode _viewRoot;
+    private EntityViewNode _fallbackFocusView;
     private MoveCommand _pendingMoveCommand;
     private Node3D _singleplayerMoveTarget;
     private Vector2 _dragStartScreen;
@@ -59,11 +60,10 @@ namespace Meesles.Avalon {
     }
 
     public void SelectSingleView(EntityViewNode view) {
-      ClearSelectedViews();
-      if (view != null) {
-        _selectedViews.Add(view);
-        SetSelectionIndicator(view, true);
-      }
+      if (view is IPlayerView)
+        _fallbackFocusView = view;
+
+      ApplySingleSelection(view);
     }
 
     public void HandleUnhandledInput(InputEvent @event) {
@@ -145,8 +145,10 @@ namespace Meesles.Avalon {
     }
 
     private void SelectNearestOwnedView(Vector2 screenPosition) {
-      ClearSelectedViews();
-      if (_viewRoot == null || _camera == null) return;
+      if (_viewRoot == null || _camera == null) {
+        ApplySingleSelection(GetFallbackFocusView());
+        return;
+      }
 
       EntityViewNode best = null;
       float bestDistSqr = 22f * 22f;
@@ -163,8 +165,7 @@ namespace Meesles.Avalon {
         bestDistSqr = distSqr;
       }
 
-      if (best != null) _selectedViews.Add(best);
-      if (best != null) SetSelectionIndicator(best, true);
+      ApplySingleSelection(best ?? GetFallbackFocusView());
     }
 
     private void SelectOwnedViewsInRectangle(Rect2 rectangle) {
@@ -187,6 +188,21 @@ namespace Meesles.Avalon {
       foreach (var view in _selectedViews)
         SetSelectionIndicator(view, false);
       _selectedViews.Clear();
+    }
+
+    private void ApplySingleSelection(EntityViewNode view) {
+      ClearSelectedViews();
+      if (view == null) return;
+
+      _selectedViews.Add(view);
+      SetSelectionIndicator(view, true);
+    }
+
+    private EntityViewNode GetFallbackFocusView() {
+      if (_fallbackFocusView == null || !GodotObject.IsInstanceValid(_fallbackFocusView))
+        return null;
+
+      return _fallbackFocusView;
     }
 
     private static void SetSelectionIndicator(EntityViewNode view, bool selected) {
@@ -221,6 +237,7 @@ namespace Meesles.Avalon {
       _gameUI?.SetSelectionRectangle(null);
       _gameUI = null;
       _viewRoot = null;
+      _fallbackFocusView = null;
       _singleplayerMoveTarget = null;
     }
   }
