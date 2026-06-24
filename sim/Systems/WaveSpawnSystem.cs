@@ -16,11 +16,6 @@ namespace Meesles.Avalon {
       if (rel < 0 || rel % rules.SpawnIntervalTicks != 0) return;
       int waveId = rel / rules.SpawnIntervalTicks;
 
-      // Stop spawning once we hit the live-minion ceiling. Without death (M1/M2),
-      // minions never leave, so this is what keeps us under MaxEntities.
-      if (rules.MaxConcurrentMinions > 0 && CountMinions(ref frame) >= rules.MaxConcurrentMinions)
-        return;
-
       // Snapshot spawn points before creating entities so we don't mutate the set
       // we're iterating. Filter order is deterministic, so this stays in sync.
       var sources = new List<(FPVector3 Position, int TeamId)>();
@@ -33,13 +28,6 @@ namespace Meesles.Avalon {
 
       foreach (var source in sources)
         SpawnWave(ref frame, rules, source.Position, source.TeamId, waveId);
-    }
-
-    private static int CountMinions(ref Frame frame) {
-      int count = 0;
-      var filter = frame.Filter<Minion>();
-      while (filter.Next(out _)) count++;
-      return count;
     }
 
     private static void SpawnWave(ref Frame frame, WaveRulesAsset rules, FPVector3 origin, int teamId, int waveId) {

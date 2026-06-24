@@ -24,7 +24,6 @@
     "MinionMass": 1.0,
     "MinionHalfExtent": 0.4,
     "MinionSpacing": 1.2,
-    "MaxConcurrentMinions": 800,
     "MinionMoveSpeed": 5.0,
     "MinionAttackDamage": 10,
     "MinionAttackRange": 2.0,
