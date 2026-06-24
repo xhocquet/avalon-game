@@ -17,10 +17,6 @@ namespace Meesles.Avalon.Sim.Assets {
 
     [KlothoOrder(9)] public FP64 MinionMoveSpeed;
 
-    // Hard ceiling on live minions. Until combat/death (Milestone A) removes them,
-    // minions accumulate forever — this keeps the world under MaxEntities so the sim
-    // doesn't blow the entity pool. Raise alongside MaxEntities to push the stress test.
-    [KlothoOrder(7)] public int MaxConcurrentMinions;
     [KlothoOrder(10)] public int MinionAttackDamage;
     [KlothoOrder(11)] public FP64 MinionAttackRange;
     [KlothoOrder(12)] public int MinionAttackCooldownTicks;
