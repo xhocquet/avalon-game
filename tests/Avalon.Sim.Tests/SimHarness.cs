@@ -75,9 +75,15 @@ public sealed class SimHarness {
     if (!File.Exists(assetPath))
       throw new FileNotFoundException("Shared sim data asset was not copied to the test output.", assetPath);
 
+    string layoutPath = Path.Combine(AppContext.BaseDirectory, "Data", "MapLayout.bytes");
+    if (!File.Exists(layoutPath))
+      throw new FileNotFoundException("Shared map layout asset was not copied to the test output.", layoutPath);
+
     var assets = DataAssetReader.LoadMixedCollectionFromBytes(assetPath);
+    var layoutAssets = DataAssetReader.LoadMixedCollectionFromBytes(layoutPath);
     IDataAssetRegistryBuilder builder = new DataAssetRegistry();
     builder.RegisterRange(assets);
+    builder.RegisterRange(layoutAssets);
     return builder.Build();
   }
 }

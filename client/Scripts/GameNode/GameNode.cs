@@ -60,14 +60,14 @@ namespace Meesles.Avalon {
       builder.RegisterRange(assets);
 
       byte[] layoutBytes = FileAccess.GetFileAsBytes("res://Sim/Data/MapLayout.bytes");
-      if (layoutBytes != null && layoutBytes.Length > 0) {
-        var layoutAssets = DataAssetReader.LoadMixedCollectionFromBytes(layoutBytes);
-        builder.RegisterRange(layoutAssets);
-        GD.Print($"[GameNode] MapLayout.bytes loaded: {layoutAssets.Count} asset(s)");
+      if (layoutBytes == null || layoutBytes.Length == 0) {
+        var err = FileAccess.GetOpenError();
+        throw new System.IO.FileNotFoundException($"res://Sim/Data/MapLayout.bytes not found (err={err})");
       }
-      else {
-        GD.PrintErr("[GameNode] MapLayout.bytes missing or empty — spawn positions will use hardcoded fallbacks");
-      }
+
+      var layoutAssets = DataAssetReader.LoadMixedCollectionFromBytes(layoutBytes);
+      builder.RegisterRange(layoutAssets);
+      GD.Print($"[GameNode] MapLayout.bytes loaded: {layoutAssets.Count} asset(s)");
 
       return builder.Build();
     }
