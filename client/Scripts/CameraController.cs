@@ -2,7 +2,10 @@ using global::Godot;
 
 namespace Meesles.Avalon {
   public partial class CameraController : Camera3D {
-    private const float TiltDegrees = 45f;
+    private const float FollowPitchDegrees = -58f;
+    private const float FollowYawDegrees = 0f;
+    private const float DefaultHeight = 18f;
+    private const float DefaultFov = 58f;
     private const float ZoomStep = 2f;
     private const float ZoomMin = 5f;
     private const float ZoomMax = 30f;
@@ -15,7 +18,7 @@ namespace Meesles.Avalon {
     private const float GodmodePitchMinDeg = -89f;
 
     private Node3D _followTarget;
-    private float _zoomDistance = 15f;
+    private float _zoomDistance = DefaultHeight / Mathf.Sin(Mathf.DegToRad(-FollowPitchDegrees));
     private float _godmodePitch;
     private float _godmodeYaw;
     private bool _godmodeEnabled;
@@ -29,6 +32,7 @@ namespace Meesles.Avalon {
     }
 
     public override void _Ready() {
+      Fov = DefaultFov;
       GlobalTransform = new Transform3D(FollowBasis(), GlobalPosition);
       SyncGodmodeFromTransform();
     }
@@ -153,7 +157,7 @@ namespace Meesles.Avalon {
     }
 
     private static Basis FollowBasis() {
-      return Basis.FromEuler(new Vector3(Mathf.DegToRad(-TiltDegrees), Mathf.DegToRad(90f), 0f), EulerOrder.Yxz);
+      return Basis.FromEuler(new Vector3(Mathf.DegToRad(FollowPitchDegrees), Mathf.DegToRad(FollowYawDegrees), 0f), EulerOrder.Yxz);
     }
   }
 }
