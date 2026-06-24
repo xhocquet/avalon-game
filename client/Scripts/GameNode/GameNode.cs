@@ -23,21 +23,6 @@ namespace Meesles.Avalon {
       Input.BindGameUI(GameUi);
     }
 
-    protected void SetupView3D() {
-      var cam = GetNodeOrNull<Camera3D>("Camera3D");
-      if (cam != null) {
-        cam.Environment = new Environment {
-          BackgroundMode = Environment.BGMode.Color,
-          BackgroundColor = new Color(0.12f, 0.13f, 0.18f),
-          AmbientLightSource = Environment.AmbientSource.Color,
-          AmbientLightColor = new Color(0.5f, 0.5f, 0.5f),
-          AmbientLightEnergy = 1.0f,
-        };
-      }
-
-      var light = GetNodeOrNull<DirectionalLight3D>("DirectionalLight3D");
-      light?.LookAtFromPosition(new Vector3(4, 10, 4), Vector3.Zero, Vector3.Up);
-    }
 
     protected IKLogger CreateLogger(string filePrefix = "Client") {
       DisposeLoggerFactory();

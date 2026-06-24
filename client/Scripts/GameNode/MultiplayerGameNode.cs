@@ -44,7 +44,6 @@ namespace Meesles.Avalon {
 
       InitializeGameUI();
       GameUi.SetMultiplayerMode();
-      SetupView3D();
 
       _camera = GetNodeOrNull<CameraController>("Camera3D");
       Input.BindCamera(_camera);

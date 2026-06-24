@@ -33,7 +33,6 @@ namespace Meesles.Avalon {
       GameUi.SetMultiplayerMode();
       GameUi.SetPhase(xpTURN.Klotho.Network.SessionPhase.Playing);
 
-      SetupView3D();
       _camera = GetNodeOrNull<CameraController>("Camera3D");
       Input.BindCamera(_camera);
 
