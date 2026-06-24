@@ -9,7 +9,8 @@ namespace Meesles.Avalon {
   public class WaveSpawnSystem : ISystem {
     public void Update(ref Frame frame) {
       var rules = frame.AssetRegistry.Get<WaveRulesAsset>();
-      if (rules == null) return;
+      var stats = frame.AssetRegistry.Get<MinionStatsAsset>();
+      if (rules == null || stats == null) return;
       if (rules.SpawnIntervalTicks <= 0 || rules.MinionsPerWave <= 0) return;
 
       int rel = frame.Tick - rules.FirstWaveDelayTicks;
@@ -27,10 +28,10 @@ namespace Meesles.Avalon {
       }
 
       foreach (var source in sources)
-        SpawnWave(ref frame, rules, source.Position, source.TeamId, waveId);
+        SpawnWave(ref frame, rules, stats, source.Position, source.TeamId, waveId);
     }
 
-    private static void SpawnWave(ref Frame frame, WaveRulesAsset rules, FPVector3 origin, int teamId, int waveId) {
+    private static void SpawnWave(ref Frame frame, WaveRulesAsset rules, MinionStatsAsset stats, FPVector3 origin, int teamId, int waveId) {
       int count = rules.MinionsPerWave;
 
       // Center the cluster laterally around the spawn point: lateral = (i - (n-1)/2) * spacing.
@@ -39,13 +40,13 @@ namespace Meesles.Avalon {
       for (int i = 0; i < count; i++) {
         FP64 lateral = FP64.FromInt(i) * rules.MinionSpacing - centerOffset;
         FPVector3 position = origin + new FPVector3(lateral, FP64.Zero, FP64.Zero);
-        SpawnMinion(ref frame, rules, position, teamId, waveId);
+        SpawnMinion(ref frame, stats, position, teamId, waveId);
       }
     }
 
     // Minions live as transform-only entities. Movement integrates the transform
     // directly and combat uses deterministic proximity queries; neither needs physics.
-    private static void SpawnMinion(ref Frame frame, WaveRulesAsset rules, FPVector3 position, int teamId, int waveId) {
+    private static void SpawnMinion(ref Frame frame, MinionStatsAsset stats, FPVector3 position, int teamId, int waveId) {
       var entity = frame.CreateEntity();
 
       frame.Add(entity, new TransformComponent {
@@ -61,13 +62,13 @@ namespace Meesles.Avalon {
       frame.Add(entity, new Team { TeamId = teamId });
       frame.Add(entity, new Minion { WaveId = waveId });
       frame.Add(entity, new Health {
-        Current = rules.MinionHealth,
-        Max = rules.MinionHealth,
+        Current = stats.Health,
+        Max = stats.Health,
       });
       frame.Add(entity, new Combat {
-        AttackDamage = rules.MinionAttackDamage,
-        AttackRange = rules.MinionAttackRange,
-        AttackCooldownTicks = rules.MinionAttackCooldownTicks,
+        AttackDamage = stats.AttackDamage,
+        AttackRange = stats.AttackRange,
+        AttackCooldownTicks = stats.AttackCooldownTicks,
         CooldownRemainingTicks = 0,
       });
     }
