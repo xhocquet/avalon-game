@@ -10,15 +10,6 @@ namespace Meesles.Avalon.Sim.Assets {
     [KlothoOrder(0)] public int FirstWaveDelayTicks;
     [KlothoOrder(1)] public int SpawnIntervalTicks;
     [KlothoOrder(2)] public int MinionsPerWave;
-    [KlothoOrder(3)] public int MinionHealth;
-    [KlothoOrder(4)] public FP64 MinionMass;
-    [KlothoOrder(5)] public FP64 MinionHalfExtent;
-    [KlothoOrder(6)] public FP64 MinionSpacing;
-
-    [KlothoOrder(9)] public FP64 MinionMoveSpeed;
-
-    [KlothoOrder(10)] public int MinionAttackDamage;
-    [KlothoOrder(11)] public FP64 MinionAttackRange;
-    [KlothoOrder(12)] public int MinionAttackCooldownTicks;
+    [KlothoOrder(3)] public FP64 MinionSpacing;
   }
 }

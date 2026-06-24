@@ -10,11 +10,11 @@ namespace Meesles.Avalon {
     private static readonly FP64 StopRadius = FP64.One;
 
     public void Update(ref Frame frame) {
-      var rules = frame.AssetRegistry.Get<WaveRulesAsset>();
-      if (rules == null) return;
+      var stats = frame.AssetRegistry.Get<MinionStatsAsset>();
+      if (stats == null) return;
 
       FP64 dt = FP64.FromInt(frame.DeltaTimeMs) / FP64.FromInt(1000);
-      FP64 step = rules.MinionMoveSpeed * dt;
+      FP64 step = stats.MoveSpeed * dt;
 
       var filter = frame.Filter<Minion, TransformComponent>();
       while (filter.Next(out var entity)) {

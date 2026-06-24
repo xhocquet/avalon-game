@@ -4,9 +4,7 @@
     "AssetId": 100,
     "MoveSpeed": 5.0,
     "MatchDuration": 60.0,
-    "FallThresholdY": -2.0,
-    "PlayerMass": 1.0,
-    "PlayerHalfExtent": 0.5
+    "FallThresholdY": -2.0
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.WaveRulesAsset, Meesles.Avalon.Client",
@@ -14,13 +12,15 @@
     "FirstWaveDelayTicks": 30,
     "SpawnIntervalTicks": 90,
     "MinionsPerWave": 1,
-    "MinionHealth": 100,
-    "MinionMass": 1.0,
-    "MinionHalfExtent": 0.4,
-    "MinionSpacing": 1.2,
-    "MinionMoveSpeed": 5.0,
-    "MinionAttackDamage": 10,
-    "MinionAttackRange": 2.0,
-    "MinionAttackCooldownTicks": 30
+    "MinionSpacing": 1.2
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.MinionStatsAsset, Meesles.Avalon.Client",
+    "AssetId": 103,
+    "Health": 100,
+    "MoveSpeed": 5.0,
+    "AttackDamage": 10,
+    "AttackRange": 2.0,
+    "AttackCooldownTicks": 30
   }
 ]
