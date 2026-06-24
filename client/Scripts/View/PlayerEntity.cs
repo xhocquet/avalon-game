@@ -16,6 +16,11 @@ namespace Meesles.Avalon {
 
     public override void OnInitialize() {
       _anim = GetNodeOrNull<AnimationPlayer>("AnimationPlayer");
+      if (_anim != null) {
+        var walkAnim = _anim.GetAnimation(AnimWalk);
+        if (walkAnim != null)
+          walkAnim.LoopMode = Animation.LoopModeEnum.Linear;
+      }
     }
 
     public override void OnActivate(FrameRef frame) {

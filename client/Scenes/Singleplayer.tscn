@@ -11,9 +11,11 @@
 script = ExtResource("1_game")
 
 [node name="Camera3D" parent="." unique_id=188994774 instance=ExtResource("5_camera")]
+transform = Transform3D(1, 0, 0, 0, 0.52991927, 0.8480481, 0, -0.8480481, 0.52991927, 36.535946, 18, 41.23951)
+fov = 58.0
 
 [node name="DirectionalLight3D" parent="." unique_id=100617642 instance=ExtResource("7_light")]
-transform = Transform3D(1, 0, 0, 0, 0.64278764, 0.76604444, 0, -0.76604444, 0.64278764, 0, 12, 8)
+transform = Transform3D(1, 0, 0, 0, 0.64278764, 0.76604444, 0, -0.76604444, 0.64278764, 0, 14, 8)
 
 [node name="World" parent="." unique_id=1965852601 instance=ExtResource("6_world")]
 
