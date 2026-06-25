@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
@@ -8,6 +9,13 @@ using Meesles.Avalon.Sim.Models;
 namespace Meesles.Avalon {
   public class CommandSystem : ISystem, ICommandSystem {
     private static readonly FP64 StopDistance = FP64.FromDouble(0.15);
+    private static readonly FP64 FrontFormationSpacing = FP64.FromDouble(1.4);
+    private static readonly FP64 TrailFormationSpacing = FP64.FromDouble(2.0);
+    private readonly bool _moveNavAgentsDirectly;
+
+    public CommandSystem(bool moveNavAgentsDirectly = true) {
+      _moveNavAgentsDirectly = moveNavAgentsDirectly;
+    }
 
     public void OnCommand(ref Frame frame, ICommand command) {
       if (command is not Sim.Commands.MoveCommand m) return;
@@ -30,6 +38,9 @@ namespace Meesles.Avalon {
 
       var filter = frame.Filter<UnitMoveTarget, TransformComponent>();
       while (filter.Next(out var entity)) {
+        if (!_moveNavAgentsDirectly && frame.Has<xpTURN.Klotho.Deterministic.Navigation.NavAgentComponent>(entity))
+          continue;
+
         ref var moveTarget = ref frame.Get<UnitMoveTarget>(entity);
         ref var transform = ref frame.Get<TransformComponent>(entity);
 
@@ -49,13 +60,107 @@ namespace Meesles.Avalon {
     }
 
     private static void ApplySelectedUnitTargets(ref Frame frame, Sim.Commands.MoveCommand command, FPVector3 target) {
+      var units = GetSelectedUnits(ref frame, command);
+      if (units.Count == 0)
+        return;
+
+      if (units.Count == 1) {
+        SetTarget(ref frame, units[0].Entity, target);
+        return;
+      }
+
+      ApplyFormationTargets(ref frame, units, target);
+    }
+
+    private static List<SelectedUnit> GetSelectedUnits(ref Frame frame, Sim.Commands.MoveCommand command) {
+      var units = new List<SelectedUnit>();
       for (int i = 0; i < command.UnitIdCount; i++) {
         int unitId = command.GetUnitId(i);
         if (!UnitLookup.TryGetPlayerOwnedUnitById(ref frame, command.PlayerId, unitId, out var entity))
           continue;
 
-        SetTarget(ref frame, entity, target);
+        ref readonly var unit = ref frame.GetReadOnly<Unit>(entity);
+        ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
+        units.Add(new SelectedUnit(
+          entity,
+          unit.UnitId,
+          unit.UnitTypeId,
+          frame.Has<Hero>(entity),
+          transform.Position));
       }
+
+      units.Sort(CompareSelectedUnits);
+      return units;
+    }
+
+    private static int CompareSelectedUnits(SelectedUnit a, SelectedUnit b) {
+      if (a.IsHero != b.IsHero)
+        return a.IsHero ? -1 : 1;
+
+      return a.UnitId.CompareTo(b.UnitId);
+    }
+
+    private static void ApplyFormationTargets(ref Frame frame, List<SelectedUnit> units, FPVector3 target) {
+      FPVector3 centroid = FPVector3.Zero;
+      for (int i = 0; i < units.Count; i++)
+        centroid += units[i].Position;
+      centroid /= FP64.FromInt(units.Count);
+
+      FPVector2 forward = (target - centroid).ToXZ();
+      if (forward.sqrMagnitude == FP64.Zero)
+        forward = new FPVector2(FP64.Zero, FP64.One);
+      else
+        forward = forward.normalized;
+
+      FPVector2 right = new FPVector2(forward.y, -forward.x);
+      int heroCount = CountHeroes(units);
+      int frontCount = heroCount > 0 ? heroCount : 1;
+
+      for (int i = 0; i < units.Count; i++) {
+        FPVector3 slot = i < frontCount
+          ? GetFrontSlot(target, right, i, frontCount)
+          : GetTrailSlot(target, forward, right, i - frontCount);
+
+        SetTarget(ref frame, units[i].Entity, slot);
+      }
+    }
+
+    private static int CountHeroes(List<SelectedUnit> units) {
+      int count = 0;
+      for (int i = 0; i < units.Count; i++) {
+        if (units[i].IsHero)
+          count++;
+      }
+
+      return count;
+    }
+
+    private static FPVector3 GetFrontSlot(FPVector3 target, FPVector2 right, int index, int count) {
+      FP64 lateral = GetCenteredOffset(index, count, FrontFormationSpacing);
+      return OffsetTarget(target, right, lateral);
+    }
+
+    private static FPVector3 GetTrailSlot(FPVector3 target, FPVector2 forward, FPVector2 right, int index) {
+      int row = 1;
+      int rowStart = 0;
+      while (index >= rowStart + row) {
+        rowStart += row;
+        row++;
+      }
+
+      int slot = index - rowStart;
+      FP64 lateral = GetCenteredOffset(slot, row, TrailFormationSpacing);
+      FP64 back = TrailFormationSpacing * FP64.FromInt(row);
+      FPVector2 offset = right * lateral - forward * back;
+      return new FPVector3(target.x + offset.x, target.y, target.z + offset.y);
+    }
+
+    private static FP64 GetCenteredOffset(int index, int count, FP64 spacing) {
+      return FP64.FromInt(index * 2 - (count - 1)) * spacing * FP64.Half;
+    }
+
+    private static FPVector3 OffsetTarget(FPVector3 target, FPVector2 right, FP64 lateral) {
+      return new FPVector3(target.x + right.x * lateral, target.y, target.z + right.y * lateral);
     }
 
     private static void ApplyLocalHeroTarget(ref Frame frame, int playerId, FPVector3 target) {
@@ -75,6 +180,22 @@ namespace Meesles.Avalon {
       }
       else {
         frame.Add(entity, new UnitMoveTarget { Target = target });
+      }
+    }
+
+    private readonly struct SelectedUnit {
+      public readonly EntityRef Entity;
+      public readonly int UnitId;
+      public readonly int UnitTypeId;
+      public readonly bool IsHero;
+      public readonly FPVector3 Position;
+
+      public SelectedUnit(EntityRef entity, int unitId, int unitTypeId, bool isHero, FPVector3 position) {
+        Entity = entity;
+        UnitId = unitId;
+        UnitTypeId = unitTypeId;
+        IsHero = isHero;
+        Position = position;
       }
     }
   }

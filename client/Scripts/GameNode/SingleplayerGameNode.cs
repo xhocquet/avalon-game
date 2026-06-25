@@ -26,6 +26,7 @@ namespace Meesles.Avalon {
 
       var logger = CreateLogger("Singleplayer");
       var registry = LoadAssetRegistry();
+      var navMeshBytes = LoadNavigationMeshBytes();
       _simCfg = new SimulationConfig();
       _sesCfg = new SessionConfig { MaxPlayers = 1, MinPlayers = 1, CountdownDurationMs = 0 };
 
@@ -40,7 +41,7 @@ namespace Meesles.Avalon {
       _transport = new LiteNetLibTransport(logger, connectionKey: ConnectionKey);
       _flow = new KlothoSessionFlow(
         new KlothoFlowSetupBuilder((s, ss) =>
-            new SessionCallbacks(new SimCallbacks(Input), _viewCallbacks))
+            new SessionCallbacks(new SimCallbacks(Input, navMeshBytes, logger), _viewCallbacks))
           .WithLogger(logger)
           .WithTransport(_transport)
           .WithAssetRegistry(registry)

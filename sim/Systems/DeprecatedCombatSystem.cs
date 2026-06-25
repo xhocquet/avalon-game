@@ -3,6 +3,8 @@ using xpTURN.Klotho.ECS;
 using Meesles.Avalon.Sim.Models;
 
 namespace Meesles.Avalon {
+  // Deprecated prototype: reference only. Milestone A combat should be rebuilt
+  // around explicit UnitId targets, stable UnitTypeId priority, and DeathSystem.
   // Applies melee combat damage each tick. Generic over unit type: any entity with
   // Combat + Team + TransformComponent attacks the nearest enemy with Health + Team.
   // Distance is planar (x/z only); y is not gameplay.

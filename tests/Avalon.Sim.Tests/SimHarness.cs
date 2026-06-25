@@ -17,12 +17,14 @@ public sealed class SimHarness {
 
   public EcsSimulation Simulation { get; }
   public IDataAssetRegistry AssetRegistry { get; }
+  public NavigationRuntime Navigation { get; }
   public Frame Frame => Simulation.Frame;
   public long StateHash => Simulation.GetStateHash();
 
-  private SimHarness(EcsSimulation simulation, IDataAssetRegistry assetRegistry) {
+  private SimHarness(EcsSimulation simulation, IDataAssetRegistry assetRegistry, NavigationRuntime navigation) {
     Simulation = simulation;
     AssetRegistry = assetRegistry;
+    Navigation = navigation;
   }
 
   public static SimHarness CreateInitialized(
@@ -33,19 +35,20 @@ public sealed class SimHarness {
     WarmupRegistry.RunAll();
 
     var assetRegistry = LoadAssetRegistry();
+    var navigation = LoadNavigationRuntime();
     var simulation = new EcsSimulation(
         maxEntities,
         maxRollbackTicks,
         deltaTimeMs,
         assetRegistry: assetRegistry);
 
-    SimulationSetup.RegisterSystems(simulation);
+    SimulationSetup.RegisterSystems(simulation, navigation);
     simulation.Initialize();
 
     var frame = simulation.Frame;
     SimulationSetup.InitializeWorld(ref frame, maxPlayers);
 
-    return new SimHarness(simulation, assetRegistry);
+    return new SimHarness(simulation, assetRegistry, navigation);
   }
 
   public void Tick(params ICommand[] commands) {
@@ -85,5 +88,13 @@ public sealed class SimHarness {
     builder.RegisterRange(assets);
     builder.RegisterRange(layoutAssets);
     return builder.Build();
+  }
+
+  private static NavigationRuntime LoadNavigationRuntime() {
+    string navPath = Path.Combine(AppContext.BaseDirectory, "Data", "NavigationRegion3D.NavMeshData.bytes");
+    if (!File.Exists(navPath))
+      throw new FileNotFoundException("Shared navigation mesh was not copied to the test output.", navPath);
+
+    return NavigationRuntime.FromBytes(File.ReadAllBytes(navPath), logger: null);
   }
 }

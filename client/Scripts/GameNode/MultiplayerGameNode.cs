@@ -81,10 +81,11 @@ namespace Meesles.Avalon {
     private void StartDirectJoinFallback() {
       _logger = CreateLogger();
       _registry = LoadAssetRegistry();
+      var navMeshBytes = LoadNavigationMeshBytes();
       _simCfg = new SimulationConfig { Mode = NetworkMode.ServerDriven };
       _sesCfg = new SessionConfig { MaxPlayers = 2, MinPlayers = 2, CountdownDurationMs = 0 };
       _transport = new LiteNetLibTransport(_logger, connectionKey: ConnectionKey);
-      _simulationCallbacks = new SimCallbacks(Input);
+      _simulationCallbacks = new SimCallbacks(Input, navMeshBytes, _logger);
       _viewCallbacks = new ViewCallbacks(GameUi);
 
       _flow = new KlothoSessionFlow(

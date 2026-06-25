@@ -4,13 +4,18 @@ using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Models;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.ECS;
+using xpTURN.Klotho.Logging;
 
 namespace Meesles.Avalon.Client {
   public class SimCallbacks : ISimulationCallbacks {
     private InputCapture _input;
+    private readonly byte[] _navMeshBytes;
+    private readonly IKLogger _logger;
 
-    public SimCallbacks(InputCapture input) {
+    public SimCallbacks(InputCapture input, byte[] navMeshBytes, IKLogger logger) {
       _input = input;
+      _navMeshBytes = navMeshBytes;
+      _logger = logger;
     }
 
     public void SetInput(InputCapture input) {
@@ -18,7 +23,7 @@ namespace Meesles.Avalon.Client {
     }
 
     public void RegisterSystems(EcsSimulation simulation) {
-      SimulationSetup.RegisterSystems(simulation);
+      SimulationSetup.RegisterSystems(simulation, NavigationRuntime.FromBytes(_navMeshBytes, _logger));
     }
 
     public void OnInitializeWorld(IKlothoEngine engine) {

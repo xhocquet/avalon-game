@@ -44,6 +44,13 @@ var layoutAssets = DataAssetReader.LoadMixedCollectionFromBytes(layoutPath);
 registryBuilder.RegisterRange(layoutAssets);
 logger.KInformation($"[AvalonServer] MapLayout.bytes loaded: {layoutAssets.Count} asset(s) from {layoutPath}");
 
+var navMeshPath = Path.Combine(AppContext.BaseDirectory, "Data", "NavigationRegion3D.NavMeshData.bytes");
+if (!File.Exists(navMeshPath))
+  throw new FileNotFoundException("Navigation mesh was not copied to the server output.", navMeshPath);
+
+var navMeshBytes = File.ReadAllBytes(navMeshPath);
+logger.KInformation($"[AvalonServer] NavigationRegion3D.NavMeshData.bytes loaded: {navMeshBytes.Length} bytes from {navMeshPath}");
+
 var sharedRegistry = registryBuilder.Build();
 
 var transport = new LiteNetLibTransport(logger, connectionKey: "Meesles.Avalon");
@@ -55,7 +62,7 @@ if (!transport.Listen("0.0.0.0", port, maxRooms * maxPlayers)) {
 // RoomRouter consumes the RoomHandshakeMessage and routes peers to the room; RoomManager
 // wires EcsSimulation / ServerNetworkService / KlothoEngine / CommandFactory per room internally.
 var router = new RoomRouter(transport, logger);
-var roomManagerConfig = new RoomManagerConfigBuilder((roomLogger) => new SimCallbacks(roomLogger, maxPlayers))
+var roomManagerConfig = new RoomManagerConfigBuilder((roomLogger) => new SimCallbacks(roomLogger, maxPlayers, navMeshBytes))
   .WithRoomLimits(maxRooms, maxPlayers, maxSpectatorsPerRoom: 0)
   .WithSimulationConfig(simConfig)
   .WithSessionConfig(sessionConfig)
