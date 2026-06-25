@@ -13,8 +13,8 @@ namespace Meesles.Avalon.Sim {
     private const int BaseUnitTypeId = 100;
     private const int BaseHealth = 1000;
 
-    public static void RegisterSystems(EcsSimulation simulation) {
-      simulation.AddSystem(new CommandSystem(), SystemPhase.Update);
+    public static void RegisterSystems(EcsSimulation simulation, NavigationRuntime navigation = null) {
+      simulation.AddSystem(new CommandSystem(moveNavAgentsDirectly: navigation == null), SystemPhase.Update);
       simulation.AddSystem(new WaveSpawnSystem(), SystemPhase.Update);
 
       simulation.AddSystem(new SpatialIndexSystem(), SystemPhase.Update);
@@ -22,14 +22,17 @@ namespace Meesles.Avalon.Sim {
       simulation.AddSystem(new PathRequestSystem(), SystemPhase.Update);
       simulation.AddSystem(new PathfindingSystem(), SystemPhase.Update);
       simulation.AddSystem(new PathFollowSystem(), SystemPhase.Update);
-      simulation.AddSystem(new LocalAvoidanceSystem(), SystemPhase.Update);
+      simulation.AddSystem(new RespawnSystem(), SystemPhase.Update);
+      if (navigation != null)
+        simulation.AddSystem(new NavigationAgentSystem(navigation), SystemPhase.Update);
+      else
+        simulation.AddSystem(new LocalAvoidanceSystem(), SystemPhase.Update);
       simulation.AddSystem(new MovementIntentSystem(), SystemPhase.Update);
 
       simulation.AddSystem(new AttackIntentSystem(), SystemPhase.Update);
       simulation.AddSystem(new AttackCooldownSystem(), SystemPhase.Update);
       simulation.AddSystem(new DamageSystem(), SystemPhase.Update);
       simulation.AddSystem(new DeathSystem(), SystemPhase.Update);
-      simulation.AddSystem(new RespawnSystem(), SystemPhase.Update);
       simulation.AddSystem(new RewardSystem(), SystemPhase.LateUpdate);
       simulation.AddSystem(new ScoreSystem(), SystemPhase.LateUpdate);
       simulation.AddSystem(new EventSystem(), SystemPhase.LateUpdate);
@@ -43,6 +46,7 @@ namespace Meesles.Avalon.Sim {
     public static void InitializeWorld(ref Frame frame, int maxPlayers) {
       UnitIdGenerator.Initialize(ref frame);
       var playerIds = GetPlayerIds(ref frame, maxPlayers);
+      var playerStats = frame.AssetRegistry.Get<PlayerStatsAsset>();
       frame.AssetRegistry.TryGet<MapLayoutAsset>(out var layout);
       SpawnTeamBases(ref frame, playerIds.Count, layout);
 
@@ -69,6 +73,8 @@ namespace Meesles.Avalon.Sim {
           UnitId = UnitIdGenerator.Next(ref frame),
           UnitTypeId = PlayerUnitTypeId,
         });
+        if (playerStats != null)
+          NavAgentSetup.AddNavAgent(ref frame, entity, initialPos, playerStats.MoveSpeed);
       }
     }
 

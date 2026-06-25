@@ -72,6 +72,16 @@ namespace Meesles.Avalon {
       return builder.Build();
     }
 
+    protected byte[] LoadNavigationMeshBytes() {
+      byte[] bytes = FileAccess.GetFileAsBytes("res://Sim/Data/NavigationRegion3D.NavMeshData.bytes");
+      if (bytes == null || bytes.Length == 0) {
+        var err = FileAccess.GetOpenError();
+        throw new System.IO.FileNotFoundException($"res://Sim/Data/NavigationRegion3D.NavMeshData.bytes not found (err={err})");
+      }
+
+      return bytes;
+    }
+
     public override void _Input(InputEvent @event) {
       Input?.HandleUnhandledInput(@event);
     }

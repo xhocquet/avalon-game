@@ -3,6 +3,7 @@ using xpTURN.Klotho.ECS;
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Models;
 using Meesles.Avalon.Sim.Assets;
+using xpTURN.Klotho.Deterministic.Navigation;
 
 namespace Meesles.Avalon {
   public class RespawnSystem : ISystem {
@@ -19,6 +20,13 @@ namespace Meesles.Avalon {
         p.LastInputH = FP64.Zero;
         p.LastInputV = FP64.Zero;
         t.Position = SimulationSetup.GetHeroSpawnPositionForTeam(ref frame, team.TeamId);
+        if (frame.Has<UnitMoveTarget>(entity))
+          frame.Remove<UnitMoveTarget>(entity);
+        if (frame.Has<NavAgentComponent>(entity)) {
+          ref var nav = ref frame.Get<NavAgentComponent>(entity);
+          NavAgentComponent.Stop(ref nav);
+          NavAgentComponent.Init(ref nav, t.Position);
+        }
       }
     }
   }

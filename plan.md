@@ -42,10 +42,13 @@ Target shape: Warcraft/Dota-like top-down combat with a handful of human players
 
 - ServerDriven client/server flow is wired.
 - Shared sim bootstrap creates bases, spawn points, heroes, teams, health, and stable unit ids.
+- `UnitLookup` provides shared SIM helpers for resolving `UnitId -> entity` and player/team ownership validation.
 - Minion waves exist through `WaveRulesAsset` and `WaveSpawnSystem`.
 - Minion view exists through `UnitViewFactory`.
 - Minions move deterministically toward center with transform-only movement.
 - Player movement no longer uses `PhysicsBodyComponent`; it directly integrates `TransformComponent.Position.x/z`.
+- `MoveCommand` carries explicit selected `UnitId`s and applies movement only to units owned by the issuing player's team.
+- Selection is client-side UI state only for now: not SIM state, not in the command stream, and not in recordings.
 - Klotho physics is no longer registered for core gameplay movement.
 - `UnitIdGenerator` provides stable sim-level unit identity.
 - `SimMarkerNode` ([Tool][GlobalClass] Node3D) places Base/SpawnPoint/Shop/Turret markers in the editor.
@@ -57,11 +60,9 @@ Target shape: Warcraft/Dota-like top-down combat with a handful of human players
 
 Goal: make commands ready for real unit orders before adding deeper combat.
 
-1. Add shared helpers for resolving `UnitId -> entity`.
-2. Add ownership/team validation helpers for command systems.
-3. Add `MoveToCommand`: carries an explicit list of `UnitId`s (client-side selection is view-only and not recorded). Applies movement to owned units.
-4. Add `AttackCommand { caster UnitId, target UnitId }`.
-5. Selection is client-side UI state only for now — not SIM state, not in the command stream, not in recordings.
+1. Add `AttackCommand` execution: selected owned `UnitId`s attack an explicit target `UnitId`.
+2. Share command validation helpers between move and attack command execution.
+3. Add stale-target tests for commands referencing missing or destroyed `UnitId`s.
 
 Acceptance:
 
@@ -71,7 +72,7 @@ Acceptance:
 
 ## Milestone A: Combat And Death
 
-Goal: make minions meet, fight, die, and reduce live entity counts deterministically.
+Goal: make minions meet, fight, die
 
 1. `UnitDiedEvent` (`KlothoSerializable(102)`): `{ UnitId, UnitTypeId, Position }`.
 2. `DeathSystem`: remove entities with `Health.Current <= 0`; raise `UnitDiedEvent`.

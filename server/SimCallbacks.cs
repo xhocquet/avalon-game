@@ -9,14 +9,16 @@ namespace Meesles.Avalon.Server {
   public class SimCallbacks : ISimulationCallbacks {
     private readonly IKLogger _logger;
     private readonly int _maxPlayers;
+    private readonly byte[] _navMeshBytes;
 
-    public SimCallbacks(IKLogger logger, int maxPlayers) {
+    public SimCallbacks(IKLogger logger, int maxPlayers, byte[] navMeshBytes) {
       _logger = logger;
       _maxPlayers = maxPlayers;
+      _navMeshBytes = navMeshBytes;
     }
 
     public void RegisterSystems(EcsSimulation simulation) {
-      SimulationSetup.RegisterSystems(simulation);
+      SimulationSetup.RegisterSystems(simulation, NavigationRuntime.FromBytes(_navMeshBytes, _logger));
     }
 
     public void OnInitializeWorld(IKlothoEngine engine) {

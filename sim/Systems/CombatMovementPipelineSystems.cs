@@ -41,10 +41,6 @@ namespace Meesles.Avalon {
     public void Update(ref Frame frame) { }
   }
 
-  public class DeathSystem : ISystem {
-    public void Update(ref Frame frame) { }
-  }
-
   public class RewardSystem : ISystem {
     public void Update(ref Frame frame) { }
   }

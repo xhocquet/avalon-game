@@ -112,8 +112,6 @@ namespace Meesles.Avalon {
         -vector.x * sin + vector.z * cos);
     }
 
-    // Minions live as transform-only entities. Movement integrates the transform
-    // directly and combat uses deterministic proximity queries; neither needs physics.
     private static void SpawnMinion(ref Frame frame, MinionStatsAsset stats, FPVector3 position, int teamId,
       int waveId) {
       var entity = frame.CreateEntity();
@@ -123,6 +121,7 @@ namespace Meesles.Avalon {
         Rotation = FP64.Zero,
         Scale = FPVector3.One,
       });
+      NavAgentSetup.AddNavAgent(ref frame, entity, position, stats.MoveSpeed);
       frame.Add(entity, new Unit {
         UnitId = UnitIdGenerator.Next(ref frame),
         UnitTypeId = SimulationSetup.MinionUnitTypeId,

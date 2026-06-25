@@ -182,6 +182,83 @@ public class SimInvariantTests {
   }
 
   [Fact]
+  public void SelectedMoveCommands_CanMoveHeroAndMinionTogetherThroughNavigation() {
+    var harness = SimHarness.CreateInitialized();
+    var rules = harness.AssetRegistry.Get<WaveRulesAsset>();
+
+    for (int tick = 0; tick <= rules.FirstWaveDelayTicks; tick++)
+      harness.Tick();
+
+    UnitPositionSnapshot hero = GetUnitPositions(harness)
+        .Single(unit => unit.TeamId == 1 && unit.UnitTypeId == 1);
+    UnitPositionSnapshot minion = GetUnitPositions(harness)
+        .First(unit => unit.TeamId == 1 && unit.UnitTypeId == SimulationSetup.MinionUnitTypeId);
+
+    var command = SimHarness.MoveCommand(1, 0, FP64.Zero, FP64.Zero);
+    command.AddUnitId(hero.UnitId);
+    command.AddUnitId(minion.UnitId);
+
+    harness.Tick(command);
+    for (int tick = 0; tick < 12; tick++)
+      harness.Tick();
+
+    UnitPositionSnapshot movedHero = GetUnitPositions(harness).Single(unit => unit.UnitId == hero.UnitId);
+    UnitPositionSnapshot movedMinion = GetUnitPositions(harness).Single(unit => unit.UnitId == minion.UnitId);
+
+    (movedHero.Position - hero.Position).sqrMagnitude.Should().BeGreaterThan(FP64.Zero);
+    (movedMinion.Position - minion.Position).sqrMagnitude.Should().BeGreaterThan(FP64.Zero);
+
+    var frame = harness.Frame;
+    var movingNavAgents = 0;
+    var filter = frame.Filter<Unit, xpTURN.Klotho.Deterministic.Navigation.NavAgentComponent>();
+    while (filter.Next(out var entity)) {
+      ref readonly var unit = ref frame.Get<Unit>(entity);
+      if (unit.UnitId != hero.UnitId && unit.UnitId != minion.UnitId)
+        continue;
+
+      ref readonly var nav = ref frame.Get<xpTURN.Klotho.Deterministic.Navigation.NavAgentComponent>(entity);
+      nav.Velocity.sqrMagnitude.Should().BeGreaterThan(FP64.Zero);
+      movingNavAgents++;
+    }
+
+    movingNavAgents.Should().Be(2);
+  }
+
+  [Fact]
+  public void SelectedMoveCommands_FormationGroupSettlesNearDestination() {
+    var harness = SimHarness.CreateInitialized();
+    var rules = harness.AssetRegistry.Get<WaveRulesAsset>();
+
+    for (int tick = 0; tick <= rules.FirstWaveDelayTicks; tick++)
+      harness.Tick();
+
+    UnitPositionSnapshot hero = GetUnitPositions(harness)
+        .Single(unit => unit.TeamId == 1 && unit.UnitTypeId == 1);
+    UnitPositionSnapshot minion = GetUnitPositions(harness)
+        .First(unit => unit.TeamId == 1 && unit.UnitTypeId == SimulationSetup.MinionUnitTypeId);
+
+    var command = SimHarness.MoveCommand(1, 0, FP64.Zero, FP64.Zero);
+    command.AddUnitId(hero.UnitId);
+    command.AddUnitId(minion.UnitId);
+
+    harness.Tick(command);
+    for (int tick = 0; tick < 800; tick++)
+      harness.Tick();
+
+    var frame = harness.Frame;
+    frame.Has<UnitMoveTarget>(FindUnitEntity(harness, hero.UnitId)).Should().BeFalse();
+    frame.Has<UnitMoveTarget>(FindUnitEntity(harness, minion.UnitId)).Should().BeFalse();
+
+    UnitPositionSnapshot settledHero = GetUnitPositions(harness).Single(unit => unit.UnitId == hero.UnitId);
+    UnitPositionSnapshot settledMinion = GetUnitPositions(harness).Single(unit => unit.UnitId == minion.UnitId);
+    FPVector3 target = new FPVector3(FP64.Zero, FP64.Zero, FP64.Zero);
+
+    (settledHero.Position - target).sqrMagnitude.Should().BeLessThan(FP64.FromInt(4));
+    (settledMinion.Position - target).sqrMagnitude.Should().BeLessThan(FP64.FromInt(9));
+    (settledHero.Position - settledMinion.Position).sqrMagnitude.Should().BeGreaterThan(FP64.Zero);
+  }
+
+  [Fact]
   public void Respawn_IsDeterministic() {
     var simA = SimHarness.CreateInitialized();
     var simB = SimHarness.CreateInitialized();
@@ -263,6 +340,20 @@ public class SimInvariantTests {
     return minions.OrderBy(minion => minion.UnitId).ToArray();
   }
 
+  private static UnitPositionSnapshot[] GetUnitPositions(SimHarness harness) {
+    var frame = harness.Frame;
+    var units = new List<UnitPositionSnapshot>();
+    var filter = frame.Filter<Unit, Team, TransformComponent>();
+    while (filter.Next(out var entity)) {
+      ref readonly var unit = ref frame.Get<Unit>(entity);
+      ref readonly var team = ref frame.Get<Team>(entity);
+      ref readonly var transform = ref frame.Get<TransformComponent>(entity);
+      units.Add(new UnitPositionSnapshot(unit.UnitId, unit.UnitTypeId, team.TeamId, transform.Position));
+    }
+
+    return units.OrderBy(unit => unit.UnitId).ToArray();
+  }
+
   private static void ForcePlayerFall(SimHarness harness, int playerId) {
     var frame = harness.Frame;
     var stats = harness.AssetRegistry.Get<PlayerStatsAsset>();
@@ -294,6 +385,19 @@ public class SimInvariantTests {
     Assert.Fail($"Minion unit {unitId} was not found.");
   }
 
+  private static EntityRef FindUnitEntity(SimHarness harness, int unitId) {
+    var frame = harness.Frame;
+    var filter = frame.Filter<Unit>();
+    while (filter.Next(out var entity)) {
+      ref readonly var unit = ref frame.Get<Unit>(entity);
+      if (unit.UnitId == unitId)
+        return entity;
+    }
+
+    Assert.Fail($"Unit {unitId} was not found.");
+    return default;
+  }
+
   private sealed record UnitSnapshot(int UnitId, int UnitTypeId);
 
   private sealed record PlayerSnapshot(int PlayerId, int TeamId, FP64 LastInputH, FP64 LastInputV, int Score);
@@ -301,4 +405,6 @@ public class SimInvariantTests {
   private sealed record PlayerTransformSnapshot(int PlayerId, FPVector3 Position);
 
   private sealed record MinionSnapshot(int WaveId, int TeamId, int OwnerId, int UnitId, FPVector3 Position);
+
+  private sealed record UnitPositionSnapshot(int UnitId, int UnitTypeId, int TeamId, FPVector3 Position);
 }
