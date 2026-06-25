@@ -10,7 +10,7 @@
     "$type": "Meesles.Avalon.Sim.Assets.WaveRulesAsset, Meesles.Avalon.Client",
     "AssetId": 101,
     "FirstWaveDelayTicks": 30,
-    "SpawnIntervalTicks": 90,
+    "SpawnIntervalTicks": 150,
     "MinionsPerWave": 1,
     "MinionSpacing": 1.2
   },
