@@ -59,6 +59,7 @@ metadata/_custom_type_script = "uid://jt4rwdk0j6k6"
 
 [node name="Shop" parent="NavigationRegion3D/Team1" unique_id=361766017 instance=ExtResource("9_jvdyq")]
 transform = Transform3D(-0.9112955, 0, 0.411753, 0, 1, 0, -0.411753, 0, -0.9112955, -20.922527, 0, 45.998257)
+MarkerType = 2
 Team = 1
 
 [node name="Team2" type="Node3D" parent="NavigationRegion3D" unique_id=1620318159]
@@ -84,6 +85,7 @@ metadata/_custom_type_script = "uid://jt4rwdk0j6k6"
 
 [node name="Shop" parent="NavigationRegion3D/Team2" unique_id=898142210 instance=ExtResource("9_jvdyq")]
 transform = Transform3D(0.5735763, 0, -0.81915206, 0, 1, 0, 0.81915206, 0, 0.5735763, 21.189508, 0, -46.930595)
+MarkerType = 2
 Team = 2
 
 [node name="Team3" type="Node3D" parent="NavigationRegion3D" unique_id=1918146115]
@@ -109,6 +111,7 @@ metadata/_custom_type_script = "uid://jt4rwdk0j6k6"
 
 [node name="Shop" parent="NavigationRegion3D/Team3" unique_id=1421664058 instance=ExtResource("9_jvdyq")]
 transform = Transform3D(-0.81915194, 0, -0.5735764, 0, 1, 0, 0.5735764, 0, -0.81915194, 45.65038, -3.8146973e-06, 21.984482)
+MarkerType = 2
 Team = 3
 
 [node name="Team4" type="Node3D" parent="NavigationRegion3D" unique_id=1229031585]
@@ -134,7 +137,8 @@ metadata/_custom_type_script = "uid://jt4rwdk0j6k6"
 
 [node name="Shop" parent="NavigationRegion3D/Team4" unique_id=599545124 instance=ExtResource("9_jvdyq")]
 transform = Transform3D(0.81915194, 0, 0.5735764, 0, 1, 0, -0.5735764, 0, 0.81915194, -45.448296, 0, -21.424294)
-Team = 3
+MarkerType = 2
+Team = 4
 
 [node name="Treez" type="Node3D" parent="NavigationRegion3D" unique_id=2080977697]
 

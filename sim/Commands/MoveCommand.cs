@@ -15,14 +15,13 @@ namespace Meesles.Avalon.Sim.Commands {
 
     public int UnitIdCount => _unitIdCount;
 
-    public void ClearUnitIds() => _unitIdCount = 0;
-
     public void AddUnitId(int unitId) {
       if (_unitIdCount == _unitIds.Length) {
         var grown = new int[_unitIds.Length * 2];
         _unitIds.CopyTo(grown, 0);
         _unitIds = grown;
       }
+
       _unitIds[_unitIdCount++] = unitId;
     }
 

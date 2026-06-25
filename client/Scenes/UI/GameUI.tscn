@@ -3,11 +3,6 @@
 [ext_resource type="Script" uid="uid://cye43qws5a5eo" path="res://Scripts/UI/GameUI.cs" id="1_script"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/HealthBars.tscn" id="3_healthbars"]
 
-[sub_resource type="LabelSettings" id="LabelSettings_2wl70"]
-font_size = 32
-outline_size = 2
-outline_color = Color(0, 0, 0, 1)
-
 [sub_resource type="LabelSettings" id="LabelSettings_ie3ut"]
 font_size = 32
 outline_size = 2
@@ -51,14 +46,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-
-[node name="Focus" type="Label" parent="DefaultUI" unique_id=181137405]
-layout_mode = 1
-offset_right = 196.0
-offset_bottom = 45.0
-theme_override_font_sizes/font_size = 13
-text = "Focus: Lalala"
-label_settings = SubResource("LabelSettings_2wl70")
 
 [node name="Timer" type="Label" parent="DefaultUI" unique_id=1400288027]
 layout_mode = 1
@@ -115,6 +102,7 @@ color = Color(0.9347062, 0.00074333133, 0.9401553, 0.42745098)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 2.0
+theme_override_constants/separation = 6
 
 [node name="HealthBar" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox" unique_id=1590907484]
 custom_minimum_size = Vector2(0, 24)
@@ -141,29 +129,173 @@ vertical_alignment = 1
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+theme_override_constants/separation = 6
 
-[node name="ColorRect" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection" unique_id=538479137]
+[node name="HeroPanel" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection" unique_id=538479137]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 1.5
 color = Color(0, 0.7529412, 0.73333335, 0.65882355)
 
-[node name="ColorRect2" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection" unique_id=142657487]
+[node name="MinionAndStatsPanel" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection" unique_id=142657487]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 3.0
 color = Color(0.37254903, 0.38039216, 1, 0.33333334)
 
-[node name="ColorRect3" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection" unique_id=1234564327]
+[node name="MarginContainer" type="MarginContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection" unique_id=562705946]
+layout_mode = 2
+
+[node name="ItemPanel" type="GridContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MarginContainer" unique_id=1803907707]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 1.3
-color = Color(1, 0.6313726, 0.61960787, 0.5176471)
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
+columns = 2
 
-[node name="ActionGrid" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels" unique_id=1238053358]
+[node name="ColorRect" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MarginContainer/ItemPanel" unique_id=237132654]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+color = Color(1, 1, 0.6901961, 0.7137255)
+
+[node name="ColorRect2" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MarginContainer/ItemPanel" unique_id=2126021869]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+color = Color(1, 0.5803922, 0.6901961, 0.7137255)
+
+[node name="ColorRect3" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MarginContainer/ItemPanel" unique_id=1733614632]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+color = Color(1, 1, 0.6901961, 0.7137255)
+
+[node name="ColorRect4" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MarginContainer/ItemPanel" unique_id=1803609899]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+color = Color(1, 0.5803922, 0.6901961, 0.7137255)
+
+[node name="ColorRect5" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MarginContainer/ItemPanel" unique_id=212047987]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+color = Color(1, 1, 0.6901961, 0.7137255)
+
+[node name="ColorRect6" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MarginContainer/ItemPanel" unique_id=371002932]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+color = Color(1, 0.5803922, 0.6901961, 0.7137255)
+
+[node name="ActionMContainer" type="MarginContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels" unique_id=468670308]
 layout_mode = 2
 size_flags_horizontal = 3
-color = Color(1, 1, 0.52156866, 0.68235296)
+theme_override_constants/margin_left = 2
+
+[node name="ActionGrid" type="GridContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer" unique_id=1069250280]
+clip_contents = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
+columns = 5
+
+[node name="ColorRect" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=1222214380]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+color = Color(1, 1, 0.6901961, 0.7137255)
+
+[node name="ColorRect2" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=694550106]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+color = Color(1, 0.5803922, 0.6901961, 0.7137255)
+
+[node name="ColorRect3" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=351577467]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+color = Color(1, 1, 0.6901961, 0.7137255)
+
+[node name="ColorRect4" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=1886554080]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+color = Color(1, 0.5803922, 0.6901961, 0.7137255)
+
+[node name="ColorRect5" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=247330112]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+color = Color(1, 1, 0.6901961, 0.7137255)
+
+[node name="ColorRect6" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=2128561064]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+color = Color(1, 0.5803922, 0.6901961, 0.7137255)
+
+[node name="ColorRect7" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=757895957]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+color = Color(1, 1, 0.6901961, 0.7137255)
+
+[node name="ColorRect8" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=1052040432]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+color = Color(1, 0.5803922, 0.6901961, 0.7137255)
+
+[node name="ColorRect9" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=1317634379]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+color = Color(1, 1, 0.6901961, 0.7137255)
+
+[node name="ColorRect10" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=1230175847]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+color = Color(1, 0.5803922, 0.6901961, 0.7137255)
+
+[node name="ColorRect11" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=1329078521]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+color = Color(1, 1, 0.6901961, 0.7137255)
+
+[node name="ColorRect12" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=762819458]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+color = Color(1, 0.5803922, 0.6901961, 0.7137255)
+
+[node name="ColorRect13" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=551952867]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+color = Color(1, 1, 0.6901961, 0.7137255)
+
+[node name="ColorRect14" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=1408463387]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+color = Color(1, 0.5803922, 0.6901961, 0.7137255)
+
+[node name="ColorRect15" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=376219139]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+color = Color(1, 1, 0.6901961, 0.7137255)
+
+[node name="ColorRect16" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=80963509]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+color = Color(1, 0.5803922, 0.6901961, 0.7137255)
+
+[node name="ColorRect17" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=30896668]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+color = Color(1, 1, 0.6901961, 0.7137255)
+
+[node name="ColorRect18" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=1153684415]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+color = Color(1, 0.5803922, 0.6901961, 0.7137255)
+
+[node name="ColorRect19" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=1716411683]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+color = Color(1, 1, 0.6901961, 0.7137255)
+
+[node name="ColorRect20" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=351635988]
+custom_minimum_size = Vector2(58, 58)
+layout_mode = 2
+color = Color(1, 0.5803922, 0.6901961, 0.7137255)
 
 [node name="TabUI" type="Control" parent="." unique_id=313774460]
 visible = false

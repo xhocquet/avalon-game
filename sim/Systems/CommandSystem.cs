@@ -2,6 +2,7 @@ using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 using Meesles.Avalon.Sim.Assets;
+using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Models;
 
 namespace Meesles.Avalon {
@@ -48,30 +49,13 @@ namespace Meesles.Avalon {
     }
 
     private static void ApplySelectedUnitTargets(ref Frame frame, Sim.Commands.MoveCommand command, FPVector3 target) {
-      if (!TryGetPlayerTeamId(ref frame, command.PlayerId, out int teamId)) return;
+      for (int i = 0; i < command.UnitIdCount; i++) {
+        int unitId = command.GetUnitId(i);
+        if (!UnitLookup.TryGetPlayerOwnedUnitById(ref frame, command.PlayerId, unitId, out var entity))
+          continue;
 
-      var filter = frame.Filter<Unit, Team>();
-      while (filter.Next(out var entity)) {
-        ref readonly var unit = ref frame.Get<Unit>(entity);
-        ref readonly var team = ref frame.Get<Team>(entity);
-        if (team.TeamId != teamId) continue;
-        if (!CommandIncludesUnitId(command, unit.UnitId)) continue;
         SetTarget(ref frame, entity, target);
       }
-    }
-
-    private static bool TryGetPlayerTeamId(ref Frame frame, int playerId, out int teamId) {
-      var filter = frame.Filter<Player, Team>();
-      while (filter.Next(out var entity)) {
-        ref readonly var player = ref frame.Get<Player>(entity);
-        if (player.PlayerId != playerId) continue;
-
-        teamId = frame.Get<Team>(entity).TeamId;
-        return true;
-      }
-
-      teamId = 0;
-      return false;
     }
 
     private static void ApplyLocalHeroTarget(ref Frame frame, int playerId, FPVector3 target) {
@@ -82,15 +66,6 @@ namespace Meesles.Avalon {
         SetTarget(ref frame, entity, target);
         return;
       }
-    }
-
-    private static bool CommandIncludesUnitId(Sim.Commands.MoveCommand command, int unitId) {
-      int count = command.UnitIdCount;
-      for (int i = 0; i < count; i++)
-        if (command.GetUnitId(i) == unitId)
-          return true;
-
-      return false;
     }
 
     private static void SetTarget(ref Frame frame, EntityRef entity, FPVector3 target) {
