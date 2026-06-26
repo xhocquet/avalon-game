@@ -11,6 +11,11 @@ server:
 godot:
     & "C:\Users\meesles\Coding\Godot-4.6-mono\Godot_v4.6.3-stable_mono_win64.exe" -e ".\client\project.godot"
 
+export-scene-data:
+    dotnet run --project .\tools\AssetGen
+    dotnet build .\client\Meesles.Avalon.Client.csproj
+    & "C:\Users\meesles\Coding\Godot-4.6-mono\Godot_v4.6.3-stable_mono_win64_console.exe" --headless --editor --path ".\client" --script "res://Scripts/Editor/run_build_exports.gd"
+
 # Unit tests
 test:
     dotnet test .\tests\Avalon.Sim.Tests\Avalon.Sim.Tests.csproj
@@ -35,11 +40,9 @@ sync-klotho:
 
 rebuild: clean
     just sync-klotho
-    dotnet run --project .\tools\AssetGen
-    dotnet build .\client\Meesles.Avalon.Client.csproj
+    just export-scene-data
     dotnet build .\server\Server.csproj
 
 clean:
     @& .\scripts\clean.ps1
-    dotnet clean .\client\Meesles.Avalon.Client.csproj
     dotnet clean .\server\Server.csproj
