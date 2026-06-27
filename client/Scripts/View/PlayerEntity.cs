@@ -34,6 +34,8 @@ namespace Meesles.Avalon {
         _ownerId = live.GetReadOnly<OwnerComponent>(EntityRef).OwnerId;
       if (live != null && live.Has<Team>(EntityRef))
         _teamId = live.GetReadOnly<Team>(EntityRef).TeamId;
+
+      GetNodeOrNull<SelectionIndicator>("SelectionIndicator")?.SetTeamId(_teamId);
     }
 
     public override void OnDeactivate() {
