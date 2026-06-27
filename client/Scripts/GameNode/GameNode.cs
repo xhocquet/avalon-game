@@ -21,6 +21,7 @@ namespace Meesles.Avalon {
       Input = new InputCapture();
       GameUi = GetNode<GameUI>("GameUI");
       Input.BindGameUI(GameUi);
+      Input.BindClickMarker(GetNodeOrNull<Node3D>("Crosshair"));
     }
 
 

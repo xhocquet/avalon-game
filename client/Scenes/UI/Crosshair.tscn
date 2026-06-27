@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://dy487k8tlwknf"]
+
+[ext_resource type="Texture2D" uid="uid://dlv3t3xho8l4t" path="res://Assets/Materials/FX/crosshair010w.png" id="1_yta86"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kdwxc"]
+transparency = 1
+albedo_color = Color(1, 0.14509805, 0, 1)
+albedo_texture = ExtResource("1_yta86")
+heightmap_scale = 13.0
+heightmap_texture = ExtResource("1_yta86")
+
+[sub_resource type="QuadMesh" id="QuadMesh_egx7h"]
+material = SubResource("StandardMaterial3D_kdwxc")
+orientation = 1
+
+[node name="Node3D" type="Node3D" unique_id=1699635742]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1038611209]
+mesh = SubResource("QuadMesh_egx7h")
