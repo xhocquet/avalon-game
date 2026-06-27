@@ -59,8 +59,23 @@ namespace Meesles.Avalon.Client {
     }
 
     public void OnPollInput(int playerId, int tick, ICommandSender sender) {
-      if (_input != null && _input.TryConsumeMoveCommand(out var command))
-        sender.Send(command);
+      if (_input != null && _input.TryConsumeAttackCommand(out var attackCommand)) {
+        LogCommandSent("AttackCommand", tick, playerId,
+          $"targetUnitId={attackCommand.TargetUnitId} sourceCount={attackCommand.SourceUnitIdCount}");
+        sender.Send(attackCommand);
+        return;
+      }
+
+      if (_input != null && _input.TryConsumeMoveCommand(out var moveCommand)) {
+        LogCommandSent("MoveCommand", tick, playerId,
+          $"target=({moveCommand.TargetX}, {moveCommand.TargetZ}) unitCount={moveCommand.UnitIdCount}");
+        sender.Send(moveCommand);
+      }
+    }
+
+    private void LogCommandSent(string commandName, int tick, int playerId, string details) {
+      _logger?.KInformation($"[SimCallbacks] Send {commandName} tick={tick} playerId={playerId} {details}");
+      GD.Print($"[SimCallbacks] Send {commandName} tick={tick} playerId={playerId} {details}");
     }
   }
 }

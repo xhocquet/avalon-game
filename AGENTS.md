@@ -11,6 +11,7 @@
 
 - If working in `client/`, follow [`client/AGENTS.md`](client/AGENTS.md) for Godot/editor/runtime context.
 - If working in `server/`, follow [`server/AGENTS.md`](server/AGENTS.md) for backend/build/runtime context.
+- If working in `sim/`, follow [`sim/AGENTS.md`](sim/AGENTS.md) for shared deterministic simulation context.
 - Treat `sim/` (repo root) as shared deterministic simulation code compiled by both client and server. Keep client/server behavior aligned when editing it. Data assets live at `client/Sim/Data/` (Godot `res://` requires them inside the Godot project).
 - When behavior depends on Klotho internals, inspect `vendor/Klotho/` in addition to this repo's game code; `client/addons/klotho/lib/*.dll` is the packaged runtime actually referenced by builds.
 - The client project file is `client/Meesles.Avalon.Client.csproj`; older `client/Client.csproj` references are stale.

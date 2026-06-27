@@ -25,12 +25,12 @@ namespace Meesles.Avalon {
       SetProcessInput(true);
 
       _timerLabel = GetNode<Label>("DefaultUI/Timer");
-      _focusTargetLabel = GetNode<Label>("DefaultUI/Focus");
+      _focusTargetLabel = GetNodeOrNull<Label>("DefaultUI/Focus");
       _tabUi = GetNode<Control>("TabUI");
       _scoreboardScoreLabel = GetNode<Label>("TabUI/ScoreboardPanel/Header/ScoreLabel");
-      _healthBar = GetNode<ColorRect>("DefaultUI/HealthBar");
-      _healthBarFill = GetNode<ColorRect>("DefaultUI/HealthBar/HealthBarFill");
-      _healthBarLabel = GetNode<Label>("DefaultUI/HealthBar/HealthBarLabel");
+      _healthBar = GetNode<ColorRect>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/HealthBar");
+      _healthBarFill = GetNode<ColorRect>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/HealthBar/HealthBarFill");
+      _healthBarLabel = GetNode<Label>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/HealthBar/HealthBarLabel");
       _selectionRectangle = GetNode<Control>("DefaultUI/SelectionRectangle");
       _resultPanel = GetNodeOrNull<Panel>("DefaultUI/ResultPanel");
       _resultLabel = GetNodeOrNull<Label>("DefaultUI/ResultPanel/ResultLabel");

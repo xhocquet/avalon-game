@@ -64,6 +64,23 @@ public sealed class SimHarness {
     };
   }
 
+  public static Meesles.Avalon.Sim.Commands.AttackCommand AttackCommand(
+      int playerId,
+      int tick,
+      int targetUnitId,
+      params int[] sourceUnitIds) {
+    var command = new Meesles.Avalon.Sim.Commands.AttackCommand {
+      PlayerId = playerId,
+      Tick = tick,
+      TargetUnitId = targetUnitId,
+    };
+
+    foreach (int sourceUnitId in sourceUnitIds)
+      command.AddSourceUnitId(sourceUnitId);
+
+    return command;
+  }
+
   public int Count<TComponent>() where TComponent : unmanaged, IComponent {
     int count = 0;
     var filter = Frame.Filter<TComponent>();

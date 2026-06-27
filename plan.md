@@ -33,7 +33,7 @@ Target shape: Warcraft/Dota-like top-down combat with a handful of human players
 
 ## Klotho Ids
 
-- `KlothoComponent`: 100-110 used (110 = `UnitMoveTarget`), next free 111.
+- `KlothoComponent`: 100-110 used (110 = `UnitMoveTarget`, 111 = `AttackTargetUnitId`), next free 112.
 - `KlothoSerializable`: 100 `MoveCommand`, 101 `GameOverEvent`, 102 reserved for `UnitDiedEvent`, 103 `AttackCommand`, next free 104.
 - `KlothoDataAsset`: 100 `PlayerStats`, 101 `WaveRules`, 102 `MapLayout`, 103 `MinionStats`, next free 104.
 - Note: `NavAgentComponent` uses Klotho-internal ID 11 — no conflict with project range.
@@ -63,9 +63,14 @@ Target shape: Warcraft/Dota-like top-down combat with a handful of human players
 - `UnitDiedEvent` (`KlothoSerializable(102)`) exists as a synced death event.
 - `DeathSystem` removes dead units and raises `UnitDiedEvent`.
 - Navigation runtime exists: `FPNavMesh` loading, query/pathfinder/funnel, `FPNavAgentSystem`, and `NavigationAgentSystem` integration.
+- `NavigationRegion3D.NavMeshData.bytes` lives beside `MapLayout.bytes` under `client/Sim/Data/`; client loads it directly and server/tests copy it from that folder.
+- Client, server, and sim tests pass `NavigationRuntime.FromBytes(...)` into `SimulationSetup.RegisterSystems(...)` before world initialization.
+- Command-driven `UnitMoveTarget` movement routes through `NavigationAgentSystem` for nav agents; direct transform integration is only the no-nav fallback.
+- `FPNavAvoidance` is instantiated and assigned to `FPNavAgentSystem`; tuning/profiling is still pending.
 - Heroes and minions are initialized with `NavAgentComponent`; tests cover both.
 - `RespawnSystem` resets nav agents when a falling hero respawns.
 - `CombatMovementPipelineSystems.cs` registers the intended combat/movement pipeline names, but most of those systems are still stubs.
+- `MinionMoveSystem` is no longer registered by normal sim setup, but the legacy file still exists and should be deleted once default lane goals are fully nav-owned.
 
 ## Next Slice: Explicit Attack Orders
 
@@ -113,12 +118,14 @@ Goal: replace straight-line marching with deterministic A* pathing so minions ro
 
 Navmesh is needed now, not later: without it, minions pile at the center regardless of map geometry, and turrets/structures have no spatial meaning.
 
-1. Add the actual navmesh bytes to runtime loading if not already exported with the current map.
-2. Verify `NavigationRuntime.FromBytes(...)` is used by both client and server startup before `SimulationSetup.InitializeWorld(...)`.
-3. Set default minion lane goals to enemy base positions through `UnitMoveTarget` so `NavigationAgentSystem` owns movement.
-4. Delete or fully retire `MinionMoveSystem` once all minion movement flows through nav agents.
-5. Use `NavAgentComponent.Stop()` / `SetDestination()` for combat interruption and resume.
-6. Wire `FPNavAvoidance` (ORCA) only after combat creates enough crowding to justify it.
+Runtime nav loading is wired. The remaining gap is autonomous/default movement intent: freshly spawned minions have nav agents, but no default lane `UnitMoveTarget`.
+
+1. Set default minion lane goals to enemy base positions through `UnitMoveTarget` so `NavigationAgentSystem` owns autonomous movement.
+2. Delete the legacy `MinionMoveSystem` file once all minion movement flows through nav agents.
+3. Use `NavAgentComponent.Stop()` / `SetDestination()` for combat interruption and resume.
+4. Add focused tests that minions move along nav-owned lane goals without direct transform integration.
+5. Verify structure/turret footprints are actually absent from the baked navmesh.
+6. Tune or gate `FPNavAvoidance` (ORCA) after combat creates enough crowding to justify it; the runtime hook is already enabled.
 
 Acceptance:
 
@@ -160,7 +167,7 @@ Acceptance:
 
 Goal: scale toward hundreds or thousands of units without physics. Nav paths are handled by `FPNavAgentSystem`; this milestone is about agent separation and iteration cost.
 
-1. Enable `FPNavAvoidance` (ORCA) if not already wired in Milestone B.
+1. Tune, profile, or conditionally gate `FPNavAvoidance` (ORCA); it is already wired into `NavigationRuntime`.
 2. Add spatial grid for proximity scans in the combat pipeline if needed.
 3. Keep all iteration order stable.
 4. Profile and tune at target unit counts.
@@ -180,7 +187,6 @@ Acceptance:
 
 1. MapLayout export trigger: manual editor button in Klotho dock, or auto-export on scene save via `@tool`.
 2. Attack intent storage: add a stable `AttackTargetUnitId` component, or keep `Combat.Target` internal and derive it from command/acquisition state each tick.
-3. Navigation bytes ownership: decide whether navmesh data lives beside `MapLayout.bytes` under `client/Sim/Data/` and is copied to server output the same way.
 
 ## Todo, No Particular Order
 
