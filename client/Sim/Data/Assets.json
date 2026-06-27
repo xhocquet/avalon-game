@@ -3,7 +3,7 @@
     "$type": "Meesles.Avalon.Sim.Assets.PlayerStatsAsset, Meesles.Avalon.Client",
     "AssetId": 100,
     "MoveSpeed": 5.0,
-    "MatchDuration": 60.0,
+    "MatchDuration": 300.0,
     "FallThresholdY": -2.0
   },
   {
@@ -20,7 +20,7 @@
     "Health": 100,
     "MoveSpeed": 5.0,
     "AttackDamage": 10,
-    "AttackRange": 2.0,
+    "AttackRange": 4.0,
     "AttackCooldownTicks": 30
   }
 ]

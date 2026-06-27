@@ -47,6 +47,7 @@ namespace Meesles.Avalon.Sim {
       UnitIdGenerator.Initialize(ref frame);
       var playerIds = GetPlayerIds(ref frame, maxPlayers);
       var playerStats = frame.AssetRegistry.Get<PlayerStatsAsset>();
+      var combatStats = frame.AssetRegistry.Get<MinionStatsAsset>();
       frame.AssetRegistry.TryGet<MapLayoutAsset>(out var layout);
       SpawnTeamBases(ref frame, playerIds.Count, layout);
 
@@ -75,6 +76,14 @@ namespace Meesles.Avalon.Sim {
         });
         if (playerStats != null)
           NavAgentSetup.AddNavAgent(ref frame, entity, initialPos, playerStats.MoveSpeed);
+        if (combatStats != null) {
+          frame.Add(entity, new Combat {
+            AttackDamage = combatStats.AttackDamage,
+            AttackRange = combatStats.AttackRange,
+            AttackCooldownTicks = combatStats.AttackCooldownTicks,
+            CooldownRemainingTicks = 0,
+          });
+        }
       }
     }
 

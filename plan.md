@@ -190,4 +190,5 @@ Acceptance:
 
 ## Todo, No Particular Order
 
+- Add a bounded async logging sink for server diagnostics. Sim ticks must not block on console/file writes; enqueue logs to a background writer, drop or coalesce low-priority lines when the queue is full, and flush only on shutdown or bounded intervals.
 - Add a dynamic view/object pool for minions; a fixed 64-object pool is probably too small once waves stack up.
