@@ -18,15 +18,77 @@ namespace Meesles.Avalon {
     }
 
     public void OnCommand(ref Frame frame, ICommand command) {
-      if (command is not Sim.Commands.MoveCommand m) return;
+      switch (command) {
+        case Sim.Commands.MoveCommand move:
+          HandleMoveCommand(ref frame, move);
+          break;
+        case Sim.Commands.AttackCommand attack:
+          HandleAttackCommand(ref frame, attack);
+          break;
+      }
+    }
 
-      FPVector3 target = new FPVector3(m.TargetX, FP64.Zero, m.TargetZ);
-      if (m.UnitIdCount > 0) {
-        ApplySelectedUnitTargets(ref frame, m, target);
+    private static void HandleMoveCommand(ref Frame frame, Sim.Commands.MoveCommand command) {
+      FPVector3 target = new FPVector3(command.TargetX, FP64.Zero, command.TargetZ);
+      if (command.UnitIdCount > 0) {
+        ApplySelectedUnitTargets(ref frame, command, target);
         return;
       }
 
-      ApplyLocalHeroTarget(ref frame, m.PlayerId, target);
+      ApplyLocalHeroTarget(ref frame, command.PlayerId, target);
+    }
+
+    private static void HandleAttackCommand(ref Frame frame, Sim.Commands.AttackCommand command) {
+      if (!TryResolveAttackTarget(ref frame, command, out var targetEntity))
+        return;
+
+      for (int i = 0; i < command.SourceUnitIdCount; i++) {
+        int sourceUnitId = command.GetSourceUnitId(i);
+        if (!UnitLookup.TryGetPlayerOwnedUnitById(ref frame, command.PlayerId, sourceUnitId, out var sourceEntity))
+          continue;
+
+        ClearMoveTarget(ref frame, sourceEntity);
+        SetAttackTarget(ref frame, sourceEntity, command.TargetUnitId);
+      }
+    }
+
+    private static bool TryResolveAttackTarget(ref Frame frame, Sim.Commands.AttackCommand command,
+        out EntityRef targetEntity) {
+      if (!UnitLookup.TryGetEntityByUnitId(ref frame, command.TargetUnitId, out targetEntity))
+        return false;
+
+      if (frame.Has<Health>(targetEntity)) {
+        ref readonly var health = ref frame.GetReadOnly<Health>(targetEntity);
+        if (health.Current <= 0)
+          return false;
+      }
+
+      if (!frame.Has<Team>(targetEntity))
+        return false;
+
+      if (!UnitLookup.TryGetPlayerTeamId(ref frame, command.PlayerId, out int playerTeamId))
+        return false;
+
+      ref readonly var targetTeam = ref frame.GetReadOnly<Team>(targetEntity);
+      if (targetTeam.TeamId == playerTeamId)
+        return false;
+
+      return true;
+    }
+
+    private static void ClearMoveTarget(ref Frame frame, EntityRef entity) {
+      if (frame.Has<UnitMoveTarget>(entity))
+        frame.Remove<UnitMoveTarget>(entity);
+    }
+
+    private static void SetAttackTarget(ref Frame frame, EntityRef entity, int targetUnitId) {
+      if (frame.Has<AttackTargetUnitId>(entity)) {
+        ref var attackTarget = ref frame.Get<AttackTargetUnitId>(entity);
+        attackTarget.TargetUnitId = targetUnitId;
+        return;
+      }
+
+      frame.Add(entity, new AttackTargetUnitId { TargetUnitId = targetUnitId });
     }
 
     public void Update(ref Frame frame) {
@@ -174,6 +236,9 @@ namespace Meesles.Avalon {
     }
 
     private static void SetTarget(ref Frame frame, EntityRef entity, FPVector3 target) {
+      if (frame.Has<AttackTargetUnitId>(entity))
+        frame.Remove<AttackTargetUnitId>(entity);
+
       if (frame.Has<UnitMoveTarget>(entity)) {
         ref var moveTarget = ref frame.Get<UnitMoveTarget>(entity);
         moveTarget.Target = target;

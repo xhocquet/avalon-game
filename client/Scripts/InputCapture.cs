@@ -19,6 +19,7 @@ namespace Meesles.Avalon {
     private Tween _clickMarkerTween;
     private Vector3 _clickMarkerBaseScale = Vector3.One;
     private MoveCommand _pendingMoveCommand;
+    private AttackCommand _pendingAttackCommand;
     private Node3D _singleplayerMoveTarget;
     private Vector2 _dragStartScreen;
     private Vector2 _dragCurrentScreen;
@@ -66,6 +67,12 @@ namespace Meesles.Avalon {
       return command != null;
     }
 
+    public bool TryConsumeAttackCommand(out AttackCommand command) {
+      command = _pendingAttackCommand;
+      _pendingAttackCommand = null;
+      return command != null;
+    }
+
     public void ClearSingleplayerTarget() {
       _hasSingleplayerTarget = false;
     }
@@ -97,6 +104,11 @@ namespace Meesles.Avalon {
 
       if (mouseButton.ButtonIndex != MouseButton.Right || !mouseButton.Pressed) return;
 
+      if (TryGetEnemyUnitIdAt(mouseButton.Position, out int targetUnitId)) {
+        QueueAttack(targetUnitId);
+        return;
+      }
+
       Vector3? ground = _camera.ScreenToGround(mouseButton.Position);
       if (ground == null) return;
 
@@ -121,6 +133,22 @@ namespace Meesles.Avalon {
       }
 
       _pendingMoveCommand = command;
+      _pendingAttackCommand = null;
+    }
+
+    private void QueueAttack(int targetUnitId) {
+      var command = new AttackCommand { TargetUnitId = targetUnitId };
+
+      foreach (var view in _selectedViews) {
+        if (!TryGetUnitId(view, out int unitId)) continue;
+        command.AddSourceUnitId(unitId);
+      }
+
+      if (command.SourceUnitIdCount == 0)
+        return;
+
+      _pendingAttackCommand = command;
+      _pendingMoveCommand = null;
     }
 
     private void PlayClickMarker(Vector3 ground) {
@@ -246,6 +274,32 @@ namespace Meesles.Avalon {
       indicator?.SetSelected(selected);
     }
 
+    private bool TryGetEnemyUnitIdAt(Vector2 screenPosition, out int unitId) {
+      unitId = 0;
+      if (_viewRoot == null || _camera == null)
+        return false;
+
+      EntityViewNode best = null;
+      float bestDistSqr = 22f * 22f;
+
+      foreach (Node child in _viewRoot.GetChildren()) {
+        if (child is not EntityViewNode view) continue;
+        if (ViewTeamMatches(view)) continue;
+
+        Vector2 screen = _camera.UnprojectPosition(view.GlobalPosition);
+        float distSqr = screen.DistanceSquaredTo(screenPosition);
+        if (distSqr >= bestDistSqr) continue;
+
+        best = view;
+        bestDistSqr = distSqr;
+      }
+
+      if (best == null)
+        return false;
+
+      return TryGetUnitId(best, out unitId);
+    }
+
     private bool ViewTeamMatches(EntityViewNode view) {
       return view is ISelectableTeamView selectable && selectable.TeamMatches(_localTeamId);
     }
@@ -268,6 +322,7 @@ namespace Meesles.Avalon {
     public void Dispose() {
       ClearSelectedViews();
       _pendingMoveCommand = null;
+      _pendingAttackCommand = null;
       _camera = null;
       _gameUI?.SetSelectionRectangle(null);
       _gameUI = null;
