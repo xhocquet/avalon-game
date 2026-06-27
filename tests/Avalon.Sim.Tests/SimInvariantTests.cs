@@ -264,8 +264,8 @@ public class SimInvariantTests {
     var simA = SimHarness.CreateInitialized();
     var simB = SimHarness.CreateInitialized();
 
-    ForcePlayerFall(simA, playerId: 1);
-    ForcePlayerFall(simB, playerId: 1);
+    SetPlayerHealth(simA, playerId: 1, current: 0);
+    SetPlayerHealth(simB, playerId: 1, current: 0);
 
     simA.Tick(SimHarness.MoveCommand(1, 0, FP64.One, FP64.One));
     simB.Tick(SimHarness.MoveCommand(1, 0, FP64.One, FP64.One));
@@ -276,6 +276,7 @@ public class SimInvariantTests {
     player.Score.Should().Be(-1);
     player.LastInputH.Should().Be(FP64.Zero);
     player.LastInputV.Should().Be(FP64.Zero);
+    simA.Frame.Has<PendingRespawn>(FindPlayerEntity(simA, playerId: 1)).Should().BeTrue();
 
     PlayerTransformSnapshot transform = GetPlayerTransforms(simA).Single(snapshot => snapshot.PlayerId == 1);
     var frame = simA.Frame;
@@ -283,21 +284,57 @@ public class SimInvariantTests {
   }
 
   [Fact]
-  public void PlayerDeath_RespawnsAndRestoresHealth() {
+  public void PlayerDeath_EmitsEventsAndRespawnsAfterDelay() {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     EntityRef player = FindPlayerEntity(harness, playerId: 1);
+    int unitId = frame.GetReadOnly<Unit>(player).UnitId;
+    int delayTicks = GetRespawnDelayTicks(frame);
     frame.Get<Health>(player).Current = 0;
 
-    harness.Tick();
+    var collector = new EventCollector();
+    collector.BeginTick(12);
+    frame.EventRaiser = collector;
+
+    var system = new RespawnSystem();
+    system.Update(ref frame);
+
+    player = FindPlayerEntity(harness, playerId: 1);
+    frame.Has<PendingRespawn>(player).Should().BeTrue();
+    frame.GetReadOnly<Health>(player).Current.Should().Be(0);
+    frame.GetReadOnly<Player>(player).Score.Should().Be(-1);
+
+    collector.Count.Should().Be(1);
+    var died = collector.Collected[0].Should().BeOfType<PlayerDiedEvent>().Subject;
+    died.Tick.Should().Be(12);
+    died.PlayerId.Should().Be(1);
+    died.TeamId.Should().Be(1);
+    died.UnitId.Should().Be(unitId);
+    died.RespawnDelayTicks.Should().Be(delayTicks);
+
+    for (int tick = 0; tick < delayTicks - 1; tick++)
+      system.Update(ref frame);
+
+    frame.Has<PendingRespawn>(player).Should().BeTrue();
+    frame.GetReadOnly<Health>(player).Current.Should().Be(0);
+
+    collector.BeginTick(12 + delayTicks);
+    system.Update(ref frame);
 
     player = FindPlayerEntity(harness, playerId: 1);
     ref readonly var health = ref frame.GetReadOnly<Health>(player);
     health.Current.Should().Be(health.Max);
-    frame.GetReadOnly<Player>(player).Score.Should().Be(-1);
-    frame.GetReadOnly<TransformComponent>(player).Position
-        .Should()
-        .Be(SimulationSetup.GetHeroSpawnPositionForTeam(ref frame, teamId: 1));
+    frame.Has<PendingRespawn>(player).Should().BeFalse();
+    FPVector3 spawnPosition = SimulationSetup.GetHeroSpawnPositionForTeam(ref frame, teamId: 1);
+    frame.GetReadOnly<TransformComponent>(player).Position.Should().Be(spawnPosition);
+
+    collector.Count.Should().Be(1);
+    var respawned = collector.Collected[0].Should().BeOfType<PlayerRespawnedEvent>().Subject;
+    respawned.Tick.Should().Be(12 + delayTicks);
+    respawned.PlayerId.Should().Be(1);
+    respawned.TeamId.Should().Be(1);
+    respawned.UnitId.Should().Be(unitId);
+    respawned.Position.Should().Be(spawnPosition);
   }
 
   private static UnitSnapshot[] GetUnits(SimHarness harness) {
@@ -373,17 +410,16 @@ public class SimInvariantTests {
     return units.OrderBy(unit => unit.UnitId).ToArray();
   }
 
-  private static void ForcePlayerFall(SimHarness harness, int playerId) {
+  private static void SetPlayerHealth(SimHarness harness, int playerId, int current) {
     var frame = harness.Frame;
-    var stats = harness.AssetRegistry.Get<PlayerStatsAsset>();
-    var filter = frame.Filter<Player, TransformComponent>();
+    var filter = frame.Filter<Player, Health>();
     while (filter.Next(out var entity)) {
       ref readonly var player = ref frame.Get<Player>(entity);
       if (player.PlayerId != playerId)
         continue;
 
-      ref var transform = ref frame.Get<TransformComponent>(entity);
-      transform.Position = new FPVector3(FP64.Zero, stats.FallThresholdY - FP64.One, FP64.Zero);
+      ref var health = ref frame.Get<Health>(entity);
+      health.Current = current;
       return;
     }
   }
@@ -428,6 +464,10 @@ public class SimInvariantTests {
 
     Assert.Fail($"Player {playerId} was not found.");
     return default;
+  }
+
+  private static int GetRespawnDelayTicks(Frame frame) {
+    return (5000 + frame.DeltaTimeMs - 1) / frame.DeltaTimeMs;
   }
 
   private sealed record UnitSnapshot(int UnitId, int UnitTypeId);
