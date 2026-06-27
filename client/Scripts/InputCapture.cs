@@ -15,6 +15,9 @@ namespace Meesles.Avalon {
     private GameUI _gameUI;
     private EntityViewUpdaterNode _viewRoot;
     private EntityViewNode _fallbackFocusView;
+    private Node3D _clickMarker;
+    private Tween _clickMarkerTween;
+    private Vector3 _clickMarkerBaseScale = Vector3.One;
     private MoveCommand _pendingMoveCommand;
     private Node3D _singleplayerMoveTarget;
     private Vector2 _dragStartScreen;
@@ -33,6 +36,14 @@ namespace Meesles.Avalon {
 
     public void BindGameUI(GameUI gameUI) {
       _gameUI = gameUI;
+    }
+
+    public void BindClickMarker(Node3D clickMarker) {
+      _clickMarker = clickMarker;
+      if (_clickMarker == null) return;
+
+      _clickMarkerBaseScale = _clickMarker.Scale;
+      _clickMarker.Visible = false;
     }
 
     public void BindViewRoot(EntityViewUpdaterNode viewRoot) {
@@ -97,6 +108,8 @@ namespace Meesles.Avalon {
       if (_singleplayerMoveTarget != null)
         _singleplayerMoveTarget.GlobalPosition = ground;
 
+      PlayClickMarker(ground);
+
       var command = new MoveCommand {
         TargetX = FP64.FromFloat(ground.X),
         TargetZ = FP64.FromFloat(ground.Z),
@@ -108,6 +121,28 @@ namespace Meesles.Avalon {
       }
 
       _pendingMoveCommand = command;
+    }
+
+    private void PlayClickMarker(Vector3 ground) {
+      if (_clickMarker == null || !GodotObject.IsInstanceValid(_clickMarker)) return;
+
+      _clickMarkerTween?.Kill();
+
+      _clickMarker.GlobalPosition = new Vector3(ground.X, _clickMarker.GlobalPosition.Y, ground.Z);
+      _clickMarker.Scale = _clickMarkerBaseScale;
+      _clickMarker.Visible = true;
+
+      _clickMarkerTween = _clickMarker.CreateTween();
+      _clickMarkerTween.TweenProperty(_clickMarker, "scale", _clickMarkerBaseScale * 1.5f, 0.1)
+        .SetTrans(Tween.TransitionType.Quad)
+        .SetEase(Tween.EaseType.Out);
+      _clickMarkerTween.TweenProperty(_clickMarker, "scale", Vector3.Zero, 0.25)
+        .SetTrans(Tween.TransitionType.Quad)
+        .SetEase(Tween.EaseType.In);
+      _clickMarkerTween.TweenCallback(Callable.From(() => {
+        if (_clickMarker != null && GodotObject.IsInstanceValid(_clickMarker))
+          _clickMarker.Visible = false;
+      }));
     }
 
     private void BeginDragSelection(Vector2 screenPosition) {
@@ -238,6 +273,11 @@ namespace Meesles.Avalon {
       _gameUI = null;
       _viewRoot = null;
       _fallbackFocusView = null;
+      _clickMarkerTween?.Kill();
+      _clickMarkerTween = null;
+      if (_clickMarker != null && GodotObject.IsInstanceValid(_clickMarker))
+        _clickMarker.Visible = false;
+      _clickMarker = null;
       _singleplayerMoveTarget = null;
     }
   }

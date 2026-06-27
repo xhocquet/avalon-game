@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://bbvdly6vma5mr" path="res://Scenes/World/WorldEnvironment.tscn" id="6_o4en4"]
 [ext_resource type="PackedScene" uid="uid://clk3ykagonl6k" path="res://Scenes/World/World.tscn" id="6_world"]
 [ext_resource type="PackedScene" uid="uid://viinxjf0q77b" path="res://Scenes/DirectionalLight3D.tscn" id="7_light"]
+[ext_resource type="PackedScene" uid="uid://dy487k8tlwknf" path="res://Scenes/UI/Crosshair.tscn" id="8_crosshair"]
 
 [node name="Singleplayer" type="Node" unique_id=1024759278]
 script = ExtResource("1_game")
@@ -22,3 +23,6 @@ transform = Transform3D(1, 0, 0, 0, 0.64278764, 0.76604444, 0, -0.76604444, 0.64
 [node name="GameUI" parent="." unique_id=2027974128 instance=ExtResource("4_gameui")]
 
 [node name="WorldEnvironment" parent="." unique_id=1782293992 instance=ExtResource("6_o4en4")]
+
+[node name="Crosshair" parent="." unique_id=1699635742 instance=ExtResource("8_crosshair")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0.1, -25)

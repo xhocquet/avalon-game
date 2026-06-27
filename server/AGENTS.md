@@ -34,5 +34,6 @@ The `<Import>` stays — it supplies the `KlothoGenerator.dll` analyzer and NuGe
 # Commands
 
 - Build: `dotnet build .\Server.csproj`
+- Build if normal output is locked by a running server: `dotnet build .\Server.csproj -o C:\tmp\avalon-server-build`
 - Run from repo root: `just server`
 - Run directly here: `dotnet run --project .\Server.csproj -- 7777`

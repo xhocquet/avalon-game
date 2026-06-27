@@ -17,4 +17,6 @@
 
 # Commands
 
-- Build C# client code: `dotnet build .\Client.csproj`
+- Build C# client code from `client/`: `dotnet build .\Meesles.Avalon.Client.csproj`
+- Build C# client code from repo root: `dotnet build .\client\Meesles.Avalon.Client.csproj`
+- Export scene data from repo root: `just export-scene-data`
