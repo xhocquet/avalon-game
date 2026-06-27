@@ -21,6 +21,7 @@
     "MoveSpeed": 5.0,
     "AttackDamage": 10,
     "AttackRange": 4.0,
-    "AttackCooldownTicks": 30
+    "AttackCooldownTicks": 30,
+    "AttackReacquireRangeMultiplier": 3.0
   }
 ]
