@@ -26,6 +26,7 @@ public class SimInvariantTests {
     units.Select(unit => unit.UnitId).Should().BeEquivalentTo([1, 2, 3, 4]);
     units.Where(unit => unit.UnitTypeId == 1).Should().HaveCount(2);
     units.Where(unit => unit.UnitTypeId == 100).Should().HaveCount(2);
+    harness.Count<Health>().Should().Be(4);
 
     GetPlayerSnapshots(harness)
         .Should()
@@ -281,6 +282,24 @@ public class SimInvariantTests {
     transform.Position.Should().Be(SimulationSetup.GetHeroSpawnPositionForTeam(ref frame, teamId: 1));
   }
 
+  [Fact]
+  public void PlayerDeath_RespawnsAndRestoresHealth() {
+    var harness = SimHarness.CreateInitialized();
+    var frame = harness.Frame;
+    EntityRef player = FindPlayerEntity(harness, playerId: 1);
+    frame.Get<Health>(player).Current = 0;
+
+    harness.Tick();
+
+    player = FindPlayerEntity(harness, playerId: 1);
+    ref readonly var health = ref frame.GetReadOnly<Health>(player);
+    health.Current.Should().Be(health.Max);
+    frame.GetReadOnly<Player>(player).Score.Should().Be(-1);
+    frame.GetReadOnly<TransformComponent>(player).Position
+        .Should()
+        .Be(SimulationSetup.GetHeroSpawnPositionForTeam(ref frame, teamId: 1));
+  }
+
   private static UnitSnapshot[] GetUnits(SimHarness harness) {
     var frame = harness.Frame;
     var units = new List<UnitSnapshot>();
@@ -395,6 +414,19 @@ public class SimInvariantTests {
     }
 
     Assert.Fail($"Unit {unitId} was not found.");
+    return default;
+  }
+
+  private static EntityRef FindPlayerEntity(SimHarness harness, int playerId) {
+    var frame = harness.Frame;
+    var filter = frame.Filter<Player>();
+    while (filter.Next(out var entity)) {
+      ref readonly var player = ref frame.Get<Player>(entity);
+      if (player.PlayerId == playerId)
+        return entity;
+    }
+
+    Assert.Fail($"Player {playerId} was not found.");
     return default;
   }
 

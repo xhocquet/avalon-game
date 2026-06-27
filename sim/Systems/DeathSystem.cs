@@ -14,6 +14,9 @@ namespace Meesles.Avalon {
 
       var filter = frame.Filter<Unit, Health>();
       while (filter.Next(out var entity)) {
+        if (frame.Has<Player>(entity))
+          continue;
+
         ref readonly var health = ref frame.GetReadOnly<Health>(entity);
         if (health.Current > 0)
           continue;
