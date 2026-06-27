@@ -6,6 +6,7 @@ using Meesles.Avalon.Sim.Models;
 
 namespace Meesles.Avalon {
   public partial class PlayerEntity : EntityViewNode, ISelectableTeamView, IPlayerView {
+    private const string UnitsGroup = "units";
     private const string AnimIdle = "SK_PlayerDefault_ao|A_Player_CosmeticIdle";
     private const string AnimWalk = "SK_PlayerDefault_ao|A_Player_Walk";
 
@@ -24,6 +25,7 @@ namespace Meesles.Avalon {
     }
 
     public override void OnActivate(FrameRef frame) {
+      AddToGroup(UnitsGroup);
       _isMoving = false;
       _anim?.Play(AnimIdle);
 
@@ -35,6 +37,7 @@ namespace Meesles.Avalon {
     }
 
     public override void OnDeactivate() {
+      RemoveFromGroup(UnitsGroup);
       _ownerId = -1;
       _teamId = -1;
     }
