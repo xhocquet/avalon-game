@@ -74,8 +74,13 @@ namespace Meesles.Avalon.Sim {
           UnitId = UnitIdGenerator.Next(ref frame),
           UnitTypeId = PlayerUnitTypeId,
         });
-        if (playerStats != null)
+        if (playerStats != null) {
+          frame.Add(entity, new Health {
+            Current = playerStats.Health,
+            Max = playerStats.Health,
+          });
           NavAgentSetup.AddNavAgent(ref frame, entity, initialPos, playerStats.MoveSpeed);
+        }
         if (combatStats != null) {
           frame.Add(entity, new Combat {
             AttackDamage = combatStats.AttackDamage,

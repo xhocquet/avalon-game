@@ -150,6 +150,9 @@ public class AttackCommandExecutionTests {
   [Fact]
   public void AttackIntent_ClearsIntentForSourceWithoutCombat() {
     var harness = SimHarness.CreateInitialized();
+    TryGetEntityByUnitId(harness.Frame, unitId: 3, out var source).Should().BeTrue();
+    harness.Frame.Has<Combat>(source).Should().BeTrue();
+    harness.Frame.Remove<Combat>(source);
 
     harness.Tick(SimHarness.AttackCommand(1, 0, targetUnitId: 4, sourceUnitIds: 3));
 
@@ -215,6 +218,7 @@ public class AttackCommandExecutionTests {
     var harness = SimHarness.CreateInitialized();
     var (source, target) = SpawnFirstWave(harness);
     SetPosition(harness, unitId: 2, new FPVector3(FP64.FromInt(20), FP64.Zero, FP64.Zero));
+    SetPosition(harness, unitId: 4, new FPVector3(FP64.FromInt(20), FP64.Zero, FP64.Zero));
     SetPosition(harness, source.UnitId, target.Position + new FPVector3(FP64.One, FP64.Zero, FP64.Zero));
     SetHealth(harness, target.UnitId, 10);
 

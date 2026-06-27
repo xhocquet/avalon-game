@@ -55,11 +55,34 @@ public class DeathSystemTests {
     collector.Count.Should().Be(0);
   }
 
+  [Fact]
+  public void Update_DoesNotDestroyDeadPlayerUnits() {
+    var harness = SimHarness.CreateInitialized();
+    var frame = harness.Frame;
+    EntityRef entity = GetFirstPlayerEntity(ref frame);
+    int unitId = frame.GetReadOnly<Unit>(entity).UnitId;
+    frame.Get<Health>(entity).Current = 0;
+
+    var system = new DeathSystem();
+    system.Update(ref frame);
+
+    UnitLookup.TryGetEntityByUnitId(ref frame, unitId, out var resolved).Should().BeTrue();
+    resolved.Should().Be(entity);
+  }
+
   private static EntityRef GetFirstBaseEntity(ref Frame frame) {
     var filter = frame.Filter<Base, Unit, Health, TransformComponent>();
     if (filter.Next(out var entity))
       return entity;
 
     throw new Xunit.Sdk.XunitException("Expected an initialized base entity.");
+  }
+
+  private static EntityRef GetFirstPlayerEntity(ref Frame frame) {
+    var filter = frame.Filter<Player, Unit, Health, TransformComponent>();
+    if (filter.Next(out var entity))
+      return entity;
+
+    throw new Xunit.Sdk.XunitException("Expected an initialized player entity.");
   }
 }

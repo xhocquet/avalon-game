@@ -4,7 +4,8 @@
     "AssetId": 100,
     "MoveSpeed": 5.0,
     "MatchDuration": 300.0,
-    "FallThresholdY": -2.0
+    "FallThresholdY": -2.0,
+    "Health": 100
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.WaveRulesAsset, Meesles.Avalon.Client",

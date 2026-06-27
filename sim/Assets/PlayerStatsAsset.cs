@@ -8,5 +8,6 @@ namespace Meesles.Avalon.Sim.Assets {
     [KlothoOrder(0)] public FP64 MoveSpeed;
     [KlothoOrder(1)] public FP64 MatchDuration;
     [KlothoOrder(2)] public FP64 FallThresholdY;
+    [KlothoOrder(3)] public int Health;
   }
 }
