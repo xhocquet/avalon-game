@@ -10,5 +10,6 @@ namespace Meesles.Avalon.Sim.Assets {
     [KlothoOrder(2)] public int AttackDamage;
     [KlothoOrder(3)] public FP64 AttackRange;
     [KlothoOrder(4)] public int AttackCooldownTicks;
+    [KlothoOrder(5)] public FP64 AttackReacquireRangeMultiplier;
   }
 }

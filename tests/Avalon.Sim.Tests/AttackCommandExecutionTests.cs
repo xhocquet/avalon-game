@@ -114,6 +114,40 @@ public class AttackCommandExecutionTests {
   }
 
   [Fact]
+  public void AttackIntent_ReacquiresNearbyEnemyWhenTargetDies() {
+    var harness = SimHarness.CreateInitialized();
+    var (source, target) = SpawnFirstWave(harness);
+    FPVector3 sourcePosition = new FPVector3(FP64.Zero, FP64.Zero, FP64.Zero);
+    FPVector3 targetPosition = new FPVector3(FP64.FromInt(2), FP64.Zero, FP64.Zero);
+    FPVector3 fallbackPosition = new FPVector3(FP64.FromInt(5), FP64.Zero, FP64.Zero);
+    SetPosition(harness, source.UnitId, sourcePosition);
+    SetPosition(harness, target.UnitId, targetPosition);
+    SetPosition(harness, unitId: 2, fallbackPosition);
+    harness.Tick(SimHarness.AttackCommand(1, 0, target.UnitId, source.UnitId));
+
+    KillUnit(harness, target.UnitId);
+    harness.Tick();
+
+    GetAttackTarget(harness.Frame, source.UnitId).Should().Be(2);
+    GetMoveTarget(harness.Frame, source.UnitId).Should().Be(fallbackPosition);
+  }
+
+  [Fact]
+  public void AttackIntent_ClearsIntentWhenNoReacquireTargetIsInRadius() {
+    var harness = SimHarness.CreateInitialized();
+    var (source, target) = SpawnFirstWave(harness);
+    SetPosition(harness, source.UnitId, FPVector3.Zero);
+    SetPosition(harness, target.UnitId, new FPVector3(FP64.FromInt(2), FP64.Zero, FP64.Zero));
+    SetPosition(harness, unitId: 2, new FPVector3(FP64.FromInt(20), FP64.Zero, FP64.Zero));
+    harness.Tick(SimHarness.AttackCommand(1, 0, target.UnitId, source.UnitId));
+
+    KillUnit(harness, target.UnitId);
+    harness.Tick();
+
+    HasAttackTarget(harness.Frame, source.UnitId).Should().BeFalse();
+  }
+
+  [Fact]
   public void AttackIntent_ClearsIntentForSourceWithoutCombat() {
     var harness = SimHarness.CreateInitialized();
 
@@ -180,6 +214,7 @@ public class AttackCommandExecutionTests {
   public void DamageSystem_LethalDamageLetsDeathSystemRemoveTarget() {
     var harness = SimHarness.CreateInitialized();
     var (source, target) = SpawnFirstWave(harness);
+    SetPosition(harness, unitId: 2, new FPVector3(FP64.FromInt(20), FP64.Zero, FP64.Zero));
     SetPosition(harness, source.UnitId, target.Position + new FPVector3(FP64.One, FP64.Zero, FP64.Zero));
     SetHealth(harness, target.UnitId, 10);
 
