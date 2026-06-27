@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
+using xpTURN.Klotho.Logging;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Models;
@@ -42,13 +43,16 @@ namespace Meesles.Avalon {
       if (!TryResolveAttackTarget(ref frame, command, out var targetEntity))
         return;
 
+      ref readonly var targetTransform = ref frame.GetReadOnly<TransformComponent>(targetEntity);
       for (int i = 0; i < command.SourceUnitIdCount; i++) {
         int sourceUnitId = command.GetSourceUnitId(i);
         if (!UnitLookup.TryGetPlayerOwnedUnitById(ref frame, command.PlayerId, sourceUnitId, out var sourceEntity))
           continue;
 
-        ClearMoveTarget(ref frame, sourceEntity);
+        SetAttackMoveTarget(ref frame, sourceEntity, targetTransform.Position);
         SetAttackTarget(ref frame, sourceEntity, command.TargetUnitId);
+        frame.Logger?.KDebug(
+          $"[Combat] AttackCommand accepted tick={frame.Tick} playerId={command.PlayerId} sourceUnitId={sourceUnitId} targetUnitId={command.TargetUnitId} moveTarget=({targetTransform.Position.x}, {targetTransform.Position.z})");
       }
     }
 
@@ -57,13 +61,11 @@ namespace Meesles.Avalon {
       if (!UnitLookup.TryGetEntityByUnitId(ref frame, command.TargetUnitId, out targetEntity))
         return false;
 
-      if (frame.Has<Health>(targetEntity)) {
-        ref readonly var health = ref frame.GetReadOnly<Health>(targetEntity);
-        if (health.Current <= 0)
-          return false;
-      }
+      if (!frame.Has<Team>(targetEntity) || !frame.Has<Health>(targetEntity) || !frame.Has<TransformComponent>(targetEntity))
+        return false;
 
-      if (!frame.Has<Team>(targetEntity))
+      ref readonly var health = ref frame.GetReadOnly<Health>(targetEntity);
+      if (health.Current <= 0)
         return false;
 
       if (!UnitLookup.TryGetPlayerTeamId(ref frame, command.PlayerId, out int playerTeamId))
@@ -79,6 +81,17 @@ namespace Meesles.Avalon {
     private static void ClearMoveTarget(ref Frame frame, EntityRef entity) {
       if (frame.Has<UnitMoveTarget>(entity))
         frame.Remove<UnitMoveTarget>(entity);
+    }
+
+    private static void SetAttackMoveTarget(ref Frame frame, EntityRef entity, FPVector3 target) {
+      target.y = FP64.Zero;
+      if (frame.Has<UnitMoveTarget>(entity)) {
+        ref var moveTarget = ref frame.Get<UnitMoveTarget>(entity);
+        moveTarget.Target = target;
+        return;
+      }
+
+      frame.Add(entity, new UnitMoveTarget { Target = target });
     }
 
     private static void SetAttackTarget(ref Frame frame, EntityRef entity, int targetUnitId) {
@@ -236,8 +249,13 @@ namespace Meesles.Avalon {
     }
 
     private static void SetTarget(ref Frame frame, EntityRef entity, FPVector3 target) {
-      if (frame.Has<AttackTargetUnitId>(entity))
+      if (frame.Has<AttackTargetUnitId>(entity)) {
         frame.Remove<AttackTargetUnitId>(entity);
+        if (frame.Has<Combat>(entity)) {
+          ref var combat = ref frame.Get<Combat>(entity);
+          combat.Target = default;
+        }
+      }
 
       if (frame.Has<UnitMoveTarget>(entity)) {
         ref var moveTarget = ref frame.Get<UnitMoveTarget>(entity);
