@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://ccy8wj118ecom"]
+
+[ext_resource type="PackedScene" uid="uid://chcl80ojvfmkf" path="res://Assets/Materials/AllHairWizard/252979067bb3457a.fbx" id="1_cn3ax"]
+
+[node name="252979067bb3457a" unique_id=97059555 instance=ExtResource("1_cn3ax")]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
