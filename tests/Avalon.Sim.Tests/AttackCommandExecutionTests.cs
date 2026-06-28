@@ -114,7 +114,7 @@ public class AttackCommandExecutionTests {
   }
 
   [Fact]
-  public void AttackIntent_ReacquiresNearbyEnemyWhenTargetDies() {
+  public void AttackIntent_ClearsIntentWhenTargetDiesEvenWithNearbyEnemy() {
     var harness = SimHarness.CreateInitialized();
     var (source, target) = SpawnFirstWave(harness);
     FPVector3 sourcePosition = new FPVector3(FP64.Zero, FP64.Zero, FP64.Zero);
@@ -128,8 +128,7 @@ public class AttackCommandExecutionTests {
     KillUnit(harness, target.UnitId);
     harness.Tick();
 
-    GetAttackTarget(harness.Frame, source.UnitId).Should().Be(2);
-    GetMoveTarget(harness.Frame, source.UnitId).Should().Be(fallbackPosition);
+    HasAttackTarget(harness.Frame, source.UnitId).Should().BeFalse();
   }
 
   [Fact]
@@ -248,6 +247,40 @@ public class AttackCommandExecutionTests {
     HasCombatTarget(harness.Frame, source.UnitId).Should().BeFalse();
   }
 
+  [Fact]
+  public void TargetAcquisition_PrefersEnemyMinionBeforeHeroThenUnitId() {
+    var harness = SimHarness.CreateInitialized();
+    var (source, target) = SpawnFirstWave(harness);
+    int extraMinionUnitId = SpawnTestMinion(harness, teamId: 2,
+      new FPVector3(FP64.FromInt(4), FP64.Zero, FP64.Zero));
+
+    SetPosition(harness, source.UnitId, FPVector3.Zero);
+    SetPosition(harness, unitId: 4, new FPVector3(FP64.One, FP64.Zero, FP64.Zero));
+    SetPosition(harness, target.UnitId, new FPVector3(FP64.FromInt(3), FP64.Zero, FP64.Zero));
+    ClearAttackTargets(harness);
+
+    harness.Tick();
+
+    GetAttackTarget(harness.Frame, source.UnitId).Should().Be(target.UnitId);
+    target.UnitId.Should().BeLessThan(extraMinionUnitId);
+  }
+
+  [Fact]
+  public void TargetAcquisition_DoesNotReplaceExistingAttackTarget() {
+    var harness = SimHarness.CreateInitialized();
+    var (source, target) = SpawnFirstWave(harness);
+
+    SetPosition(harness, source.UnitId, FPVector3.Zero);
+    SetPosition(harness, unitId: 4, new FPVector3(FP64.One, FP64.Zero, FP64.Zero));
+    SetPosition(harness, target.UnitId, new FPVector3(FP64.FromInt(2), FP64.Zero, FP64.Zero));
+    ClearAttackTargets(harness);
+
+    harness.Tick(SimHarness.AttackCommand(1, 0, targetUnitId: 4, sourceUnitIds: source.UnitId));
+    harness.Tick();
+
+    GetAttackTarget(harness.Frame, source.UnitId).Should().Be(4);
+  }
+
   private static bool HasAttackTarget(Frame frame, int unitId) {
     return TryGetEntityByUnitId(frame, unitId, out var entity)
         && frame.Has<AttackTargetUnitId>(entity);
@@ -352,6 +385,53 @@ public class AttackCommandExecutionTests {
     frame.Has<Health>(entity).Should().BeTrue();
     ref var health = ref frame.Get<Health>(entity);
     health.Current = current;
+  }
+
+  private static void ClearAttackTargets(SimHarness harness) {
+    var frame = harness.Frame;
+    var entities = new List<EntityRef>();
+    var filter = frame.Filter<AttackTargetUnitId>();
+    while (filter.Next(out var entity))
+      entities.Add(entity);
+
+    foreach (var entity in entities) {
+      frame.Remove<AttackTargetUnitId>(entity);
+      if (!frame.Has<Combat>(entity))
+        continue;
+
+      ref var combat = ref frame.Get<Combat>(entity);
+      combat.Target = default;
+    }
+  }
+
+  private static int SpawnTestMinion(SimHarness harness, int teamId, FPVector3 position) {
+    var frame = harness.Frame;
+    var entity = frame.CreateEntity();
+    int unitId = UnitIdGenerator.Next(ref frame);
+
+    frame.Add(entity, new TransformComponent {
+      Position = position,
+      Rotation = FP64.Zero,
+      Scale = FPVector3.One,
+    });
+    frame.Add(entity, new Unit {
+      UnitId = unitId,
+      UnitTypeId = SimulationSetup.MinionUnitTypeId,
+    });
+    frame.Add(entity, new Team { TeamId = teamId });
+    frame.Add(entity, new Minion { WaveId = 99 });
+    frame.Add(entity, new Health {
+      Current = 100,
+      Max = 100,
+    });
+    frame.Add(entity, new Combat {
+      AttackDamage = 10,
+      AttackRange = FP64.FromInt(2),
+      AttackCooldownTicks = 30,
+      CooldownRemainingTicks = 0,
+    });
+
+    return unitId;
   }
 
   private static bool TryGetEntityByUnitId(Frame frame, int unitId, out EntityRef entity) {

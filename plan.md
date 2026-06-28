@@ -82,18 +82,21 @@ Target shape: Warcraft/Dota-like top-down combat with a handful of human players
 
 ## Next Slice: Autonomous Combat Acquisition
 
-Goal: make units acquire nearby enemies deterministically so minions can meet, fight, and die without explicit player attack commands.
+Goal: make minions and heroes acquire nearby enemies deterministically so minions can meet, fight, and die without explicit player attack commands.
 
-1. Add autonomous deterministic nearest-enemy acquisition using `Team`, `Unit`, `TransformComponent`, `Health`, and `Combat`.
-2. Use stable targeting priority: hero/champion -> minion -> structure, then distance, then `UnitId`.
+1. Add autonomous deterministic enemy acquisition for minions and heroes only using `Team`, `Unit`, `TransformComponent`, `Health`, and `Combat`.
+2. Use stable targeting priority: minion -> hero, then `UnitId`.
 3. Feed acquired targets through the existing `AttackTargetUnitId`, `AttackIntentSystem`, cooldown, damage, and death path.
-4. Add focused tests for acquisition priority and autonomous target switching.
+4. Do not replace an existing `AttackTargetUnitId` while its target is alive; a manual `AttackCommand` replaces the current attack target because command handling writes that component directly.
+5. Clear attack targets when their target dies; autonomous acquisition can choose a new target later only when no attack target exists.
+6. Add focused tests for acquisition priority and target persistence.
 
 Acceptance:
 
 - Opposing minions can acquire targets without player commands.
 - Damage and death remain deterministic and synced.
-- Explicit player attack orders still override autonomous acquisition.
+- Manual attack commands replace the current attack target.
+- Existing attack targets remain until they die or otherwise become invalid.
 
 ## Milestone A: Combat And Death
 
@@ -101,10 +104,10 @@ Goal: make minions meet, fight, die
 
 1. Move or fold the current live attack/combat behavior into the intended pipeline stages when the stage boundaries are actually useful; do not do a broad rewrite just for naming.
 2. Keep `sim/Systems/DeprecatedCombatSystem.cs` as reference only; do not re-enable it wholesale.
-3. Add autonomous deterministic nearest-enemy acquisition using `Team`, `Unit`, `TransformComponent`, `Health`, and `Combat`.
-4. Use stable targeting priority: hero/champion -> minion -> structure, then distance, then `UnitId`.
+3. Add autonomous deterministic enemy acquisition for minions/heroes using `Team`, `Unit`, `TransformComponent`, `Health`, and `Combat`.
+4. Use stable targeting priority: minion -> hero, then `UnitId`.
 5. Keep attacks applying damage through cooldown-gated combat systems, then let `DeathSystem` remove non-player units and raise `UnitDiedEvent`.
-6. Add focused tests for acquisition priority and autonomous target switching; cooldown timing, direct attack damage, and death already have coverage.
+6. Add focused tests for acquisition priority and target persistence; cooldown timing, direct attack damage, and death already have coverage.
 7. View reacts to synced attack/death events for VFX only.
 
 Acceptance:
