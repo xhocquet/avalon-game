@@ -33,8 +33,8 @@ Target shape: Warcraft/Dota-like top-down combat with a handful of human players
 
 ## Klotho Ids
 
-- `KlothoComponent`: 100-110 used (110 = `UnitMoveTarget`, 111 = `AttackTargetUnitId`), next free 112.
-- `KlothoSerializable`: 100 `MoveCommand`, 101 `GameOverEvent`, 102 reserved for `UnitDiedEvent`, 103 `AttackCommand`, next free 104.
+- `KlothoComponent`: 100-112 used (110 = `UnitMoveTarget`, 111 = `AttackTargetUnitId`, 112 = `PendingRespawn`), next free 113.
+- `KlothoSerializable`: 100 `MoveCommand`, 101 `GameOverEvent`, 102 `UnitDiedEvent`, 103 `AttackCommand`, 104 `PlayerDiedEvent`, 105 `PlayerRespawnedEvent`, next free 106.
 - `KlothoDataAsset`: 100 `PlayerStats`, 101 `WaveRules`, 102 `MapLayout`, 103 `MinionStats`, next free 104.
 - Note: `NavAgentComponent` uses Klotho-internal ID 11 — no conflict with project range.
 
@@ -60,50 +60,51 @@ Target shape: Warcraft/Dota-like top-down combat with a handful of human players
 - Map layout foundation is complete: editor-authored Base/SpawnPoint/Shop/Turret markers can drive baked layout data for sim spawn/base placement.
 - Client and server load `MapLayout.bytes` as runtime data.
 - `AttackCommand` (`KlothoSerializable(103)`) exists and serializes target/source `UnitId`s.
+- `CommandSystem` handles `AttackCommand`, validates owned source units and enemy live targets by stable `UnitId`, and writes `AttackTargetUnitId`.
+- `AttackTargetUnitId` (`KlothoComponent(111)`) stores command-facing attack intent without exposing transient ECS entity ids.
+- `AttackIntentSystem` resolves attack targets each tick, chases moving targets with `UnitMoveTarget`, clears invalid intent, and can reacquire a nearby enemy when the target dies.
+- `AttackCooldownSystem` and `DamageSystem` apply deterministic cooldown-gated damage for in-range attack targets.
 - `UnitDiedEvent` (`KlothoSerializable(102)`) exists as a synced death event.
 - `DeathSystem` removes dead units and raises `UnitDiedEvent`.
+- Player heroes spawn with `Health`, `Combat`, and `NavAgentComponent`.
+- `RespawnSystem` owns hero death: zero-HP players enter `PendingRespawn`, active movement/attack/nav state is scrubbed while dead, and heroes respawn after a 5-second tick delay.
+- `PlayerDiedEvent` and `PlayerRespawnedEvent` exist as synced lifecycle events for client/UI reactions.
+- Client right-click ground issues `MoveCommand` for the local selected `UnitId`s; right-click enemy issues `AttackCommand` for selected source `UnitId`s and target `UnitId`.
 - Navigation runtime exists: `FPNavMesh` loading, query/pathfinder/funnel, `FPNavAgentSystem`, and `NavigationAgentSystem` integration.
 - `NavigationRegion3D.NavMeshData.bytes` lives beside `MapLayout.bytes` under `client/Sim/Data/`; client loads it directly and server/tests copy it from that folder.
 - Client, server, and sim tests pass `NavigationRuntime.FromBytes(...)` into `SimulationSetup.RegisterSystems(...)` before world initialization.
 - Command-driven `UnitMoveTarget` movement routes through `NavigationAgentSystem` for nav agents; direct transform integration is only the no-nav fallback.
 - `FPNavAvoidance` is instantiated and assigned to `FPNavAgentSystem`; tuning/profiling is still pending.
 - Heroes and minions are initialized with `NavAgentComponent`; tests cover both.
-- `RespawnSystem` resets nav agents when a falling hero respawns.
-- `CombatMovementPipelineSystems.cs` registers the intended combat/movement pipeline names, but most of those systems are still stubs.
-- `MinionMoveSystem` is no longer registered by normal sim setup, but the legacy file still exists and should be deleted once default lane goals are fully nav-owned.
+- `RespawnSystem` resets nav agents when a dead hero respawns.
+- `CombatMovementPipelineSystems.cs` still contains the intended pipeline stage names, but most of those stage classes are stubs; the live attack/combat slice currently lives in `AttackIntentSystem`, `AttackCooldownSystem`, and `DamageSystem`.
+- `MinionMoveSystem` is no longer registered by normal sim setup, but the legacy file still exists and should be deleted once movement ownership is fully settled.
 
-## Next Slice: Explicit Attack Orders
+## Next Slice: Autonomous Combat Acquisition
 
-Goal: make right-click attack intent executable in SIM before filling in autonomous combat.
+Goal: make units acquire nearby enemies deterministically so minions can meet, fight, and die without explicit player attack commands.
 
-1. Add `AttackCommand` handling in `CommandSystem`.
-2. Validate source units with `UnitLookup.TryGetPlayerOwnedUnitById`.
-3. Resolve target by `UnitId`; no-op if the target is missing, dead, or same-team.
-4. Store attack intent with stable `UnitId` data, not transient ECS entity ids. If `Combat.Target` stays as `EntityRef`, add a separate command-facing target component or resolve every tick from `UnitId`.
-5. Stop or replace any existing `UnitMoveTarget` when an attack order is accepted.
-6. Add command tests for:
-   - missing target no-ops;
-   - destroyed target no-ops;
-   - non-owned source no-ops;
-   - same-team target no-ops;
-   - valid source/target records attack intent.
+1. Add autonomous deterministic nearest-enemy acquisition using `Team`, `Unit`, `TransformComponent`, `Health`, and `Combat`.
+2. Use stable targeting priority: hero/champion -> minion -> structure, then distance, then `UnitId`.
+3. Feed acquired targets through the existing `AttackTargetUnitId`, `AttackIntentSystem`, cooldown, damage, and death path.
+4. Add focused tests for acquisition priority and autonomous target switching.
 
 Acceptance:
 
-- `AttackCommand` affects only owned source units.
-- Stale or invalid `UnitId` references no-op deterministically.
-- No command stores Godot node paths or relies on externally visible ECS entity ids.
+- Opposing minions can acquire targets without player commands.
+- Damage and death remain deterministic and synced.
+- Explicit player attack orders still override autonomous acquisition.
 
 ## Milestone A: Combat And Death
 
 Goal: make minions meet, fight, die
 
-1. Replace `CombatMovementPipelineSystems.cs` stubs with the smallest real combat loop.
+1. Move or fold the current live attack/combat behavior into the intended pipeline stages when the stage boundaries are actually useful; do not do a broad rewrite just for naming.
 2. Keep `sim/Systems/DeprecatedCombatSystem.cs` as reference only; do not re-enable it wholesale.
-3. Add deterministic nearest-enemy acquisition using `Team`, `Unit`, `TransformComponent`, `Health`, and `Combat`.
+3. Add autonomous deterministic nearest-enemy acquisition using `Team`, `Unit`, `TransformComponent`, `Health`, and `Combat`.
 4. Use stable targeting priority: hero/champion -> minion -> structure, then distance, then `UnitId`.
-5. Make attacks apply damage through the new pipeline, then let `DeathSystem` remove units and raise `UnitDiedEvent`.
-6. Add focused tests for acquisition priority, cooldown timing, damage, and death.
+5. Keep attacks applying damage through cooldown-gated combat systems, then let `DeathSystem` remove non-player units and raise `UnitDiedEvent`.
+6. Add focused tests for acquisition priority and autonomous target switching; cooldown timing, direct attack damage, and death already have coverage.
 7. View reacts to synced attack/death events for VFX only.
 
 Acceptance:
@@ -118,12 +119,12 @@ Goal: replace straight-line marching with deterministic A* pathing so minions ro
 
 Navmesh is needed now, not later: without it, minions pile at the center regardless of map geometry, and turrets/structures have no spatial meaning.
 
-Runtime nav loading is wired. The remaining gap is autonomous/default movement intent: freshly spawned minions have nav agents, but no default lane `UnitMoveTarget`.
+Runtime nav loading is wired. The remaining gap is deciding which sim systems own autonomous movement requests and how they interact with combat pursuit.
 
-1. Set default minion lane goals to enemy base positions through `UnitMoveTarget` so `NavigationAgentSystem` owns autonomous movement.
-2. Delete the legacy `MinionMoveSystem` file once all minion movement flows through nav agents.
-3. Use `NavAgentComponent.Stop()` / `SetDestination()` for combat interruption and resume.
-4. Add focused tests that minions move along nav-owned lane goals without direct transform integration.
+1. Keep command-driven and combat-pursuit movement flowing through `UnitMoveTarget` so `NavigationAgentSystem` owns nav-agent movement.
+2. Delete the legacy `MinionMoveSystem` file once no normal movement path depends on it.
+3. Use `NavAgentComponent.Stop()` / `SetDestination()` for combat interruption and resume where needed.
+4. Add focused tests for nav-owned movement without direct transform integration.
 5. Verify structure/turret footprints are actually absent from the baked navmesh.
 6. Tune or gate `FPNavAvoidance` (ORCA) after combat creates enough crowding to justify it; the runtime hook is already enabled.
 
@@ -151,10 +152,10 @@ Acceptance:
 
 Goal: replace direct WASD hero movement with command-based MOBA control.
 
-1. Client already keeps selection locally and renders selection indicators; keep that view-only.
-2. Right-click ground sends `MoveCommand` with explicit bounded `UnitId` list.
-3. Right-click enemy sends `AttackCommand` with selected source `UnitId`s and target `UnitId`.
-4. SIM validates ownership and applies orders.
+1. Client already keeps selection locally and renders selection indicators; keep that view-only. Done.
+2. Right-click ground sends `MoveCommand` with explicit bounded `UnitId` list. Done.
+3. Right-click enemy sends `AttackCommand` with selected source `UnitId`s and target `UnitId`. Done.
+4. SIM validates ownership and applies orders. Done.
 5. WASD free-camera stays as a permanent debug/spectator tool; it is not a gameplay command.
 
 Acceptance:
@@ -186,7 +187,6 @@ Acceptance:
 ## Open Decisions
 
 1. MapLayout export trigger: manual editor button in Klotho dock, or auto-export on scene save via `@tool`.
-2. Attack intent storage: add a stable `AttackTargetUnitId` component, or keep `Combat.Target` internal and derive it from command/acquisition state each tick.
 
 ## Todo, No Particular Order
 
