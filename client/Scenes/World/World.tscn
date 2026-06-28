@@ -3,7 +3,7 @@
 [ext_resource type="Material" uid="uid://ckcxi813lqviq" path="res://Assets/Materials/Grass1/Grass007_2K-JPG.tres" id="1_hveh7"]
 [ext_resource type="PackedScene" uid="uid://bw00gejcd6ugv" path="res://Scenes/Objects/Turret.tscn" id="5_li7mh"]
 [ext_resource type="PackedScene" uid="uid://cribhhvg03u8g" path="res://Scenes/Objects/Crystal.tscn" id="6_ayvj0"]
-[ext_resource type="Script" uid="uid://jt4rwdk0j6k6" path="res://Scripts/SimMarkerNode.cs" id="7_2wqcu"]
+[ext_resource type="PackedScene" uid="uid://c4gqw5blm3y8s" path="res://Scenes/Objects/Spawn.tscn" id="7_2wqcu"]
 [ext_resource type="PackedScene" uid="uid://wxcpmxcd41gy" path="res://Scenes/Objects/Bush.tscn" id="7_87yka"]
 [ext_resource type="PackedScene" uid="uid://chagof3hsa6jp" path="res://Scenes/Objects/FirTree/FirTreeSmall.tscn" id="7_ayvj0"]
 [ext_resource type="PackedScene" uid="uid://be6nrf0b8j4l0" path="res://Scenes/Objects/Rock/RockA.tscn" id="8_kjd5s"]
@@ -41,12 +41,9 @@ Team = 1
 transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, -40, 6, 40)
 Team = 1
 
-[node name="Spawn" type="Node3D" parent="NavigationRegion3D/Team1" unique_id=1750147463]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -35, 0, 35)
-script = ExtResource("7_2wqcu")
-MarkerType = 1
+[node name="Spawn" parent="NavigationRegion3D/Team1" unique_id=1750147463 instance=ExtResource("7_2wqcu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.728867, 0, 13.700964)
 Team = 1
-metadata/_custom_type_script = "uid://jt4rwdk0j6k6"
 
 [node name="Shop" parent="NavigationRegion3D/Team1" unique_id=361766017 instance=ExtResource("9_jvdyq")]
 transform = Transform3D(-0.9112955, 0, 0.411753, 0, 1, 0, -0.411753, 0, -0.9112955, -20.922527, 0, 45.998257)
@@ -66,12 +63,9 @@ Team = 2
 transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 40, 6, -40)
 Team = 2
 
-[node name="Spawn" type="Node3D" parent="NavigationRegion3D/Team2" unique_id=170271985]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 0, -35)
-script = ExtResource("7_2wqcu")
-MarkerType = 1
+[node name="Spawn" parent="NavigationRegion3D/Team2" unique_id=170271985 instance=ExtResource("7_2wqcu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.810635, 0, -12.949833)
 Team = 2
-metadata/_custom_type_script = "uid://jt4rwdk0j6k6"
 
 [node name="Shop" parent="NavigationRegion3D/Team2" unique_id=898142210 instance=ExtResource("9_jvdyq")]
 transform = Transform3D(0.5735763, 0, -0.81915206, 0, 1, 0, 0.81915206, 0, 0.5735763, 21.189508, 0, -46.930595)
@@ -91,12 +85,9 @@ Team = 3
 transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 40, 6, 40)
 Team = 3
 
-[node name="Spawn" type="Node3D" parent="NavigationRegion3D/Team3" unique_id=500623652]
+[node name="Spawn" parent="NavigationRegion3D/Team3" unique_id=500623652 instance=ExtResource("7_2wqcu")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 0, 35)
-script = ExtResource("7_2wqcu")
-MarkerType = 1
 Team = 3
-metadata/_custom_type_script = "uid://jt4rwdk0j6k6"
 
 [node name="Shop" parent="NavigationRegion3D/Team3" unique_id=1421664058 instance=ExtResource("9_jvdyq")]
 transform = Transform3D(-0.81915194, 0, -0.5735764, 0, 1, 0, 0.5735764, 0, -0.81915194, 45.65038, -3.8146973e-06, 21.984482)
@@ -116,12 +107,9 @@ Team = 4
 transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, -40, 6, -40)
 Team = 4
 
-[node name="Spawn" type="Node3D" parent="NavigationRegion3D/Team4" unique_id=1275283759]
+[node name="Spawn" parent="NavigationRegion3D/Team4" unique_id=1275283759 instance=ExtResource("7_2wqcu")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -35, 0, -35)
-script = ExtResource("7_2wqcu")
-MarkerType = 1
 Team = 4
-metadata/_custom_type_script = "uid://jt4rwdk0j6k6"
 
 [node name="Shop" parent="NavigationRegion3D/Team4" unique_id=599545124 instance=ExtResource("9_jvdyq")]
 transform = Transform3D(0.81915194, 0, 0.5735764, 0, 1, 0, -0.5735764, 0, 0.81915194, -45.448296, 0, -21.424294)

@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://c4gqw5blm3y8s"]
+
+[ext_resource type="Script" uid="uid://jt4rwdk0j6k6" path="res://Scripts/SimMarkerNode.cs" id="1_v7n2q"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_6kgpn"]
+radius = 0.1
+height = 5.0
+
+[node name="Spawn" type="Node3D" unique_id=1750147463]
+script = ExtResource("1_v7n2q")
+MarkerType = 1
+metadata/_custom_type_script = "uid://jt4rwdk0j6k6"
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1196437526]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5218291, 0)
+mesh = SubResource("CapsuleMesh_6kgpn")
