@@ -21,23 +21,15 @@ namespace Meesles.Avalon.Sim {
       simulation.AddSystem(new CommandSystem(moveNavAgentsDirectly: navigation == null), SystemPhase.Update);
       simulation.AddSystem(new WaveSpawnSystem(), SystemPhase.Update);
 
-      simulation.AddSystem(new SpatialIndexSystem(), SystemPhase.Update);
       simulation.AddSystem(new TargetAcquisitionSystem(), SystemPhase.Update);
-      simulation.AddSystem(new PathRequestSystem(), SystemPhase.Update);
-      simulation.AddSystem(new PathfindingSystem(), SystemPhase.Update);
-      simulation.AddSystem(new PathFollowSystem(), SystemPhase.Update);
       simulation.AddSystem(new RespawnSystem(), SystemPhase.Update);
       if (navigation != null)
         simulation.AddSystem(new NavigationAgentSystem(navigation), SystemPhase.Update);
-      else
-        simulation.AddSystem(new LocalAvoidanceSystem(), SystemPhase.Update);
-      simulation.AddSystem(new MovementIntentSystem(), SystemPhase.Update);
 
       simulation.AddSystem(new AttackIntentSystem(), SystemPhase.Update);
       simulation.AddSystem(new AttackCooldownSystem(), SystemPhase.Update);
       simulation.AddSystem(new DamageSystem(), SystemPhase.Update);
       simulation.AddSystem(new DeathSystem(), SystemPhase.Update);
-      simulation.AddSystem(new RewardSystem(), SystemPhase.LateUpdate);
       simulation.AddSystem(new ScoreSystem(), SystemPhase.LateUpdate);
       simulation.AddSystem(new EventSystem(), SystemPhase.LateUpdate);
     }

@@ -47,12 +47,12 @@
 
 ### `KlothoDataAsset`
 
-| ID  | Name          | Notes                                                  |
-| --- | ------------- | ------------------------------------------------------ |
+| ID  | Name          | Notes                                                                                   |
+| --- | ------------- | --------------------------------------------------------------------------------------- |
 | 100 | `PlayerStats` | Hero movement/health tuning; existing asset name, not account/player-participant state. |
-| 101 | `WaveRules`   | Wave timing/count and spawn spacing.                   |
-| 102 | `MapLayout`   | Baked Crystal/SpawnPoint/Shop/Turret marker positions. |
-| 103 | `MinionStats` | Minion health/movement/combat tuning.                  |
+| 101 | `WaveRules`   | Wave timing/count and spawn spacing.                                                    |
+| 102 | `MapLayout`   | Baked Crystal/SpawnPoint/Shop/Turret marker positions.                                  |
+| 103 | `MinionStats` | Minion health/movement/combat tuning.                                                   |
 
 ### Klotho Internal
 
@@ -66,15 +66,19 @@ Next free project IDs: `KlothoComponent` 114, `KlothoSerializable` 108, `KlothoD
 
 | System                    | Area       | Notes                                                                                                                   |
 | ------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `CommandSystem`           | Commands   | Validates and applies `MoveCommand` and `AttackCommand`; writes `UnitMoveTarget` and `AttackTargetUnitId`.              |
+| `WaveSpawnSystem`         | Spawning   | Spawns deterministic team minion waves from `SpawnPoint` markers using wave/minion data assets.                         |
+| `TargetAcquisitionSystem` | Combat     | Gives eligible combat units autonomous enemy acquisition when they have no attack target or move target.                |
 | `AttackIntentSystem`      | Combat     | Resolves attack targets each tick, chases moving targets, and clears invalid intent when targets die or become invalid. |
 | `AttackCooldownSystem`    | Combat     | Decrements attack cooldowns.                                                                                            |
 | `DamageSystem`            | Combat     | Applies deterministic cooldown-gated damage for in-range attack targets.                                                |
-| `TargetAcquisitionSystem` | Combat     | Gives eligible combat units autonomous enemy acquisition when they have no attack target or move target.                |
-| `DeathSystem`             | Lifecycle  | Removes dead units.                                                                                                     |
+| `DeathSystem`             | Lifecycle  | Removes dead non-player units and raises unit, crystal, or turret death/destruction events.                             |
 | `RespawnSystem`           | Lifecycle  | Owns player death, scrubs active state during `PendingRespawn`, respawns after 5 seconds, and resets nav agents.        |
-| `NavigationAgentSystem`   | Navigation | Consumes `UnitMoveTarget` for nav-agent movement.                                                                       |
-| `FPNavAgentSystem`        | Navigation | Runtime path is wired through `NavigationRuntime`; tuning/profiling remains.                                            |
-| `FPNavAvoidance`          | Navigation | Instantiated and assigned to `FPNavAgentSystem`; tuning/profiling remains.                                              |
+| `NavigationAgentSystem`   | Navigation | Consumes `UnitMoveTarget`, runs `NavigationRuntime.AgentSystem`, and syncs `NavAgentComponent` back to transforms.      |
+| `ScoreSystem`             | Match      | Raises payload-free `GameOverEvent` on match timeout; structure win-condition consumption remains.                      |
+| `EventSystem`             | Lifecycle  | Klotho runtime system that dispatches raised simulation events.                                                         |
+| `FPNavAgentSystem`        | Navigation | Runtime helper owned by `NavigationRuntime`; `NavigationAgentSystem` calls it when nav bytes are loaded.                |
+| `FPNavAvoidance`          | Navigation | ORCA avoidance helper instantiated by `NavigationRuntime` and assigned to `FPNavAgentSystem`.                           |
 
 ## Shared Client Server
 
@@ -93,24 +97,24 @@ Next free project IDs: `KlothoComponent` 114, `KlothoSerializable` 108, `KlothoD
 
 ## Node Types
 
-| Status | Node Type    | Sim State                                                                  | View / Layout                                                         | Notes                                                                 |
-| ------ | ------------ | -------------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Status | Node Type    | Sim State                                                                  | View / Layout                                                         | Notes                                                                                                           |
+| ------ | ------------ | -------------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
 | ✅      | Hero / Champ | `Hero`, `Player`, `Health`, `Combat`, `NavAgentComponent`, stable `UnitId` | Hero/champ view scenes via `UnitViewFactory`                          | Main controllable character; currently carries `Player` participant state and respawns through `RespawnSystem`. |
-| ✅      | Minion       | `Minion`, `Health`, `Combat`, `NavAgentComponent`, stable `UnitId`         | Minion waves via `WaveSpawnSystem`; minion view via `UnitViewFactory` | Wave-spawned controllable unit.                                       |
-| ✅      | Turret       | `Turret`, `Health`, `Combat`, team ownership, stable `UnitId`              | `MapMarkerType.Turret`; turret view via `UnitViewFactory`             | Stationary combat structure; acquires targets but does not chase.     |
-| 🟡      | Crystal      | `Crystal`, `Health`, team ownership, stable `UnitId`                       | `MapMarkerType.Crystal`; crystal view via `UnitViewFactory`           | Team core structure; destruction should emit `CrystalDestroyedEvent`. |
-| 🟡      | Shop         | `MapMarkerType.Shop` in baked `MapLayoutAsset`; no gameplay component yet  | Existing world-scene shop marker/view                                 | Marker is exported for future game logic.                             |
+| ✅      | Minion       | `Minion`, `Health`, `Combat`, `NavAgentComponent`, stable `UnitId`         | Minion waves via `WaveSpawnSystem`; minion view via `UnitViewFactory` | Wave-spawned controllable unit.                                                                                 |
+| ✅      | Turret       | `Turret`, `Health`, `Combat`, team ownership, stable `UnitId`              | `MapMarkerType.Turret`; turret view via `UnitViewFactory`             | Stationary combat structure; acquires targets but does not chase.                                               |
+| 🟡      | Crystal      | `Crystal`, `Health`, team ownership, stable `UnitId`                       | `MapMarkerType.Crystal`; crystal view via `UnitViewFactory`           | Team core structure; destruction should emit `CrystalDestroyedEvent`.                                           |
+| 🟡      | Shop         | `MapMarkerType.Shop` in baked `MapLayoutAsset`; no gameplay component yet  | Existing world-scene shop marker/view                                 | Marker is exported for future game logic.                                                                       |
 
 ## Events
 
-| Status | Event                   | Raised by       | Notes                                                                                                        |
-| ------ | ----------------------- | --------------- | ------------------------------------------------------------------------------------------------------------ |
-| ✅      | `UnitDiedEvent`         | `DeathSystem`   | Synced non-player, non-structure unit death event.                                                           |
-| ✅      | `PlayerDiedEvent`       | `RespawnSystem` | Synced hero death lifecycle event for client/UI reactions.                                                   |
-| ✅      | `PlayerRespawnedEvent`  | `RespawnSystem` | Synced hero respawn lifecycle event for client/UI reactions.                                                 |
+| Status | Event                   | Raised by       | Notes                                                                                                                       |
+| ------ | ----------------------- | --------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| ✅      | `UnitDiedEvent`         | `DeathSystem`   | Synced non-player, non-structure unit death event.                                                                          |
+| ✅      | `PlayerDiedEvent`       | `RespawnSystem` | Synced hero death lifecycle event for client/UI reactions.                                                                  |
+| ✅      | `PlayerRespawnedEvent`  | `RespawnSystem` | Synced hero respawn lifecycle event for client/UI reactions.                                                                |
 | ✅      | `CrystalDestroyedEvent` | `DeathSystem`   | Synced crystal destruction event with destroyed crystal, owner/team, and killer context; does not directly imply game over. |
-| ✅      | `TurretDestroyedEvent`  | `DeathSystem`   | Synced turret destruction event with destroyed turret `UnitId` and destroyer `UnitId`.                       |
-| ✅      | `GameOverEvent`         | `ScoreSystem`   | Payload-free synced match-end event; timeout path raises it, structure win condition still needs to consume crystal loss. |
+| ✅      | `TurretDestroyedEvent`  | `DeathSystem`   | Synced turret destruction event with destroyed turret `UnitId` and destroyer `UnitId`.                                      |
+| ✅      | `GameOverEvent`         | `ScoreSystem`   | Payload-free synced match-end event; timeout path raises it, structure win condition still needs to consume crystal loss.   |
 
 ## UI
 
@@ -119,13 +123,6 @@ Next free project IDs: `KlothoComponent` 114, `KlothoSerializable` 108, `KlothoD
 | ✅      | `HealthBars` | `Health`     | Renders for all live view entities with health. |
 | ⬜      | Minimap      | TBD          | Match/map awareness UI remains.                 |
 
-## Status Legend
-
-| Status | Meaning                      |
-| ------ | ---------------------------- |
-| ✅      | Done                         |
-| 🟡      | In progress / partially done |
-| ⬜      | Not started                  |
 
 ## Next Slice: Crystal Destruction And Win Condition
 
@@ -194,28 +191,19 @@ Goal: first playable deterministic Footmen-Frenzy slice. Nav is a prerequisite s
 | ⬜      | Verify turrets are nav obstacles at bake time.                                                 |
 | 🟡      | Structure views exist for crystals and turrets; team tinting remains.                          |
 
-| Status | Acceptance                                                                                                                              |
-| ------ | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Status | Acceptance                                                                                                                            |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------- |
 | 🟡      | User-commanded or AI-directed minions can be driven through the map, encounter turrets, fight them, and eventually destroy a crystal. |
-| ⬜      | Server and clients agree on winner when player/team state triggers `GameOverEvent`.                                                     |
+| ⬜      | Server and clients agree on winner when player/team state triggers `GameOverEvent`.                                                   |
 
-## Milestone D: Click Orders
+## Click Orders
 
-Goal: replace direct WASD hero movement with command-based MOBA control.
-
-| Status | Work                                                                                        |
-| ------ | ------------------------------------------------------------------------------------------- |
-| ✅      | Client keeps selection local and renders selection indicators.                              |
-| ✅      | Right-click ground sends `MoveCommand` with an explicit bounded `UnitId` list.              |
-| ✅      | Right-click enemy sends `AttackCommand` with selected source `UnitId`s and target `UnitId`. |
-| ✅      | SIM validates ownership and applies orders.                                                 |
-| ✅      | WASD free-camera stays as debug/spectator control, not gameplay command input.              |
-
-| Status | Acceptance                                                                |
-| ------ | ------------------------------------------------------------------------- |
-| ✅      | Right-click ground issues a `MoveCommand` for selected units by `UnitId`. |
-| ✅      | Right-click enemy issues `AttackCommand` by target `UnitId`.              |
-| ✅      | Selection does not appear in the command recording.                       |
+| Input                  | Command / State                | Payload                                                  | Sim Handling                                                                                                     |
+| ---------------------- | ------------------------------ | -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Local click selection  | Client-only selection state    | Selected view/unit ids are not recorded as sim state.    | No sim mutation.                                                                                                 |
+| Right-click ground     | `MoveCommand`                  | Target X/Z plus explicit selected `UnitId`s.             | `CommandSystem` validates ownership and writes `UnitMoveTarget`.                                                 |
+| Right-click enemy      | `AttackCommand`                | Target `UnitId` plus explicit selected source `UnitId`s. | `CommandSystem` validates ownership/live enemy target and writes `AttackTargetUnitId` plus initial chase target. |
+| WASD / camera controls | Client-only camera/debug input | No gameplay command payload.                             | No sim mutation.                                                                                                 |
 
 ## Milestone E: Avoidance And Scale
 
@@ -240,12 +228,6 @@ Goal: scale toward hundreds or thousands of units without physics. Nav paths are
 | ⬜      | Add minimap UI.                                                            |
 | ✅      | Camera pan/zoom/follow stays client-only.                                  |
 | ⬜      | VFX and audio are event-driven from synced events, not gameplay authority. |
-
-## Open Decisions
-
-| Status | Decision                                                                                                 |
-| ------ | -------------------------------------------------------------------------------------------------------- |
-| ⬜      | MapLayout export trigger: manual editor button in Klotho dock, or auto-export on scene save via `@tool`. |
 
 ## Todo, No Particular Order
 
