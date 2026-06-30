@@ -20,6 +20,12 @@ public class SimInvariantTests {
     harness.Count<Crystal>().Should().Be(2);
     harness.Count<Turret>().Should().Be(4);
     harness.Count<SpawnPoint>().Should().Be(2);
+    GetCrystals(harness)
+        .Should()
+        .BeEquivalentTo([
+            new StructureSnapshot(1, 1, 1),
+            new StructureSnapshot(2, 2, 2),
+        ]);
 
     UnitSnapshot[] units = GetUnits(harness);
     units.Should().HaveCount(8);
@@ -34,8 +40,8 @@ public class SimInvariantTests {
     GetPlayerSnapshots(harness)
         .Should()
         .BeEquivalentTo([
-            new PlayerSnapshot(1, 1, FP64.Zero, FP64.Zero, 0),
-            new PlayerSnapshot(2, 2, FP64.Zero, FP64.Zero, 0),
+            new PlayerSnapshot(1, 1, 0),
+            new PlayerSnapshot(2, 2, 0),
         ]);
   }
 
@@ -277,8 +283,6 @@ public class SimInvariantTests {
 
     PlayerSnapshot player = GetPlayerSnapshots(simA).Single(snapshot => snapshot.PlayerId == 1);
     player.Score.Should().Be(-1);
-    player.LastInputH.Should().Be(FP64.Zero);
-    player.LastInputV.Should().Be(FP64.Zero);
     simA.Frame.Has<PendingRespawn>(FindPlayerEntity(simA, playerId: 1)).Should().BeTrue();
 
     PlayerTransformSnapshot transform = GetPlayerTransforms(simA).Single(snapshot => snapshot.PlayerId == 1);
@@ -352,6 +356,20 @@ public class SimInvariantTests {
     return units.OrderBy(unit => unit.UnitId).ToArray();
   }
 
+  private static StructureSnapshot[] GetCrystals(SimHarness harness) {
+    var frame = harness.Frame;
+    var crystals = new List<StructureSnapshot>();
+    var filter = frame.Filter<Crystal, Team, OwnerComponent>();
+    while (filter.Next(out var entity)) {
+      ref readonly var crystal = ref frame.Get<Crystal>(entity);
+      ref readonly var team = ref frame.Get<Team>(entity);
+      ref readonly var owner = ref frame.Get<OwnerComponent>(entity);
+      crystals.Add(new StructureSnapshot(crystal.CrystalId, team.TeamId, owner.OwnerId));
+    }
+
+    return crystals.OrderBy(crystal => crystal.Id).ToArray();
+  }
+
   private static PlayerSnapshot[] GetPlayerSnapshots(SimHarness harness) {
     var frame = harness.Frame;
     var players = new List<PlayerSnapshot>();
@@ -362,8 +380,6 @@ public class SimInvariantTests {
       players.Add(new PlayerSnapshot(
           player.PlayerId,
           team.TeamId,
-          player.LastInputH,
-          player.LastInputV,
           player.Score));
     }
 
@@ -475,7 +491,9 @@ public class SimInvariantTests {
 
   private sealed record UnitSnapshot(int UnitId, int UnitTypeId);
 
-  private sealed record PlayerSnapshot(int PlayerId, int TeamId, FP64 LastInputH, FP64 LastInputV, int Score);
+  private sealed record StructureSnapshot(int Id, int TeamId, int OwnerId);
+
+  private sealed record PlayerSnapshot(int PlayerId, int TeamId, int Score);
 
   private sealed record PlayerTransformSnapshot(int PlayerId, FPVector3 Position);
 

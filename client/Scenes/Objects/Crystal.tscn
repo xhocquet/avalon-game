@@ -10,15 +10,14 @@ data = PackedVector3Array(1.3907, -4.3898, 0.264, 0.3707, -6.5026, 0.2358, 0.919
 
 [node name="Crystal" unique_id=971075756 groups=["units"] instance=ExtResource("1_1vww1")]
 script = ExtResource("3_cjs85")
-MarkerType = 0
 metadata/_custom_type_script = "uid://jt4rwdk0j6k6"
 
-[node name="Rock3" parent="." index="0" unique_id=678114233]
+[node name="Rock3" parent="." index="0" unique_id=1338750401]
 surface_material_override/0 = ExtResource("2_fclne")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." index="1" unique_id=1741343847]
 shape = SubResource("ConcavePolygonShape3D_ycsjC")
 
 [node name="SelectionIndicator" parent="." index="2" unique_id=1816655427 instance=ExtResource("4_indicator")]
-visible = false
 transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0.04, 0)
+visible = false

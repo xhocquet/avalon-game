@@ -1,14 +1,14 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://cglyb002tq2ct"]
 
 [ext_resource type="Script" uid="uid://cb2larfrucr2e" path="res://Scripts/GameNode/LobbyGameNode.cs" id="1_game"]
 [ext_resource type="PackedScene" uid="uid://bff2pmmwg5bnc" path="res://Scenes/UI/Menu.tscn" id="2_menu"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/LobbyUI.tscn" id="3_hud"]
 
-[node name="Lobby" type="Node"]
+[node name="Lobby" type="Node" unique_id=532918676]
 script = ExtResource("1_game")
 
-[node name="UILayer" type="CanvasLayer" parent="."]
+[node name="UILayer" type="CanvasLayer" parent="." unique_id=1708346783]
 
-[node name="Menu" parent="UILayer" instance=ExtResource("2_menu")]
+[node name="Menu" parent="UILayer" unique_id=1779529765 instance=ExtResource("2_menu")]
 
-[node name="LobbyUI" parent="UILayer" instance=ExtResource("3_hud")]
+[node name="LobbyUI" parent="UILayer" unique_id=1542539956 instance=ExtResource("3_hud")]

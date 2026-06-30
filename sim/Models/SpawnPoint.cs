@@ -6,7 +6,6 @@ namespace Meesles.Avalon.Sim.Models {
   [StructLayout(LayoutKind.Sequential, Pack = 4)]
   public partial struct SpawnPoint : IComponent {
     public int SpawnPointId;
-    public int TeamId;
     public int UnitTypeId;
   }
 }

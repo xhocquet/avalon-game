@@ -10,5 +10,5 @@ MarkerType = 3
 metadata/_custom_type_script = "uid://jt4rwdk0j6k6"
 
 [node name="SelectionIndicator" parent="." index="0" unique_id=1086048598 instance=ExtResource("3_indicator")]
-visible = false
 transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 0, 0.04, 0)
+visible = false

@@ -136,6 +136,7 @@ namespace Meesles.Avalon.Sim {
           UnitId = UnitIdGenerator.Next(ref frame),
           UnitTypeId = CrystalUnitTypeId,
         });
+        frame.Add(crystalEntity, new OwnerComponent { OwnerId = teamId });
         frame.Add(crystalEntity, new Team { TeamId = teamId });
         frame.Add(crystalEntity, new Crystal { CrystalId = teamId });
         frame.Add(crystalEntity, new Health {
@@ -154,7 +155,6 @@ namespace Meesles.Avalon.Sim {
         frame.Add(spawnEntity, new Team { TeamId = teamId });
         frame.Add(spawnEntity, new SpawnPoint {
           SpawnPointId = teamId,
-          TeamId = teamId,
           UnitTypeId = MinionUnitTypeId,
         });
       }

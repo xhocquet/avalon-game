@@ -2,19 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://xqml5rsu4d11"
-path="res://.godot/imported/all_hair_wiz_edited_baked_1.jpg-2b91ded133b56c53b39358d3a71650d5.ctex"
+uid="uid://cluaorcrrmtbu"
+path="res://.godot/imported/border.png-7d78ef20a0cdfcb906d95a49d0bcd02a.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "5761d664aec816ec0feb225b462a9e81"
 }
 
 [deps]
 
-source_file="res://Scenes/all_hair_wiz_edited_baked_1.jpg"
-dest_files=["res://.godot/imported/all_hair_wiz_edited_baked_1.jpg-2b91ded133b56c53b39358d3a71650d5.ctex"]
+source_file="res://Assets/Props/UI/border.png"
+dest_files=["res://.godot/imported/border.png-7d78ef20a0cdfcb906d95a49d0bcd02a.ctex"]
 
 [params]
 
@@ -26,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""

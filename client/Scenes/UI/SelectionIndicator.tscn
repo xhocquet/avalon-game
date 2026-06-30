@@ -6,21 +6,17 @@
 transparency = 1
 shading_mode = 0
 albedo_color = Color(0.14, 0.72, 1, 0.72)
-emission_enabled = true
-emission = Color(0.14, 0.72, 1, 1)
-emission_energy_multiplier = 0.45
 
 [sub_resource type="TorusMesh" id="TorusMesh_indicator"]
 material = SubResource("StandardMaterial3D_indicator")
 inner_radius = 0.62
 outer_radius = 0.68
-rings = 64
 ring_segments = 8
 
-[node name="SelectionIndicator" type="Node3D"]
+[node name="SelectionIndicator" type="Node3D" unique_id=2143077504]
 script = ExtResource("1_indicator")
 
-[node name="Ring" type="MeshInstance3D" parent="."]
+[node name="Ring" type="MeshInstance3D" parent="." unique_id=2144089702]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.035, 0)
 cast_shadow = 0
 mesh = SubResource("TorusMesh_indicator")

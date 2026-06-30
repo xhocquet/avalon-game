@@ -22,39 +22,142 @@ namespace Meesles.Avalon {
           continue;
 
         ref readonly var unit = ref frame.GetReadOnly<Unit>(entity);
+        UnitContext destroyed = ResolveUnitContext(ref frame, entity);
+        UnitContext destroyer = ResolveDestroyerContext(ref frame, entity);
         FPVector3 position = FPVector3.Zero;
         if (frame.Has<TransformComponent>(entity))
           position = frame.GetReadOnly<TransformComponent>(entity).Position;
 
-        _deadUnits.Add(new DeadUnitSnapshot(entity, unit.UnitId, unit.UnitTypeId, position));
+        _deadUnits.Add(new DeadUnitSnapshot(
+          entity,
+          unit.UnitId,
+          unit.UnitTypeId,
+          destroyed.TeamId,
+          destroyed.OwnerId,
+          destroyer.UnitId,
+          destroyer.TeamId,
+          destroyer.OwnerId,
+          position,
+          frame.Has<Crystal>(entity),
+          frame.Has<Crystal>(entity) ? frame.GetReadOnly<Crystal>(entity).CrystalId : 0,
+          frame.Has<Turret>(entity)));
       }
 
       for (int i = 0; i < _deadUnits.Count; i++) {
         DeadUnitSnapshot dead = _deadUnits[i];
 
-        if (frame.EventRaiser != null) {
-          var evt = EventPool.Get<UnitDiedEvent>();
-          evt.UnitId = dead.UnitId;
-          evt.UnitTypeId = dead.UnitTypeId;
-          evt.Position = dead.Position;
-          frame.EventRaiser.RaiseEvent(evt);
-        }
+        RaiseDeathEvent(ref frame, dead);
 
         frame.DestroyEntity(dead.Entity);
       }
+    }
+
+    private static void RaiseDeathEvent(ref Frame frame, DeadUnitSnapshot dead) {
+      if (frame.EventRaiser == null)
+        return;
+
+      if (dead.IsCrystal) {
+        var evt = EventPool.Get<CrystalDestroyedEvent>();
+        evt.UnitId = dead.UnitId;
+        evt.CrystalId = dead.CrystalId;
+        evt.TeamId = dead.TeamId;
+        evt.OwnerId = dead.OwnerId;
+        evt.DestroyerUnitId = dead.DestroyerUnitId;
+        evt.DestroyerTeamId = dead.DestroyerTeamId;
+        evt.DestroyerOwnerId = dead.DestroyerOwnerId;
+        frame.EventRaiser.RaiseEvent(evt);
+        return;
+      }
+
+      if (dead.IsTurret) {
+        var evt = EventPool.Get<TurretDestroyedEvent>();
+        evt.UnitId = dead.UnitId;
+        evt.DestroyerUnitId = dead.DestroyerUnitId;
+        frame.EventRaiser.RaiseEvent(evt);
+        return;
+      }
+
+      var unitDied = EventPool.Get<UnitDiedEvent>();
+      unitDied.UnitId = dead.UnitId;
+      unitDied.UnitTypeId = dead.UnitTypeId;
+      unitDied.Position = dead.Position;
+      frame.EventRaiser.RaiseEvent(unitDied);
+    }
+
+    private static UnitContext ResolveDestroyerContext(ref Frame frame, EntityRef deadEntity) {
+      UnitContext destroyer = default;
+      var filter = frame.Filter<Unit, Combat>();
+      while (filter.Next(out var attacker)) {
+        ref readonly var combat = ref frame.GetReadOnly<Combat>(attacker);
+        if (combat.Target != deadEntity)
+          continue;
+
+        UnitContext candidate = ResolveUnitContext(ref frame, attacker);
+        if (destroyer.UnitId == 0 || candidate.UnitId < destroyer.UnitId)
+          destroyer = candidate;
+      }
+
+      return destroyer;
+    }
+
+    private static UnitContext ResolveUnitContext(ref Frame frame, EntityRef entity) {
+      int unitId = frame.Has<Unit>(entity) ? frame.GetReadOnly<Unit>(entity).UnitId : 0;
+      int teamId = frame.Has<Team>(entity) ? frame.GetReadOnly<Team>(entity).TeamId : 0;
+      int ownerId = frame.Has<OwnerComponent>(entity) ? frame.GetReadOnly<OwnerComponent>(entity).OwnerId : 0;
+      return new UnitContext(unitId, teamId, ownerId);
     }
 
     private readonly struct DeadUnitSnapshot {
       public readonly EntityRef Entity;
       public readonly int UnitId;
       public readonly int UnitTypeId;
+      public readonly int TeamId;
+      public readonly int OwnerId;
+      public readonly int DestroyerUnitId;
+      public readonly int DestroyerTeamId;
+      public readonly int DestroyerOwnerId;
       public readonly FPVector3 Position;
+      public readonly bool IsCrystal;
+      public readonly int CrystalId;
+      public readonly bool IsTurret;
 
-      public DeadUnitSnapshot(EntityRef entity, int unitId, int unitTypeId, FPVector3 position) {
+      public DeadUnitSnapshot(
+          EntityRef entity,
+          int unitId,
+          int unitTypeId,
+          int teamId,
+          int ownerId,
+          int destroyerUnitId,
+          int destroyerTeamId,
+          int destroyerOwnerId,
+          FPVector3 position,
+          bool isCrystal,
+          int crystalId,
+          bool isTurret) {
         Entity = entity;
         UnitId = unitId;
         UnitTypeId = unitTypeId;
+        TeamId = teamId;
+        OwnerId = ownerId;
+        DestroyerUnitId = destroyerUnitId;
+        DestroyerTeamId = destroyerTeamId;
+        DestroyerOwnerId = destroyerOwnerId;
         Position = position;
+        IsCrystal = isCrystal;
+        CrystalId = crystalId;
+        IsTurret = isTurret;
+      }
+    }
+
+    private readonly struct UnitContext {
+      public readonly int UnitId;
+      public readonly int TeamId;
+      public readonly int OwnerId;
+
+      public UnitContext(int unitId, int teamId, int ownerId) {
+        UnitId = unitId;
+        TeamId = teamId;
+        OwnerId = ownerId;
       }
     }
   }

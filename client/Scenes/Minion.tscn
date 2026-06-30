@@ -8,7 +8,7 @@
 transform = Transform3D(0.015, 0, 0, 0, 0.015, 0, 0, 0, 0.015, 0, 0, 0)
 script = ExtResource("1_mv")
 
-[node name="Model" parent="." index="0" unique_id=36715113]
+[node name="Model" parent="." index="0" unique_id=1754945266]
 transform = Transform3D(1, 0, 0, 0, 2.220446e-16, 1, 0, -1, 2.220446e-16, 0, 28.93648, 0)
 
 [node name="SelectionIndicator" parent="." index="1" unique_id=1272106412 instance=ExtResource("3_indicator")]

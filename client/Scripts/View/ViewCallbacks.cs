@@ -64,15 +64,10 @@ namespace Meesles.Avalon {
       _engine = engine;
       _eventConfirmedHandler = (_, evt) => {
         if (_gameOverShown) return;
-        if (evt is not GameOverEvent gameOver) return;
+        if (evt is not GameOverEvent) return;
 
         _gameOverShown = true;
-        _hud?.ShowResult(gameOver.WinnerPlayerId switch {
-          0 => "P1 Wins",
-          1 => "P1 Wins",
-          2 => "P2 Wins",
-          _ => "Draw",
-        });
+        _hud?.ShowResult("Game Over");
       };
       _engine.OnEventConfirmed += _eventConfirmedHandler;
     }

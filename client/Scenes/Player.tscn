@@ -10,10 +10,10 @@ script = ExtResource("1_pe")
 [node name="SelectionIndicator" parent="." index="0" unique_id=2021834568 instance=ExtResource("3_indicator")]
 transform = Transform3D(1.35, 0, 0, 0, 1.35, 0, 0, 0, 1.35, 0, 0.04, 0)
 
-[node name="Model" parent="." index="1" unique_id=1170778449]
+[node name="Model" parent="." index="1" unique_id=178780334]
 transform = Transform3D(1.7474087, 0, 0, 0, 3.8800269e-16, 1.7474087, 0, -1.7474087, 3.8800269e-16, 0, 0.08980286, 0)
 
-[node name="Skeleton3D" parent="Model/PlayerFBX/SceneRoot/RootNode/PlayerArmature/Skeleton" parent_id_path=PackedInt32Array(978556655) index="0" unique_id=1139756197]
+[node name="Skeleton3D" parent="Model/PlayerFBX/SceneRoot/RootNode/PlayerArmature/Skeleton" parent_id_path=PackedInt32Array(968032388) index="0" unique_id=991233418]
 bones/2/position = Vector3(0, 0.84866375, 1.4156103e-07)
 bones/3/position = Vector3(0, -6.5750783e-09, -4.7293724e-11)
 bones/3/rotation = Quaternion(0, 0, 0, 1)
@@ -77,5 +77,5 @@ bones/57/rotation = Quaternion(-0.49999627, 0.49997333, 0.49999624, 0.5000342)
 bones/59/position = Vector3(0, 0.84866375, 1.4156103e-07)
 bones/59/rotation = Quaternion(0, 0, 0, 1)
 
-[node name="AnimationPlayer" parent="." index="2" unique_id=735773862]
+[node name="AnimationPlayer" parent="." index="2" unique_id=540665679]
 autoplay = &"SK_PlayerDefault_ao|A_Player_CosmeticIdle"

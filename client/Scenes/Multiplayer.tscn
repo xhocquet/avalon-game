@@ -9,8 +9,8 @@
 [ext_resource type="PackedScene" uid="uid://dy487k8tlwknf" path="res://Scenes/UI/Crosshair.tscn" id="7_ofdpw"]
 [ext_resource type="PackedScene" uid="uid://cfxblhac140rt" path="res://Scenes/Champs/Snailhead.tscn" id="9_2iiil"]
 [ext_resource type="PackedScene" uid="uid://qwlps32xm1dg" path="res://Scenes/Champs/AllHairWizard.tscn" id="9_jvn7g"]
-[ext_resource type="PackedScene" uid="uid://b0w0cydbf2ux3" path="res://Scenes/biomushy.tscn" id="10_entdg"]
-[ext_resource type="PackedScene" uid="uid://bjr7i1wvs40ug" path="res://Scenes/eyeball_flowers.tscn" id="11_gpp7o"]
+[ext_resource type="PackedScene" uid="uid://b0w0cydbf2ux3" path="res://Scenes/Mobs/biomushy.tscn" id="10_entdg"]
+[ext_resource type="PackedScene" uid="uid://bjr7i1wvs40ug" path="res://Scenes/Mobs/eyeball_flowers.tscn" id="11_gpp7o"]
 
 [node name="Multiplayer" type="Node" unique_id=1309111642]
 script = ExtResource("1_game")

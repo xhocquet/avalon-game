@@ -5,5 +5,5 @@
 [node name="snailhead" unique_id=1889546398 instance=ExtResource("1_ksh44")]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
 
-[node name="tripo_node_f9967b42-9436-45a1-a3cc-8982a4237430" parent="." index="0" unique_id=1007742173]
+[node name="tripo_node_f9967b42-9436-45a1-a3cc-8982a4237430" parent="." index="0" unique_id=604737052]
 transform = Transform3D(0.9906194, 0, -0.13664976, 0, 1, 0, 0.13664976, 0, 0.9906194, 0, 0.4849996, 0)

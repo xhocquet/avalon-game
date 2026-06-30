@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bq5kswl3sol3g"]
 
-[ext_resource type="PackedScene" uid="uid://1xx55a188qx4" path="res://Animation_presetbipedwalk_Animated_Prism_36c3253a.glb" id="1_6ku25"]
+[ext_resource type="PackedScene" uid="uid://1xx55a188qx4" path="res://Assets/Champs/Snailhead/WalkDraft/Animation_presetbipedwalk_Animated_Prism_36c3253a.glb" id="1_6ku25"]
 
 [node name="Animation_presetbipedwalk_Animated_Prism_36c3253a" unique_id=635226763 instance=ExtResource("1_6ku25")]
 

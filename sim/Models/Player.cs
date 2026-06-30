@@ -1,5 +1,4 @@
 using System.Runtime.InteropServices;
-using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Models {
@@ -8,7 +7,5 @@ namespace Meesles.Avalon.Sim.Models {
   public partial struct Player : IComponent {
     public int PlayerId;
     public int Score;
-    public FP64 LastInputH;
-    public FP64 LastInputV;
   }
 }

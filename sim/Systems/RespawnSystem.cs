@@ -42,8 +42,6 @@ namespace Meesles.Avalon {
       ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
 
       player.Score -= 1;
-      player.LastInputH = FP64.Zero;
-      player.LastInputV = FP64.Zero;
       ClearActiveState(ref frame, entity, transform.Position);
 
       if (frame.EventRaiser != null) {
