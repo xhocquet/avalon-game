@@ -44,7 +44,8 @@ namespace Meesles.Avalon.Server {
       while (filter.Next(out var entity)) {
         ref readonly var pos = ref postFrame.GetReadOnly<TransformComponent>(entity);
         ref readonly var team = ref postFrame.GetReadOnly<Team>(entity);
-        string kind = postFrame.Has<Base>(entity) ? "Base"
+        string kind = postFrame.Has<Crystal>(entity) ? "Crystal"
+          : postFrame.Has<Turret>(entity) ? "Turret"
           : postFrame.Has<SpawnPoint>(entity) ? "SpawnPoint"
           : postFrame.Has<Hero>(entity) ? "Hero"
           : "Unknown";

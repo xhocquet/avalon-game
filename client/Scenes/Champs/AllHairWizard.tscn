@@ -1,6 +1,6 @@
-[gd_scene format=3 uid="uid://ccy8wj118ecom"]
+[gd_scene format=3 uid="uid://qwlps32xm1dg"]
 
-[ext_resource type="PackedScene" uid="uid://chcl80ojvfmkf" path="res://Assets/Materials/AllHairWizard/252979067bb3457a.fbx" id="1_cn3ax"]
+[ext_resource type="PackedScene" uid="uid://3i0kxx75ji1s" path="res://Assets/Champs/AllHairWizard/all_hair_wiz_edited.glb" id="1_mdheq"]
 
-[node name="252979067bb3457a" unique_id=97059555 instance=ExtResource("1_cn3ax")]
+[node name="all_hair_wiz_edited" unique_id=361300862 instance=ExtResource("1_mdheq")]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)

@@ -15,7 +15,8 @@ public class SimHarnessTests {
     harness.AssetRegistry.Get<WaveRulesAsset>().Should().NotBeNull();
 
     harness.Count<Hero>().Should().Be(2);
-    harness.Count<Base>().Should().Be(2);
+    harness.Count<Crystal>().Should().Be(2);
+    harness.Count<Turret>().Should().Be(4);
     harness.Count<SpawnPoint>().Should().Be(2);
     harness.Count<UnitIdCounter>().Should().Be(1);
     harness.Frame.Tick.Should().Be(0);

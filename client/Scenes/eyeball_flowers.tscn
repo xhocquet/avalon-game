@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://bjr7i1wvs40ug"]
+
+[ext_resource type="PackedScene" uid="uid://dpuj0akd8badi" path="res://Assets/Mobs/EyeballFlowers/eyeball_flowers_1.glb" id="1_kyouu"]
+
+[node name="eyeball_flowers_1" unique_id=1361654705 instance=ExtResource("1_kyouu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.49508387, 0)

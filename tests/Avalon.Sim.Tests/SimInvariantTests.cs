@@ -13,20 +13,23 @@ namespace Meesles.Avalon.Sim.Tests;
 
 public class SimInvariantTests {
   [Fact]
-  public void InitializeWorld_CreatesExpectedPlayerHeroesAndBases() {
+  public void InitializeWorld_CreatesExpectedPlayerHeroesCrystalsAndTurrets() {
     var harness = SimHarness.CreateInitialized();
 
     harness.Count<Hero>().Should().Be(2);
-    harness.Count<Base>().Should().Be(2);
+    harness.Count<Crystal>().Should().Be(2);
+    harness.Count<Turret>().Should().Be(4);
     harness.Count<SpawnPoint>().Should().Be(2);
 
     UnitSnapshot[] units = GetUnits(harness);
-    units.Should().HaveCount(4);
+    units.Should().HaveCount(8);
     units.Select(unit => unit.UnitId).Should().OnlyHaveUniqueItems();
-    units.Select(unit => unit.UnitId).Should().BeEquivalentTo([1, 2, 3, 4]);
+    units.Select(unit => unit.UnitId).Should().BeEquivalentTo([1, 2, 3, 4, 5, 6, 7, 8]);
     units.Where(unit => unit.UnitTypeId == 1).Should().HaveCount(2);
     units.Where(unit => unit.UnitTypeId == 100).Should().HaveCount(2);
-    harness.Count<Health>().Should().Be(4);
+    units.Where(unit => unit.UnitTypeId == 101).Should().HaveCount(4);
+    harness.Count<Health>().Should().Be(8);
+    harness.Count<Combat>().Should().Be(6);
 
     GetPlayerSnapshots(harness)
         .Should()

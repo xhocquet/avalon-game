@@ -10,8 +10,12 @@ namespace Meesles.Avalon.Sim {
   public static class SimulationSetup {
     private const int PlayerUnitTypeId = 1;
     public const int MinionUnitTypeId = 2;
-    private const int BaseUnitTypeId = 100;
-    private const int BaseHealth = 1000;
+    private const int CrystalUnitTypeId = 100;
+    private const int TurretUnitTypeId = 101;
+    private const int StructureHealth = 100;
+    private const int TurretAttackDamage = 10;
+    private const int TurretAttackCooldownTicks = 30;
+    private static readonly FP64 TurretAttackRange = FP64.FromInt(12);
 
     public static void RegisterSystems(EcsSimulation simulation, NavigationRuntime navigation = null) {
       simulation.AddSystem(new CommandSystem(moveNavAgentsDirectly: navigation == null), SystemPhase.Update);
@@ -49,7 +53,7 @@ namespace Meesles.Avalon.Sim {
       var playerStats = frame.AssetRegistry.Get<PlayerStatsAsset>();
       var combatStats = frame.AssetRegistry.Get<MinionStatsAsset>();
       frame.AssetRegistry.TryGet<MapLayoutAsset>(out var layout);
-      SpawnTeamBases(ref frame, playerIds.Count, layout);
+      SpawnTeamCrystalsAndSpawnPoints(ref frame, playerIds.Count, layout);
 
       for (int playerIndex = 0; playerIndex < playerIds.Count; playerIndex++) {
         int playerId = playerIds[playerIndex];
@@ -90,6 +94,8 @@ namespace Meesles.Avalon.Sim {
           });
         }
       }
+
+      SpawnTeamTurrets(ref frame, playerIds.Count, layout);
     }
 
     private static List<int> GetPlayerIds(ref Frame frame, int maxPlayers) {
@@ -114,27 +120,27 @@ namespace Meesles.Avalon.Sim {
       return RequireMarkerPosition(layout, MapMarkerType.SpawnPoint, teamId);
     }
 
-    private static void SpawnTeamBases(ref Frame frame, int maxPlayers, MapLayoutAsset layout) {
+    private static void SpawnTeamCrystalsAndSpawnPoints(ref Frame frame, int maxPlayers, MapLayoutAsset layout) {
       for (int playerId = 1; playerId <= maxPlayers; playerId++) {
         int teamId = playerId;
 
-        var baseEntity = frame.CreateEntity();
-        FPVector3 basePosition = RequireMarkerPosition(layout, MapMarkerType.Base, teamId);
+        var crystalEntity = frame.CreateEntity();
+        FPVector3 crystalPosition = RequireMarkerPosition(layout, MapMarkerType.Crystal, teamId);
 
-        frame.Add(baseEntity, new TransformComponent {
-          Position = basePosition,
+        frame.Add(crystalEntity, new TransformComponent {
+          Position = crystalPosition,
           Rotation = FP64.Zero,
           Scale = FPVector3.One,
         });
-        frame.Add(baseEntity, new Unit {
+        frame.Add(crystalEntity, new Unit {
           UnitId = UnitIdGenerator.Next(ref frame),
-          UnitTypeId = BaseUnitTypeId,
+          UnitTypeId = CrystalUnitTypeId,
         });
-        frame.Add(baseEntity, new Team { TeamId = teamId });
-        frame.Add(baseEntity, new Base { BaseId = teamId });
-        frame.Add(baseEntity, new Health {
-          Current = BaseHealth,
-          Max = BaseHealth,
+        frame.Add(crystalEntity, new Team { TeamId = teamId });
+        frame.Add(crystalEntity, new Crystal { CrystalId = teamId });
+        frame.Add(crystalEntity, new Health {
+          Current = StructureHealth,
+          Max = StructureHealth,
         });
 
         var spawnEntity = frame.CreateEntity();
@@ -151,6 +157,43 @@ namespace Meesles.Avalon.Sim {
           TeamId = teamId,
           UnitTypeId = MinionUnitTypeId,
         });
+      }
+    }
+
+    private static void SpawnTeamTurrets(ref Frame frame, int maxPlayers, MapLayoutAsset layout) {
+      for (int teamId = 1; teamId <= maxPlayers; teamId++) {
+        int turretIndex = 0;
+        int typeInt = (int)MapMarkerType.Turret;
+        int markerCount = layout?.MarkerTypes?.Length ?? 0;
+
+        for (int i = 0; i < markerCount; i++) {
+          if (layout.MarkerTypes[i] != typeInt || layout.MarkerTeams[i] != teamId)
+            continue;
+
+          turretIndex++;
+          var turretEntity = frame.CreateEntity();
+          frame.Add(turretEntity, new TransformComponent {
+            Position = layout.MarkerPositions[i],
+            Rotation = FP64.Zero,
+            Scale = FPVector3.One,
+          });
+          frame.Add(turretEntity, new Unit {
+            UnitId = UnitIdGenerator.Next(ref frame),
+            UnitTypeId = TurretUnitTypeId,
+          });
+          frame.Add(turretEntity, new Team { TeamId = teamId });
+          frame.Add(turretEntity, new Turret { TurretId = teamId * 100 + turretIndex });
+          frame.Add(turretEntity, new Health {
+            Current = StructureHealth,
+            Max = StructureHealth,
+          });
+          frame.Add(turretEntity, new Combat {
+            AttackDamage = TurretAttackDamage,
+            AttackRange = TurretAttackRange,
+            AttackCooldownTicks = TurretAttackCooldownTicks,
+            CooldownRemainingTicks = 0,
+          });
+        }
       }
     }
 

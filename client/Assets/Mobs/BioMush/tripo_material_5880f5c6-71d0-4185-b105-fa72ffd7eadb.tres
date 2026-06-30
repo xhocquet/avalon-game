@@ -1,0 +1,8 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://cfw4wg66wv842"]
+
+[ext_resource type="Texture2D" uid="uid://bp6c001nk0d4s" path="res://Assets/Mobs/BioMush/biomushy_Color_5880f5c6-71d0-4185-b105-fa72ffd7eadb.jpg" id="1_te210"]
+
+[resource]
+resource_name = "tripo_material_5880f5c6-71d0-4185-b105-fa72ffd7eadb"
+albedo_texture = ExtResource("1_te210")
+roughness = 0.9

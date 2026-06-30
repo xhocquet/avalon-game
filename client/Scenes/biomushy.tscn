@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://b0w0cydbf2ux3"]
+
+[ext_resource type="PackedScene" uid="uid://cv5vahi5wdgra" path="res://Assets/Mobs/BioMush/biomushy.glb" id="1_otxma"]
+
+[node name="biomushy" unique_id=865911299 instance=ExtResource("1_otxma")]
+
+[node name="tripo_node_5880f5c6-71d0-4185-b105-fa72ffd7eadb" parent="." index="0" unique_id=284886756]
+transform = Transform3D(0.74614424, 0, 0.6657843, 0, 1, 0, -0.6657843, 0, 0.74614424, 0, 0.47445554, 0)

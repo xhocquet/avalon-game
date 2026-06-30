@@ -33,6 +33,12 @@ namespace Meesles.Avalon {
 
         if (toTarget.sqrMagnitude > rangeSq) {
           combat.Target = default;
+          if (frame.Has<Turret>(attacker)) {
+            ClearAttackIntent(ref frame, attacker);
+            ClearMoveTarget(ref frame, attacker);
+            continue;
+          }
+
           SetMoveTarget(ref frame, attacker, targetTransform.Position);
           continue;
         }

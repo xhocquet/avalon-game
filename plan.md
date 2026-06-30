@@ -33,7 +33,7 @@ Target shape: Warcraft/Dota-like top-down combat with a handful of human players
 
 ## Klotho Ids
 
-- `KlothoComponent`: 100-112 used (110 = `UnitMoveTarget`, 111 = `AttackTargetUnitId`, 112 = `PendingRespawn`), next free 113.
+- `KlothoComponent`: 100-113 used (106 = `Crystal`, 110 = `UnitMoveTarget`, 111 = `AttackTargetUnitId`, 112 = `PendingRespawn`, 113 = `Turret`), next free 114.
 - `KlothoSerializable`: 100 `MoveCommand`, 101 `GameOverEvent`, 102 `UnitDiedEvent`, 103 `AttackCommand`, 104 `PlayerDiedEvent`, 105 `PlayerRespawnedEvent`, next free 106.
 - `KlothoDataAsset`: 100 `PlayerStats`, 101 `WaveRules`, 102 `MapLayout`, 103 `MinionStats`, next free 104.
 - Note: `NavAgentComponent` uses Klotho-internal ID 11 — no conflict with project range.
@@ -41,7 +41,7 @@ Target shape: Warcraft/Dota-like top-down combat with a handful of human players
 ## Done
 
 - ServerDriven client/server flow is wired.
-- Shared sim bootstrap creates bases, spawn points, heroes, teams, health, and stable unit ids.
+- Shared sim bootstrap creates crystals, turrets, spawn points, heroes, teams, health, and stable unit ids.
 - `UnitLookup` provides shared SIM helpers for resolving `UnitId -> entity` and player/team ownership validation.
 - Command tests cover stale or destroyed `UnitId` lookup behavior.
 - Minion waves exist through `WaveRulesAsset` and `WaveSpawnSystem`.
@@ -54,16 +54,22 @@ Target shape: Warcraft/Dota-like top-down combat with a handful of human players
 - Client selection supports single-select, drag-select, selection indicators, and fallback focus on the local player.
 - Klotho physics is no longer registered for core gameplay movement.
 - `UnitIdGenerator` provides stable sim-level unit identity.
-- `SimMarkerNode` ([Tool][GlobalClass] Node3D) places Base/SpawnPoint/Shop/Turret markers in the editor.
+- `SimMarkerNode` ([Tool][GlobalClass] Node3D) places Crystal/SpawnPoint/Shop/Turret markers in the editor.
 - `MapLayoutAsset` (KlothoDataAsset 102) stores marker positions; `GodotFPMapLayoutExporter` bakes them to `Sim/Data/MapLayout.bytes`.
-- `SimulationSetup` requires `MapLayoutAsset` for base/spawn positions and fails loudly when markers are missing.
-- Map layout foundation is complete: editor-authored Base/SpawnPoint/Shop/Turret markers can drive baked layout data for sim spawn/base placement.
+- `SimulationSetup` requires `MapLayoutAsset` for structure/spawn positions and fails loudly when markers are missing.
+- Map layout foundation is complete: editor-authored Crystal/SpawnPoint/Shop/Turret markers can drive baked layout data for sim spawn/structure placement.
 - Client and server load `MapLayout.bytes` as runtime data.
 - `AttackCommand` (`KlothoSerializable(103)`) exists and serializes target/source `UnitId`s.
 - `CommandSystem` handles `AttackCommand`, validates owned source units and enemy live targets by stable `UnitId`, and writes `AttackTargetUnitId`.
 - `AttackTargetUnitId` (`KlothoComponent(111)`) stores command-facing attack intent without exposing transient ECS entity ids.
-- `AttackIntentSystem` resolves attack targets each tick, chases moving targets with `UnitMoveTarget`, clears invalid intent, and can reacquire a nearby enemy when the target dies.
+- `AttackIntentSystem` resolves attack targets each tick, chases moving targets with `UnitMoveTarget`, and clears invalid intent when targets die or become invalid.
 - `AttackCooldownSystem` and `DamageSystem` apply deterministic cooldown-gated damage for in-range attack targets.
+- `TargetAcquisitionSystem` gives minions/heroes autonomous enemy acquisition when they do not already have an attack target or move target.
+- Autonomous target priority is minion -> hero, then lowest `UnitId`; existing attack targets persist until they die or become invalid, and manual `AttackCommand`s replace them by writing `AttackTargetUnitId`.
+- `Crystal` replaces the older `Base` component as the team structure marker; crystals spawn from map layout markers with `Health` and stable `UnitId`s.
+- Turret structures spawn from map layout markers with `Health`, `Combat`, stable `UnitId`s, team ownership, and `UnitViewFactory` rendering.
+- Turrets participate in autonomous acquisition/combat, prefer enemy minions before heroes, damage in-range targets, and do not chase targets that leave range.
+- `HealthBars` renders for all live view entities with `Health`, including heroes, minions, crystals, and turrets.
 - `UnitDiedEvent` (`KlothoSerializable(102)`) exists as a synced death event.
 - `DeathSystem` removes dead units and raises `UnitDiedEvent`.
 - Player heroes spawn with `Health`, `Combat`, and `NavAgentComponent`.
@@ -80,23 +86,20 @@ Target shape: Warcraft/Dota-like top-down combat with a handful of human players
 - `CombatMovementPipelineSystems.cs` still contains the intended pipeline stage names, but most of those stage classes are stubs; the live attack/combat slice currently lives in `AttackIntentSystem`, `AttackCooldownSystem`, and `DamageSystem`.
 - `MinionMoveSystem` is no longer registered by normal sim setup, but the legacy file still exists and should be deleted once movement ownership is fully settled.
 
-## Next Slice: Autonomous Combat Acquisition
+## Next Slice: Crystal Win Condition
 
-Goal: make minions and heroes acquire nearby enemies deterministically so minions can meet, fight, and die without explicit player attack commands.
+Goal: make crystal destruction end the match through synced deterministic state instead of only relying on match timeout.
 
-1. Add autonomous deterministic enemy acquisition for minions and heroes only using `Team`, `Unit`, `TransformComponent`, `Health`, and `Combat`.
-2. Use stable targeting priority: minion -> hero, then `UnitId`.
-3. Feed acquired targets through the existing `AttackTargetUnitId`, `AttackIntentSystem`, cooldown, damage, and death path.
-4. Do not replace an existing `AttackTargetUnitId` while its target is alive; a manual `AttackCommand` replaces the current attack target because command handling writes that component directly.
-5. Clear attack targets when their target dies; autonomous acquisition can choose a new target later only when no attack target exists.
-6. Add focused tests for acquisition priority and target persistence.
+1. Detect crystal death before `DeathSystem` destroys the entity.
+2. Raise `GameOverEvent` with the opposing player/team as winner.
+3. Ensure match timeout and crystal-destruction game-over paths do not double-emit.
+4. Add focused tests for crystal death, winner resolution, and no duplicate game-over event.
 
 Acceptance:
 
-- Opposing minions can acquire targets without player commands.
-- Damage and death remain deterministic and synced.
-- Manual attack commands replace the current attack target.
-- Existing attack targets remain until they die or otherwise become invalid.
+- Destroying a crystal ends the match deterministically.
+- Server and clients agree on winner through `GameOverEvent`.
+- Timeout scoring still works when no crystal has died.
 
 ## Milestone A: Combat And Death
 
@@ -104,10 +107,10 @@ Goal: make minions meet, fight, die
 
 1. Move or fold the current live attack/combat behavior into the intended pipeline stages when the stage boundaries are actually useful; do not do a broad rewrite just for naming.
 2. Keep `sim/Systems/DeprecatedCombatSystem.cs` as reference only; do not re-enable it wholesale.
-3. Add autonomous deterministic enemy acquisition for minions/heroes using `Team`, `Unit`, `TransformComponent`, `Health`, and `Combat`.
-4. Use stable targeting priority: minion -> hero, then `UnitId`.
+3. Autonomous deterministic enemy acquisition for minions/heroes is done.
+4. Stable targeting priority is minion -> hero, then `UnitId`.
 5. Keep attacks applying damage through cooldown-gated combat systems, then let `DeathSystem` remove non-player units and raise `UnitDiedEvent`.
-6. Add focused tests for acquisition priority and target persistence; cooldown timing, direct attack damage, and death already have coverage.
+6. Focused tests cover acquisition priority, target persistence, cooldown timing, direct attack damage, and death.
 7. View reacts to synced attack/death events for VFX only.
 
 Acceptance:
@@ -141,14 +144,14 @@ Acceptance:
 
 Goal: first playable deterministic Footmen-Frenzy slice. Nav is a prerequisite so turrets have spatial meaning.
 
-1. Bases already spawn with `Health`; make base death emit `GameOverEvent` instead of only relying on match timeout.
-2. Add turret units: stationary, have `Combat` component, are targeted by the combat pipeline, attack enemies in range.
+1. Crystals already spawn with `Health`; make crystal death emit `GameOverEvent` instead of only relying on match timeout.
+2. Turret units are added: stationary, have `Combat`, are targeted by autonomous acquisition, attack enemies in range, and refuse to chase out-of-range targets. Done.
 3. Turrets are nav obstacles at bake time (their `StaticBody3D` blocks the navmesh).
-4. Add simple structure views and team tinting.
+4. Structure views exist for crystals and turrets; team tinting still needs a visual pass.
 
 Acceptance:
 
-- Minions path through the map, encounter turrets, fight them, and eventually reach and destroy a base.
+- Minions path through the map, encounter turrets, fight them, and eventually reach and destroy a crystal.
 - Server and clients agree on winner through synced deterministic state.
 
 ## Milestone D: Click Orders

@@ -41,13 +41,13 @@ namespace Meesles.Avalon {
       if (health.Current <= 0)
         return false;
 
-      return frame.Has<Minion>(entity) || frame.Has<Hero>(entity);
+      return frame.Has<Minion>(entity) || frame.Has<Hero>(entity) || frame.Has<Turret>(entity);
     }
 
     private static bool TryAcquireTarget(ref Frame frame, EntityRef attacker, int attackerTeamId,
         FPVector3 attackerPosition, FP64 attackRange, out int targetUnitId) {
       targetUnitId = 0;
-      FP64 radius = GetAcquisitionRadius(ref frame, attackRange);
+      FP64 radius = GetAcquisitionRadius(ref frame, attacker, attackRange);
       FP64 radiusSq = radius * radius;
       bool found = false;
       int bestPriority = int.MaxValue;
@@ -96,7 +96,10 @@ namespace Meesles.Avalon {
       return int.MaxValue;
     }
 
-    private static FP64 GetAcquisitionRadius(ref Frame frame, FP64 attackRange) {
+    private static FP64 GetAcquisitionRadius(ref Frame frame, EntityRef attacker, FP64 attackRange) {
+      if (frame.Has<Turret>(attacker))
+        return attackRange;
+
       var stats = frame.AssetRegistry.Get<MinionStatsAsset>();
       FP64 multiplier = stats != null && stats.AttackReacquireRangeMultiplier > FP64.Zero
         ? stats.AttackReacquireRangeMultiplier

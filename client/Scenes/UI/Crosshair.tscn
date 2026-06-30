@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dy487k8tlwknf"]
 
-[ext_resource type="Texture2D" uid="uid://dlv3t3xho8l4t" path="res://Assets/Materials/FX/crosshair010w.png" id="1_yta86"]
+[ext_resource type="Texture2D" uid="uid://dlv3t3xho8l4t" path="res://Assets/Props/FX/crosshair010w.png" id="1_yta86"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kdwxc"]
 transparency = 1

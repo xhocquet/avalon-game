@@ -1,13 +1,13 @@
 [gd_scene format=3 uid="uid://clk3ykagonl6k"]
 
-[ext_resource type="Material" uid="uid://ckcxi813lqviq" path="res://Assets/Materials/Grass1/Grass007_2K-JPG.tres" id="1_hveh7"]
+[ext_resource type="Material" uid="uid://ckcxi813lqviq" path="res://Assets/Props/Grass1/Grass007_2K-JPG.tres" id="1_hveh7"]
 [ext_resource type="PackedScene" uid="uid://bw00gejcd6ugv" path="res://Scenes/Objects/Turret.tscn" id="5_li7mh"]
 [ext_resource type="PackedScene" uid="uid://cribhhvg03u8g" path="res://Scenes/Objects/Crystal.tscn" id="6_ayvj0"]
 [ext_resource type="PackedScene" uid="uid://c4gqw5blm3y8s" path="res://Scenes/Objects/Spawn.tscn" id="7_2wqcu"]
 [ext_resource type="PackedScene" uid="uid://wxcpmxcd41gy" path="res://Scenes/Objects/Bush.tscn" id="7_87yka"]
 [ext_resource type="PackedScene" uid="uid://chagof3hsa6jp" path="res://Scenes/Objects/FirTree/FirTreeSmall.tscn" id="7_ayvj0"]
 [ext_resource type="PackedScene" uid="uid://be6nrf0b8j4l0" path="res://Scenes/Objects/Rock/RockA.tscn" id="8_kjd5s"]
-[ext_resource type="PackedScene" uid="uid://d1k4fk8laqf34" path="res://Assets/Materials/Shop/Shop.tscn" id="9_jvdyq"]
+[ext_resource type="PackedScene" uid="uid://d1k4fk8laqf34" path="res://Assets/Props/Shop/Shop.tscn" id="9_jvdyq"]
 [ext_resource type="PackedScene" uid="uid://lsvs8a7urkca" path="res://Scenes/Objects/Rock/RockC.tscn" id="9_p7pgw"]
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_ayvj0"]
@@ -21,6 +21,7 @@ size = Vector2(100, 100)
 [node name="World" type="Node3D" unique_id=1910615875]
 
 [node name="NavigationRegion3D" type="NavigationRegion3D" parent="." unique_id=235732599]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.06549835, 0, -0.014520645)
 navigation_mesh = SubResource("NavigationMesh_ayvj0")
 
 [node name="GroundMesh" type="MeshInstance3D" parent="NavigationRegion3D" unique_id=52655680]

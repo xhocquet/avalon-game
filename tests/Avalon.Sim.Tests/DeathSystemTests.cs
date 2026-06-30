@@ -12,7 +12,7 @@ public class DeathSystemTests {
   public void Update_RemovesDeadUnitAndRaisesUnitDiedEvent() {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
-    EntityRef entity = GetFirstBaseEntity(ref frame);
+    EntityRef entity = GetFirstCrystalEntity(ref frame);
     int unitId = frame.GetReadOnly<Unit>(entity).UnitId;
     int unitTypeId = frame.GetReadOnly<Unit>(entity).UnitTypeId;
     var deathPosition = new FPVector3(FP64.FromInt(3), FP64.Zero, FP64.FromInt(4));
@@ -39,7 +39,7 @@ public class DeathSystemTests {
   public void Update_LeavesLivingUnitsAlone() {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
-    EntityRef entity = GetFirstBaseEntity(ref frame);
+    EntityRef entity = GetFirstCrystalEntity(ref frame);
     int unitId = frame.GetReadOnly<Unit>(entity).UnitId;
     frame.Get<Health>(entity).Current = 1;
 
@@ -70,12 +70,12 @@ public class DeathSystemTests {
     resolved.Should().Be(entity);
   }
 
-  private static EntityRef GetFirstBaseEntity(ref Frame frame) {
-    var filter = frame.Filter<Base, Unit, Health, TransformComponent>();
+  private static EntityRef GetFirstCrystalEntity(ref Frame frame) {
+    var filter = frame.Filter<Crystal, Unit, Health, TransformComponent>();
     if (filter.Next(out var entity))
       return entity;
 
-    throw new Xunit.Sdk.XunitException("Expected an initialized base entity.");
+    throw new Xunit.Sdk.XunitException("Expected an initialized crystal entity.");
   }
 
   private static EntityRef GetFirstPlayerEntity(ref Frame frame) {

@@ -281,6 +281,58 @@ public class AttackCommandExecutionTests {
     GetAttackTarget(harness.Frame, source.UnitId).Should().Be(4);
   }
 
+  [Fact]
+  public void TurretAcquisition_PrefersEnemyMinionBeforeHeroThenUnitId() {
+    var harness = SimHarness.CreateInitialized();
+    UnitSnapshot turret = GetTurrets(harness).First(turret => turret.TeamId == 1);
+    int enemyMinionUnitId = SpawnTestMinion(harness, teamId: 2,
+      new FPVector3(FP64.FromInt(3), FP64.Zero, FP64.Zero));
+
+    SetPosition(harness, turret.UnitId, FPVector3.Zero);
+    SetPosition(harness, unitId: 4, new FPVector3(FP64.One, FP64.Zero, FP64.Zero));
+    ClearAttackTargets(harness);
+
+    harness.Tick();
+
+    GetAttackTarget(harness.Frame, turret.UnitId).Should().Be(enemyMinionUnitId);
+  }
+
+  [Fact]
+  public void TurretAttack_DamagesEnemyInRangeWithoutMoveTarget() {
+    var harness = SimHarness.CreateInitialized();
+    UnitSnapshot turret = GetTurrets(harness).First(turret => turret.TeamId == 1);
+
+    SetPosition(harness, turret.UnitId, FPVector3.Zero);
+    SetPosition(harness, unitId: 4, new FPVector3(FP64.FromInt(10), FP64.Zero, FP64.Zero));
+    int startHealth = GetHealth(harness.Frame, unitId: 4);
+    ClearAttackTargets(harness);
+
+    harness.Tick();
+
+    GetHealth(harness.Frame, unitId: 4).Should().Be(startHealth - 10);
+    HasMoveTarget(harness.Frame, turret.UnitId).Should().BeFalse();
+  }
+
+  [Fact]
+  public void TurretAttack_DoesNotPathWhenTargetLeavesRange() {
+    var harness = SimHarness.CreateInitialized();
+    UnitSnapshot turret = GetTurrets(harness).First(turret => turret.TeamId == 1);
+
+    SetPosition(harness, turret.UnitId, FPVector3.Zero);
+    SetPosition(harness, unitId: 4, new FPVector3(FP64.FromInt(10), FP64.Zero, FP64.Zero));
+    ClearAttackTargets(harness);
+    harness.Tick();
+
+    HasAttackTarget(harness.Frame, turret.UnitId).Should().BeTrue();
+    SetPosition(harness, unitId: 4, new FPVector3(FP64.FromInt(20), FP64.Zero, FP64.Zero));
+
+    harness.Tick();
+
+    HasAttackTarget(harness.Frame, turret.UnitId).Should().BeFalse();
+    HasCombatTarget(harness.Frame, turret.UnitId).Should().BeFalse();
+    HasMoveTarget(harness.Frame, turret.UnitId).Should().BeFalse();
+  }
+
   private static bool HasAttackTarget(Frame frame, int unitId) {
     return TryGetEntityByUnitId(frame, unitId, out var entity)
         && frame.Has<AttackTargetUnitId>(entity);
@@ -357,6 +409,20 @@ public class AttackCommandExecutionTests {
     }
 
     return minions.OrderBy(minion => minion.UnitId).ToArray();
+  }
+
+  private static UnitSnapshot[] GetTurrets(SimHarness harness) {
+    var frame = harness.Frame;
+    var turrets = new List<UnitSnapshot>();
+    var filter = frame.Filter<Turret, Unit, Team, TransformComponent>();
+    while (filter.Next(out var entity)) {
+      ref readonly var unit = ref frame.GetReadOnly<Unit>(entity);
+      ref readonly var team = ref frame.GetReadOnly<Team>(entity);
+      ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
+      turrets.Add(new UnitSnapshot(unit.UnitId, team.TeamId, transform.Position));
+    }
+
+    return turrets.OrderBy(turret => turret.UnitId).ToArray();
   }
 
   private static void SetPosition(SimHarness harness, int unitId, FPVector3 position) {
