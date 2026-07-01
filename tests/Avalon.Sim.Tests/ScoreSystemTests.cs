@@ -1,0 +1,117 @@
+using FluentAssertions;
+using Meesles.Avalon.Sim.Assets;
+using Meesles.Avalon.Sim.Models;
+using Xunit;
+using xpTURN.Klotho.Core;
+using xpTURN.Klotho.ECS;
+
+namespace Meesles.Avalon.Sim.Tests;
+
+public class ScoreSystemTests {
+  [Fact]
+  public void Update_AfterCrystalDestructionRaisesGameOverWhenOnePlayerTeamRemains() {
+    var harness = SimHarness.CreateInitialized();
+    var frame = harness.Frame;
+    EntityRef crystal = GetCrystalForTeam(ref frame, teamId: 1);
+    frame.Get<Health>(crystal).Current = 0;
+
+    var collector = new EventCollector();
+    collector.BeginTick(7);
+    frame.EventRaiser = collector;
+
+    new DeathSystem().Update(ref frame);
+    var system = new ScoreSystem();
+    system.Update(ref frame);
+
+    collector.Count.Should().Be(2);
+    collector.Collected[0].Should().BeOfType<CrystalDestroyedEvent>();
+    var gameOver = collector.Collected[1].Should().BeOfType<GameOverEvent>().Subject;
+    gameOver.Tick.Should().Be(7);
+
+    ref readonly var matchEnd = ref frame.GetReadOnlySingleton<MatchEndStateComponent>();
+    matchEnd.Ended.Should().BeTrue();
+    matchEnd.WinnerPlayerId.Should().Be(2);
+  }
+
+  [Fact]
+  public void Update_AfterCrystalDestructionDoesNotEndMatchWhenMultiplePlayerTeamsRemain() {
+    var harness = SimHarness.CreateInitialized(maxPlayers: 3);
+    var frame = harness.Frame;
+    EntityRef crystal = GetCrystalForTeam(ref frame, teamId: 1);
+    frame.Get<Health>(crystal).Current = 0;
+
+    var collector = new EventCollector();
+    collector.BeginTick(7);
+    frame.EventRaiser = collector;
+
+    new DeathSystem().Update(ref frame);
+    var system = new ScoreSystem();
+    system.Update(ref frame);
+
+    collector.Count.Should().Be(1);
+    collector.Collected[0].Should().BeOfType<CrystalDestroyedEvent>();
+
+    ref readonly var matchEnd = ref frame.GetReadOnlySingleton<MatchEndStateComponent>();
+    matchEnd.Ended.Should().BeFalse();
+    matchEnd.WinnerPlayerId.Should().Be(-1);
+  }
+
+  [Fact]
+  public void Update_DoesNotRaiseGameOverMoreThanOnce() {
+    var harness = SimHarness.CreateInitialized();
+    var frame = harness.Frame;
+    EntityRef crystal = GetCrystalForTeam(ref frame, teamId: 1);
+    frame.Get<Health>(crystal).Current = 0;
+
+    var collector = new EventCollector();
+    collector.BeginTick(7);
+    frame.EventRaiser = collector;
+
+    new DeathSystem().Update(ref frame);
+    var system = new ScoreSystem();
+    system.Update(ref frame);
+
+    collector.Collected.Should().ContainSingle(evt => evt is GameOverEvent);
+
+    collector.BeginTick(8);
+    system.Update(ref frame);
+
+    collector.Count.Should().Be(0);
+    ref readonly var matchEnd = ref frame.GetReadOnlySingleton<MatchEndStateComponent>();
+    matchEnd.Ended.Should().BeTrue();
+    matchEnd.WinnerPlayerId.Should().Be(2);
+  }
+
+  [Fact]
+  public void Update_OnTimeoutRaisesGameOverAndStoresDrawEndState() {
+    var harness = SimHarness.CreateInitialized();
+    var frame = harness.Frame;
+    var stats = frame.AssetRegistry.Get<PlayerStatsAsset>();
+    frame.Tick = (stats.MatchDuration * xpTURN.Klotho.Deterministic.Math.FP64.FromInt(1000)).ToInt()
+        / frame.DeltaTimeMs;
+
+    var collector = new EventCollector();
+    collector.BeginTick(frame.Tick);
+    frame.EventRaiser = collector;
+
+    new ScoreSystem().Update(ref frame);
+
+    collector.Count.Should().Be(1);
+    collector.Collected[0].Should().BeOfType<GameOverEvent>();
+
+    ref readonly var matchEnd = ref frame.GetReadOnlySingleton<MatchEndStateComponent>();
+    matchEnd.Ended.Should().BeTrue();
+    matchEnd.WinnerPlayerId.Should().Be(-1);
+  }
+
+  private static EntityRef GetCrystalForTeam(ref Frame frame, int teamId) {
+    var filter = frame.Filter<Crystal, Team, Health>();
+    while (filter.Next(out var entity)) {
+      ref readonly var team = ref frame.GetReadOnly<Team>(entity);
+      if (team.TeamId == teamId)
+        return entity;
+    }
+
+    throw new Xunit.Sdk.XunitException($"Expected crystal for team {teamId}.");
+  }
+}

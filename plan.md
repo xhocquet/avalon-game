@@ -37,7 +37,7 @@
 | ID  | Name                    | Notes                                                                                                                                                                                        |
 | --- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 100 | `MoveCommand`           | Right-click ground order; carries explicit bounded selected `UnitId`s and target position, supports hero/minion formation slots, and applies only to units owned by the issuing player team. |
-| 101 | `GameOverEvent`         | Synced match-end event and winner payload.                                                                                                                                                   |
+| 101 | `GameOverEvent`         | Payload-free synced match-end event; winner/no-winner state lives in Klotho `MatchEndStateComponent`.                                                                                        |
 | 102 | `UnitDiedEvent`         | Synced non-player unit death event.                                                                                                                                                          |
 | 103 | `AttackCommand`         | Right-click enemy order; carries source `UnitId`s and target `UnitId`; `CommandSystem` validates owned sources and live enemy targets.                                                       |
 | 104 | `PlayerDiedEvent`       | Synced hero death lifecycle event.                                                                                                                                                           |
@@ -75,7 +75,7 @@ Next free project IDs: `KlothoComponent` 114, `KlothoSerializable` 108, `KlothoD
 | `DeathSystem`             | Lifecycle  | Removes dead non-player units and raises unit, crystal, or turret death/destruction events.                             |
 | `RespawnSystem`           | Lifecycle  | Owns player death, scrubs active state during `PendingRespawn`, respawns after 5 seconds, and resets nav agents.        |
 | `NavigationAgentSystem`   | Navigation | Consumes `UnitMoveTarget`, runs `NavigationRuntime.AgentSystem`, and syncs `NavAgentComponent` back to transforms.      |
-| `ScoreSystem`             | Match      | Raises payload-free `GameOverEvent` on match timeout; structure win-condition consumption remains.                      |
+| `ScoreSystem`             | Match      | Evaluates timeout and crystal win conditions, writes Klotho match-end state, and raises one-shot payload-free `GameOverEvent`. |
 | `EventSystem`             | Lifecycle  | Klotho runtime system that dispatches raised simulation events.                                                         |
 | `FPNavAgentSystem`        | Navigation | Runtime helper owned by `NavigationRuntime`; `NavigationAgentSystem` calls it when nav bytes are loaded.                |
 | `FPNavAvoidance`          | Navigation | ORCA avoidance helper instantiated by `NavigationRuntime` and assigned to `FPNavAgentSystem`.                           |
@@ -102,7 +102,7 @@ Next free project IDs: `KlothoComponent` 114, `KlothoSerializable` 108, `KlothoD
 | ✅      | Hero / Champ | `Hero`, `Player`, `Health`, `Combat`, `NavAgentComponent`, stable `UnitId` | Hero/champ view scenes via `UnitViewFactory`                          | Main controllable character; currently carries `Player` participant state and respawns through `RespawnSystem`. |
 | ✅      | Minion       | `Minion`, `Health`, `Combat`, `NavAgentComponent`, stable `UnitId`         | Minion waves via `WaveSpawnSystem`; minion view via `UnitViewFactory` | Wave-spawned controllable unit.                                                                                 |
 | ✅      | Turret       | `Turret`, `Health`, `Combat`, team ownership, stable `UnitId`              | `MapMarkerType.Turret`; turret view via `UnitViewFactory`             | Stationary combat structure; acquires targets but does not chase.                                               |
-| 🟡      | Crystal      | `Crystal`, `Health`, team ownership, stable `UnitId`                       | `MapMarkerType.Crystal`; crystal view via `UnitViewFactory`           | Team core structure; destruction should emit `CrystalDestroyedEvent`.                                           |
+| ✅      | Crystal      | `Crystal`, `Health`, team ownership, stable `UnitId`                       | `MapMarkerType.Crystal`; crystal view via `UnitViewFactory`           | Team core structure; destruction emits `CrystalDestroyedEvent`.                                                 |
 | 🟡      | Shop         | `MapMarkerType.Shop` in baked `MapLayoutAsset`; no gameplay component yet  | Existing world-scene shop marker/view                                 | Marker is exported for future game logic.                                                                       |
 
 ## Events
@@ -114,7 +114,7 @@ Next free project IDs: `KlothoComponent` 114, `KlothoSerializable` 108, `KlothoD
 | ✅      | `PlayerRespawnedEvent`  | `RespawnSystem` | Synced hero respawn lifecycle event for client/UI reactions.                                                                |
 | ✅      | `CrystalDestroyedEvent` | `DeathSystem`   | Synced crystal destruction event with destroyed crystal, owner/team, and killer context; does not directly imply game over. |
 | ✅      | `TurretDestroyedEvent`  | `DeathSystem`   | Synced turret destruction event with destroyed turret `UnitId` and destroyer `UnitId`.                                      |
-| ✅      | `GameOverEvent`         | `ScoreSystem`   | Payload-free synced match-end event; timeout path raises it, structure win condition still needs to consume crystal loss.   |
+| ✅      | `GameOverEvent`         | `ScoreSystem`   | Payload-free synced match-end event raised after timeout or crystal win-condition evaluation.                               |
 
 ## UI
 
@@ -131,17 +131,17 @@ Goal: emit crystal destruction as its own synced event, then end the match only 
 | Status | Work                                                                                      |
 | ------ | ----------------------------------------------------------------------------------------- |
 | ✅      | Detect crystal death before `DeathSystem` destroys the entity.                            |
-| ⬜      | Raise `CrystalDestroyedEvent` with the destroyed crystal, owner/team, and killer context. |
-| ⬜      | Evaluate player/team state after crystal destruction.                                     |
-| ⬜      | Raise `GameOverEvent` only when the evaluated win condition says the match is over.       |
-| ⬜      | Prevent double-emits between timeout and crystal-driven game over.                        |
+| ✅      | Raise `CrystalDestroyedEvent` with the destroyed crystal, owner/team, and killer context. |
+| ✅      | Evaluate player/team state after crystal destruction.                                     |
+| ✅      | Raise `GameOverEvent` only when the evaluated win condition says the match is over.       |
+| ✅      | Prevent double-emits between timeout and crystal-driven game over.                        |
 
 | Status | Acceptance                                                                  |
 | ------ | --------------------------------------------------------------------------- |
-| ⬜      | Destroying a crystal emits `CrystalDestroyedEvent` deterministically.       |
-| ⬜      | Crystal destruction alone does not automatically emit `GameOverEvent`.      |
+| ✅      | Destroying a crystal emits `CrystalDestroyedEvent` deterministically.       |
+| ✅      | Crystal destruction alone does not automatically emit `GameOverEvent`.      |
 | ⬜      | Server and clients agree on winner when `GameOverEvent` is emitted.         |
-| ⬜      | Timeout scoring still works when no crystal-driven win condition has fired. |
+| ✅      | Timeout scoring still works when no crystal-driven win condition has fired. |
 
 ## Milestone A: Combat And Death
 
@@ -152,7 +152,6 @@ Goal: make minions meet, fight, die
 | ✅      | Autonomous deterministic enemy acquisition is implemented for minions, heroes, and turrets.                   |
 | ✅      | Target priority is minion -> hero, then lowest `UnitId`.                                                      |
 | ✅      | Cooldown-gated attacks apply damage, and `DeathSystem` removes dead non-player units through `UnitDiedEvent`. |
-| ⬜      | Add client VFX/audio reactions from synced attack/death events.                                               |
 
 | Status | Acceptance                                                                |
 | ------ | ------------------------------------------------------------------------- |
@@ -186,7 +185,7 @@ Goal: first playable deterministic Footmen-Frenzy slice. Nav is a prerequisite s
 
 | Status | Work                                                                                           |
 | ------ | ---------------------------------------------------------------------------------------------- |
-| 🟡      | Crystals spawn with `Health`; crystal death still needs to emit `CrystalDestroyedEvent`.       |
+| ✅      | Crystals spawn with `Health`; crystal destruction emits `CrystalDestroyedEvent`.               |
 | ✅      | Turrets are stationary combat units with acquisition, in-range attacks, and no chase behavior. |
 | ⬜      | Verify turrets are nav obstacles at bake time.                                                 |
 | 🟡      | Structure views exist for crystals and turrets; team tinting remains.                          |
@@ -227,11 +226,12 @@ Goal: scale toward hundreds or thousands of units without physics. Nav paths are
 | ------ | -------------------------------------------------------------------------- |
 | ⬜      | Add minimap UI.                                                            |
 | ✅      | Camera pan/zoom/follow stays client-only.                                  |
-| ⬜      | VFX and audio are event-driven from synced events, not gameplay authority. |
 
 ## Todo, No Particular Order
 
 | Status | Work                                                                                                          |
 | ------ | ------------------------------------------------------------------------------------------------------------- |
+| ⬜      | Add event-driven VFX reactions from synced events, not gameplay authority.                                    |
+| ⬜      | Add event-driven audio reactions from synced events, not gameplay authority.                                  |
 | ⬜      | Add a bounded async logging sink for server diagnostics.                                                      |
 | ⬜      | Add a dynamic view/object pool for minions; a fixed 64-object pool is probably too small once waves stack up. |
