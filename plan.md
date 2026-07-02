@@ -1,15 +1,29 @@
 # Avalon
 
-- [`sim/`](sim/) is the deterministic sim used by both client and server.
-- Data lives at [`client/Sim/Data/`](client/Sim/Data/) (Godot `res://` requires them inside the Godot project).
-- The server advances fixed ticks, substitutes empty input when needed, broadcasts verified state, and clients rollback/reconcile.
-- The only inputs to the sim are commands and time. Those get shared to clients.
-- Commands use fixed, deterministic IDs. All commands are validated server side before being broadcast.
-- Only X+Z. No vertical movement/physics.
-- No built-in physics. Use deterministic transform integration, radii, proximity queries, grids, and stable iteration order.
-- Client selection not included in the sim
-- Godot is a view and input layer.
+- [`sim/`](sim/) - deterministic sim used by both client and server
+- [`client/Sim/Data/`](client/Sim/Data/) - shared data including JSON and map data
+   - Godot IO (`res://`) requires data to live in the client directory
+- [`client/`](client/) - Godot project, main clients
+- [`server/`](server/) - C# server. Fixed tick simulation receiving commands and sending out events.
+- [`vendor/Klotho/`](vendor/Klotho/) - Networking library, forked
 
+## Simulation Config
+
+Authoritative multiplayer config lives in [`server/simulationconfig.json`](server/simulationconfig.json). Avalon is tuned as a Footmen Frenzy-style server-driven RTS/arena strategy game: multiple players, many controllable units, fairness-first deterministic outcomes, and shallow rollback to avoid expensive many-entity resimulation.
+
+| Setting | Value | Reason |
+| ------- | ----- | ------ |
+| `Mode` | `ServerDriven` | Server authority for validation, fairness, and room management. |
+| `TickIntervalMs` | `66` | ~15 Hz sim cadence; more scalable than action-style 60 Hz while staying more responsive than a full 100 ms RTS tick. |
+| `InputDelayTicks` | `4` | Adds jitter slack without making command feel as heavy as the RTS guide's 6 tick baseline. |
+| `SDInputLeadTicks` | `4` | Gives client inputs enough lead time to reach the authoritative server. |
+| `MaxRollbackTicks` | `8` | Shallow versus the old 50-tick action profile, but high enough for Klotho's server-driven input lead and sync-check invariants. |
+| `SyncCheckInterval` | `4` | Fast desync detection for fairness; must stay within Klotho's effective `MaxRollbackTicks / 2` sync window. |
+| `UsePrediction` | `false` | Avoids speculative many-unit correction churn. |
+| `EnableErrorCorrection` | `false` | Prefer visible authoritative state over smoothing that can hide deterministic issues. |
+| `MaxEntities` | `1024` | Current baseline for hundreds of units plus structures, players, and transient sim entities. |
+
+Revisit these values after crowded-wave profiling. If input feels too heavy, try `TickIntervalMs = 50` before increasing rollback depth. If server arrival jitter causes missed inputs, raise `SDInputLeadTicks` before lowering fairness checks.
 
 ## Network Ids
 
