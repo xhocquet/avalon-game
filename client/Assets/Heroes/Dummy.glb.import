@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://gs4vrw2pklgt"
-path="res://.godot/imported/Player.glb-06268e164f0c317507d2fb4d4a6e00ec.scn"
+path="res://.godot/imported/Dummy.glb-63fb94beeac4bf5bf04885cd55e6d5f0.scn"
 
 [deps]
 
-source_file="res://Assets/Champs/Player.glb"
-dest_files=["res://.godot/imported/Player.glb-06268e164f0c317507d2fb4d4a6e00ec.scn"]
+source_file="res://Assets/Heroes/Dummy.glb"
+dest_files=["res://.godot/imported/Dummy.glb-63fb94beeac4bf5bf04885cd55e6d5f0.scn"]
 
 [params]
 

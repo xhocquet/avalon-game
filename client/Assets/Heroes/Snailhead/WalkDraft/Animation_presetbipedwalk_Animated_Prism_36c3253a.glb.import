@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://1xx55a188qx4"
-path="res://.godot/imported/Animation_presetbipedwalk_Animated_Prism_36c3253a.glb-845fb493d5d5c696bae367097b62f184.scn"
+path="res://.godot/imported/Animation_presetbipedwalk_Animated_Prism_36c3253a.glb-20f7d6033815b6e1bf3620bccf0e344d.scn"
 
 [deps]
 
-source_file="res://Assets/Champs/Snailhead/WalkDraft/Animation_presetbipedwalk_Animated_Prism_36c3253a.glb"
-dest_files=["res://.godot/imported/Animation_presetbipedwalk_Animated_Prism_36c3253a.glb-845fb493d5d5c696bae367097b62f184.scn"]
+source_file="res://Assets/Heroes/Snailhead/WalkDraft/Animation_presetbipedwalk_Animated_Prism_36c3253a.glb"
+dest_files=["res://.godot/imported/Animation_presetbipedwalk_Animated_Prism_36c3253a.glb-20f7d6033815b6e1bf3620bccf0e344d.scn"]
 
 [params]
 

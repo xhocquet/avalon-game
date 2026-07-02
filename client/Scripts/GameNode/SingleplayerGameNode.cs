@@ -88,11 +88,11 @@ namespace Meesles.Avalon {
 
     private void CreateView() {
       _pool = new DefaultGodotEntityViewPool();
-      var playerScene = GD.Load<PackedScene>("res://Scenes/Player.tscn");
+      var heroScene = GD.Load<PackedScene>("res://Scenes/Dummy.tscn");
       var crystalScene = GD.Load<PackedScene>("res://Scenes/Objects/Crystal.tscn");
       var turretScene = GD.Load<PackedScene>("res://Scenes/Objects/Turret.tscn");
       var minionScene = GD.Load<PackedScene>("res://Scenes/Minion.tscn");
-      _pool.Prewarm(playerScene, _sesCfg.MaxPlayers);
+      _pool.Prewarm(heroScene, _sesCfg.MaxPlayers);
       _pool.Prewarm(crystalScene, _sesCfg.MaxPlayers);
       _pool.Prewarm(turretScene, _sesCfg.MaxPlayers * 2);
       _pool.Prewarm(minionScene, 64);
@@ -103,11 +103,11 @@ namespace Meesles.Avalon {
     }
 
     private UnitViewFactory CreateFactory() {
-      var playerScene = GD.Load<PackedScene>("res://Scenes/Player.tscn");
+      var heroScene = GD.Load<PackedScene>("res://Scenes/Dummy.tscn");
       var crystalScene = GD.Load<PackedScene>("res://Scenes/Objects/Crystal.tscn");
       var turretScene = GD.Load<PackedScene>("res://Scenes/Objects/Turret.tscn");
       var minionScene = GD.Load<PackedScene>("res://Scenes/Minion.tscn");
-      return new UnitViewFactory(playerScene, crystalScene, turretScene, minionScene);
+      return new UnitViewFactory(heroScene, crystalScene, turretScene, minionScene);
     }
 
     private void OnLocalViewRegistered(EntityViewNode view) {

@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dgxieox01w1ib"
-path.s3tc="res://.godot/imported/all_hair_wiz_edited_baked.webp-b50968a2eef0619b32e25e387257d025.s3tc.ctex"
-path.etc2="res://.godot/imported/all_hair_wiz_edited_baked.webp-b50968a2eef0619b32e25e387257d025.etc2.ctex"
+path.s3tc="res://.godot/imported/all_hair_wiz_edited_baked.webp-3b7d5262c7f60ede2930b9c59a3e13f3.s3tc.ctex"
+path.etc2="res://.godot/imported/all_hair_wiz_edited_baked.webp-3b7d5262c7f60ede2930b9c59a3e13f3.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://Assets/Champs/AllHairWizard/all_hair_wiz_edited_baked.webp"
-dest_files=["res://.godot/imported/all_hair_wiz_edited_baked.webp-b50968a2eef0619b32e25e387257d025.s3tc.ctex", "res://.godot/imported/all_hair_wiz_edited_baked.webp-b50968a2eef0619b32e25e387257d025.etc2.ctex"]
+source_file="res://Assets/Heroes/AllHairWizard/all_hair_wiz_edited_baked.webp"
+dest_files=["res://.godot/imported/all_hair_wiz_edited_baked.webp-3b7d5262c7f60ede2930b9c59a3e13f3.s3tc.ctex", "res://.godot/imported/all_hair_wiz_edited_baked.webp-3b7d5262c7f60ede2930b9c59a3e13f3.etc2.ctex"]
 
 [params]
 

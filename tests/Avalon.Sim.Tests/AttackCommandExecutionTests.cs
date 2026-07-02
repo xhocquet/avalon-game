@@ -486,6 +486,7 @@ public class AttackCommandExecutionTests {
     });
     frame.Add(entity, new Team { TeamId = teamId });
     frame.Add(entity, new Minion { WaveId = 99 });
+    frame.Add(entity, new Controllable());
     frame.Add(entity, new Health {
       Current = 100,
       Max = 100,

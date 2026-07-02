@@ -46,7 +46,7 @@ namespace Meesles.Avalon {
       ref readonly var targetTransform = ref frame.GetReadOnly<TransformComponent>(targetEntity);
       for (int i = 0; i < command.SourceUnitIdCount; i++) {
         int sourceUnitId = command.GetSourceUnitId(i);
-        if (!UnitLookup.TryGetPlayerOwnedUnitById(ref frame, command.PlayerId, sourceUnitId, out var sourceEntity))
+        if (!UnitLookup.TryGetPlayerControllableUnitById(ref frame, command.PlayerId, sourceUnitId, out var sourceEntity))
           continue;
 
         SetAttackMoveTarget(ref frame, sourceEntity, targetTransform.Position);
@@ -151,7 +151,7 @@ namespace Meesles.Avalon {
       var units = new List<SelectedUnit>();
       for (int i = 0; i < command.UnitIdCount; i++) {
         int unitId = command.GetUnitId(i);
-        if (!UnitLookup.TryGetPlayerOwnedUnitById(ref frame, command.PlayerId, unitId, out var entity))
+        if (!UnitLookup.TryGetPlayerControllableUnitById(ref frame, command.PlayerId, unitId, out var entity))
           continue;
 
         ref readonly var unit = ref frame.GetReadOnly<Unit>(entity);

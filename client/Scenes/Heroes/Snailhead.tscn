@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cfxblhac140rt"]
 
-[ext_resource type="PackedScene" uid="uid://c2taba3kxhnva" path="res://Assets/Champs/Snailhead/snailhead.glb" id="1_ksh44"]
+[ext_resource type="PackedScene" uid="uid://c2taba3kxhnva" path="res://Assets/Heroes/Snailhead/snailhead.glb" id="1_ksh44"]
 
 [node name="snailhead" unique_id=1889546398 instance=ExtResource("1_ksh44")]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)

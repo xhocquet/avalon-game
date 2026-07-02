@@ -218,7 +218,7 @@ namespace Meesles.Avalon {
 
       foreach (Node child in _viewRoot.GetChildren()) {
         if (child is not EntityViewNode view) continue;
-        if (!ViewTeamMatches(view)) continue;
+        if (!CanSelectView(view)) continue;
 
         Vector2 screen = _camera.UnprojectPosition(view.GlobalPosition);
         float distSqr = screen.DistanceSquaredTo(screenPosition);
@@ -237,7 +237,7 @@ namespace Meesles.Avalon {
 
       foreach (Node child in _viewRoot.GetChildren()) {
         if (child is not EntityViewNode view) continue;
-        if (!ViewTeamMatches(view)) continue;
+        if (!CanSelectView(view)) continue;
 
         Vector2 screen = _camera.UnprojectPosition(view.GlobalPosition);
         if (!rectangle.HasPoint(screen)) continue;
@@ -304,6 +304,10 @@ namespace Meesles.Avalon {
       return view is ISelectableTeamView selectable && selectable.TeamMatches(_localTeamId);
     }
 
+    private bool CanSelectView(EntityViewNode view) {
+      return ViewTeamMatches(view) && IsControllableView(view);
+    }
+
     private static Rect2 GetSelectionRectangle(Vector2 start, Vector2 end) {
       Vector2 position = new(Mathf.Min(start.X, end.X), Mathf.Min(start.Y, end.Y));
       Vector2 size = new(Mathf.Abs(end.X - start.X), Mathf.Abs(end.Y - start.Y));
@@ -324,6 +328,19 @@ namespace Meesles.Avalon {
 
       unitId = frame.GetReadOnly<Unit>(view.EntityRef).UnitId;
       return true;
+    }
+
+    private static bool IsControllableView(EntityViewNode view) {
+      if (view.Engine == null || !view.EntityRef.IsValid)
+        return false;
+
+      var frame = view.Engine.PredictedFrame.Frame;
+      if (frame == null || !frame.Has<Unit>(view.EntityRef))
+        frame = view.Engine.VerifiedFrame.Frame;
+
+      return frame != null
+          && frame.Has<Unit>(view.EntityRef)
+          && frame.Has<Controllable>(view.EntityRef);
     }
 
     public void Dispose() {

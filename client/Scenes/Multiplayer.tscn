@@ -1,14 +1,14 @@
 [gd_scene format=3 uid="uid://4xrcsx6mwcqp"]
 
 [ext_resource type="Script" uid="uid://5fl0dgt2expw" path="res://Scripts/GameNode/MultiplayerGameNode.cs" id="1_game"]
-[ext_resource type="PackedScene" path="res://Scenes/Camera3D.tscn" id="4_camera"]
+[ext_resource type="PackedScene" uid="uid://bhs1kmrnawwhu" path="res://Scenes/Camera3D.tscn" id="4_camera"]
 [ext_resource type="PackedScene" uid="uid://bu5kshfajfcmv" path="res://Scenes/UI/GameUI.tscn" id="5_gameui"]
 [ext_resource type="PackedScene" uid="uid://bbvdly6vma5mr" path="res://Scenes/World/WorldEnvironment.tscn" id="6_t46wp"]
 [ext_resource type="PackedScene" uid="uid://clk3ykagonl6k" path="res://Scenes/World/World.tscn" id="6_world"]
 [ext_resource type="PackedScene" uid="uid://viinxjf0q77b" path="res://Scenes/DirectionalLight3D.tscn" id="7_light"]
 [ext_resource type="PackedScene" uid="uid://dy487k8tlwknf" path="res://Scenes/UI/Crosshair.tscn" id="7_ofdpw"]
-[ext_resource type="PackedScene" uid="uid://cfxblhac140rt" path="res://Scenes/Champs/Snailhead.tscn" id="9_2iiil"]
-[ext_resource type="PackedScene" uid="uid://qwlps32xm1dg" path="res://Scenes/Champs/AllHairWizard.tscn" id="9_jvn7g"]
+[ext_resource type="PackedScene" uid="uid://cfxblhac140rt" path="res://Scenes/Heroes/Snailhead.tscn" id="9_2iiil"]
+[ext_resource type="PackedScene" uid="uid://qwlps32xm1dg" path="res://Scenes/Heroes/AllHairWizard.tscn" id="9_jvn7g"]
 [ext_resource type="PackedScene" uid="uid://b0w0cydbf2ux3" path="res://Scenes/Mobs/biomushy.tscn" id="10_entdg"]
 [ext_resource type="PackedScene" uid="uid://bjr7i1wvs40ug" path="res://Scenes/Mobs/eyeball_flowers.tscn" id="11_gpp7o"]
 

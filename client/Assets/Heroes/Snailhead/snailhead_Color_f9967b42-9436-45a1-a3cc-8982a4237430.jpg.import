@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dnjgtw5hynbe6"
-path.s3tc="res://.godot/imported/snailhead_Color_f9967b42-9436-45a1-a3cc-8982a4237430.jpg-c7964b46b1258b952f68de049ee77ee4.s3tc.ctex"
-path.etc2="res://.godot/imported/snailhead_Color_f9967b42-9436-45a1-a3cc-8982a4237430.jpg-c7964b46b1258b952f68de049ee77ee4.etc2.ctex"
+path.s3tc="res://.godot/imported/snailhead_Color_f9967b42-9436-45a1-a3cc-8982a4237430.jpg-3832c2d43e001d990f9c9d36ffd4f213.s3tc.ctex"
+path.etc2="res://.godot/imported/snailhead_Color_f9967b42-9436-45a1-a3cc-8982a4237430.jpg-3832c2d43e001d990f9c9d36ffd4f213.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://Assets/Champs/Snailhead/snailhead_Color_f9967b42-9436-45a1-a3cc-8982a4237430.jpg"
-dest_files=["res://.godot/imported/snailhead_Color_f9967b42-9436-45a1-a3cc-8982a4237430.jpg-c7964b46b1258b952f68de049ee77ee4.s3tc.ctex", "res://.godot/imported/snailhead_Color_f9967b42-9436-45a1-a3cc-8982a4237430.jpg-c7964b46b1258b952f68de049ee77ee4.etc2.ctex"]
+source_file="res://Assets/Heroes/Snailhead/snailhead_Color_f9967b42-9436-45a1-a3cc-8982a4237430.jpg"
+dest_files=["res://.godot/imported/snailhead_Color_f9967b42-9436-45a1-a3cc-8982a4237430.jpg-3832c2d43e001d990f9c9d36ffd4f213.s3tc.ctex", "res://.godot/imported/snailhead_Color_f9967b42-9436-45a1-a3cc-8982a4237430.jpg-3832c2d43e001d990f9c9d36ffd4f213.etc2.ctex"]
 
 [params]
 

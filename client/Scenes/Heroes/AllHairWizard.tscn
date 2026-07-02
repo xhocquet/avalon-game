@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://qwlps32xm1dg"]
 
-[ext_resource type="PackedScene" uid="uid://cm4dm7liatrfj" path="res://Assets/Champs/AllHairWizard/all_hair_wiz_edited.glb" id="1_mdheq"]
+[ext_resource type="PackedScene" uid="uid://cm4dm7liatrfj" path="res://Assets/Heroes/AllHairWizard/all_hair_wiz_edited.glb" id="1_mdheq"]
 
 [node name="all_hair_wiz_edited" unique_id=361300862 instance=ExtResource("1_mdheq")]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)

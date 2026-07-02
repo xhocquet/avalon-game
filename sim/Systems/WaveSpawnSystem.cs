@@ -129,6 +129,7 @@ namespace Meesles.Avalon {
       frame.Add(entity, new OwnerComponent { OwnerId = teamId });
       frame.Add(entity, new Team { TeamId = teamId });
       frame.Add(entity, new Minion { WaveId = waveId });
+      frame.Add(entity, new Controllable());
       frame.Add(entity, new Health {
         Current = stats.Health,
         Max = stats.Health,

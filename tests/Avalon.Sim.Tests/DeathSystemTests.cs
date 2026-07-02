@@ -118,10 +118,10 @@ public class DeathSystemTests {
   }
 
   [Fact]
-  public void Update_DoesNotDestroyDeadPlayerUnits() {
+  public void Update_DoesNotDestroyDeadHeroes() {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
-    EntityRef entity = GetFirstPlayerEntity(ref frame);
+    EntityRef entity = GetFirstHeroEntity(ref frame);
     int unitId = frame.GetReadOnly<Unit>(entity).UnitId;
     frame.Get<Health>(entity).Current = 0;
 
@@ -160,12 +160,12 @@ public class DeathSystemTests {
     throw new Xunit.Sdk.XunitException("Expected an enemy combat unit.");
   }
 
-  private static EntityRef GetFirstPlayerEntity(ref Frame frame) {
+  private static EntityRef GetFirstHeroEntity(ref Frame frame) {
     var filter = frame.Filter<Player, Unit, Health, TransformComponent>();
     if (filter.Next(out var entity))
       return entity;
 
-    throw new Xunit.Sdk.XunitException("Expected an initialized player entity.");
+    throw new Xunit.Sdk.XunitException("Expected an initialized hero entity.");
   }
 
   private static EntityRef SpawnTestMinion(ref Frame frame) {

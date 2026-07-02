@@ -56,6 +56,18 @@ public class UnitLookupTests {
   }
 
   [Fact]
+  public void TryGetPlayerControllableUnitById_RejectsOwnTeamTurret() {
+    var harness = SimHarness.CreateInitialized();
+    var frame = harness.Frame;
+    int turretUnitId = GetTurretUnitId(harness, teamId: 1);
+
+    bool found = UnitLookup.TryGetPlayerControllableUnitById(ref frame, playerId: 1, turretUnitId, out var entity);
+
+    found.Should().BeFalse();
+    entity.IsValid.Should().BeFalse();
+  }
+
+  [Fact]
   public void TryGetEntityByUnitId_ReturnsFalseAfterEntityDestroyed() {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
@@ -80,5 +92,19 @@ public class UnitLookupTests {
     }
 
     throw new Xunit.Sdk.XunitException($"Player {playerId} unit was not found.");
+  }
+
+  private static int GetTurretUnitId(SimHarness harness, int teamId) {
+    var frame = harness.Frame;
+    var filter = frame.Filter<Turret, Team, Unit>();
+    while (filter.Next(out var entity)) {
+      ref readonly var team = ref frame.GetReadOnly<Team>(entity);
+      if (team.TeamId != teamId)
+        continue;
+
+      return frame.GetReadOnly<Unit>(entity).UnitId;
+    }
+
+    throw new Xunit.Sdk.XunitException($"Team {teamId} turret unit was not found.");
   }
 }

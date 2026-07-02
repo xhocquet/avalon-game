@@ -1,5 +1,4 @@
 # Avalon
-
 - [`sim/`](sim/) - deterministic sim used by both client and server
 - [`client/Sim/Data/`](client/Sim/Data/) - shared data including JSON and map data
    - Godot IO (`res://`) requires data to live in the client directory
@@ -7,23 +6,39 @@
 - [`server/`](server/) - C# server. Fixed tick simulation receiving commands and sending out events.
 - [`vendor/Klotho/`](vendor/Klotho/) - Networking library, forked
 
+## Tools
+- [`SimMarkerNode`](client/Scripts/SimMarkerNode.cs) - Markers can be placed in Godot and used in sim code (spawns, shops)
+  - These are baked with Godot tool [`GodotFPMapLayoutExporter`](client/Scripts/Editor/GodotFPMapLayoutExporter.cs) and saved to [`Sim/Data/MapLayout.bytes`](client/Sim/Data/MapLayout.bytes)
+- In the same way, we generate a deterministic navmesh to [`NavigationRegion3D.NavMeshData.bytes`](client/Sim/Data/NavigationRegion3D.NavMeshData.bytes)
+- [`UnitIdGenerator`](sim/UnitIdGenerator.cs) provides stable identifiers for all units
+
+
 ## Simulation Config
 
-Authoritative multiplayer config lives in [`server/simulationconfig.json`](server/simulationconfig.json). Avalon is tuned as a Footmen Frenzy-style server-driven RTS/arena strategy game: multiple players, many controllable units, fairness-first deterministic outcomes, and shallow rollback to avoid expensive many-entity resimulation.
+[`server/simulationconfig.json`](server/simulationconfig.json)
 
-| Setting | Value | Reason |
+| `TickIntervalMs` | `66` | ~15 Hz. more scalable than action-style 60 Hz while staying more responsive than a full 100 ms RTS tick. |
 | ------- | ----- | ------ |
-| `Mode` | `ServerDriven` | Server authority for validation, fairness, and room management. |
-| `TickIntervalMs` | `66` | ~15 Hz sim cadence; more scalable than action-style 60 Hz while staying more responsive than a full 100 ms RTS tick. |
-| `InputDelayTicks` | `4` | Adds jitter slack without making command feel as heavy as the RTS guide's 6 tick baseline. |
-| `SDInputLeadTicks` | `4` | Gives client inputs enough lead time to reach the authoritative server. |
-| `MaxRollbackTicks` | `8` | Shallow versus the old 50-tick action profile, but high enough for Klotho's server-driven input lead and sync-check invariants. |
-| `SyncCheckInterval` | `4` | Fast desync detection for fairness; must stay within Klotho's effective `MaxRollbackTicks / 2` sync window. |
-| `UsePrediction` | `false` | Avoids speculative many-unit correction churn. |
-| `EnableErrorCorrection` | `false` | Prefer visible authoritative state over smoothing that can hide deterministic issues. |
-| `MaxEntities` | `1024` | Current baseline for hundreds of units plus structures, players, and transient sim entities. |
+| `InputDelayTicks` | `4` | Adds jitter slack without making command feel as heavy as the RTS guide's 6 tick baseline |
+| `SDInputLeadTicks` | `4` | Gives clients enough lead time to reach the authoritative server. |
+| `MaxRollbackTicks` | `8` | Just enough to smooth inputs |
+| `SyncCheckInterval` | `4` | Fast desync detection |
+| `UsePrediction` | `false` | Too expensive for many units |
+| `EnableErrorCorrection` | `false` | Correct visible state > smoothing |
+| `MaxEntities` | `1024+` | Gives us 4 players X 256 units. Room to grow |
 
-Revisit these values after crowded-wave profiling. If input feels too heavy, try `TickIntervalMs = 50` before increasing rollback depth. If server arrival jitter causes missed inputs, raise `SDInputLeadTicks` before lowering fairness checks.
+
+
+## Node Types
+
+| Node Type    | Sim State                                                                  | View / Layout                                                         | Notes                                                                                                           |
+| ------------ | -------------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Hero         | [`Hero`](sim/Models/Hero.cs), [`Player`](sim/Models/Player.cs), [`Controllable`](sim/Models/Controllable.cs), [`Health`](sim/Models/Health.cs), [`Combat`](sim/Models/Combat.cs), [`NavAgentComponent`](vendor/Klotho/com.xpturn.klotho/Runtime/Deterministic/Navigation/NavAgentComponent.cs), stable [`UnitId`](sim/Models/Unit.cs) | Hero view scene via [`UnitViewFactory`](client/Scripts/View/UnitViewFactory.cs)                          | Main controllable character; currently carries [`Player`](sim/Models/Player.cs) participant state and respawns through [`RespawnSystem`](sim/Systems/RespawnSystem.cs). |
+| Minion       | [`Minion`](sim/Models/Minion.cs), [`Controllable`](sim/Models/Controllable.cs), [`Health`](sim/Models/Health.cs), [`Combat`](sim/Models/Combat.cs), [`NavAgentComponent`](vendor/Klotho/com.xpturn.klotho/Runtime/Deterministic/Navigation/NavAgentComponent.cs), stable [`UnitId`](sim/Models/Unit.cs)         | Minion waves via [`WaveSpawnSystem`](sim/Systems/WaveSpawnSystem.cs); minion view via [`UnitViewFactory`](client/Scripts/View/UnitViewFactory.cs) | Wave-spawned controllable unit.                                                                                 |
+| Turret       | [`Turret`](sim/Models/Turret.cs), [`Health`](sim/Models/Health.cs), [`Combat`](sim/Models/Combat.cs), team ownership, stable [`UnitId`](sim/Models/Unit.cs)              | [`MapMarkerType.Turret`](sim/MapMarkerType.cs); turret view via [`UnitViewFactory`](client/Scripts/View/UnitViewFactory.cs)             | Stationary combat structure; acquires targets but does not chase.                                               |
+| Crystal      | [`Crystal`](sim/Models/Crystal.cs), [`Health`](sim/Models/Health.cs), team ownership, stable [`UnitId`](sim/Models/Unit.cs)                       | [`MapMarkerType.Crystal`](sim/MapMarkerType.cs); crystal view via [`UnitViewFactory`](client/Scripts/View/UnitViewFactory.cs)           | Team core structure; destruction emits [`CrystalDestroyedEvent`](sim/Events/CrystalDestroyedEvent.cs).                                                 |
+| Shop         | [`MapMarkerType.Shop`](sim/MapMarkerType.cs) in baked [`MapLayoutAsset`](sim/Assets/MapLayoutAsset.cs); no gameplay component yet  | Existing world-scene shop marker/view                                 | Marker is exported for future game logic.                                                                       |
+
 
 ## Network Ids
 
@@ -41,6 +56,7 @@ Uses [`KlothoComponentAttribute`](vendor/Klotho/com.xpturn.klotho/Runtime/ECS/At
 | 110 | [`UnitMoveTarget`](sim/Models/UnitMoveTarget.cs) |
 | 111 | [`AttackTargetUnitId`](sim/Models/AttackTargetUnitId.cs) |
 | 112 | [`PendingRespawn`](sim/Models/PendingRespawn.cs) |
+| 114 | [`Controllable`](sim/Models/Controllable.cs) |
 | **Units** | |
 | 101 | [`Unit`](sim/Models/Unit.cs) |
 | 104 | [`Hero`](sim/Models/Hero.cs) |
@@ -78,14 +94,14 @@ Uses [`KlothoDataAssetAttribute`](vendor/Klotho/com.xpturn.klotho/Runtime/ECS/Da
 | --- | ------------------- | -------------------------------------------------------------- |
 | 11  | [`NavAgentComponent`](vendor/Klotho/com.xpturn.klotho/Runtime/Deterministic/Navigation/NavAgentComponent.cs) | Packaged Klotho nav component; no conflict with project range. |
 
-Next free project IDs: [`KlothoComponent`](vendor/Klotho/com.xpturn.klotho/Runtime/ECS/Core/IComponent.cs) 114, [`KlothoSerializable`](vendor/Klotho/com.xpturn.klotho/Runtime/Serialization/Attributes/KlothoSerializableAttribute.cs) command 104, [`KlothoSerializable`](vendor/Klotho/com.xpturn.klotho/Runtime/Serialization/Attributes/KlothoSerializableAttribute.cs) event 108, [`KlothoDataAsset`](vendor/Klotho/com.xpturn.klotho/Runtime/ECS/DataAsset/IDataAsset.cs) 104.
+Next free project IDs: [`KlothoComponent`](vendor/Klotho/com.xpturn.klotho/Runtime/ECS/Core/IComponent.cs) 115, [`KlothoSerializable`](vendor/Klotho/com.xpturn.klotho/Runtime/Serialization/Attributes/KlothoSerializableAttribute.cs) command 104, [`KlothoSerializable`](vendor/Klotho/com.xpturn.klotho/Runtime/Serialization/Attributes/KlothoSerializableAttribute.cs) event 108, [`KlothoDataAsset`](vendor/Klotho/com.xpturn.klotho/Runtime/ECS/DataAsset/IDataAsset.cs) 104.
 
 ## Systems
 
 | System | Notes |
 | ------ | ----- |
 | **Commands** | |
-| [`CommandSystem`](sim/Systems/CommandSystem.cs) | Validates and applies [`MoveCommand`](sim/Commands/MoveCommand.cs) and [`AttackCommand`](sim/Commands/AttackCommand.cs); writes [`UnitMoveTarget`](sim/Models/UnitMoveTarget.cs) and [`AttackTargetUnitId`](sim/Models/AttackTargetUnitId.cs). |
+| [`CommandSystem`](sim/Systems/CommandSystem.cs) | Validates and applies [`MoveCommand`](sim/Commands/MoveCommand.cs) and [`AttackCommand`](sim/Commands/AttackCommand.cs) from [`Controllable`](sim/Models/Controllable.cs) units; writes [`UnitMoveTarget`](sim/Models/UnitMoveTarget.cs) and [`AttackTargetUnitId`](sim/Models/AttackTargetUnitId.cs). |
 | **Spawning** | |
 | [`WaveSpawnSystem`](sim/Systems/WaveSpawnSystem.cs) | Spawns deterministic team minion waves from [`SpawnPoint`](sim/Models/SpawnPoint.cs) markers using wave/minion data assets. |
 | **Combat** | |
@@ -94,8 +110,8 @@ Next free project IDs: [`KlothoComponent`](vendor/Klotho/com.xpturn.klotho/Runti
 | [`AttackCooldownSystem`](sim/Systems/AttackCooldownSystem.cs) | Decrements attack cooldowns. |
 | [`DamageSystem`](sim/Systems/DamageSystem.cs) | Applies deterministic cooldown-gated damage for in-range attack targets. |
 | **Lifecycle** | |
-| [`DeathSystem`](sim/Systems/DeathSystem.cs) | Removes dead non-player units and raises unit, crystal, or turret death/destruction events. |
-| [`RespawnSystem`](sim/Systems/RespawnSystem.cs) | Owns player death, scrubs active state during [`PendingRespawn`](sim/Models/PendingRespawn.cs), respawns after 5 seconds, and resets nav agents. |
+| [`DeathSystem`](sim/Systems/DeathSystem.cs) | Removes dead non-hero units and raises unit, crystal, or turret death/destruction events. |
+| [`RespawnSystem`](sim/Systems/RespawnSystem.cs) | Owns hero death, scrubs active state during [`PendingRespawn`](sim/Models/PendingRespawn.cs), respawns after 5 seconds, and resets nav agents. |
 | [`EventSystem`](vendor/Klotho/com.xpturn.klotho/Runtime/ECS/Systems/EventSystem.cs) | Klotho runtime system that dispatches raised simulation events. |
 | **Navigation** | |
 | [`NavigationAgentSystem`](sim/Systems/NavigationAgentSystem.cs) | Consumes [`UnitMoveTarget`](sim/Models/UnitMoveTarget.cs), runs [`NavigationRuntime.AgentSystem`](sim/NavigationRuntime.cs), and syncs [`NavAgentComponent`](vendor/Klotho/com.xpturn.klotho/Runtime/Deterministic/Navigation/NavAgentComponent.cs) back to transforms. |
@@ -106,30 +122,6 @@ Next free project IDs: [`KlothoComponent`](vendor/Klotho/com.xpturn.klotho/Runti
 | **Server** | |
 | [`MatchResultSaveSystem`](server/MatchResultSaveSystem.cs) | Server-only post-update system that saves the shared [`MatchResultReader`](sim/MatchResult.cs) output once per ended match. |
 
-## Shared Client Server
-
-- [`SimMarkerNode`](client/Scripts/SimMarkerNode.cs) ([Tool][GlobalClass] Node3D) places sim layout markers in the editor.
-- [`MapLayoutAsset`](sim/Assets/MapLayoutAsset.cs) ([`KlothoDataAsset`](vendor/Klotho/com.xpturn.klotho/Runtime/ECS/DataAsset/IDataAsset.cs) 102) stores marker positions; [`GodotFPMapLayoutExporter`](client/Scripts/Editor/GodotFPMapLayoutExporter.cs) bakes them to [`Sim/Data/MapLayout.bytes`](client/Sim/Data/MapLayout.bytes).
-- [`SimulationSetup`](sim/SimulationSetup.cs) requires [`MapLayoutAsset`](sim/Assets/MapLayoutAsset.cs) for structure/spawn positions and fails loudly when markers are missing.
-- Map layout foundation is complete: editor-authored markers can drive baked layout data for sim spawn/structure placement.
-- Client and server load [`MapLayout.bytes`](client/Sim/Data/MapLayout.bytes) as runtime data.
-- Navigation runtime exists: [`FPNavMesh`](vendor/Klotho/com.xpturn.klotho/Runtime/Deterministic/Navigation/FPNavMesh.cs) loading, query/pathfinder/funnel, and sim integration.
-- [`NavigationRegion3D.NavMeshData.bytes`](client/Sim/Data/NavigationRegion3D.NavMeshData.bytes) lives beside [`MapLayout.bytes`](client/Sim/Data/MapLayout.bytes) under [`client/Sim/Data/`](client/Sim/Data/); client and server load it from that shared data path.
-- Client and server register [`NavigationRuntime.FromBytes(...)`](sim/NavigationRuntime.cs) before world initialization.
-
-## Determinism
-
-- [`UnitIdGenerator`](sim/UnitIdGenerator.cs) provides stable sim-level unit identity.
-
-## Node Types
-
-| Status | Node Type    | Sim State                                                                  | View / Layout                                                         | Notes                                                                                                           |
-| ------ | ------------ | -------------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| ✅      | Hero / Champ | [`Hero`](sim/Models/Hero.cs), [`Player`](sim/Models/Player.cs), [`Health`](sim/Models/Health.cs), [`Combat`](sim/Models/Combat.cs), [`NavAgentComponent`](vendor/Klotho/com.xpturn.klotho/Runtime/Deterministic/Navigation/NavAgentComponent.cs), stable [`UnitId`](sim/Models/Unit.cs) | Hero/champ view scenes via [`UnitViewFactory`](client/Scripts/View/UnitViewFactory.cs)                          | Main controllable character; currently carries [`Player`](sim/Models/Player.cs) participant state and respawns through [`RespawnSystem`](sim/Systems/RespawnSystem.cs). |
-| ✅      | Minion       | [`Minion`](sim/Models/Minion.cs), [`Health`](sim/Models/Health.cs), [`Combat`](sim/Models/Combat.cs), [`NavAgentComponent`](vendor/Klotho/com.xpturn.klotho/Runtime/Deterministic/Navigation/NavAgentComponent.cs), stable [`UnitId`](sim/Models/Unit.cs)         | Minion waves via [`WaveSpawnSystem`](sim/Systems/WaveSpawnSystem.cs); minion view via [`UnitViewFactory`](client/Scripts/View/UnitViewFactory.cs) | Wave-spawned controllable unit.                                                                                 |
-| ✅      | Turret       | [`Turret`](sim/Models/Turret.cs), [`Health`](sim/Models/Health.cs), [`Combat`](sim/Models/Combat.cs), team ownership, stable [`UnitId`](sim/Models/Unit.cs)              | [`MapMarkerType.Turret`](sim/MapMarkerType.cs); turret view via [`UnitViewFactory`](client/Scripts/View/UnitViewFactory.cs)             | Stationary combat structure; acquires targets but does not chase.                                               |
-| ✅      | Crystal      | [`Crystal`](sim/Models/Crystal.cs), [`Health`](sim/Models/Health.cs), team ownership, stable [`UnitId`](sim/Models/Unit.cs)                       | [`MapMarkerType.Crystal`](sim/MapMarkerType.cs); crystal view via [`UnitViewFactory`](client/Scripts/View/UnitViewFactory.cs)           | Team core structure; destruction emits [`CrystalDestroyedEvent`](sim/Events/CrystalDestroyedEvent.cs).                                                 |
-| 🟡      | Shop         | [`MapMarkerType.Shop`](sim/MapMarkerType.cs) in baked [`MapLayoutAsset`](sim/Assets/MapLayoutAsset.cs); no gameplay component yet  | Existing world-scene shop marker/view                                 | Marker is exported for future game logic.                                                                       |
 
 ## UI
 
@@ -143,9 +135,9 @@ Next free project IDs: [`KlothoComponent`](vendor/Klotho/com.xpturn.klotho/Runti
 
 | Input                  | Command / State                | Payload                                                  | Sim Handling                                                                                                     |
 | ---------------------- | ------------------------------ | -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| Local click selection  | Client-only selection state    | Selected view/unit ids are not recorded as sim state.    | No sim mutation.                                                                                                 |
-| Right-click ground     | [`MoveCommand`](sim/Commands/MoveCommand.cs)                  | Target X/Z plus explicit selected [`UnitIds`](sim/Models/Unit.cs).             | [`CommandSystem`](sim/Systems/CommandSystem.cs) validates ownership and writes [`UnitMoveTarget`](sim/Models/UnitMoveTarget.cs).                                                 |
-| Right-click enemy      | [`AttackCommand`](sim/Commands/AttackCommand.cs)                | Target [`UnitId`](sim/Models/Unit.cs) plus explicit selected source [`UnitIds`](sim/Models/Unit.cs). | [`CommandSystem`](sim/Systems/CommandSystem.cs) validates ownership/live enemy target and writes [`AttackTargetUnitId`](sim/Models/AttackTargetUnitId.cs) plus initial chase target. |
+| Local click selection  | Client-only selection state    | Selected controllable view/unit ids are not recorded as sim state. | No sim mutation.                                                                                                 |
+| Right-click ground     | [`MoveCommand`](sim/Commands/MoveCommand.cs)                  | Target X/Z plus explicit selected [`UnitIds`](sim/Models/Unit.cs).             | [`CommandSystem`](sim/Systems/CommandSystem.cs) validates ownership and [`Controllable`](sim/Models/Controllable.cs), then writes [`UnitMoveTarget`](sim/Models/UnitMoveTarget.cs).                                                 |
+| Right-click enemy      | [`AttackCommand`](sim/Commands/AttackCommand.cs)                | Target [`UnitId`](sim/Models/Unit.cs) plus explicit selected source [`UnitIds`](sim/Models/Unit.cs). | [`CommandSystem`](sim/Systems/CommandSystem.cs) validates ownership, [`Controllable`](sim/Models/Controllable.cs), and live enemy target, then writes [`AttackTargetUnitId`](sim/Models/AttackTargetUnitId.cs) plus initial chase target. |
 | WASD / camera controls | Client-only camera/debug input | No gameplay command payload.                             | No sim mutation.                                                                                                 |
 
 ## Milestone E: Avoidance And Scale

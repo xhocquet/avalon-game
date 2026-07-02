@@ -56,5 +56,17 @@ namespace Meesles.Avalon.Sim {
 
       return TryGetTeamUnitById(ref frame, teamId, unitId, out entity);
     }
+
+    public static bool TryGetPlayerControllableUnitById(ref Frame frame, int playerId, int unitId,
+        out EntityRef entity) {
+      if (!TryGetPlayerOwnedUnitById(ref frame, playerId, unitId, out entity))
+        return false;
+
+      if (frame.Has<Controllable>(entity))
+        return true;
+
+      entity = default;
+      return false;
+    }
   }
 }

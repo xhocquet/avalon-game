@@ -11,7 +11,7 @@ namespace Meesles.Avalon.Sim {
     private const int PlayerUnitTypeId = 1;
     public const int MinionUnitTypeId = 2;
     private const int CrystalUnitTypeId = 100;
-    private const int TurretUnitTypeId = 101;
+    public const int TurretUnitTypeId = 101;
     private const int StructureHealth = 100;
     private const int TurretAttackDamage = 10;
     private const int TurretAttackCooldownTicks = 30;
@@ -70,6 +70,7 @@ namespace Meesles.Avalon.Sim {
           UnitId = UnitIdGenerator.Next(ref frame),
           UnitTypeId = PlayerUnitTypeId,
         });
+        frame.Add(entity, new Controllable());
         if (playerStats != null) {
           frame.Add(entity, new Health {
             Current = playerStats.Health,

@@ -20,6 +20,7 @@ public class SimInvariantTests {
     harness.Count<Crystal>().Should().Be(2);
     harness.Count<Turret>().Should().Be(4);
     harness.Count<SpawnPoint>().Should().Be(2);
+    harness.Count<Controllable>().Should().Be(2);
     GetCrystals(harness)
         .Should()
         .BeEquivalentTo([
@@ -94,6 +95,7 @@ public class SimInvariantTests {
 
     MinionSnapshot[] minions = GetMinions(simA);
     minions.Should().HaveCount(rules.MinionsPerWave * 2);
+    simA.Count<Controllable>().Should().Be(2 + minions.Length);
     minions.Should().OnlyContain(minion => minion.WaveId == 0);
     minions.Count(minion => minion.TeamId == 1).Should().Be(rules.MinionsPerWave);
     minions.Count(minion => minion.TeamId == 2).Should().Be(rules.MinionsPerWave);
@@ -192,6 +194,24 @@ public class SimInvariantTests {
   }
 
   [Fact]
+  public void SelectedMoveCommands_DoNotMoveOwnTeamTurrets() {
+    var harness = SimHarness.CreateInitialized();
+    UnitPositionSnapshot turret = GetUnitPositions(harness)
+        .First(unit => unit.TeamId == 1 && unit.UnitTypeId == SimulationSetup.TurretUnitTypeId);
+
+    var command = SimHarness.MoveCommand(1, 0, FP64.One, -FP64.One);
+    command.AddUnitId(turret.UnitId);
+
+    harness.Tick(command);
+
+    var frame = harness.Frame;
+    EntityRef turretEntity = FindUnitEntity(harness, turret.UnitId);
+    frame.Has<Controllable>(turretEntity).Should().BeFalse();
+    frame.Has<UnitMoveTarget>(turretEntity).Should().BeFalse();
+    frame.GetReadOnly<TransformComponent>(turretEntity).Position.Should().Be(turret.Position);
+  }
+
+  [Fact]
   public void SelectedMoveCommands_CanMoveHeroAndMinionTogetherThroughNavigation() {
     var harness = SimHarness.CreateInitialized();
     var rules = harness.AssetRegistry.Get<WaveRulesAsset>();
@@ -283,7 +303,7 @@ public class SimInvariantTests {
 
     PlayerSnapshot player = GetPlayerSnapshots(simA).Single(snapshot => snapshot.PlayerId == 1);
     player.Score.Should().Be(-1);
-    simA.Frame.Has<PendingRespawn>(FindPlayerEntity(simA, playerId: 1)).Should().BeTrue();
+    simA.Frame.Has<PendingRespawn>(FindHeroEntity(simA, playerId: 1)).Should().BeTrue();
 
     PlayerTransformSnapshot transform = GetPlayerTransforms(simA).Single(snapshot => snapshot.PlayerId == 1);
     var frame = simA.Frame;
@@ -294,10 +314,10 @@ public class SimInvariantTests {
   public void PlayerDeath_EmitsEventsAndRespawnsAfterDelay() {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
-    EntityRef player = FindPlayerEntity(harness, playerId: 1);
-    int unitId = frame.GetReadOnly<Unit>(player).UnitId;
+    EntityRef hero = FindHeroEntity(harness, playerId: 1);
+    int unitId = frame.GetReadOnly<Unit>(hero).UnitId;
     int delayTicks = GetRespawnDelayTicks(frame);
-    frame.Get<Health>(player).Current = 0;
+    frame.Get<Health>(hero).Current = 0;
 
     var collector = new EventCollector();
     collector.BeginTick(12);
@@ -306,10 +326,10 @@ public class SimInvariantTests {
     var system = new RespawnSystem();
     system.Update(ref frame);
 
-    player = FindPlayerEntity(harness, playerId: 1);
-    frame.Has<PendingRespawn>(player).Should().BeTrue();
-    frame.GetReadOnly<Health>(player).Current.Should().Be(0);
-    frame.GetReadOnly<Player>(player).Score.Should().Be(-1);
+    hero = FindHeroEntity(harness, playerId: 1);
+    frame.Has<PendingRespawn>(hero).Should().BeTrue();
+    frame.GetReadOnly<Health>(hero).Current.Should().Be(0);
+    frame.GetReadOnly<Player>(hero).Score.Should().Be(-1);
 
     collector.Count.Should().Be(1);
     var died = collector.Collected[0].Should().BeOfType<PlayerDiedEvent>().Subject;
@@ -322,18 +342,18 @@ public class SimInvariantTests {
     for (int tick = 0; tick < delayTicks - 1; tick++)
       system.Update(ref frame);
 
-    frame.Has<PendingRespawn>(player).Should().BeTrue();
-    frame.GetReadOnly<Health>(player).Current.Should().Be(0);
+    frame.Has<PendingRespawn>(hero).Should().BeTrue();
+    frame.GetReadOnly<Health>(hero).Current.Should().Be(0);
 
     collector.BeginTick(12 + delayTicks);
     system.Update(ref frame);
 
-    player = FindPlayerEntity(harness, playerId: 1);
-    ref readonly var health = ref frame.GetReadOnly<Health>(player);
+    hero = FindHeroEntity(harness, playerId: 1);
+    ref readonly var health = ref frame.GetReadOnly<Health>(hero);
     health.Current.Should().Be(health.Max);
-    frame.Has<PendingRespawn>(player).Should().BeFalse();
+    frame.Has<PendingRespawn>(hero).Should().BeFalse();
     FPVector3 spawnPosition = SimulationSetup.GetHeroSpawnPositionForTeam(ref frame, teamId: 1);
-    frame.GetReadOnly<TransformComponent>(player).Position.Should().Be(spawnPosition);
+    frame.GetReadOnly<TransformComponent>(hero).Position.Should().Be(spawnPosition);
 
     collector.Count.Should().Be(1);
     var respawned = collector.Collected[0].Should().BeOfType<PlayerRespawnedEvent>().Subject;
@@ -472,7 +492,7 @@ public class SimInvariantTests {
     return default;
   }
 
-  private static EntityRef FindPlayerEntity(SimHarness harness, int playerId) {
+  private static EntityRef FindHeroEntity(SimHarness harness, int playerId) {
     var frame = harness.Frame;
     var filter = frame.Filter<Player>();
     while (filter.Next(out var entity)) {
@@ -481,7 +501,7 @@ public class SimInvariantTests {
         return entity;
     }
 
-    Assert.Fail($"Player {playerId} was not found.");
+    Assert.Fail($"Hero for player {playerId} was not found.");
     return default;
   }
 
