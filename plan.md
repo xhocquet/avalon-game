@@ -30,14 +30,9 @@
 
 
 ## Node Types
+|[`Hero`](sim/Models/Hero.cs)|[`Turret`](sim/Models/Turret.cs) |[`Minion`](sim/Models/Minion.cs)|[`Crystal`](sim/Models/Crystal.cs) | Shop |
+|-|-|-|-|-|
 
-| Node Type    | Sim State                                                                  | View / Layout                                                         | Notes                                                                                                           |
-| ------------ | -------------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Hero         | [`Hero`](sim/Models/Hero.cs), [`Player`](sim/Models/Player.cs), [`Controllable`](sim/Models/Controllable.cs), [`Health`](sim/Models/Health.cs), [`Combat`](sim/Models/Combat.cs), [`NavAgentComponent`](vendor/Klotho/com.xpturn.klotho/Runtime/Deterministic/Navigation/NavAgentComponent.cs), stable [`UnitId`](sim/Models/Unit.cs) | Hero view scene via [`UnitViewFactory`](client/Scripts/View/UnitViewFactory.cs)                          | Main controllable character; currently carries [`Player`](sim/Models/Player.cs) participant state and respawns through [`RespawnSystem`](sim/Systems/RespawnSystem.cs). |
-| Minion       | [`Minion`](sim/Models/Minion.cs), [`Controllable`](sim/Models/Controllable.cs), [`Health`](sim/Models/Health.cs), [`Combat`](sim/Models/Combat.cs), [`NavAgentComponent`](vendor/Klotho/com.xpturn.klotho/Runtime/Deterministic/Navigation/NavAgentComponent.cs), stable [`UnitId`](sim/Models/Unit.cs)         | Minion waves via [`WaveSpawnSystem`](sim/Systems/WaveSpawnSystem.cs); minion view via [`UnitViewFactory`](client/Scripts/View/UnitViewFactory.cs) | Wave-spawned controllable unit.                                                                                 |
-| Turret       | [`Turret`](sim/Models/Turret.cs), [`Health`](sim/Models/Health.cs), [`Combat`](sim/Models/Combat.cs), team ownership, stable [`UnitId`](sim/Models/Unit.cs)              | [`MapMarkerType.Turret`](sim/MapMarkerType.cs); turret view via [`UnitViewFactory`](client/Scripts/View/UnitViewFactory.cs)             | Stationary combat structure; acquires targets but does not chase.                                               |
-| Crystal      | [`Crystal`](sim/Models/Crystal.cs), [`Health`](sim/Models/Health.cs), team ownership, stable [`UnitId`](sim/Models/Unit.cs)                       | [`MapMarkerType.Crystal`](sim/MapMarkerType.cs); crystal view via [`UnitViewFactory`](client/Scripts/View/UnitViewFactory.cs)           | Team core structure; destruction emits [`CrystalDestroyedEvent`](sim/Events/CrystalDestroyedEvent.cs).                                                 |
-| Shop         | [`MapMarkerType.Shop`](sim/MapMarkerType.cs) in baked [`MapLayoutAsset`](sim/Assets/MapLayoutAsset.cs); no gameplay component yet  | Existing world-scene shop marker/view                                 | Marker is exported for future game logic.                                                                       |
 
 
 ## Network Ids
