@@ -266,6 +266,7 @@ public class SimInvariantTests {
         .Single(unit => unit.TeamId == 1 && unit.UnitTypeId == 1);
     UnitPositionSnapshot minion = GetUnitPositions(harness)
         .First(unit => unit.TeamId == 1 && unit.UnitTypeId == SimulationSetup.MinionUnitTypeId);
+    rules.SpawnIntervalTicks = int.MaxValue;
 
     var command = SimHarness.MoveCommand(1, 0, FP64.Zero, FP64.Zero);
     command.AddUnitId(hero.UnitId);

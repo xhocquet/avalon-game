@@ -50,64 +50,9 @@ namespace Meesles.Avalon {
         if (nav.Velocity.sqrMagnitude > FP64.Zero)
           transform.Rotation = FP64.Atan2(nav.Velocity.x, nav.Velocity.y);
 
-        if (ShouldStop(ref frame, entity, in nav))
+        if (nav.Status == (byte)FPNavAgentStatus.Arrived)
           frame.Remove<UnitMoveTarget>(entity);
       }
-    }
-
-    private bool ShouldStop(ref Frame frame, EntityRef entity, in NavAgentComponent nav) {
-      if (nav.Status == (byte)FPNavAgentStatus.Arrived)
-        return true;
-
-      if (!frame.Has<UnitMoveTarget>(entity))
-        return false;
-
-      ref readonly var target = ref frame.GetReadOnly<UnitMoveTarget>(entity);
-      int sameTargetCount = CountAgentsWithTarget(ref frame, target.Target);
-      int nearbyAgentCount = CountAgentsNearTarget(ref frame, target.Target, nav.Radius * FP64.FromInt(4));
-      if (sameTargetCount <= 1 && nearbyAgentCount <= 1)
-        return false;
-
-      FP64 arrivalRadius = GetSharedTargetArrivalRadius(in nav, sameTargetCount > nearbyAgentCount
-        ? sameTargetCount
-        : nearbyAgentCount);
-      FPVector2 toTarget = target.Target.ToXZ() - nav.Position.ToXZ();
-      return toTarget.sqrMagnitude <= arrivalRadius * arrivalRadius;
-    }
-
-    private int CountAgentsWithTarget(ref Frame frame, FPVector3 target) {
-      int count = 0;
-      var filter = frame.Filter<NavAgentComponent, UnitMoveTarget>();
-      while (filter.Next(out var entity)) {
-        ref readonly var moveTarget = ref frame.GetReadOnly<UnitMoveTarget>(entity);
-        if (moveTarget.Target.x == target.x && moveTarget.Target.y == target.y && moveTarget.Target.z == target.z)
-          count++;
-      }
-
-      return count;
-    }
-
-    private int CountAgentsNearTarget(ref Frame frame, FPVector3 target, FP64 radius) {
-      int count = 0;
-      FP64 radiusSqr = radius * radius;
-      var filter = frame.Filter<NavAgentComponent>();
-      while (filter.Next(out var entity)) {
-        ref readonly var nav = ref frame.GetReadOnly<NavAgentComponent>(entity);
-        FPVector2 toTarget = target.ToXZ() - nav.Position.ToXZ();
-        if (toTarget.sqrMagnitude <= radiusSqr)
-          count++;
-      }
-
-      return count;
-    }
-
-    private static FP64 GetSharedTargetArrivalRadius(in NavAgentComponent nav, int sameTargetCount) {
-      FP64 spread = nav.Radius * FP64.Sqrt(FP64.FromInt(sameTargetCount));
-      FP64 minSpread = nav.Radius * FP64.FromInt(2);
-      if (spread < minSpread)
-        spread = minSpread;
-
-      return spread > nav.StoppingDistance ? spread : nav.StoppingDistance;
     }
 
     private void SyncAgentPosition(ref NavAgentComponent nav, FPVector3 position) {
