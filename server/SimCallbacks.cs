@@ -19,6 +19,7 @@ namespace Meesles.Avalon.Server {
 
     public void RegisterSystems(EcsSimulation simulation) {
       SimulationSetup.RegisterSystems(simulation, NavigationRuntime.FromBytes(_navMeshBytes, _logger));
+      simulation.AddSystem(new MatchResultSaveSystem(_logger), SystemPhase.LateUpdate);
     }
 
     public void OnInitializeWorld(IKlothoEngine engine) {

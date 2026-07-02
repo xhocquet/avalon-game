@@ -31,6 +31,12 @@ public class ScoreSystemTests {
     ref readonly var matchEnd = ref frame.GetReadOnlySingleton<MatchEndStateComponent>();
     matchEnd.Ended.Should().BeTrue();
     matchEnd.WinnerPlayerId.Should().Be(2);
+
+    MatchResultReader.TryRead(ref frame, 7, out var result).Should().BeTrue();
+    result.EndTick.Should().Be(7);
+    result.WinnerPlayerId.Should().Be(2);
+    result.WinnerTeamId.Should().Be(2);
+    result.Reason.Should().Be(MatchEndReason.Crystal);
   }
 
   [Fact]
@@ -102,6 +108,11 @@ public class ScoreSystemTests {
     ref readonly var matchEnd = ref frame.GetReadOnlySingleton<MatchEndStateComponent>();
     matchEnd.Ended.Should().BeTrue();
     matchEnd.WinnerPlayerId.Should().Be(-1);
+
+    MatchResultReader.TryRead(ref frame, frame.Tick, out var result).Should().BeTrue();
+    result.WinnerPlayerId.Should().Be(MatchResult.NoWinnerPlayerId);
+    result.WinnerTeamId.Should().Be(MatchResult.NoWinnerTeamId);
+    result.Reason.Should().Be(MatchEndReason.Timeout);
   }
 
   private static EntityRef GetCrystalForTeam(ref Frame frame, int teamId) {

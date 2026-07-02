@@ -37,7 +37,7 @@
 | ID  | Name                    | Notes                                                                                                                                                                                        |
 | --- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 100 | `MoveCommand`           | Right-click ground order; carries explicit bounded selected `UnitId`s and target position, supports hero/minion formation slots, and applies only to units owned by the issuing player team. |
-| 101 | `GameOverEvent`         | Payload-free synced match-end event; winner/no-winner state lives in Klotho `MatchEndStateComponent`.                                                                                        |
+| 101 | `GameOverEvent`         | Payload-free synced match-end event; winner/no-winner state is read from Klotho `MatchEndStateComponent` through `MatchResultReader`.                                                        |
 | 102 | `UnitDiedEvent`         | Synced non-player unit death event.                                                                                                                                                          |
 | 103 | `AttackCommand`         | Right-click enemy order; carries source `UnitId`s and target `UnitId`; `CommandSystem` validates owned sources and live enemy targets.                                                       |
 | 104 | `PlayerDiedEvent`       | Synced hero death lifecycle event.                                                                                                                                                           |
@@ -76,6 +76,7 @@ Next free project IDs: `KlothoComponent` 114, `KlothoSerializable` 108, `KlothoD
 | `RespawnSystem`           | Lifecycle  | Owns player death, scrubs active state during `PendingRespawn`, respawns after 5 seconds, and resets nav agents.        |
 | `NavigationAgentSystem`   | Navigation | Consumes `UnitMoveTarget`, runs `NavigationRuntime.AgentSystem`, and syncs `NavAgentComponent` back to transforms.      |
 | `ScoreSystem`             | Match      | Evaluates timeout and crystal win conditions, writes Klotho match-end state, and raises one-shot payload-free `GameOverEvent`. |
+| `MatchResultSaveSystem`   | Server     | Server-only post-update system that saves the shared `MatchResultReader` output once per ended match.                         |
 | `EventSystem`             | Lifecycle  | Klotho runtime system that dispatches raised simulation events.                                                         |
 | `FPNavAgentSystem`        | Navigation | Runtime helper owned by `NavigationRuntime`; `NavigationAgentSystem` calls it when nav bytes are loaded.                |
 | `FPNavAvoidance`          | Navigation | ORCA avoidance helper instantiated by `NavigationRuntime` and assigned to `FPNavAgentSystem`.                           |
@@ -140,7 +141,7 @@ Goal: emit crystal destruction as its own synced event, then end the match only 
 | ------ | --------------------------------------------------------------------------- |
 | ✅      | Destroying a crystal emits `CrystalDestroyedEvent` deterministically.       |
 | ✅      | Crystal destruction alone does not automatically emit `GameOverEvent`.      |
-| ⬜      | Server and clients agree on winner when `GameOverEvent` is emitted.         |
+| ✅      | Server and clients agree on winner when `GameOverEvent` is emitted.         |
 | ✅      | Timeout scoring still works when no crystal-driven win condition has fired. |
 
 ## Milestone A: Combat And Death
@@ -193,7 +194,7 @@ Goal: first playable deterministic Footmen-Frenzy slice. Nav is a prerequisite s
 | Status | Acceptance                                                                                                                            |
 | ------ | ------------------------------------------------------------------------------------------------------------------------------------- |
 | 🟡      | User-commanded or AI-directed minions can be driven through the map, encounter turrets, fight them, and eventually destroy a crystal. |
-| ⬜      | Server and clients agree on winner when player/team state triggers `GameOverEvent`.                                                   |
+| ✅      | Server and clients agree on winner when player/team state triggers `GameOverEvent`.                                                   |
 
 ## Click Orders
 

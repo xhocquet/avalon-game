@@ -66,11 +66,11 @@ try {
   Start-Sleep -Seconds 6
 
   Write-Host "[smoke] launching client 1..."
-  $c1 = Start-Process -FilePath $Godot -ArgumentList @("--headless", "--path", (Join-Path $repoRoot "client")) `
+  $c1 = Start-Process -FilePath $Godot -ArgumentList @("--headless", "--path", (Join-Path $repoRoot "client"), "--", "--quickplay") `
     -RedirectStandardOutput $c1Out -RedirectStandardError $c1Err -PassThru
   Start-Sleep -Seconds 3
   Write-Host "[smoke] launching client 2..."
-  $c2 = Start-Process -FilePath $Godot -ArgumentList @("--headless", "--path", (Join-Path $repoRoot "client")) `
+  $c2 = Start-Process -FilePath $Godot -ArgumentList @("--headless", "--path", (Join-Path $repoRoot "client"), "--", "--quickplay") `
     -RedirectStandardOutput $c2Out -RedirectStandardError $c2Err -PassThru
 
   Write-Host "[smoke] waiting up to ${TimeoutSeconds}s for clients to finish (auto-quit at tick 120)..."

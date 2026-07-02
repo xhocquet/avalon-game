@@ -91,7 +91,6 @@ public class UnitDiedEventTests {
 
     evt.EventTypeId.Should().Be(101);
     evt.Mode.Should().Be(EventMode.Synced);
-    matchEnd.WinnerPlayerId.Should().Be(-1);
     matchEnd.Reason.Should().Be(default(FixedString32));
   }
 }

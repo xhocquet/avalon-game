@@ -37,6 +37,7 @@ namespace Meesles.Avalon {
     private bool _autoReadySent;
     private bool _verified;
     private bool _ownsDriver;
+    private bool _localViewFocused;
     private ulong _sceneStartedAtMs;
 
     public override void _Ready() {
@@ -116,10 +117,10 @@ namespace Meesles.Avalon {
 
     private void CreateView() {
       _pool = new DefaultGodotEntityViewPool();
-      var playerScene = GD.Load<PackedScene>("res://Scenes/Objects/Player.tscn");
+      var playerScene = GD.Load<PackedScene>("res://Scenes/Player.tscn");
       var crystalScene = GD.Load<PackedScene>("res://Scenes/Objects/Crystal.tscn");
       var turretScene = GD.Load<PackedScene>("res://Scenes/Objects/Turret.tscn");
-      var minionScene = GD.Load<PackedScene>("res://Scenes/Objects/Minion.tscn");
+      var minionScene = GD.Load<PackedScene>("res://Scenes/Minion.tscn");
       _pool.Prewarm(playerScene, 2);
       _pool.Prewarm(crystalScene, 2);
       _pool.Prewarm(turretScene, 4);
@@ -131,10 +132,10 @@ namespace Meesles.Avalon {
     }
 
     private UnitViewFactory CreateFactory() {
-      var playerScene = GD.Load<PackedScene>("res://Scenes/Objects/Player.tscn");
+      var playerScene = GD.Load<PackedScene>("res://Scenes/Player.tscn");
       var crystalScene = GD.Load<PackedScene>("res://Scenes/Objects/Crystal.tscn");
       var turretScene = GD.Load<PackedScene>("res://Scenes/Objects/Turret.tscn");
-      var minionScene = GD.Load<PackedScene>("res://Scenes/Objects/Minion.tscn");
+      var minionScene = GD.Load<PackedScene>("res://Scenes/Minion.tscn");
       return new UnitViewFactory(playerScene, crystalScene, turretScene, minionScene);
     }
 
@@ -143,6 +144,7 @@ namespace Meesles.Avalon {
       _view.PlayerViews.OnLocalViewRegistered += OnLocalViewRegistered;
       _view.PlayerViews.OnLocalViewUnregistered += OnLocalViewUnregistered;
       GameUi.SetPhase(_session.Phase);
+      TryFocusRegisteredLocalView();
 
       if (autoReady)
         SendReady();
@@ -162,6 +164,7 @@ namespace Meesles.Avalon {
     }
 
     private void OnLocalViewRegistered(EntityViewNode view) {
+      _localViewFocused = true;
       _camera?.SetFollowTarget(view);
       var frame = view.Engine?.PredictedFrame.Frame;
       if (frame != null && frame.Has<Team>(view.EntityRef))
@@ -170,7 +173,38 @@ namespace Meesles.Avalon {
     }
 
     private void OnLocalViewUnregistered(EntityViewNode view) {
+      _localViewFocused = false;
       _camera?.SetFollowTarget(null);
+    }
+
+    private void TryFocusRegisteredLocalView() {
+      if (_localViewFocused || _session?.Engine == null || _view?.PlayerViews == null)
+        return;
+
+      int localPlayerId = _session.Engine.LocalPlayerId;
+      if (localPlayerId < 0)
+        return;
+
+      var localView = _view.PlayerViews.Get(localPlayerId);
+      localView ??= FindLocalPlayerView(localPlayerId);
+      if (localView != null)
+        OnLocalViewRegistered(localView);
+    }
+
+    private EntityViewNode FindLocalPlayerView(int localPlayerId) {
+      if (_view == null)
+        return null;
+
+      foreach (Node child in _view.GetChildren()) {
+        if (child is not EntityViewNode view)
+          continue;
+        if (view is not IPlayerView)
+          continue;
+        if (view.OwnerMatches(localPlayerId))
+          return view;
+      }
+
+      return null;
     }
 
     private void UnbindCameraFollow() {
@@ -206,6 +240,7 @@ namespace Meesles.Avalon {
       if (!_autoReadySent && _session.Phase == SessionPhase.Synchronized)
         SendReady();
 
+      TryFocusRegisteredLocalView();
       AutoTestStep();
     }
 

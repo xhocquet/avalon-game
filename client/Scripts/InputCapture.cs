@@ -312,8 +312,15 @@ namespace Meesles.Avalon {
 
     private static bool TryGetUnitId(EntityViewNode view, out int unitId) {
       unitId = 0;
-      var frame = view.Engine?.PredictedFrame.Frame;
-      if (frame == null || !view.EntityRef.IsValid || !frame.Has<Unit>(view.EntityRef)) return false;
+      if (view.Engine == null || !view.EntityRef.IsValid)
+        return false;
+
+      var frame = view.Engine.PredictedFrame.Frame;
+      if (frame == null || !frame.Has<Unit>(view.EntityRef))
+        frame = view.Engine.VerifiedFrame.Frame;
+
+      if (frame == null || !frame.Has<Unit>(view.EntityRef))
+        return false;
 
       unitId = frame.GetReadOnly<Unit>(view.EntityRef).UnitId;
       return true;

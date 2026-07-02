@@ -3,6 +3,7 @@
 using System;
 using xpTURN.Klotho.Core;
 using Meesles.Avalon.Sim;
+using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon {
   public class ViewCallbacks : IViewCallbacks {
@@ -62,12 +63,12 @@ namespace Meesles.Avalon {
 
       DetachEngine();
       _engine = engine;
-      _eventConfirmedHandler = (_, evt) => {
+      _eventConfirmedHandler = (tick, evt) => {
         if (_gameOverShown) return;
         if (evt is not GameOverEvent) return;
 
         _gameOverShown = true;
-        _hud?.ShowResult("Game Over");
+        _hud?.ShowResult(FormatResult(tick));
       };
       _engine.OnEventConfirmed += _eventConfirmedHandler;
     }
@@ -76,6 +77,22 @@ namespace Meesles.Avalon {
       if (_engine != null && _eventConfirmedHandler != null)
         _engine.OnEventConfirmed -= _eventConfirmedHandler;
       _eventConfirmedHandler = null;
+    }
+
+    private string FormatResult(int endTick) {
+      Frame frame = _engine?.VerifiedFrame.Frame ?? _engine?.PredictedFrame.Frame;
+      if (frame == null)
+        return "Game Over";
+
+      if (!MatchResultReader.TryRead(ref frame, endTick, out var result))
+        return "Game Over";
+
+      if (result.IsDraw)
+        return $"Draw\nTimeout at tick {result.EndTick}";
+
+      int localPlayerId = _engine?.LocalPlayerId ?? -1;
+      string outcome = localPlayerId == result.WinnerPlayerId ? "Victory" : "Defeat";
+      return $"{outcome}\nWinner: P{result.WinnerPlayerId}";
     }
   }
 }
