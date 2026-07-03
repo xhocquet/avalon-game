@@ -71,13 +71,14 @@ namespace Meesles.Avalon.Sim {
           UnitTypeId = PlayerUnitTypeId,
         });
         frame.Add(entity, new Controllable());
+
         if (playerStats != null) {
           frame.Add(entity, new Health {
             Current = playerStats.Health,
             Max = playerStats.Health,
           });
-          NavAgentSetup.AddNavAgent(ref frame, entity, initialPos, playerStats.MoveSpeed);
         }
+
         if (combatStats != null) {
           frame.Add(entity, new Combat {
             AttackDamage = combatStats.AttackDamage,
@@ -86,6 +87,8 @@ namespace Meesles.Avalon.Sim {
             CooldownRemainingTicks = 0,
           });
         }
+
+        NavAgentSetup.AddNavAgent(ref frame, entity, initialPos, playerStats.MoveSpeed);
       }
 
       SpawnTeamTurrets(ref frame, playerIds.Count, layout);

@@ -290,6 +290,117 @@ public class SimInvariantTests {
   }
 
   [Fact]
+  public void SelectedMoveCommands_CanMoveSeveralMinionsThroughNavigation() {
+    var harness = SimHarness.CreateInitialized();
+    var rules = harness.AssetRegistry.Get<WaveRulesAsset>();
+    rules.MinionsPerWave = 6;
+    rules.SpawnIntervalTicks = int.MaxValue;
+
+    for (int tick = 0; tick <= rules.FirstWaveDelayTicks; tick++)
+      harness.Tick();
+
+    MinionSnapshot[] startMinions = GetMinions(harness)
+        .Where(minion => minion.TeamId == 1)
+        .OrderBy(minion => minion.UnitId)
+        .ToArray();
+    startMinions.Should().HaveCount(6);
+
+    var command = SimHarness.MoveCommand(1, 0, FP64.Zero, FP64.Zero);
+    foreach (var minion in startMinions)
+      command.AddUnitId(minion.UnitId);
+
+    harness.Tick(command);
+    for (int tick = 0; tick < 60; tick++)
+      harness.Tick();
+
+    MinionSnapshot[] movedMinions = GetMinions(harness)
+        .Where(minion => minion.TeamId == 1)
+        .OrderBy(minion => minion.UnitId)
+        .ToArray();
+
+    for (int i = 0; i < startMinions.Length; i++)
+      (movedMinions[i].Position - startMinions[i].Position).sqrMagnitude.Should().BeGreaterThan(FP64.Zero);
+  }
+
+  [Fact]
+  public void NavigationAgents_WithSharedTargetStillMove() {
+    var harness = SimHarness.CreateInitialized();
+    var rules = harness.AssetRegistry.Get<WaveRulesAsset>();
+    rules.MinionsPerWave = 6;
+    rules.SpawnIntervalTicks = int.MaxValue;
+
+    for (int tick = 0; tick <= rules.FirstWaveDelayTicks; tick++)
+      harness.Tick();
+
+    MinionSnapshot[] startMinions = GetMinions(harness)
+        .Where(minion => minion.TeamId == 1)
+        .OrderBy(minion => minion.UnitId)
+        .ToArray();
+    startMinions.Should().HaveCount(6);
+
+    FPVector3 sharedTarget = FPVector3.Zero;
+    foreach (var minion in startMinions) {
+      EntityRef entity = FindUnitEntity(harness, minion.UnitId);
+      harness.Frame.Add(entity, new UnitMoveTarget { Target = sharedTarget });
+    }
+
+    for (int tick = 0; tick < 60; tick++)
+      harness.Tick();
+
+    MinionSnapshot[] movedMinions = GetMinions(harness)
+        .Where(minion => minion.TeamId == 1)
+        .OrderBy(minion => minion.UnitId)
+        .ToArray();
+
+    for (int i = 0; i < startMinions.Length; i++)
+      (movedMinions[i].Position - startMinions[i].Position).sqrMagnitude.Should().BeGreaterThan(FP64.Zero);
+  }
+
+  [Fact]
+  public void NavigationAgents_OverlappedAgentsStillMoveTowardSharedTarget() {
+    var harness = SimHarness.CreateInitialized();
+    var rules = harness.AssetRegistry.Get<WaveRulesAsset>();
+    rules.MinionsPerWave = 2;
+    rules.SpawnIntervalTicks = int.MaxValue;
+
+    for (int tick = 0; tick <= rules.FirstWaveDelayTicks; tick++)
+      harness.Tick();
+
+    MinionSnapshot[] startMinions = GetMinions(harness)
+        .Where(minion => minion.TeamId == 1)
+        .OrderBy(minion => minion.UnitId)
+        .ToArray();
+    startMinions.Should().HaveCount(2);
+
+    FPVector3 overlapPosition = startMinions[0].Position;
+    FPVector3 sharedTarget = FPVector3.Zero;
+    foreach (var minion in startMinions) {
+      EntityRef entity = FindUnitEntity(harness, minion.UnitId);
+      ref var transform = ref harness.Frame.Get<TransformComponent>(entity);
+      transform.Position = overlapPosition;
+      ref var nav = ref harness.Frame.Get<xpTURN.Klotho.Deterministic.Navigation.NavAgentComponent>(entity);
+      xpTURN.Klotho.Deterministic.Navigation.NavAgentComponent.Init(ref nav, overlapPosition);
+      harness.Frame.Add(entity, new UnitMoveTarget { Target = sharedTarget });
+    }
+
+    FP64 initialTargetDistance = (sharedTarget - overlapPosition).sqrMagnitude;
+    for (int tick = 0; tick < 60; tick++)
+      harness.Tick();
+
+    MinionSnapshot[] movedMinions = GetMinions(harness)
+        .Where(minion => minion.TeamId == 1)
+        .OrderBy(minion => minion.UnitId)
+        .ToArray();
+
+    foreach (var minion in movedMinions) {
+      (minion.Position - overlapPosition).sqrMagnitude.Should().BeGreaterThan(FP64.Zero);
+      (sharedTarget - minion.Position).sqrMagnitude.Should().BeLessThan(initialTargetDistance);
+    }
+
+    (movedMinions[0].Position - movedMinions[1].Position).sqrMagnitude.Should().BeGreaterThan(FP64.Zero);
+  }
+
+  [Fact]
   public void Respawn_IsDeterministic() {
     var simA = SimHarness.CreateInitialized();
     var simB = SimHarness.CreateInitialized();

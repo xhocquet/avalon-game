@@ -121,7 +121,6 @@ namespace Meesles.Avalon {
         Rotation = FP64.Zero,
         Scale = FPVector3.One,
       });
-      NavAgentSetup.AddNavAgent(ref frame, entity, position, stats.MoveSpeed);
       frame.Add(entity, new Unit {
         UnitId = UnitIdGenerator.Next(ref frame),
         UnitTypeId = SimulationSetup.MinionUnitTypeId,
@@ -140,6 +139,8 @@ namespace Meesles.Avalon {
         AttackCooldownTicks = stats.AttackCooldownTicks,
         CooldownRemainingTicks = 0,
       });
+
+      NavAgentSetup.AddNavAgent(ref frame, entity, position, stats.MoveSpeed);
     }
   }
 }

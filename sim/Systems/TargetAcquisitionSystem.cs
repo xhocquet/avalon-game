@@ -16,7 +16,7 @@ namespace Meesles.Avalon {
         ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(attacker);
 
         if (!TryAcquireTarget(ref frame, attacker, team.TeamId, transform.Position, combat.AttackRange,
-            out int targetUnitId))
+              out int targetUnitId))
           continue;
 
         frame.Add(attacker, new AttackTargetUnitId { TargetUnitId = targetUnitId });
@@ -41,7 +41,7 @@ namespace Meesles.Avalon {
     }
 
     private static bool TryAcquireTarget(ref Frame frame, EntityRef attacker, int attackerTeamId,
-        FPVector3 attackerPosition, FP64 attackRange, out int targetUnitId) {
+      FPVector3 attackerPosition, FP64 attackRange, out int targetUnitId) {
       targetUnitId = 0;
       FP64 radius = GetAcquisitionRadius(ref frame, attacker, attackRange);
       FP64 radiusSq = radius * radius;

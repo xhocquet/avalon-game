@@ -18,6 +18,8 @@ namespace Meesles.Avalon {
     private bool _isDead;
 
     public override void OnInitialize() {
+      EntityViewPhysics.DisableGodotCollision(this);
+
       _anim = GetNodeOrNull<AnimationPlayer>("AnimationPlayer");
       if (_anim != null) {
         var walkAnim = _anim.GetAnimation(AnimWalk);

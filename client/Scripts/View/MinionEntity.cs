@@ -10,6 +10,10 @@ namespace Meesles.Avalon {
     private int _ownerId = -1;
     private int _teamId = -1;
 
+    public override void OnInitialize() {
+      EntityViewPhysics.DisableGodotCollision(this);
+    }
+
     public override void OnActivate(FrameRef frame) {
       AddToGroup(UnitsGroup);
 

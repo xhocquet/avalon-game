@@ -15,6 +15,10 @@ namespace Meesles.Avalon {
 
     private int _teamId = -1;
 
+    public override void OnInitialize() {
+      EntityViewPhysics.DisableGodotCollision(this);
+    }
+
     public override void OnActivate(FrameRef frame) {
       var live = frame.Frame;
       if (live == null || !live.Has<Unit>(EntityRef))
