@@ -31,3 +31,6 @@ tools/**/obj/
 # Klotho analyzer/editor snapshots. Builds use analyzer output from obj/.
 sim/Tools/Generated/
 client/Sim/Tools/Generated/
+
+# Lore
+.lore/
