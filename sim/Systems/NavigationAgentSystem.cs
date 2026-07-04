@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Models;
 using xpTURN.Klotho.Deterministic.Math;
@@ -6,7 +7,11 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon {
   public sealed class NavigationAgentSystem : ISystem {
+    private static readonly FP64 AvoidanceGridCellSize = FP64.FromInt(5);
+
     private readonly NavigationRuntime _navigation;
+    private readonly SpatialHashGrid _avoidanceGrid = new(AvoidanceGridCellSize);
+    private readonly List<EntityRef> _nearbyAgents = new();
     private EntityRef[] _entities = new EntityRef[128];
 
     public NavigationAgentSystem(NavigationRuntime navigation) {
@@ -39,7 +44,27 @@ namespace Meesles.Avalon {
       if (count == 0)
         return;
 
-      _navigation.AgentSystem.Update(ref frame, _entities, count, frame.Tick, dt);
+      _navigation.AgentSystem.UpdateSteering(ref frame, _entities, count, frame.Tick);
+
+      var avoidance = _navigation.Avoidance;
+      if (avoidance != null) {
+        _avoidanceGrid.Clear();
+        for (int i = 0; i < count; i++) {
+          ref var nav = ref frame.Get<NavAgentComponent>(_entities[i]);
+          _avoidanceGrid.Insert(_entities[i], nav.Position.ToXZ());
+        }
+
+        for (int i = 0; i < count; i++) {
+          ref var nav = ref frame.Get<NavAgentComponent>(_entities[i]);
+          if (nav.Status == (byte)FPNavAgentStatus.Moving) {
+            _avoidanceGrid.QueryRadius(nav.Position.ToXZ(), avoidance.NeighborDist, _nearbyAgents);
+            nav.DesiredVelocity = avoidance.ComputeNewVelocity(
+              _entities[i], ref frame, _nearbyAgents, dt);
+          }
+        }
+      }
+
+      _navigation.AgentSystem.UpdateMovement(ref frame, _entities, count, dt);
 
       for (int i = 0; i < count; i++) {
         var entity = _entities[i];

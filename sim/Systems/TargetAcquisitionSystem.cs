@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Models;
 using xpTURN.Klotho.Deterministic.Math;
@@ -5,7 +6,16 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon {
   public class TargetAcquisitionSystem : ISystem {
+    // On the order of typical acquisition radii (minion AttackRange=4 * multiplier=3, turret range=12),
+    // so a query spans roughly a 3x3 cell neighborhood instead of scanning every candidate.
+    private static readonly FP64 CandidateGridCellSize = FP64.FromInt(10);
+
+    private readonly Sim.SpatialHashGrid _candidateGrid = new(CandidateGridCellSize);
+    private readonly List<EntityRef> _nearbyCandidates = new();
+
     public void Update(ref Frame frame) {
+      BuildCandidateGrid(ref frame);
+
       var filter = frame.Filter<Unit, Team, Combat, TransformComponent>();
       while (filter.Next(out var attacker)) {
         if (!CanAcquireTargets(ref frame, attacker))
@@ -20,6 +30,18 @@ namespace Meesles.Avalon {
           continue;
 
         frame.Add(attacker, new AttackTargetUnitId { TargetUnitId = targetUnitId });
+      }
+    }
+
+    // Broad-phase: bucket every potential target once per tick so TryAcquireTarget only has to
+    // narrow-phase-check the handful of candidates near each attacker instead of every unit on the map.
+    private void BuildCandidateGrid(ref Frame frame) {
+      _candidateGrid.Clear();
+
+      var filter = frame.Filter<Unit, Team, Health, TransformComponent>();
+      while (filter.Next(out var candidate)) {
+        ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(candidate);
+        _candidateGrid.Insert(candidate, transform.Position.ToXZ());
       }
     }
 
@@ -40,17 +62,20 @@ namespace Meesles.Avalon {
       return frame.Has<Minion>(entity) || frame.Has<Hero>(entity) || frame.Has<Turret>(entity);
     }
 
-    private static bool TryAcquireTarget(ref Frame frame, EntityRef attacker, int attackerTeamId,
+    private bool TryAcquireTarget(ref Frame frame, EntityRef attacker, int attackerTeamId,
       FPVector3 attackerPosition, FP64 attackRange, out int targetUnitId) {
       targetUnitId = 0;
       FP64 radius = GetAcquisitionRadius(ref frame, attacker, attackRange);
-      FP64 radiusSq = radius * radius;
       bool found = false;
       int bestPriority = int.MaxValue;
       int bestUnitId = int.MaxValue;
 
-      var filter = frame.Filter<Unit, Team, Health, TransformComponent>();
-      while (filter.Next(out var candidate)) {
+      // Grid already narrowed candidates to those within radius (exact XZ distance filtered);
+      // remaining checks are the cheap priority/team/health rules the broad-phase can't apply.
+      _candidateGrid.QueryRadius(attackerPosition.ToXZ(), radius, _nearbyCandidates);
+
+      for (int i = 0; i < _nearbyCandidates.Count; i++) {
+        var candidate = _nearbyCandidates[i];
         if (candidate.Index == attacker.Index)
           continue;
 
@@ -64,12 +89,6 @@ namespace Meesles.Avalon {
 
         ref readonly var health = ref frame.GetReadOnly<Health>(candidate);
         if (health.Current <= 0)
-          continue;
-
-        ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(candidate);
-        FPVector3 toCandidate = transform.Position - attackerPosition;
-        toCandidate.y = FP64.Zero;
-        if (toCandidate.sqrMagnitude > radiusSq)
           continue;
 
         ref readonly var unit = ref frame.GetReadOnly<Unit>(candidate);
