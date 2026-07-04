@@ -20,6 +20,15 @@ export-scene-data:
 test:
     dotnet test .\tests\Avalon.Sim.Tests\Avalon.Sim.Tests.csproj
 
+# Load test: run N ticks (default 1000) and report per-system timings
+loadtest ticks="1000":
+    dotnet test .\tests\Avalon.Sim.Tests\Avalon.Sim.Tests.csproj --filter "DisplayName~RunLoadTest(totalTicks: {{ticks}})" -l "console;verbosity=detailed"
+
+# Load test with dotnet-trace flame graph (default 10000 ticks for meaningful profile)
+loadtest-profile ticks="10000":
+    dotnet build .\tools\LoadTestRunner\LoadTestRunner.csproj -c Release --nologo -v q
+    & .\scripts\loadtest-profile.ps1 -Ticks {{ticks}}
+
 # Headless smoke test: server + two headless clients, asserts the in-engine self-check.
 smoke port="7777":
     & .\scripts\smoke.ps1 -Port {{port}}

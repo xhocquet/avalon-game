@@ -12,12 +12,18 @@
 - In the same way, we generate a deterministic navmesh to [`NavigationRegion3D.NavMeshData.bytes`](client/Sim/Data/NavigationRegion3D.NavMeshData.bytes)
 - [`UnitIdGenerator`](sim/UnitIdGenerator.cs) provides stable identifiers for all units
 
+## Testing
+- `just smoke` — boots server + 2 headless Godot clients, asserts [`=== CLIENT OK ===`](scripts/smoke.ps1) at tick 120 with no sim exceptions
+- `just test` — xunit suite ([`SimInvariantTests`](tests/Avalon.Sim.Tests/SimInvariantTests.cs), [`DeterminismBaselineTests`](tests/Avalon.Sim.Tests/DeterminismBaselineTests.cs), combat, death, nav, scoring, spatial grid)
+  - Uses [`SimHarness`](tests/Avalon.Sim.Tests/SimHarness.cs) to bootstrap a full sim with no Godot dependency
+- `just loadtest` (default 1K ticks) or `just loadtest 10000` — [`LoadTestHarness`](tests/Avalon.Sim.Tests/LoadTestHarness.cs) runs headless sim, reports per-system timings from Klotho's [`ConsumeUpdateTimings`](vendor/Klotho/com.xpturn.klotho/Runtime/ECS/System/SystemRunner.cs) every 500 ticks
+- `just loadtest-profile` (default 10K ticks) or `just loadtest-profile 5000` — wraps `dotnet-trace` around the load test, converts to Speedscope flame graph at `TestResults/loadtest/loadtest_profile.speedscope.json`
 
 ## Simulation Config
 
 [`server/simulationconfig.json`](server/simulationconfig.json)
 
-| `TickIntervalMs` | `66` | ~15 Hz. more scalable than action-style 60 Hz while staying more responsive than a full 100 ms RTS tick. |
+| `TickIntervalMs` | `66` | ~15 Hz (action 60 Hz, RTS 100 ms) |
 | ------- | ----- | ------ |
 | `InputDelayTicks` | `4` | Adds jitter slack without making command feel as heavy as the RTS guide's 6 tick baseline |
 | `SDInputLeadTicks` | `4` | Gives clients enough lead time to reach the authoritative server. |
@@ -161,10 +167,13 @@ Goal: scale toward hundreds or thousands of units without physics. Nav paths are
 | ⬜      | Add minimap UI.                                                            |
 | ⬜      | Add a bounded async logging sink for server diagnostics.                                                      |
 | ⬜      | Add a dynamic view/object pool for minions; a fixed 64-object pool is probably too small once waves stack up. |
-| ⬜      | Build a headless sim load-test harness (no Godot dependency) to spin up N units/side and run many ticks, isolating sim CPU cost from client rendering cost. |
-| ⬜      | Add BenchmarkDotNet coverage for [`FPNavAvoidance`](vendor/Klotho/com.xpturn.klotho/Runtime/Deterministic/Navigation/FPNavAvoidance.cs), which is O(n²) per tick with no spatial grid ([`FPNavAvoidance.cs:159`](vendor/Klotho/com.xpturn.klotho/Runtime/Deterministic/Navigation/FPNavAvoidance.cs:159)); use it to measure before/after a spatial grid or neighbor-cap fix. |
-| ⬜      | Profile the server process with `dotnet-trace`/`dotnet-counters` under a crowded-wave load (e.g. 30v30) to confirm CPU/GC hotspots. |
-| ⬜      | Check client-side frame cost with Godot's built-in Profiler/Monitors if server-side tick timing doesn't fully explain the choppiness. |
-| ✅      | Fix [`TargetAcquisitionSystem`](sim/Systems/TargetAcquisitionSystem.cs)'s O(n²) proximity scan — now uses [`SpatialHashGrid`](sim/SpatialHashGrid.cs) as a broad-phase (built once per tick) to narrow candidates before the existing priority/team/health checks. |
-| ✅      | Wire [`SpatialHashGrid`](sim/SpatialHashGrid.cs) into [`FPNavAvoidance`](vendor/Klotho/com.xpturn.klotho/Runtime/Deterministic/Navigation/FPNavAvoidance.cs) — [`NavigationAgentSystem`](sim/Systems/NavigationAgentSystem.cs) now builds a grid per tick and calls a new neighbor-list overload of `ComputeNewVelocity`, replacing the O(n²) all-agent scan. [`FPNavAgentSystem`](vendor/Klotho/com.xpturn.klotho/Runtime/Deterministic/Navigation/FPNavAgentSystem.cs) exposes `UpdateSteering`/`UpdateMovement` phases so the game layer controls avoidance. |
-| ⬜      | Investigate [`AttackIntentSystem`](sim/Systems/AttackIntentSystem.cs)'s rising per-tick cost (0.008ms→0.158ms over ticks 100-700) — not structurally O(n²) itself, so confirm whether growth tracks expected combat engagement or unbounded entity/unit-count growth (e.g. dead units/waves not being cleaned up). |
+| ⬜      | Check client-s ide frame cost with Godot's built-in Profiler/Monitors if server-side tick timing doesn't fully explain the choppiness. |
+| ⬜      | Enforce `MAX_NEIGHBORS = 16` cap in [`FPNavAvoidance.ComputeNewVelocity`](vendor/Klotho/com.xpturn.klotho/Runtime/Deterministic/Navigation/FPNavAvoidance.cs) — the constant is defined but never used; only keeping the 16 closest neighbors per agent would cut the O(k²) ORCA LP solver cost significantly when units cluster. |
+| ⬜      | Investigate [`TargetAcquisitionSystem`](sim/Systems/TargetAcquisitionSystem.cs) cost spikes (2-4ms at 200+ entities) despite grid — likely high local density when units cluster in lane fights; consider a neighbor cap or larger cell size. |
+
+
+
+
+
+
+briancornine

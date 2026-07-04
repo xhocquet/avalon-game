@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>Meesles.Avalon.LoadTestRunner</AssemblyName>
+    <RootNamespace>Meesles.Avalon.LoadTestRunner</RootNamespace>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <Import Project="../../client/addons/klotho/Klotho.Server.props" />
+
+  <PropertyGroup>
+    <SimRoot>../../sim</SimRoot>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="$(SimRoot)\**\*.cs" Link="Game\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Remove="$(SimRoot)\Tools\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\client\Sim\Data\*.bytes">
+      <Link>Data\%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+</Project>
