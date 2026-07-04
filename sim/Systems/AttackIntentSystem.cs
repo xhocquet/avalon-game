@@ -6,7 +6,11 @@ using xpTURN.Klotho.Logging;
 
 namespace Meesles.Avalon {
   public class AttackIntentSystem : ISystem {
+    private readonly UnitIdIndex _unitIdIndex = new();
+
     public void Update(ref Frame frame) {
+      _unitIdIndex.Rebuild(ref frame);
+
       var filter = frame.Filter<AttackTargetUnitId, Team, TransformComponent>();
       while (filter.Next(out var attacker)) {
         if (!frame.Has<Combat>(attacker)) {
@@ -53,9 +57,9 @@ namespace Meesles.Avalon {
       }
     }
 
-    private static bool TryResolveTarget(ref Frame frame, EntityRef attacker, int targetUnitId,
+    private bool TryResolveTarget(ref Frame frame, EntityRef attacker, int targetUnitId,
         out EntityRef target) {
-      if (!UnitLookup.TryGetEntityByUnitId(ref frame, targetUnitId, out target))
+      if (!_unitIdIndex.TryGet(targetUnitId, out target))
         return false;
 
       if (!frame.Has<Team>(target) || !frame.Has<TransformComponent>(target) || !frame.Has<Health>(target))

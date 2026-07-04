@@ -132,48 +132,25 @@ Next free project IDs: [`KlothoComponent`](vendor/Klotho/com.xpturn.klotho/Runti
 | ⬜      | Minimap      | TBD          | Match/map awareness UI remains.                 |
 
 
-## Click Orders
+## Controls
 
-| Input                  | Command / State                | Payload                                                  | Sim Handling                                                                                                     |
+| Input| Command / State | Payload | Sim Handling |
 | ---------------------- | ------------------------------ | -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| Local click selection  | Client-only selection state    | Selected controllable view/unit ids are not recorded as sim state. | No sim mutation.                                                                                                 |
-| Right-click ground     | [`MoveCommand`](sim/Commands/MoveCommand.cs)                  | Target X/Z plus explicit selected [`UnitIds`](sim/Models/Unit.cs).             | [`CommandSystem`](sim/Systems/CommandSystem.cs) validates ownership and [`Controllable`](sim/Models/Controllable.cs), then writes [`UnitMoveTarget`](sim/Models/UnitMoveTarget.cs).                                                 |
+| Local click selection  | Client-only selection state    | Selected controllable view/unit ids are not recorded as sim state. | No sim mutation. |
+| Right-click ground     | [`MoveCommand`](sim/Commands/MoveCommand.cs) | Target X/Z plus explicit selected [`UnitIds`](sim/Models/Unit.cs). | [`CommandSystem`](sim/Systems/CommandSystem.cs) validates ownership and [`Controllable`](sim/Models/Controllable.cs), then writes [`UnitMoveTarget`](sim/Models/UnitMoveTarget.cs). |
 | Right-click enemy      | [`AttackCommand`](sim/Commands/AttackCommand.cs)                | Target [`UnitId`](sim/Models/Unit.cs) plus explicit selected source [`UnitIds`](sim/Models/Unit.cs). | [`CommandSystem`](sim/Systems/CommandSystem.cs) validates ownership, [`Controllable`](sim/Models/Controllable.cs), and live enemy target, then writes [`AttackTargetUnitId`](sim/Models/AttackTargetUnitId.cs) plus initial chase target. |
-| WASD / camera controls | Client-only camera/debug input | No gameplay command payload.                             | No sim mutation.                                                                                                 |
+| WASD / camera controls | Client-only camera/debug input | No gameplay command payload.                             | No sim mutation. |
 
-## Milestone E: Avoidance And Scale
+## Todo
 
-Goal: scale toward hundreds or thousands of units without physics. Nav paths are handled by [`FPNavAgentSystem`](vendor/Klotho/com.xpturn.klotho/Runtime/Deterministic/Navigation/FPNavAgentSystem.cs); this milestone is about agent separation and iteration cost.
-
-| Status | Work                                                                                                 |
-| ------ | ---------------------------------------------------------------------------------------------------- |
-| ⬜      | Record a crowded-wave benchmark with [`FPNavAvoidance`](vendor/Klotho/com.xpturn.klotho/Runtime/Deterministic/Navigation/FPNavAvoidance.cs) enabled.                                       |
-| ⬜      | If avoidance dominates frame time, add a config gate or cheaper settings and document the threshold. |
-| ⬜      | Add a spatial grid for combat proximity scans only if profiling shows a real hotspot.                |
-| ✅      | Keep all iteration order stable.                                                                     |
-
-| Status | Acceptance                                                       |
-| ------ | ---------------------------------------------------------------- |
-| ⬜      | Large minion counts remain stable and cheap.                     |
-| ✅      | No dynamic physics bodies are required for normal unit movement. |
-
-## Todo, No Particular Order
-
-| Status | Work                                                                                                          |
+| Status | Work |
 | ------ | ------------------------------------------------------------------------------------------------------------- |
-| ⬜      | Add event-driven VFX reactions from synced events, not gameplay authority.                                    |
-| ⬜      | Add event-driven audio reactions from synced events, not gameplay authority.                                  |
-| ⬜      | Add model/team tinting for structure views.                                                                  |
-| ⬜      | Add minimap UI.                                                            |
-| ⬜      | Add a bounded async logging sink for server diagnostics.                                                      |
+| ⬜      | Add event-driven VFX reactions from synced events, not gameplay authority.|
+| ⬜      | Add event-driven audio reactions from synced events, not gameplay authority. |
+| ⬜      | Add model/team tinting for structure views. |
+| ⬜      | Add minimap UI.|
+| ⬜      | Add a bounded async logging sink for server diagnostics.|
 | ⬜      | Add a dynamic view/object pool for minions; a fixed 64-object pool is probably too small once waves stack up. |
 | ⬜      | Check client-s ide frame cost with Godot's built-in Profiler/Monitors if server-side tick timing doesn't fully explain the choppiness. |
 | ⬜      | Enforce `MAX_NEIGHBORS = 16` cap in [`FPNavAvoidance.ComputeNewVelocity`](vendor/Klotho/com.xpturn.klotho/Runtime/Deterministic/Navigation/FPNavAvoidance.cs) — the constant is defined but never used; only keeping the 16 closest neighbors per agent would cut the O(k²) ORCA LP solver cost significantly when units cluster. |
 | ⬜      | Investigate [`TargetAcquisitionSystem`](sim/Systems/TargetAcquisitionSystem.cs) cost spikes (2-4ms at 200+ entities) despite grid — likely high local density when units cluster in lane fights; consider a neighbor cap or larger cell size. |
-
-
-
-
-
-
-briancornine
