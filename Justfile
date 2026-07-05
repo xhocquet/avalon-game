@@ -30,16 +30,16 @@ loadtest-profile ticks="10000":
     & .\scripts\loadtest-profile.ps1 -Ticks {{ticks}}
 
 # Headless smoke test: server + two headless clients, asserts the in-engine self-check.
-smoke port="7777":
-    & .\scripts\smoke.ps1 -Port {{port}}
+smoke:
+    & .\scripts\smoke.ps1
 
 # Multiplayer: Server + 2 clients
-play port="7777":
-    & .\scripts\play.ps1 -Port {{port}}
+play:
+    & .\scripts\play.ps1
 
-# `just play` + autostart
-quickplay port="7777":
-    & .\scripts\quickplay.ps1 -Port {{port}}
+# `just play` + autostart (ticks: fast-forward N ticks at max speed)
+quickplay ticks="0":
+    & .\scripts\quickplay.ps1 -Ticks {{ticks}}
 
 # Build Klotho runtime DLL from vendor source (Godot flavor) and sync it into the client addon.
 sync-klotho:

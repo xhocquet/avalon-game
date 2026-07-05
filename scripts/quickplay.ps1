@@ -2,6 +2,7 @@
 # auto-ready so you land in-game without touching the lobby UI.
 param(
   [int]    $Port = 7777,
+  [int]    $Ticks = 0,
   [string] $Godot = $(if ($env:GODOT) { $env:GODOT } else { "C:\Users\meesles\Coding\Godot-4.6-mono\Godot_v4.6.3-stable_mono_win64.exe" })
 )
 
@@ -46,9 +47,15 @@ try {
   & dotnet build (Join-Path $repoRoot "client/Meesles.Avalon.Client.csproj") -c Debug | Out-Null
   if ($LASTEXITCODE -ne 0) { throw "client build failed" }
 
-  Write-Host "[quickplay] starting server on port $Port..."
+  $serverArgs = @("run", "--project", (Join-Path $repoRoot "server/Server.csproj"), "--", "$Port")
+  if ($Ticks -gt 0) {
+    $serverArgs += @("Information", "$Ticks")
+    Write-Host "[quickplay] starting server on port $Port (fast-forward $Ticks ticks)..."
+  } else {
+    Write-Host "[quickplay] starting server on port $Port..."
+  }
   $server = Start-Process -FilePath "dotnet" `
-    -ArgumentList @("run", "--project", (Join-Path $repoRoot "server/Server.csproj"), "--", "$Port") `
+    -ArgumentList $serverArgs `
     -WorkingDirectory $repoRoot -PassThru -WindowStyle Normal
   Start-Sleep -Seconds 6
 

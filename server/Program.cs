@@ -12,6 +12,7 @@ KlothoServerBootstrap.Initialize("Avalon", "Meesles");
 
 int port = args.Length > 0 ? int.Parse(args[0]) : 7777;
 var logLevel = args.Length > 1 ? Enum.Parse<KLogLevel>(args[1]) : KLogLevel.Information;
+int fastForwardTicks = args.Length > 2 ? int.Parse(args[2]) : 0;
 const int maxRooms = 1; // single concurrent match
 
 using var loggerFactory = KLoggerFactory.Create(builder => {
@@ -74,6 +75,10 @@ logger.KInformation(
   $"[AvalonServer] listening on port {port}, maxPlayers={maxPlayers}, tickInterval={tickIntervalMs}ms");
 
 var loop = new ServerLoop(transport, roomManager, tickIntervalMs, logger);
+if (fastForwardTicks > 0) {
+  loop.FastForwardTicks = fastForwardTicks;
+  logger.KInformation($"[AvalonServer] Fast-forward enabled: {fastForwardTicks} ticks at max speed once a room is active.");
+}
 loop.Run();
 
 logger.KInformation($"[AvalonServer] Server stopped.");
