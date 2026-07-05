@@ -27,7 +27,10 @@ namespace Meesles.Avalon {
       var logger = CreateLogger("Singleplayer");
       var registry = LoadAssetRegistry();
       var navMeshBytes = LoadNavigationMeshBytes();
-      _simCfg = new SimulationConfig();
+      _simCfg = new SimulationConfig {
+        InputDelayTicks = 1,
+        InterpolationDelayTicks = 1,
+      };
       _sesCfg = new SessionConfig { MaxPlayers = 1, MinPlayers = 1, CountdownDurationMs = 0 };
 
       InitializeGameUI();

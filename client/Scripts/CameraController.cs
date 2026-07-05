@@ -2,13 +2,19 @@ using global::Godot;
 
 namespace Meesles.Avalon {
   public partial class CameraController : Camera3D {
+    private enum CameraMode {
+      Free,
+      Follow,
+      Godmode,
+    }
+
     private const float FollowPitchDegrees = -58f;
     private const float FollowYawDegrees = 0f;
     private const float DefaultHeight = 18f;
     private const float DefaultFov = 58f;
     private const float ZoomStep = 2f;
     private const float ZoomMin = 5f;
-    private const float ZoomMax = 30f;
+    private const float ZoomMax = 90f;
     private const float FollowSpeed = 5f;
     private const float PanSpeed = 18f;
     private const float MouseSensitivity = 0.002f;
@@ -21,14 +27,21 @@ namespace Meesles.Avalon {
     private float _zoomDistance = DefaultHeight / Mathf.Sin(Mathf.DegToRad(-FollowPitchDegrees));
     private float _godmodePitch;
     private float _godmodeYaw;
-    private bool _godmodeEnabled;
-    private bool _wasGodmode;
+    private CameraMode _mode = CameraMode.Free;
+    private CameraMode _modeBeforeGodmode = CameraMode.Free;
+    private bool _wasInGodmode;
     private bool _justExitedGodmode;
 
     public void SetFollowTarget(Node3D target) {
       _followTarget = target;
       _justExitedGodmode = false;
-      if (_followTarget != null) SnapToTarget();
+      if (_followTarget != null) {
+        _mode = CameraMode.Follow;
+        SnapToTarget();
+      }
+      else if (_mode == CameraMode.Follow) {
+        _mode = CameraMode.Free;
+      }
     }
 
     public override void _Ready() {
@@ -39,19 +52,22 @@ namespace Meesles.Avalon {
 
     public override void _Input(InputEvent @event) {
       if (@event is InputEventKey key && key.IsActionPressed("toggle_godmode") && !key.Echo) {
-        _godmodeEnabled = !_godmodeEnabled;
+        ToggleGodmode();
         GetViewport().SetInputAsHandled();
         return;
       }
 
-      if (_godmodeEnabled) {
+      if (_mode == CameraMode.Godmode) {
         if (@event is InputEventMouseMotion motion) ApplyGodmodeLook(motion.Relative);
         return;
       }
 
       if (@event is InputEventMouseButton { Pressed: true } mb) {
+        float prevZoom = _zoomDistance;
         if (mb.ButtonIndex == MouseButton.WheelUp) _zoomDistance = Mathf.Clamp(_zoomDistance - ZoomStep, ZoomMin, ZoomMax);
         if (mb.ButtonIndex == MouseButton.WheelDown) _zoomDistance = Mathf.Clamp(_zoomDistance + ZoomStep, ZoomMin, ZoomMax);
+        if (_mode == CameraMode.Free && _zoomDistance != prevZoom)
+          GlobalPosition += GlobalTransform.Basis.Z * (_zoomDistance - prevZoom);
       }
     }
 
@@ -59,16 +75,26 @@ namespace Meesles.Avalon {
       float dt = (float)delta;
 
       UpdateMouseCapture();
-      if (_godmodeEnabled) {
+      if (_mode == CameraMode.Godmode) {
         _justExitedGodmode = false;
         ProcessGodmode(dt);
         return;
       }
 
-      if (_justExitedGodmode) return;
+      if (_justExitedGodmode) {
+        _justExitedGodmode = false;
+        return;
+      }
 
-      if (_followTarget != null) SmoothFollow(dt);
-      else ProcessPan(dt);
+      Vector3 freeMove = NormalMoveDirection();
+      if (freeMove.LengthSquared() > 0f) {
+        _mode = CameraMode.Free;
+        MoveFree(freeMove, dt);
+        return;
+      }
+
+      if (_mode == CameraMode.Follow && IsValidFollowTarget()) SmoothFollow(dt);
+      else ProcessFree(dt);
     }
 
     public Vector3? ScreenToGround(Vector2 screenPos) {
@@ -81,23 +107,35 @@ namespace Meesles.Avalon {
     }
 
     private void ProcessGodmode(float dt) {
-      Vector3 dir = WasdDirectionXz();
+      Vector3 dir = MovementDirectionXz("move_forward", "move_backward", "move_left", "move_right");
       if (dir.LengthSquared() > 0f) GlobalPosition += dir * GodmodeMoveSpeed * dt;
       if (Input.IsActionPressed("move_up")) GlobalPosition += Vector3.Up * GodmodeVerticalSpeed * dt;
       if (Input.IsActionPressed("move_down")) GlobalPosition -= Vector3.Up * GodmodeVerticalSpeed * dt;
     }
 
-    private void ProcessPan(float dt) {
-      Vector3 dir = WasdDirectionXz();
+    private void ProcessFree(float dt) {
+      _mode = CameraMode.Free;
+      Vector3 dir = NormalMoveDirection();
+      MoveFree(dir, dt);
+    }
+
+    private void MoveFree(Vector3 dir, float dt) {
       if (dir.LengthSquared() > 0f) GlobalPosition += dir * PanSpeed * dt;
     }
 
     private void SmoothFollow(float dt) {
+      if (!IsValidFollowTarget()) {
+        _followTarget = null;
+        _mode = CameraMode.Free;
+        return;
+      }
+
       Vector3 desired = CameraPosForTarget(_followTarget.GlobalPosition);
       GlobalPosition = GlobalPosition.Lerp(desired, Mathf.Clamp(FollowSpeed * dt, 0f, 1f));
     }
 
     private void SnapToTarget() {
+      if (!IsValidFollowTarget()) return;
       GlobalPosition = CameraPosForTarget(_followTarget.GlobalPosition);
     }
 
@@ -106,9 +144,22 @@ namespace Meesles.Avalon {
     }
 
     private void UpdateMouseCapture() {
-      if (_godmodeEnabled && !_wasGodmode) OnEnterGodmode();
-      else if (!_godmodeEnabled && _wasGodmode) OnExitGodmode();
-      _wasGodmode = _godmodeEnabled;
+      bool isInGodmode = _mode == CameraMode.Godmode;
+      if (isInGodmode && !_wasInGodmode) OnEnterGodmode();
+      else if (!isInGodmode && _wasInGodmode) OnExitGodmode();
+      _wasInGodmode = isInGodmode;
+    }
+
+    private void ToggleGodmode() {
+      if (_mode == CameraMode.Godmode) {
+        _mode = _modeBeforeGodmode;
+        if (_mode == CameraMode.Follow && !IsValidFollowTarget())
+          _mode = CameraMode.Free;
+        return;
+      }
+
+      _modeBeforeGodmode = _mode;
+      _mode = CameraMode.Godmode;
     }
 
     private void OnEnterGodmode() {
@@ -120,10 +171,10 @@ namespace Meesles.Avalon {
       _justExitedGodmode = true;
       Input.MouseMode = Input.MouseModeEnum.Visible;
       GlobalTransform = new Transform3D(FollowBasis(), GlobalPosition);
-      if (_followTarget != null) SnapToTarget();
+      if (_mode == CameraMode.Follow) SnapToTarget();
     }
 
-    private Vector3 WasdDirectionXz() {
+    private Vector3 MovementDirectionXz(string forwardAction, string backwardAction, string leftAction, string rightAction) {
       Vector3 forward = -GlobalTransform.Basis.Z;
       forward.Y = 0f;
       forward = forward.Normalized();
@@ -133,11 +184,15 @@ namespace Meesles.Avalon {
       right = right.Normalized();
 
       Vector3 dir = Vector3.Zero;
-      if (Input.IsActionPressed("move_forward")) dir += forward;
-      if (Input.IsActionPressed("move_backward")) dir -= forward;
-      if (Input.IsActionPressed("move_left")) dir -= right;
-      if (Input.IsActionPressed("move_right")) dir += right;
+      if (Input.IsActionPressed(forwardAction)) dir += forward;
+      if (Input.IsActionPressed(backwardAction)) dir -= forward;
+      if (Input.IsActionPressed(leftAction)) dir -= right;
+      if (Input.IsActionPressed(rightAction)) dir += right;
       return dir.LengthSquared() > 0f ? dir.Normalized() : dir;
+    }
+
+    private Vector3 NormalMoveDirection() {
+      return MovementDirectionXz("move_forward", "move_backward", "move_left", "move_right");
     }
 
     private void ApplyGodmodeLook(Vector2 delta) {
@@ -158,6 +213,10 @@ namespace Meesles.Avalon {
 
     private static Basis FollowBasis() {
       return Basis.FromEuler(new Vector3(Mathf.DegToRad(FollowPitchDegrees), Mathf.DegToRad(FollowYawDegrees), 0f), EulerOrder.Yxz);
+    }
+
+    private bool IsValidFollowTarget() {
+      return _followTarget != null && IsInstanceValid(_followTarget);
     }
   }
 }

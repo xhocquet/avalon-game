@@ -23,6 +23,23 @@
 - Client and server both call `SimulationSetup.RegisterSystems(...)` and `SimulationSetup.InitializeWorld(...)` through their `ISimulationCallbacks` implementations.
 - Godot client callbacks poll local input and send commands; server callbacks do not poll local input because Klotho injects client commands into the authoritative server simulation.
 
+# Network Architecture
+
+- **Mode**: ServerDriven (authoritative dedicated server, clients predict ahead and reconcile).
+- **Tick rate**: 66ms (15Hz) — set in `server/simulationconfig.json`.
+- **Client prediction**: enabled. Client runs the sim locally, executes own commands immediately, reconciles when server confirms. This hides input latency.
+- **Input delay**: 2 ticks (132ms) — buffer for server to receive inputs before execution tick. Matches `SDInputLeadTicks`.
+- **Interpolation delay**: 2 ticks (132ms) — view layer trails the sim to smooth jitter.
+- **Error correction**: enabled. Small position discrepancies after rollback are blended rather than snapped.
+- **Max rollback**: 8 ticks (528ms) — maximum prediction lead / reconciliation depth.
+- **Singleplayer**: uses P2P mode locally with reduced delays (InputDelay=1, InterpolationDelay=1) for near-instant response.
+
+Config authority chain:
+1. Server loads `server/simulationconfig.json` at startup.
+2. Server sends `SimulationConfigMessage` to client after handshake.
+3. Client uses received config to initialize its engine (overrides client-side defaults).
+4. Singleplayer bypasses this — uses hardcoded `SimulationConfig` in `SingleplayerGameNode.cs`.
+
 # Common Commands
 
 - Client build: `dotnet build .\client\Meesles.Avalon.Client.csproj`

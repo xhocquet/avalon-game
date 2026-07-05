@@ -1,14 +1,14 @@
 {
   "Mode": "ServerDriven",
   "TickIntervalMs": 66,
-  "InputDelayTicks": 4,
+  "InputDelayTicks": 2,
   "MaxRollbackTicks": 8,
   "SyncCheckInterval": 4,
-  "UsePrediction": false,
+  "UsePrediction": true,
   "MaxEntities": 1024,
-  "SDInputLeadTicks": 4,
+  "SDInputLeadTicks": 2,
   "InputResendIntervalMs": 150,
   "MaxUnackedInputs": 30,
-  "EnableErrorCorrection": false,
+  "EnableErrorCorrection": true,
   "InterpolationDelayTicks": 2
 }

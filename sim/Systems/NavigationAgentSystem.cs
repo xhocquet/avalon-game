@@ -12,8 +12,15 @@ namespace Meesles.Avalon {
     private static readonly FP64 SnapThresholdSqr = FP64.FromDouble(0.01);
     private static readonly FP64 FlowFieldArrivalDistSqr = FP64.FromDouble(0.09); // 0.3 units (matches WaypointThreshold)
     private static readonly FP64 FlowFieldDirectSteerDistSqr = FP64.FromDouble(4.0); // 2.0 units — switch to direct steering
+    private static readonly FP64 MinionNeighborDist = FP64.FromInt(2);
 
     private readonly NavigationRuntime _navigation;
+
+    // Temporal spreading: only update a fraction of agents per tick for expensive phases.
+    // 1 = every tick (no spreading), 2 = every other tick, etc.
+    public int HeroSteeringSpread = 1;
+    public int MinionSteeringSpread = 1;
+    public int AvoidanceSpread = 1;
 
     // Separate collision layers
     private readonly SpatialHashGrid _minionAvoidanceGrid = new(AvoidanceGridCellSize);
@@ -27,6 +34,11 @@ namespace Meesles.Avalon {
     // Minion entities use flow fields
     private EntityRef[] _minionEntities = new EntityRef[256];
     private int _minionCount;
+
+    // Spread-subset arrays for steering/avoidance phases
+    private EntityRef[] _heroSubset = new EntityRef[16];
+    private EntityRef[] _minionSubset = new EntityRef[256];
+    private EntityRef[] _avoidanceSubset = new EntityRef[128];
 
     // Shared position-sync bookkeeping
     private EntityRef[] _allEntities = new EntityRef[128];
@@ -76,14 +88,25 @@ namespace Meesles.Avalon {
       if (_allCount == 0)
         return;
 
-      // Phase 2: Hero pathfinding via existing A* + funnel
-      if (_heroCount > 0)
-        _navigation.AgentSystem.UpdateSteering(ref frame, _heroEntities, _heroCount, frame.Tick);
+      // Phase 2: Hero pathfinding via existing A* + funnel (spread across ticks)
+      if (_heroCount > 0) {
+        int heroSubsetCount = BuildSpreadSubset(
+          _heroEntities, _heroCount, HeroSteeringSpread, frame.Tick, 0,
+          ref _heroSubset);
+        if (heroSubsetCount > 0)
+          _navigation.AgentSystem.UpdateSteering(ref frame, _heroSubset, heroSubsetCount, frame.Tick);
+      }
 
-      // Phase 3: Minion steering via flow fields
-      UpdateMinionFlowFieldSteering(ref frame);
+      // Phase 3: Minion steering via flow fields (spread across ticks)
+      {
+        int minionSubsetCount = BuildSpreadSubset(
+          _minionEntities, _minionCount, MinionSteeringSpread, frame.Tick, 1,
+          ref _minionSubset);
+        if (minionSubsetCount > 0)
+          UpdateMinionFlowFieldSteering(ref frame, _minionSubset, minionSubsetCount);
+      }
 
-      // Phase 4: ORCA avoidance with separate collision layers
+      // Phase 4: ORCA avoidance with separate collision layers (spread across ticks)
       var avoidance = _navigation.Avoidance;
       if (avoidance != null) {
         _minionAvoidanceGrid.Clear();
@@ -100,14 +123,20 @@ namespace Meesles.Avalon {
             _heroAvoidanceGrid.Insert(entity, posXZ);
         }
 
-        for (int i = 0; i < _allCount; i++) {
-          var entity = _allEntities[i];
+        int avoidSubsetCount = BuildSpreadSubset(
+          _allEntities, _allCount, AvoidanceSpread, frame.Tick, 2,
+          ref _avoidanceSubset);
+
+        for (int i = 0; i < avoidSubsetCount; i++) {
+          var entity = _avoidanceSubset[i];
           ref var nav = ref frame.Get<NavAgentComponent>(entity);
           if (nav.Status != (byte)FPNavAgentStatus.Moving)
             continue;
 
-          var grid = frame.Has<Minion>(entity) ? _minionAvoidanceGrid : _heroAvoidanceGrid;
-          grid.QueryRadius(nav.Position.ToXZ(), avoidance.NeighborDist, _nearbyAgents);
+          bool isMinion = frame.Has<Minion>(entity);
+          var grid = isMinion ? _minionAvoidanceGrid : _heroAvoidanceGrid;
+          FP64 neighborDist = isMinion ? MinionNeighborDist : avoidance.NeighborDist;
+          grid.QueryRadius(nav.Position.ToXZ(), neighborDist, _nearbyAgents);
           nav.DesiredVelocity = avoidance.ComputeNewVelocity(entity, ref frame, _nearbyAgents, dt);
         }
       }
@@ -130,12 +159,12 @@ namespace Meesles.Avalon {
       }
     }
 
-    private void UpdateMinionFlowFieldSteering(ref Frame frame) {
+    private void UpdateMinionFlowFieldSteering(ref Frame frame, EntityRef[] entities, int count) {
       var query = _navigation.Query;
       var flowFields = _navigation.FlowFields;
 
-      for (int i = 0; i < _minionCount; i++) {
-        var entity = _minionEntities[i];
+      for (int i = 0; i < count; i++) {
+        var entity = entities[i];
         ref var nav = ref frame.Get<NavAgentComponent>(entity);
         ref readonly var moveTarget = ref frame.GetReadOnly<UnitMoveTarget>(entity);
 
@@ -226,6 +255,33 @@ namespace Meesles.Avalon {
       while (newSize < required) newSize *= 2;
       System.Array.Resize(ref _allEntities, newSize);
       System.Array.Resize(ref _lastSnappedPositions, newSize);
+    }
+
+    private static int BuildSpreadSubset(
+        EntityRef[] source, int count, int spread, int tick, int offset,
+        ref EntityRef[] dest) {
+      if (spread <= 1) {
+        EnsureCapacity(ref dest, count);
+        System.Array.Copy(source, dest, count);
+        return count;
+      }
+
+      int bucket = ((tick - offset) % spread + spread) % spread;
+      int subsetCount = 0;
+      EnsureCapacity(ref dest, count);
+      for (int i = 0; i < count; i++) {
+        if (i % spread == bucket)
+          dest[subsetCount++] = source[i];
+      }
+      return subsetCount;
+    }
+
+    private static void EnsureCapacity(ref EntityRef[] array, int required) {
+      if (required <= array.Length)
+        return;
+      int newSize = array.Length;
+      while (newSize < required) newSize *= 2;
+      System.Array.Resize(ref array, newSize);
     }
 
     private void EnsureHeroCapacity(int required) {

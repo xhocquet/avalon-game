@@ -130,7 +130,6 @@ Next free project IDs: [`KlothoComponent`](vendor/Klotho/com.xpturn.klotho/Runti
 |---|---------|--------|
 | 1 | Flow fields for group pathing | One computation serves all units heading to same destination — amortizes cost across N units instead of N×A* |
 | 2 | ORCA for local avoidance | Industry standard (SC2 uses it); handles thousands of agents in ms via 2D linear programming in velocity space |
-| 3 | Temporal spreading is critical | Never pathfind all units in the same frame; distribute requests across ticks |
 | 4 | Spatial hashing is the right foundation | Already have spatial grid — use it for neighbor queries in avoidance |
 | 5 | Hierarchical decomposition | Sector/portal graph for macro routing avoids computing detailed paths across the whole map |
 
@@ -142,8 +141,9 @@ Next free project IDs: [`KlothoComponent`](vendor/Klotho/com.xpturn.klotho/Runti
 | ⬜      | Add event-driven audio reactions from synced events, not gameplay authority. |
 | ⬜      | Add model/team tinting for structure views. |
 | ⬜      | Add minimap UI.|
-| ⬜      | Redo camera|
-| ⬜      | Add a bounded async logging sink for server diagnostics.|
 | ⬜      | Add a dynamic view/object pool for minions; a fixed 64-object pool is probably too small once waves stack up. |
-| ⬜      | Check client-s ide frame cost with Godot's built-in Profiler/Monitors if server-side tick timing doesn't fully explain the choppiness. |
-| ⬜      | Investigate [`TargetAcquisitionSystem`](sim/Systems/TargetAcquisitionSystem.cs) cost spikes (2-4ms at 200+ entities) despite grid — likely high local density when units cluster in lane fights; consider a neighbor cap or larger cell size. |
+| ⬜      | Check client-side frame cost with Godot's built-in Profiler/Monitors if server-side tick timing doesn't fully explain the choppiness. |
+| ⬜      | Force propagation (group arrival) — "transitive bumping": first unit reaching destination broadcasts completion, adjacent units recognize arrival and cascade outward. Prevents pile-ups at destinations. |
+| ⬜      | Branchless code — `math.select` instead of `if/else` for flow field generation (reported 10x speedup in RTS literature). |
+| ⬜      | Multi-threaded A* — leverage 6-8 cores for parallel path queries. |
+| ⬜      | Sector-scoped fields — many small flow fields connected via portals instead of one large field. |

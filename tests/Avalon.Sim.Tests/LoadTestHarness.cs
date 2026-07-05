@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Meesles.Avalon.Sim.Models;
+using xpTURN.Klotho.Deterministic.Math;
 using Xunit;
 using Xunit.Abstractions;
 using xpTURN.Klotho.ECS;
@@ -31,8 +32,13 @@ public class LoadTestHarness {
     var snapshots = new List<TickSnapshot>();
     var wallClock = Stopwatch.StartNew();
 
+    const int marchTick = 700;
+
     for (int tick = 0; tick < totalTicks; tick++) {
-      harness.Tick();
+      if (tick == marchTick)
+        IssueMarchCommands(harness, tick);
+      else
+        harness.Tick();
 
       bool isReportTick = (tick + 1) % reportInterval == 0 || tick == totalTicks - 1;
       if (!isReportTick)
@@ -55,6 +61,27 @@ public class LoadTestHarness {
 
     wallClock.Stop();
     WriteReport(totalTicks, wallClock, snapshots, timingLogger.Lines);
+  }
+
+  private static void IssueMarchCommands(SimHarness harness, int tick) {
+    var frame = harness.Frame;
+    FPVector3 spawn1 = SimulationSetup.GetHeroSpawnPositionForTeam(ref frame, 1);
+    FPVector3 spawn2 = SimulationSetup.GetHeroSpawnPositionForTeam(ref frame, 2);
+
+    var cmd1 = new Commands.MoveCommand { PlayerId = 1, Tick = tick, TargetX = spawn2.x, TargetZ = spawn2.z };
+    var cmd2 = new Commands.MoveCommand { PlayerId = 2, Tick = tick, TargetX = spawn1.x, TargetZ = spawn1.z };
+
+    var filter = frame.Filter<Unit, Team, Controllable>();
+    while (filter.Next(out var entity)) {
+      ref readonly var unit = ref frame.GetReadOnly<Unit>(entity);
+      ref readonly var team = ref frame.GetReadOnly<Team>(entity);
+      if (team.TeamId == 1)
+        cmd1.AddUnitId(unit.UnitId);
+      else if (team.TeamId == 2)
+        cmd2.AddUnitId(unit.UnitId);
+    }
+
+    harness.Tick(cmd1, cmd2);
   }
 
   private void WriteReport(

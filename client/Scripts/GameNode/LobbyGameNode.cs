@@ -39,7 +39,14 @@ namespace Meesles.Avalon {
       _logger = CreateLogger();
       _registry = LoadAssetRegistry();
       var navMeshBytes = LoadNavigationMeshBytes();
-      _simCfg = new SimulationConfig { Mode = NetworkMode.ServerDriven };
+      _simCfg = new SimulationConfig {
+        Mode = NetworkMode.ServerDriven,
+        InputDelayTicks = 2,
+        SDInputLeadTicks = 2,
+        InterpolationDelayTicks = 2,
+        UsePrediction = true,
+        EnableErrorCorrection = true,
+      };
       _sesCfg = new SessionConfig { MaxPlayers = 2, MinPlayers = 2, CountdownDurationMs = CountdownMs };
 
       InitializeSharedNodes();

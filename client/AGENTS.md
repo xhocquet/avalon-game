@@ -7,6 +7,14 @@
 - Godot/Klotho integration lives under `addons/klotho/`. This is vendor code, avoid changing it whenever possible.
 - Klotho runtime/framework source lives in `../vendor/Klotho/`. Inspect it when enhancing or debugging behavior that crosses into the prebuilt runtime; avoid editing vendored code unless the task explicitly targets Klotho itself.
 
+# Network & Prediction (Client Side)
+
+- **Quickplay/Multiplayer** (`LobbyGameNode`): connects to .NET server in ServerDriven mode. Server sends `SimulationConfigMessage` which overrides the client's initial config. Client runs local prediction (executes own commands immediately, reconciles on server confirmation). Error correction smooths rollback deltas.
+- **Singleplayer** (`SingleplayerGameNode`): P2P mode, local host. Uses reduced delays (InputDelay=1, InterpolationDelay=1, tick=25ms) for near-instant feedback. Prediction is on by default.
+- **Config override chain**: `GodotSimulationConfig` (editor `.tres`) → hardcoded in GameNode → overridden by server message at runtime.
+- **View interpolation**: `EntityViewNode` uses `InterpolationDelayTicks` to trail behind sim state. `ErrorVisualState` blends position/rotation corrections when rollback causes pops.
+- **Input flow**: `InputCapture` → `OnPollInput` callback → `MoveCommand`/`AttackCommand` stamped at `CurrentTick` → executed locally in predicted sim → sent to server.
+
 # Working Rules
 
 - Prefer fixes that preserve Godot scene/script wiring. When changing a script used by a scene, check the related `.tscn` and node/script assumptions.
