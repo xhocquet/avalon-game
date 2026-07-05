@@ -1,3 +1,4 @@
+using Meesles.Avalon.Sim.Navigation;
 using xpTURN.Klotho.Deterministic.Navigation;
 using xpTURN.Klotho.Logging;
 
@@ -9,15 +10,18 @@ namespace Meesles.Avalon.Sim {
     public FPNavMeshFunnel Funnel { get; }
     public FPNavAvoidance Avoidance { get; }
     public FPNavAgentSystem AgentSystem { get; }
+    public FlowFieldCache FlowFields { get; }
 
     private NavigationRuntime(FPNavMesh navMesh, FPNavMeshQuery query, FPNavMeshPathfinder pathfinder,
-      FPNavMeshFunnel funnel, FPNavAvoidance avoidance, FPNavAgentSystem agentSystem) {
+      FPNavMeshFunnel funnel, FPNavAvoidance avoidance, FPNavAgentSystem agentSystem,
+      FlowFieldCache flowFields) {
       NavMesh = navMesh;
       Query = query;
       Pathfinder = pathfinder;
       Funnel = funnel;
       Avoidance = avoidance;
       AgentSystem = agentSystem;
+      FlowFields = flowFields;
     }
 
     public static NavigationRuntime FromBytes(byte[] bytes, IKLogger logger) {
@@ -28,8 +32,9 @@ namespace Meesles.Avalon.Sim {
       var avoidance = new FPNavAvoidance();
       var agentSystem = new FPNavAgentSystem(navMesh, query, pathfinder, funnel, logger);
       agentSystem.SetAvoidance(avoidance);
+      var flowFields = new FlowFieldCache(navMesh);
 
-      return new NavigationRuntime(navMesh, query, pathfinder, funnel, avoidance, agentSystem);
+      return new NavigationRuntime(navMesh, query, pathfinder, funnel, avoidance, agentSystem, flowFields);
     }
   }
 }
