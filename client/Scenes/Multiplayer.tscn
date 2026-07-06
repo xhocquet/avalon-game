@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://qwlps32xm1dg" path="res://Scenes/Heroes/AllHairWizard.tscn" id="9_jvn7g"]
 [ext_resource type="PackedScene" uid="uid://b0w0cydbf2ux3" path="res://Scenes/Mobs/biomushy.tscn" id="10_entdg"]
 [ext_resource type="PackedScene" uid="uid://bjr7i1wvs40ug" path="res://Scenes/Mobs/eyeball_flowers.tscn" id="11_gpp7o"]
+[ext_resource type="PackedScene" uid="uid://dggni65ogxgyw" path="res://Scenes/Mobs/swirley_eye.tscn" id="12_gpp7o"]
 
 [node name="Multiplayer" type="Node" unique_id=1309111642]
 script = ExtResource("1_game")
@@ -23,7 +24,7 @@ fov = 58.0
 transform = Transform3D(1, 0, 0, 0, 0.64278764, 0.76604444, 0, -0.76604444, 0.64278764, 0, 14, 8)
 
 [node name="World" parent="." unique_id=90756935 instance=ExtResource("6_world")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.002649784, -0.00391531, 0.002115488)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0019803047, -0.002142191, 0.002145052)
 
 [node name="GameUI" parent="." unique_id=1799832949 instance=ExtResource("5_gameui")]
 
@@ -43,3 +44,6 @@ transform = Transform3D(0.9964062, 0, 0.08470386, 0, 1, 0, -0.08470386, 0, 0.996
 
 [node name="eyeball_flowers" parent="." unique_id=1361654705 instance=ExtResource("11_gpp7o")]
 transform = Transform3D(-0.37761462, 0, -0.9259629, 0, 1, 0, 0.9259629, 0, -0.37761462, -5.060972, 0.49508387, -8.604325)
+
+[node name="eyeball_minion1" parent="." unique_id=2060308289 instance=ExtResource("12_gpp7o")]
+transform = Transform3D(-0.08044897, 0, 0.05939666, 0, 0.1, 0, -0.05939666, 0, -0.08044897, -2.7358665, 0, -8.445826)
