@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://s8vgmb0tvxtk"]
+
+[ext_resource type="PackedScene" uid="uid://dxrlyrk85by0g" path="res://Assets/Mobs/SwirlyEye/eyeball_minion1.glb" id="1_b1to5"]
+[ext_resource type="Script" uid="uid://drxwt8mq0b2k8" path="res://Scripts/View/MinionEntity.cs" id="2_nr8yw"]
+[ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="3_sj0n2"]
+
+[node name="Minion" unique_id=2050480386 instance=ExtResource("1_b1to5")]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)
+script = ExtResource("2_nr8yw")
+
+[node name="SelectionIndicator" parent="." index="1" unique_id=1272106412 instance=ExtResource("3_sj0n2")]
+transform = Transform3D(8, 0, 0, 0, 8, 0, 0, 0, 8, 0, 0.04, 0)

@@ -120,7 +120,7 @@ namespace Meesles.Avalon {
       var heroScene = GD.Load<PackedScene>("res://Scenes/Dummy.tscn");
       var crystalScene = GD.Load<PackedScene>("res://Scenes/Objects/Crystal.tscn");
       var turretScene = GD.Load<PackedScene>("res://Scenes/Objects/Turret.tscn");
-      var minionScene = GD.Load<PackedScene>("res://Scenes/Minion.tscn");
+      var minionScene = GD.Load<PackedScene>("res://Scenes/Mobs/Minion.tscn");
       _pool.Prewarm(heroScene, 2);
       _pool.Prewarm(crystalScene, 2);
       _pool.Prewarm(turretScene, 4);
@@ -135,7 +135,7 @@ namespace Meesles.Avalon {
       var heroScene = GD.Load<PackedScene>("res://Scenes/Dummy.tscn");
       var crystalScene = GD.Load<PackedScene>("res://Scenes/Objects/Crystal.tscn");
       var turretScene = GD.Load<PackedScene>("res://Scenes/Objects/Turret.tscn");
-      var minionScene = GD.Load<PackedScene>("res://Scenes/Minion.tscn");
+      var minionScene = GD.Load<PackedScene>("res://Scenes/Mobs/Minion.tscn");
       return new UnitViewFactory(heroScene, crystalScene, turretScene, minionScene);
     }
 
