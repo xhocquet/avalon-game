@@ -5,6 +5,7 @@
 // ProcessViews() is also exposed for explicit/headless drive. A high ProcessPriority makes it run after
 // the session driver's _Process, so interpolation reads the frame the driver just advanced.
 // Spawn pooling is opt-in (see IGodotEntityViewPool); the async/pending spawn paths are not implemented.
+
 using System.Collections.Generic;
 using global::Godot;
 using xpTURN.Klotho.Core;
@@ -16,11 +17,13 @@ namespace xpTURN.Klotho.Godot {
     private IKlothoEngine _engine;
 
     private readonly Dictionary<int, EntityViewNode> _viewsByEntityIndex = new();
+    private readonly Dictionary<int, EntityViewNode> _viewsByUnitId = new();
     private readonly Dictionary<int, int> _presentEntityVersions = new();
     private readonly List<int> _staleIndices = new();
     private EntityRef[] _entityScratch;
 
     public EntityViewFactory Factory => _factory;
+    public IReadOnlyDictionary<int, EntityViewNode> ViewsByUnitId => _viewsByUnitId;
 
     // playerId -> view registry for Owner-bearing views, auto-populated on spawn/despawn.
     private GodotPlayerViewRegistry<EntityViewNode> _playerViews;
@@ -47,7 +50,9 @@ namespace xpTURN.Klotho.Godot {
         view.OnDeactivate();
         _factory?.Destroy(view);
       }
+
       _viewsByEntityIndex.Clear();
+      _viewsByUnitId.Clear();
       _playerViews?.Clear();
       _playerViews = null;
       _engine = null;
@@ -107,7 +112,8 @@ namespace xpTURN.Klotho.Godot {
         if (versionMatch && ownerMatch) return; // same entity — keep the view
 
         existing.OnDeactivate();
-        TryUnregisterPlayerView(existing);   // unbind site 1: rebind
+        TryUnregisterUnitView(existing);
+        TryUnregisterPlayerView(existing); // unbind site 1: rebind
         _factory.Destroy(existing);
         _viewsByEntityIndex.Remove(entity.Index);
       }
@@ -127,6 +133,7 @@ namespace xpTURN.Klotho.Godot {
       view.EnsureInitialized();
       view.InternalActivate(frame);
       TryRegisterPlayerView(entity, view, frame);
+      TryRegisterUnitView(view);
     }
 
     // Spawn-side: register views that implement IPlayerView. The view supplies its own OwnerId,
@@ -148,6 +155,18 @@ namespace xpTURN.Klotho.Godot {
       view.ClearCachedOwner();
     }
 
+    private void TryRegisterUnitView(EntityViewNode view) {
+      if (view.TryGetCachedUnitId(out int unitId))
+        _viewsByUnitId[unitId] = view;
+    }
+
+    private void TryUnregisterUnitView(EntityViewNode view) {
+      if (!view.TryGetCachedUnitId(out int unitId)) return;
+      if (_viewsByUnitId.TryGetValue(unitId, out var registered) && registered == view)
+        _viewsByUnitId.Remove(unitId);
+      view.ClearCachedUnitId();
+    }
+
     private static bool OwnersMatch(EntityViewNode view, EntityRef entity, Frame frame) {
       if (!frame.Has<OwnerComponent>(entity)) return true;
       int currentOwner = frame.GetReadOnly<OwnerComponent>(entity).OwnerId;
@@ -163,7 +182,8 @@ namespace xpTURN.Klotho.Godot {
       foreach (var key in _staleIndices) {
         var view = _viewsByEntityIndex[key];
         view.OnDeactivate();
-        TryUnregisterPlayerView(view);   // unbind site 2: stale despawn
+        TryUnregisterUnitView(view);
+        TryUnregisterPlayerView(view); // unbind site 2: stale despawn
         _factory.Destroy(view);
         _viewsByEntityIndex.Remove(key);
       }

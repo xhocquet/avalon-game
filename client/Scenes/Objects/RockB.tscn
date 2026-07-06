@@ -11,5 +11,10 @@ data = PackedVector3Array(0.4584, -3.889, 0.8266, 0.6021, -4.1961, -0.0392, 0.16
 [node name="Rock2" parent="." index="0" unique_id=1816065269]
 surface_material_override/0 = ExtResource("2_dbm2k")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="." index="1" unique_id=2082134788]
+[node name="StaticBody3D" type="StaticBody3D" parent="." index="1" unique_id=1456675914]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" index="0" unique_id=2082134788]
 shape = SubResource("ConcavePolygonShape3D_wfrmp")
+
+[node name="NavigationObstacle3D" type="NavigationObstacle3D" parent="." index="2" unique_id=1868022930]
+vertices = PackedVector3Array(-1.2269077, 0, -2.7239575, -2.7127018, 0, -0.4052167, -1.5870991, 0, 2.1611562, 0.641592, 0, 2.63391, 1.9472904, 0, 1.3957466, 2.4425583, 0, -1.0805781, 0.9567623, 0, -2.791494)

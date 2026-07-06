@@ -18,6 +18,7 @@ namespace Meesles.Avalon {
     private DefaultGodotEntityViewPool _pool;
     private GodotSessionDriver _driver;
     private CameraController _camera;
+    private VfxManager _vfx;
     private ISimulationConfig _simCfg;
     private ISessionConfig _sesCfg;
 
@@ -75,6 +76,8 @@ namespace Meesles.Avalon {
       _view.Initialize(_session.Engine, CreateFactory(), _pool);
       _view.PlayerViews.OnLocalViewRegistered += OnLocalViewRegistered;
       _view.PlayerViews.OnLocalViewUnregistered += OnLocalViewUnregistered;
+      _vfx = new VfxManager();
+      _vfx.Attach(_session.Engine, _view);
 
       _driver.Attach(_session);
       GameUi.SetLocalPlayerId(_session.LocalPlayerId);
@@ -84,6 +87,7 @@ namespace Meesles.Avalon {
 
     private void StopSession() {
       UnbindCameraFollow();
+      _vfx?.Detach();
       _driver?.DetachAndStop(saveReplay: false);
       _view?.Cleanup();
       _session = null;

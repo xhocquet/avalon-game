@@ -5,7 +5,7 @@ using xpTURN.Klotho.Godot;
 using Meesles.Avalon.Sim.Models;
 
 namespace Meesles.Avalon {
-  public partial class MinionEntity : EntityViewNode, ISelectableTeamView {
+  public partial class MinionEntity : EntityViewNode, ISelectableTeamView, IAttackableView {
     private const string UnitsGroup = "units";
     private const string AnimRun = "Action";
     private static readonly Quaternion FlipY = new(Vector3.Up, Mathf.Pi);
@@ -32,6 +32,8 @@ namespace Meesles.Avalon {
       _anim?.Stop();
 
       var live = frame.Frame;
+      if (live != null && live.Has<Unit>(EntityRef))
+        SetCachedUnitId(live.GetReadOnly<Unit>(EntityRef).UnitId);
       if (live != null && live.Has<OwnerComponent>(EntityRef))
         _ownerId = live.GetReadOnly<OwnerComponent>(EntityRef).OwnerId;
       if (live != null && live.Has<Team>(EntityRef))
@@ -68,5 +70,13 @@ namespace Meesles.Avalon {
 
     public override bool OwnerMatches(int ownerId) => _ownerId == ownerId;
     public bool TeamMatches(int teamId) => _teamId == teamId;
+
+    public void OnAttackVfx(Vector3 targetPosition) {
+      // TODO: attack animation / particles
+    }
+
+    public void OnHitVfx(int damage, Vector3 attackerPosition) {
+      // TODO: hit reaction / particles
+    }
   }
 }

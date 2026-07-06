@@ -30,6 +30,7 @@ namespace Meesles.Avalon {
     private DefaultGodotEntityViewPool _pool;
     private GodotSessionDriver _driver;
     private CameraController _camera;
+    private VfxManager _vfx;
     private ISimulationConfig _simCfg;
     private ISessionConfig _sesCfg;
     private Task<KlothoSession> _joinTask;
@@ -143,6 +144,8 @@ namespace Meesles.Avalon {
       _view.Initialize(_session.Engine, CreateFactory(), _pool);
       _view.PlayerViews.OnLocalViewRegistered += OnLocalViewRegistered;
       _view.PlayerViews.OnLocalViewUnregistered += OnLocalViewUnregistered;
+      _vfx = new VfxManager();
+      _vfx.Attach(_session.Engine, _view);
       GameUi.SetPhase(_session.Phase);
       TryFocusRegisteredLocalView();
 
@@ -272,6 +275,7 @@ namespace Meesles.Avalon {
         _session = null;
       }
 
+      _vfx?.Detach();
       _view?.Cleanup();
       _viewCallbacks?.Cleanup();
       _pool?.Dispose();

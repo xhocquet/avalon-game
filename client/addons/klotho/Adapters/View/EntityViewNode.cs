@@ -24,6 +24,12 @@ namespace xpTURN.Klotho.Godot {
     internal bool TryGetCachedOwner(out int ownerId) { ownerId = _cachedOwner; return _hasCachedOwner; }
     internal void ClearCachedOwner() => _hasCachedOwner = false;
 
+    private int _cachedUnitId;
+    private bool _hasCachedUnitId;
+    public void SetCachedUnitId(int unitId) { _cachedUnitId = unitId; _hasCachedUnitId = true; }
+    public bool TryGetCachedUnitId(out int unitId) { unitId = _cachedUnitId; return _hasCachedUnitId; }
+    internal void ClearCachedUnitId() => _hasCachedUnitId = false;
+
     // Override required for any entity carrying OwnerComponent; the default returns false so a
     // missing override surfaces as continuous rebind churn rather than a silent owner-swap bug.
     public virtual bool OwnerMatches(int ownerId) => false;

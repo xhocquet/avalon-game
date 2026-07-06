@@ -79,8 +79,17 @@ namespace xpTURN.Klotho.Godot
 
         public bool IsActive() => _active;
 
+        private bool IsInitialized => _data != null && _overlay != null && _agentSim != null && _dock != null && _dockScroll != null;
+
         public void ToggleActive()
         {
+            if (!IsInitialized)
+            {
+                _active = false;
+                if (_plugin != null) Init(_plugin);
+                if (!IsInitialized) return;
+            }
+
             if (_active) Deactivate();
             else Activate();
         }
@@ -100,13 +109,14 @@ namespace xpTURN.Klotho.Godot
 
         private void Deactivate()
         {
-            _overlay.Detach();
+            _overlay?.Detach();
             _attached = false;
 #pragma warning disable CS0618
-            _plugin.RemoveControlFromDocks(_dockScroll);
+            if (_dockScroll != null)
+                _plugin.RemoveControlFromDocks(_dockScroll);
 #pragma warning restore CS0618
             _active = false;
-            _plugin.UpdateOverlays();
+            _plugin?.UpdateOverlays();
         }
 
         private void TryAttachOverlay()
@@ -187,6 +197,12 @@ namespace xpTURN.Klotho.Godot
 
             byte[] bytes = FileAccess.GetFileAsBytes(resPath);
             if (bytes == null || bytes.Length == 0) { GD.PushError($"[GodotFPNavMeshVisualizer] Empty file: {resPath}"); return; }
+
+            if (_agentSim == null || _data == null)
+            {
+                GD.PushWarning("[GodotFPNavMeshVisualizer] Not initialized — re-toggle the visualizer after a C# rebuild.");
+                return;
+            }
 
             _agentSim.ClearAllAgents();
             if (_data.LoadFromBytes(bytes))

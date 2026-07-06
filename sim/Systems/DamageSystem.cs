@@ -1,4 +1,6 @@
+using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Models;
+using xpTURN.Klotho.Core;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Logging;
 
@@ -30,6 +32,19 @@ namespace Meesles.Avalon {
           health.Current = 0;
 
         combat.CooldownRemainingTicks = combat.AttackCooldownTicks;
+
+        if (frame.EventRaiser != null) {
+          var evt = EventPool.Get<AttackHitEvent>();
+          evt.AttackerUnitId = TryGetUnitId(ref frame, attacker, out int srcId) ? srcId : 0;
+          evt.TargetUnitId = TryGetUnitId(ref frame, target, out int tgtId) ? tgtId : 0;
+          evt.Damage = combat.AttackDamage;
+          evt.AttackerPosition = frame.Has<TransformComponent>(attacker)
+            ? frame.GetReadOnly<TransformComponent>(attacker).Position : default;
+          evt.TargetPosition = frame.Has<TransformComponent>(target)
+            ? frame.GetReadOnly<TransformComponent>(target).Position : default;
+          frame.EventRaiser.RaiseEvent(evt);
+        }
+
         LogDamageState(ref frame, attacker, target,
           $"damage={combat.AttackDamage} health={healthBefore}->{health.Current} cooldown={combat.CooldownRemainingTicks}");
       }
