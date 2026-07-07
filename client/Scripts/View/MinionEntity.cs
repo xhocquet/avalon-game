@@ -7,7 +7,8 @@ using Meesles.Avalon.Sim.Models;
 namespace Meesles.Avalon {
   public partial class MinionEntity : EntityViewNode, ISelectableTeamView, IAttackableView {
     private const string UnitsGroup = "units";
-    private const string AnimRun = "Action";
+    private const string AnimRun = "Run";
+    private const string AnimIdle = "Stand";
     private static readonly Quaternion FlipY = new(Vector3.Up, Mathf.Pi);
 
     private AnimationPlayer _anim;
@@ -23,13 +24,16 @@ namespace Meesles.Avalon {
         var runAnim = _anim.GetAnimation(AnimRun);
         if (runAnim != null)
           runAnim.LoopMode = Animation.LoopModeEnum.Linear;
+        var idleAnim = _anim.GetAnimation(AnimIdle);
+        if (idleAnim != null)
+          idleAnim.LoopMode = Animation.LoopModeEnum.Linear;
       }
     }
 
     public override void OnActivate(FrameRef frame) {
       AddToGroup(UnitsGroup);
       _isMoving = false;
-      _anim?.Stop();
+      _anim?.Play(AnimIdle);
 
       var live = frame.Frame;
       if (live != null && live.Has<Unit>(EntityRef))
@@ -61,7 +65,7 @@ namespace Meesles.Avalon {
       if (_isMoving)
         _anim.Play(AnimRun);
       else
-        _anim.Stop();
+        _anim.Play(AnimIdle);
     }
 
     public override void OnLateUpdateView() {

@@ -214,7 +214,13 @@ namespace Meesles.Avalon {
           FP64 mag = FP64.Sqrt(distSqr);
           nav.DesiredVelocity = mag > FP64.Zero ? (toTargetXZ / mag) * nav.Speed : FPVector2.Zero;
         } else {
-          nav.DesiredVelocity = field.ExitDirection[currentTri] * nav.Speed;
+          FP64 dist = FP64.Sqrt(distSqr);
+          FPVector2 directDir = toTargetXZ / dist;
+          FPVector2 blended = field.ExitDirection[currentTri] + directDir;
+          FP64 blendMag = blended.magnitude;
+          nav.DesiredVelocity = blendMag > FP64.Zero
+            ? (blended / blendMag) * nav.Speed
+            : field.ExitDirection[currentTri] * nav.Speed;
         }
 
         nav.Status = (byte)FPNavAgentStatus.Moving;
