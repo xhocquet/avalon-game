@@ -122,8 +122,6 @@ Next free project IDs: [`KlothoComponent`](vendor/Klotho/com.xpturn.klotho/Runti
 | [`ScoreSystem`](sim/Systems/ScoreSystem.cs) | Tracks score, win conditions,  and raises [`GameOverEvent`](sim/Events/GameOverEvent.cs) |
 | [`MatchResultSaveSystem`](server/MatchResultSaveSystem.cs) | Server-only. Saves [`MatchResultReader`](sim/MatchResult.cs) output on match end |
 
-
-
 ## Navigation Research Takeaways
 
 | # | Insight | Detail |
@@ -137,11 +135,10 @@ Next free project IDs: [`KlothoComponent`](vendor/Klotho/com.xpturn.klotho/Runti
 
 | Status | Work |
 | ------ | ------------------------------------------------------------------------------------------------------------- |
-| ⬜      | Add event-driven VFX reactions from synced events, not gameplay authority.|
-| ⬜      | Add event-driven audio reactions from synced events, not gameplay authority. |
-| ⬜      | Add model/team tinting for structure views. |
-| ⬜      | Add minimap UI.|
-| ⬜      | Force propagation (group arrival) — "transitive bumping": first unit reaching destination broadcasts completion, adjacent units recognize arrival and cascade outward. Prevents pile-ups at destinations. |
-| ⬜      | Branchless code — `math.select` instead of `if/else` for flow field generation (reported 10x speedup in RTS literature). |
-| ⬜      | Multi-threaded A* — leverage 6-8 cores for parallel path queries. |
-| ⬜      | Sector-scoped fields — many small flow fields connected via portals instead of one large field. |
+| ⬜ | Add event-driven audio reactions from synced events, not gameplay authority. |
+| ⬜ | Add model/team tinting for structure views. |
+| ⬜ | Add minimap UI.|
+| ⬜ | Force propagation (group arrival) — "transitive bumping": first unit reaching destination broadcasts completion, adjacent units recognize arrival and cascade outward. Prevents pile-ups at destinations. |
+| ⬜ | Branchless code — `math.select` instead of `if/else` for flow field generation (reported 10x speedup in RTS literature). |
+| ⬜ | Multi-threaded A* — leverage 6-8 cores for parallel path queries. |
+| ⬜ | Sector-scoped fields — many small flow fields connected via portals instead of one large field. |

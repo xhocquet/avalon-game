@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://ck44yj5h17mi7" path="res://Assets/Props/Rock/RockC.glb" id="1_1vww1"]
 [ext_resource type="Material" uid="uid://fkhkir6t1hml" path="res://Assets/Props/Crystal/M_crystal_blue.tres" id="2_fclne"]
-[ext_resource type="Script" uid="uid://jt4rwdk0j6k6" path="res://Scripts/SimMarkerNode.cs" id="3_cjs85"]
+[ext_resource type="Script" path="res://Scripts/View/CrystalEntity.cs" id="3_cjs85"]
 [ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="4_indicator"]
 
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_ycsjC"]
@@ -10,7 +10,6 @@ data = PackedVector3Array(1.3907, -4.3898, 0.264, 0.3707, -6.5026, 0.2358, 0.919
 
 [node name="Crystal" unique_id=971075756 groups=["units"] instance=ExtResource("1_1vww1")]
 script = ExtResource("3_cjs85")
-metadata/_custom_type_script = "uid://jt4rwdk0j6k6"
 
 [node name="Rock3" parent="." index="0" unique_id=1338750401]
 surface_material_override/0 = ExtResource("2_fclne")
