@@ -5,53 +5,53 @@
 // slots. The factory resolves the prefab once at view creation (see EntityViewUpdaterNode), so
 // everything it reads is already present on the entity at spawn.
 
-using global::Godot;
+using Godot;
+using Meesles.Avalon.Sim.Models;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Godot;
-using Meesles.Avalon.Sim.Models;
 
-namespace Meesles.Avalon {
-  public class UnitViewFactory : EntityViewFactory {
-    private readonly FactionCatalog _factions;
-    private readonly PackedScene _crystalScene;
-    private readonly PackedScene _turretScene;
+namespace Meesles.Avalon;
 
-    public UnitViewFactory(FactionCatalog factions, PackedScene crystalScene, PackedScene turretScene) {
-      _factions = factions;
-      _crystalScene = crystalScene;
-      _turretScene = turretScene;
-    }
+public class UnitViewFactory : EntityViewFactory {
+  private readonly PackedScene _crystalScene;
+  private readonly FactionCatalog _factions;
+  private readonly PackedScene _turretScene;
 
-    protected override PackedScene ResolvePrefab(Frame frame, EntityRef entity) {
-      if (frame.Has<Crystal>(entity)) return _crystalScene;
-      if (frame.Has<Turret>(entity)) return _turretScene;
+  public UnitViewFactory(FactionCatalog factions, PackedScene crystalScene, PackedScene turretScene) {
+    _factions = factions;
+    _crystalScene = crystalScene;
+    _turretScene = turretScene;
+  }
 
-      var entry = _factions.Resolve(ResolveFactionId(frame, entity));
-      return frame.Has<Minion>(entity) ? entry.MinionScene : entry.HeroScene;
-    }
+  protected override PackedScene ResolvePrefab(Frame frame, EntityRef entity) {
+    if (frame.Has<Crystal>(entity)) return _crystalScene;
+    if (frame.Has<Turret>(entity)) return _turretScene;
 
-    // Heroes carry Faction directly; other faction-aligned units (minions) inherit it from their
-    // team's pick. Returns 0 (catalog fallback) when neither is available.
-    private static int ResolveFactionId(Frame frame, EntityRef entity) {
-      if (frame.Has<Faction>(entity))
-        return frame.GetReadOnly<Faction>(entity).FactionId;
+    var entry = _factions.Resolve(ResolveFactionId(frame, entity));
+    return frame.Has<Minion>(entity) ? entry.MinionScene : entry.HeroScene;
+  }
 
-      if (frame.Has<Team>(entity)) {
-        int teamId = frame.GetReadOnly<Team>(entity).TeamId;
-        var filter = frame.Filter<PlayerFaction>();
-        while (filter.Next(out var slot)) {
-          ref readonly var pf = ref frame.GetReadOnly<PlayerFaction>(slot);
-          if (pf.TeamId == teamId)
-            return pf.FactionId;
-        }
+  // Heroes carry Faction directly; other faction-aligned units (minions) inherit it from their
+  // team's pick. Returns 0 (catalog fallback) when neither is available.
+  private static int ResolveFactionId(Frame frame, EntityRef entity) {
+    if (frame.Has<Faction>(entity))
+      return frame.GetReadOnly<Faction>(entity).FactionId;
+
+    if (frame.Has<Team>(entity)) {
+      var teamId = frame.GetReadOnly<Team>(entity).TeamId;
+      var filter = frame.Filter<PlayerFaction>();
+      while (filter.Next(out var slot)) {
+        ref readonly var pf = ref frame.GetReadOnly<PlayerFaction>(slot);
+        if (pf.TeamId == teamId)
+          return pf.FactionId;
       }
-
-      return 0;
     }
 
-    protected override bool ShouldRender(Frame frame, EntityRef entity) {
-      return frame.Has<Hero>(entity) || frame.Has<Crystal>(entity) || frame.Has<Turret>(entity) ||
-             frame.Has<Minion>(entity);
-    }
+    return 0;
+  }
+
+  protected override bool ShouldRender(Frame frame, EntityRef entity) {
+    return frame.Has<Hero>(entity) || frame.Has<Crystal>(entity) || frame.Has<Turret>(entity) ||
+           frame.Has<Minion>(entity);
   }
 }

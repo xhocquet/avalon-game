@@ -1,86 +1,91 @@
-using global::Godot;
+using Godot;
+using Meesles.Avalon.Sim.Models;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Godot;
-using Meesles.Avalon.Sim.Models;
 
-namespace Meesles.Avalon {
-  public partial class MinionEntity : EntityViewNode, ISelectableTeamView, IAttackableView {
-    private const string UnitsGroup = "units";
-    private const string AnimRun = "Run";
-    private const string AnimIdle = "Stand";
-    private static readonly Quaternion FlipY = new(Vector3.Up, Mathf.Pi);
+namespace Meesles.Avalon;
 
-    private AnimationPlayer _anim;
-    private int _ownerId = -1;
-    private int _teamId = -1;
-    private bool _isMoving;
+public partial class MinionEntity : EntityViewNode, ISelectableTeamView, IAttackableView {
+  private const string UnitsGroup = "units";
+  private const string AnimRun = "Run";
+  private const string AnimIdle = "Stand";
+  private static readonly Quaternion FlipY = new(Vector3.Up, Mathf.Pi);
 
-    public override void OnInitialize() {
-      EntityViewPhysics.DisableGodotCollision(this);
+  private AnimationPlayer _anim;
+  private bool _isMoving;
+  private int _ownerId = -1;
+  private int _teamId = -1;
 
-      _anim = GetNodeOrNull<AnimationPlayer>("AnimationPlayer");
-      if (_anim != null) {
-        var runAnim = _anim.GetAnimation(AnimRun);
-        if (runAnim != null)
-          runAnim.LoopMode = Animation.LoopModeEnum.Linear;
-        var idleAnim = _anim.GetAnimation(AnimIdle);
-        if (idleAnim != null)
-          idleAnim.LoopMode = Animation.LoopModeEnum.Linear;
-      }
+  public void OnAttackVfx(Vector3 targetPosition) {
+    // TODO: attack animation / particles
+  }
+
+  public void OnHitVfx(int damage, Vector3 attackerPosition) {
+    // TODO: hit reaction / particles
+  }
+
+  public bool TeamMatches(int teamId) {
+    return _teamId == teamId;
+  }
+
+  public override void OnInitialize() {
+    EntityViewPhysics.DisableGodotCollision(this);
+
+    _anim = GetNodeOrNull<AnimationPlayer>("AnimationPlayer");
+    if (_anim != null) {
+      var runAnim = _anim.GetAnimation(AnimRun);
+      if (runAnim != null)
+        runAnim.LoopMode = Animation.LoopModeEnum.Linear;
+      var idleAnim = _anim.GetAnimation(AnimIdle);
+      if (idleAnim != null)
+        idleAnim.LoopMode = Animation.LoopModeEnum.Linear;
     }
+  }
 
-    public override void OnActivate(FrameRef frame) {
-      AddToGroup(UnitsGroup);
-      _isMoving = false;
-      _anim?.Play(AnimIdle);
+  public override void OnActivate(FrameRef frame) {
+    AddToGroup(UnitsGroup);
+    _isMoving = false;
+    _anim?.Play(AnimIdle);
 
-      var live = frame.Frame;
-      if (live != null && live.Has<Unit>(EntityRef))
-        SetCachedUnitId(live.GetReadOnly<Unit>(EntityRef).UnitId);
-      if (live != null && live.Has<OwnerComponent>(EntityRef))
-        _ownerId = live.GetReadOnly<OwnerComponent>(EntityRef).OwnerId;
-      if (live != null && live.Has<Team>(EntityRef))
-        _teamId = live.GetReadOnly<Team>(EntityRef).TeamId;
+    var live = frame.Frame;
+    if (live != null && live.Has<Unit>(EntityRef))
+      SetCachedUnitId(live.GetReadOnly<Unit>(EntityRef).UnitId);
+    if (live != null && live.Has<OwnerComponent>(EntityRef))
+      _ownerId = live.GetReadOnly<OwnerComponent>(EntityRef).OwnerId;
+    if (live != null && live.Has<Team>(EntityRef))
+      _teamId = live.GetReadOnly<Team>(EntityRef).TeamId;
 
-      GetNodeOrNull<SelectionIndicator>("SelectionIndicator")?.SetTeamId(_teamId);
-    }
+    GetNodeOrNull<SelectionIndicator>("SelectionIndicator")?.SetTeamId(_teamId);
+  }
 
-    public override void OnDeactivate() {
-      RemoveFromGroup(UnitsGroup);
-      _ownerId = -1;
-      _teamId = -1;
-      _isMoving = false;
-    }
+  public override void OnDeactivate() {
+    RemoveFromGroup(UnitsGroup);
+    _ownerId = -1;
+    _teamId = -1;
+    _isMoving = false;
+  }
 
-    public override void OnUpdateView() {
-      if (Engine == null || _anim == null) return;
-      var frame = Engine.PredictedFrame.Frame;
-      if (frame == null) return;
+  public override void OnUpdateView() {
+    if (Engine == null || _anim == null) return;
+    var frame = Engine.PredictedFrame.Frame;
+    if (frame == null) return;
 
-      bool moving = frame.Has<UnitMoveTarget>(EntityRef);
-      if (moving == _isMoving) return;
-      _isMoving = moving;
+    var moving = frame.Has<UnitMoveTarget>(EntityRef);
+    if (moving == _isMoving) return;
+    _isMoving = moving;
 
-      if (_isMoving)
-        _anim.Play(AnimRun);
-      else
-        _anim.Play(AnimIdle);
-    }
+    if (_isMoving)
+      _anim.Play(AnimRun);
+    else
+      _anim.Play(AnimIdle);
+  }
 
-    public override void OnLateUpdateView() {
-      Quaternion *= FlipY;
-    }
+  public override void OnLateUpdateView() {
+    Quaternion *= FlipY;
+  }
 
-    public override bool OwnerMatches(int ownerId) => _ownerId == ownerId;
-    public bool TeamMatches(int teamId) => _teamId == teamId;
-
-    public void OnAttackVfx(Vector3 targetPosition) {
-      // TODO: attack animation / particles
-    }
-
-    public void OnHitVfx(int damage, Vector3 attackerPosition) {
-      // TODO: hit reaction / particles
-    }
+  public override bool OwnerMatches(int ownerId) {
+    return _ownerId == ownerId;
   }
 }

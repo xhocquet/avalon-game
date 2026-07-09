@@ -1,48 +1,47 @@
 using System;
-using Godot;
 using Meesles.Avalon.Sim;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.Godot;
 
-namespace Meesles.Avalon {
-  // Spawns transient combat VFX in response to simulation events. Like GameUI, it is a consumer of
-  // the shared SimEventHub rather than subscribing to the engine directly, so SimEventHub stays the
-  // single owner of the raw engine event streams.
-  public class VfxManager {
-    private EntityViewUpdaterNode _view;
-    private IDisposable _attackHitSub;
+namespace Meesles.Avalon;
 
-    public void Attach(SimEventHub events, EntityViewUpdaterNode view) {
-      Detach();
-      _view = view;
-      // Predicted (not confirmed) so hits flash immediately on the local tick; a mispredicted
-      // flash is transient and harmless, which is why UI state uses confirmed events but VFX do not.
-      _attackHitSub = events.OnPredicted<AttackHitEvent>(HandleAttackHit);
-    }
+// Spawns transient combat VFX in response to simulation events. Like GameUI, it is a consumer of
+// the shared SimEventHub rather than subscribing to the engine directly, so SimEventHub stays the
+// single owner of the raw engine event streams.
+public class VfxManager {
+  private IDisposable _attackHitSub;
+  private EntityViewUpdaterNode _view;
 
-    public void Detach() {
-      _attackHitSub?.Dispose();
-      _attackHitSub = null;
-      _view = null;
-    }
+  public void Attach(SimEventHub events, EntityViewUpdaterNode view) {
+    Detach();
+    _view = view;
+    // Predicted (not confirmed) so hits flash immediately on the local tick; a mispredicted
+    // flash is transient and harmless, which is why UI state uses confirmed events but VFX do not.
+    _attackHitSub = events.OnPredicted<AttackHitEvent>(HandleAttackHit);
+  }
 
-    private void HandleAttackHit(AttackHitEvent evt) {
-      if (_view == null) return;
+  public void Detach() {
+    _attackHitSub?.Dispose();
+    _attackHitSub = null;
+    _view = null;
+  }
 
-      var views = _view.ViewsByUnitId;
-      views.TryGetValue(evt.AttackerUnitId, out var attackerView);
-      views.TryGetValue(evt.TargetUnitId, out var targetView);
+  private void HandleAttackHit(AttackHitEvent evt) {
+    if (_view == null) return;
 
-      Vector3 attackerPos = attackerView?.GlobalPosition ?? evt.AttackerPosition.ToVector3();
-      Vector3 targetPos = targetView?.GlobalPosition ?? evt.TargetPosition.ToVector3();
+    var views = _view.ViewsByUnitId;
+    views.TryGetValue(evt.AttackerUnitId, out var attackerView);
+    views.TryGetValue(evt.TargetUnitId, out var targetView);
 
-      var line = DebugAttackLine.Create(attackerPos, targetPos);
-      _view.AddChild(line);
+    var attackerPos = attackerView?.GlobalPosition ?? evt.AttackerPosition.ToVector3();
+    var targetPos = targetView?.GlobalPosition ?? evt.TargetPosition.ToVector3();
 
-      if (attackerView is IAttackableView attacker)
-        attacker.OnAttackVfx(targetPos);
-      if (targetView is IAttackableView target)
-        target.OnHitVfx(evt.Damage, attackerPos);
-    }
+    var line = DebugAttackLine.Create(attackerPos, targetPos);
+    _view.AddChild(line);
+
+    if (attackerView is IAttackableView attacker)
+      attacker.OnAttackVfx(targetPos);
+    if (targetView is IAttackableView target)
+      target.OnHitVfx(evt.Damage, attackerPos);
   }
 }

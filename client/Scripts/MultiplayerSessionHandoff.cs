@@ -1,34 +1,34 @@
+using Meesles.Avalon.Client;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Godot;
 using xpTURN.Klotho.LiteNetLib;
 using xpTURN.Klotho.Logging;
-using Meesles.Avalon.Client;
 
-namespace Meesles.Avalon {
-  public sealed class MultiplayerSessionHandoff {
-    private static MultiplayerSessionHandoff _pending;
+namespace Meesles.Avalon;
 
-    public IKLogger Logger { get; init; }
-    public IKLoggerFactory LoggerFactory { get; init; }
-    public LiteNetLibTransport Transport { get; init; }
-    public KlothoSessionFlow Flow { get; init; }
-    public KlothoSession Session { get; init; }
-    public SimCallbacks SimulationCallbacks { get; init; }
-    public ViewCallbacks ViewCallbacks { get; init; }
-    public GodotSessionDriver Driver { get; init; }
-    public ISimulationConfig SimulationConfig { get; init; }
-    public ISessionConfig SessionConfig { get; init; }
+public sealed class MultiplayerSessionHandoff {
+  private static MultiplayerSessionHandoff _pending;
 
-    public static bool HasPending => _pending != null;
+  public IKLogger Logger { get; init; }
+  public IKLoggerFactory LoggerFactory { get; init; }
+  public LiteNetLibTransport Transport { get; init; }
+  public KlothoSessionFlow Flow { get; init; }
+  public KlothoSession Session { get; init; }
+  public SimCallbacks SimulationCallbacks { get; init; }
+  public ViewCallbacks ViewCallbacks { get; init; }
+  public GodotSessionDriver Driver { get; init; }
+  public ISimulationConfig SimulationConfig { get; init; }
+  public ISessionConfig SessionConfig { get; init; }
 
-    public static void Store(MultiplayerSessionHandoff handoff) {
-      _pending = handoff;
-    }
+  public static bool HasPending => _pending != null;
 
-    public static MultiplayerSessionHandoff Consume() {
-      var handoff = _pending;
-      _pending = null;
-      return handoff;
-    }
+  public static void Store(MultiplayerSessionHandoff handoff) {
+    _pending = handoff;
+  }
+
+  public static MultiplayerSessionHandoff Consume() {
+    var handoff = _pending;
+    _pending = null;
+    return handoff;
   }
 }

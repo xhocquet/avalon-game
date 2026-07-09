@@ -1,5 +1,5 @@
-namespace xpTURN.Klotho.Godot {
-  public interface IPlayerView {
-    int OwnerId { get; }
-  }
+namespace xpTURN.Klotho.Godot;
+
+public interface IPlayerView {
+  int OwnerId { get; }
 }

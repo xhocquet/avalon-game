@@ -1,42 +1,43 @@
-using global::Godot;
-using xpTURN.Klotho.Core;
-using xpTURN.Klotho.ECS;
-using xpTURN.Klotho.Godot;
+using Godot;
 using Meesles.Avalon.Sim.Models;
+using xpTURN.Klotho.Core;
+using xpTURN.Klotho.Godot;
 
-namespace Meesles.Avalon {
-  public partial class CrystalEntity : EntityViewNode, ISelectableTeamView, IAttackableView {
-    private const string UnitsGroup = "units";
+namespace Meesles.Avalon;
 
-    private int _teamId = -1;
+public partial class CrystalEntity : EntityViewNode, ISelectableTeamView, IAttackableView {
+  private const string UnitsGroup = "units";
 
-    public override void OnInitialize() {
-      EntityViewPhysics.DisableGodotCollision(this);
-    }
+  private int _teamId = -1;
 
-    public override void OnActivate(FrameRef frame) {
-      AddToGroup(UnitsGroup);
+  public void OnAttackVfx(Vector3 targetPosition) { }
 
-      var live = frame.Frame;
-      if (live != null && live.Has<Unit>(EntityRef))
-        SetCachedUnitId(live.GetReadOnly<Unit>(EntityRef).UnitId);
-      if (live != null && live.Has<Team>(EntityRef))
-        _teamId = live.GetReadOnly<Team>(EntityRef).TeamId;
+  public void OnHitVfx(int damage, Vector3 attackerPosition) {
+    // TODO: hit reaction / particles
+  }
 
-      GetNodeOrNull<SelectionIndicator>("SelectionIndicator")?.SetTeamId(_teamId);
-    }
+  public bool TeamMatches(int teamId) {
+    return _teamId == teamId;
+  }
 
-    public override void OnDeactivate() {
-      RemoveFromGroup(UnitsGroup);
-      _teamId = -1;
-    }
+  public override void OnInitialize() {
+    EntityViewPhysics.DisableGodotCollision(this);
+  }
 
-    public bool TeamMatches(int teamId) => _teamId == teamId;
+  public override void OnActivate(FrameRef frame) {
+    AddToGroup(UnitsGroup);
 
-    public void OnAttackVfx(Vector3 targetPosition) { }
+    var live = frame.Frame;
+    if (live != null && live.Has<Unit>(EntityRef))
+      SetCachedUnitId(live.GetReadOnly<Unit>(EntityRef).UnitId);
+    if (live != null && live.Has<Team>(EntityRef))
+      _teamId = live.GetReadOnly<Team>(EntityRef).TeamId;
 
-    public void OnHitVfx(int damage, Vector3 attackerPosition) {
-      // TODO: hit reaction / particles
-    }
+    GetNodeOrNull<SelectionIndicator>("SelectionIndicator")?.SetTeamId(_teamId);
+  }
+
+  public override void OnDeactivate() {
+    RemoveFromGroup(UnitsGroup);
+    _teamId = -1;
   }
 }

@@ -4,38 +4,40 @@ using Meesles.Avalon.Sim.Models;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Godot;
 
-namespace Meesles.Avalon {
-  [Tool]
-  [GlobalClass]
-  public partial class SimMarkerNode : EntityViewNode, ISelectableTeamView {
-    private const string UnitsGroup = "units";
+namespace Meesles.Avalon;
 
-    [Export] public MapMarkerType MarkerType { get; set; }
-    [Export] public int Team { get; set; }
+[Tool]
+[GlobalClass]
+public partial class SimMarkerNode : EntityViewNode, ISelectableTeamView {
+  private const string UnitsGroup = "units";
 
-    private int _teamId = -1;
+  private int _teamId = -1;
 
-    public override void OnInitialize() {
-      EntityViewPhysics.DisableGodotCollision(this);
-    }
+  [Export] public MapMarkerType MarkerType { get; set; }
+  [Export] public int Team { get; set; }
 
-    public override void OnActivate(FrameRef frame) {
-      var live = frame.Frame;
-      if (live == null || !live.Has<Unit>(EntityRef))
-        return;
+  public bool TeamMatches(int teamId) {
+    return _teamId == teamId;
+  }
 
-      AddToGroup(UnitsGroup);
-      if (live.Has<Team>(EntityRef))
-        _teamId = live.GetReadOnly<Team>(EntityRef).TeamId;
+  public override void OnInitialize() {
+    EntityViewPhysics.DisableGodotCollision(this);
+  }
 
-      GetNodeOrNull<SelectionIndicator>("SelectionIndicator")?.SetTeamId(_teamId);
-    }
+  public override void OnActivate(FrameRef frame) {
+    var live = frame.Frame;
+    if (live == null || !live.Has<Unit>(EntityRef))
+      return;
 
-    public override void OnDeactivate() {
-      RemoveFromGroup(UnitsGroup);
-      _teamId = -1;
-    }
+    AddToGroup(UnitsGroup);
+    if (live.Has<Team>(EntityRef))
+      _teamId = live.GetReadOnly<Team>(EntityRef).TeamId;
 
-    public bool TeamMatches(int teamId) => _teamId == teamId;
+    GetNodeOrNull<SelectionIndicator>("SelectionIndicator")?.SetTeamId(_teamId);
+  }
+
+  public override void OnDeactivate() {
+    RemoveFromGroup(UnitsGroup);
+    _teamId = -1;
   }
 }

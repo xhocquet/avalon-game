@@ -1,363 +1,362 @@
 using System;
 using System.Collections.Generic;
-using global::Godot;
-using xpTURN.Klotho.Deterministic.Math;
-using xpTURN.Klotho.Godot;
+using Godot;
 using Meesles.Avalon.Sim.Commands;
 using Meesles.Avalon.Sim.Models;
+using xpTURN.Klotho.Deterministic.Math;
+using xpTURN.Klotho.Godot;
 
-namespace Meesles.Avalon {
-  public class InputCapture : IDisposable {
-    private const float DragSelectionThresholdPx = 6f;
+namespace Meesles.Avalon;
 
-    private readonly List<EntityViewNode> _selectedViews = new();
-    private CameraController _camera;
-    private GameUI _gameUI;
-    private EntityViewUpdaterNode _viewRoot;
-    private EntityViewNode _fallbackFocusView;
-    private Node3D _clickMarker;
-    private Tween _clickMarkerTween;
-    private Vector3 _clickMarkerBaseScale = Vector3.One;
-    private MoveCommand _pendingMoveCommand;
-    private AttackCommand _pendingAttackCommand;
-    private Node3D _singleplayerMoveTarget;
-    private Vector2 _dragStartScreen;
-    private Vector2 _dragCurrentScreen;
-    private bool _hasSingleplayerTarget;
-    private bool _isLeftButtonDown;
-    private bool _isDraggingSelection;
-    private int _localTeamId = 1;
+public class InputCapture : IDisposable {
+  private const float DragSelectionThresholdPx = 6f;
 
-    public Vector3 SingleplayerTarget => _singleplayerMoveTarget?.GlobalPosition ?? Vector3.Zero;
-    public bool HasSingleplayerTarget => _hasSingleplayerTarget;
+  private readonly List<EntityViewNode> _selectedViews = new();
+  private CameraController _camera;
+  private Node3D _clickMarker;
+  private Vector3 _clickMarkerBaseScale = Vector3.One;
+  private Tween _clickMarkerTween;
+  private Vector2 _dragCurrentScreen;
+  private Vector2 _dragStartScreen;
+  private EntityViewNode _fallbackFocusView;
+  private GameUI _gameUI;
+  private bool _isDraggingSelection;
+  private bool _isLeftButtonDown;
+  private int _localTeamId = 1;
+  private AttackCommand _pendingAttackCommand;
+  private MoveCommand _pendingMoveCommand;
+  private Node3D _singleplayerMoveTarget;
+  private EntityViewUpdaterNode _viewRoot;
 
-    public void BindCamera(CameraController camera) {
-      _camera = camera;
-    }
+  public Vector3 SingleplayerTarget => _singleplayerMoveTarget?.GlobalPosition ?? Vector3.Zero;
+  public bool HasSingleplayerTarget { get; private set; }
 
-    public void BindGameUI(GameUI gameUI) {
-      _gameUI = gameUI;
-    }
-
-    public void BindClickMarker(Node3D clickMarker) {
-      _clickMarker = clickMarker;
-      if (_clickMarker == null) return;
-
-      _clickMarkerBaseScale = _clickMarker.Scale;
+  public void Dispose() {
+    ClearSelectedViews();
+    _pendingMoveCommand = null;
+    _pendingAttackCommand = null;
+    _camera = null;
+    _gameUI?.SetSelectionRectangle(null);
+    _gameUI = null;
+    _viewRoot = null;
+    _fallbackFocusView = null;
+    _clickMarkerTween?.Kill();
+    _clickMarkerTween = null;
+    if (_clickMarker != null && GodotObject.IsInstanceValid(_clickMarker))
       _clickMarker.Visible = false;
+    _clickMarker = null;
+    _singleplayerMoveTarget = null;
+  }
+
+  public void BindCamera(CameraController camera) {
+    _camera = camera;
+  }
+
+  public void BindGameUI(GameUI gameUI) {
+    _gameUI = gameUI;
+  }
+
+  public void BindClickMarker(Node3D clickMarker) {
+    _clickMarker = clickMarker;
+    if (_clickMarker == null) return;
+
+    _clickMarkerBaseScale = _clickMarker.Scale;
+    _clickMarker.Visible = false;
+  }
+
+  public void BindViewRoot(EntityViewUpdaterNode viewRoot) {
+    _viewRoot = viewRoot;
+  }
+
+  public void BindSingleplayerMoveTarget(Node3D target) {
+    _singleplayerMoveTarget = target;
+  }
+
+  public void SetLocalTeamId(int teamId) {
+    _localTeamId = teamId;
+  }
+
+  public void CaptureInput() { }
+
+  public bool TryConsumeMoveCommand(out MoveCommand command) {
+    command = _pendingMoveCommand;
+    _pendingMoveCommand = null;
+    return command != null;
+  }
+
+  public bool TryConsumeAttackCommand(out AttackCommand command) {
+    command = _pendingAttackCommand;
+    _pendingAttackCommand = null;
+    return command != null;
+  }
+
+  public void ClearSingleplayerTarget() {
+    HasSingleplayerTarget = false;
+  }
+
+  public void SelectSingleView(EntityViewNode view) {
+    if (view is IPlayerView)
+      _fallbackFocusView = view;
+
+    ApplySingleSelection(view);
+  }
+
+  public void HandleUnhandledInput(InputEvent @event) {
+    if (_camera == null) return;
+
+    if (@event is InputEventMouseMotion motion) {
+      UpdateDragSelection(motion.Position);
+      return;
     }
 
-    public void BindViewRoot(EntityViewUpdaterNode viewRoot) {
-      _viewRoot = viewRoot;
-    }
+    if (@event is not InputEventMouseButton mouseButton) return;
 
-    public void BindSingleplayerMoveTarget(Node3D target) {
-      _singleplayerMoveTarget = target;
-    }
-
-    public void SetLocalTeamId(int teamId) {
-      _localTeamId = teamId;
-    }
-
-    public void CaptureInput() { }
-
-    public bool TryConsumeMoveCommand(out MoveCommand command) {
-      command = _pendingMoveCommand;
-      _pendingMoveCommand = null;
-      return command != null;
-    }
-
-    public bool TryConsumeAttackCommand(out AttackCommand command) {
-      command = _pendingAttackCommand;
-      _pendingAttackCommand = null;
-      return command != null;
-    }
-
-    public void ClearSingleplayerTarget() {
-      _hasSingleplayerTarget = false;
-    }
-
-    public void SelectSingleView(EntityViewNode view) {
-      if (view is IPlayerView)
-        _fallbackFocusView = view;
-
-      ApplySingleSelection(view);
-    }
-
-    public void HandleUnhandledInput(InputEvent @event) {
-      if (_camera == null) return;
-
-      if (@event is InputEventMouseMotion motion) {
-        UpdateDragSelection(motion.Position);
-        return;
-      }
-
-      if (@event is not InputEventMouseButton mouseButton) return;
-
-      if (mouseButton.ButtonIndex == MouseButton.Left) {
-        if (mouseButton.Pressed)
-          BeginDragSelection(mouseButton.Position);
-        else
-          EndDragSelection(mouseButton.Position);
-        return;
-      }
-
-      if (mouseButton.ButtonIndex != MouseButton.Right || !mouseButton.Pressed) return;
-
-      if (TryGetEnemyUnitIdAt(mouseButton.Position, out int targetUnitId)) {
-        QueueAttack(targetUnitId);
-        return;
-      }
-
-      Vector3? ground = _camera.ScreenToGround(mouseButton.Position);
-      if (ground == null) return;
-
-      QueueMoveTo(ground.Value);
-    }
-
-    private void QueueMoveTo(Vector3 ground) {
-      _hasSingleplayerTarget = true;
-      if (_singleplayerMoveTarget != null)
-        _singleplayerMoveTarget.GlobalPosition = ground;
-
-      PlayClickMarker(ground);
-
-      var command = new MoveCommand {
-        TargetX = FP64.FromFloat(ground.X),
-        TargetZ = FP64.FromFloat(ground.Z),
-      };
-
-      foreach (var view in _selectedViews) {
-        if (!TryGetUnitId(view, out int unitId)) continue;
-        command.AddUnitId(unitId);
-      }
-
-      _pendingMoveCommand = command;
-      _pendingAttackCommand = null;
-    }
-
-    private void QueueAttack(int targetUnitId) {
-      var command = new AttackCommand { TargetUnitId = targetUnitId };
-
-      foreach (var view in _selectedViews) {
-        if (!TryGetUnitId(view, out int unitId)) continue;
-        command.AddSourceUnitId(unitId);
-      }
-
-      if (command.SourceUnitIdCount == 0)
-        return;
-
-      _pendingAttackCommand = command;
-      _pendingMoveCommand = null;
-    }
-
-    private void PlayClickMarker(Vector3 ground) {
-      if (_clickMarker == null || !GodotObject.IsInstanceValid(_clickMarker)) return;
-
-      _clickMarkerTween?.Kill();
-
-      _clickMarker.GlobalPosition = new Vector3(ground.X, _clickMarker.GlobalPosition.Y, ground.Z);
-      _clickMarker.Scale = _clickMarkerBaseScale;
-      _clickMarker.Visible = true;
-
-      _clickMarkerTween = _clickMarker.CreateTween();
-      _clickMarkerTween.TweenProperty(_clickMarker, "scale", _clickMarkerBaseScale * 1.5f, 0.1)
-        .SetTrans(Tween.TransitionType.Quad)
-        .SetEase(Tween.EaseType.Out);
-      _clickMarkerTween.TweenProperty(_clickMarker, "scale", Vector3.Zero, 0.25)
-        .SetTrans(Tween.TransitionType.Quad)
-        .SetEase(Tween.EaseType.In);
-      _clickMarkerTween.TweenCallback(Callable.From(() => {
-        if (_clickMarker != null && GodotObject.IsInstanceValid(_clickMarker))
-          _clickMarker.Visible = false;
-      }));
-    }
-
-    private void BeginDragSelection(Vector2 screenPosition) {
-      _isLeftButtonDown = true;
-      _isDraggingSelection = false;
-      _dragStartScreen = screenPosition;
-      _dragCurrentScreen = screenPosition;
-      _gameUI?.SetSelectionRectangle(null);
-    }
-
-    private void UpdateDragSelection(Vector2 screenPosition) {
-      if (!_isLeftButtonDown) return;
-
-      _dragCurrentScreen = screenPosition;
-      if (!_isDraggingSelection && _dragStartScreen.DistanceTo(_dragCurrentScreen) < DragSelectionThresholdPx)
-        return;
-
-      _isDraggingSelection = true;
-      _gameUI?.SetSelectionRectangle(GetSelectionRectangle(_dragStartScreen, _dragCurrentScreen));
-    }
-
-    private void EndDragSelection(Vector2 screenPosition) {
-      if (!_isLeftButtonDown) return;
-
-      _dragCurrentScreen = screenPosition;
-      bool wasDragging = _isDraggingSelection;
-      _isLeftButtonDown = false;
-      _isDraggingSelection = false;
-      _gameUI?.SetSelectionRectangle(null);
-
-      if (wasDragging)
-        SelectOwnedViewsInRectangle(GetSelectionRectangle(_dragStartScreen, _dragCurrentScreen));
+    if (mouseButton.ButtonIndex == MouseButton.Left) {
+      if (mouseButton.Pressed)
+        BeginDragSelection(mouseButton.Position);
       else
-        SelectNearestOwnedView(screenPosition);
+        EndDragSelection(mouseButton.Position);
+      return;
     }
 
-    private void SelectNearestOwnedView(Vector2 screenPosition) {
-      if (_viewRoot == null || _camera == null) {
-        ApplySingleSelection(GetFallbackFocusView());
-        return;
-      }
+    if (mouseButton.ButtonIndex != MouseButton.Right || !mouseButton.Pressed) return;
 
-      EntityViewNode best = null;
-      float bestDistSqr = 22f * 22f;
-
-      foreach (Node child in _viewRoot.GetChildren()) {
-        if (child is not EntityViewNode view) continue;
-        if (!CanSelectView(view)) continue;
-
-        Vector2 screen = _camera.UnprojectPosition(view.GlobalPosition);
-        float distSqr = screen.DistanceSquaredTo(screenPosition);
-        if (distSqr >= bestDistSqr) continue;
-
-        best = view;
-        bestDistSqr = distSqr;
-      }
-
-      ApplySingleSelection(best ?? GetFallbackFocusView());
+    if (TryGetEnemyUnitIdAt(mouseButton.Position, out var targetUnitId)) {
+      QueueAttack(targetUnitId);
+      return;
     }
 
-    private void SelectOwnedViewsInRectangle(Rect2 rectangle) {
-      ClearSelectedViews();
-      if (_viewRoot == null || _camera == null) return;
+    var ground = _camera.ScreenToGround(mouseButton.Position);
+    if (ground == null) return;
 
-      foreach (Node child in _viewRoot.GetChildren()) {
-        if (child is not EntityViewNode view) continue;
-        if (!CanSelectView(view)) continue;
+    QueueMoveTo(ground.Value);
+  }
 
-        Vector2 screen = _camera.UnprojectPosition(view.GlobalPosition);
-        if (!rectangle.HasPoint(screen)) continue;
+  private void QueueMoveTo(Vector3 ground) {
+    HasSingleplayerTarget = true;
+    if (_singleplayerMoveTarget != null)
+      _singleplayerMoveTarget.GlobalPosition = ground;
 
-        _selectedViews.Add(view);
-        SetSelectionIndicator(view, true);
-      }
+    PlayClickMarker(ground);
+
+    var command = new MoveCommand {
+      TargetX = FP64.FromFloat(ground.X),
+      TargetZ = FP64.FromFloat(ground.Z)
+    };
+
+    foreach (var view in _selectedViews) {
+      if (!TryGetUnitId(view, out var unitId)) continue;
+      command.AddUnitId(unitId);
     }
 
-    private void ClearSelectedViews() {
-      foreach (var view in _selectedViews)
-        SetSelectionIndicator(view, false);
-      _selectedViews.Clear();
+    _pendingMoveCommand = command;
+    _pendingAttackCommand = null;
+  }
+
+  private void QueueAttack(int targetUnitId) {
+    var command = new AttackCommand { TargetUnitId = targetUnitId };
+
+    foreach (var view in _selectedViews) {
+      if (!TryGetUnitId(view, out var unitId)) continue;
+      command.AddSourceUnitId(unitId);
     }
 
-    private void ApplySingleSelection(EntityViewNode view) {
-      ClearSelectedViews();
-      if (view == null) return;
+    if (command.SourceUnitIdCount == 0)
+      return;
+
+    _pendingAttackCommand = command;
+    _pendingMoveCommand = null;
+  }
+
+  private void PlayClickMarker(Vector3 ground) {
+    if (_clickMarker == null || !GodotObject.IsInstanceValid(_clickMarker)) return;
+
+    _clickMarkerTween?.Kill();
+
+    _clickMarker.GlobalPosition = new Vector3(ground.X, _clickMarker.GlobalPosition.Y, ground.Z);
+    _clickMarker.Scale = _clickMarkerBaseScale;
+    _clickMarker.Visible = true;
+
+    _clickMarkerTween = _clickMarker.CreateTween();
+    _clickMarkerTween.TweenProperty(_clickMarker, "scale", _clickMarkerBaseScale * 1.5f, 0.1)
+      .SetTrans(Tween.TransitionType.Quad)
+      .SetEase(Tween.EaseType.Out);
+    _clickMarkerTween.TweenProperty(_clickMarker, "scale", Vector3.Zero, 0.25)
+      .SetTrans(Tween.TransitionType.Quad)
+      .SetEase(Tween.EaseType.In);
+    _clickMarkerTween.TweenCallback(Callable.From(() => {
+      if (_clickMarker != null && GodotObject.IsInstanceValid(_clickMarker))
+        _clickMarker.Visible = false;
+    }));
+  }
+
+  private void BeginDragSelection(Vector2 screenPosition) {
+    _isLeftButtonDown = true;
+    _isDraggingSelection = false;
+    _dragStartScreen = screenPosition;
+    _dragCurrentScreen = screenPosition;
+    _gameUI?.SetSelectionRectangle(null);
+  }
+
+  private void UpdateDragSelection(Vector2 screenPosition) {
+    if (!_isLeftButtonDown) return;
+
+    _dragCurrentScreen = screenPosition;
+    if (!_isDraggingSelection && _dragStartScreen.DistanceTo(_dragCurrentScreen) < DragSelectionThresholdPx)
+      return;
+
+    _isDraggingSelection = true;
+    _gameUI?.SetSelectionRectangle(GetSelectionRectangle(_dragStartScreen, _dragCurrentScreen));
+  }
+
+  private void EndDragSelection(Vector2 screenPosition) {
+    if (!_isLeftButtonDown) return;
+
+    _dragCurrentScreen = screenPosition;
+    var wasDragging = _isDraggingSelection;
+    _isLeftButtonDown = false;
+    _isDraggingSelection = false;
+    _gameUI?.SetSelectionRectangle(null);
+
+    if (wasDragging)
+      SelectOwnedViewsInRectangle(GetSelectionRectangle(_dragStartScreen, _dragCurrentScreen));
+    else
+      SelectNearestOwnedView(screenPosition);
+  }
+
+  private void SelectNearestOwnedView(Vector2 screenPosition) {
+    if (_viewRoot == null || _camera == null) {
+      ApplySingleSelection(GetFallbackFocusView());
+      return;
+    }
+
+    EntityViewNode best = null;
+    var bestDistSqr = 22f * 22f;
+
+    foreach (var child in _viewRoot.GetChildren()) {
+      if (child is not EntityViewNode view) continue;
+      if (!CanSelectView(view)) continue;
+
+      var screen = _camera.UnprojectPosition(view.GlobalPosition);
+      var distSqr = screen.DistanceSquaredTo(screenPosition);
+      if (distSqr >= bestDistSqr) continue;
+
+      best = view;
+      bestDistSqr = distSqr;
+    }
+
+    ApplySingleSelection(best ?? GetFallbackFocusView());
+  }
+
+  private void SelectOwnedViewsInRectangle(Rect2 rectangle) {
+    ClearSelectedViews();
+    if (_viewRoot == null || _camera == null) return;
+
+    foreach (var child in _viewRoot.GetChildren()) {
+      if (child is not EntityViewNode view) continue;
+      if (!CanSelectView(view)) continue;
+
+      var screen = _camera.UnprojectPosition(view.GlobalPosition);
+      if (!rectangle.HasPoint(screen)) continue;
 
       _selectedViews.Add(view);
       SetSelectionIndicator(view, true);
     }
+  }
 
-    private EntityViewNode GetFallbackFocusView() {
-      if (_fallbackFocusView == null || !GodotObject.IsInstanceValid(_fallbackFocusView))
-        return null;
+  private void ClearSelectedViews() {
+    foreach (var view in _selectedViews)
+      SetSelectionIndicator(view, false);
+    _selectedViews.Clear();
+  }
 
-      return _fallbackFocusView;
+  private void ApplySingleSelection(EntityViewNode view) {
+    ClearSelectedViews();
+    if (view == null) return;
+
+    _selectedViews.Add(view);
+    SetSelectionIndicator(view, true);
+  }
+
+  private EntityViewNode GetFallbackFocusView() {
+    if (_fallbackFocusView == null || !GodotObject.IsInstanceValid(_fallbackFocusView))
+      return null;
+
+    return _fallbackFocusView;
+  }
+
+  private static void SetSelectionIndicator(EntityViewNode view, bool selected) {
+    if (view == null || !GodotObject.IsInstanceValid(view)) return;
+    var indicator = view.GetNodeOrNull<SelectionIndicator>("SelectionIndicator");
+    indicator?.SetSelected(selected);
+  }
+
+  private bool TryGetEnemyUnitIdAt(Vector2 screenPosition, out int unitId) {
+    unitId = 0;
+    if (_viewRoot == null || _camera == null)
+      return false;
+
+    EntityViewNode best = null;
+    var bestDistSqr = 22f * 22f;
+
+    foreach (var child in _viewRoot.GetChildren()) {
+      if (child is not EntityViewNode view) continue;
+      if (ViewTeamMatches(view)) continue;
+
+      var screen = _camera.UnprojectPosition(view.GlobalPosition);
+      var distSqr = screen.DistanceSquaredTo(screenPosition);
+      if (distSqr >= bestDistSqr) continue;
+
+      best = view;
+      bestDistSqr = distSqr;
     }
 
-    private static void SetSelectionIndicator(EntityViewNode view, bool selected) {
-      if (view == null || !GodotObject.IsInstanceValid(view)) return;
-      var indicator = view.GetNodeOrNull<SelectionIndicator>("SelectionIndicator");
-      indicator?.SetSelected(selected);
-    }
+    if (best == null)
+      return false;
 
-    private bool TryGetEnemyUnitIdAt(Vector2 screenPosition, out int unitId) {
-      unitId = 0;
-      if (_viewRoot == null || _camera == null)
-        return false;
+    return TryGetUnitId(best, out unitId);
+  }
 
-      EntityViewNode best = null;
-      float bestDistSqr = 22f * 22f;
+  private bool ViewTeamMatches(EntityViewNode view) {
+    return view is ISelectableTeamView selectable && selectable.TeamMatches(_localTeamId);
+  }
 
-      foreach (Node child in _viewRoot.GetChildren()) {
-        if (child is not EntityViewNode view) continue;
-        if (ViewTeamMatches(view)) continue;
+  private bool CanSelectView(EntityViewNode view) {
+    return ViewTeamMatches(view) && IsControllableView(view);
+  }
 
-        Vector2 screen = _camera.UnprojectPosition(view.GlobalPosition);
-        float distSqr = screen.DistanceSquaredTo(screenPosition);
-        if (distSqr >= bestDistSqr) continue;
+  private static Rect2 GetSelectionRectangle(Vector2 start, Vector2 end) {
+    Vector2 position = new(Mathf.Min(start.X, end.X), Mathf.Min(start.Y, end.Y));
+    Vector2 size = new(Mathf.Abs(end.X - start.X), Mathf.Abs(end.Y - start.Y));
+    return new Rect2(position, size);
+  }
 
-        best = view;
-        bestDistSqr = distSqr;
-      }
+  private static bool TryGetUnitId(EntityViewNode view, out int unitId) {
+    unitId = 0;
+    if (view.Engine == null || !view.EntityRef.IsValid)
+      return false;
 
-      if (best == null)
-        return false;
+    var frame = view.Engine.PredictedFrame.Frame;
+    if (frame == null || !frame.Has<Unit>(view.EntityRef))
+      frame = view.Engine.VerifiedFrame.Frame;
 
-      return TryGetUnitId(best, out unitId);
-    }
+    if (frame == null || !frame.Has<Unit>(view.EntityRef))
+      return false;
 
-    private bool ViewTeamMatches(EntityViewNode view) {
-      return view is ISelectableTeamView selectable && selectable.TeamMatches(_localTeamId);
-    }
+    unitId = frame.GetReadOnly<Unit>(view.EntityRef).UnitId;
+    return true;
+  }
 
-    private bool CanSelectView(EntityViewNode view) {
-      return ViewTeamMatches(view) && IsControllableView(view);
-    }
+  private static bool IsControllableView(EntityViewNode view) {
+    if (view.Engine == null || !view.EntityRef.IsValid)
+      return false;
 
-    private static Rect2 GetSelectionRectangle(Vector2 start, Vector2 end) {
-      Vector2 position = new(Mathf.Min(start.X, end.X), Mathf.Min(start.Y, end.Y));
-      Vector2 size = new(Mathf.Abs(end.X - start.X), Mathf.Abs(end.Y - start.Y));
-      return new Rect2(position, size);
-    }
+    var frame = view.Engine.PredictedFrame.Frame;
+    if (frame == null || !frame.Has<Unit>(view.EntityRef))
+      frame = view.Engine.VerifiedFrame.Frame;
 
-    private static bool TryGetUnitId(EntityViewNode view, out int unitId) {
-      unitId = 0;
-      if (view.Engine == null || !view.EntityRef.IsValid)
-        return false;
-
-      var frame = view.Engine.PredictedFrame.Frame;
-      if (frame == null || !frame.Has<Unit>(view.EntityRef))
-        frame = view.Engine.VerifiedFrame.Frame;
-
-      if (frame == null || !frame.Has<Unit>(view.EntityRef))
-        return false;
-
-      unitId = frame.GetReadOnly<Unit>(view.EntityRef).UnitId;
-      return true;
-    }
-
-    private static bool IsControllableView(EntityViewNode view) {
-      if (view.Engine == null || !view.EntityRef.IsValid)
-        return false;
-
-      var frame = view.Engine.PredictedFrame.Frame;
-      if (frame == null || !frame.Has<Unit>(view.EntityRef))
-        frame = view.Engine.VerifiedFrame.Frame;
-
-      return frame != null
-             && frame.Has<Unit>(view.EntityRef)
-             && frame.Has<Controllable>(view.EntityRef);
-    }
-
-    public void Dispose() {
-      ClearSelectedViews();
-      _pendingMoveCommand = null;
-      _pendingAttackCommand = null;
-      _camera = null;
-      _gameUI?.SetSelectionRectangle(null);
-      _gameUI = null;
-      _viewRoot = null;
-      _fallbackFocusView = null;
-      _clickMarkerTween?.Kill();
-      _clickMarkerTween = null;
-      if (_clickMarker != null && GodotObject.IsInstanceValid(_clickMarker))
-        _clickMarker.Visible = false;
-      _clickMarker = null;
-      _singleplayerMoveTarget = null;
-    }
+    return frame != null
+           && frame.Has<Unit>(view.EntityRef)
+           && frame.Has<Controllable>(view.EntityRef);
   }
 }
