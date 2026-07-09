@@ -1,30 +1,29 @@
 using System.Collections.Generic;
 using xpTURN.Klotho.Deterministic.Navigation;
 
-namespace Meesles.Avalon.Sim.Navigation {
-  public sealed class FlowFieldCache {
-    private readonly FPNavMesh _navMesh;
-    private readonly Dictionary<int, TriangleFlowField> _fields = new();
-    private int _version;
+namespace Meesles.Avalon.Sim.Navigation;
 
-    public FlowFieldCache(FPNavMesh navMesh) {
-      _navMesh = navMesh;
-    }
+public sealed class FlowFieldCache {
+  private readonly Dictionary<int, TriangleFlowField> _fields = new();
+  private readonly FPNavMesh _navMesh;
 
-    public TriangleFlowField GetOrCreate(int goalTriangleIndex) {
-      if (_fields.TryGetValue(goalTriangleIndex, out var field))
-        return field;
+  public FlowFieldCache(FPNavMesh navMesh) {
+    _navMesh = navMesh;
+  }
 
-      field = TriangleFlowField.Compute(_navMesh, goalTriangleIndex);
-      _fields[goalTriangleIndex] = field;
+  public int Version { get; private set; }
+
+  public TriangleFlowField GetOrCreate(int goalTriangleIndex) {
+    if (_fields.TryGetValue(goalTriangleIndex, out var field))
       return field;
-    }
 
-    public void Invalidate() {
-      _version++;
-      _fields.Clear();
-    }
+    field = TriangleFlowField.Compute(_navMesh, goalTriangleIndex);
+    _fields[goalTriangleIndex] = field;
+    return field;
+  }
 
-    public int Version => _version;
+  public void Invalidate() {
+    Version++;
+    _fields.Clear();
   }
 }
