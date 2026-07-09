@@ -26,6 +26,25 @@ namespace Meesles.Avalon {
         case Sim.Commands.AttackCommand attack:
           HandleAttackCommand(ref frame, attack);
           break;
+        case Sim.Commands.SelectFactionCommand faction:
+          HandleSelectFactionCommand(ref frame, faction);
+          break;
+      }
+    }
+
+    // Records a player's faction pick onto their seeded PlayerFaction slot. Ignored once the
+    // hero already exists — the faction is locked at spawn (the view resolves the scene then and
+    // does not re-resolve). Real clients send this at match start, well before the grace window.
+    private static void HandleSelectFactionCommand(ref Frame frame, Sim.Commands.SelectFactionCommand command) {
+      var filter = frame.Filter<PlayerFaction>();
+      while (filter.Next(out var entity)) {
+        ref var slot = ref frame.Get<PlayerFaction>(entity);
+        if (slot.PlayerId != command.PlayerId)
+          continue;
+
+        slot.FactionId = command.FactionId;
+        slot.Confirmed = 1;
+        return;
       }
     }
 

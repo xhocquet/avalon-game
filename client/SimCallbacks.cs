@@ -11,6 +11,7 @@ namespace Meesles.Avalon.Client {
     private InputCapture _input;
     private readonly byte[] _navMeshBytes;
     private readonly IKLogger _logger;
+    private bool _factionSelectionSent;
 
     public SimCallbacks(InputCapture input, byte[] navMeshBytes, IKLogger logger) {
       _input = input;
@@ -60,6 +61,14 @@ namespace Meesles.Avalon.Client {
     }
 
     public void OnPollInput(int playerId, int tick, ICommandSender sender) {
+      // One-shot: carry the lobby faction pick into the sim at match start. HeroSpawnSystem
+      // waits for this before spawning the hero, so the Faction is known when the view resolves.
+      if (!_factionSelectionSent) {
+        sender.Send(new Sim.Commands.SelectFactionCommand { FactionId = FactionSelection.SelectedFactionId });
+        _factionSelectionSent = true;
+        LogCommandSent("SelectFactionCommand", tick, playerId, $"factionId={FactionSelection.SelectedFactionId}");
+      }
+
       if (_input != null && _input.TryConsumeAttackCommand(out var attackCommand)) {
         LogCommandSent("AttackCommand", tick, playerId,
           $"targetUnitId={attackCommand.TargetUnitId} sourceCount={attackCommand.SourceUnitIdCount}");

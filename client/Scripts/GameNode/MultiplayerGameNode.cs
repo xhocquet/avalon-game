@@ -28,6 +28,7 @@ namespace Meesles.Avalon {
     private ViewCallbacks _viewCallbacks;
     private EntityViewUpdaterNode _view;
     private DefaultGodotEntityViewPool _pool;
+    private FactionCatalog _factions;
     private GodotSessionDriver _driver;
     private CameraController _camera;
     private VfxManager _vfx;
@@ -119,14 +120,15 @@ namespace Meesles.Avalon {
 
     private void CreateView() {
       _pool = new DefaultGodotEntityViewPool();
-      var heroScene = GD.Load<PackedScene>("res://Scenes/Dummy.tscn");
+      _factions = FactionCatalog.CreateDefault();
       var crystalScene = GD.Load<PackedScene>("res://Scenes/Objects/Crystal.tscn");
       var turretScene = GD.Load<PackedScene>("res://Scenes/Objects/Turret.tscn");
-      var minionScene = GD.Load<PackedScene>("res://Scenes/Mobs/Minion.tscn");
-      _pool.Prewarm(heroScene, 2);
+      foreach (var faction in _factions.Entries) {
+        _pool.Prewarm(faction.HeroScene, 2);
+        _pool.Prewarm(faction.MinionScene, 64);
+      }
       _pool.Prewarm(crystalScene, 2);
       _pool.Prewarm(turretScene, 4);
-      _pool.Prewarm(minionScene, 64);
 
       _view = new EntityViewUpdaterNode();
       AddChild(_view);
@@ -134,11 +136,9 @@ namespace Meesles.Avalon {
     }
 
     private UnitViewFactory CreateFactory() {
-      var heroScene = GD.Load<PackedScene>("res://Scenes/Dummy.tscn");
       var crystalScene = GD.Load<PackedScene>("res://Scenes/Objects/Crystal.tscn");
       var turretScene = GD.Load<PackedScene>("res://Scenes/Objects/Turret.tscn");
-      var minionScene = GD.Load<PackedScene>("res://Scenes/Mobs/Minion.tscn");
-      return new UnitViewFactory(heroScene, crystalScene, turretScene, minionScene);
+      return new UnitViewFactory(_factions, crystalScene, turretScene);
     }
 
     private void OnSessionReady(bool autoReady) {

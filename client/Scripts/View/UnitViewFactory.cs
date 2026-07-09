@@ -1,4 +1,9 @@
-// Maps renderable unit entities to their PackedScene.
+// Maps renderable unit entities to their PackedScene. Heroes and minions both resolve their
+// scene through the FactionCatalog so each faction shows its own models. A hero carries the
+// Faction component directly (stamped at spawn); a minion has no faction of its own sim-side —
+// all minions behave identically — so its faction is derived from its Team via the PlayerFaction
+// slots. The factory resolves the prefab once at view creation (see EntityViewUpdaterNode), so
+// everything it reads is already present on the entity at spawn.
 
 using global::Godot;
 using xpTURN.Klotho.ECS;
@@ -7,23 +12,41 @@ using Meesles.Avalon.Sim.Models;
 
 namespace Meesles.Avalon {
   public class UnitViewFactory : EntityViewFactory {
-    private readonly PackedScene _heroScene;
+    private readonly FactionCatalog _factions;
     private readonly PackedScene _crystalScene;
     private readonly PackedScene _turretScene;
-    private readonly PackedScene _minionScene;
 
-    public UnitViewFactory(PackedScene heroScene, PackedScene crystalScene, PackedScene turretScene, PackedScene minionScene) {
-      _heroScene = heroScene;
+    public UnitViewFactory(FactionCatalog factions, PackedScene crystalScene, PackedScene turretScene) {
+      _factions = factions;
       _crystalScene = crystalScene;
       _turretScene = turretScene;
-      _minionScene = minionScene;
     }
 
     protected override PackedScene ResolvePrefab(Frame frame, EntityRef entity) {
       if (frame.Has<Crystal>(entity)) return _crystalScene;
       if (frame.Has<Turret>(entity)) return _turretScene;
-      if (frame.Has<Minion>(entity)) return _minionScene;
-      return _heroScene;
+
+      var entry = _factions.Resolve(ResolveFactionId(frame, entity));
+      return frame.Has<Minion>(entity) ? entry.MinionScene : entry.HeroScene;
+    }
+
+    // Heroes carry Faction directly; other faction-aligned units (minions) inherit it from their
+    // team's pick. Returns 0 (catalog fallback) when neither is available.
+    private static int ResolveFactionId(Frame frame, EntityRef entity) {
+      if (frame.Has<Faction>(entity))
+        return frame.GetReadOnly<Faction>(entity).FactionId;
+
+      if (frame.Has<Team>(entity)) {
+        int teamId = frame.GetReadOnly<Team>(entity).TeamId;
+        var filter = frame.Filter<PlayerFaction>();
+        while (filter.Next(out var slot)) {
+          ref readonly var pf = ref frame.GetReadOnly<PlayerFaction>(slot);
+          if (pf.TeamId == teamId)
+            return pf.FactionId;
+        }
+      }
+
+      return 0;
     }
 
     protected override bool ShouldRender(Frame frame, EntityRef entity) {

@@ -10,6 +10,7 @@ namespace Meesles.Avalon {
     private Button _stopButton;
     private LineEdit _ipField;
     private LineEdit _portField;
+    private OptionButton _factionOption;
 
     public event Action OnResetClicked;
     public event Action OnJoinClicked;
@@ -26,10 +27,30 @@ namespace Meesles.Avalon {
       _stopButton = GetNode<Button>("VBox/StopButton");
       _ipField = GetNode<LineEdit>("VBox/IpField");
       _portField = GetNode<LineEdit>("VBox/PortField");
+      _factionOption = GetNode<OptionButton>("VBox/FactionOption");
+
+      PopulateFactionOptions();
 
       _joinButton.Pressed += HandleJoinPressed;
       _readyButton.Pressed += HandleReadyPressed;
       _stopButton.Pressed += () => OnStopClicked?.Invoke();
+      _factionOption.ItemSelected += HandleFactionSelected;
+    }
+
+    // The matchmaking faction pick. Populated from the roster and mirrored into FactionSelection,
+    // which SimCallbacks reads to send the SelectFactionCommand at match start.
+    private void PopulateFactionOptions() {
+      _factionOption.Clear();
+      for (int i = 0; i < FactionCatalog.Defs.Length; i++) {
+        var def = FactionCatalog.Defs[i];
+        _factionOption.AddItem(def.Name, def.Id);
+        if (def.Id == FactionSelection.SelectedFactionId)
+          _factionOption.Select(i);
+      }
+    }
+
+    private void HandleFactionSelected(long index) {
+      FactionSelection.SelectedFactionId = _factionOption.GetItemId((int)index);
     }
 
     public void SetSingleplayerMode() {

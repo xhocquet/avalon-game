@@ -59,6 +59,12 @@ namespace Meesles.Avalon {
       // Phase 1: Collect and categorize all nav agents
       var filter = frame.Filter<NavAgentComponent, TransformComponent>();
       while (filter.Next(out var entity)) {
+        // Dead units awaiting respawn are frozen at their spawn point by
+        // RespawnSystem. Exclude them entirely so navigation neither snaps
+        // their transform onto the navmesh nor lets them push living units.
+        if (frame.Has<PendingRespawn>(entity))
+          continue;
+
         ref var nav = ref frame.Get<NavAgentComponent>(entity);
         ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
 

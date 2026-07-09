@@ -58,6 +58,8 @@ Uses [`KlothoComponentAttribute`](vendor/Klotho/com.xpturn.klotho/Runtime/ECS/At
 | 111 | [`AttackTargetUnitId`](sim/Models/AttackTargetUnitId.cs) |
 | 112 | [`PendingRespawn`](sim/Models/PendingRespawn.cs) |
 | 114 | [`Controllable`](sim/Models/Controllable.cs) |
+| 115 | [`Faction`](sim/Models/Faction.cs) |
+| 116 | [`PlayerFaction`](sim/Models/PlayerFaction.cs) |
 | **Units** | |
 | 101 | [`Unit`](sim/Models/Unit.cs) |
 | 104 | [`Hero`](sim/Models/Hero.cs) |
@@ -73,6 +75,7 @@ Uses [`KlothoComponentAttribute`](vendor/Klotho/com.xpturn.klotho/Runtime/ECS/At
 | -- | ---- |
 | 100 | [`MoveCommand`](sim/Commands/MoveCommand.cs) |
 | 103 | [`AttackCommand`](sim/Commands/AttackCommand.cs) |
+| 104 | [`SelectFactionCommand`](sim/Commands/SelectFactionCommand.cs) |
 | **Events** | |
 | 101 | [`GameOverEvent`](sim/Events/GameOverEvent.cs) |
 | 102 | [`UnitDiedEvent`](sim/Events/UnitDiedEvent.cs) |
@@ -85,9 +88,11 @@ Uses [`KlothoComponentAttribute`](vendor/Klotho/com.xpturn.klotho/Runtime/ECS/At
 
 Uses [`KlothoDataAssetAttribute`](vendor/Klotho/com.xpturn.klotho/Runtime/ECS/DataAsset/KlothoDataAssetAttribute.cs) for network IDs.
 
-| 100           | 101         | 102         | 103           |
-| ------------- | ----------- | ----------- | ------------- |
-| [`PlayerStats`](sim/Assets/PlayerStatsAsset.cs) | [`WaveRules`](sim/Assets/WaveRulesAsset.cs) | [`MapLayout`](sim/Assets/MapLayoutAsset.cs) | [`MinionStats`](sim/Assets/MinionStatsAsset.cs) |
+| 100           | 101         | 102         | 103           | 104         |
+| ------------- | ----------- | ----------- | ------------- | ----------- |
+| [`PlayerStats`](sim/Assets/PlayerStatsAsset.cs) | [`WaveRules`](sim/Assets/WaveRulesAsset.cs) | [`MapLayout`](sim/Assets/MapLayoutAsset.cs) | [`MinionStats`](sim/Assets/MinionStatsAsset.cs) | [`Faction`](sim/Assets/FactionAsset.cs) |
+
+`Faction` is a multi-instance catalog asset (type id 104): one instance per faction, keyed by its own `AssetId` in the 200 range (`Get<FactionAsset>(factionId)`). See `client/Sim/Data/Assets.json`.
 
 ### Klotho Internal
 
@@ -95,15 +100,16 @@ Uses [`KlothoDataAssetAttribute`](vendor/Klotho/com.xpturn.klotho/Runtime/ECS/Da
 | --- | ------------------- | -------------------------------------------------------------- |
 | 11  | [`NavAgentComponent`](vendor/Klotho/com.xpturn.klotho/Runtime/Deterministic/Navigation/NavAgentComponent.cs) | Packaged Klotho nav component; no conflict with project range. |
 
-Next free project IDs: [`KlothoComponent`](vendor/Klotho/com.xpturn.klotho/Runtime/ECS/Core/IComponent.cs) 115, [`KlothoSerializable`](vendor/Klotho/com.xpturn.klotho/Runtime/Serialization/Attributes/KlothoSerializableAttribute.cs) command 104, [`KlothoSerializable`](vendor/Klotho/com.xpturn.klotho/Runtime/Serialization/Attributes/KlothoSerializableAttribute.cs) event 108, [`KlothoDataAsset`](vendor/Klotho/com.xpturn.klotho/Runtime/ECS/DataAsset/IDataAsset.cs) 104.
+Next free project IDs: [`KlothoComponent`](vendor/Klotho/com.xpturn.klotho/Runtime/ECS/Core/IComponent.cs) 117, [`KlothoSerializable`](vendor/Klotho/com.xpturn.klotho/Runtime/Serialization/Attributes/KlothoSerializableAttribute.cs) command 105, [`KlothoSerializable`](vendor/Klotho/com.xpturn.klotho/Runtime/Serialization/Attributes/KlothoSerializableAttribute.cs) event 108, [`KlothoDataAsset`](vendor/Klotho/com.xpturn.klotho/Runtime/ECS/DataAsset/IDataAsset.cs) type id 105 (faction instance AssetIds use the 200 range).
 
 ## Systems
 
 | System | Notes |
 | ------ | ----- |
 | **Commands** | |
-| [`CommandSystem`](sim/Systems/CommandSystem.cs) | Validates+applies commands |
+| [`CommandSystem`](sim/Systems/CommandSystem.cs) | Validates+applies commands (incl. [`SelectFactionCommand`](sim/Commands/SelectFactionCommand.cs) → [`PlayerFaction`](sim/Models/PlayerFaction.cs)) |
 | **Spawning** | |
+| [`HeroSpawnSystem`](sim/Systems/HeroSpawnSystem.cs) | Spawns each player's hero once their faction pick lands (or after a grace window w/ default). Heroes carry [`Faction`](sim/Models/Faction.cs) at spawn so the view resolves the faction scene |
 | [`WaveSpawnSystem`](sim/Systems/WaveSpawnSystem.cs) | Spawns minion waves from [`SpawnPoint`](sim/Models/SpawnPoint.cs) markers |
 | **Combat** | |
 | [`TargetAcquisitionSystem`](sim/Systems/TargetAcquisitionSystem.cs) | Gives units auto enemy focus when they have no active target |

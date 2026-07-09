@@ -11,7 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://qwlps32xm1dg" path="res://Scenes/Heroes/AllHairWizard.tscn" id="9_jvn7g"]
 [ext_resource type="PackedScene" uid="uid://b0w0cydbf2ux3" path="res://Scenes/Mobs/biomushy.tscn" id="10_entdg"]
 [ext_resource type="PackedScene" uid="uid://bjr7i1wvs40ug" path="res://Scenes/Mobs/eyeball_flowers.tscn" id="11_gpp7o"]
-[ext_resource type="PackedScene" uid="uid://s8vgmb0tvxtk" path="res://Scenes/Mobs/Minion.tscn" id="12_gpp7o"]
+[ext_resource type="PackedScene" uid="uid://s8vgmb0tvxtk" path="res://Scenes/Mobs/SwirlyEye.tscn" id="12_gpp7o"]
 
 [node name="Multiplayer" type="Node" unique_id=1309111642]
 script = ExtResource("1_game")

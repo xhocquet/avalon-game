@@ -31,7 +31,8 @@ public sealed class SimHarness {
       int maxPlayers = DefaultMaxPlayers,
       int maxEntities = DefaultMaxEntities,
       int maxRollbackTicks = DefaultMaxRollbackTicks,
-      int deltaTimeMs = DefaultDeltaTimeMs) {
+      int deltaTimeMs = DefaultDeltaTimeMs,
+      bool spawnHeroesNow = true) {
     WarmupRegistry.RunAll();
 
     var assetRegistry = LoadAssetRegistry();
@@ -46,7 +47,10 @@ public sealed class SimHarness {
     simulation.Initialize();
 
     var frame = simulation.Frame;
-    SimulationSetup.InitializeWorld(ref frame, maxPlayers);
+    // Headless harness has no lobby/faction-select flow, so by default spawn heroes immediately
+    // with the default faction. Pass spawnHeroesNow: false to exercise the networked deferred
+    // path where HeroSpawnSystem waits for a SelectFactionCommand.
+    SimulationSetup.InitializeWorld(ref frame, maxPlayers, spawnHeroesNow);
 
     return new SimHarness(simulation, assetRegistry, navigation);
   }
@@ -79,6 +83,15 @@ public sealed class SimHarness {
       command.AddSourceUnitId(sourceUnitId);
 
     return command;
+  }
+
+  public static Meesles.Avalon.Sim.Commands.SelectFactionCommand SelectFactionCommand(
+      int playerId, int tick, int factionId) {
+    return new Meesles.Avalon.Sim.Commands.SelectFactionCommand {
+      PlayerId = playerId,
+      Tick = tick,
+      FactionId = factionId,
+    };
   }
 
   public int Count<TComponent>() where TComponent : unmanaged, IComponent {
