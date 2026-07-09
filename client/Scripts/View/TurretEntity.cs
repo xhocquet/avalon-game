@@ -1,6 +1,5 @@
-using global::Godot;
+using Godot;
 using xpTURN.Klotho.Core;
-using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Godot;
 using Meesles.Avalon.Sim.Models;
 

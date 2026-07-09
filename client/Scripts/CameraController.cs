@@ -1,4 +1,4 @@
-using global::Godot;
+using Godot;
 
 namespace Meesles.Avalon {
   public partial class CameraController : Camera3D {
@@ -64,8 +64,10 @@ namespace Meesles.Avalon {
 
       if (@event is InputEventMouseButton { Pressed: true } mb) {
         float prevZoom = _zoomDistance;
-        if (mb.ButtonIndex == MouseButton.WheelUp) _zoomDistance = Mathf.Clamp(_zoomDistance - ZoomStep, ZoomMin, ZoomMax);
-        if (mb.ButtonIndex == MouseButton.WheelDown) _zoomDistance = Mathf.Clamp(_zoomDistance + ZoomStep, ZoomMin, ZoomMax);
+        if (mb.ButtonIndex == MouseButton.WheelUp)
+          _zoomDistance = Mathf.Clamp(_zoomDistance - ZoomStep, ZoomMin, ZoomMax);
+        if (mb.ButtonIndex == MouseButton.WheelDown)
+          _zoomDistance = Mathf.Clamp(_zoomDistance + ZoomStep, ZoomMin, ZoomMax);
         if (_mode == CameraMode.Free && _zoomDistance != prevZoom)
           GlobalPosition += GlobalTransform.Basis.Z * (_zoomDistance - prevZoom);
       }
@@ -174,7 +176,8 @@ namespace Meesles.Avalon {
       if (_mode == CameraMode.Follow) SnapToTarget();
     }
 
-    private Vector3 MovementDirectionXz(string forwardAction, string backwardAction, string leftAction, string rightAction) {
+    private Vector3 MovementDirectionXz(string forwardAction, string backwardAction, string leftAction,
+      string rightAction) {
       Vector3 forward = -GlobalTransform.Basis.Z;
       forward.Y = 0f;
       forward = forward.Normalized();
@@ -199,10 +202,11 @@ namespace Meesles.Avalon {
       _godmodeYaw -= delta.X * MouseSensitivity;
       _godmodePitch -= delta.Y * MouseSensitivity;
       _godmodePitch = Mathf.Clamp(
-          _godmodePitch,
-          Mathf.DegToRad(GodmodePitchMinDeg),
-          Mathf.DegToRad(GodmodePitchMaxDeg));
-      GlobalTransform = new Transform3D(Basis.FromEuler(new Vector3(_godmodePitch, _godmodeYaw, 0f), EulerOrder.Yxz), GlobalPosition);
+        _godmodePitch,
+        Mathf.DegToRad(GodmodePitchMinDeg),
+        Mathf.DegToRad(GodmodePitchMaxDeg));
+      GlobalTransform = new Transform3D(Basis.FromEuler(new Vector3(_godmodePitch, _godmodeYaw, 0f), EulerOrder.Yxz),
+        GlobalPosition);
     }
 
     private void SyncGodmodeFromTransform() {
@@ -212,7 +216,8 @@ namespace Meesles.Avalon {
     }
 
     private static Basis FollowBasis() {
-      return Basis.FromEuler(new Vector3(Mathf.DegToRad(FollowPitchDegrees), Mathf.DegToRad(FollowYawDegrees), 0f), EulerOrder.Yxz);
+      return Basis.FromEuler(new Vector3(Mathf.DegToRad(FollowPitchDegrees), Mathf.DegToRad(FollowYawDegrees), 0f),
+        EulerOrder.Yxz);
     }
 
     private bool IsValidFollowTarget() {

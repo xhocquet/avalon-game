@@ -50,7 +50,8 @@ namespace Meesles.Avalon {
     }
 
     protected override bool ShouldRender(Frame frame, EntityRef entity) {
-      return frame.Has<Hero>(entity) || frame.Has<Crystal>(entity) || frame.Has<Turret>(entity) || frame.Has<Minion>(entity);
+      return frame.Has<Hero>(entity) || frame.Has<Crystal>(entity) || frame.Has<Turret>(entity) ||
+             frame.Has<Minion>(entity);
     }
   }
 }

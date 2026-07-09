@@ -339,8 +339,8 @@ namespace Meesles.Avalon {
         frame = view.Engine.VerifiedFrame.Frame;
 
       return frame != null
-          && frame.Has<Unit>(view.EntityRef)
-          && frame.Has<Controllable>(view.EntityRef);
+             && frame.Has<Unit>(view.EntityRef)
+             && frame.Has<Controllable>(view.EntityRef);
     }
 
     public void Dispose() {

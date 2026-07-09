@@ -33,8 +33,7 @@ namespace Meesles.Avalon {
 
     public bool TeamMatches(int teamId) => _teamId == teamId;
 
-    public void OnAttackVfx(Vector3 targetPosition) {
-    }
+    public void OnAttackVfx(Vector3 targetPosition) { }
 
     public void OnHitVfx(int damage, Vector3 attackerPosition) {
       // TODO: hit reaction / particles
