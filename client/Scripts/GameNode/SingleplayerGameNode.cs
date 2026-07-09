@@ -19,6 +19,7 @@ namespace Meesles.Avalon {
     private GodotSessionDriver _driver;
     private CameraController _camera;
     private VfxManager _vfx;
+    private SimEventHub _events;
     private ISimulationConfig _simCfg;
     private ISessionConfig _sesCfg;
 
@@ -76,8 +77,11 @@ namespace Meesles.Avalon {
       _view.Initialize(_session.Engine, CreateFactory(), _pool);
       _view.PlayerViews.OnLocalViewRegistered += OnLocalViewRegistered;
       _view.PlayerViews.OnLocalViewUnregistered += OnLocalViewUnregistered;
+      _events = new SimEventHub();
+      _events.Attach(_session.Engine);
       _vfx = new VfxManager();
-      _vfx.Attach(_session.Engine, _view);
+      _vfx.Attach(_events, _view);
+      GameUi.BindSimEvents(_events);
 
       _driver.Attach(_session);
       GameUi.SetLocalPlayerId(_session.LocalPlayerId);
@@ -88,6 +92,7 @@ namespace Meesles.Avalon {
     private void StopSession() {
       UnbindCameraFollow();
       _vfx?.Detach();
+      _events?.Detach();
       _driver?.DetachAndStop(saveReplay: false);
       _view?.Cleanup();
       _session = null;

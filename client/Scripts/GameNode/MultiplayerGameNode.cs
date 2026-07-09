@@ -31,6 +31,7 @@ namespace Meesles.Avalon {
     private GodotSessionDriver _driver;
     private CameraController _camera;
     private VfxManager _vfx;
+    private SimEventHub _events;
     private ISimulationConfig _simCfg;
     private ISessionConfig _sesCfg;
     private Task<KlothoSession> _joinTask;
@@ -144,8 +145,11 @@ namespace Meesles.Avalon {
       _view.Initialize(_session.Engine, CreateFactory(), _pool);
       _view.PlayerViews.OnLocalViewRegistered += OnLocalViewRegistered;
       _view.PlayerViews.OnLocalViewUnregistered += OnLocalViewUnregistered;
+      _events = new SimEventHub();
+      _events.Attach(_session.Engine);
       _vfx = new VfxManager();
-      _vfx.Attach(_session.Engine, _view);
+      _vfx.Attach(_events, _view);
+      GameUi.BindSimEvents(_events);
       GameUi.SetPhase(_session.Phase);
       TryFocusRegisteredLocalView();
 
@@ -276,6 +280,7 @@ namespace Meesles.Avalon {
       }
 
       _vfx?.Detach();
+      _events?.Detach();
       _view?.Cleanup();
       _viewCallbacks?.Cleanup();
       _pool?.Dispose();

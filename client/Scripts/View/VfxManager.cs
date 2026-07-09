@@ -1,35 +1,29 @@
 using System;
 using Godot;
 using Meesles.Avalon.Sim;
-using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.Godot;
 
 namespace Meesles.Avalon {
+  // Spawns transient combat VFX in response to simulation events. Like GameUI, it is a consumer of
+  // the shared SimEventHub rather than subscribing to the engine directly, so SimEventHub stays the
+  // single owner of the raw engine event streams.
   public class VfxManager {
-    private IKlothoEngine _engine;
     private EntityViewUpdaterNode _view;
-    private Action<int, SimulationEvent> _onEventPredicted;
+    private IDisposable _attackHitSub;
 
-    public void Attach(IKlothoEngine engine, EntityViewUpdaterNode view) {
+    public void Attach(SimEventHub events, EntityViewUpdaterNode view) {
       Detach();
-      _engine = engine;
       _view = view;
-      _onEventPredicted = OnEventPredicted;
-      _engine.OnEventPredicted += _onEventPredicted;
+      // Predicted (not confirmed) so hits flash immediately on the local tick; a mispredicted
+      // flash is transient and harmless, which is why UI state uses confirmed events but VFX do not.
+      _attackHitSub = events.OnPredicted<AttackHitEvent>(HandleAttackHit);
     }
 
     public void Detach() {
-      if (_engine != null && _onEventPredicted != null)
-        _engine.OnEventPredicted -= _onEventPredicted;
-      _onEventPredicted = null;
-      _engine = null;
+      _attackHitSub?.Dispose();
+      _attackHitSub = null;
       _view = null;
-    }
-
-    private void OnEventPredicted(int tick, SimulationEvent evt) {
-      if (evt is AttackHitEvent attack)
-        HandleAttackHit(attack);
     }
 
     private void HandleAttackHit(AttackHitEvent evt) {
