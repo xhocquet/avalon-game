@@ -16,6 +16,10 @@ export-scene-data:
     dotnet build .\client\Meesles.Avalon.Client.csproj
     & "C:\Users\meesles\Coding\Godot-4.6-mono\Godot_v4.6.3-stable_mono_win64_console.exe" --headless --editor --path ".\client" --script "res://Scripts/Editor/run_build_exports.gd"
 
+# Format/cleanup client code with ReSharper cleanupcode
+format:
+    & "C:\Users\meesles\Downloads\JetBrains.ReSharper.CommandLineTools.2026.1.4\cleanupcode.exe" .\client\Meesles.Avalon.Client.sln --exclude="**\addons\klotho\**"
+
 # Unit tests
 test:
     dotnet test .\tests\Avalon.Sim.Tests\Avalon.Sim.Tests.csproj
