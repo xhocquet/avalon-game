@@ -33,18 +33,24 @@ skeleton = NodePath("../..")
 
 [node name="Turret" parent="NavigationRegion3D/Team1" unique_id=84568969 instance=ExtResource("5_li7mh")]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -30, 0, 40)
+
+[node name="SimMarker" parent="NavigationRegion3D/Team1/Turret" unique_id=84568100]
 Team = 1
 
 [node name="Turret2" parent="NavigationRegion3D/Team1" unique_id=531032508 instance=ExtResource("5_li7mh")]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -40, 0, 30)
+
+[node name="SimMarker" parent="NavigationRegion3D/Team1/Turret2" unique_id=84568100]
 Team = 1
 
 [node name="Crystal" parent="NavigationRegion3D/Team1" unique_id=971075756 instance=ExtResource("6_ayvj0")]
 transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, -40, 6, 40)
+
+[node name="SimMarker" parent="NavigationRegion3D/Team1/Crystal" unique_id=971075100]
 Team = 1
 
 [node name="Spawn" parent="NavigationRegion3D/Team1" unique_id=1750147463 instance=ExtResource("7_2wqcu")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.728867, 0, 13.700964)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -33.534378, 0, 32.730583)
 Team = 1
 
 [node name="Shop" parent="NavigationRegion3D/Team1" unique_id=361766017 instance=ExtResource("9_jvdyq")]
@@ -55,18 +61,24 @@ Team = 1
 
 [node name="Turret" parent="NavigationRegion3D/Team2" unique_id=2103068133 instance=ExtResource("5_li7mh")]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 30, 0, -40)
+
+[node name="SimMarker" parent="NavigationRegion3D/Team2/Turret" unique_id=84568100]
 Team = 2
 
 [node name="Turret2" parent="NavigationRegion3D/Team2" unique_id=823099813 instance=ExtResource("5_li7mh")]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 40, 0, -30)
+
+[node name="SimMarker" parent="NavigationRegion3D/Team2/Turret2" unique_id=84568100]
 Team = 2
 
 [node name="Crystal" parent="NavigationRegion3D/Team2" unique_id=123894650 instance=ExtResource("6_ayvj0")]
 transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 40, 6, -40)
+
+[node name="SimMarker" parent="NavigationRegion3D/Team2/Crystal" unique_id=971075100]
 Team = 2
 
 [node name="Spawn" parent="NavigationRegion3D/Team2" unique_id=170271985 instance=ExtResource("7_2wqcu")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.810635, 0, -12.949833)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 33.02717, 0, -32.32669)
 Team = 2
 
 [node name="Shop" parent="NavigationRegion3D/Team2" unique_id=898142210 instance=ExtResource("9_jvdyq")]
@@ -77,14 +89,20 @@ Team = 2
 
 [node name="Turret" parent="NavigationRegion3D/Team3" unique_id=91570557 instance=ExtResource("5_li7mh")]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 40, 0, 30)
+
+[node name="SimMarker" parent="NavigationRegion3D/Team3/Turret" unique_id=84568100]
 Team = 3
 
 [node name="Turret2" parent="NavigationRegion3D/Team3" unique_id=234931221 instance=ExtResource("5_li7mh")]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 30, 0, 40)
+
+[node name="SimMarker" parent="NavigationRegion3D/Team3/Turret2" unique_id=84568100]
 Team = 3
 
 [node name="Crystal" parent="NavigationRegion3D/Team3" unique_id=212411324 instance=ExtResource("6_ayvj0")]
 transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 40, 6, 40)
+
+[node name="SimMarker" parent="NavigationRegion3D/Team3/Crystal" unique_id=971075100]
 Team = 3
 
 [node name="Spawn" parent="NavigationRegion3D/Team3" unique_id=500623652 instance=ExtResource("7_2wqcu")]
@@ -99,14 +117,20 @@ Team = 3
 
 [node name="Turret" parent="NavigationRegion3D/Team4" unique_id=1178392748 instance=ExtResource("5_li7mh")]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -30, 0, -40)
+
+[node name="SimMarker" parent="NavigationRegion3D/Team4/Turret" unique_id=84568100]
 Team = 4
 
 [node name="Turret2" parent="NavigationRegion3D/Team4" unique_id=2145533211 instance=ExtResource("5_li7mh")]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -40, 0, -30)
+
+[node name="SimMarker" parent="NavigationRegion3D/Team4/Turret2" unique_id=84568100]
 Team = 4
 
 [node name="Crystal" parent="NavigationRegion3D/Team4" unique_id=1545334481 instance=ExtResource("6_ayvj0")]
 transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, -40, 6, -40)
+
+[node name="SimMarker" parent="NavigationRegion3D/Team4/Crystal" unique_id=971075100]
 Team = 4
 
 [node name="Spawn" parent="NavigationRegion3D/Team4" unique_id=1275283759 instance=ExtResource("7_2wqcu")]

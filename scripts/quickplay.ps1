@@ -3,6 +3,8 @@
 param(
   [int]    $Port = 7777,
   [int]    $Ticks = 0,
+  [int]    $Faction1 = 200,
+  [int]    $Faction2 = 201,
   [string] $Godot = $(if ($env:GODOT) { $env:GODOT } else { "C:\Users\meesles\Coding\Godot-4.6-mono\Godot_v4.6.3-stable_mono_win64.exe" })
 )
 
@@ -59,13 +61,13 @@ try {
     -WorkingDirectory $repoRoot -PassThru -WindowStyle Normal
   Start-Sleep -Seconds 6
 
-  Write-Host "[quickplay] launching client 1..."
+  Write-Host "[quickplay] launching client 1 (faction $Faction1)..."
   $client1 = Start-Process -FilePath $Godot `
-    -ArgumentList @("--path", (Join-Path $repoRoot "client"), "--", "--quickplay") -RedirectStandardError "NUL" -PassThru
+    -ArgumentList @("--path", (Join-Path $repoRoot "client"), "--", "--quickplay", "--faction=$Faction1") -RedirectStandardError "NUL" -PassThru
   Start-Sleep -Seconds 2
-  Write-Host "[quickplay] launching client 2 - close both windows to stop."
+  Write-Host "[quickplay] launching client 2 (faction $Faction2) - close both windows to stop."
   $client2 = Start-Process -FilePath $Godot `
-    -ArgumentList @("--path", (Join-Path $repoRoot "client"), "--", "--quickplay") -RedirectStandardError "NUL" -PassThru
+    -ArgumentList @("--path", (Join-Path $repoRoot "client"), "--", "--quickplay", "--faction=$Faction2") -RedirectStandardError "NUL" -PassThru
 
   $client1 | Wait-Process
   $client2 | Wait-Process

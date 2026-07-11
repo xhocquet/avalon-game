@@ -81,7 +81,22 @@ public partial class LobbyGameNode : GameNode {
     Menu.SetStopEnabled(false);
 
     _quickplay = Array.IndexOf(OS.GetCmdlineUserArgs(), "--quickplay") >= 0;
+    ApplyFactionArg();
     if (_quickplay) CallDeferred(MethodName.OnJoin);
+  }
+
+  // Lets `--faction=<id>` on the command line pick a faction without touching the lobby UI,
+  // so quickplay.ps1 can launch differently-factioned clients for testing.
+  private void ApplyFactionArg() {
+    foreach (var arg in OS.GetCmdlineUserArgs()) {
+      if (!arg.StartsWith("--faction=")) continue;
+      var value = arg["--faction=".Length..];
+      if (int.TryParse(value, out var factionId))
+        FactionSelection.SelectedFactionId = factionId;
+      else
+        _logger.KError($"[Client] --faction value '{value}' is not a valid faction id.");
+      return;
+    }
   }
 
   private void OnJoin() {

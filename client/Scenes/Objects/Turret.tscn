@@ -3,6 +3,7 @@
 [ext_resource type="PackedScene" uid="uid://dbqi6ag4yuwg0" path="res://Assets/Props/Turret.glb" id="1_fuepy"]
 [ext_resource type="Script" path="res://Scripts/View/TurretEntity.cs" id="2_mum06"]
 [ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="3_indicator"]
+[ext_resource type="Script" uid="uid://jt4rwdk0j6k6" path="res://Scripts/SimMarkerNode.cs" id="4_simmarker"]
 
 [node name="Turret" unique_id=84568969 instance=ExtResource("1_fuepy")]
 script = ExtResource("2_mum06")
@@ -10,3 +11,7 @@ script = ExtResource("2_mum06")
 [node name="SelectionIndicator" parent="." index="0" unique_id=1086048598 instance=ExtResource("3_indicator")]
 transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 0, 0.04, 0)
 visible = false
+
+[node name="SimMarker" type="Node3D" parent="." unique_id=84568100]
+script = ExtResource("4_simmarker")
+MarkerType = 3

@@ -3,4 +3,4 @@
 [ext_resource type="PackedScene" uid="uid://cm4dm7liatrfj" path="res://Assets/Heroes/AllHairWizard/all_hair_wiz_edited.glb" id="1_mdheq"]
 
 [node name="all_hair_wiz_edited" unique_id=361300862 instance=ExtResource("1_mdheq")]
-transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
+transform = Transform3D(0, 0, -2, 0, 2, 0, 2, 0, 0, 0, 0, 0)
