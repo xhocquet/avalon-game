@@ -4,5 +4,6 @@ public enum MapMarkerType {
   Crystal = 0,
   SpawnPoint = 1,
   Shop = 2,
-  Turret = 3
+  Turret = 3,
+  Oasis = 4
 }

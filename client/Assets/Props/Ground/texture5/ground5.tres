@@ -1,0 +1,18 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://bvjhrr1fvessl"]
+
+[ext_resource type="Texture2D" uid="uid://dubjhgpeha60k" path="res://Assets/Props/Ground/texture5/ground_0035_color_2k.jpg" id="1_87c68"]
+[ext_resource type="Texture2D" uid="uid://c3qyswjk2myrv" path="res://Assets/Props/Ground/texture5/ground_0035_ao_2k.jpg" id="2_8xamy"]
+[ext_resource type="Texture2D" uid="uid://d2lor0ysj7iii" path="res://Assets/Props/Ground/texture5/ground_0035_height_2k.png" id="3_ykx8q"]
+[ext_resource type="Texture2D" uid="uid://b2cukm6tqnsc7" path="res://Assets/Props/Ground/texture5/ground_0035_normal_opengl_2k.png" id="4_uigw8"]
+[ext_resource type="Texture2D" uid="uid://dveo8ts1522sw" path="res://Assets/Props/Ground/texture5/ground_0035_roughness_2k.jpg" id="5_sr042"]
+
+[resource]
+albedo_texture = ExtResource("1_87c68")
+roughness_texture = ExtResource("5_sr042")
+normal_enabled = true
+normal_texture = ExtResource("4_uigw8")
+ao_enabled = true
+ao_texture = ExtResource("2_8xamy")
+heightmap_enabled = true
+heightmap_texture = ExtResource("3_ykx8q")
+uv1_scale = Vector3(10, 10, 10)

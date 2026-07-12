@@ -19,7 +19,7 @@ public sealed class FactionCatalog {
     new(FactionHairyWizardsId, "Hairy Wizards",
       "res://Scenes/Heroes/HairyWizardsHero.tscn", "res://Scenes/Mobs/SwirlyEye.tscn"),
     new(FactionShroomsId, "Shrooms",
-      "res://Scenes/Heroes/ShroomsHero.tscn", "res://Scenes/Mobs/ShroomsMinion.tscn")
+      "res://Scenes/Heroes/snailhead.tscn", "res://Scenes/Mobs/spikeysnail.tscn")
   };
 
   private readonly Dictionary<int, Entry> _byId = new();

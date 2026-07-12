@@ -1,9 +1,14 @@
-[gd_scene format=3 uid="uid://cfxblhac140rt"]
+[gd_scene load_steps=4 format=3 uid="uid://cfxblhac140rt"]
 
-[ext_resource type="PackedScene" uid="uid://c2taba3kxhnva" path="res://Assets/Heroes/Snailhead/snailhead.glb" id="1_ksh44"]
+[ext_resource type="Script" uid="uid://cvasfy5yhl8gr" path="res://Scripts/View/HeroEntity.cs" id="1_hero"]
+[ext_resource type="PackedScene" uid="uid://c2taba3kxhnva" path="res://Assets/Heroes/Snailhead/snailhead.glb" id="2_model"]
+[ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="3_ind"]
 
-[node name="snailhead" unique_id=1889546398 instance=ExtResource("1_ksh44")]
+[node name="Player" type="Node3D"]
+script = ExtResource("1_hero")
+
+[node name="Model" parent="." instance=ExtResource("2_model")]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
 
-[node name="tripo_node_f9967b42-9436-45a1-a3cc-8982a4237430" parent="." index="0" unique_id=604737052]
-transform = Transform3D(0.9906194, 0, -0.13664976, 0, 1, 0, 0.13664976, 0, 0.9906194, 0, 0.4849996, 0)
+[node name="SelectionIndicator" parent="." instance=ExtResource("3_ind")]
+transform = Transform3D(1.35, 0, 0, 0, 1.35, 0, 0, 0, 1.35, 0, 0.04, 0)

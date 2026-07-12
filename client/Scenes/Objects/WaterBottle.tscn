@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://chnhs44116no2"]
+
+[ext_resource type="PackedScene" uid="uid://dm5bycxeua4aj" path="res://Assets/Props/Water/lowpolly_water_bottle.glb" id="1_a1y07"]
+
+[node name="Sketchfab_Scene" unique_id=944152146 instance=ExtResource("1_a1y07")]

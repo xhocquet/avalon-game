@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bu5kshfajfcmv"]
 
 [ext_resource type="Script" uid="uid://cye43qws5a5eo" path="res://Scripts/UI/GameUI.cs" id="1_script"]
-[ext_resource type="PackedScene" path="res://Scenes/UI/HealthBars.tscn" id="3_healthbars"]
+[ext_resource type="PackedScene" uid="uid://7rejd1vlpq5" path="res://Scenes/UI/HealthBars.tscn" id="3_healthbars"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_ie3ut"]
 font_size = 32
@@ -15,6 +15,22 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.27, 0.76, 0.7, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_result"]
+content_margin_left = 28.0
+content_margin_top = 22.0
+content_margin_right = 28.0
+content_margin_bottom = 22.0
+bg_color = Color(0.06, 0.07, 0.08, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.72, 0.55, 0.22, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_71wt1"]
 
@@ -33,22 +49,6 @@ corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_result"]
-content_margin_left = 28.0
-content_margin_top = 22.0
-content_margin_right = 28.0
-content_margin_bottom = 22.0
-bg_color = Color(0.06, 0.07, 0.08, 0.92)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.72, 0.55, 0.22, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
 
 [node name="GameUI" type="CanvasLayer" unique_id=1765081607 groups=["game_ui"]]
 process_mode = 3
@@ -190,6 +190,15 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 3.0
 color = Color(0.37254903, 0.38039216, 1, 0.33333334)
+
+[node name="GoldLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel" unique_id=142657488]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 160.0
+offset_bottom = 28.0
+theme_override_font_sizes/font_size = 18
+text = "Gold: 0"
 
 [node name="MarginContainer" type="MarginContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection" unique_id=562705946]
 layout_mode = 2

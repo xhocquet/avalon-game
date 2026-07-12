@@ -18,6 +18,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private ColorRect _healthBar;
   private ColorRect _healthBarFill;
   private Label _healthBarLabel;
+  private Label _goldLabel;
   private int? _localPlayerId;
   private Label _resultLabel;
   private Panel _resultPanel;
@@ -43,6 +44,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
       _scoreboardScoreLabel.Text = $"{p1} / {p2}";
 
     UpdateLocalPlayerHealth(frame);
+    UpdateLocalPlayerGold(frame);
 
     var elapsed = frame.Tick * (double)frame.DeltaTimeMs / 1000.0;
     SetTimerText(FormatMatchTime((int)elapsed));
@@ -72,6 +74,8 @@ public partial class GameUI : CanvasLayer, IViewHud {
     _healthBar = GetNode<ColorRect>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/HealthBar");
     _healthBarFill = GetNode<ColorRect>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/HealthBar/HealthBarFill");
     _healthBarLabel = GetNode<Label>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/HealthBar/HealthBarLabel");
+    _goldLabel =
+      GetNodeOrNull<Label>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/GoldLabel");
     _selectionRectangle = GetNode<Control>("DefaultUI/SelectionRectangle");
     _resultPanel = GetNodeOrNull<Panel>("DefaultUI/ResultPanel");
     _resultLabel = GetNodeOrNull<Label>("DefaultUI/ResultPanel/ResultLabel");
@@ -150,6 +154,25 @@ public partial class GameUI : CanvasLayer, IViewHud {
       SetPlayerHealth(health.Current, health.Max);
       return;
     }
+  }
+
+  private void UpdateLocalPlayerGold(Frame frame) {
+    if (_localPlayerId is not int localId) return;
+
+    var filter = frame.Filter<Hero, Inventory>();
+    while (filter.Next(out var entity)) {
+      ref readonly var hero = ref frame.GetReadOnly<Hero>(entity);
+      if (hero.PlayerId != localId) continue;
+
+      ref readonly var inventory = ref frame.GetReadOnly<Inventory>(entity);
+      SetGoldText(inventory.Gold);
+      return;
+    }
+  }
+
+  private void SetGoldText(int gold) {
+    if (_goldLabel != null)
+      _goldLabel.Text = $"Gold: {gold}";
   }
 
   public void SetPhase(SessionPhase phase) {

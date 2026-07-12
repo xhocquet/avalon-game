@@ -28,6 +28,7 @@ public static class SimulationSetup {
     simulation.AddSystem(new CommandSystem(navigation == null), SystemPhase.Update);
     simulation.AddSystem(new HeroSpawnSystem(), SystemPhase.Update);
     simulation.AddSystem(new WaveSpawnSystem(), SystemPhase.Update);
+    simulation.AddSystem(new InventorySystem(), SystemPhase.Update);
 
     simulation.AddSystem(new TargetAcquisitionSystem(), SystemPhase.Update);
     simulation.AddSystem(new RespawnSystem(), SystemPhase.Update);
@@ -79,6 +80,7 @@ public static class SimulationSetup {
     }
 
     SpawnTeamTurrets(ref frame, playerIds.Count, layout);
+    SpawnOases(ref frame, layout);
   }
 
   // Spawns a single player's hero with its faction stamped on. Called by HeroSpawnSystem
@@ -110,6 +112,7 @@ public static class SimulationSetup {
       UnitTypeId = PlayerUnitTypeId
     });
     frame.Add(entity, new Controllable());
+    frame.Add(entity, new Inventory());
 
     if (playerStats != null)
       frame.Add(entity, new Health {
@@ -225,6 +228,28 @@ public static class SimulationSetup {
           CooldownRemainingTicks = 0
         });
       }
+    }
+  }
+
+  // Oases are neutral: no Team/Health/Combat/Unit, so they're structurally invisible to
+  // TargetAcquisitionSystem and DamageSystem (both gate on Team+Health) and never move or attack.
+  private static void SpawnOases(ref Frame frame, MapLayoutAsset layout) {
+    var oasisIndex = 0;
+    var typeInt = (int)MapMarkerType.Oasis;
+    var markerCount = layout?.MarkerTypes?.Length ?? 0;
+
+    for (var i = 0; i < markerCount; i++) {
+      if (layout.MarkerTypes[i] != typeInt)
+        continue;
+
+      oasisIndex++;
+      var oasisEntity = frame.CreateEntity();
+      frame.Add(oasisEntity, new TransformComponent {
+        Position = layout.MarkerPositions[i],
+        Rotation = FP64.Zero,
+        Scale = FPVector3.One
+      });
+      frame.Add(oasisEntity, new Oasis { OasisId = oasisIndex });
     }
   }
 

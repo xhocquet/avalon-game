@@ -8,7 +8,7 @@
 transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)
 script = ExtResource("2_nr8yw")
 
-[node name="Skeleton3D" parent="Armature" parent_id_path=PackedInt32Array(38510983) index="0" unique_id=181575583]
+[node name="Skeleton3D" parent="Armature" parent_id_path=PackedInt32Array(614863133) index="0" unique_id=1902076970]
 bones/1/position = Vector3(-0.49685666, -0.008610994, 3.7511633e-08)
 bones/2/rotation = Quaternion(-0.004458361, 0.04289488, 0.99371636, -0.1032864)
 bones/3/rotation = Quaternion(-0.04495596, -0.013380039, -0.34940556, 0.9357968)
@@ -20,4 +20,4 @@ bones/8/rotation = Quaternion(0.029831063, 0.072537445, 0.6693201, 0.7388228)
 bones/9/rotation = Quaternion(-0.05701319, 0.008985507, 0.09848775, 0.99346316)
 
 [node name="SelectionIndicator" parent="." index="1" unique_id=1272106412 instance=ExtResource("3_sj0n2")]
-transform = Transform3D(8, 0, 0, 0, 8, 0, 0, 0, 8, 0, 0.04, 0)
+transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 0, 0.04, 0)

@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://c4um04dyla66r"]
+
+[ext_resource type="PackedScene" uid="uid://ca0h8xysyukyh" path="res://Assets/Props/Fountain/abandoned_fountain.glb" id="1_uu4dh"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_uu4dh"]
+radius = 0.015136719
+height = 0.05
+
+[node name="model" unique_id=73074752 instance=ExtResource("1_uu4dh")]
+transform = Transform3D(100, 0, 0, 0, 100, 0, 0, 0, 100, 0, 0, 0)
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." index="1" unique_id=2095786218]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" index="0" unique_id=1961520711]
+transform = Transform3D(1, 0, 0, 0, -1, -1.509958e-07, 0, 1.509958e-07, -1, -8.206964e-05, 0.009933056, -0.00013286334)
+shape = SubResource("CapsuleShape3D_uu4dh")
+debug_color = Color(0.9411765, 0.18431373, 0.40784314, 0.8392157)
