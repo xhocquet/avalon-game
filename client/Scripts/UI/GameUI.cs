@@ -27,9 +27,15 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private Control _tabUi;
 
   private Label _timerLabel;
+  private SubViewport _minimapViewport;
+  private Camera3D _minimapCamera;
   [Export] public float FocusRingRadiusPx { get; set; } = 52.0f;
   [Export] public float FocusRingWidthPx { get; set; } = 2.5f;
   [Export] public Color FocusRingColor { get; set; } = new(0.88f, 0.72f, 0.22f, 0.92f);
+
+  // Covers the World.tscn ground plane (100x100, centered at origin).
+  [Export] public float MinimapOrthoSize { get; set; } = 110.0f;
+  [Export] public float MinimapHeight { get; set; } = 60.0f;
 
   public void SyncFromFrame(Frame frame) {
     int p1 = 0, p2 = 0;
@@ -79,11 +85,14 @@ public partial class GameUI : CanvasLayer, IViewHud {
     _selectionRectangle = GetNode<Control>("DefaultUI/SelectionRectangle");
     _resultPanel = GetNodeOrNull<Panel>("DefaultUI/ResultPanel");
     _resultLabel = GetNodeOrNull<Label>("DefaultUI/ResultPanel/ResultLabel");
+    _minimapViewport =
+      GetNodeOrNull<SubViewport>("DefaultUI/BottomBar/MarginContainer/Panels/MinimapContainer/MinimapViewport");
 
     SetSelectionRectangle(null);
     if (_resultPanel != null) _resultPanel.Visible = false;
     SetupTabUi();
     SetupAnnouncement();
+    SetupMinimap();
   }
 
   public override void _ExitTree() {
@@ -271,6 +280,25 @@ public partial class GameUI : CanvasLayer, IViewHud {
     _announceTween = CreateTween();
     _announceTween.TweenInterval(1.6);
     _announceTween.TweenProperty(_announceLabel, "modulate:a", 0f, 0.9);
+  }
+
+  // SubViewport inherits its parent viewport's World3D by default (own_world_3d = false), so
+  // dropping an orthogonal top-down camera into it renders the same World scene live - no
+  // duplicate geometry needed.
+  private void SetupMinimap() {
+    if (_minimapViewport == null) return;
+
+    _minimapCamera = new Camera3D {
+      Name = "MinimapCamera",
+      Current = true,
+      Projection = Camera3D.ProjectionType.Orthogonal,
+      Size = MinimapOrthoSize,
+      Near = 1.0f,
+      Far = MinimapHeight + 50.0f,
+      Position = new Vector3(0f, MinimapHeight, 0f),
+      RotationDegrees = new Vector3(-90f, 0f, 0f)
+    };
+    _minimapViewport.AddChild(_minimapCamera);
   }
 
   private void SetTimerText(string text) {
