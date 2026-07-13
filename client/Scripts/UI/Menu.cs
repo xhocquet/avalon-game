@@ -1,5 +1,6 @@
 using System;
 using Godot;
+using Meesles.Avalon.Client.Scripts.View;
 
 namespace Meesles.Avalon;
 
@@ -42,8 +43,8 @@ public partial class Menu : Control {
   // which SimCallbacks reads to send the SelectFactionCommand at match start.
   private void PopulateFactionOptions() {
     _factionOption.Clear();
-    for (var i = 0; i < FactionCatalog.Defs.Length; i++) {
-      var def = FactionCatalog.Defs[i];
+    for (var i = 0; i < FactionCatalog.FactionDefs.Length; i++) {
+      var def = FactionCatalog.FactionDefs[i];
       _factionOption.AddItem(def.Name, def.Id);
       if (def.Id == FactionSelection.SelectedFactionId)
         _factionOption.Select(i);

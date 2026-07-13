@@ -29,6 +29,8 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private Label _timerLabel;
   private SubViewport _minimapViewport;
   private Camera3D _minimapCamera;
+  private TextureRect _portraitTexture;
+  private Label _portraitLabel;
   [Export] public float FocusRingRadiusPx { get; set; } = 52.0f;
   [Export] public float FocusRingWidthPx { get; set; } = 2.5f;
   [Export] public Color FocusRingColor { get; set; } = new(0.88f, 0.72f, 0.22f, 0.92f);
@@ -87,12 +89,17 @@ public partial class GameUI : CanvasLayer, IViewHud {
     _resultLabel = GetNodeOrNull<Label>("DefaultUI/ResultPanel/ResultLabel");
     _minimapViewport =
       GetNodeOrNull<SubViewport>("DefaultUI/BottomBar/MarginContainer/Panels/MinimapContainer/MinimapViewport");
+    _portraitTexture = GetNodeOrNull<TextureRect>(
+      "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/HeroMarginPanel/VBox/PortraitTexture");
+    _portraitLabel = GetNodeOrNull<Label>(
+      "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/HeroMarginPanel/VBox/PortraitLabel");
 
     SetSelectionRectangle(null);
     if (_resultPanel != null) _resultPanel.Visible = false;
     SetupTabUi();
     SetupAnnouncement();
     SetupMinimap();
+    SetFocusPortrait(null, null);
   }
 
   public override void _ExitTree() {
@@ -193,11 +200,6 @@ public partial class GameUI : CanvasLayer, IViewHud {
     SetTimerText($"{seconds:0.0}s");
   }
 
-  public void SetStartDelayRemaining(double seconds) {
-    if (seconds < 0) seconds = 0;
-    SetTimerText($"Start: {seconds:0.0}s");
-  }
-
   public void SetLocalReady(bool ready) {
     // No-op in game view; used by lobby flow
   }
@@ -218,6 +220,19 @@ public partial class GameUI : CanvasLayer, IViewHud {
     _healthBarFill.Size = new Vector2(_healthBar.Size.X * ratio, _healthBar.Size.Y);
     if (_healthBarLabel != null)
       _healthBarLabel.Text = $"HP {(int)current} / {(int)maximum}";
+  }
+
+  // Driven by InputCapture's selection system - shows the portrait of the currently selected
+  // hero. All heroes of a faction currently share one portrait, so this resolves per-faction
+  // rather than per-hero; revisit once each hero gets its own art.
+  public void SetFocusPortrait(Texture2D texture, string label) {
+    if (_portraitTexture != null) {
+      _portraitTexture.Texture = texture;
+      _portraitTexture.Visible = texture != null;
+    }
+
+    if (_portraitLabel != null)
+      _portraitLabel.Text = label ?? string.Empty;
   }
 
   public void SetSelectionRectangle(Rect2? rectangle) {

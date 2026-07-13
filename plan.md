@@ -143,7 +143,6 @@ Next free project IDs: [`KlothoComponent`](vendor/Klotho/com.xpturn.klotho/Runti
 | ------ | ------------------------------------------------------------------------------------------------------------- |
 | ⬜ | Add event-driven audio reactions from synced events, not gameplay authority. |
 | ⬜ | Add model/team tinting for structure views. |
-| ⬜ | Add minimap UI.|
 | ⬜ | Force propagation (group arrival) — "transitive bumping": first unit reaching destination broadcasts completion, adjacent units recognize arrival and cascade outward. Prevents pile-ups at destinations. |
 | ⬜ | Branchless code — `math.select` instead of `if/else` for flow field generation (reported 10x speedup in RTS literature). |
 | ⬜ | Multi-threaded A* — leverage 6-8 cores for parallel path queries. |

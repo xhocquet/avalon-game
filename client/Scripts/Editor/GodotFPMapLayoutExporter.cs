@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using Godot;
 using Meesles.Avalon.Sim.Assets;
 using xpTURN.Klotho.Deterministic.Math;
@@ -43,17 +44,37 @@ public partial class GodotFPMapLayoutExporter : RefCounted {
     Save(asset);
   }
 
+  private static readonly Regex TeamFolderPattern = new(@"^Team(\d+)$", RegexOptions.Compiled);
+
   private static void CollectMarkers(
     Node node,
     List<int> types, List<int> teams, List<FPVector3> positions) {
-    if (node is SimMarkerNode marker) {
+    if (node is Client.Scripts.SimMarkerNode marker) {
       types.Add((int)marker.MarkerType);
-      teams.Add(marker.Team);
+      teams.Add(ResolveTeam(marker));
       positions.Add(marker.GlobalTransform.Origin.ToFPVector3());
     }
 
     foreach (var child in node.GetChildren())
       CollectMarkers(child, types, teams, positions);
+  }
+
+  // SimMarkerNode.Team is only reliable when the marker is itself the root of its instanced
+  // scene (e.g. Spawn.tscn, Shop.tscn) — property overrides written in the parent scene target
+  // the instance root, so a Team override set on a marker nested inside a prefab (e.g. Crystal.tscn,
+  // Turret.tscn, whose SimMarkerNode lives on a child "SimMarker" node) silently binds to nothing
+  // and the marker keeps Team=0. Deriving the team from the nearest ancestor named "TeamN" (the
+  // World.tscn convention already used to group each team's markers) sidesteps that footgun
+  // entirely — no per-marker Team property to forget. Falls back to the export field for markers
+  // that aren't organized under a TeamN folder (e.g. neutral markers like Oasis).
+  private static int ResolveTeam(Client.Scripts.SimMarkerNode marker) {
+    for (var ancestor = marker.GetParent(); ancestor != null; ancestor = ancestor.GetParent()) {
+      var match = TeamFolderPattern.Match(ancestor.Name);
+      if (match.Success)
+        return int.Parse(match.Groups[1].Value);
+    }
+
+    return marker.Team;
   }
 
   private static void Save(MapLayoutAsset asset) {

@@ -3,6 +3,7 @@
 using System.Threading.Tasks;
 using Godot;
 using Meesles.Avalon.Client;
+using Meesles.Avalon.Client.Scripts;
 using Meesles.Avalon.Sim.Models;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.ECS;
@@ -31,7 +32,6 @@ public partial class MultiplayerGameNode : GameNode {
   private bool _ownsDriver;
   private DefaultGodotEntityViewPool _pool;
   private IDataAssetRegistry _registry;
-  private ulong _sceneStartedAtMs;
   private ISessionConfig _sesCfg;
   private KlothoSession _session;
   private ISimulationConfig _simCfg;
@@ -42,8 +42,6 @@ public partial class MultiplayerGameNode : GameNode {
   private EntityViewUpdaterNode _view;
   private ViewCallbacks _viewCallbacks;
 
-  [Export] public double StartDelaySeconds { get; set; } = 1.0;
-
   public override void _Ready() {
     WarmupRegistry.RunAll();
 
@@ -52,7 +50,6 @@ public partial class MultiplayerGameNode : GameNode {
 
     _camera = GetNodeOrNull<CameraController>("Camera3D");
     Input.BindCamera(_camera);
-    _sceneStartedAtMs = Time.GetTicksMsec();
 
     CreateView();
 
@@ -120,6 +117,7 @@ public partial class MultiplayerGameNode : GameNode {
   private void CreateView() {
     _pool = new DefaultGodotEntityViewPool();
     _factions = FactionCatalog.CreateDefault();
+    Input.BindFactionCatalog(_factions);
     var crystalScene = GD.Load<PackedScene>("res://Scenes/Objects/Crystal.tscn");
     var turretScene = GD.Load<PackedScene>("res://Scenes/Objects/Turret.tscn");
     foreach (var faction in _factions.Entries) {
@@ -239,8 +237,6 @@ public partial class MultiplayerGameNode : GameNode {
       }
     }
 
-    UpdateStartDelayHud();
-
     if (_session == null) return;
 
     GameUi.SetPhase(_session.Phase);
@@ -249,13 +245,6 @@ public partial class MultiplayerGameNode : GameNode {
 
     TryFocusRegisteredLocalView();
     AutoTestStep();
-  }
-
-  private void UpdateStartDelayHud() {
-    var elapsedSeconds = (Time.GetTicksMsec() - _sceneStartedAtMs) / 1000.0;
-    var remaining = StartDelaySeconds - elapsedSeconds;
-    if (remaining > 0)
-      GameUi.SetStartDelayRemaining(remaining);
   }
 
   private void AutoTestStep() {

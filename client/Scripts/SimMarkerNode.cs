@@ -4,7 +4,7 @@ using Meesles.Avalon.Sim.Models;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Godot;
 
-namespace Meesles.Avalon;
+namespace Meesles.Avalon.Client.Scripts;
 
 [Tool]
 [GlobalClass]

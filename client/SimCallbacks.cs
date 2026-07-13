@@ -1,4 +1,5 @@
 using Godot;
+using Meesles.Avalon.Client.Scripts.View;
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Commands;
@@ -9,20 +10,17 @@ using xpTURN.Klotho.Logging;
 
 namespace Meesles.Avalon.Client;
 
-public class SimCallbacks : ISimulationCallbacks {
-  private readonly IKLogger _logger;
-  private readonly byte[] _navMeshBytes;
+public class SimCallbacks(
+  InputCapture input,
+  byte[] navMeshBytes,
+  IKLogger logger) : ISimulationCallbacks {
   private bool _factionSelectionSent;
-  private InputCapture _input;
-
-  public SimCallbacks(InputCapture input, byte[] navMeshBytes, IKLogger logger) {
-    _input = input;
-    _navMeshBytes = navMeshBytes;
-    _logger = logger;
-  }
+  private InputCapture _input = input;
 
   public void RegisterSystems(EcsSimulation simulation) {
-    SimulationSetup.RegisterSystems(simulation, NavigationRuntime.FromBytes(_navMeshBytes, _logger));
+    SimulationSetup.RegisterSystems(
+      simulation, NavigationRuntime.FromBytes(navMeshBytes, logger)
+    );
   }
 
   public void OnInitializeWorld(IKlothoEngine engine) {
@@ -31,6 +29,7 @@ public class SimCallbacks : ISimulationCallbacks {
     if (frame.AssetRegistry.TryGet<MapLayoutAsset>(out var layout)) {
       var n = layout.MarkerTypes?.Length ?? 0;
       GD.Print($"[SimCallbacks] MapLayout has {n} markers (maxPlayers={engine.SessionConfig.MaxPlayers}):");
+
       for (var i = 0; i < n; i++) {
         var p = layout.MarkerPositions[i];
         GD.Print(
@@ -46,6 +45,7 @@ public class SimCallbacks : ISimulationCallbacks {
     GD.Print("[SimCallbacks] Post-init entity positions:");
     var postFrame = engine.PredictedFrame.Frame;
     var filter = postFrame.Filter<TransformComponent, Team>();
+
     while (filter.Next(out var entity)) {
       ref readonly var pos = ref postFrame.GetReadOnly<TransformComponent>(entity);
       ref readonly var team = ref postFrame.GetReadOnly<Team>(entity);
@@ -87,7 +87,7 @@ public class SimCallbacks : ISimulationCallbacks {
   }
 
   private void LogCommandSent(string commandName, int tick, int playerId, string details) {
-    _logger?.KInformation($"[SimCallbacks] Send {commandName} tick={tick} playerId={playerId} {details}");
+    logger?.KInformation($"[SimCallbacks] Send {commandName} tick={tick} playerId={playerId} {details}");
     GD.Print($"[SimCallbacks] Send {commandName} tick={tick} playerId={playerId} {details}");
   }
 }

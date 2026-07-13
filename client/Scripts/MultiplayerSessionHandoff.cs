@@ -1,10 +1,9 @@
-using Meesles.Avalon.Client;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Godot;
 using xpTURN.Klotho.LiteNetLib;
 using xpTURN.Klotho.Logging;
 
-namespace Meesles.Avalon;
+namespace Meesles.Avalon.Client.Scripts;
 
 public sealed class MultiplayerSessionHandoff {
   private static MultiplayerSessionHandoff _pending;

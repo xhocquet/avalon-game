@@ -122,11 +122,6 @@ public partial class LobbyUI : Control, IViewHud {
     _timer.Text = $"{seconds:0.0}s";
   }
 
-  public void SetStartDelayRemaining(double seconds) {
-    if (seconds < 0) seconds = 0;
-    _timer.Text = $"Start: {seconds:0.0}s";
-  }
-
   public void SyncPlayers(IReadOnlyList<IPlayerInfo> players, int localPlayerId) {
     SetLocalPlayerId(localPlayerId > 0 ? localPlayerId : null);
 

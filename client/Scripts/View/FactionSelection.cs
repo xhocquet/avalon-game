@@ -2,7 +2,7 @@
 // when it sends the one-shot SelectFactionCommand at match start. A process-wide holder so the
 // choice survives the lobby -> game scene change without threading it through the handoff struct.
 
-namespace Meesles.Avalon;
+namespace Meesles.Avalon.Client.Scripts.View;
 
 public static class FactionSelection {
   public static int SelectedFactionId = FactionCatalog.DefaultFactionId;

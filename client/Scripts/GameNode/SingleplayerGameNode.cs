@@ -103,6 +103,7 @@ public partial class SingleplayerGameNode : GameNode {
   private void CreateView() {
     _pool = new DefaultGodotEntityViewPool();
     _factions = FactionCatalog.CreateDefault();
+    Input.BindFactionCatalog(_factions);
     var crystalScene = GD.Load<PackedScene>("res://Scenes/Objects/Crystal.tscn");
     var turretScene = GD.Load<PackedScene>("res://Scenes/Objects/Turret.tscn");
     foreach (var faction in _factions.Entries) {

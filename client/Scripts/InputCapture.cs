@@ -19,6 +19,7 @@ public class InputCapture : IDisposable {
   private Vector2 _dragCurrentScreen;
   private Vector2 _dragStartScreen;
   private EntityViewNode _fallbackFocusView;
+  private FactionCatalog _factions;
   private GameUI _gameUI;
   private bool _isDraggingSelection;
   private bool _isLeftButtonDown;
@@ -40,6 +41,7 @@ public class InputCapture : IDisposable {
     _gameUI = null;
     _viewRoot = null;
     _fallbackFocusView = null;
+    _factions = null;
     _clickMarkerTween?.Kill();
     _clickMarkerTween = null;
     if (_clickMarker != null && GodotObject.IsInstanceValid(_clickMarker))
@@ -66,6 +68,10 @@ public class InputCapture : IDisposable {
 
   public void BindViewRoot(EntityViewUpdaterNode viewRoot) {
     _viewRoot = viewRoot;
+  }
+
+  public void BindFactionCatalog(FactionCatalog factions) {
+    _factions = factions;
   }
 
   public void BindSingleplayerMoveTarget(Node3D target) {
@@ -184,10 +190,12 @@ public class InputCapture : IDisposable {
     _clickMarkerTween.TweenProperty(_clickMarker, "scale", Vector3.Zero, 0.25)
       .SetTrans(Tween.TransitionType.Quad)
       .SetEase(Tween.EaseType.In);
-    _clickMarkerTween.TweenCallback(Callable.From(() => {
-      if (_clickMarker != null && GodotObject.IsInstanceValid(_clickMarker))
-        _clickMarker.Visible = false;
-    }));
+    _clickMarkerTween.TweenCallback(Callable.From(HideClickMarker));
+  }
+
+  private void HideClickMarker() {
+    if (_clickMarker != null && GodotObject.IsInstanceValid(_clickMarker))
+      _clickMarker.Visible = false;
   }
 
   private void BeginDragSelection(Vector2 screenPosition) {
@@ -262,6 +270,8 @@ public class InputCapture : IDisposable {
       _selectedViews.Add(view);
       SetSelectionIndicator(view, true);
     }
+
+    UpdateFocusPortrait();
   }
 
   private void ClearSelectedViews() {
@@ -272,10 +282,43 @@ public class InputCapture : IDisposable {
 
   private void ApplySingleSelection(EntityViewNode view) {
     ClearSelectedViews();
-    if (view == null) return;
+    if (view == null) {
+      UpdateFocusPortrait();
+      return;
+    }
 
     _selectedViews.Add(view);
     SetSelectionIndicator(view, true);
+    UpdateFocusPortrait();
+  }
+
+  // Map focus state to the rendered portrait in the UI
+  private void UpdateFocusPortrait() {
+    if (_gameUI == null) return;
+
+    var view = _selectedViews.Count > 0 ? _selectedViews[0] : null;
+    if (_factions != null && view != null && TryResolveHeroFactionId(view, out var factionId)) {
+      var entry = _factions.Resolve(factionId);
+      _gameUI.SetFocusPortrait(entry.PortraitTexture, entry.DisplayName);
+      return;
+    }
+
+    _gameUI.SetFocusPortrait(null, null);
+  }
+
+  private static bool TryResolveHeroFactionId(EntityViewNode view, out int factionId) {
+    factionId = 0;
+    if (view.Engine == null || !view.EntityRef.IsValid) return false;
+
+    var frame = view.Engine.PredictedFrame.Frame;
+    if (frame == null || !frame.Has<Hero>(view.EntityRef))
+      frame = view.Engine.VerifiedFrame.Frame;
+
+    if (frame == null || !frame.Has<Hero>(view.EntityRef) || !frame.Has<Faction>(view.EntityRef))
+      return false;
+
+    factionId = frame.GetReadOnly<Faction>(view.EntityRef).FactionId;
+    return true;
   }
 
   private EntityViewNode GetFallbackFocusView() {

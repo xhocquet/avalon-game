@@ -184,7 +184,7 @@ public partial class AvalonBuildExportRunner : RefCounted {
   }
 
   private static void CollectMapMarkers(Node node, List<int> types, List<int> teams, List<FPVector3> positions) {
-    if (node is SimMarkerNode marker) {
+    if (node is Client.Scripts.SimMarkerNode marker) {
       types.Add((int)marker.MarkerType);
       teams.Add(marker.Team);
       positions.Add(marker.GlobalTransform.Origin.ToFPVector3());

@@ -2,6 +2,8 @@ using System;
 using System.Threading.Tasks;
 using Godot;
 using Meesles.Avalon.Client;
+using Meesles.Avalon.Client.Scripts;
+using Meesles.Avalon.Client.Scripts.View;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Godot;
