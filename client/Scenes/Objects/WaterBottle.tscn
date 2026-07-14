@@ -1,5 +1,26 @@
-[gd_scene format=3 uid="uid://chnhs44116no2"]
+[gd_scene format=3 uid="uid://3ded1f06hab5"]
 
-[ext_resource type="PackedScene" uid="uid://dm5bycxeua4aj" path="res://Assets/Props/Water/lowpolly_water_bottle.glb" id="1_a1y07"]
+[ext_resource type="Script" uid="uid://h3mjd2vex7vv" path="res://Scripts/View/PickupEntity.cs" id="1_pickup"]
+[ext_resource type="PackedScene" uid="uid://chnhs44116no2" path="res://Assets/Props/Water/WaterBottle.tscn" id="2_lwrxv"]
+[ext_resource type="Script" uid="uid://jt4rwdk0j6k6" path="res://Scripts/SimMarkerNode.cs" id="3_jjo26"]
 
-[node name="Sketchfab_Scene" unique_id=944152146 instance=ExtResource("1_a1y07")]
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_lwrxv"]
+height = 1.2722168
+radius = 0.22216797
+
+[node name="WaterBottle" type="Node3D" unique_id=1051827350]
+script = ExtResource("1_pickup")
+
+[node name="Sketchfab_Scene" parent="." unique_id=944152146 instance=ExtResource("2_lwrxv")]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)
+
+[node name="RigidBody3D" type="RigidBody3D" parent="." unique_id=1498826566]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBody3D" unique_id=1290030255]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 0.00012207031, 0.19982864, 0)
+shape = SubResource("CylinderShape3D_lwrxv")
+
+[node name="SimMarker" type="Node3D" parent="." unique_id=612623198]
+script = ExtResource("3_jjo26")
+MarkerType = 5
+Value = 10

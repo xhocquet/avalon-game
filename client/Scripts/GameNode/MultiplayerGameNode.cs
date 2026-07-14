@@ -120,6 +120,8 @@ public partial class MultiplayerGameNode : GameNode {
     Input.BindFactionCatalog(_factions);
     var crystalScene = GD.Load<PackedScene>("res://Scenes/Objects/Crystal.tscn");
     var turretScene = GD.Load<PackedScene>("res://Scenes/Objects/Turret.tscn");
+    var pickupScene = GD.Load<PackedScene>("res://Scenes/Objects/WaterBottle.tscn");
+    var oasisScene = GD.Load<PackedScene>("res://Scenes/Objects/Oasis.tscn");
     foreach (var faction in _factions.Entries) {
       _pool.Prewarm(faction.HeroScene, 2);
       _pool.Prewarm(faction.MinionScene, 64);
@@ -127,6 +129,8 @@ public partial class MultiplayerGameNode : GameNode {
 
     _pool.Prewarm(crystalScene, 2);
     _pool.Prewarm(turretScene, 4);
+    _pool.Prewarm(pickupScene, 32);
+    _pool.Prewarm(oasisScene, 4);
 
     _view = new EntityViewUpdaterNode();
     AddChild(_view);
@@ -136,7 +140,9 @@ public partial class MultiplayerGameNode : GameNode {
   private UnitViewFactory CreateFactory() {
     var crystalScene = GD.Load<PackedScene>("res://Scenes/Objects/Crystal.tscn");
     var turretScene = GD.Load<PackedScene>("res://Scenes/Objects/Turret.tscn");
-    return new UnitViewFactory(_factions, crystalScene, turretScene);
+    var pickupScene = GD.Load<PackedScene>("res://Scenes/Objects/WaterBottle.tscn");
+    var oasisScene = GD.Load<PackedScene>("res://Scenes/Objects/Oasis.tscn");
+    return new UnitViewFactory(_factions, crystalScene, turretScene, pickupScene, oasisScene);
   }
 
   private void OnSessionReady(bool autoReady) {

@@ -106,6 +106,8 @@ public partial class SingleplayerGameNode : GameNode {
     Input.BindFactionCatalog(_factions);
     var crystalScene = GD.Load<PackedScene>("res://Scenes/Objects/Crystal.tscn");
     var turretScene = GD.Load<PackedScene>("res://Scenes/Objects/Turret.tscn");
+    var pickupScene = GD.Load<PackedScene>("res://Scenes/Objects/WaterBottle.tscn");
+    var oasisScene = GD.Load<PackedScene>("res://Scenes/Objects/Oasis.tscn");
     foreach (var faction in _factions.Entries) {
       _pool.Prewarm(faction.HeroScene, _sesCfg.MaxPlayers);
       _pool.Prewarm(faction.MinionScene, 64);
@@ -113,6 +115,8 @@ public partial class SingleplayerGameNode : GameNode {
 
     _pool.Prewarm(crystalScene, _sesCfg.MaxPlayers);
     _pool.Prewarm(turretScene, _sesCfg.MaxPlayers * 2);
+    _pool.Prewarm(pickupScene, 32);
+    _pool.Prewarm(oasisScene, 4);
 
     _view = new EntityViewUpdaterNode();
     AddChild(_view);
@@ -122,7 +126,9 @@ public partial class SingleplayerGameNode : GameNode {
   private UnitViewFactory CreateFactory() {
     var crystalScene = GD.Load<PackedScene>("res://Scenes/Objects/Crystal.tscn");
     var turretScene = GD.Load<PackedScene>("res://Scenes/Objects/Turret.tscn");
-    return new UnitViewFactory(_factions, crystalScene, turretScene);
+    var pickupScene = GD.Load<PackedScene>("res://Scenes/Objects/WaterBottle.tscn");
+    var oasisScene = GD.Load<PackedScene>("res://Scenes/Objects/Oasis.tscn");
+    return new UnitViewFactory(_factions, crystalScene, turretScene, pickupScene, oasisScene);
   }
 
   private void OnLocalViewRegistered(EntityViewNode view) {

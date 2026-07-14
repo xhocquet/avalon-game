@@ -9,6 +9,7 @@ public partial class MapLayoutAsset : IDataAsset {
   [KlothoOrder(2)] public FPVector3[] MarkerPositions;
   [KlothoOrder(1)] public int[] MarkerTeams;
   [KlothoOrder(0)] public int[] MarkerTypes;
+  [KlothoOrder(3)] public int[] MarkerValues;
 
   public bool TryGetByTypeAndTeam(MapMarkerType type, int teamId, out FPVector3 position) {
     position = FPVector3.Zero;

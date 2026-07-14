@@ -30,6 +30,8 @@ public static class SimulationSetup {
     simulation.AddSystem(new WaveSpawnSystem(), SystemPhase.Update);
     simulation.AddSystem(new InventorySystem(), SystemPhase.Update);
     simulation.AddSystem(new StatsSystem(), SystemPhase.Update);
+    simulation.AddSystem(new OasisSpawnSystem(), SystemPhase.Update);
+    simulation.AddSystem(new PickupSystem(), SystemPhase.Update);
 
     simulation.AddSystem(new TargetAcquisitionSystem(), SystemPhase.Update);
     simulation.AddSystem(new RespawnSystem(), SystemPhase.Update);
@@ -82,6 +84,7 @@ public static class SimulationSetup {
 
     SpawnTeamTurrets(ref frame, playerIds.Count, layout);
     SpawnOases(ref frame, layout);
+    SpawnPickups(ref frame, layout);
   }
 
   // Spawns a single player's hero with its faction stamped on. Called by HeroSpawnSystem
@@ -251,7 +254,29 @@ public static class SimulationSetup {
         Rotation = FP64.Zero,
         Scale = FPVector3.One
       });
-      frame.Add(oasisEntity, new Oasis { OasisId = oasisIndex });
+      frame.Add(oasisEntity, new Oasis { OasisId = oasisIndex, SpawnCooldownRemainingMs = OasisSpawnSystem.SpawnIntervalMs });
+    }
+  }
+
+  // Pickups are neutral like Oases: no Team/Health/Unit, so PickupSystem is the only thing that
+  // ever touches them (proximity-based collect). MarkerValues carries the per-marker Amount
+  // authored on the SimMarkerNode in the editor; missing values default to 0.
+  private static void SpawnPickups(ref Frame frame, MapLayoutAsset layout) {
+    var typeInt = (int)MapMarkerType.Pickup;
+    var markerCount = layout?.MarkerTypes?.Length ?? 0;
+
+    for (var i = 0; i < markerCount; i++) {
+      if (layout.MarkerTypes[i] != typeInt)
+        continue;
+
+      var amount = layout.MarkerValues != null && i < layout.MarkerValues.Length ? layout.MarkerValues[i] : 0;
+      var pickupEntity = frame.CreateEntity();
+      frame.Add(pickupEntity, new TransformComponent {
+        Position = layout.MarkerPositions[i],
+        Rotation = FP64.Zero,
+        Scale = FPVector3.One
+      });
+      frame.Add(pickupEntity, new Pickup { PickupId = PickupIdGenerator.Next(ref frame), Amount = amount });
     }
   }
 

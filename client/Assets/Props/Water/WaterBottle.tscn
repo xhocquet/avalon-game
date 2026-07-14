@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://chnhs44116no2"]
+
+[ext_resource type="PackedScene" uid="uid://dm5bycxeua4aj" path="res://Assets/Props/Water/lowpolly_water_bottle.glb" id="1_a1y07"]
+
+[node name="Sketchfab_Scene" unique_id=944152146 instance=ExtResource("1_a1y07")]
+
+[node name="Bottle_0" parent="Sketchfab_model/root/GLTF_SceneRootNode" parent_id_path=PackedInt32Array(1310917185) index="0" unique_id=1360934024]
+transform = Transform3D(-4.371139e-08, -1, 0, -0.86602545, 3.7855177e-08, 0.50000006, -0.50000006, 2.18557e-08, -0.86602545, 0, 2, 0)

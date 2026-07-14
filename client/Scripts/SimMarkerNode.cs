@@ -16,6 +16,10 @@ public partial class SimMarkerNode : EntityViewNode, ISelectableTeamView {
   [Export] public MapMarkerType MarkerType { get; set; }
   [Export] public int Team { get; set; }
 
+  // Generic per-marker scalar, e.g. Pickup.Amount. Only reliable when this node is the root of
+  // its instanced scene (see GodotFPMapLayoutExporter.ResolveTeam for why nested overrides fail).
+  [Export] public int Value { get; set; }
+
   public bool TeamMatches(int teamId) {
     return _teamId == teamId;
   }

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using Godot;
 using Meesles.Avalon.Sim.Assets;
 using xpTURN.Klotho.Deterministic.Geometry;
@@ -91,14 +92,16 @@ public partial class AvalonBuildExportRunner : RefCounted {
     var types = new List<int>();
     var teams = new List<int>();
     var positions = new List<FPVector3>();
+    var values = new List<int>();
 
-    CollectMapMarkers(root, types, teams, positions);
+    CollectMapMarkers(root, types, teams, positions, values);
     if (types.Count == 0) throw new InvalidDataException("[AvalonBuildExportRunner] No SimMarkerNode instances found.");
 
     var asset = new MapLayoutAsset {
       MarkerTypes = types.ToArray(),
       MarkerTeams = teams.ToArray(),
-      MarkerPositions = positions.ToArray()
+      MarkerPositions = positions.ToArray(),
+      MarkerValues = values.ToArray()
     };
 
     var serializables = new List<IDataAssetSerializable> { asset };
@@ -183,14 +186,32 @@ public partial class AvalonBuildExportRunner : RefCounted {
       $"  Sphere:{sphere} Box:{box} Capsule:{capsule} Mesh:{mesh} Trigger:{trigger} UnsupportedSkipped:{skippedUnsupported}");
   }
 
-  private static void CollectMapMarkers(Node node, List<int> types, List<int> teams, List<FPVector3> positions) {
+  private static void CollectMapMarkers(Node node, List<int> types, List<int> teams, List<FPVector3> positions,
+    List<int> values) {
     if (node is Client.Scripts.SimMarkerNode marker) {
       types.Add((int)marker.MarkerType);
-      teams.Add(marker.Team);
+      teams.Add(ResolveTeam(marker));
       positions.Add(marker.GlobalTransform.Origin.ToFPVector3());
+      values.Add(marker.Value);
     }
 
-    foreach (var child in node.GetChildren()) CollectMapMarkers(child, types, teams, positions);
+    foreach (var child in node.GetChildren()) CollectMapMarkers(child, types, teams, positions, values);
+  }
+
+  // Mirrors GodotFPMapLayoutExporter.ResolveTeam: nested SimMarker children (Crystal.tscn,
+  // Turret.tscn) silently lose Team overrides written in the parent scene, so the team is derived
+  // from the nearest ancestor named "TeamN" instead. Falls back to the export field for markers
+  // that aren't organized under a TeamN folder (e.g. neutral markers like Oasis/Pickup).
+  private static readonly Regex TeamFolderPattern = new(@"^Team(\d+)$", RegexOptions.Compiled);
+
+  private static int ResolveTeam(Client.Scripts.SimMarkerNode marker) {
+    for (var ancestor = marker.GetParent(); ancestor != null; ancestor = ancestor.GetParent()) {
+      var match = TeamFolderPattern.Match(ancestor.Name);
+      if (match.Success)
+        return int.Parse(match.Groups[1].Value);
+    }
+
+    return marker.Team;
   }
 }
 #endif

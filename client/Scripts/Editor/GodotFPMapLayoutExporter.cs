@@ -29,8 +29,9 @@ public partial class GodotFPMapLayoutExporter : RefCounted {
     var types = new List<int>();
     var teams = new List<int>();
     var positions = new List<FPVector3>();
+    var values = new List<int>();
 
-    CollectMarkers(root, types, teams, positions);
+    CollectMarkers(root, types, teams, positions, values);
 
     if (types.Count == 0)
       GD.PushWarning("[GodotFPMapLayoutExporter] No SimMarkerNode instances found in scene.");
@@ -38,7 +39,8 @@ public partial class GodotFPMapLayoutExporter : RefCounted {
     var asset = new MapLayoutAsset {
       MarkerTypes = types.ToArray(),
       MarkerTeams = teams.ToArray(),
-      MarkerPositions = positions.ToArray()
+      MarkerPositions = positions.ToArray(),
+      MarkerValues = values.ToArray()
     };
 
     Save(asset);
@@ -48,15 +50,16 @@ public partial class GodotFPMapLayoutExporter : RefCounted {
 
   private static void CollectMarkers(
     Node node,
-    List<int> types, List<int> teams, List<FPVector3> positions) {
+    List<int> types, List<int> teams, List<FPVector3> positions, List<int> values) {
     if (node is Client.Scripts.SimMarkerNode marker) {
       types.Add((int)marker.MarkerType);
       teams.Add(ResolveTeam(marker));
       positions.Add(marker.GlobalTransform.Origin.ToFPVector3());
+      values.Add(marker.Value);
     }
 
     foreach (var child in node.GetChildren())
-      CollectMarkers(child, types, teams, positions);
+      CollectMarkers(child, types, teams, positions, values);
   }
 
   // SimMarkerNode.Team is only reliable when the marker is itself the root of its instanced

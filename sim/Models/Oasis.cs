@@ -7,4 +7,7 @@ namespace Meesles.Avalon.Sim.Models;
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public partial struct Oasis : IComponent {
   public int OasisId;
+
+  // Counts down to the next resource spawn; see OasisSpawnSystem.SpawnIntervalMs.
+  public int SpawnCooldownRemainingMs;
 }
