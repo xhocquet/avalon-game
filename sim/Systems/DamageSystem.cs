@@ -27,9 +27,11 @@ public class DamageSystem : ISystem {
         continue;
       }
 
+      var damage = StatsSystem.CalculateDamage(ref frame, attacker, target);
+
       ref var health = ref frame.Get<Health>(target);
       var healthBefore = health.Current;
-      health.Current -= combat.AttackDamage;
+      health.Current -= damage;
       if (health.Current < 0)
         health.Current = 0;
 
@@ -39,7 +41,7 @@ public class DamageSystem : ISystem {
         var evt = EventPool.Get<AttackHitEvent>();
         evt.AttackerUnitId = TryGetUnitId(ref frame, attacker, out var srcId) ? srcId : 0;
         evt.TargetUnitId = TryGetUnitId(ref frame, target, out var tgtId) ? tgtId : 0;
-        evt.Damage = combat.AttackDamage;
+        evt.Damage = damage;
         evt.AttackerPosition = frame.Has<TransformComponent>(attacker)
           ? frame.GetReadOnly<TransformComponent>(attacker).Position
           : default;
@@ -50,7 +52,7 @@ public class DamageSystem : ISystem {
       }
 
       LogDamageState(ref frame, attacker, target,
-        $"damage={combat.AttackDamage} health={healthBefore}->{health.Current} cooldown={combat.CooldownRemainingTicks}");
+        $"damage={damage} health={healthBefore}->{health.Current} cooldown={combat.CooldownRemainingTicks}");
     }
   }
 

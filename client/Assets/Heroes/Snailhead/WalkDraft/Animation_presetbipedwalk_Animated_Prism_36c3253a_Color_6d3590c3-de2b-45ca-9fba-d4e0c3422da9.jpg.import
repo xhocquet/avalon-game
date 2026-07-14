@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bn0cpq141dypt"
-path.s3tc="res://.godot/imported/Animation_presetbipedwalk_Animated_Prism_36c3253a_Color_6d3590c3-de2b-45ca-9fba-d4e0c3422da9.jpg-e9953f0f4d55fb33fd6c7b68a98a33a8.s3tc.ctex"
-path.etc2="res://.godot/imported/Animation_presetbipedwalk_Animated_Prism_36c3253a_Color_6d3590c3-de2b-45ca-9fba-d4e0c3422da9.jpg-e9953f0f4d55fb33fd6c7b68a98a33a8.etc2.ctex"
+path.s3tc="res://.godot/imported/Animation_presetbipedwalk_Animated_Prism_36c3253a_Color_6d3590c3-de2b-45ca-9fba-d4e0c3422da9.jpg-28e5ae6da2b368ec6245bdd71f2d2f74.s3tc.ctex"
+path.etc2="res://.godot/imported/Animation_presetbipedwalk_Animated_Prism_36c3253a_Color_6d3590c3-de2b-45ca-9fba-d4e0c3422da9.jpg-28e5ae6da2b368ec6245bdd71f2d2f74.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://Assets/Heroes/Snailhead/WalkDraft/Animation_presetbipedwalk_Animated_Prism_36c3253a_Color_6d3590c3-de2b-45ca-9fba-d4e0c3422da9.jpg"
-dest_files=["res://.godot/imported/Animation_presetbipedwalk_Animated_Prism_36c3253a_Color_6d3590c3-de2b-45ca-9fba-d4e0c3422da9.jpg-e9953f0f4d55fb33fd6c7b68a98a33a8.s3tc.ctex", "res://.godot/imported/Animation_presetbipedwalk_Animated_Prism_36c3253a_Color_6d3590c3-de2b-45ca-9fba-d4e0c3422da9.jpg-e9953f0f4d55fb33fd6c7b68a98a33a8.etc2.ctex"]
+source_file="res://Assets/Heroes/SnailHead/WalkDraft/Animation_presetbipedwalk_Animated_Prism_36c3253a_Color_6d3590c3-de2b-45ca-9fba-d4e0c3422da9.jpg"
+dest_files=["res://.godot/imported/Animation_presetbipedwalk_Animated_Prism_36c3253a_Color_6d3590c3-de2b-45ca-9fba-d4e0c3422da9.jpg-28e5ae6da2b368ec6245bdd71f2d2f74.s3tc.ctex", "res://.godot/imported/Animation_presetbipedwalk_Animated_Prism_36c3253a_Color_6d3590c3-de2b-45ca-9fba-d4e0c3422da9.jpg-28e5ae6da2b368ec6245bdd71f2d2f74.etc2.ctex"]
 
 [params]
 

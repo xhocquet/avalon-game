@@ -29,6 +29,7 @@ public static class SimulationSetup {
     simulation.AddSystem(new HeroSpawnSystem(), SystemPhase.Update);
     simulation.AddSystem(new WaveSpawnSystem(), SystemPhase.Update);
     simulation.AddSystem(new InventorySystem(), SystemPhase.Update);
+    simulation.AddSystem(new StatsSystem(), SystemPhase.Update);
 
     simulation.AddSystem(new TargetAcquisitionSystem(), SystemPhase.Update);
     simulation.AddSystem(new RespawnSystem(), SystemPhase.Update);
@@ -113,6 +114,7 @@ public static class SimulationSetup {
     });
     frame.Add(entity, new Controllable());
     frame.Add(entity, new Inventory());
+    frame.Add(entity, new Stats { Strength = 10 });
 
     if (playerStats != null)
       frame.Add(entity, new Health {

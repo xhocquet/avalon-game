@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://1xx55a188qx4"
-path="res://.godot/imported/Animation_presetbipedwalk_Animated_Prism_36c3253a.glb-edb92882ba303f10a8037344f76ae228.scn"
+uid="uid://bklfst6nh5g06"
+path="res://.godot/imported/allhairwiz_rigger_anim.glb-c9568f0c832bf0c8c24bd76ce5702279.scn"
 
 [deps]
 
-source_file="res://Assets/Heroes/SnailHead/WalkDraft/Animation_presetbipedwalk_Animated_Prism_36c3253a.glb"
-dest_files=["res://.godot/imported/Animation_presetbipedwalk_Animated_Prism_36c3253a.glb-edb92882ba303f10a8037344f76ae228.scn"]
+source_file="res://Assets/Heroes/AllHairWizard/allhairwiz_rigger_anim.glb"
+dest_files=["res://.godot/imported/allhairwiz_rigger_anim.glb-c9568f0c832bf0c8c24bd76ce5702279.scn"]
 
 [params]
 
@@ -39,8 +39,8 @@ materials/extract_format=0
 materials/extract_path=""
 _subresources={
 "animations": {
-"NlaTrack": {
-"save_to_file/enabled": true,
+"shuffle_walk": {
+"save_to_file/enabled": false,
 "save_to_file/fallback_path": "",
 "save_to_file/keep_custom_tracks": "",
 "save_to_file/path": "",

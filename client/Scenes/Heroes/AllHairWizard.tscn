@@ -1,6 +1,16 @@
-[gd_scene format=3 uid="uid://qwlps32xm1dg"]
+[gd_scene format=3 uid="uid://dixg6cag7iwnc"]
 
-[ext_resource type="PackedScene" uid="uid://cm4dm7liatrfj" path="res://Assets/Heroes/AllHairWizard/all_hair_wiz_edited.glb" id="1_mdheq"]
+[ext_resource type="PackedScene" uid="uid://bklfst6nh5g06" path="res://Assets/Heroes/AllHairWizard/allhairwiz_rigger_anim.glb" id="1_onny7"]
+[ext_resource type="Script" uid="uid://cvasfy5yhl8gr" path="res://Scripts/View/HeroEntity.cs" id="2_5kg2y"]
+[ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="3_yg1nu"]
 
-[node name="all_hair_wiz_edited" unique_id=361300862 instance=ExtResource("1_mdheq")]
-transform = Transform3D(0, 0, -2, 0, 2, 0, 2, 0, 0, 0, 0, 0)
+[node name="Player" unique_id=1682798515 instance=ExtResource("1_onny7")]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
+script = ExtResource("2_5kg2y")
+WalkAnimationOverride = "shuffle_walk"
+
+[node name="PatchworkWizard_Rig" parent="." index="0" unique_id=90880087]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 0.015, 0)
+
+[node name="SelectionIndicator" parent="." index="1" unique_id=102224428 instance=ExtResource("3_yg1nu")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 0, 0.04, 0)

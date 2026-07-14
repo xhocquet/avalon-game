@@ -19,6 +19,8 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private ColorRect _healthBarFill;
   private Label _healthBarLabel;
   private Label _goldLabel;
+  private Label _resourcesLabel;
+  private Label _strengthLabel;
   private int? _localPlayerId;
   private Label _resultLabel;
   private Panel _resultPanel;
@@ -52,7 +54,8 @@ public partial class GameUI : CanvasLayer, IViewHud {
       _scoreboardScoreLabel.Text = $"{p1} / {p2}";
 
     UpdateLocalPlayerHealth(frame);
-    UpdateLocalPlayerGold(frame);
+    UpdateLocalPlayerInventory(frame);
+    UpdateLocalPlayerStats(frame);
 
     var elapsed = frame.Tick * (double)frame.DeltaTimeMs / 1000.0;
     SetTimerText(FormatMatchTime((int)elapsed));
@@ -84,6 +87,12 @@ public partial class GameUI : CanvasLayer, IViewHud {
     _healthBarLabel = GetNode<Label>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/HealthBar/HealthBarLabel");
     _goldLabel =
       GetNodeOrNull<Label>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/GoldLabel");
+    _resourcesLabel =
+      GetNodeOrNull<Label>(
+        "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/ResourcesLabel");
+    _strengthLabel =
+      GetNodeOrNull<Label>(
+        "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/StrengthLabel");
     _selectionRectangle = GetNode<Control>("DefaultUI/SelectionRectangle");
     _resultPanel = GetNodeOrNull<Panel>("DefaultUI/ResultPanel");
     _resultLabel = GetNodeOrNull<Label>("DefaultUI/ResultPanel/ResultLabel");
@@ -172,7 +181,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
     }
   }
 
-  private void UpdateLocalPlayerGold(Frame frame) {
+  private void UpdateLocalPlayerInventory(Frame frame) {
     if (_localPlayerId is not int localId) return;
 
     var filter = frame.Filter<Hero, Inventory>();
@@ -182,6 +191,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
 
       ref readonly var inventory = ref frame.GetReadOnly<Inventory>(entity);
       SetGoldText(inventory.Gold);
+      SetResourcesText(inventory.Resources);
       return;
     }
   }
@@ -189,6 +199,30 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private void SetGoldText(int gold) {
     if (_goldLabel != null)
       _goldLabel.Text = $"Gold: {gold}";
+  }
+
+  private void SetResourcesText(int resources) {
+    if (_resourcesLabel != null)
+      _resourcesLabel.Text = $"Resources: {resources}";
+  }
+
+  private void UpdateLocalPlayerStats(Frame frame) {
+    if (_localPlayerId is not int localId) return;
+
+    var filter = frame.Filter<Hero, Stats>();
+    while (filter.Next(out var entity)) {
+      ref readonly var hero = ref frame.GetReadOnly<Hero>(entity);
+      if (hero.PlayerId != localId) continue;
+
+      ref readonly var stats = ref frame.GetReadOnly<Stats>(entity);
+      SetStrengthText(stats.Strength);
+      return;
+    }
+  }
+
+  private void SetStrengthText(int strength) {
+    if (_strengthLabel != null)
+      _strengthLabel.Text = $"Strength: {strength}";
   }
 
   public void SetPhase(SessionPhase phase) {

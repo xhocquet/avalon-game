@@ -12,10 +12,25 @@ public partial class HeroEntity : EntityViewNode, ISelectableTeamView, IPlayerVi
   private const string AnimWalk = "SK_PlayerDefault_ao|A_Player_Walk";
   private const string AnimDeath = "SK_PlayerDefault_ao|A_Player_Death";
 
+  [Export] public string WalkAnimationOverride { get; set; } = "";
+
   private AnimationPlayer _anim;
   private bool _isDead;
   private bool _isMoving;
   private int _teamId = -1;
+
+  private string WalkAnim => string.IsNullOrEmpty(WalkAnimationOverride) ? AnimWalk : WalkAnimationOverride;
+
+  // Play() is a silent no-op when the name isn't on this model's AnimationPlayer (e.g. a rig with only
+  // a walk clip), which would otherwise leave whatever animation last played stuck looping forever.
+  private void PlayOrStop(string animName) {
+    if (!_anim.HasAnimation(animName)) {
+      GD.PushWarning($"{Name}: missing animation \"{animName}\" on {_anim.GetPath()}, stopping instead.");
+      _anim.Stop();
+      return;
+    }
+    _anim.Play(animName);
+  }
 
   public void OnAttackVfx(Vector3 targetPosition) {
     // TODO: attack animation / particles
@@ -36,7 +51,7 @@ public partial class HeroEntity : EntityViewNode, ISelectableTeamView, IPlayerVi
 
     _anim = GetNodeOrNull<AnimationPlayer>("AnimationPlayer");
     if (_anim != null) {
-      var walkAnim = _anim.GetAnimation(AnimWalk);
+      var walkAnim = _anim.GetAnimation(WalkAnim);
       if (walkAnim != null)
         walkAnim.LoopMode = Animation.LoopModeEnum.Linear;
 
@@ -50,7 +65,7 @@ public partial class HeroEntity : EntityViewNode, ISelectableTeamView, IPlayerVi
     AddToGroup(UnitsGroup);
     _isMoving = false;
     _isDead = false;
-    _anim?.Play(AnimIdle);
+    if (_anim != null) PlayOrStop(AnimIdle);
 
     var live = frame.Frame;
     if (live != null && live.Has<Unit>(EntityRef))
@@ -79,7 +94,7 @@ public partial class HeroEntity : EntityViewNode, ISelectableTeamView, IPlayerVi
     if (dead != _isDead) {
       _isDead = dead;
       _isMoving = false;
-      _anim.Play(_isDead ? AnimDeath : AnimIdle);
+      PlayOrStop(_isDead ? AnimDeath : AnimIdle);
     }
 
     if (_isDead)
@@ -88,7 +103,7 @@ public partial class HeroEntity : EntityViewNode, ISelectableTeamView, IPlayerVi
     var moving = frame.Has<UnitMoveTarget>(EntityRef);
     if (moving == _isMoving) return;
     _isMoving = moving;
-    _anim.Play(_isMoving ? AnimWalk : AnimIdle);
+    PlayOrStop(_isMoving ? WalkAnim : AnimIdle);
   }
 
   public override bool OwnerMatches(int ownerId) {

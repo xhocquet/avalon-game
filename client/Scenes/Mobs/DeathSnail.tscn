@@ -1,0 +1,42 @@
+[gd_scene format=3 uid="uid://vuk38btq8hjc"]
+
+[ext_resource type="PackedScene" uid="uid://ccuue67855ior" path="res://Assets/Mobs/SpikySnail/spikysnail_rigged.glb" id="1_model"]
+[ext_resource type="Script" uid="uid://drxwt8mq0b2k8" path="res://Scripts/View/MinionEntity.cs" id="2_minion"]
+[ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="3_ind"]
+
+[sub_resource type="Animation" id="Animation_y42po"]
+resource_name = "Slide_Head_Bob_Loop"
+loop_mode = 1
+tracks/0/type = "position_3d"
+tracks/0/imported = true
+tracks/0/enabled = true
+tracks/0/path = NodePath("SpikySnail_Rig/Skeleton3D:Head_Bob")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = PackedFloat32Array(0, 1, 0, 0.019999977, 0.4, 0.033333335, 1, 0, 0.019999977, 0.4, 0.06666667, 1, 0, 0.019999977, 0.40133333, 0.1, 1, 0, 0.019999977, 0.40444446, 0.13333334, 1, 0, 0.019999977, 0.40922225, 0.2, 1, 0, 0.019999977, 0.4207778, 0.23333333, 1, 0, 0.019999977, 0.42555556, 0.26666668, 1, 0, 0.019999977, 0.42866665, 0.3, 1, 0, 0.019999977, 0.42972222, 0.33333334, 1, 0, 0.019999977, 0.4286111, 0.36666667, 1, 0, 0.019999977, 0.42563334, 0.4, 1, 0, 0.019999977, 0.42165557, 0.43333334, 1, 0, 0.019999977, 0.41694444, 0.46666667, 1, 0, 0.019999977, 0.41176668, 0.5, 1, 0, 0.019999977, 0.40638888, 0.53333336, 1, 0, 0.019999977, 0.40127778, 0.56666666, 1, 0, 0.019999977, 0.39670002, 0.6, 1, 0, 0.019999977, 0.39270002, 0.6333333, 1, 0, 0.019999977, 0.38930002, 0.6666667, 1, 0, 0.019999977, 0.3865, 0.7, 1, 0, 0.019999977, 0.3845, 0.73333335, 1, 0, 0.019999977, 0.3831, 0.8, 1, 0, 0.019999977, 0.3823744, 0.8333333, 1, 0, 0.019999977, 0.383872, 0.8666667, 1, 0, 0.019999977, 0.3874432, 0.9, 1, 0, 0.019999977, 0.3915328, 0.93333334, 1, 0, 0.019999977, 0.3954496, 0.96666664, 1, 0, 0.019999977, 0.3985024, 1, 1, 0, 0.019999977, 0.4)
+tracks/1/type = "rotation_3d"
+tracks/1/imported = true
+tracks/1/enabled = true
+tracks/1/path = NodePath("SpikySnail_Rig/Skeleton3D:Head_Bob")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = PackedFloat32Array(0, 1, 0, 0, 0, 1, 0.033333335, 1, 0, 0, 0, 1, 0.06666667, 1, -0.0015514037, 0, 0, 0.9999988, 0.1, 1, -0.0051713237, 0, 0, 0.99998665, 0.13333334, 1, -0.010730337, 0, 0, 0.9999424, 0.2, 1, -0.0241737, 0, 0, 0.9997079, 0.23333333, 1, -0.029730864, 0, 0, 0.999558, 0.26666668, 1, -0.033348996, 0, 0, 0.99944377, 0.33333334, 1, -0.033375256, 0, 0, 0.9994429, 0.36666667, 1, -0.030072108, 0, 0, 0.9995478, 0.4, 1, -0.02560547, 0, 0, 0.9996722, 0.43333334, 1, -0.020241605, 0, 0, 0.9997951, 0.46666667, 1, -0.014246981, 0, 0, 0.9998986, 0.5, 1, -0.007888242, 0, 0, 0.9999689, 0.53333336, 1, -0.0015776616, 0, 0, 0.9999988, 0.56666666, 1, 0.0043451306, 0, 0, 0.9999906, 0.6, 1, 0.009774909, 0, 0, 0.9999523, 0.6333333, 1, 0.014622677, 0, 0, 0.9998932, 0.6666667, 1, 0.018815722, 0, 0, 0.999823, 0.7, 1, 0.0219906, 0, 0, 0.9997582, 0.73333335, 1, 0.024292847, 0, 0, 0.99970496, 0.76666665, 1, 0.025649894, 0, 0, 0.999671, 0.8, 1, 0.025632588, 0, 0, 0.99967146, 0.8333333, 1, 0.023455082, 0, 0, 0.9997249, 0.8666667, 1, 0.018262107, 0, 0, 0.9998332, 0.9, 1, 0.012314739, 0, 0, 0.9999242, 0.93333334, 1, 0.006618241, 0, 0, 0.9999781, 0.96666664, 1, 0.0021781696, 0, 0, 0.9999976, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_qj1l1"]
+_data = {
+&"Slide_Head_Bob": SubResource("Animation_y42po")
+}
+
+[node name="Minion" unique_id=1985152823 instance=ExtResource("1_model")]
+script = ExtResource("2_minion")
+WalkAnimationOverride = "Slide_Head_Bob"
+metadata/_edit_pinned_properties_ = [&"WalkAnimationOverride"]
+
+[node name="SpikySnail_Rig" parent="." index="0" unique_id=134947228]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
+
+[node name="AnimationPlayer" parent="." index="1" unique_id=1278065278]
+libraries/ = SubResource("AnimationLibrary_qj1l1")
+
+[node name="SelectionIndicator" parent="." index="2" unique_id=192859155 instance=ExtResource("3_ind")]
+transform = Transform3D(0.6, 0, 0, 0, 0.6, 0, 0, 0, 0.6, 0, 0.04, 0)

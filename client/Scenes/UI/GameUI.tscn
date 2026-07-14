@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cye43qws5a5eo" path="res://Scripts/UI/GameUI.cs" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://7rejd1vlpq5" path="res://Scenes/UI/HealthBars.tscn" id="3_healthbars"]
-[ext_resource type="Texture2D" uid="uid://dv46kholxshye" path="res://Assets/Portraits/snailhead.png" id="3_xkiwj"]
+[ext_resource type="Texture2D" uid="uid://dv46kholxshye" path="res://Assets/Portraits/SnailHead.png" id="3_xkiwj"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_ie3ut"]
 font_size = 32
@@ -222,6 +222,24 @@ offset_right = 160.0
 offset_bottom = 28.0
 theme_override_font_sizes/font_size = 18
 text = "Gold: 0"
+
+[node name="ResourcesLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel" unique_id=142657489]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 32.0
+offset_right = 160.0
+offset_bottom = 56.0
+theme_override_font_sizes/font_size = 18
+text = "Resources: 0"
+
+[node name="StrengthLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel" unique_id=142657490]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 60.0
+offset_right = 160.0
+offset_bottom = 84.0
+theme_override_font_sizes/font_size = 18
+text = "Strength: 0"
 
 [node name="MarginContainer" type="MarginContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection" unique_id=562705946]
 layout_mode = 2

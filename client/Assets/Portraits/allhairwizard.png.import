@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cfi6oqduj7ac2"
-path="res://.godot/imported/allhairwizard.png-39d5bf3639023ab41f33857cc938d4e1.ctex"
+path="res://.godot/imported/AllHairWizard.png-1415ec9d1e02cf3b7a401eaed1b20f1a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/Portraits/allhairwizard.png"
-dest_files=["res://.godot/imported/allhairwizard.png-39d5bf3639023ab41f33857cc938d4e1.ctex"]
+source_file="res://Assets/Portraits/AllHairWizard.png"
+dest_files=["res://.godot/imported/AllHairWizard.png-1415ec9d1e02cf3b7a401eaed1b20f1a.ctex"]
 
 [params]
 

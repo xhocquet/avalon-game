@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://c2taba3kxhnva"
-path="res://.godot/imported/snailhead.glb-27fd50418870428d865c8bcc63c8f383.scn"
+path="res://.godot/imported/snailhead.glb-a7bf97d8ea3909376e5db13cd7264c1a.scn"
 
 [deps]
 
-source_file="res://Assets/Heroes/Snailhead/snailhead.glb"
-dest_files=["res://.godot/imported/snailhead.glb-27fd50418870428d865c8bcc63c8f383.scn"]
+source_file="res://Assets/Heroes/SnailHead/snailhead.glb"
+dest_files=["res://.godot/imported/snailhead.glb-a7bf97d8ea3909376e5db13cd7264c1a.scn"]
 
 [params]
 
@@ -41,7 +41,7 @@ _subresources={
 "materials": {
 "tripo_material_f9967b42-9436-45a1-a3cc-8982a4237430": {
 "use_external/enabled": true,
-"use_external/fallback_path": "res://Assets/Heroes/Snailhead/tripo_material_f9967b42-9436-45a1-a3cc-8982a4237430.tres",
+"use_external/fallback_path": "res://Assets/Heroes/SnailHead/tripo_material_f9967b42-9436-45a1-a3cc-8982a4237430.tres",
 "use_external/path": "uid://v6bg1e7e7bq7"
 }
 },

@@ -8,7 +8,10 @@
 transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)
 script = ExtResource("2_nr8yw")
 
-[node name="Skeleton3D" parent="Armature" parent_id_path=PackedInt32Array(614863133) index="0" unique_id=1902076970]
+[node name="Armature" parent="." index="0" unique_id=614863133]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0.34673035, 0)
+
+[node name="Skeleton3D" parent="Armature" index="0" unique_id=1902076970]
 bones/1/position = Vector3(-0.49685666, -0.008610994, 3.7511633e-08)
 bones/2/rotation = Quaternion(-0.004458361, 0.04289488, 0.99371636, -0.1032864)
 bones/3/rotation = Quaternion(-0.04495596, -0.013380039, -0.34940556, 0.9357968)

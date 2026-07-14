@@ -8,4 +8,5 @@ namespace Meesles.Avalon.Sim.Models;
 public partial struct Inventory : IComponent {
   public int Gold;
   public int GoldAccrualRemainderMs;
+  public int Resources;
 }

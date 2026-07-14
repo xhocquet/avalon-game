@@ -13,13 +13,13 @@ public sealed class FactionCatalog {
 
   public static readonly FactionDef[] FactionDefs = [
     new(FactionHairyWizardsId, "Hairy Wizards",
-      "res://Scenes/Heroes/HairyWizardsHero.tscn",
+      "res://Scenes/Heroes/AllHairWizard.tscn",
       "res://Scenes/Mobs/SwirlyEye.tscn",
-      "res://Assets/Portraits/allhairwizard.png"),
+      "res://Assets/Portraits/AllHairWizard.png"),
     new(FactionShroomsId, "Shrooms",
-      "res://Scenes/Heroes/snailhead.tscn",
-      "res://Scenes/Mobs/spikeysnail.tscn",
-      "res://Assets/Portraits/snailhead.png")
+      "res://Scenes/Heroes/SnailHead.tscn",
+      "res://Scenes/Mobs/DeathSnail.tscn",
+      "res://Assets/Portraits/SnailHead.png")
   ];
 
   private readonly Dictionary<int, FactionData> _byId = new();

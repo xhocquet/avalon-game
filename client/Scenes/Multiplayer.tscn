@@ -7,11 +7,6 @@
 [ext_resource type="PackedScene" uid="uid://clk3ykagonl6k" path="res://Scenes/World/World.tscn" id="6_world"]
 [ext_resource type="PackedScene" uid="uid://viinxjf0q77b" path="res://Scenes/DirectionalLight3D.tscn" id="7_light"]
 [ext_resource type="PackedScene" uid="uid://dy487k8tlwknf" path="res://Scenes/UI/Crosshair.tscn" id="7_ofdpw"]
-[ext_resource type="PackedScene" uid="uid://cfxblhac140rt" path="res://Scenes/Heroes/Snailhead.tscn" id="9_2iiil"]
-[ext_resource type="PackedScene" uid="uid://qwlps32xm1dg" path="res://Scenes/Heroes/AllHairWizard.tscn" id="9_jvn7g"]
-[ext_resource type="PackedScene" uid="uid://b0w0cydbf2ux3" path="res://Scenes/Mobs/biomushy.tscn" id="10_entdg"]
-[ext_resource type="PackedScene" uid="uid://bjr7i1wvs40ug" path="res://Scenes/Mobs/eyeball_flowers.tscn" id="11_gpp7o"]
-[ext_resource type="PackedScene" uid="uid://s8vgmb0tvxtk" path="res://Scenes/Mobs/SwirlyEye.tscn" id="12_gpp7o"]
 
 [node name="Multiplayer" type="Node" unique_id=1309111642]
 script = ExtResource("1_game")
@@ -24,7 +19,7 @@ fov = 58.0
 transform = Transform3D(1, 0, 0, 0, 0.64278764, 0.76604444, 0, -0.76604444, 0.64278764, 0, 14, 8)
 
 [node name="World" parent="." unique_id=90756935 instance=ExtResource("6_world")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.012648582, 4.7683716e-07, -0.0033297539)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.17474425, 0.1663413, -0.17073393)
 
 [node name="GameUI" parent="." unique_id=1799832949 instance=ExtResource("5_gameui")]
 
@@ -32,18 +27,3 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.012648582, 4.7683716e-07, -
 
 [node name="Crosshair" parent="." unique_id=1699635742 instance=ExtResource("7_ofdpw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0.1, -25)
-
-[node name="all_hair_wiz_edited" parent="." unique_id=361300862 instance=ExtResource("9_jvn7g")]
-transform = Transform3D(0.8341478, 0, -1.8177452, 0, 2, 0, 1.8177452, 0, 0.8341478, -1.6647859, 0, -19.107454)
-
-[node name="snailhead" parent="." unique_id=1889546398 instance=ExtResource("9_2iiil")]
-transform = Transform3D(1.4023411, 0, -1.4259871, 0, 2, 0, 1.4259871, 0, 1.4023411, -0.021571636, 0, -19.126831)
-
-[node name="biomushy" parent="." unique_id=865911299 instance=ExtResource("10_entdg")]
-transform = Transform3D(0.9964062, 0, 0.08470386, 0, 1, 0, -0.08470386, 0, 0.9964062, -2.9196515, 0, -18.37574)
-
-[node name="eyeball_flowers" parent="." unique_id=1361654705 instance=ExtResource("11_gpp7o")]
-transform = Transform3D(-0.37761462, 0, -0.9259629, 0, 1, 0, 0.9259629, 0, -0.37761462, 1.5315986, 0.49508387, -19.60076)
-
-[node name="SwirleyEye" parent="." unique_id=2050480386 instance=ExtResource("12_gpp7o")]
-transform = Transform3D(-0.1, 0, 0, 0, 0.1, 0, 0, 0, -0.1, 2.6095319, 0, -20.08374)
