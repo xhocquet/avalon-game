@@ -2,10 +2,9 @@
 
 [ext_resource type="Script" uid="uid://byevh55k3m8nn" path="res://Scripts/GameNode/SingleplayerGameNode.cs" id="1_game"]
 [ext_resource type="PackedScene" uid="uid://bu5kshfajfcmv" path="res://Scenes/UI/GameUI.tscn" id="4_gameui"]
-[ext_resource type="PackedScene" path="res://Scenes/Camera3D.tscn" id="5_camera"]
+[ext_resource type="PackedScene" uid="uid://bhs1kmrnawwhu" path="res://Scenes/Camera3D.tscn" id="5_camera"]
 [ext_resource type="PackedScene" uid="uid://bbvdly6vma5mr" path="res://Scenes/World/WorldEnvironment.tscn" id="6_o4en4"]
 [ext_resource type="PackedScene" uid="uid://clk3ykagonl6k" path="res://Scenes/World/World.tscn" id="6_world"]
-[ext_resource type="PackedScene" uid="uid://viinxjf0q77b" path="res://Scenes/DirectionalLight3D.tscn" id="7_light"]
 [ext_resource type="PackedScene" uid="uid://dy487k8tlwknf" path="res://Scenes/UI/Crosshair.tscn" id="8_crosshair"]
 
 [node name="Singleplayer" type="Node" unique_id=1024759278]
@@ -15,14 +14,11 @@ script = ExtResource("1_game")
 transform = Transform3D(1, 0, 0, 0, 0.52991927, 0.8480481, 0, -0.8480481, 0.52991927, 36, 18, 41.24)
 fov = 58.0
 
-[node name="DirectionalLight3D" parent="." unique_id=100617642 instance=ExtResource("7_light")]
-transform = Transform3D(1, 0, 0, 0, 0.64278764, 0.76604444, 0, -0.76604444, 0.64278764, 0, 14, 8)
-
 [node name="World" parent="." unique_id=1965852601 instance=ExtResource("6_world")]
 
 [node name="GameUI" parent="." unique_id=2027974128 instance=ExtResource("4_gameui")]
 
-[node name="WorldEnvironment" parent="." unique_id=1782293992 instance=ExtResource("6_o4en4")]
-
 [node name="Crosshair" parent="." unique_id=1699635742 instance=ExtResource("8_crosshair")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0.1, -25)
+
+[node name="WorldEnvironment" parent="." unique_id=1782293992 instance=ExtResource("6_o4en4")]

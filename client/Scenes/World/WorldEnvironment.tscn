@@ -1,11 +1,43 @@
 [gd_scene format=3 uid="uid://bbvdly6vma5mr"]
 
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_c454k"]
-sky_top_color = Color(0.07058824, 0.09411765, 0.5372549, 1)
-ground_bottom_color = Color(0.10508404, 0.07717695, 0.011744018, 1)
+[ext_resource type="Shader" uid="uid://bhwohms71lgqr" path="res://Scenes/World/sky.gdshader" id="1_rm2go"]
+[ext_resource type="PackedScene" uid="uid://viinxjf0q77b" path="res://Scenes/DirectionalLight3D.tscn" id="2_dngt1"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dngt1"]
+shader = ExtResource("1_rm2go")
+shader_parameter/day_top_color = Color(0.1, 0.6, 1, 1)
+shader_parameter/day_bottom_color = Color(0.4, 0.8, 1, 1)
+shader_parameter/sunset_top_color = Color(0.7, 0.75, 1, 1)
+shader_parameter/sunset_bottom_color = Color(1, 0.5, 0.7, 1)
+shader_parameter/night_top_color = Color(0.02, 0, 0.04, 1)
+shader_parameter/night_bottom_color = Color(0.1, 0, 0.2, 1)
+shader_parameter/horizon_color = Color(0, 0.7, 0.8, 1)
+shader_parameter/horizon_blur = 0.05
+shader_parameter/sun_color = Color(10, 8, 1, 1)
+shader_parameter/sun_sunset_color = Color(10, 0, 0, 1)
+shader_parameter/sun_size = 0.2
+shader_parameter/sun_blur = 10.0
+shader_parameter/moon_color = Color(1, 0.95, 0.7, 1)
+shader_parameter/moon_size = 0.06
+shader_parameter/moon_blur = 0.1
+shader_parameter/clouds_edge_color = Color(0.8, 0.8, 0.98, 1)
+shader_parameter/clouds_top_color = Color(1, 1, 1, 1)
+shader_parameter/clouds_middle_color = Color(0.92, 0.92, 0.98, 1)
+shader_parameter/clouds_bottom_color = Color(0.83, 0.83, 0.94, 1)
+shader_parameter/clouds_speed = 2.0
+shader_parameter/clouds_direction = 0.2
+shader_parameter/clouds_scale = 1.0
+shader_parameter/clouds_cutoff = 0.3
+shader_parameter/clouds_fuzziness = 0.5
+shader_parameter/clouds_weight = 0.0
+shader_parameter/clouds_blur = 0.25
+shader_parameter/stars_speed = 1.0
+shader_parameter/stars_scale = 1.0
+shader_parameter/stars_opacity = 1.0
+shader_parameter/overwritten_time = 0.0
 
 [sub_resource type="Sky" id="Sky_t46wp"]
-sky_material = SubResource("ProceduralSkyMaterial_c454k")
+sky_material = SubResource("ShaderMaterial_dngt1")
 
 [sub_resource type="Environment" id="Environment_ofdpw"]
 background_mode = 2
@@ -14,3 +46,6 @@ fog_light_energy = 0.1
 
 [node name="WorldEnvironment" type="WorldEnvironment" unique_id=1782293992]
 environment = SubResource("Environment_ofdpw")
+
+[node name="DirectionalLight3D" parent="." unique_id=647415988 instance=ExtResource("2_dngt1")]
+transform = Transform3D(1, 0, 0, 0, -0.9996673, -0.025793076, 0, 0.025793076, -0.9996673, 0, 14, 8)
