@@ -7,8 +7,11 @@ namespace Meesles.Avalon;
 
 public partial class TurretEntity : EntityViewNode, ISelectableTeamView, IAttackableView {
   private const string UnitsGroup = "units";
+  private const string CooldownParam = "fill_value";
 
   private int _teamId = -1;
+  private MeshInstance3D _loadingIndicator;
+  private ShaderMaterial _loadingIndicatorMaterial;
 
   public void OnAttackVfx(Vector3 targetPosition) {
     // TODO: turret fire animation / particles
@@ -24,6 +27,17 @@ public partial class TurretEntity : EntityViewNode, ISelectableTeamView, IAttack
 
   public override void OnInitialize() {
     EntityViewPhysics.DisableGodotCollision(this);
+
+    _loadingIndicator = GetNodeOrNull<MeshInstance3D>("LoadingIndicator");
+    if (_loadingIndicator == null)
+      GD.PushWarning($"{Name}: LoadingIndicator node not found.");
+
+    _loadingIndicatorMaterial = (_loadingIndicator?.Mesh as PrimitiveMesh)?.Material as ShaderMaterial;
+    if (_loadingIndicator != null && _loadingIndicatorMaterial == null)
+      GD.PushWarning($"{Name}: LoadingIndicator mesh has no ShaderMaterial.");
+
+    if (_loadingIndicator != null)
+      _loadingIndicator.Visible = false;
   }
 
   public override void OnActivate(FrameRef frame) {
@@ -41,5 +55,32 @@ public partial class TurretEntity : EntityViewNode, ISelectableTeamView, IAttack
   public override void OnDeactivate() {
     RemoveFromGroup(UnitsGroup);
     _teamId = -1;
+  }
+
+  public override void OnUpdateView() {
+    if (_loadingIndicator == null || Engine == null) return;
+
+    var frame = Engine.PredictedFrame.Frame;
+    if (frame == null || !frame.Has<Combat>(EntityRef)) {
+      SetIndicatorVisible(false);
+      return;
+    }
+
+    ref readonly var combat = ref frame.GetReadOnly<Combat>(EntityRef);
+    SetIndicatorVisible(combat.Target.IsValid);
+    if (!_loadingIndicator.Visible || combat.AttackCooldownTicks <= 0) return;
+
+    var progress = 1f - (float)combat.CooldownRemainingTicks / combat.AttackCooldownTicks;
+    _loadingIndicatorMaterial?.SetShaderParameter(CooldownParam, Mathf.Clamp(progress, 0f, 1f));
+  }
+
+  private bool _lastIndicatorVisible;
+
+  // TODO(debug): remove once the show/hide + cooldown fill is confirmed working in-game.
+  private void SetIndicatorVisible(bool visible) {
+    _loadingIndicator.Visible = visible;
+    if (visible == _lastIndicatorVisible) return;
+    _lastIndicatorVisible = visible;
+    GD.Print($"{Name}: LoadingIndicator visible={visible} (material={(_loadingIndicatorMaterial != null)})");
   }
 }

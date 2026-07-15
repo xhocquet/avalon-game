@@ -3,7 +3,6 @@
 [ext_resource type="Script" uid="uid://byevh55k3m8nn" path="res://Scripts/GameNode/SingleplayerGameNode.cs" id="1_game"]
 [ext_resource type="PackedScene" uid="uid://bu5kshfajfcmv" path="res://Scenes/UI/GameUI.tscn" id="4_gameui"]
 [ext_resource type="PackedScene" uid="uid://bhs1kmrnawwhu" path="res://Scenes/Camera3D.tscn" id="5_camera"]
-[ext_resource type="PackedScene" uid="uid://bbvdly6vma5mr" path="res://Scenes/World/WorldEnvironment.tscn" id="6_o4en4"]
 [ext_resource type="PackedScene" uid="uid://clk3ykagonl6k" path="res://Scenes/World/World.tscn" id="6_world"]
 [ext_resource type="PackedScene" uid="uid://dy487k8tlwknf" path="res://Scenes/UI/Crosshair.tscn" id="8_crosshair"]
 
@@ -20,5 +19,3 @@ fov = 58.0
 
 [node name="Crosshair" parent="." unique_id=1699635742 instance=ExtResource("8_crosshair")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0.1, -25)
-
-[node name="WorldEnvironment" parent="." unique_id=1782293992 instance=ExtResource("6_o4en4")]

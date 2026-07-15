@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://cohxjlrjee2gr" path="res://Scripts/View/TurretEntity.cs" id="2_mum06"]
 [ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="3_indicator"]
 [ext_resource type="Script" uid="uid://jt4rwdk0j6k6" path="res://Scripts/SimMarkerNode.cs" id="4_simmarker"]
+[ext_resource type="Shader" uid="uid://1vr58k1171gu" path="res://Scenes/circle_loading.gdshader" id="5_2ma5j"]
 
 [sub_resource type="Animation" id="Animation_6msbs"]
 resource_name = "Idle"
@@ -41,19 +42,34 @@ _data = {
 &"RESET": SubResource("Animation_2ma5j")
 }
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2iiil"]
+render_priority = 0
+shader = ExtResource("5_2ma5j")
+shader_parameter/aoe_color = Color(1, 0, 0, 0.92156863)
+shader_parameter/width = 0.01
+shader_parameter/fill_value = 0.70000001043084
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_jvn7g"]
+material = SubResource("ShaderMaterial_2iiil")
+center_offset = Vector3(0, 0.1, 0)
+
 [node name="Turret" unique_id=84568969 instance=ExtResource("1_fuepy")]
 script = ExtResource("2_mum06")
-
-[node name="SelectionIndicator" parent="." index="0" unique_id=1086048598 instance=ExtResource("3_indicator")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, 0)
 
 [node name="TurretHead" parent="Model/Rig/RootNode/Turret" parent_id_path=PackedInt32Array(1168158644) index="1" unique_id=1239019222]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 
-[node name="SimMarker" type="Node3D" parent="." index="2" unique_id=84568100]
+[node name="SimMarker" type="Node3D" parent="." index="1" unique_id=84568100]
 script = ExtResource("4_simmarker")
 MarkerType = 3
 
-[node name="TurretAnimationPlayer" type="AnimationPlayer" parent="." index="3" unique_id=911927052]
+[node name="TurretAnimationPlayer" type="AnimationPlayer" parent="." index="2" unique_id=911927052]
 libraries/ = SubResource("AnimationLibrary_hn26q")
 autoplay = &"Idle"
+
+[node name="SelectionIndicator" parent="." index="3" unique_id=1086048598 instance=ExtResource("3_indicator")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, 0)
+
+[node name="LoadingIndicator" type="MeshInstance3D" parent="." index="4" unique_id=1515296209]
+transform = Transform3D(1, 0, 0, 0, 0.365, 0, 0, 0, 1, -0.0015563965, 0.005756378, -0.003035307)
+mesh = SubResource("PlaneMesh_jvn7g")

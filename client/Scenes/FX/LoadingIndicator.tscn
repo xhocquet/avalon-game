@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://dhdprtyxna4ek"]
+
+[ext_resource type="Shader" uid="uid://1vr58k1171gu" path="res://Scenes/circle_loading.gdshader" id="1_7g3i6"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2iiil"]
+render_priority = 0
+shader = ExtResource("1_7g3i6")
+shader_parameter/aoe_color = Color(0.99607843, 0, 0.19607843, 0.7176471)
+shader_parameter/width = 0.01
+shader_parameter/fill_value = 0.70000001043084
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_jvn7g"]
+material = SubResource("ShaderMaterial_2iiil")
+center_offset = Vector3(0, 0.1, 0)
+
+[node name="LoadingIndicator" type="MeshInstance3D" unique_id=1515296209]
+transform = Transform3D(1, 0, 0, 0, 0.365, 0, 0, 0, 1, 0, 0, 0)
+mesh = SubResource("PlaneMesh_jvn7g")

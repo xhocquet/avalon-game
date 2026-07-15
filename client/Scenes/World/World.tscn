@@ -1,5 +1,6 @@
 [gd_scene format=3 uid="uid://clk3ykagonl6k"]
 
+[ext_resource type="PackedScene" uid="uid://bbvdly6vma5mr" path="res://Scenes/World/WorldEnvironment.tscn" id="1_2ytws"]
 [ext_resource type="Shader" uid="uid://dkl23k2monqos" path="res://Scenes/World/world_splatmap.gdshader" id="1_kuxid"]
 [ext_resource type="Texture2D" uid="uid://8e5e6xh3shr0" path="res://Assets/Props/Ground/Grass1/Grass007_2K-JPG_Color.jpg" id="2_7n4rk"]
 [ext_resource type="Texture2D" uid="uid://cnaqlf624yxyb" path="res://Assets/Props/Ground/texture3/ground_0013_color_2k.jpg" id="2_gr3albedo"]
@@ -68,6 +69,8 @@ size = Vector2(100, 100)
 
 [node name="World" type="Node3D" unique_id=1910615875]
 
+[node name="WorldEnvironment" parent="." unique_id=1782293992 instance=ExtResource("1_2ytws")]
+
 [node name="NavigationRegion3D" type="NavigationRegion3D" parent="." unique_id=235732599]
 navigation_mesh = SubResource("NavigationMesh_ayvj0")
 
@@ -84,7 +87,7 @@ transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -30, 0, 40)
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -40, 0, 30)
 
 [node name="Crystal" parent="NavigationRegion3D/Team1" unique_id=971075756 instance=ExtResource("6_ayvj0")]
-transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, -40, 6, 40)
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, -40, 0, 40)
 
 [node name="Spawn" parent="NavigationRegion3D/Team1" unique_id=1750147463 instance=ExtResource("7_2wqcu")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -33.534378, 0, 32.730583)
@@ -103,7 +106,7 @@ transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 30, 0, -40)
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 40, 0, -30)
 
 [node name="Crystal" parent="NavigationRegion3D/Team2" unique_id=123894650 instance=ExtResource("6_ayvj0")]
-transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 40, 6, -40)
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 40, 0, -40)
 
 [node name="Spawn" parent="NavigationRegion3D/Team2" unique_id=170271985 instance=ExtResource("7_2wqcu")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 33.02717, 0, -32.32669)
@@ -141,7 +144,7 @@ transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -30, 0, -40)
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -40, 0, -30)
 
 [node name="Crystal" parent="NavigationRegion3D/Team4" unique_id=1545334481 instance=ExtResource("6_ayvj0")]
-transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, -40, 6, -40)
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, -40, 0, -40)
 
 [node name="Spawn" parent="NavigationRegion3D/Team4" unique_id=1275283759 instance=ExtResource("7_2wqcu")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -35, 0, -35)
