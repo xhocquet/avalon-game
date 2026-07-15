@@ -21,6 +21,11 @@
 [ext_resource type="PackedScene" uid="uid://lsvs8a7urkca" path="res://Scenes/Objects/RockC.tscn" id="9_p7pgw"]
 [ext_resource type="Texture2D" uid="uid://c07674roea6ag" path="res://Assets/Props/Ground/Grass1/Grass007_2K-JPG_Roughness.jpg" id="10_41ig8"]
 [ext_resource type="Texture2D" uid="uid://dyaeoq1mqg00e" path="res://Assets/Props/Ground/splatmap.jpg" id="12_jclsg"]
+[ext_resource type="Texture2D" uid="uid://bhri4xhnx2dw7" path="res://Assets/Props/Ground/texture4/ground_0034_color_2k.jpg" id="13_gr4albedo"]
+[ext_resource type="Texture2D" uid="uid://0hxrtfig6d7" path="res://Assets/Props/Ground/texture4/ground_0034_ao_2k.jpg" id="13_gr4ao"]
+[ext_resource type="Texture2D" uid="uid://igitibmmi60p" path="res://Assets/Props/Ground/texture4/ground_0034_height_2k.png" id="13_gr4height"]
+[ext_resource type="Texture2D" uid="uid://dd5b5uto3lljf" path="res://Assets/Props/Ground/texture4/ground_0034_normal_opengl_2k.png" id="13_gr4normal"]
+[ext_resource type="Texture2D" uid="uid://cicwmpbpcvjpm" path="res://Assets/Props/Ground/texture4/ground_0034_roughness_2k.jpg" id="13_gr4rough"]
 [ext_resource type="PackedScene" uid="uid://c8kx0oasis001" path="res://Scenes/Objects/Oasis.tscn" id="23_oasis"]
 [ext_resource type="PackedScene" uid="uid://3ded1f06hab5" path="res://Scenes/Objects/WaterBottle.tscn" id="23_qs546"]
 
@@ -49,6 +54,12 @@ shader_parameter/ao_g = ExtResource("4_jclsg")
 shader_parameter/roughness_g = ExtResource("10_41ig8")
 shader_parameter/height_g = ExtResource("6_lqys3")
 shader_parameter/resolution_g = 5.0
+shader_parameter/albedo_b = ExtResource("13_gr4albedo")
+shader_parameter/normal_b = ExtResource("13_gr4normal")
+shader_parameter/ao_b = ExtResource("13_gr4ao")
+shader_parameter/roughness_b = ExtResource("13_gr4rough")
+shader_parameter/height_b = ExtResource("13_gr4height")
+shader_parameter/resolution_b = 10.0
 shader_parameter/ground_color = Color(0, 0, 0, 1)
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_ground"]
