@@ -1,0 +1,36 @@
+[gd_scene format=3 uid="uid://cuh0tkyxt3hv"]
+
+[ext_resource type="Shader" uid="uid://vo38g3s24mc7" path="res://Scenes/hex_grid.gdshader" id="1_sfiln"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ofdpw"]
+render_priority = 0
+shader = ExtResource("1_sfiln")
+shader_parameter/scale = 15.0
+shader_parameter/line_speed = 0.3
+shader_parameter/ripple_speed = 1.4
+shader_parameter/line_color = Color(1.3629686, 0.041096203, 0.115050755, 0.972549)
+shader_parameter/ripple_color = Color(0.137, 1.507, 0.425, 0.8)
+shader_parameter/surface_color = Color(0.011764706, 0.18039216, 0.69803923, 0.039215688)
+shader_parameter/sphere_size = 80.0
+shader_parameter/pos1 = Vector3(0, 0, 0)
+shader_parameter/pos2 = Vector3(10000, 10000, 10000)
+shader_parameter/pos3 = Vector3(10000, 10000, 10000)
+shader_parameter/pos4 = Vector3(10000, 10000, 10000)
+shader_parameter/pos5 = Vector3(10000, 10000, 10000)
+shader_parameter/pos6 = Vector3(10000, 10000, 10000)
+
+[sub_resource type="BoxMesh" id="BoxMesh_c454k"]
+material = SubResource("ShaderMaterial_ofdpw")
+size = Vector3(14, 14, 0.1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_sfiln"]
+size = Vector3(14, 14, 0.1)
+
+[node name="HexGate" type="MeshInstance3D" unique_id=1115511473]
+transform = Transform3D(-0.73375356, -6.146729e-08, -0.6794158, 0.0023716372, 0.9999939, -0.0025614058, 0.67941153, -0.003490768, -0.7337493, 0, 0, 0)
+mesh = SubResource("BoxMesh_c454k")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=1930820643]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=1608514237]
+shape = SubResource("BoxShape3D_sfiln")

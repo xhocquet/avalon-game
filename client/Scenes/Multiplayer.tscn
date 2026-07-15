@@ -14,7 +14,6 @@ transform = Transform3D(1, 0, 0, 0, 0.52991927, 0.8480481, 0, -0.8480481, 0.5299
 fov = 58.0
 
 [node name="World" parent="." unique_id=90756935 instance=ExtResource("6_world")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.19699347, 0.12070227, -0.11722517)
 
 [node name="GameUI" parent="." unique_id=1799832949 instance=ExtResource("5_gameui")]
 

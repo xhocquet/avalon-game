@@ -22,6 +22,11 @@ public partial class AvalonBuildExportRunner : RefCounted {
   private const string MapLayoutBytesPath = "res://Sim/Data/MapLayout.bytes";
   private const string MapLayoutJsonPath = "res://Sim/Data/MapLayout.json";
 
+  // Node under NavigationRegion3D whose descendants are hidden to bake the "walls down" navmesh
+  // variant. MeshInstance3D visibility (not collision) is what Godot's default nav bake parses.
+  private const string GatesNodeName = "Gates";
+  private const string OpenNavMeshSuffix = "_Open";
+
   public bool Run(string scenePath = DefaultScenePath) {
     var packed = ResourceLoader.Load<PackedScene>(scenePath);
     if (packed == null) {
@@ -61,8 +66,44 @@ public partial class AvalonBuildExportRunner : RefCounted {
   private static void ExportNavMesh(Node root) {
     var region = FindFirst<NavigationRegion3D>(root);
     if (region == null) throw new InvalidDataException("[AvalonBuildExportRunner] No NavigationRegion3D found.");
+    if (region.NavigationMesh == null)
+      throw new InvalidDataException("[AvalonBuildExportRunner] NavigationRegion3D has no NavigationMesh resource.");
 
-    new GodotFPNavMeshExporter().ExportNavMesh(region);
+    var exporter = new GodotFPNavMeshExporter();
+    var originalName = region.Name;
+
+    // Sealed variant: current scene state, gates block movement. This is the default bake and
+    // keeps the existing "NavigationRegion3D.NavMeshData.bytes" filename/consumer unchanged.
+    GD.Print("[AvalonBuildExportRunner] Baking Sealed navmesh (gates blocking)...");
+    region.BakeNavigationMesh(false);
+    exporter.ExportNavMesh(region);
+
+    var gates = region.GetNodeOrNull<Node3D>(GatesNodeName);
+    if (gates == null) {
+      GD.PushWarning(
+        $"[AvalonBuildExportRunner] No '{GatesNodeName}' node found under NavigationRegion3D; skipping Open navmesh variant.");
+      return;
+    }
+
+    // Open variant: bake parsing walks the scene tree directly and does not respect
+    // MeshInstance3D.Visible or CollisionShape3D.Disabled, so the only reliable way to exclude
+    // the gates is to detach the node from the tree for the rebake, then reattach it at its
+    // original index (index matters: static collider IDs are assigned in tree-walk order).
+    var gatesParent = gates.GetParent();
+    var gatesIndex = gates.GetIndex();
+    gatesParent.RemoveChild(gates);
+    region.Name = $"{originalName}{OpenNavMeshSuffix}";
+    try {
+      GD.Print("[AvalonBuildExportRunner] Baking Open navmesh (gates removed)...");
+      region.BakeNavigationMesh(false);
+      exporter.ExportNavMesh(region);
+    }
+    finally {
+      region.Name = originalName;
+      gatesParent.AddChild(gates);
+      gatesParent.MoveChild(gates, gatesIndex);
+      region.BakeNavigationMesh(false);
+    }
   }
 
   private static void ExportStaticColliders(Node root) {
