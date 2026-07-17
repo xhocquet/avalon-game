@@ -16,7 +16,9 @@ var _scviewer     # GodotFPStaticColliderViewer (C# [Tool][GlobalClass]) — doc
 func _enter_tree() -> void:
 	_tool = KlothoDataAssetConvertTool.new()
 	add_tool_menu_item(MENU_LABEL, Callable(self, "_on_convert"))
-	add_tool_menu_item(NAVMESH_MENU, Callable(self, "_export_navmesh"))
+	# Disabled: this button single-shot exports whatever's currently baked and bypasses the
+	# Open/Closed dual-bake in AvalonBuildExportRunner.ExportNavMesh — use `just export-scene-data`.
+	# add_tool_menu_item(NAVMESH_MENU, Callable(self, "_export_navmesh"))
 	add_tool_menu_item(STATICCOLLIDER_MENU, Callable(self, "_export_static_colliders"))
 
 	_context_menu = KlothoJsonContextMenu.new()
@@ -41,7 +43,7 @@ func _enter_tree() -> void:
 
 func _exit_tree() -> void:
 	remove_tool_menu_item(MENU_LABEL)
-	remove_tool_menu_item(NAVMESH_MENU)
+	# remove_tool_menu_item(NAVMESH_MENU) # disabled above, kept in sync
 	remove_tool_menu_item(STATICCOLLIDER_MENU)
 	remove_context_menu_plugin(_context_menu)
 	remove_tool_menu_item(VISUALIZER_MENU)

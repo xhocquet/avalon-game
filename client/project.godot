@@ -29,7 +29,7 @@ project/assembly_name="Meesles.Avalon.Client"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/klotho/plugin.cfg")
+enabled=PackedStringArray("res://addons/klotho/plugin.cfg", "res://addons/constructive_telegraphs/plugin.cfg")
 
 [input]
 

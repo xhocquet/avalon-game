@@ -18,7 +18,8 @@ public class OasisSpawnSystem : ISystem {
   private const int PrepareDurationMs = 800;
   private const int FlightDurationMs = 700;
   private const int DefaultAmount = 10; // TODO: source from a data asset once amounts need tuning
-  private static readonly FP64 SpawnRadius = FP64.FromInt(4);
+  private const int MaxGroundPickups = 10;
+  private static readonly FP64 SpawnRadius = FP64.FromInt(8);
   private const ulong RandomFeatureKey = 1;
 
   public void Update(ref Frame frame) {
@@ -42,6 +43,10 @@ public class OasisSpawnSystem : ISystem {
         continue;
 
       oasis.SpawnCooldownRemainingMs += SpawnIntervalMs;
+
+      // Ground is full — skip this spawn and retry next interval instead of queuing up.
+      if (CountGroundPickups(ref frame) >= MaxGroundPickups)
+        continue;
 
       ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
       var target = GetRandomTargetPosition(seed, oasis.OasisId, frame.Tick, transform.Position);
@@ -93,6 +98,14 @@ public class OasisSpawnSystem : ISystem {
       RaiseLanded(ref frame, landing.PickupId, landing.TargetPosition, landing.Amount);
       frame.Remove<OasisResourceLanding>(entity);
     }
+  }
+
+  private static int CountGroundPickups(ref Frame frame) {
+    var count = 0;
+    var filter = frame.Filter<Pickup>();
+    while (filter.Next(out _))
+      count++;
+    return count;
   }
 
   private static void SpawnPickup(ref Frame frame, int pickupId, int amount, FPVector3 position) {

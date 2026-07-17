@@ -1,0 +1,70 @@
+[gd_scene load_steps=14 format=3 uid="uid://b0tw3xpl0scn01"]
+
+[ext_resource type="Shader" uid="uid://b0tw3xpl0si0n7" path="res://Scenes/World/botw_explosion.gdshader" id="1_shader"]
+[ext_resource type="Texture2D" path="res://Assets/FX/Explosion/red_edit.png" id="2_red"]
+[ext_resource type="Texture2D" path="res://Assets/FX/Explosion/green_edit.png" id="3_green"]
+[ext_resource type="Texture2D" path="res://Assets/FX/Explosion/blue_edit.png" id="4_blue"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_botw"]
+noise_type = 2
+frequency = 0.04
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_botw"]
+seamless = true
+noise = SubResource("FastNoiseLite_botw")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_botw"]
+render_priority = 0
+shader = ExtResource("1_shader")
+shader_parameter/fire_color = Color(0.99, 0.31, 0.01, 1)
+shader_parameter/fire_strength = 4.3
+shader_parameter/warble_strength = 0.2
+shader_parameter/time_scale = 1.0
+shader_parameter/alpha_scissor = 0.23
+shader_parameter/red_texture = ExtResource("2_red")
+shader_parameter/green_texture = ExtResource("3_green")
+shader_parameter/blue_texture = ExtResource("4_blue")
+shader_parameter/noise_texture = SubResource("NoiseTexture2D_botw")
+
+[sub_resource type="QuadMesh" id="QuadMesh_botw"]
+material = SubResource("ShaderMaterial_botw")
+size = Vector2(1.5, 1.5)
+
+[sub_resource type="Gradient" id="Gradient_botw"]
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(0, 0, 0, 1, 0.25, 0, 0, 1, 1, 0, 0, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_botw"]
+gradient = SubResource("Gradient_botw")
+
+[sub_resource type="Curve" id="Curve_botw"]
+_data = [Vector2(0, 0.3), 0.0, 0.0, 0, 0, Vector2(0.3, 1), 0.0, 0.0, 0, 0, Vector2(1, 0.85), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_botw"]
+curve = SubResource("Curve_botw")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_botw"]
+emission_shape = 1
+emission_sphere_radius = 0.6
+spread = 180.0
+initial_velocity_min = 1.0
+initial_velocity_max = 2.5
+angle_min = -180.0
+angle_max = 180.0
+angular_velocity_min = -120.0
+angular_velocity_max = 120.0
+gravity = Vector3(0, 0, 0)
+scale_min = 1.0
+scale_max = 2.0
+scale_curve = SubResource("CurveTexture_botw")
+color_ramp = SubResource("GradientTexture1D_botw")
+
+[node name="BotwExplosion" type="GPUParticles3D"]
+amount = 24
+lifetime = 1.2
+explosiveness = 1.0
+randomness = 0.15
+fixed_fps = 30
+process_material = SubResource("ParticleProcessMaterial_botw")
+draw_pass_1 = SubResource("QuadMesh_botw")

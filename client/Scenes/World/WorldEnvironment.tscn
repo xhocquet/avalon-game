@@ -48,4 +48,4 @@ fog_light_energy = 0.1
 environment = SubResource("Environment_ofdpw")
 
 [node name="DirectionalLight3D" parent="." unique_id=647415988 instance=ExtResource("2_dngt1")]
-transform = Transform3D(1, 0, 0, 0, -0.9996673, -0.025793076, 0, 0.025793076, -0.9996673, 0, 14, 8)
+transform = Transform3D(1, 0, 0, 0, -0.008726474, 0.9999619, 0, -0.9999619, -0.008726474, 0, 14, 8)

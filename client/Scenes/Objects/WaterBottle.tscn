@@ -3,16 +3,74 @@
 [ext_resource type="Script" uid="uid://h3mjd2vex7vv" path="res://Scripts/View/PickupEntity.cs" id="1_pickup"]
 [ext_resource type="PackedScene" uid="uid://chnhs44116no2" path="res://Assets/Props/Water/WaterBottle.tscn" id="2_lwrxv"]
 [ext_resource type="Script" uid="uid://jt4rwdk0j6k6" path="res://Scripts/SimMarkerNode.cs" id="3_jjo26"]
+[ext_resource type="Shader" uid="uid://bus13us8chvbq" path="res://Scenes/World/botw_explosion.gdshader" id="4_1vgwm"]
+[ext_resource type="Material" uid="uid://yu15n78dr18x" path="res://Assets/FX/WaterExplosionShaderMaterial.tres" id="4_t8004"]
+[ext_resource type="Texture2D" uid="uid://0j1wbqu4ajo" path="res://Assets/FX/Explosion/blue_edit.png" id="5_t8004"]
+[ext_resource type="Texture2D" uid="uid://bkmq2y8jopccn" path="res://Assets/FX/Explosion/green_edit.png" id="6_vsejn"]
+[ext_resource type="Texture2D" uid="uid://drh2njt5ep8pl" path="res://Assets/FX/Explosion/red_edit.png" id="7_nsepp"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_lwrxv"]
 height = 1.2722168
 radius = 0.22216797
 
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_pil"]
+noise_type = 2
+frequency = 0.05
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_pil"]
+noise = SubResource("FastNoiseLite_pil")
+seamless = true
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_pil"]
+render_priority = 0
+shader = ExtResource("4_1vgwm")
+shader_parameter/fire_color = Color(0.05490196, 0.2, 0.8627451, 1)
+shader_parameter/fire_strength = 4.5
+shader_parameter/warble_strength = 0.2
+shader_parameter/time_scale = 1.1
+shader_parameter/alpha_scissor = 0.23
+shader_parameter/red_texture = ExtResource("7_nsepp")
+shader_parameter/green_texture = ExtResource("6_vsejn")
+shader_parameter/blue_texture = ExtResource("5_t8004")
+shader_parameter/noise_texture = SubResource("NoiseTexture2D_pil")
+
+[sub_resource type="QuadMesh" id="QuadMesh_pil"]
+material = SubResource("ShaderMaterial_pil")
+
+[sub_resource type="Animation" id="Animation_vsejn"]
+length = 0.001
+tracks/0/type = "rotation_3d"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = PackedFloat32Array(0, 1, 0, 0, -0.23193465, 0.97273135)
+
+[sub_resource type="Animation" id="Animation_t8004"]
+resource_name = "bottle_spin"
+length = 2.0
+loop_mode = 1
+tracks/0/type = "rotation_3d"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath(".")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = PackedFloat32Array(0, 1, 0, 0, -0.23193465, 0.97273135, 0.06666667, 1, -0.024243811, 0.10167808, -0.23066409, 0.96740264, 0.13333334, 1, -0.048222, 0.20224217, -0.22686633, 0.95147485, 0.2, 1, -0.07167186, 0.30059043, -0.22058296, 0.9251225, 0.26666668, 1, -0.094336465, 0.39564538, -0.21188286, 0.8886343, 0.33333334, 1, -0.1159675, 0.4863655, -0.20086129, 0.84241, 0.4, 1, -0.13632797, 0.5717569, -0.18763907, 0.7869562, 0.46666667, 1, -0.1551948, 0.6508841, -0.17236103, 0.72288024, 0.53333336, 1, -0.1723613, 0.72288007, -0.15519457, 0.6508843, 0.6, 1, -0.18763937, 0.78695595, -0.13632776, 0.57175714, 0.6666667, 1, -0.2008616, 0.8424098, -0.115967326, 0.48636568, 0.73333335, 1, -0.21188317, 0.888634, -0.09433632, 0.39564547, 0.8, 1, -0.22058329, 0.9251222, -0.07167175, 0.3005905, 0.8666667, 1, -0.22686666, 0.9514745, -0.048221923, 0.20224221, 0.93333334, 1, -0.23066443, 0.9674023, -0.024243772, 0.10167811, 1, 1, -0.23193498, 0.97273093, -3.7919888e-17, 1.5903558e-16, 1.0666667, 1, -0.23081814, 0.9680471, 0.022733575, -0.09534436, 1.1333333, 1, -0.22747837, 0.9540403, 0.04524821, -0.18977049, 1.2, 1, -0.22194788, 0.9308456, 0.06732708, -0.28236902, 1.2666667, 1, -0.21427989, 0.8986864, 0.08875756, -0.3722482, 1.3333334, 1, -0.20454827, 0.85787237, 0.10933325, -0.4585424, 1.4, 1, -0.19284675, 0.80879647, 0.12885599, -0.54042053, 1.4666667, 1, -0.17928801, 0.7519315, 0.14713779, -0.6170942, 1.5333333, 1, 0.16400263, -0.687825, -0.16400258, 0.68782496, 1.6, 1, 0.14460894, -0.60648817, -0.18133382, 0.76051205, 1.6666666, 1, 0.12339672, -0.51752436, -0.1963847, 0.8236352, 1.7333333, 1, 0.10063271, -0.42205235, -0.20896593, 0.8764007, 1.8, 1, 0.07660319, -0.32127285, -0.21891926, 0.91814494, 1.8666667, 1, 0.051610332, -0.2164531, -0.22611958, 0.94834304, 1.9333333, 1, 0.025968451, -0.108911365, -0.23047632, 0.9666151, 2, 1, 0, 0, -0.23193465, 0.97273135)
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_vsejn"]
+_data = {
+&"RESET": SubResource("Animation_vsejn"),
+&"bottle_spin": SubResource("Animation_t8004")
+}
+
 [node name="WaterBottle" type="Node3D" unique_id=1051827350]
+transform = Transform3D(0.89241266, 0.45122018, 0, -0.45122018, 0.89241266, 0, 0, 0, 1, 0, 0, 0)
 script = ExtResource("1_pickup")
 
 [node name="Sketchfab_Scene" parent="." unique_id=944152146 instance=ExtResource("2_lwrxv")]
-transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)
+transform = Transform3D(0.10000001, 0, 0, 0, 0.10000001, 0, 0, 0, 0.1, -0.15754496, 0.32595572, 0)
 
 [node name="RigidBody3D" type="RigidBody3D" parent="." unique_id=1498826566]
 
@@ -24,3 +82,16 @@ shape = SubResource("CylinderShape3D_lwrxv")
 script = ExtResource("3_jjo26")
 MarkerType = 5
 Value = 10
+
+[node name="WaterExplosion" type="GPUParticles3D" parent="." unique_id=363630479]
+transform = Transform3D(1.0000004, 0, 0, 0, 1.0000004, 0, 0, 0, 1, -0.0774478, 0.68921185, 0)
+amount = 15
+lifetime = 1.2
+preprocess = 0.2
+explosiveness = 0.05
+randomness = 0.2
+process_material = ExtResource("4_t8004")
+draw_pass_1 = SubResource("QuadMesh_pil")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1827328500]
+libraries/ = SubResource("AnimationLibrary_vsejn")

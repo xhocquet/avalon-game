@@ -1,0 +1,74 @@
+[gd_scene format=3 uid="uid://bus13us71bank"]
+
+[ext_resource type="Shader" uid="uid://b0tw3xpl0si0n7" path="res://Scenes/World/botw_explosion.gdshader" id="1_shader"]
+[ext_resource type="Texture2D" path="res://Assets/FX/Explosion/red_edit.png" id="2_red"]
+[ext_resource type="Texture2D" path="res://Assets/FX/Explosion/green_edit.png" id="3_green"]
+[ext_resource type="Texture2D" path="res://Assets/FX/Explosion/blue_edit.png" id="4_blue"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_ice"]
+noise_type = 2
+frequency = 0.05
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_ice"]
+seamless = true
+noise = SubResource("FastNoiseLite_ice")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ice"]
+render_priority = 0
+shader = ExtResource("1_shader")
+shader_parameter/fire_color = Color(0.25, 0.6, 1.0, 1)
+shader_parameter/fire_strength = 3.6
+shader_parameter/warble_strength = 0.15
+shader_parameter/time_scale = 1.4
+shader_parameter/alpha_scissor = 0.23
+shader_parameter/red_texture = ExtResource("2_red")
+shader_parameter/green_texture = ExtResource("3_green")
+shader_parameter/blue_texture = ExtResource("4_blue")
+shader_parameter/noise_texture = SubResource("NoiseTexture2D_ice")
+
+[sub_resource type="QuadMesh" id="QuadMesh_ice"]
+material = SubResource("ShaderMaterial_ice")
+size = Vector2(1.1, 1.1)
+
+[sub_resource type="Gradient" id="Gradient_ice"]
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(0, 0, 0, 1, 0.15, 0, 0, 1, 0.35, 0, 0, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_ice"]
+gradient = SubResource("Gradient_ice")
+
+[sub_resource type="Curve" id="Curve_ice"]
+_data = [Vector2(0, 0.3), 0.0, 0.0, 0, 0, Vector2(0.3, 1), 0.0, 0.0, 0, 0, Vector2(1, 0.85), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_ice"]
+curve = SubResource("Curve_ice")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_ice"]
+emission_shape = 2
+emission_sphere_radius = 0.45
+spread = 0.0
+initial_velocity_min = 0.0
+initial_velocity_max = 0.0
+radial_velocity_min = 2.5
+radial_velocity_max = 4.5
+angle_min = -180.0
+angle_max = 180.0
+angular_velocity_min = -160.0
+angular_velocity_max = 160.0
+gravity = Vector3(0, 0, 0)
+scale_min = 0.8
+scale_max = 1.6
+scale_curve = SubResource("CurveTexture_ice")
+color_ramp = SubResource("GradientTexture1D_ice")
+
+[node name="BotwExplosionIce" type="GPUParticles3D"]
+amount = 20
+lifetime = 0.9
+explosiveness = 1.0
+randomness = 0.2
+fixed_fps = 30
+speed_scale = 1.5
+preprocess = 0.3
+process_material = SubResource("ParticleProcessMaterial_ice")
+draw_pass_1 = SubResource("QuadMesh_ice")
