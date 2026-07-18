@@ -1,14 +1,33 @@
-[gd_scene format=3 uid="uid://b5g0h0qgofmwe"]
+[gd_scene format=3 uid="uid://ctd5irvpu30tj"]
 
-[ext_resource type="Script" uid="uid://cvasfy5yhl8gr" path="res://Scripts/View/HeroEntity.cs" id="1_hero"]
-[ext_resource type="PackedScene" uid="uid://c2taba3kxhnva" path="res://Assets/Heroes/SnailHead/snailhead.glb" id="2_model"]
-[ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="3_ind"]
+[ext_resource type="PackedScene" uid="uid://c2hwu7hxako5u" path="res://Assets/Heroes/SnailHead/Animated/walking_snailhead_v1.glb" id="1_6ayvj"]
+[ext_resource type="Script" uid="uid://cvasfy5yhl8gr" path="res://Scripts/View/HeroEntity.cs" id="2_hero"]
+[ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="2_lk2n3"]
 
-[node name="Player" type="Node3D" unique_id=1522372430]
-script = ExtResource("1_hero")
+[node name="Player" unique_id=765539556 instance=ExtResource("1_6ayvj")]
+script = ExtResource("2_hero")
+WalkAnimationOverride = "Walk"
+IdleAnimationOverride = "Idle"
 
-[node name="Model" parent="." unique_id=486069964 instance=ExtResource("2_model")]
-transform = Transform3D(1.4862896, 0, -1.3382612, 0, 2, 0, 1.3382612, 0, 1.4862896, 0, 0.99349535, 0)
+[node name="Armature" parent="." index="0" unique_id=1044269809]
+transform = Transform3D(2.1971655, 0, -2.042661, 0, 2.9999998, 0, 2.042661, 0, 2.1971655, 0, 1.4783392, 0)
 
-[node name="SelectionIndicator" parent="." unique_id=261698505 instance=ExtResource("3_ind")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, 0)
+[node name="Skeleton3D" parent="Armature" index="0" unique_id=2030976934]
+bones/0/rotation = Quaternion(0.01845144, 0.03897493, 0.014419424, 0.9989658)
+bones/1/rotation = Quaternion(0.024239076, -0.031169038, -0.027141053, 0.99885154)
+bones/2/rotation = Quaternion(0.01783195, -0.04677064, -0.019166026, 0.99856263)
+bones/3/rotation = Quaternion(-0.0056386264, 9.8976955e-08, 0.0066598943, 0.999962)
+bones/4/rotation = Quaternion(-0.017613837, 0.023395281, 0.021643952, 0.99933684)
+bones/5/rotation = Quaternion(0.97725093, -0.012799415, -0.17159916, 0.123978324)
+bones/6/rotation = Quaternion(-0.2778899, -0.12958562, -0.17751983, 0.9351318)
+bones/7/rotation = Quaternion(0.9610184, -0.20559928, 0.023509933, -0.18335757)
+bones/8/rotation = Quaternion(-0.034621097, 0.027494896, -0.13940623, 0.9892479)
+bones/10/rotation = Quaternion(0.99434453, -0.09802708, -0.020856462, -0.035137385)
+bones/11/rotation = Quaternion(0.1156404, 0.02332236, 0.1807009, 0.9764377)
+bones/12/rotation = Quaternion(-0.6123931, -0.14994106, -0.41872603, 0.6535756)
+bones/13/rotation = Quaternion(0.9732727, 0.22406304, -0.0027833364, 0.050283823)
+bones/14/rotation = Quaternion(-0.039914075, -0.05559539, 0.18158051, 0.98099166)
+bones/15/rotation = Quaternion(0.58042586, 0.33994934, 0.5759534, -0.46456215)
+
+[node name="SelectionIndicator" parent="." index="2" unique_id=2143077504 instance=ExtResource("2_lk2n3")]
+transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, 0, 0.04, 0)

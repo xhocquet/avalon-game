@@ -32,6 +32,7 @@
 [ext_resource type="PackedScene" uid="uid://cuh0tkyxt3hv" path="res://Scenes/FX/HexGate.tscn" id="29_3a4wv"]
 [ext_resource type="PackedScene" uid="uid://80mcbhomjk3l" path="res://Scenes/FX/HotSpring.tscn" id="31_s1o57"]
 [ext_resource type="Texture2D" uid="uid://crf7v0er3rxt8" path="res://Assets/Props/Water/foam_mask.png" id="33_h71dq"]
+[ext_resource type="PackedScene" uid="uid://ctd5irvpu30tj" path="res://Scenes/Heroes/SnailHead.tscn" id="39_3r7l7"]
 [ext_resource type="Shader" uid="uid://l0uvbj0raqeo" path="res://Scenes/World/cartoon_fire.gdshader" id="40_fire"]
 [ext_resource type="PackedScene" uid="uid://bus13us8cbjnk" path="res://Scenes/FX/BotwExplosion.tscn" id="41_boom"]
 [ext_resource type="PackedScene" uid="uid://bus13us71bank" path="res://Scenes/FX/BotwExplosionIce.tscn" id="42_boomice"]
@@ -708,3 +709,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -37.024994, 3.5, 43.146317)
 
 [node name="BotwExplosionPillar2" parent="FireShowcase" unique_id=1852293721 instance=ExtResource("45_boompil")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40.29437, 2, 30.58073)
+
+[node name="Player" parent="." unique_id=765539556 instance=ExtResource("39_3r7l7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.108299, 0, -9.105307)

@@ -2,9 +2,9 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c5wiirt7bslg5"
-path.s3tc="res://.godot/imported/snailhead_walk_Color_f9967b42-9436-45a1-a3cc-8982a4237430.jpg-c78e99edcbfb9d640f4710ab7f3934a9.s3tc.ctex"
-path.etc2="res://.godot/imported/snailhead_walk_Color_f9967b42-9436-45a1-a3cc-8982a4237430.jpg-c78e99edcbfb9d640f4710ab7f3934a9.etc2.ctex"
+uid="uid://dsedysn28mam1"
+path.s3tc="res://.godot/imported/walking_snailhead_v1_Color_f9967b42-9436-45a1-a3cc-8982a4237430.jpg-e96db123bd47313eec7d0cf87d57dd90.s3tc.ctex"
+path.etc2="res://.godot/imported/walking_snailhead_v1_Color_f9967b42-9436-45a1-a3cc-8982a4237430.jpg-e96db123bd47313eec7d0cf87d57dd90.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://Assets/Heroes/SnailHead/snailhead_walk_Color_f9967b42-9436-45a1-a3cc-8982a4237430.jpg"
-dest_files=["res://.godot/imported/snailhead_walk_Color_f9967b42-9436-45a1-a3cc-8982a4237430.jpg-c78e99edcbfb9d640f4710ab7f3934a9.s3tc.ctex", "res://.godot/imported/snailhead_walk_Color_f9967b42-9436-45a1-a3cc-8982a4237430.jpg-c78e99edcbfb9d640f4710ab7f3934a9.etc2.ctex"]
+source_file="res://Assets/Heroes/SnailHead/Animated/walking_snailhead_v1_Color_f9967b42-9436-45a1-a3cc-8982a4237430.jpg"
+dest_files=["res://.godot/imported/walking_snailhead_v1_Color_f9967b42-9436-45a1-a3cc-8982a4237430.jpg-e96db123bd47313eec7d0cf87d57dd90.s3tc.ctex", "res://.godot/imported/walking_snailhead_v1_Color_f9967b42-9436-45a1-a3cc-8982a4237430.jpg-e96db123bd47313eec7d0cf87d57dd90.etc2.ctex"]
 
 [params]
 

@@ -13,6 +13,7 @@ public partial class HeroEntity : EntityViewNode, ISelectableTeamView, IPlayerVi
   private const string AnimDeath = "SK_PlayerDefault_ao|A_Player_Death";
 
   [Export] public string WalkAnimationOverride { get; set; } = "";
+  [Export] public string IdleAnimationOverride { get; set; } = "";
 
   // Selection hitbox in world metres. Leave <= 0 to auto-derive from mesh bounds (unreliable for
   // skinned meshes). See EntityViewPhysics.AddSelectionCollider.
@@ -25,6 +26,7 @@ public partial class HeroEntity : EntityViewNode, ISelectableTeamView, IPlayerVi
   private int _teamId = -1;
 
   private string WalkAnim => string.IsNullOrEmpty(WalkAnimationOverride) ? AnimWalk : WalkAnimationOverride;
+  private string IdleAnim => string.IsNullOrEmpty(IdleAnimationOverride) ? AnimIdle : IdleAnimationOverride;
 
   // Play() is a silent no-op when the name isn't on this model's AnimationPlayer (e.g. a rig with only
   // a walk clip), which would otherwise leave whatever animation last played stuck looping forever.
@@ -72,7 +74,7 @@ public partial class HeroEntity : EntityViewNode, ISelectableTeamView, IPlayerVi
     AddToGroup(UnitsGroup);
     _isMoving = false;
     _isDead = false;
-    if (_anim != null) PlayOrStop(AnimIdle);
+    if (_anim != null) PlayOrStop(IdleAnim);
 
     var live = frame.Frame;
     if (live != null && live.Has<Unit>(EntityRef))
@@ -101,7 +103,7 @@ public partial class HeroEntity : EntityViewNode, ISelectableTeamView, IPlayerVi
     if (dead != _isDead) {
       _isDead = dead;
       _isMoving = false;
-      PlayOrStop(_isDead ? AnimDeath : AnimIdle);
+      PlayOrStop(_isDead ? AnimDeath : IdleAnim);
     }
 
     if (_isDead)
@@ -110,7 +112,7 @@ public partial class HeroEntity : EntityViewNode, ISelectableTeamView, IPlayerVi
     var moving = frame.Has<UnitMoveTarget>(EntityRef);
     if (moving == _isMoving) return;
     _isMoving = moving;
-    PlayOrStop(_isMoving ? WalkAnim : AnimIdle);
+    PlayOrStop(_isMoving ? WalkAnim : IdleAnim);
   }
 
   public override bool OwnerMatches(int ownerId) {
