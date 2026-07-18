@@ -9,10 +9,6 @@ internal static class EntityViewPhysics {
   // affect the game. InputCapture raycasts against this mask; nothing else touches it.
   public const uint SelectionLayer = 1u << 19;
 
-  // Debug aid: draw a translucent mesh matching each pick capsule and log its derived size. Flip off
-  // once selection hitboxes look right.
-  public static bool DrawSelectionColliders = true;
-
   private const string SelectionColliderName = "SelectionPickArea";
 
   public static void DisableGodotCollision(Node node) {
@@ -69,7 +65,7 @@ internal static class EntityViewPhysics {
     });
     view.AddChild(area);
 
-    if (DrawSelectionColliders) {
+    if (DebugConfig.DrawSelectionColliders) {
       GD.Print($"[selection] {view.Name}: radius={radius:0.00} height={height:0.00} " +
                $"local-aabb={aabb.Size} view-scale={view.Scale} view-globalscale={view.GlobalTransform.Basis.Scale}");
       area.AddChild(new MeshInstance3D {
