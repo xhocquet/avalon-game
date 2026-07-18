@@ -30,7 +30,8 @@ _data = {
 [node name="Minion" unique_id=1985152823 instance=ExtResource("1_model")]
 script = ExtResource("2_minion")
 WalkAnimationOverride = "Slide_Head_Bob"
-metadata/_edit_pinned_properties_ = [&"WalkAnimationOverride"]
+IdleAnimationOverride = "Slide_Head_Bob"
+metadata/_edit_pinned_properties_ = [&"WalkAnimationOverride", &"IdleAnimationOverride"]
 
 [node name="SpikySnail_Rig" parent="." index="0" unique_id=134947228]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)

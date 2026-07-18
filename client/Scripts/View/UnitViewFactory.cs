@@ -39,7 +39,8 @@ public class UnitViewFactory : EntityViewFactory {
   }
 
   // Heroes carry Faction directly; other faction-aligned units (minions) inherit it from their
-  // team's pick. Returns 0 (catalog fallback) when neither is available.
+  // team's pick. Returns 0 when neither is available — an id the catalog doesn't register, so
+  // Resolve throws and surfaces the mis-configured unit rather than rendering a placeholder.
   private static int ResolveFactionId(Frame frame, EntityRef entity) {
     if (frame.Has<Faction>(entity))
       return frame.GetReadOnly<Faction>(entity).FactionId;

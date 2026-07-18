@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://c2hwu7hxako5u"
-path="res://.godot/imported/walking_snailhead_v1.glb-a13920688a0d40388eb49c39e4ef98ae.scn"
+path="res://.godot/imported/walking_snailhead_v1.glb-6b6f25ab7d875ffe05f541124f528053.scn"
 
 [deps]
 
-source_file="res://Assets/Heroes/SnailHead/Animated/walking_snailhead_v1.glb"
-dest_files=["res://.godot/imported/walking_snailhead_v1.glb-a13920688a0d40388eb49c39e4ef98ae.scn"]
+source_file="res://Assets/Heroes/SnailHead/walking_snailhead_v1.glb"
+dest_files=["res://.godot/imported/walking_snailhead_v1.glb-6b6f25ab7d875ffe05f541124f528053.scn"]
 
 [params]
 

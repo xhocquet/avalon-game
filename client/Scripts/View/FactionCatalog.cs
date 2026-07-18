@@ -23,18 +23,21 @@ public sealed class FactionCatalog {
   ];
 
   private readonly Dictionary<int, FactionData> _byId = new();
-  private readonly FactionData _fallback;
 
-  private FactionCatalog(IEnumerable<FactionData> entries, FactionData fallback) {
-    _fallback = fallback;
+  private FactionCatalog(IEnumerable<FactionData> entries) {
     foreach (var e in entries)
       _byId[e.FactionId] = e;
   }
 
   public IReadOnlyCollection<FactionData> Entries => _byId.Values;
 
+  // Every renderable faction-aligned unit is expected to carry a registered faction id (heroes stamp
+  // Faction at spawn; minions derive it from their team). An unknown id means a mis-configured unit,
+  // so fail fast rather than silently substituting a placeholder.
   public FactionData Resolve(int factionId) {
-    return _byId.GetValueOrDefault(factionId, _fallback);
+    return _byId.TryGetValue(factionId, out var entry)
+      ? entry
+      : throw new KeyNotFoundException($"No faction registered for id {factionId}.");
   }
 
   // Loads the scenes for the roster. Called wherever the view factory / prewarm needs scenes
@@ -50,14 +53,7 @@ public sealed class FactionCatalog {
         PortraitTexture = GD.Load<Texture2D>(def.PortraitTexturePath)
       });
 
-    var fallback = new FactionData {
-      FactionId = 0,
-      DisplayName = "Unknown",
-      HeroScene = GD.Load<PackedScene>("res://Scenes/Dummy.tscn"),
-      MinionScene = GD.Load<PackedScene>("res://Scenes/Mobs/SwirlyEye.tscn"),
-      PortraitTexture = null
-    };
-    return new FactionCatalog(entries, fallback);
+    return new FactionCatalog(entries);
   }
 
   public readonly struct FactionDef(

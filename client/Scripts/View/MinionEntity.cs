@@ -13,6 +13,7 @@ public partial class MinionEntity : EntityViewNode, ISelectableTeamView, IAttack
   private static readonly Quaternion FlipY = new(Vector3.Up, Mathf.Pi);
 
   [Export] public string WalkAnimationOverride { get; set; } = "";
+  [Export] public string IdleAnimationOverride { get; set; } = "";
 
   // Selection hitbox in world metres. Leave <= 0 to auto-derive from mesh bounds (unreliable for
   // skinned meshes). See EntityViewPhysics.AddSelectionCollider.
@@ -25,6 +26,7 @@ public partial class MinionEntity : EntityViewNode, ISelectableTeamView, IAttack
   private int _teamId = -1;
 
   private string RunAnim => string.IsNullOrEmpty(WalkAnimationOverride) ? AnimRun : WalkAnimationOverride;
+  private string IdleAnim => string.IsNullOrEmpty(IdleAnimationOverride) ? AnimIdle : IdleAnimationOverride;
 
   // Play() is a silent no-op when the name isn't on this model's AnimationPlayer (e.g. a rig with only
   // a single custom-named clip), which would otherwise leave whatever animation last played stuck looping.
@@ -61,7 +63,7 @@ public partial class MinionEntity : EntityViewNode, ISelectableTeamView, IAttack
       var runAnim = _anim.GetAnimation(RunAnim);
       if (runAnim != null)
         runAnim.LoopMode = Animation.LoopModeEnum.Linear;
-      var idleAnim = _anim.GetAnimation(AnimIdle);
+      var idleAnim = _anim.GetAnimation(IdleAnim);
       if (idleAnim != null)
         idleAnim.LoopMode = Animation.LoopModeEnum.Linear;
     }
@@ -70,7 +72,7 @@ public partial class MinionEntity : EntityViewNode, ISelectableTeamView, IAttack
   public override void OnActivate(FrameRef frame) {
     AddToGroup(UnitsGroup);
     _isMoving = false;
-    if (_anim != null) PlayOrStop(AnimIdle);
+    if (_anim != null) PlayOrStop(IdleAnim);
 
     var live = frame.Frame;
     if (live != null && live.Has<Unit>(EntityRef))
@@ -98,7 +100,7 @@ public partial class MinionEntity : EntityViewNode, ISelectableTeamView, IAttack
     var moving = frame.Has<UnitMoveTarget>(EntityRef);
     if (moving == _isMoving) return;
     _isMoving = moving;
-    PlayOrStop(_isMoving ? RunAnim : AnimIdle);
+    PlayOrStop(_isMoving ? RunAnim : IdleAnim);
   }
 
   public override void OnLateUpdateView() {

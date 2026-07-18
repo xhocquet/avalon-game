@@ -1,8 +1,0 @@
-[gd_resource type="StandardMaterial3D" format=3 uid="uid://v6bg1e7e7bq7"]
-
-[ext_resource type="Texture2D" uid="uid://dnjgtw5hynbe6" path="res://Assets/Heroes/SnailHead/snailhead_Color_f9967b42-9436-45a1-a3cc-8982a4237430.jpg" id="1_m2wdb"]
-
-[resource]
-resource_name = "tripo_material_f9967b42-9436-45a1-a3cc-8982a4237430"
-albedo_texture = ExtResource("1_m2wdb")
-roughness = 0.9
