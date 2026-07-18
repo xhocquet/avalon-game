@@ -246,7 +246,7 @@ public class InputCapture : IDisposable {
   }
 
   private void SelectNearestOwnedView(Vector2 screenPosition) {
-    ApplySingleSelection(PickView(screenPosition, CanSelectView) ?? GetFallbackFocusView());
+    ApplySingleSelection(PickView(screenPosition, CanClickSelectView) ?? GetFallbackFocusView());
   }
 
   // Raycast the mouse ray against each view's selection capsule (EntityViewPhysics.SelectionLayer) and
@@ -343,6 +343,18 @@ public class InputCapture : IDisposable {
     if (_gameUI == null) return;
 
     var view = _selectedViews.Count > 0 ? _selectedViews[0] : null;
+
+    // Named props/structures (turret, crystal, shop, fountain, pickup) show their own label. If the
+    // named view also resolves a faction (not currently the case for these) we reuse its portrait,
+    // otherwise the label stands alone with no portrait texture.
+    if (view is INamedView named) {
+      Texture2D portrait = null;
+      if (_factions != null && TryResolveHeroFactionId(view, out var namedFactionId))
+        portrait = _factions.Resolve(namedFactionId).PortraitTexture;
+      _gameUI.SetFocusPortrait(portrait, named.DisplayName);
+      return;
+    }
+
     if (_factions != null && view != null && TryResolveHeroFactionId(view, out var factionId)) {
       var entry = _factions.Resolve(factionId);
       _gameUI.SetFocusPortrait(entry.PortraitTexture, entry.DisplayName);
@@ -396,6 +408,14 @@ public class InputCapture : IDisposable {
 
   private bool CanSelectView(EntityViewNode view) {
     return ViewTeamMatches(view) && IsControllableView(view);
+  }
+
+  // Single-click selection is broader than command selection: besides the player's own controllable
+  // units, any named view (structures, props, pickups) can be clicked to inspect it and surface its
+  // name in the focus portrait. Box-select and move/attack commands still use CanSelectView, so
+  // inspecting a structure never pulls it into a command group.
+  private bool CanClickSelectView(EntityViewNode view) {
+    return CanSelectView(view) || view is INamedView;
   }
 
   private static Rect2 GetSelectionRectangle(Vector2 start, Vector2 end) {

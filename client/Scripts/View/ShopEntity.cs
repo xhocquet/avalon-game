@@ -1,0 +1,39 @@
+using Godot;
+using xpTURN.Klotho.Godot;
+
+namespace Meesles.Avalon;
+
+// View entity for the team shops. Unlike the pooled, sim-bound views (Crystal/Turret) the shop is
+// placed statically in the level (World.tscn, under each TeamN folder) and never goes through the
+// view pool, so OnInitialize/OnActivate never fire — the pick collider and team wiring are set up in
+// _Ready instead (same lifecycle as StaticSelectableProp, and the legacy SimMarkerNode selection
+// hack this replaces). A nested "SimMarker" child still drives map-layout export; this root only
+// owns the view/selection/logic. Gameplay collision authored on the glb is left intact (we do NOT
+// DisableGodotCollision here).
+[Tool]
+[GlobalClass]
+public partial class ShopEntity : EntityViewNode, ISelectableTeamView, INamedView {
+  public string DisplayName => "Shop";
+
+  // Owning team for this shop. Set per-instance in World.tscn; the SimMarker export derives its own
+  // team from the TeamN folder independently. -1 leaves the shop team-neutral for selection.
+  [Export] public int Team { get; set; } = -1;
+
+  // Selection hitbox in world metres. Leave <= 0 to auto-derive from the visible mesh bounds (the
+  // shop is a static, non-skinned mesh so its AABB is reliable); set explicitly to fine-tune.
+  [Export] public float SelectPickRadius { get; set; } = -1.0f;
+  [Export] public float SelectPickHeight { get; set; } = -1.0f;
+
+  public bool TeamMatches(int teamId) {
+    return Team == teamId;
+  }
+
+  public override void _Ready() {
+    base._Ready();
+    if (Godot.Engine.IsEditorHint())
+      return;
+
+    EntityViewPhysics.AddSelectionCollider(this, SelectPickRadius, SelectPickHeight);
+    GetNodeOrNull<SelectionIndicator>("SelectionIndicator")?.SetTeamId(Team);
+  }
+}

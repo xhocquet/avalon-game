@@ -5,13 +5,14 @@ using xpTURN.Klotho.Godot;
 
 namespace Meesles.Avalon;
 
-public partial class TurretEntity : EntityViewNode, ISelectableTeamView, IAttackableView {
+public partial class TurretEntity : EntityViewNode, ISelectableTeamView, IAttackableView, INamedView {
   private const string UnitsGroup = "units";
   private const string CooldownParam = "fill_value";
 
-  // Selection hitbox in world metres. Leave <= 0 to auto-derive from mesh bounds.
-  [Export] public float SelectPickRadius { get; set; } = 0.8f;
-  [Export] public float SelectPickHeight { get; set; } = 2.5f;
+  public string DisplayName => "Turret";
+
+  [Export] public float SelectPickRadius { get; set; } = 1.2f;
+  [Export] public float SelectPickHeight { get; set; } = 4.5f;
 
   private int _teamId = -1;
   private MeshInstance3D _loadingIndicator;

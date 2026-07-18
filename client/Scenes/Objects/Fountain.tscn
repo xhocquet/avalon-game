@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://c4um04dyla66r"]
 
 [ext_resource type="PackedScene" uid="uid://ca0h8xysyukyh" path="res://Assets/Props/Fountain/abandoned_fountain.glb" id="1_uu4dh"]
+[ext_resource type="Script" uid="uid://cselectprop0prop" path="res://Scripts/View/StaticSelectableProp.cs" id="2_prop"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_uu4dh"]
 radius = 0.015136719
@@ -8,6 +9,8 @@ height = 0.05
 
 [node name="model" unique_id=73074752 instance=ExtResource("1_uu4dh")]
 transform = Transform3D(100, 0, 0, 0, 100, 0, 0, 0, 100, 0, 0, 0)
+script = ExtResource("2_prop")
+PropName = "Fountain"
 
 [node name="StaticBody3D" type="StaticBody3D" parent="." index="1" unique_id=2095786218]
 

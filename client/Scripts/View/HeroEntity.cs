@@ -15,10 +15,8 @@ public partial class HeroEntity : EntityViewNode, ISelectableTeamView, IPlayerVi
   [Export] public string WalkAnimationOverride { get; set; } = "";
   [Export] public string IdleAnimationOverride { get; set; } = "";
 
-  // Selection hitbox in world metres. Leave <= 0 to auto-derive from mesh bounds (unreliable for
-  // skinned meshes). See EntityViewPhysics.AddSelectionCollider.
-  [Export] public float SelectPickRadius { get; set; } = 0.6f;
-  [Export] public float SelectPickHeight { get; set; } = 2.0f;
+  [Export] public float SelectPickRadius { get; set; } = -1.0f;
+  [Export] public float SelectPickHeight { get; set; } = -1.0f;
 
   private AnimationPlayer _anim;
   private bool _isDead;

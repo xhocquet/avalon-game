@@ -1,9 +1,16 @@
+using Godot;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Godot;
 
 namespace Meesles.Avalon;
 
-public partial class PickupEntity : EntityViewNode {
+public partial class PickupEntity : EntityViewNode, INamedView {
+  // Selection hitbox in world metres, sized to the standing water bottle. Leave <= 0 to auto-derive.
+  [Export] public float SelectPickRadius { get; set; } = 0.4f;
+  [Export] public float SelectPickHeight { get; set; } = 1.4f;
+
+  public string DisplayName => "Water Bottle";
+
   // This scene also gets placed directly in the level (World.tscn) purely so
   // GodotFPMapLayoutExporter can read its position/MarkerType/Value; those placements never go
   // through the view pool, so OnInitialize/OnActivate never fire for them. Without this, a
@@ -21,6 +28,7 @@ public partial class PickupEntity : EntityViewNode {
 
   public override void OnInitialize() {
     EntityViewPhysics.DisableGodotCollision(this);
+    EntityViewPhysics.AddSelectionCollider(this, SelectPickRadius, SelectPickHeight);
   }
 
   public override void OnActivate(FrameRef frame) {

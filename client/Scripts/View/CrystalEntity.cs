@@ -5,12 +5,13 @@ using xpTURN.Klotho.Godot;
 
 namespace Meesles.Avalon;
 
-public partial class CrystalEntity : EntityViewNode, ISelectableTeamView, IAttackableView {
+public partial class CrystalEntity : EntityViewNode, ISelectableTeamView, IAttackableView, INamedView {
   private const string UnitsGroup = "units";
 
-  // Selection hitbox in world metres. Leave <= 0 to auto-derive from mesh bounds.
-  [Export] public float SelectPickRadius { get; set; } = 1.0f;
-  [Export] public float SelectPickHeight { get; set; } = 2.0f;
+  public string DisplayName => "Crystal";
+
+  [Export] public float SelectPickRadius { get; set; } = -1.0f;
+  [Export] public float SelectPickHeight { get; set; } = -1.0f;
 
   private int _teamId = -1;
 

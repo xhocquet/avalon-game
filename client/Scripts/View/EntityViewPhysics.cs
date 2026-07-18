@@ -11,7 +11,7 @@ internal static class EntityViewPhysics {
 
   // Debug aid: draw a translucent mesh matching each pick capsule and log its derived size. Flip off
   // once selection hitboxes look right.
-  public static bool DrawSelectionColliders = false;
+  public static bool DrawSelectionColliders = true;
 
   private const string SelectionColliderName = "SelectionPickArea";
 

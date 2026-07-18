@@ -15,8 +15,6 @@ public partial class MinionEntity : EntityViewNode, ISelectableTeamView, IAttack
   [Export] public string WalkAnimationOverride { get; set; } = "";
   [Export] public string IdleAnimationOverride { get; set; } = "";
 
-  // Selection hitbox in world metres. Leave <= 0 to auto-derive from mesh bounds (unreliable for
-  // skinned meshes). See EntityViewPhysics.AddSelectionCollider.
   [Export] public float SelectPickRadius { get; set; } = 0.5f;
   [Export] public float SelectPickHeight { get; set; } = 1.2f;
 

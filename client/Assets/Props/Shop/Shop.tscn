@@ -1,8 +1,12 @@
 [gd_scene format=3 uid="uid://d1k4fk8laqf34"]
 
 [ext_resource type="PackedScene" uid="uid://cejod2af1omor" path="res://Assets/Props/Shop/shop.glb" id="1_7j2oq"]
-[ext_resource type="Script" uid="uid://jt4rwdk0j6k6" path="res://Scripts/SimMarkerNode.cs" id="2_bpadh"]
+[ext_resource type="Script" uid="uid://cshopentity0view" path="res://Scripts/View/ShopEntity.cs" id="2_shop"]
+[ext_resource type="Script" uid="uid://jt4rwdk0j6k6" path="res://Scripts/SimMarkerNode.cs" id="3_bpadh"]
 
-[node name="Sketchfab_Scene" unique_id=361766017 instance=ExtResource("1_7j2oq")]
-script = ExtResource("2_bpadh")
+[node name="Shop" unique_id=361766017 instance=ExtResource("1_7j2oq")]
+script = ExtResource("2_shop")
+
+[node name="SimMarker" type="Node3D" parent="." index="0" unique_id=361766018]
+script = ExtResource("3_bpadh")
 MarkerType = 2
