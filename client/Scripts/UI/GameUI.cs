@@ -33,6 +33,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private Camera3D _minimapCamera;
   private TextureRect _portraitTexture;
   private Label _portraitLabel;
+  private Texture2D _portraitPlaceholder;
   [Export] public float FocusRingRadiusPx { get; set; } = 52.0f;
   [Export] public float FocusRingWidthPx { get; set; } = 2.5f;
   [Export] public Color FocusRingColor { get; set; } = new(0.88f, 0.72f, 0.22f, 0.92f);
@@ -258,16 +259,21 @@ public partial class GameUI : CanvasLayer, IViewHud {
 
   // Driven by InputCapture's selection system - shows the portrait of the currently selected
   // hero. All heroes of a faction currently share one portrait, so this resolves per-faction
-  // rather than per-hero; revisit once each hero gets its own art.
+  // rather than per-hero; revisit once each hero gets its own art. When nothing is mapped we
+  // fall back to a TODO placeholder so the portrait slot never renders blank.
   public void SetFocusPortrait(Texture2D texture, string label) {
     if (_portraitTexture != null) {
-      _portraitTexture.Texture = texture;
-      _portraitTexture.Visible = texture != null;
+      var resolved = texture ?? PortraitPlaceholder;
+      _portraitTexture.Texture = resolved;
+      _portraitTexture.Visible = resolved != null;
     }
 
     if (_portraitLabel != null)
       _portraitLabel.Text = label ?? string.Empty;
   }
+
+  private Texture2D PortraitPlaceholder =>
+    _portraitPlaceholder ??= GD.Load<Texture2D>("res://Assets/Portraits/TODO.png");
 
   public void SetSelectionRectangle(Rect2? rectangle) {
     if (_selectionRectangle == null) return;
