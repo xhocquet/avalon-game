@@ -32,16 +32,15 @@ public static class SimulationSetup {
     simulation.AddSystem(new StatsSystem(), SystemPhase.Update);
     simulation.AddSystem(new OasisSpawnSystem(), SystemPhase.Update);
     simulation.AddSystem(new PickupSystem(), SystemPhase.Update);
-
     simulation.AddSystem(new TargetAcquisitionSystem(), SystemPhase.Update);
     simulation.AddSystem(new RespawnSystem(), SystemPhase.Update);
     if (navigation != null)
       simulation.AddSystem(new NavigationAgentSystem(navigation), SystemPhase.Update);
-
     simulation.AddSystem(new AttackIntentSystem(), SystemPhase.Update);
     simulation.AddSystem(new AttackCooldownSystem(), SystemPhase.Update);
     simulation.AddSystem(new DamageSystem(), SystemPhase.Update);
     simulation.AddSystem(new DeathSystem(), SystemPhase.Update);
+
     simulation.AddSystem(new ScoreSystem(), SystemPhase.LateUpdate);
     simulation.AddSystem(new EventSystem(), SystemPhase.LateUpdate);
   }
@@ -51,10 +50,7 @@ public static class SimulationSetup {
     InitializeWorld(ref frame, maxPlayers);
   }
 
-  // spawnHeroesNow: when true, heroes are created immediately with the default faction (used by
-  // the headless test/loadtest harness where picks are pre-resolved). When false (the networked
-  // lobby flow), a PlayerFaction slot is seeded per player and HeroSpawnSystem spawns the hero
-  // once the player's SelectFactionCommand lands, so the Faction is known at spawn time.
+  // spawnHeroesNow: use default factions or selected ones
   public static void InitializeWorld(ref Frame frame, int maxPlayers, bool spawnHeroesNow = false) {
     UnitIdGenerator.Initialize(ref frame);
     var playerIds = GetPlayerIds(ref frame, maxPlayers);
@@ -66,12 +62,9 @@ public static class SimulationSetup {
       var teamId = playerIndex + 1;
 
       if (spawnHeroesNow) {
-        // Immediate path (headless harness): spawn exactly as before so entity layout — and
-        // therefore nav-agent indexing and state hashes — is identical to a heroes-at-init world.
         SpawnHero(ref frame, playerId, teamId, DefaultFactionId);
       }
       else {
-        // Deferred path: seed a pick slot; HeroSpawnSystem spawns the hero once it's confirmed.
         var slot = frame.CreateEntity();
         frame.Add(slot, new PlayerFaction {
           PlayerId = playerId,
@@ -87,9 +80,6 @@ public static class SimulationSetup {
     SpawnPickups(ref frame, layout);
   }
 
-  // Spawns a single player's hero with its faction stamped on. Called by HeroSpawnSystem
-  // (deferred until the faction pick is known); extracted from InitializeWorld so the world
-  // setup and the deferred spawn share one definition of a hero.
   public static void SpawnHero(ref Frame frame, int playerId, int teamId, int factionId) {
     var playerStats = frame.AssetRegistry.Get<PlayerStatsAsset>();
     var combatStats = frame.AssetRegistry.Get<MinionStatsAsset>();
@@ -254,7 +244,8 @@ public static class SimulationSetup {
         Rotation = FP64.Zero,
         Scale = FPVector3.One
       });
-      frame.Add(oasisEntity, new Oasis { OasisId = oasisIndex, SpawnCooldownRemainingMs = OasisSpawnSystem.SpawnIntervalMs });
+      frame.Add(oasisEntity,
+        new Oasis { OasisId = oasisIndex, SpawnCooldownRemainingMs = OasisSpawnSystem.SpawnIntervalMs });
     }
   }
 

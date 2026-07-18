@@ -9,6 +9,10 @@ public partial class TurretEntity : EntityViewNode, ISelectableTeamView, IAttack
   private const string UnitsGroup = "units";
   private const string CooldownParam = "fill_value";
 
+  // Selection hitbox in world metres. Leave <= 0 to auto-derive from mesh bounds.
+  [Export] public float SelectPickRadius { get; set; } = 0.8f;
+  [Export] public float SelectPickHeight { get; set; } = 2.5f;
+
   private int _teamId = -1;
   private MeshInstance3D _loadingIndicator;
   private ShaderMaterial _loadingIndicatorMaterial;
@@ -27,6 +31,7 @@ public partial class TurretEntity : EntityViewNode, ISelectableTeamView, IAttack
 
   public override void OnInitialize() {
     EntityViewPhysics.DisableGodotCollision(this);
+    EntityViewPhysics.AddSelectionCollider(this, SelectPickRadius, SelectPickHeight);
 
     _loadingIndicator = GetNodeOrNull<MeshInstance3D>("LoadingIndicator");
     _loadingIndicatorMaterial = (_loadingIndicator?.Mesh as PrimitiveMesh)?.Material as ShaderMaterial;

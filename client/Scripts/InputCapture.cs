@@ -11,6 +11,11 @@ namespace Meesles.Avalon;
 public class InputCapture : IDisposable {
   private const float DragSelectionThresholdPx = 6f;
 
+  // Selection raycast: how far the mouse ray travels into the world, and a cap on how many stacked
+  // pick colliders we skip past before giving up (front-most matching view wins).
+  private const float PickRayLength = 1000f;
+  private const int MaxPickIterations = 16;
+
   private readonly List<EntityViewNode> _selectedViews = new();
   private CameraController _camera;
   private Node3D _clickMarker;
@@ -110,22 +115,30 @@ public class InputCapture : IDisposable {
   public void HandleUnhandledInput(InputEvent @event) {
     if (_camera == null) return;
 
-    if (@event is InputEventMouseMotion motion) {
-      UpdateDragSelection(motion.Position);
-      return;
+    switch (@event) {
+      case InputEventMouseMotion motion:
+        UpdateDragSelection(motion.Position);
+        return;
+
+      case InputEventMouseButton { ButtonIndex: MouseButton.Left } leftClick:
+        HandleLeftClick(leftClick);
+        return;
+
+      case InputEventMouseButton { ButtonIndex: MouseButton.Right } rightClick:
+        HandleRightClick(rightClick);
+        return;
     }
+  }
 
-    if (@event is not InputEventMouseButton mouseButton) return;
+  private void HandleLeftClick(InputEventMouseButton mouseButton) {
+    if (mouseButton.Pressed)
+      BeginDragSelection(mouseButton.Position);
+    else
+      EndDragSelection(mouseButton.Position);
+  }
 
-    if (mouseButton.ButtonIndex == MouseButton.Left) {
-      if (mouseButton.Pressed)
-        BeginDragSelection(mouseButton.Position);
-      else
-        EndDragSelection(mouseButton.Position);
-      return;
-    }
-
-    if (mouseButton.ButtonIndex != MouseButton.Right || !mouseButton.Pressed) return;
+  private void HandleRightClick(InputEventMouseButton mouseButton) {
+    if (!mouseButton.Pressed) return;
 
     if (TryGetEnemyUnitIdAt(mouseButton.Position, out var targetUnitId)) {
       QueueAttack(targetUnitId);
@@ -233,27 +246,53 @@ public class InputCapture : IDisposable {
   }
 
   private void SelectNearestOwnedView(Vector2 screenPosition) {
-    if (_viewRoot == null || _camera == null) {
-      ApplySingleSelection(GetFallbackFocusView());
-      return;
+    ApplySingleSelection(PickView(screenPosition, CanSelectView) ?? GetFallbackFocusView());
+  }
+
+  // Raycast the mouse ray against each view's selection capsule (EntityViewPhysics.SelectionLayer) and
+  // return the nearest hit that passes the filter, skipping through hits that don't (e.g. a friendly unit
+  // standing in front of the enemy you right-clicked). Clicking anywhere on a unit's silhouette selects
+  // it, and IntersectRay's front-to-back ordering gives correct overlap priority for free.
+  private EntityViewNode PickView(Vector2 screenPosition, Func<EntityViewNode, bool> filter) {
+    if (_camera == null)
+      return null;
+
+    var space = _camera.GetWorld3D()?.DirectSpaceState;
+    if (space == null)
+      return null;
+
+    var origin = _camera.ProjectRayOrigin(screenPosition);
+    var query = PhysicsRayQueryParameters3D.Create(
+      origin, origin + _camera.ProjectRayNormal(screenPosition) * PickRayLength);
+    query.CollisionMask = EntityViewPhysics.SelectionLayer;
+    query.CollideWithAreas = true;
+    query.CollideWithBodies = false;
+
+    var exclude = new Godot.Collections.Array<Rid>();
+    for (var i = 0; i < MaxPickIterations; i++) {
+      var hit = space.IntersectRay(query);
+      if (hit.Count == 0)
+        return null;
+
+      var view = FindOwningView(hit["collider"].As<GodotObject>() as Node);
+      if (view != null && filter(view))
+        return view;
+
+      exclude.Add(hit["rid"].As<Rid>());
+      query.Exclude = exclude;
     }
 
-    EntityViewNode best = null;
-    var bestDistSqr = 22f * 22f;
+    return null;
+  }
 
-    foreach (var child in _viewRoot.GetChildren()) {
-      if (child is not EntityViewNode view) continue;
-      if (!CanSelectView(view)) continue;
-
-      var screen = _camera.UnprojectPosition(view.GlobalPosition);
-      var distSqr = screen.DistanceSquaredTo(screenPosition);
-      if (distSqr >= bestDistSqr) continue;
-
-      best = view;
-      bestDistSqr = distSqr;
+  private static EntityViewNode FindOwningView(Node node) {
+    while (node != null) {
+      if (node is EntityViewNode view)
+        return view;
+      node = node.GetParent();
     }
 
-    ApplySingleSelection(best ?? GetFallbackFocusView());
+    return null;
   }
 
   private void SelectOwnedViewsInRectangle(Rect2 rectangle) {
@@ -269,6 +308,13 @@ public class InputCapture : IDisposable {
 
       _selectedViews.Add(view);
       SetSelectionIndicator(view, true);
+    }
+
+    // An empty box would otherwise leave nothing selected; fall back to the player's main hero so the
+    // selection/focus is never empty, matching the single-click behaviour.
+    if (_selectedViews.Count == 0) {
+      ApplySingleSelection(GetFallbackFocusView());
+      return;
     }
 
     UpdateFocusPortrait();
@@ -336,28 +382,12 @@ public class InputCapture : IDisposable {
 
   private bool TryGetEnemyUnitIdAt(Vector2 screenPosition, out int unitId) {
     unitId = 0;
-    if (_viewRoot == null || _camera == null)
-      return false;
+    var target = PickView(screenPosition, IsEnemyUnitView);
+    return target != null && TryGetUnitId(target, out unitId);
+  }
 
-    EntityViewNode best = null;
-    var bestDistSqr = 22f * 22f;
-
-    foreach (var child in _viewRoot.GetChildren()) {
-      if (child is not EntityViewNode view) continue;
-      if (ViewTeamMatches(view)) continue;
-
-      var screen = _camera.UnprojectPosition(view.GlobalPosition);
-      var distSqr = screen.DistanceSquaredTo(screenPosition);
-      if (distSqr >= bestDistSqr) continue;
-
-      best = view;
-      bestDistSqr = distSqr;
-    }
-
-    if (best == null)
-      return false;
-
-    return TryGetUnitId(best, out unitId);
+  private bool IsEnemyUnitView(EntityViewNode view) {
+    return !ViewTeamMatches(view) && TryGetUnitId(view, out _);
   }
 
   private bool ViewTeamMatches(EntityViewNode view) {

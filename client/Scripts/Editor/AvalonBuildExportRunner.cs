@@ -239,7 +239,9 @@ public partial class AvalonBuildExportRunner : RefCounted {
     if (node is Client.Scripts.SimMarkerNode marker) {
       types.Add((int)marker.MarkerType);
       teams.Add(ResolveTeam(marker));
-      positions.Add(marker.GlobalTransform.Origin.ToFPVector3());
+      // Flatten Y: markers live on the ground plane; keep float drift out of the sim transform.
+      var origin = marker.GlobalTransform.Origin;
+      positions.Add(new FPVector3(origin.X.ToFP64(), FP64.Zero, origin.Z.ToFP64()));
       values.Add(marker.Value);
     }
 

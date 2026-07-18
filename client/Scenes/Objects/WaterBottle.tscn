@@ -37,16 +37,6 @@ shader_parameter/noise_texture = SubResource("NoiseTexture2D_pil")
 [sub_resource type="QuadMesh" id="QuadMesh_pil"]
 material = SubResource("ShaderMaterial_pil")
 
-[sub_resource type="Animation" id="Animation_vsejn"]
-length = 0.001
-tracks/0/type = "rotation_3d"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath(".")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = PackedFloat32Array(0, 1, 0, 0, -0.23193465, 0.97273135)
-
 [sub_resource type="Animation" id="Animation_t8004"]
 resource_name = "bottle_spin"
 length = 2.0
@@ -61,7 +51,6 @@ tracks/0/keys = PackedFloat32Array(0, 1, 0, 0, -0.23193465, 0.97273135, 0.066666
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_vsejn"]
 _data = {
-&"RESET": SubResource("Animation_vsejn"),
 &"bottle_spin": SubResource("Animation_t8004")
 }
 
@@ -95,3 +84,4 @@ draw_pass_1 = SubResource("QuadMesh_pil")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1827328500]
 libraries/ = SubResource("AnimationLibrary_vsejn")
+autoplay = &"bottle_spin"

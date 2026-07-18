@@ -651,7 +651,7 @@ transform = Transform3D(-0.6993848, 0.0034894391, 0.7147369, 0.002371637, 0.9999
 skeleton = NodePath("../..")
 
 [node name="WaterBottle" parent="." unique_id=1051827350 instance=ExtResource("23_qs546")]
-transform = Transform3D(0.89241266, 0.45122018, 0, -0.45122018, 0.89241266, 0, 0, 0, 1, -7.5775213, 0, -0.70916724)
+transform = Transform3D(0.29044408, 0.1468538, -0.94555604, -0.4512202, 0.89241266, -4.4703484e-08, 0.8438262, 0.426654, 0.32545936, -7.5775213, 0, -0.70916724)
 
 [node name="WaterBottle2" parent="." unique_id=1918907889 instance=ExtResource("23_qs546")]
 transform = Transform3D(0.89241266, 0.45122018, 0, -0.45122018, 0.89241266, 0, 0, 0, 1, -4.48044, 0, -5.15185)

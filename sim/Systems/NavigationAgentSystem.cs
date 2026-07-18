@@ -163,7 +163,11 @@ public sealed class NavigationAgentSystem : ISystem {
       ref var nav = ref frame.Get<NavAgentComponent>(entity);
       ref var transform = ref frame.Get<TransformComponent>(entity);
 
-      transform.Position = nav.Position;
+      // Flatten Y: Klotho's MoveAlongSurface re-projects nav.Position onto the 3D navmesh
+      // surface, so nav.Position.y carries terrain height. This is a ground-plane MOBA — keep
+      // the sim transform on y=0 so units don't render at terrain height. This is the only
+      // seam where 3D navmesh data crosses into the sim transform.
+      transform.Position = new FPVector3(nav.Position.x, FP64.Zero, nav.Position.z);
       if (nav.Velocity.sqrMagnitude > FP64.Zero)
         transform.Rotation = FP64.Atan2(nav.Velocity.x, nav.Velocity.y);
 
