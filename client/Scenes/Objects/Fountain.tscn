@@ -1,7 +1,9 @@
 [gd_scene format=3 uid="uid://c4um04dyla66r"]
 
 [ext_resource type="PackedScene" uid="uid://ca0h8xysyukyh" path="res://Assets/Props/Fountain/abandoned_fountain.glb" id="1_uu4dh"]
-[ext_resource type="Script" uid="uid://cselectprop0prop" path="res://Scripts/View/StaticSelectableProp.cs" id="2_prop"]
+[ext_resource type="Script" uid="uid://cjj40prnipu4v" path="res://Scripts/View/StaticSelectableProp.cs" id="2_prop"]
+[ext_resource type="PackedScene" uid="uid://80mcbhomjk3l" path="res://Scenes/FX/HotSpring.tscn" id="3_mnioi"]
+[ext_resource type="PackedScene" uid="uid://c8kx0oasis001" path="res://Scenes/Objects/Oasis.tscn" id="4_bq713"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_uu4dh"]
 radius = 0.015136719
@@ -13,8 +15,16 @@ script = ExtResource("2_prop")
 PropName = "Fountain"
 
 [node name="StaticBody3D" type="StaticBody3D" parent="." index="1" unique_id=2095786218]
+visible = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" index="0" unique_id=1961520711]
 transform = Transform3D(1, 0, 0, 0, -1, -1.509958e-07, 0, 1.509958e-07, -1, -8.206964e-05, 0.009933056, -0.00013286334)
 shape = SubResource("CapsuleShape3D_uu4dh")
 debug_color = Color(0.9411765, 0.18431373, 0.40784314, 0.8392157)
+
+[node name="PulsingWater" parent="." index="2" unique_id=1361180651 instance=ExtResource("3_mnioi")]
+transform = Transform3D(0.0011, 0, 0, 0, 0.005, 0, 0, 0, 0.0011, -9.312272e-05, 0.0041160956, 0.00025836795)
+skeleton = NodePath("../../..")
+
+[node name="Oasis" parent="." index="3" unique_id=475173050 instance=ExtResource("4_bq713")]
+transform = Transform3D(0.005, 0, 0, 0, 0.005, 0, 0, 0, 0.005, 0, -0.0005, -0.00017651558)

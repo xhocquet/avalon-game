@@ -1,16 +1,9 @@
-// Maps renderable unit entities to their PackedScene. Heroes and minions both resolve their
-// scene through the FactionCatalog so each faction shows its own models. A hero carries the
-// Faction component directly (stamped at spawn); a minion has no faction of its own sim-side —
-// all minions behave identically — so its faction is derived from its Team via the PlayerFaction
-// slots. The factory resolves the prefab once at view creation (see EntityViewUpdaterNode), so
-// everything it reads is already present on the entity at spawn.
-
 using Godot;
 using Meesles.Avalon.Sim.Models;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Godot;
 
-namespace Meesles.Avalon;
+namespace Meesles.Avalon.Client.Scripts.View;
 
 public class UnitViewFactory : EntityViewFactory {
   private readonly PackedScene _crystalScene;

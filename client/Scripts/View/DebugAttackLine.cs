@@ -1,6 +1,6 @@
 using Godot;
 
-namespace Meesles.Avalon;
+namespace Meesles.Avalon.Client.Scripts.View;
 
 public partial class DebugAttackLine : MeshInstance3D {
   private const float Duration = 0.3f;

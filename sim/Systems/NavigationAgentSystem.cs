@@ -17,7 +17,26 @@ public sealed class NavigationAgentSystem : ISystem {
   private static readonly FP64
     FlowFieldDirectSteerDistSqr = FP64.FromDouble(4.0); // 2.0 units — switch to direct steering
 
-  private static readonly FP64 MinionNeighborDist = FP64.FromInt(2);
+  // Ease-in radius: within this distance of the slot the minion decelerates instead of
+  // charging at full speed, so it settles into place rather than overshooting and oscillating.
+  private static readonly FP64 ArrivalBrakeDist = FP64.One;
+
+  // Blocked-settle: after a long move a minion's assigned slot can be unreachable across the
+  // packed blob, so it charges the crowd forever (frozen OR oscillating) and the group never
+  // stops shuffling. If a minion is within SettleZone of its slot but hasn't gotten meaningfully
+  // closer (BestDistSqr improved by < SettleProgressEps) for SettleStuckTicks ticks, it gives up
+  // and settles in place. The zone gate keeps far-marching minions (waves) from settling when
+  // they briefly stall at a chokepoint. Progress-based (not speed-based) so it also catches
+  // minions oscillating in place at moderate speed.
+  private static readonly FP64 SettleZoneSqr = FP64.FromInt(25); // 5.0 units
+  private static readonly FP64 SettleProgressStep = FP64.FromDouble(0.3);
+  private const int SettleStuckTicks = 30;
+
+  // ORCA neighbour query radius for minions. Must be large enough that a minion sees an
+  // oncoming minion before they interpenetrate: at MoveSpeed 5 two minions close at up to
+  // 10 u/s, so 6 gives ~0.6s of reaction. Too small (was 2) and they only notice each other
+  // ~0.2s out — they overlap, react abruptly, and never settle.
+  private static readonly FP64 MinionNeighborDist = FP64.FromInt(6);
   private readonly SpatialHashGrid _heroAvoidanceGrid = new(AvoidanceGridCellSize);
 
   // Separate collision layers
@@ -190,18 +209,25 @@ public sealed class NavigationAgentSystem : ISystem {
       var toTargetXZ = goalXZ - agentXZ;
       var distSqr = toTargetXZ.sqrMagnitude;
 
-      // Arrival check (same threshold as Klotho WaypointThreshold)
-      if (distSqr <= FlowFieldArrivalDistSqr) {
+      // Arrival: reached the slot, OR near it but stuck (blocked by the packed crowd and no
+      // longer making progress). Insisting on the exact slot in a crowd is what makes minions
+      // shuffle forever, so a stuck minion settles where it is.
+      var stuck = UpdateSettleTracker(ref frame, entity, goalXZ, distSqr);
+      if (distSqr <= FlowFieldArrivalDistSqr || stuck) {
         nav.Status = (byte)FPNavAgentStatus.Arrived;
         nav.Velocity = FPVector2.Zero;
         nav.DesiredVelocity = FPVector2.Zero;
+        if (frame.Has<MinionSettleTracker>(entity))
+          frame.Remove<MinionSettleTracker>(entity);
         continue;
       }
 
-      // When close to target, steer directly regardless of flow field
+      // Close to the slot: steer straight in, but decelerate on approach (arrival behaviour) so
+      // agents ease into place instead of charging at full speed and overshooting.
       if (distSqr <= FlowFieldDirectSteerDistSqr) {
         var mag = FP64.Sqrt(distSqr);
-        nav.DesiredVelocity = toTargetXZ / mag * nav.Speed;
+        var speed = mag < ArrivalBrakeDist ? nav.Speed * mag / ArrivalBrakeDist : nav.Speed;
+        nav.DesiredVelocity = toTargetXZ / mag * speed;
         nav.Status = (byte)FPNavAgentStatus.Moving;
         continue;
       }
@@ -243,6 +269,40 @@ public sealed class NavigationAgentSystem : ISystem {
 
       nav.Status = (byte)FPNavAgentStatus.Moving;
     }
+  }
+
+  // Tracks how close a minion has gotten to its slot and how long it has stalled. Returns true
+  // when the minion is within the settle zone and hasn't improved for SettleStuckTicks ticks.
+  private static bool UpdateSettleTracker(ref Frame frame, EntityRef entity, FPVector2 goalXZ, FP64 distSqr) {
+    var dist = FP64.Sqrt(distSqr);
+
+    if (!frame.Has<MinionSettleTracker>(entity))
+      frame.Add(entity, new MinionSettleTracker {
+        TargetX = goalXZ.x, TargetZ = goalXZ.y, BestDist = dist, StuckTicks = 0
+      });
+
+    ref var settle = ref frame.Get<MinionSettleTracker>(entity);
+
+    // Retargeted (new slot) → restart tracking against the new goal.
+    if (settle.TargetX != goalXZ.x || settle.TargetZ != goalXZ.y) {
+      settle.TargetX = goalXZ.x;
+      settle.TargetZ = goalXZ.y;
+      settle.BestDist = dist;
+      settle.StuckTicks = 0;
+      return false;
+    }
+
+    // Progress only counts if we've closed at least SettleProgressStep since the last reset, so a
+    // minion crawling at a fraction of a unit per second still trips the stuck detector.
+    if (dist + SettleProgressStep < settle.BestDist) {
+      settle.BestDist = dist;
+      settle.StuckTicks = 0;
+    }
+    else {
+      settle.StuckTicks++;
+    }
+
+    return settle.StuckTicks >= SettleStuckTicks && distSqr <= SettleZoneSqr;
   }
 
   private void SyncAgentPosition(ref NavAgentComponent nav, FPVector3 position, int slotIndex) {

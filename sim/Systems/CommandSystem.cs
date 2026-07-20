@@ -14,12 +14,21 @@ namespace Meesles.Avalon;
 
 public class CommandSystem : ISystem, ICommandSystem {
   private static readonly FP64 StopDistance = FP64.FromDouble(0.15);
-  private static readonly FP64 FrontFormationSpacing = FP64.FromDouble(1.4);
-  private static readonly FP64 TrailFormationSpacing = FP64.FromDouble(2.0);
-  private readonly bool _moveNavAgentsDirectly;
 
-  public CommandSystem(bool moveNavAgentsDirectly = true) {
-    _moveNavAgentsDirectly = moveNavAgentsDirectly;
+  // Group-move layout. Minions share one destination and let ORCA pack them; heroes hold the
+  // front. MinionPackRadiusFactor approximates the packed-blob radius (~0.4·sqrt(count) for hex
+  // packing near ORCA spacing) so the blob sits far enough behind the click that the hero stays
+  // clearly in front. HeroClearance is the gap between the hero and the blob's front edge;
+  // HeroLateralSpacing spreads multiple heroes into a short front row.
+  private static readonly FP64 MinionPackRadiusFactor = FP64.FromDouble(0.4);
+  private static readonly FP64 HeroClearance = FP64.FromDouble(0.8);
+  private static readonly FP64 HeroLateralSpacing = FP64.One;
+  private readonly bool _moveNavAgentsDirectly;
+  private readonly NavigationRuntime _navigation;
+
+  public CommandSystem(NavigationRuntime navigation = null) {
+    _navigation = navigation;
+    _moveNavAgentsDirectly = navigation == null;
   }
 
   public void OnCommand(ref Frame frame, ICommand command) {
@@ -66,9 +75,6 @@ public class CommandSystem : ISystem, ICommandSystem {
     }
   }
 
-  // Records a player's faction pick onto their seeded PlayerFaction slot. Ignored once the
-  // hero already exists — the faction is locked at spawn (the view resolves the scene then and
-  // does not re-resolve). Real clients send this at match start, well before the grace window.
   private static void HandleSelectFactionCommand(ref Frame frame, SelectFactionCommand command) {
     var filter = frame.Filter<PlayerFaction>();
     while (filter.Next(out var entity)) {
@@ -82,7 +88,7 @@ public class CommandSystem : ISystem, ICommandSystem {
     }
   }
 
-  private static void HandleMoveCommand(ref Frame frame, MoveCommand command) {
+  private void HandleMoveCommand(ref Frame frame, MoveCommand command) {
     var target = new FPVector3(command.TargetX, FP64.Zero, command.TargetZ);
     if (command.UnitIdCount > 0) {
       ApplySelectedUnitTargets(ref frame, command, target);
@@ -158,7 +164,7 @@ public class CommandSystem : ISystem, ICommandSystem {
     frame.Add(entity, new AttackTargetUnitId { TargetUnitId = targetUnitId });
   }
 
-  private static void ApplySelectedUnitTargets(ref Frame frame, MoveCommand command, FPVector3 target) {
+  private void ApplySelectedUnitTargets(ref Frame frame, MoveCommand command, FPVector3 target) {
     var units = GetSelectedUnits(ref frame, command);
     if (units.Count == 0)
       return;
@@ -199,28 +205,47 @@ public class CommandSystem : ISystem, ICommandSystem {
     return a.UnitId.CompareTo(b.UnitId);
   }
 
-  private static void ApplyFormationTargets(ref Frame frame, List<SelectedUnit> units, FPVector3 target) {
+  // Move a selected group. The hero(es) hold the front — the click itself, which is the leading
+  // edge in the direction of travel — and the minions gather in a blob just behind them. Minions
+  // share a single destination rather than precomputed per-unit slots: with slots a minion eases
+  // up to its exact point, gets ORCA-blocked, then lurches the last bit once a neighbour clears
+  // (the "arrive, stop, then move" artifact), and the assignment also goes stale over a long
+  // march. Sharing the destination lets ORCA pack minions wherever they naturally end up, and the
+  // settle logic freezes them there.
+  private void ApplyFormationTargets(ref Frame frame, List<SelectedUnit> units, FPVector3 target) {
     var centroid = FPVector3.Zero;
     for (var i = 0; i < units.Count; i++)
       centroid += units[i].Position;
     centroid /= FP64.FromInt(units.Count);
 
     var forward = (target - centroid).ToXZ();
-    if (forward.sqrMagnitude == FP64.Zero)
-      forward = new FPVector2(FP64.Zero, FP64.One);
-    else
-      forward = forward.normalized;
+    forward = forward.sqrMagnitude > FP64.Zero
+      ? forward.normalized
+      : new FPVector2(FP64.Zero, FP64.One);
+
+    var heroCount = CountHeroes(units);
+    var minionCount = units.Count - heroCount;
+
+    // Sit the minion blob behind the click by its own radius (+ a clearance gap) so the hero at
+    // the click stays clearly in front. With no hero, minions take the click directly.
+    var blobRadius = FP64.Sqrt(FP64.FromInt(minionCount > 0 ? minionCount : 1)) * MinionPackRadiusFactor;
+    var minionBack = heroCount > 0 ? blobRadius + HeroClearance : FP64.Zero;
+    var minionXZ = target.ToXZ() - forward * minionBack;
+    var minionTarget = SnapSlotToNavMesh(new FPVector3(minionXZ.x, target.y, minionXZ.y));
 
     var right = new FPVector2(forward.y, -forward.x);
-    var heroCount = CountHeroes(units);
-    var frontCount = heroCount > 0 ? heroCount : 1;
-
+    var heroIndex = 0;
     for (var i = 0; i < units.Count; i++) {
-      var slot = i < frontCount
-        ? GetFrontSlot(target, right, i, frontCount)
-        : GetTrailSlot(target, forward, right, i - frontCount);
-
-      SetTarget(ref frame, units[i].Entity, slot);
+      if (units[i].IsHero) {
+        var lateral = GetCenteredOffset(heroIndex, heroCount, HeroLateralSpacing);
+        var heroXZ = target.ToXZ() + right * lateral;
+        SetTarget(ref frame, units[i].Entity,
+          SnapSlotToNavMesh(new FPVector3(heroXZ.x, target.y, heroXZ.y)));
+        heroIndex++;
+      }
+      else {
+        SetTarget(ref frame, units[i].Entity, minionTarget);
+      }
     }
   }
 
@@ -233,32 +258,19 @@ public class CommandSystem : ISystem, ICommandSystem {
     return count;
   }
 
-  private static FPVector3 GetFrontSlot(FPVector3 target, FPVector2 right, int index, int count) {
-    var lateral = GetCenteredOffset(index, count, FrontFormationSpacing);
-    return OffsetTarget(target, right, lateral);
-  }
-
-  private static FPVector3 GetTrailSlot(FPVector3 target, FPVector2 forward, FPVector2 right, int index) {
-    var row = 1;
-    var rowStart = 0;
-    while (index >= rowStart + row) {
-      rowStart += row;
-      row++;
-    }
-
-    var slot = index - rowStart;
-    var lateral = GetCenteredOffset(slot, row, TrailFormationSpacing);
-    var back = TrailFormationSpacing * FP64.FromInt(row);
-    var offset = right * lateral - forward * back;
-    return new FPVector3(target.x + offset.x, target.y, target.z + offset.y);
-  }
-
   private static FP64 GetCenteredOffset(int index, int count, FP64 spacing) {
     return FP64.FromInt(index * 2 - (count - 1)) * spacing * FP64.Half;
   }
 
-  private static FPVector3 OffsetTarget(FPVector3 target, FPVector2 right, FP64 lateral) {
-    return new FPVector3(target.x + right.x * lateral, target.y, target.z + right.y * lateral);
+  // Projects a synthesized slot onto the navmesh. No-op when navigation is absent (the
+  // direct-move test path), where targets are consumed geometrically without pathfinding.
+  private FPVector3 SnapSlotToNavMesh(FPVector3 slot) {
+    var query = _navigation?.Query;
+    if (query == null)
+      return slot;
+
+    var snapped = query.ClosestPointOnNavMesh(slot.ToXZ(), out var tri);
+    return tri >= 0 ? new FPVector3(snapped.x, slot.y, snapped.y) : slot;
   }
 
   private static void ApplyLocalHeroTarget(ref Frame frame, int playerId, FPVector3 target) {

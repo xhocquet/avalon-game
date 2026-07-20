@@ -5,15 +5,9 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon;
 
-// Owns every player's Stats and will host the derived combat math (damage, defense, etc.) that
-// reads them. Stats never change on their own; ModifyStatCommand is the only mutator.
 public class StatsSystem : ISystem, ICommandSystem {
-  public void Update(ref Frame frame) {
-  }
+  public void Update(ref Frame frame) { }
 
-  // Central place damage-dealing systems call to resolve how much damage an attack deals.
-  // Hardcoded for now; once Stats grows beyond Strength this will read both entities' Stats
-  // (and whatever else - Combat, buffs, ...) to compute the real value.
   public static int CalculateDamage(ref Frame frame, EntityRef attacker, EntityRef target) {
     return 10;
   }

@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.IO;
 using Godot;
+using Meesles.Avalon.Sim;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Godot;
 using xpTURN.Klotho.Logging;
@@ -85,6 +86,19 @@ public abstract partial class GameNode : Node {
     }
 
     return bytes;
+  }
+
+  // The map authors a base per team; TeamPruneSystem deletes the sim entities of teams no player is
+  // on at match setup and raises TeamPrunedEvent per removed team. Free that team's authored props
+  // (World.tscn Team{N} — crystal, turrets, spawn, shop) so the static scene matches the live sim.
+  // Synced event → fires once on the authoritative prune; QueueFree is safe to miss on a later
+  // session restart because GetNodeOrNull returns null once the node is already gone.
+  protected void BindTeamBaseCleanup(SimEventHub events) {
+    events.OnConfirmed<TeamPrunedEvent>(evt => FreeTeamBase(evt.TeamId));
+  }
+
+  private void FreeTeamBase(int teamId) {
+    GetNodeOrNull($"World/NavigationRegion3D/Team{teamId}")?.QueueFree();
   }
 
   public override void _Input(InputEvent @event) {

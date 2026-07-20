@@ -91,8 +91,16 @@ public class RespawnSystem : ISystem {
 
     if (frame.Has<NavAgentComponent>(entity)) {
       ref var nav = ref frame.Get<NavAgentComponent>(entity);
+      // Init resets Radius/Speed/Acceleration to component defaults; preserve the values this
+      // agent was configured with at spawn so respawned units keep their tuned footprint/speed.
+      var radius = nav.Radius;
+      var speed = nav.Speed;
+      var acceleration = nav.Acceleration;
       NavAgentComponent.Stop(ref nav);
       NavAgentComponent.Init(ref nav, navPosition);
+      nav.Radius = radius;
+      nav.Speed = speed;
+      nav.Acceleration = acceleration;
     }
   }
 

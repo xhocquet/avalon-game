@@ -3,11 +3,8 @@ using Meesles.Avalon.Sim;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.Godot;
 
-namespace Meesles.Avalon;
+namespace Meesles.Avalon.Client.Scripts.View;
 
-// Spawns transient combat VFX in response to simulation events. Like GameUI, it is a consumer of
-// the shared SimEventHub rather than subscribing to the engine directly, so SimEventHub stays the
-// single owner of the raw engine event streams.
 public class VfxManager {
   private IDisposable _attackHitSub;
   private EntityViewUpdaterNode _view;

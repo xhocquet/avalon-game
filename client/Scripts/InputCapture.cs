@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Godot;
+using Meesles.Avalon.Client.Scripts.View;
 using Meesles.Avalon.Sim.Commands;
 using Meesles.Avalon.Sim.Models;
 using xpTURN.Klotho.Deterministic.Math;

@@ -1,4 +1,5 @@
 using Godot;
+using Meesles.Avalon.Client.Scripts.View;
 using xpTURN.Klotho.Godot;
 
 namespace Meesles.Avalon;
@@ -12,11 +13,13 @@ namespace Meesles.Avalon;
 // DisableGodotCollision here).
 [Tool]
 [GlobalClass]
-public partial class ShopEntity : EntityViewNode, ISelectableTeamView, INamedView {
+public partial class ShopEntity : TeamEntityViewNode, INamedView {
   public string DisplayName => "Shop";
 
   // Owning team for this shop. Set per-instance in World.tscn; the SimMarker export derives its own
-  // team from the TeamN folder independently. -1 leaves the shop team-neutral for selection.
+  // team from the TeamN folder independently. -1 leaves the shop team-neutral for selection. Unlike
+  // the pooled sim-bound views, the shop's team comes from the editor rather than the frame, so it
+  // feeds SetTeam directly in _Ready instead of calling BindTeam.
   [Export] public int Team { get; set; } = -1;
 
   // Selection hitbox in world metres. Leave <= 0 to auto-derive from the visible mesh bounds (the
@@ -24,16 +27,12 @@ public partial class ShopEntity : EntityViewNode, ISelectableTeamView, INamedVie
   [Export] public float SelectPickRadius { get; set; } = -1.0f;
   [Export] public float SelectPickHeight { get; set; } = -1.0f;
 
-  public bool TeamMatches(int teamId) {
-    return Team == teamId;
-  }
-
   public override void _Ready() {
     base._Ready();
     if (Godot.Engine.IsEditorHint())
       return;
 
     EntityViewPhysics.AddSelectionCollider(this, SelectPickRadius, SelectPickHeight);
-    GetNodeOrNull<SelectionIndicator>("SelectionIndicator")?.SetTeamId(Team);
+    SetTeam(Team);
   }
 }

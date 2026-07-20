@@ -12,10 +12,6 @@ namespace Meesles.Avalon;
 // rather than in InitializeWorld — guarantees the Faction component exists at entity creation,
 // which is when the view factory resolves the (faction-specific) scene.
 public class HeroSpawnSystem : ISystem {
-  // ~2s at 15Hz. Comfortably longer than the input-delay window in which a real client's pick
-  // lands, so the grace path only triggers when no pick is ever received.
-  private const int GraceTicks = 30;
-
   public void Update(ref Frame frame) {
     // Snapshot the slots we intend to spawn before mutating the frame (SpawnHero creates
     // entities), mirroring WaveSpawnSystem. Filter order is deterministic.
@@ -26,7 +22,7 @@ public class HeroSpawnSystem : ISystem {
       ref readonly var slot = ref frame.GetReadOnly<PlayerFaction>(entity);
       if (HasHero(ref frame, slot.PlayerId))
         continue;
-      if (slot.Confirmed == 0 && frame.Tick < GraceTicks)
+      if (slot.Confirmed == 0 && frame.Tick < SimulationSetup.SetupGraceTicks)
         continue;
 
       (toSpawn ??= new List<(int, int, int)>()).Add((slot.PlayerId, slot.TeamId, slot.FactionId));

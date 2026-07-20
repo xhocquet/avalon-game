@@ -1,11 +1,12 @@
 using Godot;
+using Meesles.Avalon.Client.Scripts.View;
 using Meesles.Avalon.Sim.Models;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Godot;
 
 namespace Meesles.Avalon;
 
-public partial class TurretEntity : EntityViewNode, ISelectableTeamView, IAttackableView, INamedView {
+public partial class TurretEntity : TeamEntityViewNode, IAttackableView, INamedView {
   private const string UnitsGroup = "units";
   private const string CooldownParam = "fill_value";
 
@@ -14,7 +15,6 @@ public partial class TurretEntity : EntityViewNode, ISelectableTeamView, IAttack
   [Export] public float SelectPickRadius { get; set; } = 1.2f;
   [Export] public float SelectPickHeight { get; set; } = 4.5f;
 
-  private int _teamId = -1;
   private MeshInstance3D _loadingIndicator;
   private ShaderMaterial _loadingIndicatorMaterial;
 
@@ -24,10 +24,6 @@ public partial class TurretEntity : EntityViewNode, ISelectableTeamView, IAttack
 
   public void OnHitVfx(int damage, Vector3 attackerPosition) {
     // TODO: hit reaction / particles
-  }
-
-  public bool TeamMatches(int teamId) {
-    return _teamId == teamId;
   }
 
   public override void OnInitialize() {
@@ -46,15 +42,12 @@ public partial class TurretEntity : EntityViewNode, ISelectableTeamView, IAttack
     var live = frame.Frame;
     if (live != null && live.Has<Unit>(EntityRef))
       SetCachedUnitId(live.GetReadOnly<Unit>(EntityRef).UnitId);
-    if (live != null && live.Has<Team>(EntityRef))
-      _teamId = live.GetReadOnly<Team>(EntityRef).TeamId;
-
-    GetNodeOrNull<SelectionIndicator>("SelectionIndicator")?.SetTeamId(_teamId);
+    BindTeam(frame);
   }
 
   public override void OnDeactivate() {
     RemoveFromGroup(UnitsGroup);
-    _teamId = -1;
+    ClearTeam();
   }
 
   public override void OnUpdateView() {
@@ -70,7 +63,6 @@ public partial class TurretEntity : EntityViewNode, ISelectableTeamView, IAttack
     _loadingIndicator.Visible = combat.Target.IsValid;
     if (!_loadingIndicator.Visible || combat.AttackCooldownTicks <= 0) return;
 
-    var progress = 1f - (float)combat.CooldownRemainingTicks / combat.AttackCooldownTicks;
-    _loadingIndicatorMaterial?.SetShaderParameter(CooldownParam, Mathf.Clamp(progress, 0f, 1f));
+    _loadingIndicatorMaterial?.SetShaderParameter(CooldownParam, CombatView.CooldownProgress(combat));
   }
 }

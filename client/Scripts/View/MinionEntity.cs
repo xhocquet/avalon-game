@@ -2,11 +2,10 @@ using Godot;
 using Meesles.Avalon.Sim.Models;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.ECS;
-using xpTURN.Klotho.Godot;
 
-namespace Meesles.Avalon;
+namespace Meesles.Avalon.Client.Scripts.View;
 
-public partial class MinionEntity : EntityViewNode, ISelectableTeamView, IAttackableView {
+public partial class MinionEntity : TeamEntityViewNode, IAttackableView {
   private const string UnitsGroup = "units";
   private const string AnimRun = "Run";
   private const string AnimIdle = "Stand";
@@ -21,7 +20,6 @@ public partial class MinionEntity : EntityViewNode, ISelectableTeamView, IAttack
   private AnimationPlayer _anim;
   private bool _isMoving;
   private int _ownerId = -1;
-  private int _teamId = -1;
 
   private string RunAnim => string.IsNullOrEmpty(WalkAnimationOverride) ? AnimRun : WalkAnimationOverride;
   private string IdleAnim => string.IsNullOrEmpty(IdleAnimationOverride) ? AnimIdle : IdleAnimationOverride;
@@ -46,10 +44,6 @@ public partial class MinionEntity : EntityViewNode, ISelectableTeamView, IAttack
 
   public void OnHitVfx(int damage, Vector3 attackerPosition) {
     // TODO: hit reaction / particles
-  }
-
-  public bool TeamMatches(int teamId) {
-    return _teamId == teamId;
   }
 
   public override void OnInitialize() {
@@ -77,16 +71,13 @@ public partial class MinionEntity : EntityViewNode, ISelectableTeamView, IAttack
       SetCachedUnitId(live.GetReadOnly<Unit>(EntityRef).UnitId);
     if (live != null && live.Has<OwnerComponent>(EntityRef))
       _ownerId = live.GetReadOnly<OwnerComponent>(EntityRef).OwnerId;
-    if (live != null && live.Has<Team>(EntityRef))
-      _teamId = live.GetReadOnly<Team>(EntityRef).TeamId;
-
-    GetNodeOrNull<SelectionIndicator>("SelectionIndicator")?.SetTeamId(_teamId);
+    BindTeam(frame);
   }
 
   public override void OnDeactivate() {
     RemoveFromGroup(UnitsGroup);
     _ownerId = -1;
-    _teamId = -1;
+    ClearTeam();
     _isMoving = false;
   }
 

@@ -12,9 +12,7 @@ public class DamageSystem : ISystem {
     while (filter.Next(out var attacker)) {
       ref var combat = ref frame.Get<Combat>(attacker);
       if (combat.CooldownRemainingTicks > 0) {
-        if (combat.CooldownRemainingTicks == combat.AttackCooldownTicks - 1 || combat.CooldownRemainingTicks == 1)
-          LogDamageState(ref frame, attacker, combat.Target,
-            $"cooldown_blocked cooldown={combat.CooldownRemainingTicks}");
+        LogCooldownBoundary(ref frame, attacker, combat);
         continue;
       }
 
@@ -69,6 +67,14 @@ public class DamageSystem : ISystem {
     ref readonly var attackerTeam = ref frame.GetReadOnly<Team>(attacker);
     ref readonly var targetTeam = ref frame.GetReadOnly<Team>(target);
     return attackerTeam.TeamId != targetTeam.TeamId;
+  }
+
+  private static void LogCooldownBoundary(ref Frame frame, EntityRef attacker, in Combat combat) {
+    var cooldownStarted = combat.CooldownRemainingTicks == combat.AttackCooldownTicks - 1;
+    var cooldownEnding = combat.CooldownRemainingTicks == 1;
+    if (cooldownStarted || cooldownEnding)
+      LogDamageState(ref frame, attacker, combat.Target,
+        $"cooldown_blocked cooldown={combat.CooldownRemainingTicks}");
   }
 
   private static void LogDamageState(ref Frame frame, EntityRef attacker, EntityRef target, string state) {

@@ -1,5 +1,6 @@
 using Godot;
 using Meesles.Avalon.Client;
+using Meesles.Avalon.Client.Scripts.View;
 using Meesles.Avalon.Sim.Models;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Godot;
@@ -81,6 +82,7 @@ public partial class SingleplayerGameNode : GameNode {
     _view.PlayerViews.OnLocalViewUnregistered += OnLocalViewUnregistered;
     _events = new SimEventHub();
     _events.Attach(_session.Engine);
+    BindTeamBaseCleanup(_events);
     _vfx = new VfxManager();
     _vfx.Attach(_events, _view);
     GameUi.BindSimEvents(_events);

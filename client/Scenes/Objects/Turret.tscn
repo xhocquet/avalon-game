@@ -42,7 +42,7 @@ _data = {
 &"RESET": SubResource("Animation_2ma5j")
 }
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_2iiil"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2ma5j"]
 render_priority = 0
 shader = ExtResource("5_2ma5j")
 shader_parameter/aoe_color = Color(1, 0, 0, 0.92156863)
@@ -50,11 +50,14 @@ shader_parameter/width = 0.01
 shader_parameter/fill_value = 0.70000001043084
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_jvn7g"]
-material = SubResource("ShaderMaterial_2iiil")
+material = SubResource("ShaderMaterial_2ma5j")
 center_offset = Vector3(0, 0.1, 0)
 
 [node name="Turret" unique_id=84568969 instance=ExtResource("1_fuepy")]
 script = ExtResource("2_mum06")
+
+[node name="Model" parent="." index="0" unique_id=1622665141]
+transform = Transform3D(2, 0, 0, 0, -8.742278e-08, 2, 0, -2, -8.742278e-08, 0, 0, 0)
 
 [node name="TurretHead" parent="Model/Rig/RootNode/Turret" parent_id_path=PackedInt32Array(1168158644) index="1" unique_id=1239019222]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
@@ -68,8 +71,8 @@ libraries/ = SubResource("AnimationLibrary_hn26q")
 autoplay = &"Idle"
 
 [node name="SelectionIndicator" parent="." index="3" unique_id=1086048598 instance=ExtResource("3_indicator")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, 0)
+transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, 0, 0.06259564, 0)
 
 [node name="LoadingIndicator" type="MeshInstance3D" parent="." index="4" unique_id=1515296209]
-transform = Transform3D(1, 0, 0, 0, 0.365, 0, 0, 0, 1, -0.0015563965, 0.005756378, -0.003035307)
+transform = Transform3D(2, 0, 0, 0, 0.365, 0, 0, 0, 2, -0.0015563965, 0.005756378, -0.003035307)
 mesh = SubResource("PlaneMesh_jvn7g")

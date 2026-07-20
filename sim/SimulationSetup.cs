@@ -22,11 +22,18 @@ public static class SimulationSetup {
   // safety-net faction used when a player never sends a SelectFactionCommand within the grace
   // window (e.g. disconnect). Keep in sync with client/Sim/Data/Assets.json.
   public const int DefaultFactionId = 200;
+
+  // Ticks of setup grace before the match is considered started. HeroSpawnSystem falls back to the
+  // default faction after this, and TeamPruneSystem culls the bases of teams no player is on at the
+  // same boundary. Keep this >= WaveRulesAsset.FirstWaveDelayTicks and register TeamPruneSystem
+  // before WaveSpawnSystem so teamless spawn points are gone before the first wave spawns.
+  public const int SetupGraceTicks = 30;
   private static readonly FP64 TurretAttackRange = FP64.FromInt(12);
 
   public static void RegisterSystems(EcsSimulation simulation, NavigationRuntime navigation = null) {
-    simulation.AddSystem(new CommandSystem(navigation == null), SystemPhase.Update);
+    simulation.AddSystem(new CommandSystem(navigation), SystemPhase.Update);
     simulation.AddSystem(new HeroSpawnSystem(), SystemPhase.Update);
+    simulation.AddSystem(new TeamPruneSystem(), SystemPhase.Update);
     simulation.AddSystem(new WaveSpawnSystem(), SystemPhase.Update);
     simulation.AddSystem(new InventorySystem(), SystemPhase.Update);
     simulation.AddSystem(new StatsSystem(), SystemPhase.Update);
@@ -55,7 +62,14 @@ public static class SimulationSetup {
     UnitIdGenerator.Initialize(ref frame);
     var playerIds = GetPlayerIds(ref frame, maxPlayers);
     frame.AssetRegistry.TryGet<MapLayoutAsset>(out var layout);
-    SpawnTeamCrystalsAndSpawnPoints(ref frame, playerIds.Count, layout);
+
+    // The map authors a base per team (teams 1..K). In the deferred lobby flow we spawn every
+    // authored team's structures so the whole map is populated during setup, then TeamPruneSystem
+    // culls the teams no player ended up on once picks settle. The headless spawn-heroes-now path
+    // already knows the final roster, so it spawns only the rostered teams — no phantom bases, and
+    // stable unit-id numbering for the harness.
+    var structureTeams = spawnHeroesNow ? BuildRosterTeamIds(playerIds.Count) : GetAuthoredTeamIds(layout);
+    SpawnTeamCrystalsAndSpawnPoints(ref frame, structureTeams, layout);
 
     for (var playerIndex = 0; playerIndex < playerIds.Count; playerIndex++) {
       var playerId = playerIds[playerIndex];
@@ -75,9 +89,38 @@ public static class SimulationSetup {
       }
     }
 
-    SpawnTeamTurrets(ref frame, playerIds.Count, layout);
+    SpawnTeamTurrets(ref frame, structureTeams, layout);
     SpawnOases(ref frame, layout);
     SpawnPickups(ref frame, layout);
+  }
+
+  // Team ids 1..count — the deterministic roster mapping (teamId == playerIndex + 1) used when the
+  // final set of players is already known.
+  private static List<int> BuildRosterTeamIds(int count) {
+    var teams = new List<int>(count);
+    for (var teamId = 1; teamId <= count; teamId++)
+      teams.Add(teamId);
+
+    return teams;
+  }
+
+  // Distinct team ids the map authors a base (Crystal marker) for, sorted ascending for determinism.
+  private static List<int> GetAuthoredTeamIds(MapLayoutAsset layout) {
+    var teams = new List<int>();
+    var markerCount = layout?.MarkerTypes?.Length ?? 0;
+    var crystalType = (int)MapMarkerType.Crystal;
+
+    for (var i = 0; i < markerCount; i++) {
+      if (layout.MarkerTypes[i] != crystalType)
+        continue;
+
+      var teamId = layout.MarkerTeams[i];
+      if (teamId > 0 && !teams.Contains(teamId))
+        teams.Add(teamId);
+    }
+
+    teams.Sort();
+    return teams;
   }
 
   public static void SpawnHero(ref Frame frame, int playerId, int teamId, int factionId) {
@@ -123,7 +166,7 @@ public static class SimulationSetup {
         CooldownRemainingTicks = 0
       });
 
-    NavAgentSetup.AddNavAgent(ref frame, entity, initialPos, playerStats.MoveSpeed);
+    NavAgentSetup.AddNavAgent(ref frame, entity, initialPos, playerStats.MoveSpeed, NavAgentSetup.HeroRadius);
   }
 
   // Deterministic sorted list of active participant player ids. Index in this list + 1 is the
@@ -149,10 +192,8 @@ public static class SimulationSetup {
     return RequireMarkerPosition(layout, MapMarkerType.SpawnPoint, teamId);
   }
 
-  private static void SpawnTeamCrystalsAndSpawnPoints(ref Frame frame, int maxPlayers, MapLayoutAsset layout) {
-    for (var playerId = 1; playerId <= maxPlayers; playerId++) {
-      var teamId = playerId;
-
+  private static void SpawnTeamCrystalsAndSpawnPoints(ref Frame frame, List<int> teamIds, MapLayoutAsset layout) {
+    foreach (var teamId in teamIds) {
       var crystalEntity = frame.CreateEntity();
       var crystalPosition = RequireMarkerPosition(layout, MapMarkerType.Crystal, teamId);
 
@@ -189,8 +230,8 @@ public static class SimulationSetup {
     }
   }
 
-  private static void SpawnTeamTurrets(ref Frame frame, int maxPlayers, MapLayoutAsset layout) {
-    for (var teamId = 1; teamId <= maxPlayers; teamId++) {
+  private static void SpawnTeamTurrets(ref Frame frame, List<int> teamIds, MapLayoutAsset layout) {
+    foreach (var teamId in teamIds) {
       var turretIndex = 0;
       var typeInt = (int)MapMarkerType.Turret;
       var markerCount = layout?.MarkerTypes?.Length ?? 0;

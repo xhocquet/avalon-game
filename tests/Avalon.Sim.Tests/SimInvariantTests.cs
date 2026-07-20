@@ -224,7 +224,10 @@ public class SimInvariantTests {
     UnitPositionSnapshot minion = GetUnitPositions(harness)
         .First(unit => unit.TeamId == 1 && unit.UnitTypeId == SimulationSetup.MinionUnitTypeId);
 
-    var command = SimHarness.MoveCommand(1, 0, FP64.Zero, FP64.Zero);
+    // (-10, 10) is open ground on the spawn->centre path. Avoid (0, 0): the map centre is a
+    // navmesh hole (central structure), so a group move there strands the A* hero and piles
+    // minions at the rim — not what this test is exercising.
+    var command = SimHarness.MoveCommand(1, 0, FP64.FromInt(-10), FP64.FromInt(10));
     command.AddUnitId(hero.UnitId);
     command.AddUnitId(minion.UnitId);
 
@@ -268,7 +271,8 @@ public class SimInvariantTests {
         .First(unit => unit.TeamId == 1 && unit.UnitTypeId == SimulationSetup.MinionUnitTypeId);
     rules.SpawnIntervalTicks = int.MaxValue;
 
-    var command = SimHarness.MoveCommand(1, 0, FP64.Zero, FP64.Zero);
+    // (-10, 10) is open ground; (0, 0) is inside the central navmesh hole and unreachable.
+    var command = SimHarness.MoveCommand(1, 0, FP64.FromInt(-10), FP64.FromInt(10));
     command.AddUnitId(hero.UnitId);
     command.AddUnitId(minion.UnitId);
 
@@ -282,7 +286,7 @@ public class SimInvariantTests {
 
     UnitPositionSnapshot settledHero = GetUnitPositions(harness).Single(unit => unit.UnitId == hero.UnitId);
     UnitPositionSnapshot settledMinion = GetUnitPositions(harness).Single(unit => unit.UnitId == minion.UnitId);
-    FPVector3 target = new FPVector3(FP64.Zero, FP64.Zero, FP64.Zero);
+    FPVector3 target = new FPVector3(FP64.FromInt(-10), FP64.Zero, FP64.FromInt(10));
 
     (settledHero.Position - target).sqrMagnitude.Should().BeLessThan(FP64.FromInt(4));
     (settledMinion.Position - target).sqrMagnitude.Should().BeLessThan(FP64.FromInt(9));

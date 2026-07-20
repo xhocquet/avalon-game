@@ -1,7 +1,7 @@
 using Godot;
 using xpTURN.Klotho.Godot;
 
-namespace Meesles.Avalon;
+namespace Meesles.Avalon.Client.Scripts.View;
 
 internal static class EntityViewPhysics {
   // Dedicated Godot physics layer (20) used ONLY for client-side click selection. Gameplay never queries
@@ -18,15 +18,7 @@ internal static class EntityViewPhysics {
     DisableGodotCollisionRecursive(node);
   }
 
-  // Adds a capsule pick volume on the selection layer only. Must be called AFTER DisableGodotCollision so
-  // the pick area is not stripped. The area is a passive raycast target (Monitoring off) — InputCapture
-  // finds it via space.IntersectRay with CollideWithAreas, never through overlap or viewport picking.
-  //
-  // worldRadius/worldHeight are in WORLD metres (the size you actually see in-game). Pass > 0 to pin an
-  // exact hitbox; they are converted into the view's local space here since the area is a child of the
-  // view and inherits its node scale. When either is <= 0 the size is derived from the visible mesh AABB —
-  // unreliable for skinned meshes (their reported bounds don't match the posed silhouette), so prefer
-  // explicit overrides for animated units.
+  // After disabling Godot collisions, create our own collision layer and objects for unit selection
   public static void AddSelectionCollider(EntityViewNode view, float worldRadius = 0f, float worldHeight = 0f) {
     if (view == null || view.HasNode(SelectionColliderName))
       return;

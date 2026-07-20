@@ -1,4 +1,5 @@
 using Godot;
+using Meesles.Avalon.Client.Scripts.View;
 using Meesles.Avalon.Sim.Models;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.ECS;
@@ -6,7 +7,7 @@ using xpTURN.Klotho.Godot;
 
 namespace Meesles.Avalon;
 
-public partial class HeroEntity : EntityViewNode, ISelectableTeamView, IPlayerView, IAttackableView {
+public partial class HeroEntity : TeamEntityViewNode, IPlayerView, IAttackableView {
   private const string UnitsGroup = "units";
   private const string AnimIdle = "SK_PlayerDefault_ao|A_Player_CosmeticIdle";
   private const string AnimWalk = "SK_PlayerDefault_ao|A_Player_Walk";
@@ -21,7 +22,6 @@ public partial class HeroEntity : EntityViewNode, ISelectableTeamView, IPlayerVi
   private AnimationPlayer _anim;
   private bool _isDead;
   private bool _isMoving;
-  private int _teamId = -1;
 
   private string WalkAnim => string.IsNullOrEmpty(WalkAnimationOverride) ? AnimWalk : WalkAnimationOverride;
   private string IdleAnim => string.IsNullOrEmpty(IdleAnimationOverride) ? AnimIdle : IdleAnimationOverride;
@@ -47,10 +47,6 @@ public partial class HeroEntity : EntityViewNode, ISelectableTeamView, IPlayerVi
   }
 
   public int OwnerId { get; private set; } = -1;
-
-  public bool TeamMatches(int teamId) {
-    return _teamId == teamId;
-  }
 
   public override void OnInitialize() {
     EntityViewPhysics.DisableGodotCollision(this);
@@ -79,16 +75,13 @@ public partial class HeroEntity : EntityViewNode, ISelectableTeamView, IPlayerVi
       SetCachedUnitId(live.GetReadOnly<Unit>(EntityRef).UnitId);
     if (live != null && live.Has<OwnerComponent>(EntityRef))
       OwnerId = live.GetReadOnly<OwnerComponent>(EntityRef).OwnerId;
-    if (live != null && live.Has<Team>(EntityRef))
-      _teamId = live.GetReadOnly<Team>(EntityRef).TeamId;
-
-    GetNodeOrNull<SelectionIndicator>("SelectionIndicator")?.SetTeamId(_teamId);
+    BindTeam(frame);
   }
 
   public override void OnDeactivate() {
     RemoveFromGroup(UnitsGroup);
     OwnerId = -1;
-    _teamId = -1;
+    ClearTeam();
     _isDead = false;
   }
 

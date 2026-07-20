@@ -31,17 +31,12 @@ public sealed class FactionCatalog {
 
   public IReadOnlyCollection<FactionData> Entries => _byId.Values;
 
-  // Every renderable faction-aligned unit is expected to carry a registered faction id (heroes stamp
-  // Faction at spawn; minions derive it from their team). An unknown id means a mis-configured unit,
-  // so fail fast rather than silently substituting a placeholder.
   public FactionData Resolve(int factionId) {
     return _byId.TryGetValue(factionId, out var entry)
       ? entry
       : throw new KeyNotFoundException($"No faction registered for id {factionId}.");
   }
 
-  // Loads the scenes for the roster. Called wherever the view factory / prewarm needs scenes
-  // (in-game only — the lobby uses Defs directly to avoid loading models).
   public static FactionCatalog CreateDefault() {
     var entries = new List<FactionData>();
     foreach (var def in FactionDefs)

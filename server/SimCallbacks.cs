@@ -30,7 +30,8 @@ namespace Meesles.Avalon.Server {
         _logger.KInformation($"[SimCallbacks] MapLayout has {n} markers (maxPlayers={_maxPlayers}):");
         for (int i = 0; i < n; i++) {
           var p = layout.MarkerPositions[i];
-          _logger.KInformation($"  [{i}] type={(MapMarkerType)layout.MarkerTypes[i]} team={layout.MarkerTeams[i]} pos=({p.x:F2}, {p.y:F2}, {p.z:F2})");
+          _logger.KInformation(
+            $"  [{i}] type={(MapMarkerType)layout.MarkerTypes[i]} team={layout.MarkerTeams[i]} pos=({p.x:F2}, {p.y:F2}, {p.z:F2})");
         }
       }
       else {

@@ -1,4 +1,5 @@
 using Godot;
+using Meesles.Avalon.Client.Scripts.View;
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Models;
 using xpTURN.Klotho.Core;

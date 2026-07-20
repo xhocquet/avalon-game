@@ -1,10 +1,8 @@
-// Game view callbacks: drives the HUD from engine state.
-
 using System;
 using Meesles.Avalon.Sim;
 using xpTURN.Klotho.Core;
 
-namespace Meesles.Avalon;
+namespace Meesles.Avalon.Client.Scripts.View;
 
 public class ViewCallbacks : IViewCallbacks {
   private IKlothoEngine _engine;

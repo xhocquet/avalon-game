@@ -8,6 +8,7 @@
 
 using System.Collections.Generic;
 using global::Godot;
+using Meesles.Avalon.Client.Scripts.View;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.ECS;
 

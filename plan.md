@@ -132,9 +132,9 @@ Next free project IDs: [`KlothoComponent`](vendor/Klotho/com.xpturn.klotho/Runti
 
 | # | Insight | Detail |
 |---|---------|--------|
-| 1 | Flow fields for group pathing | One computation serves all units heading to same destination — amortizes cost across N units instead of N×A* |
-| 2 | ORCA for local avoidance | Industry standard (SC2 uses it); handles thousands of agents in ms via 2D linear programming in velocity space |
-| 4 | Spatial hashing is the right foundation | Already have spatial grid — use it for neighbor queries in avoidance |
+| 1 | Flow fields for group pathing. A* for heroes
+| 2 | ORCA for local avoidance O(n)|
+| 4 | Subgrid used for local avoidance |
 | 5 | Hierarchical decomposition | Sector/portal graph for macro routing avoids computing detailed paths across the whole map |
 
 ## Todo
@@ -146,4 +146,3 @@ Next free project IDs: [`KlothoComponent`](vendor/Klotho/com.xpturn.klotho/Runti
 | ⬜ | Force propagation (group arrival) — "transitive bumping": first unit reaching destination broadcasts completion, adjacent units recognize arrival and cascade outward. Prevents pile-ups at destinations. |
 | ⬜ | Branchless code — `math.select` instead of `if/else` for flow field generation (reported 10x speedup in RTS literature). |
 | ⬜ | Multi-threaded A* — leverage 6-8 cores for parallel path queries. |
-| ⬜ | Sector-scoped fields — many small flow fields connected via portals instead of one large field. |
