@@ -102,11 +102,15 @@ public class SimInvariantTests {
     minions.Should().OnlyContain(minion => minion.OwnerId == minion.TeamId);
     minions.Select(minion => minion.UnitId).Should().OnlyHaveUniqueItems();
 
+    // Minions pack into distinct hex slots. The spawner rejects any slot within half the spacing
+    // of an existing minion (the occupancy radius), so that half-spacing is the separation
+    // guarantee — neighbouring hex slots sit right around the full spacing.
+    var minSeparation = rules.MinionSpacing * FP64.Half;
     foreach (var teamGroup in minions.GroupBy(minion => minion.TeamId)) {
       var positions = teamGroup.Select(minion => minion.Position).ToArray();
       for (int a = 0; a < positions.Length; a++) {
         for (int b = a + 1; b < positions.Length; b++) {
-          (positions[a] - positions[b]).sqrMagnitude.Should().BeGreaterThan(rules.MinionSpacing * rules.MinionSpacing);
+          (positions[a] - positions[b]).sqrMagnitude.Should().BeGreaterThan(minSeparation * minSeparation);
         }
       }
     }
@@ -126,11 +130,15 @@ public class SimInvariantTests {
     minions.Count(minion => minion.TeamId == 1).Should().Be(waveCount);
     minions.Count(minion => minion.TeamId == 2).Should().Be(waveCount);
 
+    // Minions pack into distinct hex slots. The spawner rejects any slot within half the spacing
+    // of an existing minion (the occupancy radius), so that half-spacing is the separation
+    // guarantee — neighbouring hex slots sit right around the full spacing.
+    var minSeparation = rules.MinionSpacing * FP64.Half;
     foreach (var teamGroup in minions.GroupBy(minion => minion.TeamId)) {
       var positions = teamGroup.Select(minion => minion.Position).ToArray();
       for (int a = 0; a < positions.Length; a++) {
         for (int b = a + 1; b < positions.Length; b++) {
-          (positions[a] - positions[b]).sqrMagnitude.Should().BeGreaterThan(rules.MinionSpacing * rules.MinionSpacing);
+          (positions[a] - positions[b]).sqrMagnitude.Should().BeGreaterThan(minSeparation * minSeparation);
         }
       }
     }

@@ -70,40 +70,34 @@ public class WaveSpawnSystem : ISystem {
     return false;
   }
 
+  // Compact hex-packed cluster centred just in front of the spawn point (toward the lane). Ring
+  // k holds 6k slots at radius k*spacing; slot 0 is the centre. This packs minions as tightly as
+  // they settle when moving, instead of the old wide 90° fan that sprawled across the base. The
+  // occupancy-based free-slot search fills innermost-first and reuses slots as minions march off.
   private static FPVector3 GetSpawnPosition(FPVector3 origin, FP64 spacing, int index) {
     var forward = new FPVector3(-origin.x, FP64.Zero, -origin.z);
-    if (forward.sqrMagnitude == FP64.Zero)
-      forward = new FPVector3(FP64.Zero, FP64.Zero, FP64.One);
-    else
-      forward = forward.normalized;
+    forward = forward.sqrMagnitude == FP64.Zero
+      ? new FPVector3(FP64.Zero, FP64.Zero, FP64.One)
+      : forward.normalized;
 
-    var ring = 0;
-    var ringStart = 0;
-    var ringCapacity = GetRingCapacity(ring);
-    while (index >= ringStart + ringCapacity) {
-      ringStart += ringCapacity;
+    var center = origin + forward * (spacing * FP64.FromInt(2));
+    if (index <= 0)
+      return center;
+
+    var ring = 1;
+    var ringStart = 1;
+    var capacity = 6;
+    while (index >= ringStart + capacity) {
+      ringStart += capacity;
       ring++;
-      ringCapacity = GetRingCapacity(ring);
+      capacity = 6 * ring;
     }
 
     var slot = index - ringStart;
-    var radius = spacing * FP64.FromInt(ring + 2);
-    var angle = GetArcAngle(slot, ringCapacity);
+    var radius = spacing * FP64.FromInt(ring);
+    var angle = FP64.TwoPi / FP64.FromInt(capacity) * FP64.FromInt(slot);
     var offset = RotateXZ(forward, angle) * radius;
-    return origin + offset;
-  }
-
-  private static int GetRingCapacity(int ring) {
-    return 4 + ring;
-  }
-
-  private static FP64 GetArcAngle(int slot, int ringCount) {
-    if (ringCount <= 1)
-      return FP64.Zero;
-
-    var arc = FP64.HalfPi;
-    var step = arc / FP64.FromInt(ringCount - 1);
-    return step * FP64.FromInt(slot) - arc * FP64.Half;
+    return center + offset;
   }
 
   private static FPVector3 RotateXZ(FPVector3 vector, FP64 angle) {

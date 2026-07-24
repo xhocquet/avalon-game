@@ -1,0 +1,42 @@
+[gd_scene format=3 uid="uid://dse358jnwln67"]
+
+[ext_resource type="Shader" uid="uid://l0uvbj0raqeo" path="res://Scenes/World/cartoon_fire.gdshader" id="1_m0pox"]
+[ext_resource type="Texture2D" uid="uid://crf7v0er3rxt8" path="res://Assets/Props/Water/foam_mask.png" id="2_cxsu0"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_fire_cone"]
+top_radius = 0.0
+bottom_radius = 1.5
+height = 4.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_fire_purple"]
+render_priority = 0
+shader = ExtResource("1_m0pox")
+shader_parameter/apply_shape_deform = false
+shader_parameter/top_radius = 0.0
+shader_parameter/bottom_radius = 0.0
+shader_parameter/center_radius = 0.0
+shader_parameter/center_position = 0.0
+shader_parameter/cylinder_height = 1.0
+shader_parameter/bottom_curve = 0.4
+shader_parameter/_vibrate_amplitude = 0.015
+shader_parameter/_vibrate_frequency = 200.0
+shader_parameter/_speed = 0.5
+shader_parameter/_scale = 2.0
+shader_parameter/color_inner = Color(1.4, 0.7, 1.5, 0)
+shader_parameter/color_outer = Color(0.55, 0.1, 0.9, 0.678)
+shader_parameter/color_threshold = 0.5
+shader_parameter/flame_height = 4.0
+shader_parameter/flame_height_offset = -4.5
+shader_parameter/flame_inverted = true
+shader_parameter/pattern_scale = 2.5
+shader_parameter/use_additional_texture = false
+shader_parameter/flame_additional_texture = ExtResource("2_cxsu0")
+shader_parameter/texture_scale = 1.0
+shader_parameter/texture_blend = 0.90000004275
+shader_parameter/outline_enabled = true
+shader_parameter/outline_color = Color(0.1, 0, 0.15, 1)
+shader_parameter/outline_thickness = 0.04
+
+[node name="FireConePurple" type="MeshInstance3D" unique_id=357362159]
+mesh = SubResource("CylinderMesh_fire_cone")
+surface_material_override/0 = SubResource("ShaderMaterial_fire_purple")

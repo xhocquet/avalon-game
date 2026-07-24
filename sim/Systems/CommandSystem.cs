@@ -17,9 +17,9 @@ public class CommandSystem : ISystem, ICommandSystem {
 
   // Group-move layout. Minions share one destination and let ORCA pack them; heroes hold the
   // front. MinionPackRadiusFactor approximates the packed-blob radius (~0.4·sqrt(count) for hex
-  // packing near ORCA spacing) so the blob sits far enough behind the click that the hero stays
-  // clearly in front. HeroClearance is the gap between the hero and the blob's front edge;
-  // HeroLateralSpacing spreads multiple heroes into a short front row.
+  // packing near ORCA spacing) so the blob's front edge sits just behind the hero. HeroClearance
+  // is the gap between the hero and the blob's front edge; HeroLateralSpacing spreads multiple
+  // heroes into a short front row.
   private static readonly FP64 MinionPackRadiusFactor = FP64.FromDouble(0.4);
   private static readonly FP64 HeroClearance = FP64.FromDouble(0.8);
   private static readonly FP64 HeroLateralSpacing = FP64.One;
@@ -226,8 +226,8 @@ public class CommandSystem : ISystem, ICommandSystem {
     var heroCount = CountHeroes(units);
     var minionCount = units.Count - heroCount;
 
-    // Sit the minion blob behind the click by its own radius (+ a clearance gap) so the hero at
-    // the click stays clearly in front. With no hero, minions take the click directly.
+    // Sit the blob's front edge just behind the hero: offset back by the blob's own radius plus a
+    // clearance gap. With no hero, minions take the click directly.
     var blobRadius = FP64.Sqrt(FP64.FromInt(minionCount > 0 ? minionCount : 1)) * MinionPackRadiusFactor;
     var minionBack = heroCount > 0 ? blobRadius + HeroClearance : FP64.Zero;
     var minionXZ = target.ToXZ() - forward * minionBack;

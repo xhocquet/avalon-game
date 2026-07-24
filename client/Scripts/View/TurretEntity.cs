@@ -9,6 +9,13 @@ namespace Meesles.Avalon;
 public partial class TurretEntity : TeamEntityViewNode, IAttackableView, INamedView {
   private const string UnitsGroup = "units";
   private const string CooldownParam = "fill_value";
+  private const string AoeColorParam = "aoe_color";
+
+  // Team tints for the focus/attack ring, matching SelectionIndicator's palette. Alpha carries the
+  // ring opacity the authored material shipped with.
+  private static readonly Color TeamOneColor = new(0.25f, 0.75f, 0.95f, 0.92f);
+  private static readonly Color TeamTwoColor = new(0.95f, 0.35f, 0.28f, 0.92f);
+  private static readonly Color NeutralColor = new(0.55f, 0.85f, 0.35f, 0.92f);
 
   public string DisplayName => "Turret";
 
@@ -31,9 +38,15 @@ public partial class TurretEntity : TeamEntityViewNode, IAttackableView, INamedV
     EntityViewPhysics.AddSelectionCollider(this, SelectPickRadius, SelectPickHeight);
 
     _loadingIndicator = GetNodeOrNull<MeshInstance3D>("LoadingIndicator");
-    _loadingIndicatorMaterial = (_loadingIndicator?.Mesh as PrimitiveMesh)?.Material as ShaderMaterial;
-    if (_loadingIndicator != null)
+    if (_loadingIndicator != null) {
       _loadingIndicator.Visible = false;
+      // The shader material lives on the shared PlaneMesh sub-resource, so duplicate it into a
+      // per-instance surface override — otherwise team tinting one turret repaints them all.
+      if ((_loadingIndicator.Mesh as PrimitiveMesh)?.Material is ShaderMaterial source) {
+        _loadingIndicatorMaterial = (ShaderMaterial)source.Duplicate();
+        _loadingIndicator.SetSurfaceOverrideMaterial(0, _loadingIndicatorMaterial);
+      }
+    }
   }
 
   public override void OnActivate(FrameRef frame) {
@@ -43,6 +56,7 @@ public partial class TurretEntity : TeamEntityViewNode, IAttackableView, INamedV
     if (live != null && live.Has<Unit>(EntityRef))
       SetCachedUnitId(live.GetReadOnly<Unit>(EntityRef).UnitId);
     BindTeam(frame);
+    ApplyTeamTint();
   }
 
   public override void OnDeactivate() {
@@ -64,5 +78,10 @@ public partial class TurretEntity : TeamEntityViewNode, IAttackableView, INamedV
     if (!_loadingIndicator.Visible || combat.AttackCooldownTicks <= 0) return;
 
     _loadingIndicatorMaterial?.SetShaderParameter(CooldownParam, CombatView.CooldownProgress(combat));
+  }
+
+  private void ApplyTeamTint() {
+    var color = TeamId == 1 ? TeamOneColor : TeamId == 2 ? TeamTwoColor : NeutralColor;
+    _loadingIndicatorMaterial?.SetShaderParameter(AoeColorParam, color);
   }
 }

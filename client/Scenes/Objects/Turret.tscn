@@ -74,5 +74,6 @@ autoplay = &"Idle"
 transform = Transform3D(2.5, 0, 0, 0, 2.5, 0, 0, 0, 2.5, 0, 0.06259564, 0)
 
 [node name="LoadingIndicator" type="MeshInstance3D" parent="." index="4" unique_id=1515296209]
+visible = false
 transform = Transform3D(2, 0, 0, 0, 0.365, 0, 0, 0, 2, -0.0015563965, 0.005756378, -0.003035307)
 mesh = SubResource("PlaneMesh_jvn7g")

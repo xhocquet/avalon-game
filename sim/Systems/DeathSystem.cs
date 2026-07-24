@@ -66,6 +66,7 @@ public class DeathSystem : ISystem {
       evt.DestroyerUnitId = dead.DestroyerUnitId;
       evt.DestroyerTeamId = dead.DestroyerTeamId;
       evt.DestroyerOwnerId = dead.DestroyerOwnerId;
+      evt.Position = dead.Position;
       frame.EventRaiser.RaiseEvent(evt);
       return;
     }
@@ -74,6 +75,7 @@ public class DeathSystem : ISystem {
       var evt = EventPool.Get<TurretDestroyedEvent>();
       evt.UnitId = dead.UnitId;
       evt.DestroyerUnitId = dead.DestroyerUnitId;
+      evt.Position = dead.Position;
       frame.EventRaiser.RaiseEvent(evt);
       return;
     }

@@ -1,0 +1,42 @@
+[gd_scene format=3 uid="uid://c4p17q8nh571o"]
+
+[ext_resource type="Shader" uid="uid://l0uvbj0raqeo" path="res://Scenes/World/cartoon_fire.gdshader" id="1_m30y5"]
+[ext_resource type="Texture2D" uid="uid://crf7v0er3rxt8" path="res://Assets/Props/Water/foam_mask.png" id="2_ym4bn"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_fire"]
+radius = 1.0
+height = 4.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_fire_orange"]
+render_priority = 0
+shader = ExtResource("1_m30y5")
+shader_parameter/apply_shape_deform = true
+shader_parameter/top_radius = 0.0510000024225
+shader_parameter/bottom_radius = 0.5450000258875
+shader_parameter/center_radius = 0.1600000076
+shader_parameter/center_position = 0.190000009025
+shader_parameter/cylinder_height = 2.84400013509
+shader_parameter/bottom_curve = 0.4
+shader_parameter/_vibrate_amplitude = 0.0
+shader_parameter/_vibrate_frequency = 200.0
+shader_parameter/_speed = 1.0
+shader_parameter/_scale = 1.0
+shader_parameter/color_inner = Color(1.353, 0.919, 0.416, 0)
+shader_parameter/color_outer = Color(0.737, 0.141, 0, 0.678)
+shader_parameter/color_threshold = 0.5
+shader_parameter/flame_height = 6.0
+shader_parameter/flame_height_offset = -2.5
+shader_parameter/flame_inverted = false
+shader_parameter/pattern_scale = 2.5
+shader_parameter/use_additional_texture = true
+shader_parameter/flame_additional_texture = ExtResource("2_ym4bn")
+shader_parameter/texture_scale = 0.3
+shader_parameter/texture_blend = 0.70000003325
+shader_parameter/outline_enabled = false
+shader_parameter/outline_color = Color(0, 0, 0, 1)
+shader_parameter/outline_thickness = 0.04
+
+[node name="FireCapsuleOrange" type="MeshInstance3D" unique_id=854433731]
+transform = Transform3D(-4.3711374e-08, -1, -4.371139e-08, 1, -4.371139e-08, 4.371139e-08, -4.3711402e-08, -4.371139e-08, 1, 0, 0, 0)
+mesh = SubResource("CapsuleMesh_fire")
+surface_material_override/0 = SubResource("ShaderMaterial_fire_orange")

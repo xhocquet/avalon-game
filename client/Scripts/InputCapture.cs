@@ -343,7 +343,10 @@ public class InputCapture : IDisposable {
   private void UpdateFocusPortrait() {
     if (_gameUI == null) return;
 
-    var view = _selectedViews.Count > 0 ? _selectedViews[0] : null;
+    // Prefer the player's champion when it's part of the selection so a mixed group (hero + minions)
+    // always shows the hero portrait, rather than whatever unit happens to be first in the list.
+    var championView = GetSelectedChampionView();
+    var view = championView ?? (_selectedViews.Count > 0 ? _selectedViews[0] : null);
 
     // Named props/structures (turret, crystal, shop, fountain, pickup) show their own label. If the
     // named view also resolves a faction (not currently the case for these) we reuse its portrait,
@@ -358,11 +361,52 @@ public class InputCapture : IDisposable {
 
     if (_factions != null && view != null && TryResolveHeroFactionId(view, out var factionId)) {
       var entry = _factions.Resolve(factionId);
-      _gameUI.SetFocusPortrait(entry.PortraitTexture, entry.DisplayName);
+      var label = entry.DisplayName;
+
+      // When the champion is the rendered portrait and minions are selected alongside it, surface
+      // the extra unit count next to the name (e.g. "Merlin +20").
+      if (championView != null) {
+        var minionCount = CountSelectedMinions();
+        if (minionCount > 0)
+          label = $"{label} +{minionCount}";
+      }
+
+      _gameUI.SetFocusPortrait(entry.PortraitTexture, label);
       return;
     }
 
     _gameUI.SetFocusPortrait(null, null);
+  }
+
+  // The player's champion (hero) if one is part of the current selection.
+  private EntityViewNode GetSelectedChampionView() {
+    foreach (var view in _selectedViews)
+      if (IsHeroView(view))
+        return view;
+
+    return null;
+  }
+
+  // Count of selected controllable units that aren't the champion, i.e. the minion tail of a
+  // mixed selection. Structures/props (no unit id) don't count.
+  private int CountSelectedMinions() {
+    var count = 0;
+    foreach (var view in _selectedViews)
+      if (!IsHeroView(view) && TryGetUnitId(view, out _))
+        count++;
+
+    return count;
+  }
+
+  private static bool IsHeroView(EntityViewNode view) {
+    if (view.Engine == null || !view.EntityRef.IsValid)
+      return false;
+
+    var frame = view.Engine.PredictedFrame.Frame;
+    if (frame == null || !frame.Has<Hero>(view.EntityRef))
+      frame = view.Engine.VerifiedFrame.Frame;
+
+    return frame != null && frame.Has<Hero>(view.EntityRef);
   }
 
   private static bool TryResolveHeroFactionId(EntityViewNode view, out int factionId) {

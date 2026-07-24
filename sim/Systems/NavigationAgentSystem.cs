@@ -30,7 +30,15 @@ public sealed class NavigationAgentSystem : ISystem {
   // minions oscillating in place at moderate speed.
   private static readonly FP64 SettleZoneSqr = FP64.FromInt(25); // 5.0 units
   private static readonly FP64 SettleProgressStep = FP64.FromDouble(0.3);
-  private const int SettleStuckTicks = 30;
+  private const int SettleStuckTicks = 15;
+
+  // Fast-settle: once a minion is inside the destination pile and ORCA has slowed it below
+  // BlockedSpeed, it settles immediately rather than inching toward the exact shared point (which
+  // makes a crowd compress serially and take ~1.5s to freeze). A freely-approaching minion is
+  // moving faster than this until it reaches the hard-arrival radius, so this only catches minions
+  // genuinely blocked by the pile.
+  private static readonly FP64 BlockedZoneSqr = FP64.FromInt(9); // 3.0 units
+  private static readonly FP64 BlockedSpeed = FP64.FromDouble(2.5);
 
   // ORCA neighbour query radius for minions. Must be large enough that a minion sees an
   // oncoming minion before they interpenetrate: at MoveSpeed 5 two minions close at up to
@@ -209,11 +217,13 @@ public sealed class NavigationAgentSystem : ISystem {
       var toTargetXZ = goalXZ - agentXZ;
       var distSqr = toTargetXZ.sqrMagnitude;
 
-      // Arrival: reached the slot, OR near it but stuck (blocked by the packed crowd and no
-      // longer making progress). Insisting on the exact slot in a crowd is what makes minions
-      // shuffle forever, so a stuck minion settles where it is.
+      // Arrival: reached the target, OR inside the pile and blocked (slowed by the crowd), OR
+      // near the target but stuck with no progress. Settling blocked/stuck minions where they are
+      // — instead of insisting on the exact shared point — is what stops the crowd shuffling and
+      // lets it freeze quickly rather than compressing one minion at a time.
+      var blocked = distSqr <= BlockedZoneSqr && nav.CurrentSpeed <= BlockedSpeed;
       var stuck = UpdateSettleTracker(ref frame, entity, goalXZ, distSqr);
-      if (distSqr <= FlowFieldArrivalDistSqr || stuck) {
+      if (distSqr <= FlowFieldArrivalDistSqr || blocked || stuck) {
         nav.Status = (byte)FPNavAgentStatus.Arrived;
         nav.Velocity = FPVector2.Zero;
         nav.DesiredVelocity = FPVector2.Zero;
