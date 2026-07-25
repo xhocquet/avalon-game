@@ -8,8 +8,22 @@ namespace Meesles.Avalon;
 public class StatsSystem : ISystem, ICommandSystem {
   public void Update(ref Frame frame) { }
 
+  // Resolves how much damage an attack lands. Today this is just the attacker's own attack-damage
+  // stat; it's the single hook the whole attack pipeline (DamageSystem) routes through, so armor
+  // mitigation and faction strength/weakness multipliers will layer in here later.
   public static int CalculateDamage(ref Frame frame, EntityRef attacker, EntityRef target) {
-    return 10;
+    var damage = GetAttackDamage(ref frame, attacker);
+
+    // Future: subtract the target's armor, then apply attacker-vs-target matchup multipliers.
+
+    return damage < 0 ? 0 : damage;
+  }
+
+  // The attacker's effective attack damage. Every combat entity carries its own Stats component
+  // (seeded from its stat asset at spawn, then mutated over the match by items/level), so Strength
+  // is the authoritative damage value attacks read.
+  private static int GetAttackDamage(ref Frame frame, EntityRef attacker) {
+    return frame.Has<Stats>(attacker) ? frame.GetReadOnly<Stats>(attacker).Strength : 0;
   }
 
   public void OnCommand(ref Frame frame, ICommand command) {

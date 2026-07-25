@@ -37,5 +37,41 @@
     "ChampionUnitTypeId": 11,
     "MinionUnitTypeId": 2,
     "MinionStatsAssetId": 103
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.ShopItemAsset, Meesles.Avalon.Client",
+    "AssetId": 300,
+    "Cost": 10,
+    "AttackBonus": 10
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.ShopItemAsset, Meesles.Avalon.Client",
+    "AssetId": 301,
+    "Cost": 10,
+    "AttackBonus": 10
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.ShopItemAsset, Meesles.Avalon.Client",
+    "AssetId": 302,
+    "Cost": 10,
+    "AttackBonus": 10
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.ShopItemAsset, Meesles.Avalon.Client",
+    "AssetId": 303,
+    "Cost": 10,
+    "AttackBonus": 10
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.ShopItemAsset, Meesles.Avalon.Client",
+    "AssetId": 304,
+    "Cost": 10,
+    "AttackBonus": 10
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.ShopItemAsset, Meesles.Avalon.Client",
+    "AssetId": 305,
+    "Cost": 10,
+    "AttackBonus": 10
   }
 ]

@@ -130,8 +130,8 @@ public class WaveSpawnSystem : ISystem {
       Current = stats.Health,
       Max = stats.Health
     });
+    frame.Add(entity, new Stats { Strength = stats.AttackDamage });
     frame.Add(entity, new Combat {
-      AttackDamage = stats.AttackDamage,
       AttackRange = stats.AttackRange,
       AttackCooldownTicks = stats.AttackCooldownTicks,
       CooldownRemainingTicks = 0

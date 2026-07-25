@@ -68,6 +68,12 @@ public class SimCallbacks(
       LogCommandSent("SelectFactionCommand", tick, playerId, $"factionId={FactionSelection.SelectedFactionId}");
     }
 
+    if (_input != null && _input.TryConsumePurchaseCommand(out var purchaseCommand)) {
+      LogCommandSent("PurchaseItemCommand", tick, playerId, $"itemAssetId={purchaseCommand.ItemAssetId}");
+      sender.Send(purchaseCommand);
+      return;
+    }
+
     if (_input != null && _input.TryConsumeAttackCommand(out var attackCommand)) {
       LogCommandSent("AttackCommand", tick, playerId,
         $"targetUnitId={attackCommand.TargetUnitId} sourceCount={attackCommand.SourceUnitIdCount}");
@@ -87,7 +93,8 @@ public class SimCallbacks(
   }
 
   private void LogCommandSent(string commandName, int tick, int playerId, string details) {
+    // logger routes to the Godot console via GodotLogSink, so a separate GD.Print here would double
+    // every line (that was the "logging twice per purchase" you saw - one send, two prints).
     logger?.KInformation($"[SimCallbacks] Send {commandName} tick={tick} playerId={playerId} {details}");
-    GD.Print($"[SimCallbacks] Send {commandName} tick={tick} playerId={playerId} {details}");
   }
 }

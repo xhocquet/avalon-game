@@ -150,7 +150,7 @@ public static class SimulationSetup {
     });
     frame.Add(entity, new Controllable());
     frame.Add(entity, new Inventory());
-    frame.Add(entity, new Stats { Strength = 10 });
+    frame.Add(entity, new Stats { Strength = combatStats != null ? combatStats.AttackDamage : 0 });
 
     if (playerStats != null)
       frame.Add(entity, new Health {
@@ -160,7 +160,6 @@ public static class SimulationSetup {
 
     if (combatStats != null)
       frame.Add(entity, new Combat {
-        AttackDamage = combatStats.AttackDamage,
         AttackRange = combatStats.AttackRange,
         AttackCooldownTicks = combatStats.AttackCooldownTicks,
         CooldownRemainingTicks = 0
@@ -257,8 +256,8 @@ public static class SimulationSetup {
           Current = StructureHealth,
           Max = StructureHealth
         });
+        frame.Add(turretEntity, new Stats { Strength = TurretAttackDamage });
         frame.Add(turretEntity, new Combat {
-          AttackDamage = TurretAttackDamage,
           AttackRange = TurretAttackRange,
           AttackCooldownTicks = TurretAttackCooldownTicks,
           CooldownRemainingTicks = 0

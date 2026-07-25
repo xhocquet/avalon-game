@@ -491,8 +491,8 @@ public class AttackCommandExecutionTests {
       Current = 100,
       Max = 100,
     });
+    frame.Add(entity, new Stats { Strength = 10 });
     frame.Add(entity, new Combat {
-      AttackDamage = 10,
       AttackRange = FP64.FromInt(2),
       AttackCooldownTicks = 30,
       CooldownRemainingTicks = 0,

@@ -76,6 +76,8 @@ Uses [`KlothoComponentAttribute`](vendor/Klotho/com.xpturn.klotho/Runtime/ECS/At
 | 100 | [`MoveCommand`](sim/Commands/MoveCommand.cs) |
 | 103 | [`AttackCommand`](sim/Commands/AttackCommand.cs) |
 | 104 | [`SelectFactionCommand`](sim/Commands/SelectFactionCommand.cs) |
+| 105 | [`ModifyStatCommand`](sim/Commands/ModifyStatCommand.cs) |
+| 106 | [`PurchaseItemCommand`](sim/Commands/PurchaseItemCommand.cs) |
 | **Events** | |
 | 101 | [`GameOverEvent`](sim/Events/GameOverEvent.cs) |
 | 102 | [`UnitDiedEvent`](sim/Events/UnitDiedEvent.cs) |
@@ -88,11 +90,13 @@ Uses [`KlothoComponentAttribute`](vendor/Klotho/com.xpturn.klotho/Runtime/ECS/At
 
 Uses [`KlothoDataAssetAttribute`](vendor/Klotho/com.xpturn.klotho/Runtime/ECS/DataAsset/KlothoDataAssetAttribute.cs) for network IDs.
 
-| 100           | 101         | 102         | 103           | 104         |
-| ------------- | ----------- | ----------- | ------------- | ----------- |
-| [`PlayerStats`](sim/Assets/PlayerStatsAsset.cs) | [`WaveRules`](sim/Assets/WaveRulesAsset.cs) | [`MapLayout`](sim/Assets/MapLayoutAsset.cs) | [`MinionStats`](sim/Assets/MinionStatsAsset.cs) | [`Faction`](sim/Assets/FactionAsset.cs) |
+| 100           | 101         | 102         | 103           | 104         | 105         |
+| ------------- | ----------- | ----------- | ------------- | ----------- | ----------- |
+| [`PlayerStats`](sim/Assets/PlayerStatsAsset.cs) | [`WaveRules`](sim/Assets/WaveRulesAsset.cs) | [`MapLayout`](sim/Assets/MapLayoutAsset.cs) | [`MinionStats`](sim/Assets/MinionStatsAsset.cs) | [`Faction`](sim/Assets/FactionAsset.cs) | [`ShopItem`](sim/Assets/ShopItemAsset.cs) |
 
 `Faction` is a multi-instance catalog asset (type id 104): one instance per faction, keyed by its own `AssetId` in the 200 range (`Get<FactionAsset>(factionId)`). See `client/Sim/Data/Assets.json`.
+
+`ShopItem` is likewise a multi-instance catalog asset (type id 105): one instance per purchasable item, keyed by its own `AssetId` in the 300 range (`Get<ShopItemAsset>(itemId)`). Sim owns Cost/AttackBonus; the client [`ShopItemCatalog`](client/Scripts/View/ShopItemCatalog.cs) maps those AssetIds to portraits/names.
 
 ### Klotho Internal
 
@@ -100,7 +104,7 @@ Uses [`KlothoDataAssetAttribute`](vendor/Klotho/com.xpturn.klotho/Runtime/ECS/Da
 | --- | ------------------- | -------------------------------------------------------------- |
 | 11  | [`NavAgentComponent`](vendor/Klotho/com.xpturn.klotho/Runtime/Deterministic/Navigation/NavAgentComponent.cs) | Packaged Klotho nav component; no conflict with project range. |
 
-Next free project IDs: [`KlothoComponent`](vendor/Klotho/com.xpturn.klotho/Runtime/ECS/Core/IComponent.cs) 117, [`KlothoSerializable`](vendor/Klotho/com.xpturn.klotho/Runtime/Serialization/Attributes/KlothoSerializableAttribute.cs) command 105, [`KlothoSerializable`](vendor/Klotho/com.xpturn.klotho/Runtime/Serialization/Attributes/KlothoSerializableAttribute.cs) event 108, [`KlothoDataAsset`](vendor/Klotho/com.xpturn.klotho/Runtime/ECS/DataAsset/IDataAsset.cs) type id 105 (faction instance AssetIds use the 200 range).
+Next free project IDs: [`KlothoComponent`](vendor/Klotho/com.xpturn.klotho/Runtime/ECS/Core/IComponent.cs) 117, [`KlothoSerializable`](vendor/Klotho/com.xpturn.klotho/Runtime/Serialization/Attributes/KlothoSerializableAttribute.cs) command 107, [`KlothoSerializable`](vendor/Klotho/com.xpturn.klotho/Runtime/Serialization/Attributes/KlothoSerializableAttribute.cs) event 108, [`KlothoDataAsset`](vendor/Klotho/com.xpturn.klotho/Runtime/ECS/DataAsset/IDataAsset.cs) type id 106 (faction instance AssetIds use the 200 range, shop item AssetIds the 300 range).
 
 ## Systems
 

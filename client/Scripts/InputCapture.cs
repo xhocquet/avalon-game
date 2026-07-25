@@ -32,6 +32,8 @@ public class InputCapture : IDisposable {
   private int _localTeamId = 1;
   private AttackCommand _pendingAttackCommand;
   private MoveCommand _pendingMoveCommand;
+  private PurchaseItemCommand _pendingPurchaseCommand;
+  private ShopEntity _contextShop;
   private Node3D _singleplayerMoveTarget;
   private EntityViewUpdaterNode _viewRoot;
 
@@ -42,8 +44,11 @@ public class InputCapture : IDisposable {
     ClearSelectedViews();
     _pendingMoveCommand = null;
     _pendingAttackCommand = null;
+    _pendingPurchaseCommand = null;
+    _contextShop = null;
     _camera = null;
     _gameUI?.SetSelectionRectangle(null);
+    _gameUI?.SetContextShop(null);
     _gameUI = null;
     _viewRoot = null;
     _fallbackFocusView = null;
@@ -62,6 +67,10 @@ public class InputCapture : IDisposable {
 
   public void BindGameUI(GameUI gameUI) {
     _gameUI = gameUI;
+    // The action bar renders shop actions and calls back here when the player clicks a buy button;
+    // we turn that into a pending PurchaseItemCommand that SimCallbacks.OnPollInput sends next tick.
+    if (_gameUI != null)
+      _gameUI.PurchaseRequested = QueuePurchase;
   }
 
   public void BindClickMarker(Node3D clickMarker) {
@@ -102,6 +111,18 @@ public class InputCapture : IDisposable {
     return command != null;
   }
 
+  public bool TryConsumePurchaseCommand(out PurchaseItemCommand command) {
+    command = _pendingPurchaseCommand;
+    _pendingPurchaseCommand = null;
+    return command != null;
+  }
+
+  // Called by the action bar when the player clicks a shop buy button. Validation (gold, range) is
+  // the sim's job — we just forward the intent; a rejected purchase is simply a no-op in the sim.
+  public void QueuePurchase(int itemAssetId) {
+    _pendingPurchaseCommand = new PurchaseItemCommand { ItemAssetId = itemAssetId };
+  }
+
   public void ClearSingleplayerTarget() {
     HasSingleplayerTarget = false;
   }
@@ -122,13 +143,24 @@ public class InputCapture : IDisposable {
         return;
 
       case InputEventMouseButton { ButtonIndex: MouseButton.Left } leftClick:
+        if (leftClick.Pressed && IsPointerOverClickableUi()) return;
         HandleLeftClick(leftClick);
         return;
 
       case InputEventMouseButton { ButtonIndex: MouseButton.Right } rightClick:
+        if (rightClick.Pressed && IsPointerOverClickableUi()) return;
         HandleRightClick(rightClick);
         return;
     }
+  }
+
+  // RTS world input is driven from the _Input phase (GameNode._Input), which runs before Control
+  // nodes get the event. Without this guard a click on a HUD button (e.g. an action-bar buy button)
+  // would ALSO drive world selection/movement - deselecting the shop and hiding the action grid on
+  // the very click meant to buy. Only interactive widgets (BaseButton) capture the click; passive
+  // HUD elements (labels, panels) aren't BaseButtons, so world clicks through empty HUD still work.
+  private bool IsPointerOverClickableUi() {
+    return _camera?.GetViewport()?.GuiGetHoveredControl() is BaseButton;
   }
 
   private void HandleLeftClick(InputEventMouseButton mouseButton) {
@@ -343,6 +375,8 @@ public class InputCapture : IDisposable {
   private void UpdateFocusPortrait() {
     if (_gameUI == null) return;
 
+    UpdateContextShop();
+
     // Prefer the player's champion when it's part of the selection so a mixed group (hero + minions)
     // always shows the hero portrait, rather than whatever unit happens to be first in the list.
     var championView = GetSelectedChampionView();
@@ -376,6 +410,17 @@ public class InputCapture : IDisposable {
     }
 
     _gameUI.SetFocusPortrait(null, null);
+  }
+
+  // A shop is "in context" for the action bar only when it's the sole selection (single-click
+  // inspect). Selecting your own units clears it. The action bar re-checks proximity every frame,
+  // so this just tells it which shop (if any) the player is looking at.
+  private void UpdateContextShop() {
+    var shop = _selectedViews.Count == 1 && _selectedViews[0] is ShopEntity s ? s : null;
+    if (ReferenceEquals(shop, _contextShop)) return;
+
+    _contextShop = shop;
+    _gameUI?.SetContextShop(shop);
   }
 
   // The player's champion (hero) if one is part of the current selection.

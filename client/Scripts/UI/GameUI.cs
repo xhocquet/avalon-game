@@ -28,6 +28,15 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private Control _selectionRectangle;
   private Control _tabUi;
 
+  private ActionBarController _actionBar;
+  private InventoryPanelController _inventoryPanel;
+  private ShopItemCatalog _shopCatalog;
+  private ShopEntity _contextShop;
+
+  // Set by InputCapture.BindGameUI: raised when the player clicks a shop buy button. InputCapture
+  // turns the invocation into a PurchaseItemCommand.
+  public Action<int> PurchaseRequested { get; set; }
+
   private Label _timerLabel;
   private SubViewport _minimapViewport;
   private Camera3D _minimapCamera;
@@ -57,6 +66,8 @@ public partial class GameUI : CanvasLayer, IViewHud {
     UpdateLocalPlayerHealth(frame);
     UpdateLocalPlayerInventory(frame);
     UpdateLocalPlayerStats(frame);
+    _actionBar?.Update(frame, _localPlayerId, _contextShop);
+    _inventoryPanel?.Update(frame, _localPlayerId);
 
     var elapsed = frame.Tick * (double)frame.DeltaTimeMs / 1000.0;
     SetTimerText(FormatMatchTime((int)elapsed));
@@ -103,6 +114,15 @@ public partial class GameUI : CanvasLayer, IViewHud {
       "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/HeroMarginPanel/VBox/PortraitTexture");
     _portraitLabel = GetNodeOrNull<Label>(
       "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/HeroMarginPanel/VBox/PortraitLabel");
+
+    var actionGrid = GetNodeOrNull<GridContainer>(
+      "DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid");
+    _shopCatalog = ShopItemCatalog.CreateDefault();
+    _actionBar = new ActionBarController(actionGrid, _shopCatalog, itemId => PurchaseRequested?.Invoke(itemId));
+
+    var itemPanel = GetNodeOrNull<GridContainer>(
+      "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MarginContainer/ItemPanel");
+    _inventoryPanel = new InventoryPanelController(itemPanel, _shopCatalog);
 
     SetSelectionRectangle(null);
     if (_resultPanel != null) _resultPanel.Visible = false;
@@ -274,6 +294,12 @@ public partial class GameUI : CanvasLayer, IViewHud {
 
   private Texture2D PortraitPlaceholder =>
     _portraitPlaceholder ??= GD.Load<Texture2D>("res://Assets/Portraits/TODO.png");
+
+  // InputCapture reports which shop (if any) is currently selected for inspection. The action bar
+  // re-evaluates proximity every frame, so we just store the reference here.
+  public void SetContextShop(ShopEntity shop) {
+    _contextShop = shop;
+  }
 
   public void SetSelectionRectangle(Rect2? rectangle) {
     if (_selectionRectangle == null) return;
