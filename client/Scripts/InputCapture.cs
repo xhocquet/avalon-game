@@ -5,6 +5,7 @@ using Meesles.Avalon.Client.Scripts.View;
 using Meesles.Avalon.Sim.Commands;
 using Meesles.Avalon.Sim.Models;
 using xpTURN.Klotho.Deterministic.Math;
+using xpTURN.Klotho.Deterministic.Navigation;
 using xpTURN.Klotho.Godot;
 
 namespace Meesles.Avalon;
@@ -17,6 +18,14 @@ public class InputCapture : IDisposable {
   private const float PickRayLength = 1000f;
   private const int MaxPickIterations = 16;
 
+  // Match the sim's FPNavAgentSystem.MultiFloorYThreshold so client-side move-target snapping treats
+  // the same vertical steps as walls that the authoritative navigation does.
+  private static readonly FP64 NavMultiFloorYThreshold = FP64.FromDouble(2.0);
+
+  // Planar distance (squared) under which a MoveAlongSurface result is treated as "didn't move" —
+  // its bounded BFS returns the start point when it never reaches a wall, which we must not snap to.
+  private static readonly FP64 NavSnapNoMoveSqr = FP64.FromDouble(0.01);
+
   private readonly List<EntityViewNode> _selectedViews = new();
   private CameraController _camera;
   private Node3D _clickMarker;
@@ -26,6 +35,8 @@ public class InputCapture : IDisposable {
   private Vector2 _dragStartScreen;
   private EntityViewNode _fallbackFocusView;
   private FactionCatalog _factions;
+  private FPNavMesh _navMesh;
+  private FPNavMeshQuery _navQuery;
   private GameUI _gameUI;
   private bool _isDraggingSelection;
   private bool _isLeftButtonDown;
@@ -53,6 +64,8 @@ public class InputCapture : IDisposable {
     _viewRoot = null;
     _fallbackFocusView = null;
     _factions = null;
+    _navMesh = null;
+    _navQuery = null;
     _clickMarkerTween?.Kill();
     _clickMarkerTween = null;
     if (_clickMarker != null && GodotObject.IsInstanceValid(_clickMarker))
@@ -87,6 +100,13 @@ public class InputCapture : IDisposable {
 
   public void BindFactionCatalog(FactionCatalog factions) {
     _factions = factions;
+  }
+
+  // Read-only navmesh + query used to keep right-click move targets on walkable ground (see
+  // SnapMoveTargetToWalkable). A separate instance from the sim's — it only reads, never mutates.
+  public void BindNavigation(FPNavMesh navMesh, FPNavMeshQuery navQuery) {
+    _navMesh = navMesh;
+    _navQuery = navQuery;
   }
 
   public void BindSingleplayerMoveTarget(Node3D target) {
@@ -181,7 +201,85 @@ public class InputCapture : IDisposable {
     var ground = _camera.ScreenToGround(mouseButton.Position);
     if (ground == null) return;
 
-    QueueMoveTo(ground.Value);
+    QueueMoveTo(SnapMoveTargetToWalkable(ground.Value));
+  }
+
+  // A right-click can land on a spot that isn't walkable, and the raw point is then unreachable so
+  // the move is silently dropped. Three off-mesh cases matter:
+  //   - inside a structure/obstacle footprint (shop, trees) that carves a hole in the navmesh,
+  //   - inside an obstacle "island" surrounded by walkable ground,
+  //   - entirely off the map, past the navmesh's outer edge.
+  // Resolution is three-stage: clamp far-off-map clicks back onto the map extent (so a nearby
+  // snap has triangles to work with), then walk the navmesh from the moving unit toward the click
+  // and take the reachable point closest to it (the walkable spot hugging whatever blocks the way,
+  // on the side the unit approaches from), and finally fall back to the geometrically nearest
+  // walkable point when there's no unit to anchor the direction or the walk found no wall.
+  private Vector3 SnapMoveTargetToWalkable(Vector3 ground) {
+    if (_navQuery == null || _navMesh == null)
+      return ground;
+
+    var clickXZ = new FPVector2(FP64.FromFloat(ground.X), FP64.FromFloat(ground.Z));
+
+    // Already on walkable navmesh: keep the exact click. A* routes around any obstacles in between.
+    if (_navQuery.FindTriangle(clickXZ) >= 0)
+      return ground;
+
+    // Stage 1: pull a far-off-map click onto the map's extent. A click well past the edge has no
+    // nearby grid cells to search, so the closest-point snap below would find nothing; clamping to
+    // BoundsXZ lands it on the perimeter where the boundary triangles actually are. In-bounds
+    // clicks (obstacle islands) are already inside the box, so this leaves them untouched.
+    var boundedXZ = _navMesh.BoundsXZ.ClosestPoint(clickXZ);
+
+    // Stage 2: direction-aware snap anchored on the unit doing the moving.
+    if (TryGetNavStart(GetMoveOriginView(), out var startPos, out var startTri)) {
+      var endPos = new FPVector3(boundedXZ.x, startPos.y, boundedXZ.y);
+      var (resultPos, resultTri) =
+        _navQuery.MoveAlongSurface(startPos, endPos, startTri, NavMultiFloorYThreshold);
+
+      // MoveAlongSurface returns the start point when its bounded BFS never reaches a wall (open
+      // ground far from the target); treat that as "no useful snap" and fall through to stage 3.
+      var moved = FPVector2.SqrDistance(startPos.ToXZ(), resultPos.ToXZ()) > NavSnapNoMoveSqr;
+      if (resultTri >= 0 && moved)
+        return new Vector3(resultPos.x.ToFloat(), ground.Y, resultPos.z.ToFloat());
+    }
+
+    // Stage 3: geometrically nearest walkable point to the (bounded) click. Handles the no-origin
+    // case and far clicks the walk couldn't reach — snaps onto the closest mesh edge.
+    var closest = _navQuery.ClosestPointOnNavMesh(boundedXZ, out var closestTri);
+    return closestTri >= 0
+      ? new Vector3(closest.x.ToFloat(), ground.Y, closest.y.ToFloat())
+      : ground;
+  }
+
+  // The unit whose approach direction anchors target snapping: the selected champion if present,
+  // else the first selected unit, else the focus hero (covers the no-selection hero move where the
+  // command carries no unit ids and the sim moves the player's own hero).
+  private EntityViewNode GetMoveOriginView() {
+    var champion = GetSelectedChampionView();
+    if (champion != null)
+      return champion;
+    if (_selectedViews.Count > 0)
+      return _selectedViews[0];
+
+    return GetFallbackFocusView();
+  }
+
+  // Resolves the navmesh triangle the given view currently stands on, used as the BFS origin for
+  // direction-aware target snapping. Projects onto the mesh in case the view sits slightly off it.
+  private bool TryGetNavStart(EntityViewNode view, out FPVector3 startPos, out int startTri) {
+    startPos = FPVector3.Zero;
+    startTri = -1;
+    if (view == null || !GodotObject.IsInstanceValid(view))
+      return false;
+
+    var pos = view.GlobalPosition;
+    var xz = new FPVector2(FP64.FromFloat(pos.X), FP64.FromFloat(pos.Z));
+    var snapped = _navQuery.ClosestPointOnNavMesh(xz, out startTri);
+    if (startTri < 0)
+      return false;
+
+    startPos = new FPVector3(snapped.x, FP64.Zero, snapped.y);
+    return true;
   }
 
   private void QueueMoveTo(Vector3 ground) {

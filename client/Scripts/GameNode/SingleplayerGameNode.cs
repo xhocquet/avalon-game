@@ -44,6 +44,7 @@ public partial class SingleplayerGameNode : GameNode {
 
     _camera = GetNodeOrNull<CameraController>("Camera3D");
     Input.BindCamera(_camera);
+    BindNavigationToInput();
 
     _viewCallbacks = new ViewCallbacks(GameUi);
     _transport = new LiteNetLibTransport(logger, connectionKey: ConnectionKey);

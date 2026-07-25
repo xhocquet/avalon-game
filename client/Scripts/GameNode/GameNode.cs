@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.IO;
 using Godot;
 using Meesles.Avalon.Sim;
+using xpTURN.Klotho.Deterministic.Navigation;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Godot;
 using xpTURN.Klotho.Logging;
@@ -86,6 +87,15 @@ public abstract partial class GameNode : Node {
     }
 
     return bytes;
+  }
+
+  // Gives InputCapture its own read-only navmesh query so right-click move targets can be snapped
+  // onto walkable ground (structures carve holes the raw click lands inside). Deserializes a fresh
+  // navmesh from the baked bytes rather than reaching into the sim's private NavigationRuntime; the
+  // query only reads. Logger is optional (KDebug traces only), so null is fine here.
+  protected void BindNavigationToInput() {
+    var navMesh = FPNavMeshSerializer.Deserialize(LoadNavigationMeshBytes());
+    Input.BindNavigation(navMesh, new FPNavMeshQuery(navMesh, null));
   }
 
   // The map authors a base per team; TeamPruneSystem deletes the sim entities of teams no player is

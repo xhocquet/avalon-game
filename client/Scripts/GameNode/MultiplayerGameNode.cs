@@ -51,6 +51,7 @@ public partial class MultiplayerGameNode : GameNode {
 
     _camera = GetNodeOrNull<CameraController>("Camera3D");
     Input.BindCamera(_camera);
+    BindNavigationToInput();
 
     CreateView();
 
