@@ -1,152 +1,537 @@
 [gd_scene format=3 uid="uid://ds0laytwwjog8"]
 
 [ext_resource type="Script" uid="uid://dmre4bujrf1ng" path="res://Scripts/UI/LobbyUI.cs" id="1_lobbyui"]
+[ext_resource type="Texture2D" path="res://Assets/Portraits/TODO.png" id="2_placeholder"]
 
-[node name="LobbyUI" type="Control" unique_id=565595262]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_column"]
+bg_color = Color(0.13, 0.13, 0.13, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.35, 0.35, 0.35, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot"]
+bg_color = Color(0.17, 0.17, 0.17, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.3, 0.3, 0.3, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_result"]
+content_margin_left = 28.0
+content_margin_top = 22.0
+content_margin_right = 28.0
+content_margin_bottom = 22.0
+bg_color = Color(0.13, 0.13, 0.13, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.35, 0.35, 0.35, 1)
+
+[node name="LobbyUI" type="Control"]
 layout_mode = 3
-anchors_preset = 0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1_lobbyui")
 
-[node name="PhasePrefixLabel" type="Label" parent="." unique_id=1389496938]
-layout_mode = 0
-offset_left = 300.0
-offset_top = 16.0
-offset_right = 368.0
-offset_bottom = 36.0
-text = "Phase:"
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.09, 0.09, 0.09, 1)
 
-[node name="StateLabel" type="Label" parent="." unique_id=983614347]
-layout_mode = 0
-offset_left = 374.0
-offset_top = 16.0
-offset_right = 600.0
-offset_bottom = 36.0
+[node name="Root" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="Columns" type="HBoxContainer" parent="Root"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+
+[node name="LeftColumn" type="PanelContainer" parent="Root/Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_column")
+
+[node name="Margin" type="MarginContainer" parent="Root/Columns/LeftColumn"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="Root/Columns/LeftColumn/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TitleLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.85, 1)
+theme_override_font_sizes/font_size = 18
+text = "YOUR PLAYER"
+
+[node name="TitleSeparator" type="HSeparator" parent="Root/Columns/LeftColumn/Margin/VBox"]
+layout_mode = 2
+
+[node name="NameHeaderLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
+text = "Name"
+
+[node name="NameField" type="LineEdit" parent="Root/Columns/LeftColumn/Margin/VBox"]
+layout_mode = 2
+text = "Player"
+placeholder_text = "Player name"
+max_length = 20
+
+[node name="SelectionHeaderLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
+text = "Selection"
+
+[node name="SelectionRow" type="HBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="SelectedFactionPortrait" type="TextureRect" parent="Root/Columns/LeftColumn/Margin/VBox/SelectionRow"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+texture = ExtResource("2_placeholder")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SelectedFactionLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/SelectionRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+theme_override_font_sizes/font_size = 16
 text = "—"
+autowrap_mode = 2
 
-[node name="RoomPrefixLabel" type="Label" parent="." unique_id=219641535]
-layout_mode = 0
-offset_left = 300.0
-offset_top = 40.0
-offset_right = 368.0
-offset_bottom = 60.0
-text = "Room:"
+[node name="ServerHeaderLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
+text = "Server"
 
-[node name="RoomLabel" type="Label" parent="." unique_id=1085102040]
-layout_mode = 0
-offset_left = 374.0
-offset_top = 40.0
-offset_right = 600.0
-offset_bottom = 60.0
+[node name="HostRow" type="HBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="HostPrefixLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/HostRow"]
+custom_minimum_size = Vector2(44, 0)
+layout_mode = 2
+text = "IP"
+
+[node name="IpField" type="LineEdit" parent="Root/Columns/LeftColumn/Margin/VBox/HostRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "127.0.0.1"
+placeholder_text = "IP"
+
+[node name="PortRow" type="HBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PortPrefixLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/PortRow"]
+custom_minimum_size = Vector2(44, 0)
+layout_mode = 2
+text = "Port"
+
+[node name="PortField" type="LineEdit" parent="Root/Columns/LeftColumn/Margin/VBox/PortRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "7777"
+placeholder_text = "Port"
+
+[node name="InfoSeparator" type="HSeparator" parent="Root/Columns/LeftColumn/Margin/VBox"]
+layout_mode = 2
+
+[node name="InfoGrid" type="GridContainer" parent="Root/Columns/LeftColumn/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 4
+columns = 2
+
+[node name="RoomPrefixLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
+text = "Room"
+
+[node name="RoomLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
 text = "Not joined"
 
-[node name="YouPrefixLabel" type="Label" parent="." unique_id=1790788348]
-layout_mode = 0
-offset_left = 300.0
-offset_top = 64.0
-offset_right = 340.0
-offset_bottom = 84.0
-text = "You:"
+[node name="PhasePrefixLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
+text = "Phase"
 
-[node name="PlayerIdLabel" type="Label" parent="." unique_id=161337401]
-layout_mode = 0
-offset_left = 346.0
-offset_top = 64.0
-offset_right = 430.0
-offset_bottom = 84.0
+[node name="StateLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
 text = "—"
 
-[node name="ReadyPrefixLabel" type="Label" parent="." unique_id=192212184]
-layout_mode = 0
-offset_left = 436.0
-offset_top = 64.0
-offset_right = 494.0
-offset_bottom = 84.0
-text = "Ready:"
+[node name="YouPrefixLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
+text = "You"
 
-[node name="ReadyStatusLabel" type="Label" parent="." unique_id=854971008]
-layout_mode = 0
-offset_left = 500.0
-offset_top = 64.0
-offset_right = 600.0
-offset_bottom = 84.0
+[node name="PlayerIdLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
 text = "—"
 
-[node name="Separator0" type="ColorRect" parent="." unique_id=1395753119]
-layout_mode = 0
-offset_left = 300.0
-offset_top = 89.0
-offset_right = 600.0
-offset_bottom = 91.0
-color = Color(0.4, 0.4, 0.4, 0.4)
+[node name="ReadyPrefixLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
+text = "Ready"
 
-[node name="PlayersHeaderLabel" type="Label" parent="." unique_id=1454982101]
-layout_mode = 0
-offset_left = 300.0
-offset_top = 96.0
-offset_right = 600.0
-offset_bottom = 114.0
-text = "Players:"
-
-[node name="PlayerRow0Label" type="Label" parent="." unique_id=446972737]
-layout_mode = 0
-offset_left = 308.0
-offset_top = 114.0
-offset_right = 600.0
-offset_bottom = 132.0
+[node name="ReadyStatusLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
 text = "—"
 
-[node name="PlayerRow1Label" type="Label" parent="." unique_id=381996579]
-layout_mode = 0
-offset_left = 308.0
-offset_top = 132.0
-offset_right = 600.0
-offset_bottom = 150.0
+[node name="TimerPrefixLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
+text = "Timer"
+
+[node name="TimerLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
 text = "—"
 
-[node name="Separator1" type="ColorRect" parent="." unique_id=2095465660]
-layout_mode = 0
-offset_left = 300.0
-offset_top = 155.0
-offset_right = 600.0
-offset_bottom = 157.0
-color = Color(0.4, 0.4, 0.4, 0.4)
+[node name="StatusLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.75, 0.75, 1)
+text = "—"
+autowrap_mode = 2
 
-[node name="StatusPrefixLabel" type="Label" parent="." unique_id=1818178688]
-layout_mode = 0
-offset_left = 300.0
-offset_top = 162.0
-offset_right = 368.0
-offset_bottom = 182.0
-text = "Status:"
+[node name="Spacer" type="Control" parent="Root/Columns/LeftColumn/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
 
-[node name="StatusLabel" type="Label" parent="." unique_id=1453328213]
-layout_mode = 0
-offset_left = 374.0
-offset_top = 162.0
-offset_right = 600.0
-offset_bottom = 182.0
+[node name="Buttons" type="VBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="JoinButton" type="Button" parent="Root/Columns/LeftColumn/Margin/VBox/Buttons"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+text = "Join"
+
+[node name="ReadyButton" type="Button" parent="Root/Columns/LeftColumn/Margin/VBox/Buttons"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+text = "Ready"
+
+[node name="StopButton" type="Button" parent="Root/Columns/LeftColumn/Margin/VBox/Buttons"]
+layout_mode = 2
+text = "Stop"
+
+
+[node name="MiddleColumn" type="VBoxContainer" parent="Root/Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+theme_override_constants/separation = 16
+
+[node name="FactionPanel" type="PanelContainer" parent="Root/Columns/MiddleColumn"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 1.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_column")
+
+[node name="Margin" type="MarginContainer" parent="Root/Columns/MiddleColumn/FactionPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="Root/Columns/MiddleColumn/FactionPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TitleLabel" type="Label" parent="Root/Columns/MiddleColumn/FactionPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.85, 1)
+theme_override_font_sizes/font_size = 18
+text = "CHOOSE YOUR FACTION"
+horizontal_alignment = 1
+
+[node name="TitleSeparator" type="HSeparator" parent="Root/Columns/MiddleColumn/FactionPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="FactionGrid" type="GridContainer" parent="Root/Columns/MiddleColumn/FactionPanel/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 16
+columns = 2
+
+[node name="MapPanel" type="PanelContainer" parent="Root/Columns/MiddleColumn"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 1.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_column")
+
+[node name="Margin" type="MarginContainer" parent="Root/Columns/MiddleColumn/MapPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="Root/Columns/MiddleColumn/MapPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TitleLabel" type="Label" parent="Root/Columns/MiddleColumn/MapPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.85, 1)
+theme_override_font_sizes/font_size = 18
+text = "MAP"
+horizontal_alignment = 1
+
+[node name="TitleSeparator" type="HSeparator" parent="Root/Columns/MiddleColumn/MapPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="MapPlaceholder" type="Label" parent="Root/Columns/MiddleColumn/MapPanel/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
+theme_override_font_sizes/font_size = 28
+text = "TODO"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+
+[node name="RightColumn" type="PanelContainer" parent="Root/Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_column")
+
+[node name="Margin" type="MarginContainer" parent="Root/Columns/RightColumn"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="Root/Columns/RightColumn/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PlayersHeaderLabel" type="Label" parent="Root/Columns/RightColumn/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.85, 1)
+theme_override_font_sizes/font_size = 18
+text = "PLAYERS"
+
+[node name="TitleSeparator" type="HSeparator" parent="Root/Columns/RightColumn/Margin/VBox"]
+layout_mode = 2
+
+[node name="PlayerSlots" type="VBoxContainer" parent="Root/Columns/RightColumn/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Slot0" type="PanelContainer" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
+
+[node name="Margin" type="MarginContainer" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot0"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="Row" type="HBoxContainer" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot0/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Portrait" type="TextureRect" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot0/Margin/Row"]
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+texture = ExtResource("2_placeholder")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Info" type="VBoxContainer" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot0/Margin/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+theme_override_constants/separation = 2
+
+[node name="NameLabel" type="Label" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot0/Margin/Row/Info"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Empty slot"
+
+[node name="StatusLabel" type="Label" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot0/Margin/Row/Info"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
+theme_override_font_sizes/font_size = 13
 text = "—"
 
-[node name="TimerLabel" type="Label" parent="." unique_id=2079269166]
-layout_mode = 0
-offset_left = 300.0
-offset_top = 186.0
-offset_right = 600.0
-offset_bottom = 206.0
+[node name="Slot1" type="PanelContainer" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
+
+[node name="Margin" type="MarginContainer" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot1"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="Row" type="HBoxContainer" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot1/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Portrait" type="TextureRect" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot1/Margin/Row"]
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+texture = ExtResource("2_placeholder")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Info" type="VBoxContainer" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot1/Margin/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+theme_override_constants/separation = 2
+
+[node name="NameLabel" type="Label" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot1/Margin/Row/Info"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Empty slot"
+
+[node name="StatusLabel" type="Label" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot1/Margin/Row/Info"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
+theme_override_font_sizes/font_size = 13
 text = "—"
 
-[node name="ResultPanel" type="Panel" parent="." unique_id=416147441]
+[node name="Slot2" type="PanelContainer" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
+
+[node name="Margin" type="MarginContainer" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot2"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="Row" type="HBoxContainer" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot2/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Portrait" type="TextureRect" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot2/Margin/Row"]
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+texture = ExtResource("2_placeholder")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Info" type="VBoxContainer" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot2/Margin/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+theme_override_constants/separation = 2
+
+[node name="NameLabel" type="Label" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot2/Margin/Row/Info"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Empty slot"
+
+[node name="StatusLabel" type="Label" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot2/Margin/Row/Info"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
+theme_override_font_sizes/font_size = 13
+text = "—"
+
+[node name="Slot3" type="PanelContainer" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
+
+[node name="Margin" type="MarginContainer" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot3"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="Row" type="HBoxContainer" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot3/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Portrait" type="TextureRect" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot3/Margin/Row"]
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+texture = ExtResource("2_placeholder")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Info" type="VBoxContainer" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot3/Margin/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+theme_override_constants/separation = 2
+
+[node name="NameLabel" type="Label" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot3/Margin/Row/Info"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Empty slot"
+
+[node name="StatusLabel" type="Label" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot3/Margin/Row/Info"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
+theme_override_font_sizes/font_size = 13
+text = "—"
+
+
+[node name="ResultPanel" type="PanelContainer" parent="."]
 visible = false
-layout_mode = 0
-offset_left = 300.0
-offset_top = 214.0
-offset_right = 600.0
-offset_bottom = 274.0
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_result")
 
-[node name="ResultLabel" type="Label" parent="ResultPanel" unique_id=680849989]
-layout_mode = 0
-offset_left = 8.0
-offset_top = 8.0
-offset_right = 292.0
-offset_bottom = 52.0
+[node name="ResultLabel" type="Label" parent="ResultPanel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
 text = "RESULT"
+horizontal_alignment = 1
+vertical_alignment = 1

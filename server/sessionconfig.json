@@ -1,5 +1,5 @@
 {
-  "MaxPlayers": 2,
+  "MaxPlayers": 4,
   "MinPlayers": 2,
   "AllowLateJoin": false,
   "MaxSpectators": 0,

@@ -4,6 +4,7 @@ using Godot;
 using Meesles.Avalon.Client;
 using Meesles.Avalon.Client.Scripts;
 using Meesles.Avalon.Client.Scripts.View;
+using Meesles.Avalon.Sim.Network;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Godot;
@@ -19,13 +20,17 @@ public partial class LobbyGameNode : GameNode {
   private const string GameScenePath = "res://Scenes/Multiplayer.tscn";
   private const int CountdownMs = 1000;
   private bool _autoReadySent;
+  private bool _configDirty;
   private ulong _countdownStartedAtMs;
   private GodotSessionDriver _driver;
   private KlothoSessionFlow _flow;
+  private KlothoFlowSetup _flowSetup;
   private bool _handoffStarted;
   private bool _joining;
   private Task<KlothoSession> _joinTask;
   private SessionPhase _lastPhase = SessionPhase.None;
+  private int _lastSentFactionId = -1;
+  private int _loggedRosterCount = -1;
 
   private IKLogger _logger;
   private bool _quickplay;
@@ -51,39 +56,41 @@ public partial class LobbyGameNode : GameNode {
       UsePrediction = true,
       EnableErrorCorrection = true
     };
-    _sesCfg = new SessionConfig { MaxPlayers = 2, MinPlayers = 2, CountdownDurationMs = CountdownMs };
+    _sesCfg = new SessionConfig { MaxPlayers = 4, MinPlayers = 2, CountdownDurationMs = CountdownMs };
 
     InitializeSharedNodes();
-    Menu.SetLobbyMode();
     LobbyUi.SetLobbyMode();
 
     _simulationCallbacks = new SimCallbacks(Input, navMeshBytes, _logger);
     _viewCallbacks = new ViewCallbacks(LobbyUi);
     _transport = new LiteNetLibTransport(_logger, connectionKey: ConnectionKey);
-    _flow = new KlothoSessionFlow(
-      new KlothoFlowSetupBuilder((s, ss) =>
-          new SessionCallbacks(_simulationCallbacks, _viewCallbacks))
-        .WithLogger(_logger)
-        .WithTransport(_transport)
-        .WithAssetRegistry(_registry)
-        .WithGodotDefaults()
-        .Build()
-    );
+    // Kept as a field because the display name is not known at build time — the player types it after
+    // this runs. The flow reads ClaimedDisplayName off this instance at connect, so OnJoin stamps it.
+    _flowSetup = new KlothoFlowSetupBuilder((s, ss) =>
+        new SessionCallbacks(_simulationCallbacks, _viewCallbacks))
+      .WithLogger(_logger)
+      .WithTransport(_transport)
+      .WithAssetRegistry(_registry)
+      .WithGodotDefaults()
+      .Build();
+    _flow = new KlothoSessionFlow(_flowSetup);
 
     _driver = new GodotSessionDriver { Name = "KlothoSessionDriver" };
     GetTree().Root.CallDeferred(Node.MethodName.AddChild, _driver);
     _driver.BindTransport(_transport);
 
-    Menu.OnJoinClicked += OnJoin;
-    Menu.OnReadyClicked += OnReady;
-    Menu.OnUnreadyClicked += OnUnready;
-    Menu.OnStopClicked += OnStop;
-    Menu.SetInitialHost("127.0.0.1", 7777);
-    Menu.SetReadyEnabled(false);
-    Menu.SetStopEnabled(false);
+    LobbyUi.OnJoinClicked += OnJoin;
+    LobbyUi.OnReadyClicked += OnReady;
+    LobbyUi.OnUnreadyClicked += OnUnready;
+    LobbyUi.OnStopClicked += OnStop;
+    LobbyUi.OnFactionSelected += OnFactionSelected;
+    LobbyUi.SetInitialHost("127.0.0.1", 7777);
+    LobbyUi.SetReadyEnabled(false);
+    LobbyUi.SetStopEnabled(false);
 
     _quickplay = Array.IndexOf(OS.GetCmdlineUserArgs(), "--quickplay") >= 0;
     ApplyFactionArg();
+    ApplyNameArg();
     if (_quickplay) CallDeferred(MethodName.OnJoin);
   }
 
@@ -101,13 +108,35 @@ public partial class LobbyGameNode : GameNode {
     }
   }
 
+  // `--name=<display name>`, the same escape hatch as --faction: headless clients have no one to type
+  // into the name field, so distinct rosters are only testable from the command line.
+  private void ApplyNameArg() {
+    foreach (var arg in OS.GetCmdlineUserArgs()) {
+      if (!arg.StartsWith("--name=")) continue;
+      var value = arg["--name=".Length..].Trim();
+      if (value.Length > 0) {
+        PlayerProfile.PlayerName = value;
+        LobbyUi.SetPlayerName(value);
+      }
+
+      return;
+    }
+  }
+
   private void OnJoin() {
     if (_session != null || _joining) return;
     _joining = true;
+
+    // Rides along in the join handshake as PlayerJoinMessage.ClaimedDisplayName. With no lobby server
+    // issuing identity tickets, the server takes this at face value and publishes it as the roster's
+    // DisplayName, which is what every other client renders. Unverified by design — spoofable until a
+    // real identity provider is wired (see Klotho's LobbyIntegrationGuide).
+    _flowSetup.ClaimedDisplayName = PlayerProfile.PlayerName;
+
     _joinTask = _flow.JoinServerDrivenAsync(
       _transport,
-      Menu.Host,
-      Menu.Port,
+      LobbyUi.Host,
+      LobbyUi.Port,
       RoomId,
       _sesCfg,
       _driver.TrackConnection);
@@ -117,25 +146,28 @@ public partial class LobbyGameNode : GameNode {
     if (_session == null) return;
     LobbyUi.SetLocalReady(true);
     _session.SetReady(true);
-    Menu.SetReadyState(true);
+    LobbyUi.SetReadyState(true);
   }
 
   private void OnUnready() {
     if (_session == null) return;
     LobbyUi.SetLocalReady(false);
     _session.SetReady(false);
-    Menu.SetReadyState(false);
+    LobbyUi.SetReadyState(false);
   }
 
   private void OnStop() {
     if (_session != null) {
+      UnsubscribeSession();
       _driver.DetachAndStop();
       _session = null;
+      _lastSentFactionId = -1;
+      _loggedRosterCount = -1;
     }
 
-    Menu.SetReadyEnabled(false);
-    Menu.SetReadyState(false);
-    Menu.SetStopEnabled(false);
+    LobbyUi.SetReadyEnabled(false);
+    LobbyUi.SetReadyState(false);
+    LobbyUi.SetStopEnabled(false);
     LobbyUi.SetLocalReady(false);
     LobbyUi.SetPhase(SessionPhase.Disconnected);
     LobbyUi.SetConnected(false);
@@ -143,10 +175,64 @@ public partial class LobbyGameNode : GameNode {
 
   private void OnSessionReady() {
     _driver.Attach(_session);
+    _session.Engine.OnPlayerConfigReceived += OnPlayerConfigReceived;
+    // The server only broadcasts a config at the moment it arrives, so a player who joins later
+    // never hears about picks made before them. Every peer re-announces on a join and the roster
+    // converges — cheap, since this is one reliable 16-byte message per lobby event.
+    _session.NetworkService.OnPlayerJoined += OnPlayerJoined;
+    _configDirty = true;
+
     LobbyUi.SetPhase(_session.Phase);
     LobbyUi.SetConnected(true);
-    Menu.SetReadyEnabled(true);
-    Menu.SetStopEnabled(true);
+    LobbyUi.SetReadyEnabled(true);
+    LobbyUi.SetStopEnabled(true);
+  }
+
+  // ---------------------------------------------------------------- faction pick propagation
+
+  private void OnFactionSelected(int factionId) {
+    _configDirty = true;
+  }
+
+  private void OnPlayerJoined(IPlayerInfo player) {
+    _configDirty = true;
+  }
+
+  // Roster names arrive by two different routes — the handshake reply for players already in the room,
+  // and a join notification for later arrivals — so log on size change rather than per event.
+  private void LogRosterChanges() {
+    var players = _session.NetworkService.Players;
+    if (players.Count == _loggedRosterCount) return;
+    _loggedRosterCount = players.Count;
+    foreach (var p in players)
+      _logger.KInformation($"[Client] lobby roster: p{p.PlayerId} '{p.DisplayName}'");
+  }
+
+  // Sends the local pick over Klotho's PlayerConfig channel (client -> server -> all peers). This is
+  // lobby presentation only; the sim still gets the faction from SelectFactionCommand at match start.
+  private void PushFactionConfig() {
+    if (_session == null) return;
+    if (!_configDirty && FactionSelection.SelectedFactionId == _lastSentFactionId) return;
+
+    // LocalPlayerId lands with the handshake; before that the server would file the config under a
+    // bogus id, so hold off and retry next frame.
+    if (_session.NetworkService.LocalPlayerId <= 0) return;
+
+    _lastSentFactionId = FactionSelection.SelectedFactionId;
+    _configDirty = false;
+    _session.SendPlayerConfig(new LobbyPlayerConfig { FactionId = _lastSentFactionId });
+  }
+
+  private void OnPlayerConfigReceived(int playerId, bool firstTime) {
+    if (!_session.Engine.TryGetPlayerConfig<LobbyPlayerConfig>(playerId, out var config)) return;
+    LobbyUi.SetPlayerFaction(playerId, config.FactionId);
+    _logger.KInformation($"[Client] lobby faction from p{playerId}: faction={config.FactionId} first={firstTime}");
+  }
+
+  private void UnsubscribeSession() {
+    if (_session == null) return;
+    _session.Engine.OnPlayerConfigReceived -= OnPlayerConfigReceived;
+    _session.NetworkService.OnPlayerJoined -= OnPlayerJoined;
   }
 
   public override void _Process(double delta) {
@@ -170,6 +256,8 @@ public partial class LobbyGameNode : GameNode {
     LobbyUi.SetPhase(_session.Phase);
     UpdateCountdownHud(_session.Phase);
     AutoReadyHeadless();
+    PushFactionConfig();
+    LogRosterChanges();
     LobbyUi.SyncPlayers(_session.NetworkService.Players, _session.NetworkService.LocalPlayerId);
 
     if (_session.Phase == SessionPhase.Playing)
@@ -220,5 +308,12 @@ public partial class LobbyGameNode : GameNode {
     LoggerFactory = null;
 
     GetTree().ChangeSceneToFile(GameScenePath);
+  }
+
+  // The session (and its engine) outlives this scene on handoff, so the lobby's subscriptions have to
+  // come off explicitly — otherwise they keep firing into a freed LobbyUI.
+  public override void _ExitTree() {
+    UnsubscribeSession();
+    base._ExitTree();
   }
 }

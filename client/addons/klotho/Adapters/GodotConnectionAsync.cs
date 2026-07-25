@@ -13,12 +13,17 @@ namespace xpTURN.Klotho.Godot {
   // onStarted reports the in-flight KlothoConnection so the caller (driver) can pump its Update()
   // each frame — that enforces the client-side connect/reconnect timeout (Update is the watchdog).
   public static class GodotConnectionAsync {
+    // identityProvider / claimedDisplayName ride along in PlayerJoinMessage: the first is a
+    // lobby-issued ticket (unused here — no lobby server), the second an unverified nickname the
+    // authority publishes as the roster DisplayName when no validator is present.
     public static Task<ConnectionResult> ConnectAsync(
         INetworkTransport transport, string host, int port,
         IKLogger logger = null,
         NetworkMessageBase preJoinMessage = null,
         IDeviceIdProvider deviceIdProvider = null,
-        Action<KlothoConnection> onStarted = null) {
+        Action<KlothoConnection> onStarted = null,
+        IPlayerIdentityProvider identityProvider = null,
+        string claimedDisplayName = null) {
       var tcs = new TaskCompletionSource<ConnectionResult>();
       var connection = KlothoConnection.Connect(
           transport, host, port,
@@ -26,7 +31,9 @@ namespace xpTURN.Klotho.Godot {
           onFailed: ex => tcs.TrySetException(ex),
           logger: logger,
           preJoinMessage: preJoinMessage,
-          deviceIdProvider: deviceIdProvider);
+          deviceIdProvider: deviceIdProvider,
+          identityProvider: identityProvider,
+          claimedDisplayName: claimedDisplayName);
       onStarted?.Invoke(connection);
       return tcs.Task;
     }

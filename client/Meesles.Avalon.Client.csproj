@@ -33,6 +33,7 @@
     <Compile Include="$(SimRoot)/Events/**/*.cs"   Link="Sim/Events/%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="$(SimRoot)/Models/**/*.cs"     Link="Sim/Models/%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="$(SimRoot)/Navigation/**/*.cs" Link="Sim/Navigation/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="$(SimRoot)/Network/**/*.cs" Link="Sim/Network/%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="$(SimRoot)/Systems/**/*.cs"  Link="Sim/Systems/%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Remove="Sim/Tools/**/*.cs" />
   </ItemGroup>

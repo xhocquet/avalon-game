@@ -85,7 +85,7 @@ public partial class MultiplayerGameNode : GameNode {
     _registry = LoadAssetRegistry();
     var navMeshBytes = LoadNavigationMeshBytes();
     _simCfg = new SimulationConfig { Mode = NetworkMode.ServerDriven };
-    _sesCfg = new SessionConfig { MaxPlayers = 2, MinPlayers = 2, CountdownDurationMs = 0 };
+    _sesCfg = new SessionConfig { MaxPlayers = 4, MinPlayers = 2, CountdownDurationMs = 0 };
     _transport = new LiteNetLibTransport(_logger, connectionKey: ConnectionKey);
     _simulationCallbacks = new SimCallbacks(Input, navMeshBytes, _logger);
     _viewCallbacks = new ViewCallbacks(GameUi);
@@ -96,6 +96,7 @@ public partial class MultiplayerGameNode : GameNode {
         .WithLogger(_logger)
         .WithTransport(_transport)
         .WithAssetRegistry(_registry)
+        .WithDisplayName(PlayerProfile.PlayerName)
         .WithGodotDefaults()
         .Build()
     );

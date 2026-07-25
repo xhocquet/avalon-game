@@ -15,11 +15,9 @@ public abstract partial class GameNode : Node {
   protected InputCapture Input;
   protected LobbyUI LobbyUi;
   protected IKLoggerFactory LoggerFactory;
-  protected Menu Menu;
 
   protected void InitializeSharedNodes() {
     Input = new InputCapture();
-    Menu = GetNode<Menu>("UILayer/Menu");
     LobbyUi = GetNode<LobbyUI>("UILayer/LobbyUI");
   }
 
