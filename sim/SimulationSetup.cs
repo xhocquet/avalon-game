@@ -15,7 +15,7 @@ public static class SimulationSetup {
   public const int MinionUnitTypeId = 2;
   private const int CrystalUnitTypeId = 100;
   public const int TurretUnitTypeId = 101;
-  public const int DefaultFactionId = 200;
+  public const int DefaultFactionId = AssetIds.FactionHairyWizards;
 
   public const int SetupGraceTicks = 30;
 

@@ -1,20 +1,22 @@
 // Client-side presentation map for shop items.
-// Item IDs match the ShopItemAsset.AssetIds in client/Sim/Data/Assets.json (300 range).
+// Item IDs come from the sim-side ledger in sim/Assets/AssetIds.cs and match the ShopItemAsset
+// rows in client/Sim/Data/Assets.json (300 range).
 // Sim owns the mechanical data (Cost, AttackBonus); this catalog owns the portraits and
 // display names, which are presentation-only and never touch the deterministic sim.
 
 using System.Collections.Generic;
 using Godot;
+using Meesles.Avalon.Sim.Assets;
 
 namespace Meesles.Avalon;
 
 public sealed class ShopItemCatalog {
-  public const int EyeKeyId = 300;
-  public const int FlowerBladeId = 301;
-  public const int PatchCoatId = 302;
-  public const int SmileyBombId = 303;
-  public const int SpikeBookId = 304;
-  public const int SquirtGunId = 305;
+  public const int EyeKeyId = AssetIds.ShopItemEyeKey;
+  public const int FlowerBladeId = AssetIds.ShopItemFlowerBlade;
+  public const int PatchCoatId = AssetIds.ShopItemPatchCoat;
+  public const int SmileyBombId = AssetIds.ShopItemSmileyBomb;
+  public const int SpikeBookId = AssetIds.ShopItemSpikeBook;
+  public const int SquirtGunId = AssetIds.ShopItemSquirtGun;
 
   public static readonly ShopItemDef[] ItemDefs = [
     new(EyeKeyId, "Eye Key", "res://Assets/Portraits/Items/eye_key.png"),

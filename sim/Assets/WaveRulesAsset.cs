@@ -4,7 +4,8 @@ using xpTURN.Klotho.Serialization;
 
 namespace Meesles.Avalon.Sim.Assets;
 
-[KlothoDataAsset(101, AssetId = 101, Key = "WaveRules")]
+// Instance id is AssetIds.WaveRules; look it up with Get<WaveRulesAsset>().
+[KlothoDataAsset(AssetIds.TypeIds.WaveRules, AssetId = AssetIds.WaveRules, Key = "WaveRules")]
 public partial class WaveRulesAsset : IDataAsset {
   [KlothoOrder(0)] public int FirstWaveDelayTicks;
   [KlothoOrder(1)] public int SpawnIntervalTicks;

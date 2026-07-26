@@ -4,7 +4,8 @@ using xpTURN.Klotho.Serialization;
 
 namespace Meesles.Avalon.Sim.Assets;
 
-[KlothoDataAsset(102, AssetId = 102, Key = "MapLayout")]
+// Instance id is AssetIds.MapLayout; look it up with TryGet<MapLayoutAsset>()
+[KlothoDataAsset(AssetIds.TypeIds.MapLayout, AssetId = AssetIds.MapLayout, Key = "MapLayout")]
 public partial class MapLayoutAsset : IDataAsset {
   [KlothoOrder(0)] public int[] MarkerTypes;
   [KlothoOrder(1)] public int[] MarkerTeams;

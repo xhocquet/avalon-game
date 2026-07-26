@@ -4,7 +4,8 @@ using xpTURN.Klotho.Serialization;
 
 namespace Meesles.Avalon.Sim.Assets;
 
-[KlothoDataAsset(103, AssetId = 103, Key = "MinionStats")]
+// Instance id is AssetIds.MinionStats; look it up with Get<MinionStatsAsset>().
+[KlothoDataAsset(AssetIds.TypeIds.MinionStats, AssetId = AssetIds.MinionStats, Key = "MinionStats")]
 public partial class MinionStatsAsset : IDataAsset {
   [KlothoOrder(0)] public int Health;
   [KlothoOrder(1)] public FP64 MoveSpeed;
