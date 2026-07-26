@@ -13,48 +13,68 @@ public class AttackIntentSystem : ISystem {
     _unitIdIndex.Rebuild(ref frame);
 
     var filter = frame.Filter<AttackTargetUnitId, Team, TransformComponent>();
-    while (filter.Next(out var attacker)) {
-      if (!frame.Has<Combat>(attacker)) {
-        LogAttackState(ref frame, attacker, 0, "cleared_no_combat");
-        ClearAttackIntent(ref frame, attacker);
-        continue;
-      }
+    while (filter.Next(out var attacker))
+      UpdateAttacker(ref frame, attacker);
+  }
 
-      ref var attackTarget = ref frame.Get<AttackTargetUnitId>(attacker);
-      if (!TryResolveTarget(ref frame, attacker, attackTarget.TargetUnitId, out var target)) {
-        LogAttackState(ref frame, attacker, attackTarget.TargetUnitId, "cleared_invalid_target");
-        ClearAttackIntent(ref frame, attacker);
-        ClearMoveTarget(ref frame, attacker);
-        continue;
-      }
-
-      ref var combat = ref frame.Get<Combat>(attacker);
-      ref readonly var attackerTransform = ref frame.GetReadOnly<TransformComponent>(attacker);
-      ref readonly var targetTransform = ref frame.GetReadOnly<TransformComponent>(target);
-
-      var toTarget = targetTransform.Position - attackerTransform.Position;
-      toTarget.y = FP64.Zero;
-      var rangeSq = combat.AttackRange * combat.AttackRange;
-
-      if (toTarget.sqrMagnitude > rangeSq) {
-        combat.Target = default;
-        if (frame.Has<Turret>(attacker)) {
-          ClearAttackIntent(ref frame, attacker);
-          ClearMoveTarget(ref frame, attacker);
-          continue;
-        }
-
-        SetMoveTarget(ref frame, attacker, targetTransform.Position);
-        continue;
-      }
-
-      var wasOutOfRange = !combat.Target.IsValid;
-      combat.Target = target;
-      ClearMoveTarget(ref frame, attacker);
-      if (wasOutOfRange)
-        LogAttackState(ref frame, attacker, attackTarget.TargetUnitId,
-          $"in_range distSq={toTarget.sqrMagnitude} rangeSq={rangeSq}");
+  private void UpdateAttacker(ref Frame frame, EntityRef attacker) {
+    if (!frame.Has<Combat>(attacker)) {
+      LogAttackState(ref frame, attacker, 0, "cleared_no_combat");
+      ClearAttackIntent(ref frame, attacker);
+      return;
     }
+
+    var targetUnitId = frame.GetReadOnly<AttackTargetUnitId>(attacker).TargetUnitId;
+    if (!TryResolveTarget(ref frame, attacker, targetUnitId, out var target)) {
+      LogAttackState(ref frame, attacker, targetUnitId, "cleared_invalid_target");
+      ClearAttackIntent(ref frame, attacker);
+      ClearMoveTarget(ref frame, attacker);
+      return;
+    }
+
+    if (IsWithinAttackRange(ref frame, attacker, target, out var distSq, out var rangeSq))
+      EngageTarget(ref frame, attacker, target, targetUnitId, distSq, rangeSq);
+    else
+      PursueTarget(ref frame, attacker, target);
+  }
+
+  private static bool IsWithinAttackRange(ref Frame frame, EntityRef attacker, EntityRef target,
+    out FP64 distSq, out FP64 rangeSq) {
+    ref readonly var attackerTransform = ref frame.GetReadOnly<TransformComponent>(attacker);
+    ref readonly var targetTransform = ref frame.GetReadOnly<TransformComponent>(target);
+    ref readonly var combat = ref frame.GetReadOnly<Combat>(attacker);
+
+    var toTarget = targetTransform.Position - attackerTransform.Position;
+    toTarget.y = FP64.Zero;
+    distSq = toTarget.sqrMagnitude;
+    rangeSq = combat.AttackRange * combat.AttackRange;
+    return distSq <= rangeSq;
+  }
+
+  // In range: lock the target in and stop moving, logging only the out-of-range -> in-range edge.
+  private static void EngageTarget(ref Frame frame, EntityRef attacker, EntityRef target,
+    int targetUnitId, FP64 distSq, FP64 rangeSq) {
+    ref var combat = ref frame.Get<Combat>(attacker);
+    var wasOutOfRange = !combat.Target.IsValid;
+    combat.Target = target;
+    ClearMoveTarget(ref frame, attacker);
+
+    if (wasOutOfRange)
+      LogAttackState(ref frame, attacker, targetUnitId, $"in_range distSq={distSq} rangeSq={rangeSq}");
+  }
+
+  // Out of range: mobile units walk to the target, immobile turrets drop the intent entirely.
+  private static void PursueTarget(ref Frame frame, EntityRef attacker, EntityRef target) {
+    ref var combat = ref frame.Get<Combat>(attacker);
+    combat.Target = default;
+
+    if (frame.Has<Turret>(attacker)) {
+      ClearAttackIntent(ref frame, attacker);
+      ClearMoveTarget(ref frame, attacker);
+      return;
+    }
+
+    SetMoveTarget(ref frame, attacker, frame.GetReadOnly<TransformComponent>(target).Position);
   }
 
   private bool TryResolveTarget(ref Frame frame, EntityRef attacker, int targetUnitId,
@@ -104,7 +124,7 @@ public class AttackIntentSystem : ISystem {
     if (!TryGetUnitId(ref frame, attacker, out var sourceUnitId))
       sourceUnitId = 0;
 
-    frame.Logger?.KDebug(
+    frame.Logger.KDebug(
       $"[Combat] AttackIntent tick={frame.Tick} sourceUnitId={sourceUnitId} targetUnitId={attackTargetUnitId} state={state}");
   }
 

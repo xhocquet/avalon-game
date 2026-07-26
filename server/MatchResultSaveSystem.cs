@@ -39,7 +39,7 @@ namespace Meesles.Avalon.Server {
       options.Converters.Add(new JsonStringEnumConverter());
 
       File.WriteAllText(path, JsonSerializer.Serialize(result, options));
-      _logger?.KInformation(
+      _logger.KInformation(
         $"[MatchResult] saved path={path} winnerPlayerId={result.WinnerPlayerId} winnerTeamId={result.WinnerTeamId} reason={result.Reason} endTick={result.EndTick}");
     }
   }

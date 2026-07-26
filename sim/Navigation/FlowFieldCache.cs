@@ -3,13 +3,8 @@ using xpTURN.Klotho.Deterministic.Navigation;
 
 namespace Meesles.Avalon.Sim.Navigation;
 
-public sealed class FlowFieldCache {
+public sealed class FlowFieldCache(FPNavMesh navMesh) {
   private readonly Dictionary<int, TriangleFlowField> _fields = new();
-  private readonly FPNavMesh _navMesh;
-
-  public FlowFieldCache(FPNavMesh navMesh) {
-    _navMesh = navMesh;
-  }
 
   public int Version { get; private set; }
 
@@ -17,7 +12,7 @@ public sealed class FlowFieldCache {
     if (_fields.TryGetValue(goalTriangleIndex, out var field))
       return field;
 
-    field = TriangleFlowField.Compute(_navMesh, goalTriangleIndex);
+    field = TriangleFlowField.Compute(navMesh, goalTriangleIndex);
     _fields[goalTriangleIndex] = field;
     return field;
   }

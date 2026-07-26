@@ -1,4 +1,5 @@
 using Meesles.Avalon.Sim;
+using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using Meesles.Avalon.Sim.Factories;
 using xpTURN.Klotho.Core;
@@ -8,30 +9,21 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon;
 
-// Oases periodically eject a resource pickup through three frame-state-driven phases (no wall
-// clock, so rollback replays identically): after SpawnIntervalMs the oasis telegraphs the eject
-// (OasisResourcePreparingEvent) and picks a random landing point on a ring around itself; after
-// PrepareDurationMs it actually ejects (OasisResourceEjectedEvent); after FlightDurationMs the
-// Pickup entity is created and OasisResourceLandedEvent fires. The events exist purely so every
-// client's view layer can animate the same coordinates/timings the sim already computed.
 public class OasisSpawnSystem : ISystem {
-  public const int SpawnIntervalMs = 5000;
-  private const int PrepareDurationMs = 800;
-  private const int FlightDurationMs = 700;
-  private const int DefaultAmount = 10; // TODO: source from a data asset once amounts need tuning
-  private const int MaxGroundPickups = 10;
-  private static readonly FP64 SpawnRadius = FP64.FromInt(8);
   private const ulong RandomFeatureKey = 1;
 
   public void Update(ref Frame frame) {
-    AdvanceCooldowns(ref frame);
-    AdvancePending(ref frame);
+    var rules = frame.AssetRegistry.Get<PickupRulesAsset>();
+    if (rules == null) return;
+
+    AdvanceCooldowns(ref frame, rules);
+    AdvancePending(ref frame, rules);
     AdvanceLanding(ref frame);
   }
 
   // Oases stay clear of new triggers while a spawn is already winding up or in flight — cheap
-  // insurance in case PrepareDurationMs + FlightDurationMs is ever tuned close to SpawnIntervalMs.
-  private static void AdvanceCooldowns(ref Frame frame) {
+  // insurance in case the prepare + flight durations are ever tuned close to the spawn interval.
+  private static void AdvanceCooldowns(ref Frame frame, PickupRulesAsset rules) {
     var seed = GetWorldSeed(ref frame);
     var filter = frame.Filter<Oasis, TransformComponent>();
     while (filter.Next(out var entity)) {
@@ -43,28 +35,29 @@ public class OasisSpawnSystem : ISystem {
       if (oasis.SpawnCooldownRemainingMs > 0)
         continue;
 
-      oasis.SpawnCooldownRemainingMs += SpawnIntervalMs;
+      oasis.SpawnCooldownRemainingMs += rules.OasisSpawnIntervalMs;
 
-      // Ground is full — skip this spawn and retry next interval instead of queuing up.
-      if (CountGroundPickups(ref frame) >= MaxGroundPickups)
+      if (frame.Filter<Pickup>().Count >= rules.MaxGroundPickups)
         continue;
 
       ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
-      var target = GetRandomTargetPosition(seed, oasis.OasisId, frame.Tick, transform.Position);
+      var target = GetRandomTargetPosition(seed, oasis.OasisId, frame.Tick, transform.Position,
+        rules.OasisEjectRadius);
       var pickupId = PickupIdGenerator.Next(ref frame);
 
       frame.Add(entity, new OasisEjectPending {
         PickupId = pickupId,
-        Amount = DefaultAmount,
+        Amount = rules.OasisResourceAmount,
         TargetPosition = target,
-        RemainingMs = PrepareDurationMs
+        RemainingMs = rules.OasisPrepareDurationMs
       });
 
-      RaisePreparing(ref frame, oasis.OasisId, pickupId, transform.Position, target);
+      RaisePreparing(ref frame, oasis.OasisId, pickupId, transform.Position, target,
+        rules.OasisPrepareDurationMs);
     }
   }
 
-  private static void AdvancePending(ref Frame frame) {
+  private static void AdvancePending(ref Frame frame, PickupRulesAsset rules) {
     var filter = frame.Filter<Oasis, OasisEjectPending, TransformComponent>();
     while (filter.Next(out var entity)) {
       ref var pending = ref frame.Get<OasisEjectPending>(entity);
@@ -79,10 +72,11 @@ public class OasisSpawnSystem : ISystem {
         PickupId = pending.PickupId,
         Amount = pending.Amount,
         TargetPosition = pending.TargetPosition,
-        RemainingMs = FlightDurationMs
+        RemainingMs = rules.OasisFlightDurationMs
       });
 
-      RaiseEjected(ref frame, oasis.OasisId, pending.PickupId, transform.Position, pending.TargetPosition);
+      RaiseEjected(ref frame, oasis.OasisId, pending.PickupId, transform.Position, pending.TargetPosition,
+        rules.OasisFlightDurationMs);
       frame.Remove<OasisEjectPending>(entity);
     }
   }
@@ -101,27 +95,20 @@ public class OasisSpawnSystem : ISystem {
     }
   }
 
-  private static int CountGroundPickups(ref Frame frame) {
-    var count = 0;
-    var filter = frame.Filter<Pickup>();
-    while (filter.Next(out _))
-      count++;
-    return count;
-  }
-
   private static void SpawnPickup(ref Frame frame, int pickupId, int amount, FPVector3 position) {
     var entity = frame.CreateEntity();
     frame.Add(entity, TransformFactory.At(position));
     frame.Add(entity, new Pickup { PickupId = pickupId, Amount = amount });
   }
 
-  // A point on a ring of radius SpawnRadius around origin, at a uniformly random angle. Derived
-  // purely from (world seed, oasis id, tick) so it's identical on every rollback replay.
-  private static FPVector3 GetRandomTargetPosition(ulong seed, int oasisId, int tick, FPVector3 origin) {
+  // A point on a ring of radius `radius` around origin, at a uniformly random angle. Derived purely
+  // from (world seed, oasis id, tick) so it's identical on every rollback replay.
+  private static FPVector3 GetRandomTargetPosition(ulong seed, int oasisId, int tick, FPVector3 origin,
+    FP64 radius) {
     var index = (ulong)(uint)oasisId << 32 | (uint)tick;
     var rng = DeterministicRandom.FromSeed(seed, RandomFeatureKey, index);
     var direction = rng.NextDirection2D();
-    return origin + new FPVector3(direction.x * SpawnRadius, FP64.Zero, direction.y * SpawnRadius);
+    return origin + new FPVector3(direction.x * radius, FP64.Zero, direction.y * radius);
   }
 
   // KlothoEngine injects RandomSeedComponent before world init; headless test harnesses that
@@ -133,7 +120,7 @@ public class OasisSpawnSystem : ISystem {
   }
 
   private static void RaisePreparing(ref Frame frame, int oasisId, int pickupId, FPVector3 oasisPosition,
-    FPVector3 targetPosition) {
+    FPVector3 targetPosition, int prepareDurationMs) {
     if (frame.EventRaiser == null) return;
 
     var evt = EventPool.Get<OasisResourcePreparingEvent>();
@@ -141,12 +128,12 @@ public class OasisSpawnSystem : ISystem {
     evt.PickupId = pickupId;
     evt.OasisPosition = oasisPosition;
     evt.TargetPosition = targetPosition;
-    evt.PrepareDurationMs = PrepareDurationMs;
+    evt.PrepareDurationMs = prepareDurationMs;
     frame.EventRaiser.RaiseEvent(evt);
   }
 
   private static void RaiseEjected(ref Frame frame, int oasisId, int pickupId, FPVector3 oasisPosition,
-    FPVector3 targetPosition) {
+    FPVector3 targetPosition, int flightDurationMs) {
     if (frame.EventRaiser == null) return;
 
     var evt = EventPool.Get<OasisResourceEjectedEvent>();
@@ -154,7 +141,7 @@ public class OasisSpawnSystem : ISystem {
     evt.PickupId = pickupId;
     evt.OasisPosition = oasisPosition;
     evt.TargetPosition = targetPosition;
-    evt.FlightDurationMs = FlightDurationMs;
+    evt.FlightDurationMs = flightDurationMs;
     frame.EventRaiser.RaiseEvent(evt);
   }
 

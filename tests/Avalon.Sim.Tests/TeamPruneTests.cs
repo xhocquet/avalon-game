@@ -36,7 +36,7 @@ public class TeamPruneTests {
 
     // Nobody picks: both roster players fall back to the default faction at the grace boundary,
     // which is also when teamless bases are pruned. Tick one past grace so the prune has run.
-    for (int tick = 0; tick <= SimulationSetup.SetupGraceTicks; tick++)
+    for (int tick = 0; tick <= GraceTicks(harness); tick++)
       harness.Tick();
 
     harness.Count<Hero>().Should().Be(SimHarness.DefaultMaxPlayers);
@@ -60,7 +60,7 @@ public class TeamPruneTests {
       SimHarness.SelectFactionCommand(playerId: 1, tick: 0, factionId: FactionA),
       SimHarness.SelectFactionCommand(playerId: 2, tick: 0, factionId: FactionA));
 
-    harness.Frame.Tick.Should().BeLessThan(SimulationSetup.SetupGraceTicks);
+    harness.Frame.Tick.Should().BeLessThan(GraceTicks(harness));
     harness.Count<Crystal>().Should().Be(SimHarness.DefaultMaxPlayers);
     harness.Count<Turret>().Should().Be(SimHarness.DefaultMaxPlayers * 2);
     harness.Count<SpawnPoint>().Should().Be(SimHarness.DefaultMaxPlayers);
@@ -86,7 +86,7 @@ public class TeamPruneTests {
   public void TeamPrune_IsOneShot_RecordedInSingleton() {
     var harness = SimHarness.CreateInitialized(spawnHeroesNow: false);
 
-    for (int tick = 0; tick <= SimulationSetup.SetupGraceTicks; tick++)
+    for (int tick = 0; tick <= GraceTicks(harness); tick++)
       harness.Tick();
 
     harness.Count<MatchSetupState>().Should().Be(1);
@@ -124,6 +124,9 @@ public class TeamPruneTests {
   }
 
   private static int DistinctTeamCount(SimHarness harness) => StructureTeamIds(harness).Count;
+
+  private static int GraceTicks(SimHarness harness) =>
+    harness.AssetRegistry.Get<MatchRulesAsset>().SetupGraceTicks;
 
   private static HashSet<int> StructureTeamIds(SimHarness harness) {
     var teams = new HashSet<int>();

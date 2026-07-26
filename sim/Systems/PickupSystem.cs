@@ -1,21 +1,21 @@
 using System.Collections.Generic;
+using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon;
 
-// Walk-over auto-collect: any Inventory-bearing entity (heroes today) that comes within
-// PickupRange of a Pickup adds its Amount to Inventory.Resources and the pickup is destroyed.
-// No explicit command is needed to collect — players just walk there via the existing MoveCommand.
 public class PickupSystem : ISystem {
-  private static readonly FP64 PickupRange = FP64.FromDouble(1.5);
-  private readonly List<EntityRef> _collected = new();
+  private readonly List<EntityRef> _collected = [];
 
   public void Update(ref Frame frame) {
+    var rules = frame.AssetRegistry.Get<PickupRulesAsset>();
+    if (rules == null) return;
+
     _collected.Clear();
 
-    var rangeSq = PickupRange * PickupRange;
+    var rangeSq = rules.CollectRange * rules.CollectRange;
     var pickups = frame.Filter<Pickup, TransformComponent>();
     while (pickups.Next(out var pickupEntity)) {
       ref readonly var pickupTransform = ref frame.GetReadOnly<TransformComponent>(pickupEntity);
@@ -38,7 +38,7 @@ public class PickupSystem : ISystem {
       }
     }
 
-    for (var i = 0; i < _collected.Count; i++)
-      frame.DestroyEntity(_collected[i]);
+    foreach (var t in _collected)
+      frame.DestroyEntity(t);
   }
 }

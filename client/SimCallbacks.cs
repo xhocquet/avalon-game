@@ -32,8 +32,8 @@ public class SimCallbacks(
 
       for (var i = 0; i < n; i++) {
         var p = layout.MarkerPositions[i];
-        GD.Print(
-          $"  [{i}] type={(MapMarkerType)layout.MarkerTypes[i]} team={layout.MarkerTeams[i]} pos=({p.x:F2}, {p.y:F2}, {p.z:F2})");
+        var type = (MapMarkerType)layout.MarkerTypes[i];
+        GD.Print($"[{i}] type={type} team={layout.MarkerTeams[i]} pos=({p.x}, {p.y}, {p.z})");
       }
     }
     else {
@@ -55,13 +55,11 @@ public class SimCallbacks(
         : postFrame.Has<Hero>(entity) ? "Hero"
         : "Unknown";
       var p = pos.Position;
-      GD.Print($"  {kind} team={team.TeamId} pos=({p.x:F2}, {p.y:F2}, {p.z:F2})");
+      GD.Print($"{kind} team={team.TeamId} pos=({p.x:F2}, {p.y:F2}, {p.z:F2})");
     }
   }
 
   public void OnPollInput(int playerId, int tick, ICommandSender sender) {
-    // One-shot: carry the lobby faction pick into the sim at match start. HeroSpawnSystem
-    // waits for this before spawning the hero, so the Faction is known when the view resolves.
     if (!_factionSelectionSent) {
       sender.Send(new SelectFactionCommand { FactionId = FactionSelection.SelectedFactionId });
       _factionSelectionSent = true;
@@ -69,15 +67,15 @@ public class SimCallbacks(
     }
 
     if (_input != null && _input.TryConsumePurchaseCommand(out var purchaseCommand)) {
-      LogCommandSent("PurchaseItemCommand", tick, playerId, $"itemAssetId={purchaseCommand.ItemAssetId}");
       sender.Send(purchaseCommand);
+      LogCommandSent("PurchaseItemCommand", tick, playerId, $"itemAssetId={purchaseCommand.ItemAssetId}");
       return;
     }
 
     if (_input != null && _input.TryConsumeAttackCommand(out var attackCommand)) {
+      sender.Send(attackCommand);
       LogCommandSent("AttackCommand", tick, playerId,
         $"targetUnitId={attackCommand.TargetUnitId} sourceCount={attackCommand.SourceUnitIdCount}");
-      sender.Send(attackCommand);
       return;
     }
 
@@ -93,8 +91,6 @@ public class SimCallbacks(
   }
 
   private void LogCommandSent(string commandName, int tick, int playerId, string details) {
-    // logger routes to the Godot console via GodotLogSink, so a separate GD.Print here would double
-    // every line (that was the "logging twice per purchase" you saw - one send, two prints).
-    logger?.KInformation($"[SimCallbacks] Send {commandName} tick={tick} playerId={playerId} {details}");
+    logger.KInformation($"[SimCallbacks] Send {commandName} tick={tick} playerId={playerId} {details}");
   }
 }

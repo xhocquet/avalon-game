@@ -3,6 +3,7 @@ using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Commands;
 using Meesles.Avalon.Sim.Components;
+using Meesles.Avalon.Sim.Navigation;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.Deterministic.Navigation;
@@ -12,24 +13,10 @@ using MoveCommand = Meesles.Avalon.Sim.Commands.MoveCommand;
 
 namespace Meesles.Avalon;
 
-public class CommandSystem : ISystem, ICommandSystem {
-  private static readonly FP64 StopDistance = FP64.FromDouble(0.15);
-
-  // Group-move layout. Minions share one destination and let ORCA pack them; heroes hold the
-  // front. MinionPackRadiusFactor approximates the packed-blob radius (~0.4·sqrt(count) for hex
-  // packing near ORCA spacing) so the blob's front edge sits just behind the hero. HeroClearance
-  // is the gap between the hero and the blob's front edge; HeroLateralSpacing spreads multiple
-  // heroes into a short front row.
-  private static readonly FP64 MinionPackRadiusFactor = FP64.FromDouble(0.4);
-  private static readonly FP64 HeroClearance = FP64.FromDouble(0.8);
-  private static readonly FP64 HeroLateralSpacing = FP64.One;
-  private readonly bool _moveNavAgentsDirectly;
-  private readonly NavigationRuntime _navigation;
-
-  public CommandSystem(NavigationRuntime navigation = null) {
-    _navigation = navigation;
-    _moveNavAgentsDirectly = navigation == null;
-  }
+public class CommandSystem(NavigationRuntime navigation = null) : ISystem, ICommandSystem {
+  private readonly List<FPVector3> _formationDestinations = [];
+  private readonly List<FormationUnit> _formationUnits = [];
+  private readonly bool _moveNavAgentsDirectly = navigation == null;
 
   public void OnCommand(ref Frame frame, ICommand command) {
     switch (command) {
@@ -50,7 +37,8 @@ public class CommandSystem : ISystem, ICommandSystem {
 
   public void Update(ref Frame frame) {
     var stats = frame.AssetRegistry.Get<PlayerStatsAsset>();
-    if (stats == null) return;
+    var rules = frame.AssetRegistry.Get<MovementRulesAsset>();
+    if (stats == null || rules == null) return;
 
     var dt = FP64.FromInt(frame.DeltaTimeMs) / FP64.FromInt(1000);
     var step = stats.MoveSpeed * dt;
@@ -66,14 +54,14 @@ public class CommandSystem : ISystem, ICommandSystem {
       var toTarget = moveTarget.Target - transform.Position;
       toTarget.y = FP64.Zero;
       var dist = toTarget.magnitude;
-      if (dist <= StopDistance) {
+      if (dist <= rules.StopDistance) {
         frame.Remove<UnitMoveTarget>(entity);
         continue;
       }
 
       var move = toTarget.normalized * step;
       if (step >= dist) move = toTarget;
-      transform.Position = transform.Position + move;
+      transform.Position += move;
       transform.Rotation = FP64.Atan2(move.x, move.z);
     }
   }
@@ -91,45 +79,40 @@ public class CommandSystem : ISystem, ICommandSystem {
     }
   }
 
-  // Authoritative shop purchase. Everything the client asserted is re-checked here so a modified
-  // client can't buy an item it can't afford or reach: the hero must exist, the item id must
-  // resolve, the hero must have enough gold, and it must be standing within the ShopRulesAsset's
-  // InteractRange of its own team's Shop marker. Only then do we spend the gold and apply the buff.
-  // Buffs stack (repeatable buy) — the POC tracks no per-item ownership.
   private static void HandlePurchaseItemCommand(ref Frame frame, PurchaseItemCommand command) {
     if (!TryGetPlayerHero(ref frame, command.PlayerId, out var heroEntity)) {
-      frame.Logger?.KInformation(
+      frame.Logger.KInformation(
         $"[Shop] REJECT tick={frame.Tick} playerId={command.PlayerId} reason=no_hero_for_player");
       return;
     }
 
     if (!frame.AssetRegistry.TryGet<ShopItemAsset>(command.ItemAssetId, out var item) || item == null) {
-      frame.Logger?.KInformation(
+      frame.Logger.KInformation(
         $"[Shop] REJECT tick={frame.Tick} playerId={command.PlayerId} itemId={command.ItemAssetId} reason=item_asset_missing");
       return;
     }
 
     if (!frame.Has<Inventory>(heroEntity) || !frame.Has<Stats>(heroEntity)) {
-      frame.Logger?.KInformation(
+      frame.Logger.KInformation(
         $"[Shop] REJECT tick={frame.Tick} playerId={command.PlayerId} reason=hero_missing_inventory_or_stats hasInv={frame.Has<Inventory>(heroEntity)} hasStats={frame.Has<Stats>(heroEntity)}");
       return;
     }
 
     ref var inventory = ref frame.Get<Inventory>(heroEntity);
     if (inventory.Gold < item.Cost) {
-      frame.Logger?.KInformation(
+      frame.Logger.KInformation(
         $"[Shop] REJECT tick={frame.Tick} playerId={command.PlayerId} itemId={command.ItemAssetId} reason=insufficient_gold gold={inventory.Gold} cost={item.Cost}");
       return;
     }
 
     if (!IsHeroNearTeamShop(ref frame, heroEntity)) {
-      frame.Logger?.KInformation(
+      frame.Logger.KInformation(
         $"[Shop] REJECT tick={frame.Tick} playerId={command.PlayerId} itemId={command.ItemAssetId} reason=out_of_range");
       return;
     }
 
     if (inventory.IsItemsFull) {
-      frame.Logger?.KInformation(
+      frame.Logger.KInformation(
         $"[Shop] REJECT tick={frame.Tick} playerId={command.PlayerId} itemId={command.ItemAssetId} reason=inventory_full itemCount={inventory.ItemCount}");
       return;
     }
@@ -139,7 +122,7 @@ public class CommandSystem : ISystem, ICommandSystem {
     ref var stats = ref frame.Get<Stats>(heroEntity);
     stats.Add(StatType.Strength, item.AttackBonus);
 
-    frame.Logger?.KInformation(
+    frame.Logger.KInformation(
       $"[Shop] ACCEPT tick={frame.Tick} playerId={command.PlayerId} itemId={command.ItemAssetId} cost={item.Cost} +str={item.AttackBonus} goldLeft={inventory.Gold} strengthNow={stats.Strength} items={inventory.ItemCount}");
   }
 
@@ -158,9 +141,6 @@ public class CommandSystem : ISystem, ICommandSystem {
     return false;
   }
 
-  // True when the hero is within the ShopRulesAsset's InteractRange (planar XZ) of the Shop marker
-  // authored for its own team. Shops live only as MapLayout markers (no sim entity), so this reads
-  // the marker straight from the asset registry.
   private static bool IsHeroNearTeamShop(ref Frame frame, EntityRef heroEntity) {
     if (!frame.Has<Team>(heroEntity) || !frame.Has<TransformComponent>(heroEntity))
       return false;
@@ -205,7 +185,7 @@ public class CommandSystem : ISystem, ICommandSystem {
 
       SetAttackMoveTarget(ref frame, sourceEntity, targetTransform.Position);
       SetAttackTarget(ref frame, sourceEntity, command.TargetUnitId);
-      frame.Logger?.KDebug(
+      frame.Logger.KDebug(
         $"[Combat] AttackCommand accepted tick={frame.Tick} playerId={command.PlayerId} sourceUnitId={sourceUnitId} targetUnitId={command.TargetUnitId} moveTarget=({targetTransform.Position.x}, {targetTransform.Position.z})");
     }
   }
@@ -233,11 +213,6 @@ public class CommandSystem : ISystem, ICommandSystem {
     return true;
   }
 
-  private static void ClearMoveTarget(ref Frame frame, EntityRef entity) {
-    if (frame.Has<UnitMoveTarget>(entity))
-      frame.Remove<UnitMoveTarget>(entity);
-  }
-
   private static void SetAttackMoveTarget(ref Frame frame, EntityRef entity, FPVector3 target) {
     target.y = FP64.Zero;
     if (frame.Has<UnitMoveTarget>(entity)) {
@@ -260,20 +235,24 @@ public class CommandSystem : ISystem, ICommandSystem {
   }
 
   private void ApplySelectedUnitTargets(ref Frame frame, MoveCommand command, FPVector3 target) {
-    var units = GetSelectedUnits(ref frame, command);
-    if (units.Count == 0)
+    CollectSelectedUnits(ref frame, command, _formationUnits);
+    if (_formationUnits.Count == 0)
       return;
 
-    if (units.Count == 1) {
-      SetTarget(ref frame, units[0].Entity, target);
+    var rules = frame.AssetRegistry.Get<MovementRulesAsset>();
+    if (_formationUnits.Count == 1 || rules == null) {
+      for (var i = 0; i < _formationUnits.Count; i++)
+        SetTarget(ref frame, _formationUnits[i].Entity, target);
       return;
     }
 
-    ApplyFormationTargets(ref frame, units, target);
+    GroupFormation.Solve(_formationUnits, target, rules, navigation?.Query, _formationDestinations);
+    for (var i = 0; i < _formationUnits.Count; i++)
+      SetTarget(ref frame, _formationUnits[i].Entity, _formationDestinations[i]);
   }
 
-  private static List<SelectedUnit> GetSelectedUnits(ref Frame frame, MoveCommand command) {
-    var units = new List<SelectedUnit>();
+  private static void CollectSelectedUnits(ref Frame frame, MoveCommand command, List<FormationUnit> units) {
+    units.Clear();
     for (var i = 0; i < command.UnitIdCount; i++) {
       var unitId = command.GetUnitId(i);
       if (!UnitLookup.TryGetPlayerControllableUnitById(ref frame, command.PlayerId, unitId, out var entity))
@@ -281,91 +260,8 @@ public class CommandSystem : ISystem, ICommandSystem {
 
       ref readonly var unit = ref frame.GetReadOnly<Unit>(entity);
       ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
-      units.Add(new SelectedUnit(
-        entity,
-        unit.UnitId,
-        unit.UnitTypeId,
-        frame.Has<Hero>(entity),
-        transform.Position));
+      units.Add(new FormationUnit(entity, unit.UnitId, frame.Has<Hero>(entity), transform.Position));
     }
-
-    units.Sort(CompareSelectedUnits);
-    return units;
-  }
-
-  private static int CompareSelectedUnits(SelectedUnit a, SelectedUnit b) {
-    if (a.IsHero != b.IsHero)
-      return a.IsHero ? -1 : 1;
-
-    return a.UnitId.CompareTo(b.UnitId);
-  }
-
-  // Move a selected group. The hero(es) hold the front — the click itself, which is the leading
-  // edge in the direction of travel — and the minions gather in a blob just behind them. Minions
-  // share a single destination rather than precomputed per-unit slots: with slots a minion eases
-  // up to its exact point, gets ORCA-blocked, then lurches the last bit once a neighbour clears
-  // (the "arrive, stop, then move" artifact), and the assignment also goes stale over a long
-  // march. Sharing the destination lets ORCA pack minions wherever they naturally end up, and the
-  // settle logic freezes them there.
-  private void ApplyFormationTargets(ref Frame frame, List<SelectedUnit> units, FPVector3 target) {
-    var centroid = FPVector3.Zero;
-    for (var i = 0; i < units.Count; i++)
-      centroid += units[i].Position;
-    centroid /= FP64.FromInt(units.Count);
-
-    var forward = (target - centroid).ToXZ();
-    forward = forward.sqrMagnitude > FP64.Zero
-      ? forward.normalized
-      : new FPVector2(FP64.Zero, FP64.One);
-
-    var heroCount = CountHeroes(units);
-    var minionCount = units.Count - heroCount;
-
-    // Sit the blob's front edge just behind the hero: offset back by the blob's own radius plus a
-    // clearance gap. With no hero, minions take the click directly.
-    var blobRadius = FP64.Sqrt(FP64.FromInt(minionCount > 0 ? minionCount : 1)) * MinionPackRadiusFactor;
-    var minionBack = heroCount > 0 ? blobRadius + HeroClearance : FP64.Zero;
-    var minionXZ = target.ToXZ() - forward * minionBack;
-    var minionTarget = SnapSlotToNavMesh(new FPVector3(minionXZ.x, target.y, minionXZ.y));
-
-    var right = new FPVector2(forward.y, -forward.x);
-    var heroIndex = 0;
-    for (var i = 0; i < units.Count; i++) {
-      if (units[i].IsHero) {
-        var lateral = GetCenteredOffset(heroIndex, heroCount, HeroLateralSpacing);
-        var heroXZ = target.ToXZ() + right * lateral;
-        SetTarget(ref frame, units[i].Entity,
-          SnapSlotToNavMesh(new FPVector3(heroXZ.x, target.y, heroXZ.y)));
-        heroIndex++;
-      }
-      else {
-        SetTarget(ref frame, units[i].Entity, minionTarget);
-      }
-    }
-  }
-
-  private static int CountHeroes(List<SelectedUnit> units) {
-    var count = 0;
-    for (var i = 0; i < units.Count; i++)
-      if (units[i].IsHero)
-        count++;
-
-    return count;
-  }
-
-  private static FP64 GetCenteredOffset(int index, int count, FP64 spacing) {
-    return FP64.FromInt(index * 2 - (count - 1)) * spacing * FP64.Half;
-  }
-
-  // Projects a synthesized slot onto the navmesh. No-op when navigation is absent (the
-  // direct-move test path), where targets are consumed geometrically without pathfinding.
-  private FPVector3 SnapSlotToNavMesh(FPVector3 slot) {
-    var query = _navigation?.Query;
-    if (query == null)
-      return slot;
-
-    var snapped = query.ClosestPointOnNavMesh(slot.ToXZ(), out var tri);
-    return tri >= 0 ? new FPVector3(snapped.x, slot.y, snapped.y) : slot;
   }
 
   private static void ApplyLocalHeroTarget(ref Frame frame, int playerId, FPVector3 target) {
@@ -393,22 +289,6 @@ public class CommandSystem : ISystem, ICommandSystem {
     }
     else {
       frame.Add(entity, new UnitMoveTarget { Target = target });
-    }
-  }
-
-  private readonly struct SelectedUnit {
-    public readonly EntityRef Entity;
-    public readonly int UnitId;
-    public readonly int UnitTypeId;
-    public readonly bool IsHero;
-    public readonly FPVector3 Position;
-
-    public SelectedUnit(EntityRef entity, int unitId, int unitTypeId, bool isHero, FPVector3 position) {
-      Entity = entity;
-      UnitId = unitId;
-      UnitTypeId = unitTypeId;
-      IsHero = isHero;
-      Position = position;
     }
   }
 }

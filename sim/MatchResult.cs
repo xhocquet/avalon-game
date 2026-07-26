@@ -38,9 +38,11 @@ public static class MatchResultReader {
     if (!matchEnd.Ended)
       return false;
 
+    // A winner whose hero entity is already gone stays team-less rather than falling back to team 0.
     var winnerTeamId = MatchResult.NoWinnerTeamId;
-    if (matchEnd.WinnerPlayerId != MatchResult.NoWinnerPlayerId)
-      winnerTeamId = GetTeamIdForPlayer(ref frame, matchEnd.WinnerPlayerId);
+    if (matchEnd.WinnerPlayerId != MatchResult.NoWinnerPlayerId &&
+        UnitLookup.TryGetPlayerTeamId(ref frame, matchEnd.WinnerPlayerId, out var teamId))
+      winnerTeamId = teamId;
 
     var reason = matchEnd.WinnerPlayerId == MatchResult.NoWinnerPlayerId
       ? MatchEndReason.Timeout
@@ -48,19 +50,5 @@ public static class MatchResultReader {
 
     result = new MatchResult(endTick, matchEnd.WinnerPlayerId, winnerTeamId, reason);
     return true;
-  }
-
-  private static int GetTeamIdForPlayer(ref Frame frame, int playerId) {
-    var filter = frame.Filter<Player, Team>();
-    while (filter.Next(out var entity)) {
-      ref readonly var player = ref frame.GetReadOnly<Player>(entity);
-      if (player.PlayerId != playerId)
-        continue;
-
-      ref readonly var team = ref frame.GetReadOnly<Team>(entity);
-      return team.TeamId;
-    }
-
-    return MatchResult.NoWinnerTeamId;
   }
 }

@@ -10,9 +10,8 @@ namespace Meesles.Avalon;
 
 public class ScoreSystem : ISystem {
   private const int NoWinnerPlayerId = -1;
-  private readonly List<int> _aliveCrystalTeamIds = new();
-
-  private readonly List<int> _playerTeamIds = new();
+  private readonly List<int> _aliveCrystalTeamIds = [];
+  private readonly List<int> _playerTeamIds = [];
 
   public void Update(ref Frame frame) {
     ref var matchEndState = ref GetOrCreateMatchEndState(ref frame);
@@ -43,8 +42,11 @@ public class ScoreSystem : ISystem {
   }
 
   private static bool IsTimeoutTick(ref Frame frame) {
-    var stats = frame.AssetRegistry.Get<PlayerStatsAsset>();
-    var matchDurationMs = (stats.MatchDuration * FP64.FromInt(1000)).ToInt();
+    var rules = frame.AssetRegistry.Get<MatchRulesAsset>();
+    if (rules == null)
+      return false;
+
+    var matchDurationMs = (rules.MatchDuration * FP64.FromInt(1000)).ToInt();
     var matchEndTick = matchDurationMs / frame.DeltaTimeMs;
     return frame.Tick == matchEndTick;
   }
@@ -110,9 +112,10 @@ public class ScoreSystem : ISystem {
   }
 
   private static bool Contains(List<int> values, int value) {
-    for (var i = 0; i < values.Count; i++)
-      if (values[i] == value)
+    foreach (var v in values) {
+      if (v == value)
         return true;
+    }
 
     return false;
   }

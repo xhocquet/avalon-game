@@ -2,8 +2,8 @@
 
 - This directory is the Godot 4.6 Mono client. Default to a Godot/gameplay mindset, not a generic backend mindset.
 - Primary entrypoints: `project.godot`, `Scenes/Singleplayer.tscn`, `Scenes/Multiplayer.tscn`
-- Shared deterministic sim data lives in `Sim/Data/`.
-- Shared deterministic gameplay code lives in `Sim/`. Changes there also affect the server build.
+- Shared deterministic sim data lives in `Sim/Data/` (data assets only — Godot `res://` requires them inside the client project).
+- Shared deterministic gameplay code lives in `sim/` at the repo root, not here. Changes there also affect the server build.
 - Godot/Klotho integration lives under `addons/klotho/`. This is vendor code, avoid changing it whenever possible.
 - Klotho runtime/framework source lives in `../vendor/Klotho/`. Inspect it when enhancing or debugging behavior that crosses into the prebuilt runtime; avoid editing vendored code unless the task explicitly targets Klotho itself.
 

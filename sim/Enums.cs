@@ -10,7 +10,8 @@ public enum MapMarkerType {
 }
 
 public enum StatType {
-  Strength = 0
+  Strength = 0,
+  GoldPerTick = 1
 }
 
 public enum MatchEndReason {

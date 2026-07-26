@@ -92,8 +92,8 @@ public class ScoreSystemTests {
   public void Update_OnTimeoutRaisesGameOverAndStoresDrawEndState() {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
-    var stats = frame.AssetRegistry.Get<PlayerStatsAsset>();
-    frame.Tick = (stats.MatchDuration * xpTURN.Klotho.Deterministic.Math.FP64.FromInt(1000)).ToInt()
+    var rules = frame.AssetRegistry.Get<MatchRulesAsset>();
+    frame.Tick = (rules.MatchDuration * xpTURN.Klotho.Deterministic.Math.FP64.FromInt(1000)).ToInt()
         / frame.DeltaTimeMs;
 
     var collector = new EventCollector();

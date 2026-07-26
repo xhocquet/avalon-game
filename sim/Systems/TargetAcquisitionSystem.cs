@@ -8,14 +8,17 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon;
 
 public class TargetAcquisitionSystem : ISystem {
-  // On the order of typical acquisition radii (minion AttackRange=4 * multiplier=3, turret range=12),
-  // so a query spans roughly a 3x3 cell neighborhood instead of scanning every candidate.
-  private static readonly FP64 CandidateGridCellSize = FP64.FromInt(10);
-
-  private readonly SpatialHashGrid _candidateGrid = new(CandidateGridCellSize);
   private readonly List<EntityRef> _nearbyCandidates = new();
 
+  // Built on first use: the cell size lives in CombatRulesAsset, which isn't available at
+  // construction time.
+  private SpatialHashGrid _candidateGrid;
+
   public void Update(ref Frame frame) {
+    var rules = frame.AssetRegistry.Get<CombatRulesAsset>();
+    if (rules == null) return;
+
+    _candidateGrid ??= new SpatialHashGrid(rules.TargetGridCellSize);
     BuildCandidateGrid(ref frame);
 
     var filter = frame.Filter<Unit, Team, Combat, TransformComponent>();

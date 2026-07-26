@@ -14,7 +14,6 @@ public class NavAgentInitializationTests {
     var stats = harness.AssetRegistry.Get<PlayerStatsAsset>();
     var frame = harness.Frame;
 
-    int count = 0;
     var filter = frame.Filter<Hero, TransformComponent, NavAgentComponent>();
     while (filter.Next(out var entity)) {
       ref readonly var transform = ref frame.Get<TransformComponent>(entity);
@@ -23,10 +22,9 @@ public class NavAgentInitializationTests {
       nav.Position.Should().Be(transform.Position);
       nav.Speed.Should().Be(stats.MoveSpeed);
       nav.Radius.Should().Be(stats.Radius);
-      count++;
     }
 
-    count.Should().Be(2);
+    filter.Count.Should().Be(2);
   }
 
   [Fact]

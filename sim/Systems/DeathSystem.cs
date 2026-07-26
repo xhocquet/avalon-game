@@ -8,7 +8,7 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon;
 
 public class DeathSystem : ISystem {
-  private readonly List<DeadUnitSnapshot> _deadUnits = new();
+  private readonly List<DeadUnitSnapshot> _deadUnits = [];
 
   public void Update(ref Frame frame) {
     _deadUnits.Clear();
@@ -44,11 +44,8 @@ public class DeathSystem : ISystem {
         frame.Has<Turret>(entity)));
     }
 
-    for (var i = 0; i < _deadUnits.Count; i++) {
-      var dead = _deadUnits[i];
-
+    foreach (var dead in _deadUnits) {
       RaiseDeathEvent(ref frame, dead);
-
       frame.DestroyEntity(dead.Entity);
     }
   }
@@ -110,57 +107,36 @@ public class DeathSystem : ISystem {
     return new UnitContext(unitId, teamId, ownerId);
   }
 
-  private readonly struct DeadUnitSnapshot {
-    public readonly EntityRef Entity;
-    public readonly int UnitId;
-    public readonly int UnitTypeId;
-    public readonly int TeamId;
-    public readonly int OwnerId;
-    public readonly int DestroyerUnitId;
-    public readonly int DestroyerTeamId;
-    public readonly int DestroyerOwnerId;
-    public readonly FPVector3 Position;
-    public readonly bool IsCrystal;
-    public readonly int CrystalId;
-    public readonly bool IsTurret;
-
-    public DeadUnitSnapshot(
-      EntityRef entity,
-      int unitId,
-      int unitTypeId,
-      int teamId,
-      int ownerId,
-      int destroyerUnitId,
-      int destroyerTeamId,
-      int destroyerOwnerId,
-      FPVector3 position,
-      bool isCrystal,
-      int crystalId,
-      bool isTurret) {
-      Entity = entity;
-      UnitId = unitId;
-      UnitTypeId = unitTypeId;
-      TeamId = teamId;
-      OwnerId = ownerId;
-      DestroyerUnitId = destroyerUnitId;
-      DestroyerTeamId = destroyerTeamId;
-      DestroyerOwnerId = destroyerOwnerId;
-      Position = position;
-      IsCrystal = isCrystal;
-      CrystalId = crystalId;
-      IsTurret = isTurret;
-    }
+  private readonly struct DeadUnitSnapshot(
+    EntityRef entity,
+    int unitId,
+    int unitTypeId,
+    int teamId,
+    int ownerId,
+    int destroyerUnitId,
+    int destroyerTeamId,
+    int destroyerOwnerId,
+    FPVector3 position,
+    bool isCrystal,
+    int crystalId,
+    bool isTurret) {
+    public readonly EntityRef Entity = entity;
+    public readonly int UnitId = unitId;
+    public readonly int UnitTypeId = unitTypeId;
+    public readonly int TeamId = teamId;
+    public readonly int OwnerId = ownerId;
+    public readonly int DestroyerUnitId = destroyerUnitId;
+    public readonly int DestroyerTeamId = destroyerTeamId;
+    public readonly int DestroyerOwnerId = destroyerOwnerId;
+    public readonly FPVector3 Position = position;
+    public readonly bool IsCrystal = isCrystal;
+    public readonly int CrystalId = crystalId;
+    public readonly bool IsTurret = isTurret;
   }
 
-  private readonly struct UnitContext {
-    public readonly int UnitId;
-    public readonly int TeamId;
-    public readonly int OwnerId;
-
-    public UnitContext(int unitId, int teamId, int ownerId) {
-      UnitId = unitId;
-      TeamId = teamId;
-      OwnerId = ownerId;
-    }
+  private readonly struct UnitContext(int unitId, int teamId, int ownerId) {
+    public readonly int UnitId = unitId;
+    public readonly int TeamId = teamId;
+    public readonly int OwnerId = ownerId;
   }
 }

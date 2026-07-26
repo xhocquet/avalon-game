@@ -1,4 +1,5 @@
 using Meesles.Avalon.Sim;
+using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
@@ -8,8 +9,6 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon;
 
 public class RespawnSystem : ISystem {
-  private const int RespawnDelayMs = 5000;
-
   public void Update(ref Frame frame) {
     var filter = frame.Filter<Player, Team, Unit, TransformComponent, Health>();
     while (filter.Next(out var entity)) {
@@ -105,7 +104,9 @@ public class RespawnSystem : ISystem {
   }
 
   private static int GetRespawnDelayTicks(ref Frame frame) {
+    var rules = frame.AssetRegistry.Get<MatchRulesAsset>();
+    var delayMs = rules?.RespawnDelayMs ?? 0;
     var deltaTimeMs = frame.DeltaTimeMs > 0 ? frame.DeltaTimeMs : 16;
-    return (RespawnDelayMs + deltaTimeMs - 1) / deltaTimeMs;
+    return (delayMs + deltaTimeMs - 1) / deltaTimeMs;
   }
 }

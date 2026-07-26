@@ -85,7 +85,7 @@ public class DamageSystem : ISystem {
   private static void LogDamageState(ref Frame frame, EntityRef attacker, EntityRef target, string state) {
     var sourceUnitId = TryGetUnitId(ref frame, attacker, out var source) ? source : 0;
     var targetUnitId = target.IsValid && TryGetUnitId(ref frame, target, out var resolvedTarget) ? resolvedTarget : 0;
-    frame.Logger?.KDebug(
+    frame.Logger.KDebug(
       $"[Combat] DamageSystem tick={frame.Tick} sourceUnitId={sourceUnitId} targetUnitId={targetUnitId} state={state}");
   }
 

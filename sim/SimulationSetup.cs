@@ -17,7 +17,11 @@ public static class SimulationSetup {
   public const int TurretUnitTypeId = 101;
   public const int DefaultFactionId = AssetIds.FactionHairyWizards;
 
-  public const int SetupGraceTicks = 30;
+  // How long setup waits on faction picks before proceeding with whatever is on the board. Shared
+  // by HeroSpawnSystem and TeamPruneSystem so they agree on when setup is over.
+  public static int GetSetupGraceTicks(ref Frame frame) {
+    return frame.AssetRegistry.Get<MatchRulesAsset>()?.SetupGraceTicks ?? 0;
+  }
 
   public static void RegisterSystems(EcsSimulation simulation, NavigationRuntime navigation = null) {
     simulation.AddSystem(new CommandSystem(navigation), SystemPhase.Update);
@@ -132,7 +136,10 @@ public static class SimulationSetup {
     });
     frame.Add(entity, new Controllable());
     frame.Add(entity, new Inventory());
-    frame.Add(entity, new Stats { Strength = combatStats != null ? combatStats.AttackDamage : 0 });
+    frame.Add(entity, new Stats {
+      Strength = combatStats != null ? combatStats.AttackDamage : 0,
+      GoldPerTick = playerStats != null ? playerStats.StartingGoldPerTick : 0
+    });
 
     if (playerStats != null)
       frame.Add(entity, new Health(playerStats.Health));
@@ -181,6 +188,7 @@ public static class SimulationSetup {
     var oasisIndex = 0;
     var typeInt = (int)MapMarkerType.Oasis;
     var markerCount = layout?.MarkerTypes?.Length ?? 0;
+    var initialCooldownMs = frame.AssetRegistry.Get<PickupRulesAsset>()?.OasisSpawnIntervalMs ?? 0;
 
     for (var i = 0; i < markerCount; i++) {
       if (layout.MarkerTypes[i] != typeInt)
@@ -190,7 +198,7 @@ public static class SimulationSetup {
       var oasisEntity = frame.CreateEntity();
       frame.Add(oasisEntity, TransformFactory.At(layout.MarkerPositions[i]));
       frame.Add(oasisEntity,
-        new Oasis { OasisId = oasisIndex, SpawnCooldownRemainingMs = OasisSpawnSystem.SpawnIntervalMs });
+        new Oasis { OasisId = oasisIndex, SpawnCooldownRemainingMs = initialCooldownMs });
     }
   }
 

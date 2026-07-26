@@ -29,14 +29,11 @@ The server is authoritative. Key config files:
 - `simulationconfig.json` — tick rate, input delay, prediction, rollback, error correction. Sent to clients via `SimulationConfigMessage` at connection time.
 - `sessionconfig.json` — player count, late join, spectators.
 
-Current `simulationconfig.json` values:
-- `TickIntervalMs`: 66 (15Hz)
-- `InputDelayTicks`: 2 (132ms buffer for client inputs to arrive)
-- `SDInputLeadTicks`: 2 (client predicts this many ticks ahead of last server confirmation)
-- `MaxRollbackTicks`: 8 (528ms reconciliation depth)
-- `UsePrediction`: true (clients run local prediction and reconcile)
-- `EnableErrorCorrection`: true (blend rollback position deltas instead of snapping)
-- `InterpolationDelayTicks`: 2 (view smoothing buffer)
+What the less obvious keys mean (read `simulationconfig.json` for the current values):
+- `SDInputLeadTicks` — how many ticks the client predicts ahead of the last server confirmation.
+- `MaxRollbackTicks` — reconciliation depth, i.e. the cap on how far a rollback may rewind.
+- `EnableErrorCorrection` — blend rollback position deltas instead of snapping.
+- `InterpolationDelayTicks` — view smoothing buffer.
 
 The `SimulationConfigLoader` (in `vendor/Klotho`) reads `simulationconfig.json` relative to the server executable. Changes require server restart.
 

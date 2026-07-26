@@ -11,6 +11,10 @@ public partial struct Stats() : IComponent {
   public int Defense = 100;
   public int Speed = 100;
 
+  // Passive gold income per accrual tick, seeded from PlayerStatsAsset at spawn. Defaults to 0 so
+  // entities that never had an income (minions, turrets) can't earn one by carrying an Inventory.
+  public int GoldPerTick = 0;
+
   // Damage this entity deals per attack. Clamped at 0 so a debuff can never heal the target.
   public readonly int AttackDamage => Strength < 0 ? 0 : Strength;
 
@@ -20,6 +24,9 @@ public partial struct Stats() : IComponent {
     switch (statType) {
       case StatType.Strength:
         Strength += delta;
+        break;
+      case StatType.GoldPerTick:
+        GoldPerTick += delta;
         break;
     }
   }

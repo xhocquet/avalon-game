@@ -26,12 +26,11 @@
 # Network Architecture
 
 - **Mode**: ServerDriven (authoritative dedicated server, clients predict ahead and reconcile).
-- **Tick rate**: 66ms (15Hz) — set in `server/simulationconfig.json`.
+- **Tuning values** (tick rate, input delay, rollback depth, interpolation delay) live in `server/simulationconfig.json` — read that file rather than trusting a copy here.
 - **Client prediction**: enabled. Client runs the sim locally, executes own commands immediately, reconciles when server confirms. This hides input latency.
-- **Input delay**: 2 ticks (132ms) — buffer for server to receive inputs before execution tick. Matches `SDInputLeadTicks`.
-- **Interpolation delay**: 2 ticks (132ms) — view layer trails the sim to smooth jitter.
+- **Input delay**: buffer for server to receive inputs before execution tick. Matches `SDInputLeadTicks`.
+- **Interpolation delay**: view layer trails the sim to smooth jitter.
 - **Error correction**: enabled. Small position discrepancies after rollback are blended rather than snapped.
-- **Max rollback**: 8 ticks (528ms) — maximum prediction lead / reconciliation depth.
 - **Singleplayer**: uses P2P mode locally with reduced delays (InputDelay=1, InterpolationDelay=1) for near-instant response.
 
 Config authority chain:

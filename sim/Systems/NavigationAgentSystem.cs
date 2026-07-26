@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Meesles.Avalon.Sim;
+using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using Meesles.Avalon.Sim.Navigation;
 using xpTURN.Klotho.Deterministic.Math;
@@ -9,50 +10,17 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon;
 
+// All steering/settle/spread tuning lives in NavigationTuningAsset (Assets.json). Squared
+// distances are derived once per tick from the linear values authored there.
 public sealed class NavigationAgentSystem : ISystem {
-  private static readonly FP64 AvoidanceGridCellSize = FP64.FromInt(5);
-  private static readonly FP64 SnapThresholdSqr = FP64.FromDouble(0.01);
-  private static readonly FP64 FlowFieldArrivalDistSqr = FP64.FromDouble(0.09); // 0.3 units (matches WaypointThreshold)
-
-  private static readonly FP64
-    FlowFieldDirectSteerDistSqr = FP64.FromDouble(4.0); // 2.0 units — switch to direct steering
-
-  // Ease-in radius: within this distance of the slot the minion decelerates instead of
-  // charging at full speed, so it settles into place rather than overshooting and oscillating.
-  private static readonly FP64 ArrivalBrakeDist = FP64.One;
-
-  // Blocked-settle: after a long move a minion's assigned slot can be unreachable across the
-  // packed blob, so it charges the crowd forever (frozen OR oscillating) and the group never
-  // stops shuffling. If a minion is within SettleZone of its slot but hasn't gotten meaningfully
-  // closer (BestDistSqr improved by < SettleProgressEps) for SettleStuckTicks ticks, it gives up
-  // and settles in place. The zone gate keeps far-marching minions (waves) from settling when
-  // they briefly stall at a chokepoint. Progress-based (not speed-based) so it also catches
-  // minions oscillating in place at moderate speed.
-  private static readonly FP64 SettleZoneSqr = FP64.FromInt(25); // 5.0 units
-  private static readonly FP64 SettleProgressStep = FP64.FromDouble(0.3);
-  private const int SettleStuckTicks = 15;
-
-  // Fast-settle: once a minion is inside the destination pile and ORCA has slowed it below
-  // BlockedSpeed, it settles immediately rather than inching toward the exact shared point (which
-  // makes a crowd compress serially and take ~1.5s to freeze). A freely-approaching minion is
-  // moving faster than this until it reaches the hard-arrival radius, so this only catches minions
-  // genuinely blocked by the pile.
-  private static readonly FP64 BlockedZoneSqr = FP64.FromInt(9); // 3.0 units
-  private static readonly FP64 BlockedSpeed = FP64.FromDouble(2.5);
-
-  // ORCA neighbour query radius for minions. Must be large enough that a minion sees an
-  // oncoming minion before they interpenetrate: at MoveSpeed 5 two minions close at up to
-  // 10 u/s, so 6 gives ~0.6s of reaction. Too small (was 2) and they only notice each other
-  // ~0.2s out — they overlap, react abruptly, and never settle.
-  private static readonly FP64 MinionNeighborDist = FP64.FromInt(6);
-  private readonly SpatialHashGrid _heroAvoidanceGrid = new(AvoidanceGridCellSize);
-
-  // Separate collision layers
-  private readonly SpatialHashGrid _minionAvoidanceGrid = new(AvoidanceGridCellSize);
-
   private readonly NavigationRuntime _navigation;
   private readonly List<EntityRef> _nearbyAgents = new();
   private int _allCount;
+
+  // Separate collision layers. Built on first use: the cell size comes from the tuning asset,
+  // which isn't available at construction time.
+  private SpatialHashGrid _heroAvoidanceGrid;
+  private SpatialHashGrid _minionAvoidanceGrid;
 
   // Shared position-sync bookkeeping
   private EntityRef[] _allEntities = new EntityRef[128];
@@ -70,23 +38,24 @@ public sealed class NavigationAgentSystem : ISystem {
   // Minion entities use flow fields
   private EntityRef[] _minionEntities = new EntityRef[256];
   private EntityRef[] _minionSubset = new EntityRef[256];
-  public int AvoidanceSpread = 1;
-
-  // Temporal spreading: only update a fraction of agents per tick for expensive phases.
-  // 1 = every tick (no spreading), 2 = every other tick, etc.
-  public int HeroSteeringSpread = 1;
-  public int MinionSteeringSpread = 1;
 
   public NavigationAgentSystem(NavigationRuntime navigation) {
     _navigation = navigation;
   }
 
   public void Update(ref Frame frame) {
+    var tuning = frame.AssetRegistry.Get<NavigationTuningAsset>();
+    if (tuning == null) return;
+
+    _heroAvoidanceGrid ??= new SpatialHashGrid(tuning.AvoidanceGridCellSize);
+    _minionAvoidanceGrid ??= new SpatialHashGrid(tuning.AvoidanceGridCellSize);
+
     _heroCount = 0;
     _minionCount = 0;
     _allCount = 0;
 
     var dt = FP64.FromInt(frame.DeltaTimeMs) / FP64.FromInt(1000);
+    var snapThresholdSqr = tuning.PositionSnapThreshold * tuning.PositionSnapThreshold;
 
     // Phase 1: Collect and categorize all nav agents
     var filter = frame.Filter<NavAgentComponent, TransformComponent>();
@@ -101,7 +70,7 @@ public sealed class NavigationAgentSystem : ISystem {
       ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
 
       EnsureAllCapacity(_allCount + 1);
-      SyncAgentPosition(ref nav, transform.Position, _allCount);
+      SyncAgentPosition(ref nav, transform.Position, _allCount, snapThresholdSqr);
       _allEntities[_allCount++] = entity;
 
       var isMinion = frame.Has<Minion>(entity);
@@ -131,7 +100,7 @@ public sealed class NavigationAgentSystem : ISystem {
     // Phase 2: Hero pathfinding via existing A* + funnel (spread across ticks)
     if (_heroCount > 0) {
       var heroSubsetCount = BuildSpreadSubset(
-        _heroEntities, _heroCount, HeroSteeringSpread, frame.Tick, 0,
+        _heroEntities, _heroCount, tuning.HeroSteeringSpread, frame.Tick, 0,
         ref _heroSubset);
       if (heroSubsetCount > 0)
         _navigation.AgentSystem.UpdateSteering(ref frame, _heroSubset, heroSubsetCount, frame.Tick);
@@ -140,10 +109,10 @@ public sealed class NavigationAgentSystem : ISystem {
     // Phase 3: Minion steering via flow fields (spread across ticks)
     {
       var minionSubsetCount = BuildSpreadSubset(
-        _minionEntities, _minionCount, MinionSteeringSpread, frame.Tick, 1,
+        _minionEntities, _minionCount, tuning.MinionSteeringSpread, frame.Tick, 1,
         ref _minionSubset);
       if (minionSubsetCount > 0)
-        UpdateMinionFlowFieldSteering(ref frame, _minionSubset, minionSubsetCount);
+        UpdateMinionFlowFieldSteering(ref frame, _minionSubset, minionSubsetCount, tuning);
     }
 
     // Phase 4: ORCA avoidance with separate collision layers (spread across ticks)
@@ -164,7 +133,7 @@ public sealed class NavigationAgentSystem : ISystem {
       }
 
       var avoidSubsetCount = BuildSpreadSubset(
-        _allEntities, _allCount, AvoidanceSpread, frame.Tick, 2,
+        _allEntities, _allCount, tuning.AvoidanceSpread, frame.Tick, 2,
         ref _avoidanceSubset);
 
       for (var i = 0; i < avoidSubsetCount; i++) {
@@ -175,7 +144,7 @@ public sealed class NavigationAgentSystem : ISystem {
 
         var isMinion = frame.Has<Minion>(entity);
         var grid = isMinion ? _minionAvoidanceGrid : _heroAvoidanceGrid;
-        var neighborDist = isMinion ? MinionNeighborDist : avoidance.NeighborDist;
+        var neighborDist = isMinion ? tuning.MinionNeighborDist : avoidance.NeighborDist;
         grid.QueryRadius(nav.Position.ToXZ(), neighborDist, _nearbyAgents);
         nav.DesiredVelocity = avoidance.ComputeNewVelocity(entity, ref frame, _nearbyAgents, dt);
       }
@@ -203,9 +172,15 @@ public sealed class NavigationAgentSystem : ISystem {
     }
   }
 
-  private void UpdateMinionFlowFieldSteering(ref Frame frame, EntityRef[] entities, int count) {
+  private void UpdateMinionFlowFieldSteering(ref Frame frame, EntityRef[] entities, int count,
+    NavigationTuningAsset tuning) {
     var query = _navigation.Query;
     var flowFields = _navigation.FlowFields;
+
+    var arrivalDistSqr = tuning.FlowFieldArrivalDist * tuning.FlowFieldArrivalDist;
+    var directSteerDistSqr = tuning.FlowFieldDirectSteerDist * tuning.FlowFieldDirectSteerDist;
+    var blockedZoneSqr = tuning.BlockedZone * tuning.BlockedZone;
+    var settleZoneSqr = tuning.SettleZone * tuning.SettleZone;
 
     for (var i = 0; i < count; i++) {
       var entity = entities[i];
@@ -221,9 +196,9 @@ public sealed class NavigationAgentSystem : ISystem {
       // near the target but stuck with no progress. Settling blocked/stuck minions where they are
       // — instead of insisting on the exact shared point — is what stops the crowd shuffling and
       // lets it freeze quickly rather than compressing one minion at a time.
-      var blocked = distSqr <= BlockedZoneSqr && nav.CurrentSpeed <= BlockedSpeed;
-      var stuck = UpdateSettleTracker(ref frame, entity, goalXZ, distSqr);
-      if (distSqr <= FlowFieldArrivalDistSqr || blocked || stuck) {
+      var blocked = distSqr <= blockedZoneSqr && nav.CurrentSpeed <= tuning.BlockedSpeed;
+      var stuck = UpdateSettleTracker(ref frame, entity, goalXZ, distSqr, tuning, settleZoneSqr);
+      if (distSqr <= arrivalDistSqr || blocked || stuck) {
         nav.Status = (byte)FPNavAgentStatus.Arrived;
         nav.Velocity = FPVector2.Zero;
         nav.DesiredVelocity = FPVector2.Zero;
@@ -234,9 +209,11 @@ public sealed class NavigationAgentSystem : ISystem {
 
       // Close to the slot: steer straight in, but decelerate on approach (arrival behaviour) so
       // agents ease into place instead of charging at full speed and overshooting.
-      if (distSqr <= FlowFieldDirectSteerDistSqr) {
+      if (distSqr <= directSteerDistSqr) {
         var mag = FP64.Sqrt(distSqr);
-        var speed = mag < ArrivalBrakeDist ? nav.Speed * mag / ArrivalBrakeDist : nav.Speed;
+        var speed = mag < tuning.ArrivalBrakeDist
+          ? nav.Speed * mag / tuning.ArrivalBrakeDist
+          : nav.Speed;
         nav.DesiredVelocity = toTargetXZ / mag * speed;
         nav.Status = (byte)FPNavAgentStatus.Moving;
         continue;
@@ -283,7 +260,8 @@ public sealed class NavigationAgentSystem : ISystem {
 
   // Tracks how close a minion has gotten to its slot and how long it has stalled. Returns true
   // when the minion is within the settle zone and hasn't improved for SettleStuckTicks ticks.
-  private static bool UpdateSettleTracker(ref Frame frame, EntityRef entity, FPVector2 goalXZ, FP64 distSqr) {
+  private static bool UpdateSettleTracker(ref Frame frame, EntityRef entity, FPVector2 goalXZ, FP64 distSqr,
+    NavigationTuningAsset tuning, FP64 settleZoneSqr) {
     var dist = FP64.Sqrt(distSqr);
 
     if (!frame.Has<MinionSettleTracker>(entity))
@@ -304,7 +282,7 @@ public sealed class NavigationAgentSystem : ISystem {
 
     // Progress only counts if we've closed at least SettleProgressStep since the last reset, so a
     // minion crawling at a fraction of a unit per second still trips the stuck detector.
-    if (dist + SettleProgressStep < settle.BestDist) {
+    if (dist + tuning.SettleProgressStep < settle.BestDist) {
       settle.BestDist = dist;
       settle.StuckTicks = 0;
     }
@@ -312,14 +290,15 @@ public sealed class NavigationAgentSystem : ISystem {
       settle.StuckTicks++;
     }
 
-    return settle.StuckTicks >= SettleStuckTicks && distSqr <= SettleZoneSqr;
+    return settle.StuckTicks >= tuning.SettleStuckTicks && distSqr <= settleZoneSqr;
   }
 
-  private void SyncAgentPosition(ref NavAgentComponent nav, FPVector3 position, int slotIndex) {
+  private void SyncAgentPosition(ref NavAgentComponent nav, FPVector3 position, int slotIndex,
+    FP64 snapThresholdSqr) {
     var delta = position - _lastSnappedPositions[slotIndex];
     var moveSqr = delta.x * delta.x + delta.z * delta.z;
 
-    if (nav.CurrentTriangleIndex >= 0 && moveSqr < SnapThresholdSqr) {
+    if (nav.CurrentTriangleIndex >= 0 && moveSqr < snapThresholdSqr) {
       nav.Position = position;
       return;
     }

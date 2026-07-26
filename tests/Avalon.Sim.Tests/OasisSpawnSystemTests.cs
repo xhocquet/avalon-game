@@ -25,7 +25,8 @@ public class OasisSpawnSystemTests {
     frame.EventRaiser = collector;
 
     var system = new OasisSpawnSystem();
-    var totalMs = OasisSpawnSystem.SpawnIntervalMs + 2000;
+    var rules = harness.AssetRegistry.Get<Meesles.Avalon.Sim.Assets.PickupRulesAsset>();
+    var totalMs = rules.OasisSpawnIntervalMs + 2000;
     var ticks = totalMs / SimHarness.DefaultDeltaTimeMs;
     for (var i = 0; i < ticks; i++)
       system.Update(ref frame);

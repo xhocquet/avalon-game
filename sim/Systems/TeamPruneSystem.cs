@@ -14,9 +14,9 @@ namespace Meesles.Avalon;
 // first minion wave (it is registered ahead of WaveSpawnSystem). It runs exactly once; the outcome
 // is recorded in the MatchSetupState singleton so it survives rollback and never re-fires.
 public class TeamPruneSystem : ISystem {
-  private readonly List<int> _activeTeams = new();
-  private readonly List<int> _prunedTeams = new();
-  private readonly List<EntityRef> _toDestroy = new();
+  private readonly List<int> _activeTeams = [];
+  private readonly List<int> _prunedTeams = [];
+  private readonly List<EntityRef> _toDestroy = [];
 
   public void Update(ref Frame frame) {
     if (frame.TryGetSingleton<MatchSetupState>(out var stateEntity) &&
@@ -42,34 +42,26 @@ public class TeamPruneSystem : ISystem {
     while (spawns.Next(out var entity))
       AddIfTeamless(entity, ref frame);
 
-    for (var i = 0; i < _toDestroy.Count; i++)
-      frame.DestroyEntity(_toDestroy[i]);
+    foreach (var t in _toDestroy)
+      frame.DestroyEntity(t);
 
-    // Tell the view which teams left the match so the client can free their authored base props
-    // (World.tscn Team{TeamId}). Synced event → the client acts only on the authoritative prune.
     if (frame.EventRaiser != null)
-      for (var i = 0; i < _prunedTeams.Count; i++) {
+      foreach (var teamId in _prunedTeams) {
         var evt = EventPool.Get<TeamPrunedEvent>();
-        evt.TeamId = _prunedTeams[i];
+        evt.TeamId = teamId;
         frame.EventRaiser.RaiseEvent(evt);
       }
 
-    // One line on the authoritative server tells you the prune ran, when, and what it removed. On a
-    // client this can log more than once because rollback re-simulates this tick — the server log is
-    // the single source of truth.
-    frame.Logger?.KInformation(
+    frame.Logger.KInformation(
       $"[TeamPrune] tick={frame.Tick} activeTeams=[{string.Join(",", _activeTeams)}] " +
       $"prunedTeams=[{string.Join(",", _prunedTeams)}] prunedStructures={_toDestroy.Count}");
 
     MarkPruned(ref frame);
   }
 
-  // Setup is done once no faction pick is still pending: every PlayerFaction slot is Confirmed, or
-  // the grace window has elapsed (the same boundary HeroSpawnSystem uses, so heroes are spawned and
-  // teams are final by now). With no slots at all — the headless spawn-heroes-now path — this is
-  // trivially true from tick 0, so the harness prunes immediately.
+  // Setup is done once no faction pick is still pending, or time limit expires
   private static bool IsSetupComplete(ref Frame frame) {
-    if (frame.Tick >= SimulationSetup.SetupGraceTicks)
+    if (frame.Tick >= SimulationSetup.GetSetupGraceTicks(ref frame))
       return true;
 
     var filter = frame.Filter<PlayerFaction>();
@@ -80,8 +72,6 @@ public class TeamPruneSystem : ISystem {
     return true;
   }
 
-  // A team counts as active if it has a roster slot (PlayerFaction) or a spawned hero. The slots
-  // cover the deferred lobby flow; heroes cover the spawn-heroes-now path that seeds no slots.
   private void CollectActiveTeams(ref Frame frame) {
     _activeTeams.Clear();
 

@@ -170,7 +170,7 @@ public partial class MultiplayerGameNode : GameNode {
     GameUi.SetLocalReady(true);
     _session.SetReady(true);
     _autoReadySent = true;
-    _logger?.KInformation($"[Client] auto-ready sent from multiplayer scene.");
+    _logger.KInformation($"[Client] auto-ready sent from multiplayer scene.");
   }
 
   private void CaptureRunningInput(KlothoSession session, float dt) {

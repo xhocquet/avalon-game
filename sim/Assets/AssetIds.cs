@@ -21,6 +21,11 @@ public static class AssetIds {
   public const int TurretStats = 106;
   public const int CrystalStats = 107;
   public const int ShopRules = 108;
+  public const int MovementRules = 109;
+  public const int MatchRules = 110;
+  public const int PickupRules = 111;
+  public const int NavigationTuning = 112;
+  public const int CombatRules = 113;
 
   // FactionAsset rows. Hero scenes and portraits for these ids live in FactionCatalog.
   public const int FactionHairyWizards = 200;
@@ -50,7 +55,12 @@ public static class AssetIds {
     public const int TurretStats = 106;
     public const int CrystalStats = 107;
     public const int ShopRules = 108;
+    public const int MovementRules = 109;
+    public const int MatchRules = 110;
+    public const int PickupRules = 111;
+    public const int NavigationTuning = 112;
+    public const int CombatRules = 113;
 
-    // Next free type id: 109
+    // Next free type id: 114
   }
 }

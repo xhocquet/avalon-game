@@ -1,24 +1,24 @@
+using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon;
 
-// Owns every player's Inventory: passive resource accrual today, and eventually items/spend
-// handling. Ticks in whole milliseconds (not FP64 seconds) so accrual stays exact regardless of
-// DeltaTimeMs, instead of accumulating fixed-point rounding error every frame.
 public class InventorySystem : ISystem {
-  private const int GoldPerTick = 1;
-  private const int GoldTickIntervalMs = 1000;
-
   public void Update(ref Frame frame) {
-    var filter = frame.Filter<Inventory>();
+    var playerStats = frame.AssetRegistry.Get<PlayerStatsAsset>();
+    if (playerStats == null || playerStats.GoldTickIntervalMs <= 0)
+      return;
+
+    var filter = frame.Filter<Inventory, Stats>();
     while (filter.Next(out var entity)) {
+      var goldPerTick = frame.GetReadOnly<Stats>(entity).GoldPerTick;
       ref var inventory = ref frame.Get<Inventory>(entity);
 
       inventory.GoldAccrualRemainderMs += frame.DeltaTimeMs;
-      while (inventory.GoldAccrualRemainderMs >= GoldTickIntervalMs) {
-        inventory.GoldAccrualRemainderMs -= GoldTickIntervalMs;
-        inventory.Gold += GoldPerTick;
+      while (inventory.GoldAccrualRemainderMs >= playerStats.GoldTickIntervalMs) {
+        inventory.GoldAccrualRemainderMs -= playerStats.GoldTickIntervalMs;
+        inventory.Gold += goldPerTick;
       }
     }
   }
