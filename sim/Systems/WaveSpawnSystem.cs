@@ -116,7 +116,7 @@ public class WaveSpawnSystem : ISystem {
 
     frame.Add(entity, TransformFactory.At(position));
     frame.Add(entity, new Unit {
-      UnitId = UnitIdGenerator.Next(ref frame),
+      UnitId = UnitLookup.NextUnitId(ref frame),
       UnitTypeId = SimulationSetup.MinionUnitTypeId
     });
     frame.Add(entity, new OwnerComponent { OwnerId = teamId });

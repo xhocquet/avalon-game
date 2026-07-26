@@ -474,7 +474,7 @@ public class AttackCommandExecutionTests {
   private static int SpawnTestMinion(SimHarness harness, int teamId, FPVector3 position) {
     var frame = harness.Frame;
     var entity = frame.CreateEntity();
-    int unitId = UnitIdGenerator.Next(ref frame);
+    int unitId = UnitLookup.NextUnitId(ref frame);
 
     frame.Add(entity, TransformFactory.At(position));
     frame.Add(entity, new Unit {

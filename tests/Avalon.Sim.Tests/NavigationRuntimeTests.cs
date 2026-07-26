@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Xunit;
+using Meesles.Avalon.Sim.Navigation;
 
 namespace Meesles.Avalon.Sim.Tests;
 

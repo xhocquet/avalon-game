@@ -17,6 +17,7 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
   private readonly List<FPVector3> _formationDestinations = [];
   private readonly List<FormationUnit> _formationUnits = [];
   private readonly bool _moveNavAgentsDirectly = navigation == null;
+  private readonly UnitLookup.Index _unitIndex = new();
 
   public void OnCommand(ref Frame frame, ICommand command) {
     switch (command) {
@@ -173,14 +174,15 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
     ApplyLocalHeroTarget(ref frame, command.PlayerId, target);
   }
 
-  private static void HandleAttackCommand(ref Frame frame, AttackCommand command) {
-    if (!TryResolveAttackTarget(ref frame, command, out var targetEntity))
+  private void HandleAttackCommand(ref Frame frame, AttackCommand command) {
+    _unitIndex.Rebuild(ref frame);
+    if (!TryResolveAttackTarget(ref frame, command, out var targetEntity, out var playerTeamId))
       return;
 
     ref readonly var targetTransform = ref frame.GetReadOnly<TransformComponent>(targetEntity);
     for (var i = 0; i < command.SourceUnitIdCount; i++) {
       var sourceUnitId = command.GetSourceUnitId(i);
-      if (!UnitLookup.TryGetPlayerControllableUnitById(ref frame, command.PlayerId, sourceUnitId, out var sourceEntity))
+      if (!_unitIndex.TryGetControllableTeamUnitById(ref frame, playerTeamId, sourceUnitId, out var sourceEntity))
         continue;
 
       SetAttackMoveTarget(ref frame, sourceEntity, targetTransform.Position);
@@ -190,9 +192,10 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
     }
   }
 
-  private static bool TryResolveAttackTarget(ref Frame frame, AttackCommand command,
-    out EntityRef targetEntity) {
-    if (!UnitLookup.TryGetEntityByUnitId(ref frame, command.TargetUnitId, out targetEntity))
+  private bool TryResolveAttackTarget(ref Frame frame, AttackCommand command,
+    out EntityRef targetEntity, out int playerTeamId) {
+    playerTeamId = 0;
+    if (!_unitIndex.TryGet(command.TargetUnitId, out targetEntity))
       return false;
 
     if (!frame.Has<Team>(targetEntity) || !frame.Has<Health>(targetEntity) ||
@@ -203,7 +206,7 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
     if (health.Current <= 0)
       return false;
 
-    if (!UnitLookup.TryGetPlayerTeamId(ref frame, command.PlayerId, out var playerTeamId))
+    if (!UnitLookup.TryGetPlayerTeamId(ref frame, command.PlayerId, out playerTeamId))
       return false;
 
     ref readonly var targetTeam = ref frame.GetReadOnly<Team>(targetEntity);
@@ -251,11 +254,15 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
       SetTarget(ref frame, _formationUnits[i].Entity, _formationDestinations[i]);
   }
 
-  private static void CollectSelectedUnits(ref Frame frame, MoveCommand command, List<FormationUnit> units) {
+  private void CollectSelectedUnits(ref Frame frame, MoveCommand command, List<FormationUnit> units) {
     units.Clear();
+    if (!UnitLookup.TryGetPlayerTeamId(ref frame, command.PlayerId, out var teamId))
+      return;
+
+    _unitIndex.Rebuild(ref frame);
     for (var i = 0; i < command.UnitIdCount; i++) {
       var unitId = command.GetUnitId(i);
-      if (!UnitLookup.TryGetPlayerControllableUnitById(ref frame, command.PlayerId, unitId, out var entity))
+      if (!_unitIndex.TryGetControllableTeamUnitById(ref frame, teamId, unitId, out var entity))
         continue;
 
       ref readonly var unit = ref frame.GetReadOnly<Unit>(entity);

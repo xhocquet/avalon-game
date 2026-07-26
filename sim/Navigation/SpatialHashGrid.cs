@@ -4,7 +4,7 @@ using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
-namespace Meesles.Avalon.Sim;
+namespace Meesles.Avalon.Sim.Navigation;
 
 /// <summary>
 ///   Deterministic uniform spatial hash over the XZ plane. Rebuilt once per tick (Clear + Insert)

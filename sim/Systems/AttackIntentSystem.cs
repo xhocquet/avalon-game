@@ -7,7 +7,7 @@ using xpTURN.Klotho.Logging;
 namespace Meesles.Avalon;
 
 public class AttackIntentSystem : ISystem {
-  private readonly UnitIdIndex _unitIdIndex = new();
+  private readonly UnitLookup.Index _unitIdIndex = new();
 
   public void Update(ref Frame frame) {
     _unitIdIndex.Rebuild(ref frame);

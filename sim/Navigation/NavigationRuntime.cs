@@ -1,9 +1,8 @@
-using Meesles.Avalon.Sim.Navigation;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.Deterministic.Navigation;
 using xpTURN.Klotho.Logging;
 
-namespace Meesles.Avalon.Sim;
+namespace Meesles.Avalon.Sim.Navigation;
 
 public sealed class NavigationRuntime {
   private NavigationRuntime(FPNavMesh navMesh, FPNavMeshQuery query, FPNavMeshPathfinder pathfinder,

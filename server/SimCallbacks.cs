@@ -4,6 +4,7 @@ using xpTURN.Klotho.Logging;
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
+using Meesles.Avalon.Sim.Navigation;
 
 namespace Meesles.Avalon.Server {
   public class SimCallbacks : ISimulationCallbacks {

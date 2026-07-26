@@ -171,7 +171,7 @@ public class DeathSystemTests {
 
   private static EntityRef SpawnTestMinion(ref Frame frame) {
     var entity = frame.CreateEntity();
-    int unitId = UnitIdGenerator.Next(ref frame);
+    int unitId = UnitLookup.NextUnitId(ref frame);
 
     frame.Add(entity, TransformFactory.At(FPVector3.Zero));
     frame.Add(entity, new Unit {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using Meesles.Avalon.Sim.Factories;
+using Meesles.Avalon.Sim.Navigation;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
@@ -51,7 +52,7 @@ public static class SimulationSetup {
 
   // spawnHeroesNow: use default factions or selected ones
   public static void InitializeWorld(ref Frame frame, int maxPlayers, bool spawnHeroesNow = false) {
-    UnitIdGenerator.Initialize(ref frame);
+    UnitLookup.InitializeUnitIds(ref frame);
     frame.AssetRegistry.TryGet<MapLayoutAsset>(out var layout);
 
     var playerIds = GetPlayerIds(ref frame, maxPlayers);
@@ -77,7 +78,7 @@ public static class SimulationSetup {
 
       frame.Add(crystalEntity, TransformFactory.At(crystalPosition));
       frame.Add(crystalEntity, new Unit {
-        UnitId = UnitIdGenerator.Next(ref frame),
+        UnitId = UnitLookup.NextUnitId(ref frame),
         UnitTypeId = CrystalUnitTypeId
       });
       frame.Add(crystalEntity, new OwnerComponent { OwnerId = teamId });
@@ -131,7 +132,7 @@ public static class SimulationSetup {
     frame.Add(entity, new Faction(factionId));
     frame.Add(entity, new Hero(playerId));
     frame.Add(entity, new Unit {
-      UnitId = UnitIdGenerator.Next(ref frame),
+      UnitId = UnitLookup.NextUnitId(ref frame),
       UnitTypeId = PlayerUnitTypeId
     });
     frame.Add(entity, new Controllable());
@@ -166,7 +167,7 @@ public static class SimulationSetup {
         var turretEntity = frame.CreateEntity();
         frame.Add(turretEntity, TransformFactory.At(layout.MarkerPositions[i]));
         frame.Add(turretEntity, new Unit {
-          UnitId = UnitIdGenerator.Next(ref frame),
+          UnitId = UnitLookup.NextUnitId(ref frame),
           UnitTypeId = TurretUnitTypeId
         });
         frame.Add(turretEntity, new Team(teamId));
