@@ -1,5 +1,5 @@
 using Godot;
-using Meesles.Avalon.Sim.Models;
+using Meesles.Avalon.Sim.Components;
 
 namespace Meesles.Avalon.Client.Scripts.View;
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Godot;
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
-using Meesles.Avalon.Sim.Models;
+using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
@@ -12,10 +12,10 @@ namespace Meesles.Avalon;
 // Drives the contextual ActionGrid in GameUI. It's meant to host a flexible assortment of actions
 // depending on what the player has selected; the first (and only, for now) context is the shop.
 //
-// When the player has a shop selected AND their hero is standing within ShopRules.InteractRange of
-// it, the grid fills with one buy button per shop item; otherwise it empties. The grid is rebuilt
-// only on the hidden<->shown transition — while shown it just refreshes each item's affordability
-// (enabled/greyed) every frame. Proximity here is a UX hint: the sim re-checks gold and range
+// When the player has a shop selected AND their hero is standing within the ShopRulesAsset's
+// InteractRange of it, the grid fills with one buy button per shop item; otherwise it empties. The
+// grid is rebuilt only on the hidden<->shown transition — while shown it just refreshes each item's
+// affordability (enabled/greyed) every frame. Proximity here is a UX hint: the sim re-checks gold and range
 // authoritatively when the PurchaseItemCommand lands, so a stale/optimistic button is harmless.
 public sealed class ActionBarController {
   private const float CellSize = 58f;
@@ -53,7 +53,7 @@ public sealed class ActionBarController {
     }
 
     // Only your own team's shop, and only while the hero is close enough to it.
-    if (contextShop.Team != teamId || !WithinRange(heroX, heroZ, contextShop.GlobalPosition)) {
+    if (contextShop.Team != teamId || !WithinRange(frame, heroX, heroZ, contextShop.GlobalPosition)) {
       Hide();
       return;
     }
@@ -61,10 +61,13 @@ public sealed class ActionBarController {
     Show(frame, gold);
   }
 
-  private static bool WithinRange(float heroX, float heroZ, Vector3 shopPos) {
+  private static bool WithinRange(Frame frame, float heroX, float heroZ, Vector3 shopPos) {
+    if (!frame.AssetRegistry.TryGet<ShopRulesAsset>(out var rules) || rules == null)
+      return false;
+
     var dx = heroX - shopPos.X;
     var dz = heroZ - shopPos.Z;
-    var range = (float)ShopRules.InteractRange;
+    var range = rules.InteractRange.ToFloat();
     return dx * dx + dz * dz <= range * range;
   }
 

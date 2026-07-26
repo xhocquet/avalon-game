@@ -1,5 +1,6 @@
 using Meesles.Avalon.Sim;
-using Meesles.Avalon.Sim.Models;
+using Meesles.Avalon.Sim.Components;
+using Meesles.Avalon.Sim.Factories;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.Deterministic.Random;
@@ -110,7 +111,7 @@ public class OasisSpawnSystem : ISystem {
 
   private static void SpawnPickup(ref Frame frame, int pickupId, int amount, FPVector3 position) {
     var entity = frame.CreateEntity();
-    frame.Add(entity, Transform.At(position));
+    frame.Add(entity, TransformFactory.At(position));
     frame.Add(entity, new Pickup { PickupId = pickupId, Amount = amount });
   }
 

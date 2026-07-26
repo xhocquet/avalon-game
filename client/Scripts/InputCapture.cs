@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Godot;
 using Meesles.Avalon.Client.Scripts.View;
 using Meesles.Avalon.Sim.Commands;
-using Meesles.Avalon.Sim.Models;
+using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.Deterministic.Navigation;
 using xpTURN.Klotho.Godot;

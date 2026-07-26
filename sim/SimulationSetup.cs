@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
 using Meesles.Avalon.Sim.Assets;
-using Meesles.Avalon.Sim.Models;
+using Meesles.Avalon.Sim.Components;
+using Meesles.Avalon.Sim.Factories;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
@@ -71,7 +72,7 @@ public static class SimulationSetup {
       var crystalEntity = frame.CreateEntity();
       var crystalPosition = RequireMarkerPosition(layout, MapMarkerType.Crystal, teamId);
 
-      frame.Add(crystalEntity, Transform.At(crystalPosition));
+      frame.Add(crystalEntity, TransformFactory.At(crystalPosition));
       frame.Add(crystalEntity, new Unit {
         UnitId = UnitIdGenerator.Next(ref frame),
         UnitTypeId = CrystalUnitTypeId
@@ -84,7 +85,7 @@ public static class SimulationSetup {
       var spawnEntity = frame.CreateEntity();
       var spawnPosition = RequireMarkerPosition(layout, MapMarkerType.SpawnPoint, teamId);
 
-      frame.Add(spawnEntity, Transform.At(spawnPosition));
+      frame.Add(spawnEntity, TransformFactory.At(spawnPosition));
       frame.Add(spawnEntity, new Team(teamId));
       frame.Add(spawnEntity, new SpawnPoint {
         SpawnPointId = teamId,
@@ -120,7 +121,7 @@ public static class SimulationSetup {
     var entity = frame.CreateEntity();
     var initialPos = GetHeroSpawnPositionForTeam(ref frame, teamId);
 
-    frame.Add(entity, Transform.At(initialPos));
+    frame.Add(entity, TransformFactory.At(initialPos));
     frame.Add(entity, new OwnerComponent { OwnerId = playerId });
     frame.Add(entity, new Player { PlayerId = playerId });
     frame.Add(entity, new Team(teamId));
@@ -157,7 +158,7 @@ public static class SimulationSetup {
 
         turretIndex++;
         var turretEntity = frame.CreateEntity();
-        frame.Add(turretEntity, Transform.At(layout.MarkerPositions[i]));
+        frame.Add(turretEntity, TransformFactory.At(layout.MarkerPositions[i]));
         frame.Add(turretEntity, new Unit {
           UnitId = UnitIdGenerator.Next(ref frame),
           UnitTypeId = TurretUnitTypeId
@@ -188,7 +189,7 @@ public static class SimulationSetup {
 
       oasisIndex++;
       var oasisEntity = frame.CreateEntity();
-      frame.Add(oasisEntity, Transform.At(layout.MarkerPositions[i]));
+      frame.Add(oasisEntity, TransformFactory.At(layout.MarkerPositions[i]));
       frame.Add(oasisEntity,
         new Oasis { OasisId = oasisIndex, SpawnCooldownRemainingMs = OasisSpawnSystem.SpawnIntervalMs });
     }
@@ -207,7 +208,7 @@ public static class SimulationSetup {
 
       var amount = layout.MarkerValues != null && i < layout.MarkerValues.Length ? layout.MarkerValues[i] : 0;
       var pickupEntity = frame.CreateEntity();
-      frame.Add(pickupEntity, Transform.At(layout.MarkerPositions[i]));
+      frame.Add(pickupEntity, TransformFactory.At(layout.MarkerPositions[i]));
       frame.Add(pickupEntity, new Pickup { PickupId = PickupIdGenerator.Next(ref frame), Amount = amount });
     }
   }

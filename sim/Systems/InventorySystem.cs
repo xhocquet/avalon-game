@@ -1,4 +1,4 @@
-using Meesles.Avalon.Sim.Models;
+using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon;

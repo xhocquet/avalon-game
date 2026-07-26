@@ -1,7 +1,7 @@
 using System.Linq;
 using FluentAssertions;
 using Meesles.Avalon.Sim;
-using Meesles.Avalon.Sim.Models;
+using Meesles.Avalon.Sim.Components;
 using Xunit;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.ECS;

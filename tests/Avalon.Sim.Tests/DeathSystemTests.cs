@@ -1,5 +1,6 @@
 using FluentAssertions;
-using Meesles.Avalon.Sim.Models;
+using Meesles.Avalon.Sim.Components;
+using Meesles.Avalon.Sim.Factories;
 using Xunit;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
@@ -172,7 +173,7 @@ public class DeathSystemTests {
     var entity = frame.CreateEntity();
     int unitId = UnitIdGenerator.Next(ref frame);
 
-    frame.Add(entity, Transform.At(FPVector3.Zero));
+    frame.Add(entity, TransformFactory.At(FPVector3.Zero));
     frame.Add(entity, new Unit {
       UnitId = unitId,
       UnitTypeId = SimulationSetup.MinionUnitTypeId,

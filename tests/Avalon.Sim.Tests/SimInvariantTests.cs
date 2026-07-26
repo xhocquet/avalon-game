@@ -3,7 +3,7 @@ using System.Linq;
 using FluentAssertions;
 using Meesles.Avalon;
 using Meesles.Avalon.Sim.Assets;
-using Meesles.Avalon.Sim.Models;
+using Meesles.Avalon.Sim.Components;
 using Xunit;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;

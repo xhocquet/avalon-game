@@ -36,7 +36,7 @@
 
 
 ## Node Types
-|[`Hero`](sim/Models/Hero.cs)|[`Turret`](sim/Models/Turret.cs) |[`Minion`](sim/Models/Minion.cs)|[`Crystal`](sim/Models/Crystal.cs) | Shop |
+|[`Hero`](sim/Components/UnitTypes.cs)|[`Turret`](sim/Components/UnitTypes.cs) |[`Minion`](sim/Components/UnitTypes.cs)|[`Crystal`](sim/Components/UnitTypes.cs) | Shop |
 |-|-|-|-|-|
 
 
@@ -47,27 +47,21 @@
 
 Uses [`KlothoComponentAttribute`](vendor/Klotho/com.xpturn.klotho/Runtime/ECS/Attributes/KlothoComponentAttribute.cs) for network IDs.
 
-| Core | |
-| -- | --------- |
-| 100 | [`Player`](sim/Models/Player.cs) |
-| 102 | [`Team`](sim/Models/Team.cs) |
-| 103 | [`Health`](sim/Models/Health.cs) |
-| 107 | [`SpawnPoint`](sim/Models/SpawnPoint.cs) |
-| 108 | [`Combat`](sim/Models/Combat.cs) |
-| 110 | [`UnitMoveTarget`](sim/Models/UnitMoveTarget.cs) |
-| 111 | [`AttackTargetUnitId`](sim/Models/AttackTargetUnitId.cs) |
-| 112 | [`PendingRespawn`](sim/Models/PendingRespawn.cs) |
-| 114 | [`Controllable`](sim/Models/Controllable.cs) |
-| 115 | [`Faction`](sim/Models/Faction.cs) |
-| 116 | [`PlayerFaction`](sim/Models/PlayerFaction.cs) |
-| **Units** | |
-| 101 | [`Unit`](sim/Models/Unit.cs) |
-| 104 | [`Hero`](sim/Models/Hero.cs) |
-| 105 | [`Minion`](sim/Models/Minion.cs) |
-| 106 | [`Crystal`](sim/Models/Crystal.cs) |
-| 113 | [`Turret`](sim/Models/Turret.cs) |
-| **Singletons** | |
-| 109 | [`UnitIdCounter`](sim/Models/UnitIdCounter.cs) |
+Component ids live in code, not here: [`ComponentIds`](sim/Components/ComponentIds.cs) is the single
+allocation ledger, kept in numeric order with the next free id at the bottom. Components reference it
+by name (`[KlothoComponent(ComponentIds.Hero)]`), so this doc no longer duplicates the numbers.
+
+Components are grouped by domain under [`sim/Components/`](sim/Components):
+
+| File | Components |
+| ---- | ---------- |
+| [`Identity.cs`](sim/Components/Identity.cs) | `Player`, `Unit`, `Team`, `Faction`, `Controllable` |
+| [`UnitTypes.cs`](sim/Components/UnitTypes.cs) | `Hero`, `Minion`, `Turret`, `Crystal`, `SpawnPoint` |
+| [`Combat.cs`](sim/Components/Combat.cs) | `Health`, `Combat`, `AttackTargetUnitId`, `PendingRespawn` |
+| [`Movement.cs`](sim/Components/Movement.cs) | `UnitMoveTarget`, `MinionSettleTracker` |
+| [`Economy.cs`](sim/Components/Economy.cs) | `Inventory`, `Pickup`, `Oasis`, `OasisEjectPending`, `OasisResourceLanding` |
+| [`Match.cs`](sim/Components/Match.cs) | `PlayerFaction`, `Stats` |
+| [`Singletons.cs`](sim/Components/Singletons.cs) | `UnitIdCounter`, `PickupIdCounter`, `MatchSetupState` |
 
 ### [`KlothoSerializable`](vendor/Klotho/com.xpturn.klotho/Runtime/Serialization/Attributes/KlothoSerializableAttribute.cs)
 
@@ -90,13 +84,15 @@ Uses [`KlothoComponentAttribute`](vendor/Klotho/com.xpturn.klotho/Runtime/ECS/At
 
 Uses [`KlothoDataAssetAttribute`](vendor/Klotho/com.xpturn.klotho/Runtime/ECS/DataAsset/KlothoDataAssetAttribute.cs) for network IDs.
 
-| 100           | 101         | 102         | 103           | 104         | 105         |
-| ------------- | ----------- | ----------- | ------------- | ----------- | ----------- |
-| [`PlayerStats`](sim/Assets/PlayerStatsAsset.cs) | [`WaveRules`](sim/Assets/WaveRulesAsset.cs) | [`MapLayout`](sim/Assets/MapLayoutAsset.cs) | [`MinionStats`](sim/Assets/MinionStatsAsset.cs) | [`Faction`](sim/Assets/FactionAsset.cs) | [`ShopItem`](sim/Assets/ShopItemAsset.cs) |
+| 100           | 101         | 102         | 103           | 104         | 105         | 106           | 107            | 108         |
+| ------------- | ----------- | ----------- | ------------- | ----------- | ----------- | ------------- | -------------- | ----------- |
+| [`PlayerStats`](sim/Assets/PlayerStatsAsset.cs) | [`WaveRules`](sim/Assets/WaveRulesAsset.cs) | [`MapLayout`](sim/Assets/MapLayoutAsset.cs) | [`MinionStats`](sim/Assets/MinionStatsAsset.cs) | [`Faction`](sim/Assets/FactionAsset.cs) | [`ShopItem`](sim/Assets/ShopItemAsset.cs) | [`TurretStats`](sim/Assets/TurretStatsAsset.cs) | [`CrystalStats`](sim/Assets/CrystalStatsAsset.cs) | [`ShopRules`](sim/Assets/ShopRulesAsset.cs) |
 
 `Faction` is a multi-instance catalog asset (type id 104): one instance per faction, keyed by its own `AssetId` in the 200 range (`Get<FactionAsset>(factionId)`). See `client/Sim/Data/Assets.json`.
 
 `ShopItem` is likewise a multi-instance catalog asset (type id 105): one instance per purchasable item, keyed by its own `AssetId` in the 300 range (`Get<ShopItemAsset>(itemId)`). Sim owns Cost/AttackBonus; the client [`ShopItemCatalog`](client/Scripts/View/ShopItemCatalog.cs) maps those AssetIds to portraits/names.
+
+`ShopRules` is the singleton gate for shop interaction: its `InteractRange` is read by [`CommandSystem`](sim/Systems/CommandSystem.cs) as the authoritative purchase check and by the client [`ActionBarController`](client/Scripts/UI/ActionBarController.cs) as the UI proximity hint, so the two can never disagree.
 
 ### Klotho Internal
 
@@ -111,10 +107,10 @@ Next free project IDs: [`KlothoComponent`](vendor/Klotho/com.xpturn.klotho/Runti
 | System | Notes |
 | ------ | ----- |
 | **Commands** | |
-| [`CommandSystem`](sim/Systems/CommandSystem.cs) | Validates+applies commands (incl. [`SelectFactionCommand`](sim/Commands/SelectFactionCommand.cs) → [`PlayerFaction`](sim/Models/PlayerFaction.cs)) |
+| [`CommandSystem`](sim/Systems/CommandSystem.cs) | Validates+applies commands (incl. [`SelectFactionCommand`](sim/Commands/SelectFactionCommand.cs) → [`PlayerFaction`](sim/Components/Match.cs)) |
 | **Spawning** | |
-| [`HeroSpawnSystem`](sim/Systems/HeroSpawnSystem.cs) | Spawns each player's hero once their faction pick lands (or after a grace window w/ default). Heroes carry [`Faction`](sim/Models/Faction.cs) at spawn so the view resolves the faction scene |
-| [`WaveSpawnSystem`](sim/Systems/WaveSpawnSystem.cs) | Spawns minion waves from [`SpawnPoint`](sim/Models/SpawnPoint.cs) markers |
+| [`HeroSpawnSystem`](sim/Systems/HeroSpawnSystem.cs) | Spawns each player's hero once their faction pick lands (or after a grace window w/ default). Heroes carry [`Faction`](sim/Components/Identity.cs) at spawn so the view resolves the faction scene |
+| [`WaveSpawnSystem`](sim/Systems/WaveSpawnSystem.cs) | Spawns minion waves from [`SpawnPoint`](sim/Components/UnitTypes.cs) markers |
 | **Combat** | |
 | [`TargetAcquisitionSystem`](sim/Systems/TargetAcquisitionSystem.cs) | Gives units auto enemy focus when they have no active target |
 | [`AttackIntentSystem`](sim/Systems/AttackIntentSystem.cs) | Resolves attack targets, chases targets, and clears targets |

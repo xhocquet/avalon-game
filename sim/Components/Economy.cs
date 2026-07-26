@@ -1,7 +1,11 @@
 using System.Runtime.InteropServices;
+using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
-namespace Meesles.Avalon.Sim.Models;
+namespace Meesles.Avalon.Sim.Components;
+
+// Gold/resource economy: the hero wallet + item ledger, collectable pickups, and the oases that
+// eject them. Handled by InventorySystem, PickupSystem, and OasisSpawnSystem.
 
 // Per-hero wallet + owned-item ledger. Gold/Resources accrue over time (see InventorySystem); the
 // item ledger is an append-only list of purchased ShopItemAsset ids, written by the shop purchase
@@ -9,7 +13,7 @@ namespace Meesles.Avalon.Sim.Models;
 // structs - the whole struct is snapshotted via a raw heap memcpy for rollback, and the generated
 // codec walks the fixed buffer for hashing/serialization (see HFSMState for the same pattern).
 // Buffer size keeps the struct under the 128-byte component ceiling: 4 ints + MaxItems*4 = 112B.
-[KlothoComponent(118)]
+[KlothoComponent(ComponentIds.Inventory)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public unsafe partial struct Inventory : IComponent {
   // Repeatable buys stack, so each purchase appends another entry - this caps how many a hero may own.
@@ -48,4 +52,41 @@ public unsafe partial struct Inventory : IComponent {
 
     return count;
   }
+}
+
+// Neutral, collectable resource pickup. Like Oasis, carries no Team/Health/Unit so it stays
+// invisible to TargetAcquisitionSystem/DamageSystem; PickupSystem collects it by proximity only.
+[KlothoComponent(ComponentIds.Pickup)]
+[StructLayout(LayoutKind.Sequential, Pack = 4)]
+public partial struct Pickup : IComponent {
+  public int PickupId;
+  public int Amount;
+  // public int Type; // TODO: distinguish resource types once more than one exists
+}
+
+[KlothoComponent(ComponentIds.Oasis)]
+[StructLayout(LayoutKind.Sequential, Pack = 4)]
+public partial struct Oasis : IComponent {
+  public int OasisId;
+  public int SpawnCooldownRemainingMs;
+}
+
+// Temporary indicator of an oasis about to spawn a resource
+[KlothoComponent(ComponentIds.OasisEjectPending)]
+[StructLayout(LayoutKind.Sequential, Pack = 4)]
+public partial struct OasisEjectPending : IComponent {
+  public int PickupId;
+  public int Amount;
+  public FPVector3 TargetPosition;
+  public int RemainingMs;
+}
+
+// Temporary indicator of a resource flying through the air from an oasis
+[KlothoComponent(ComponentIds.OasisResourceLanding)]
+[StructLayout(LayoutKind.Sequential, Pack = 4)]
+public partial struct OasisResourceLanding : IComponent {
+  public int PickupId;
+  public int Amount;
+  public FPVector3 TargetPosition;
+  public int RemainingMs;
 }

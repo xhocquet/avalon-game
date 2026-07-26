@@ -1,5 +1,5 @@
 using Meesles.Avalon.Sim.Commands;
-using Meesles.Avalon.Sim.Models;
+using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.ECS;
 

@@ -3,7 +3,7 @@ using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Logging;
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
-using Meesles.Avalon.Sim.Models;
+using Meesles.Avalon.Sim.Components;
 
 namespace Meesles.Avalon.Server {
   public class SimCallbacks : ISimulationCallbacks {

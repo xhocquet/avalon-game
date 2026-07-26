@@ -38,6 +38,11 @@
     "Health": 100
   },
   {
+    "$type": "Meesles.Avalon.Sim.Assets.ShopRulesAsset, Meesles.Avalon.Client",
+    "AssetId": 108,
+    "InteractRange": 6.0
+  },
+  {
     "$type": "Meesles.Avalon.Sim.Assets.FactionAsset, Meesles.Avalon.Client",
     "AssetId": 200,
     "ChampionUnitTypeId": 10,

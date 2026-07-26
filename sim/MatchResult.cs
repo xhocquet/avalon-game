@@ -1,13 +1,7 @@
-using Meesles.Avalon.Sim.Models;
+using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
-
-public enum MatchEndReason {
-  Unknown = 0,
-  Crystal = 1,
-  Timeout = 2
-}
 
 public readonly struct MatchResult {
   public const int NoWinnerPlayerId = -1;

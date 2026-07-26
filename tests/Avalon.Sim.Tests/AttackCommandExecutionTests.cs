@@ -2,7 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using Meesles.Avalon.Sim.Commands;
-using Meesles.Avalon.Sim.Models;
+using Meesles.Avalon.Sim.Components;
+using Meesles.Avalon.Sim.Factories;
 using Xunit;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
@@ -475,7 +476,7 @@ public class AttackCommandExecutionTests {
     var entity = frame.CreateEntity();
     int unitId = UnitIdGenerator.Next(ref frame);
 
-    frame.Add(entity, Transform.At(position));
+    frame.Add(entity, TransformFactory.At(position));
     frame.Add(entity, new Unit {
       UnitId = unitId,
       UnitTypeId = SimulationSetup.MinionUnitTypeId,

@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
-using Meesles.Avalon.Sim.Models;
+using Meesles.Avalon.Sim.Components;
+using Meesles.Avalon.Sim.Factories;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
@@ -113,7 +114,7 @@ public class WaveSpawnSystem : ISystem {
     int waveId) {
     var entity = frame.CreateEntity();
 
-    frame.Add(entity, Transform.At(position));
+    frame.Add(entity, TransformFactory.At(position));
     frame.Add(entity, new Unit {
       UnitId = UnitIdGenerator.Next(ref frame),
       UnitTypeId = SimulationSetup.MinionUnitTypeId

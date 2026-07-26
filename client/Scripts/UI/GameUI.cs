@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using Meesles.Avalon.Sim;
-using Meesles.Avalon.Sim.Models;
+using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Network;
 

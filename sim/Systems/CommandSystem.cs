@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Commands;
-using Meesles.Avalon.Sim.Models;
+using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.Deterministic.Navigation;
@@ -93,9 +93,9 @@ public class CommandSystem : ISystem, ICommandSystem {
 
   // Authoritative shop purchase. Everything the client asserted is re-checked here so a modified
   // client can't buy an item it can't afford or reach: the hero must exist, the item id must
-  // resolve, the hero must have enough gold, and it must be standing within ShopRules.InteractRange
-  // of its own team's Shop marker. Only then do we spend the gold and apply the buff. Buffs stack
-  // (repeatable buy) — the POC tracks no per-item ownership.
+  // resolve, the hero must have enough gold, and it must be standing within the ShopRulesAsset's
+  // InteractRange of its own team's Shop marker. Only then do we spend the gold and apply the buff.
+  // Buffs stack (repeatable buy) — the POC tracks no per-item ownership.
   private static void HandlePurchaseItemCommand(ref Frame frame, PurchaseItemCommand command) {
     if (!TryGetPlayerHero(ref frame, command.PlayerId, out var heroEntity)) {
       frame.Logger?.KInformation(
@@ -158,9 +158,9 @@ public class CommandSystem : ISystem, ICommandSystem {
     return false;
   }
 
-  // True when the hero is within ShopRules.InteractRange (planar XZ) of the Shop marker authored for
-  // its own team. Shops live only as MapLayout markers (no sim entity), so this reads the marker
-  // straight from the asset registry.
+  // True when the hero is within the ShopRulesAsset's InteractRange (planar XZ) of the Shop marker
+  // authored for its own team. Shops live only as MapLayout markers (no sim entity), so this reads
+  // the marker straight from the asset registry.
   private static bool IsHeroNearTeamShop(ref Frame frame, EntityRef heroEntity) {
     if (!frame.Has<Team>(heroEntity) || !frame.Has<TransformComponent>(heroEntity))
       return false;
@@ -172,11 +172,14 @@ public class CommandSystem : ISystem, ICommandSystem {
     if (!layout.TryGetByTypeAndTeam(MapMarkerType.Shop, teamId, out var shopPos))
       return false;
 
+    if (!frame.AssetRegistry.TryGet<ShopRulesAsset>(out var shopRules) || shopRules == null)
+      return false;
+
     var heroPos = frame.GetReadOnly<TransformComponent>(heroEntity).Position;
     var delta = heroPos - shopPos;
     delta.y = FP64.Zero;
 
-    var range = FP64.FromDouble(ShopRules.InteractRange);
+    var range = shopRules.InteractRange;
     return delta.sqrMagnitude <= range * range;
   }
 

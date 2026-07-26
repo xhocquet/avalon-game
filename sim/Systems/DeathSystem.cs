@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using Meesles.Avalon.Sim;
-using Meesles.Avalon.Sim.Models;
+using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;

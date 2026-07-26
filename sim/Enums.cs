@@ -8,3 +8,13 @@ public enum MapMarkerType {
   Oasis = 4,
   Pickup = 5
 }
+
+public enum StatType {
+  Strength = 0
+}
+
+public enum MatchEndReason {
+  Unknown = 0,
+  Crystal = 1,
+  Timeout = 2
+}
