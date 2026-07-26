@@ -1,0 +1,14 @@
+using System.Runtime.InteropServices;
+using xpTURN.Klotho.ECS;
+
+namespace Meesles.Avalon.Sim.Components;
+
+// Lives in frame state rather than on a system so it rolls back deterministically - a counter kept
+// outside the frame would keep advancing through a rollback and hand out ids the replayed ticks
+// never used.
+[KlothoComponent(ComponentIds.PickupIdCounter)]
+[KlothoSingletonComponent]
+[StructLayout(LayoutKind.Sequential, Pack = 4)]
+public partial struct PickupIdCounter : IComponent {
+  public int NextPickupId;
+}

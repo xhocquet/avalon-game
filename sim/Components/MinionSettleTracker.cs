@@ -4,15 +4,6 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Components;
 
-// Steering destinations and per-agent steering bookkeeping. All consumed by NavigationAgentSystem.
-// Movement is planar: only Position.x/z matter (see sim/AGENTS.md).
-
-[KlothoComponent(ComponentIds.UnitMoveTarget)]
-[StructLayout(LayoutKind.Sequential, Pack = 4)]
-public partial struct UnitMoveTarget : IComponent {
-  public FPVector3 Target;
-}
-
 // Per-minion progress tracker used by NavigationAgentSystem to decide when a minion should give
 // up chasing its formation slot and settle in place. After a long group move the slot a minion
 // was assigned at command time can end up unreachable across the packed blob; without this the

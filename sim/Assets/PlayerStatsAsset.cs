@@ -10,4 +10,5 @@ public partial class PlayerStatsAsset : IDataAsset {
   [KlothoOrder(0)] public FP64 MoveSpeed;
   [KlothoOrder(1)] public FP64 MatchDuration;
   [KlothoOrder(2)] public int Health;
+  [KlothoOrder(3)] public FP64 Radius;
 }

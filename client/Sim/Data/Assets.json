@@ -4,7 +4,8 @@
     "AssetId": 100,
     "MoveSpeed": 5.0,
     "MatchDuration": 300.0,
-    "Health": 100
+    "Health": 100,
+    "Radius": 0.5
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.WaveRulesAsset, Meesles.Avalon.Client",
@@ -22,7 +23,8 @@
     "AttackDamage": 10,
     "AttackRange": 4.0,
     "AttackCooldownTicks": 30,
-    "AttackReacquireRangeMultiplier": 3.0
+    "AttackReacquireRangeMultiplier": 3.0,
+    "Radius": 0.3
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.TurretStatsAsset, Meesles.Avalon.Client",

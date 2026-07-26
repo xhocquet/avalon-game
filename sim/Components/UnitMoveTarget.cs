@@ -1,0 +1,13 @@
+using System.Runtime.InteropServices;
+using xpTURN.Klotho.Deterministic.Math;
+using xpTURN.Klotho.ECS;
+
+namespace Meesles.Avalon.Sim.Components;
+
+// Steering destination consumed by NavigationAgentSystem. Movement is planar: only Target.x/z
+// matter (see sim/AGENTS.md).
+[KlothoComponent(ComponentIds.UnitMoveTarget)]
+[StructLayout(LayoutKind.Sequential, Pack = 4)]
+public partial struct UnitMoveTarget : IComponent {
+  public FPVector3 Target;
+}

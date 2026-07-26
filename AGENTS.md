@@ -45,4 +45,10 @@ Config authority chain:
 - Client build: `dotnet build .\client\Meesles.Avalon.Client.csproj`
 - Server build: `dotnet build .\server\Server.csproj`
 - Server build if normal output is locked by a running server: `dotnet build .\server\Server.csproj -o C:\tmp\avalon-server-build`
-- Sim tests: `just test`
+
+# Testing
+
+- `just test` — xunit sim suite ([`tests/Avalon.Sim.Tests/`](tests/Avalon.Sim.Tests)): invariants, determinism baseline, combat, death, nav, scoring, spatial grid. [`SimHarness`](tests/Avalon.Sim.Tests/SimHarness.cs) boots a full sim with no Godot dependency.
+- `just smoke` — boots server + 2 headless Godot clients, asserts `=== CLIENT OK ===` at tick 120 with no sim exceptions ([`scripts/smoke.ps1`](scripts/smoke.ps1)).
+- `just loadtest [ticks=1000]` — [`LoadTestHarness`](tests/Avalon.Sim.Tests/LoadTestHarness.cs) runs a headless sim, reporting per-system timings every 500 ticks.
+- `just loadtest-profile [ticks=10000]` — same under `dotnet-trace`; writes a Speedscope flame graph to `TestResults/loadtest/loadtest_profile.speedscope.json`.

@@ -131,6 +131,6 @@ public class WaveSpawnSystem : ISystem {
       CooldownRemainingTicks = 0
     });
 
-    NavAgentSetup.AddNavAgent(ref frame, entity, position, stats.MoveSpeed, NavAgentSetup.MinionRadius);
+    frame.Add(entity, NavAgentFactory.At(position, stats.MoveSpeed, stats.Radius));
   }
 }

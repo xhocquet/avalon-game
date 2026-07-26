@@ -22,6 +22,7 @@ public class NavAgentInitializationTests {
 
       nav.Position.Should().Be(transform.Position);
       nav.Speed.Should().Be(stats.MoveSpeed);
+      nav.Radius.Should().Be(stats.Radius);
       count++;
     }
 
@@ -46,6 +47,7 @@ public class NavAgentInitializationTests {
 
       nav.Position.Should().Be(transform.Position);
       nav.Speed.Should().Be(stats.MoveSpeed);
+      nav.Radius.Should().Be(stats.Radius);
       count++;
     }
 

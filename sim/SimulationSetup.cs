@@ -141,7 +141,7 @@ public static class SimulationSetup {
     if (combatStats != null)
       frame.Add(entity, new Combat(combatStats));
 
-    NavAgentSetup.AddNavAgent(ref frame, entity, initialPos, playerStats.MoveSpeed, NavAgentSetup.HeroRadius);
+    frame.Add(entity, NavAgentFactory.At(initialPos, playerStats.MoveSpeed, playerStats.Radius));
   }
 
   private static void SpawnTeamTurrets(ref Frame frame, List<int> teamIds, MapLayoutAsset layout) {

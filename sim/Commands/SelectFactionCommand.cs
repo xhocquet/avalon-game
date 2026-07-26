@@ -3,9 +3,6 @@ using xpTURN.Klotho.Serialization;
 
 namespace Meesles.Avalon.Sim.Commands;
 
-// Sent once per player at match start to carry their lobby faction pick into the
-// deterministic sim. CommandSystem records it as a PlayerFaction entity; HeroSpawnSystem
-// then spawns the player's hero with the matching faction. FactionId == FactionAsset AssetId.
 [KlothoSerializable(104)]
 public partial class SelectFactionCommand : CommandBase {
   public int FactionId;

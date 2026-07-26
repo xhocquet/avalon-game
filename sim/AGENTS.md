@@ -19,8 +19,8 @@
 # Working Rules
 
 - Prefer compact intent commands with stable `Unit.UnitId` references. Do not put transient ECS entity ids in command payloads.
-- Movement is planar: `TransformComponent.Position.x/z` is authoritative; `y` is not gameplay.
-- Avoid dynamic physics bodies for units. Use deterministic transform integration, radii, proximity queries, grids, and stable iteration order.
+- Movement is planar: `TransformComponent.Position.x/z`.
+- NO dynamic physics. Use deterministic transform integration, radii, proximity queries, grids, and stable iteration order.
 - When changing gameplay rules, inspect `sim/` first instead of duplicating logic in `client/` or `server/`.
 - See `plan.md` at repo root for simulation architecture, Klotho id ranges, and current work status.
 
