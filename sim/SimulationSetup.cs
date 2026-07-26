@@ -25,7 +25,6 @@ public static class SimulationSetup {
     simulation.AddSystem(new TeamPruneSystem(), SystemPhase.Update);
     simulation.AddSystem(new WaveSpawnSystem(), SystemPhase.Update);
     simulation.AddSystem(new InventorySystem(), SystemPhase.Update);
-    simulation.AddSystem(new StatsSystem(), SystemPhase.Update);
     simulation.AddSystem(new OasisSpawnSystem(), SystemPhase.Update);
     simulation.AddSystem(new PickupSystem(), SystemPhase.Update);
     simulation.AddSystem(new TargetAcquisitionSystem(), SystemPhase.Update);

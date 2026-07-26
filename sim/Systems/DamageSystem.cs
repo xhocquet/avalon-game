@@ -25,7 +25,7 @@ public class DamageSystem : ISystem {
         continue;
       }
 
-      var damage = StatsSystem.CalculateDamage(ref frame, attacker, target);
+      var damage = GetAttackDamage(ref frame, attacker);
 
       ref var health = ref frame.Get<Health>(target);
       var healthBefore = health.Current;
@@ -52,6 +52,11 @@ public class DamageSystem : ISystem {
       LogDamageState(ref frame, attacker, target,
         $"damage={damage} health={healthBefore}->{health.Current} cooldown={combat.CooldownRemainingTicks}");
     }
+  }
+
+  // Attackers without a Stats block (nothing today, but structures/summons may skip it) deal nothing.
+  private static int GetAttackDamage(ref Frame frame, EntityRef attacker) {
+    return frame.Has<Stats>(attacker) ? frame.GetReadOnly<Stats>(attacker).AttackDamage : 0;
   }
 
   private static bool TryGetDamageTarget(ref Frame frame, EntityRef attacker, EntityRef target,

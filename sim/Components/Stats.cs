@@ -10,4 +10,17 @@ public partial struct Stats() : IComponent {
   public int Strength = 100;
   public int Defense = 100;
   public int Speed = 100;
+
+  // Damage this entity deals per attack. Clamped at 0 so a debuff can never heal the target.
+  public readonly int AttackDamage => Strength < 0 ? 0 : Strength;
+
+  // Single entry point for stat changes (shop items today, leveling/buffs later) so every source
+  // routes a StatType through the same switch instead of touching fields directly.
+  public void Add(StatType statType, int delta) {
+    switch (statType) {
+      case StatType.Strength:
+        Strength += delta;
+        break;
+    }
+  }
 }

@@ -137,7 +137,7 @@ public class CommandSystem : ISystem, ICommandSystem {
     inventory.Gold -= item.Cost;
     inventory.TryAddItem(command.ItemAssetId);
     ref var stats = ref frame.Get<Stats>(heroEntity);
-    stats.Strength += item.AttackBonus;
+    stats.Add(StatType.Strength, item.AttackBonus);
 
     frame.Logger?.KInformation(
       $"[Shop] ACCEPT tick={frame.Tick} playerId={command.PlayerId} itemId={command.ItemAssetId} cost={item.Cost} +str={item.AttackBonus} goldLeft={inventory.Gold} strengthNow={stats.Strength} items={inventory.ItemCount}");
