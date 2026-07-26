@@ -172,11 +172,7 @@ public class DeathSystemTests {
     var entity = frame.CreateEntity();
     int unitId = UnitIdGenerator.Next(ref frame);
 
-    frame.Add(entity, new TransformComponent {
-      Position = FPVector3.Zero,
-      Rotation = FP64.Zero,
-      Scale = FPVector3.One,
-    });
+    frame.Add(entity, Transform.At(FPVector3.Zero));
     frame.Add(entity, new Unit {
       UnitId = unitId,
       UnitTypeId = SimulationSetup.MinionUnitTypeId,
@@ -184,10 +180,7 @@ public class DeathSystemTests {
     frame.Add(entity, new Team { TeamId = 1 });
     frame.Add(entity, new OwnerComponent { OwnerId = 1 });
     frame.Add(entity, new Minion { WaveId = 99 });
-    frame.Add(entity, new Health {
-      Current = 100,
-      Max = 100,
-    });
+    frame.Add(entity, new Health(100));
 
     return entity;
   }

@@ -110,11 +110,7 @@ public class OasisSpawnSystem : ISystem {
 
   private static void SpawnPickup(ref Frame frame, int pickupId, int amount, FPVector3 position) {
     var entity = frame.CreateEntity();
-    frame.Add(entity, new TransformComponent {
-      Position = position,
-      Rotation = FP64.Zero,
-      Scale = FPVector3.One
-    });
+    frame.Add(entity, Transform.At(position));
     frame.Add(entity, new Pickup { PickupId = pickupId, Amount = amount });
   }
 

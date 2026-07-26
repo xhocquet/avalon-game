@@ -113,11 +113,7 @@ public class WaveSpawnSystem : ISystem {
     int waveId) {
     var entity = frame.CreateEntity();
 
-    frame.Add(entity, new TransformComponent {
-      Position = position,
-      Rotation = FP64.Zero,
-      Scale = FPVector3.One
-    });
+    frame.Add(entity, Transform.At(position));
     frame.Add(entity, new Unit {
       UnitId = UnitIdGenerator.Next(ref frame),
       UnitTypeId = SimulationSetup.MinionUnitTypeId
@@ -126,10 +122,7 @@ public class WaveSpawnSystem : ISystem {
     frame.Add(entity, new Team { TeamId = teamId });
     frame.Add(entity, new Minion { WaveId = waveId });
     frame.Add(entity, new Controllable());
-    frame.Add(entity, new Health {
-      Current = stats.Health,
-      Max = stats.Health
-    });
+    frame.Add(entity, new Health(stats.Health));
     frame.Add(entity, new Stats { Strength = stats.AttackDamage });
     frame.Add(entity, new Combat {
       AttackRange = stats.AttackRange,

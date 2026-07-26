@@ -475,11 +475,7 @@ public class AttackCommandExecutionTests {
     var entity = frame.CreateEntity();
     int unitId = UnitIdGenerator.Next(ref frame);
 
-    frame.Add(entity, new TransformComponent {
-      Position = position,
-      Rotation = FP64.Zero,
-      Scale = FPVector3.One,
-    });
+    frame.Add(entity, Transform.At(position));
     frame.Add(entity, new Unit {
       UnitId = unitId,
       UnitTypeId = SimulationSetup.MinionUnitTypeId,
@@ -487,10 +483,7 @@ public class AttackCommandExecutionTests {
     frame.Add(entity, new Team { TeamId = teamId });
     frame.Add(entity, new Minion { WaveId = 99 });
     frame.Add(entity, new Controllable());
-    frame.Add(entity, new Health {
-      Current = 100,
-      Max = 100,
-    });
+    frame.Add(entity, new Health(100));
     frame.Add(entity, new Stats { Strength = 10 });
     frame.Add(entity, new Combat {
       AttackRange = FP64.FromInt(2),

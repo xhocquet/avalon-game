@@ -5,8 +5,8 @@ namespace Meesles.Avalon.Sim.Models;
 
 [KlothoComponent(104)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public partial struct Hero : IComponent {
-  public int PlayerId;
-  public int Level;
-  public int Experience;
+public partial struct Hero(int playerId) : IComponent {
+  public int PlayerId = playerId;
+  public int Level = 1;
+  public int Experience = 0;
 }

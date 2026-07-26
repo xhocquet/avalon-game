@@ -25,6 +25,19 @@
     "AttackReacquireRangeMultiplier": 3.0
   },
   {
+    "$type": "Meesles.Avalon.Sim.Assets.TurretStatsAsset, Meesles.Avalon.Client",
+    "AssetId": 106,
+    "Health": 100,
+    "AttackDamage": 10,
+    "AttackRange": 12.0,
+    "AttackCooldownTicks": 30
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.CrystalStatsAsset, Meesles.Avalon.Client",
+    "AssetId": 107,
+    "Health": 100
+  },
+  {
     "$type": "Meesles.Avalon.Sim.Assets.FactionAsset, Meesles.Avalon.Client",
     "AssetId": 200,
     "ChampionUnitTypeId": 10,

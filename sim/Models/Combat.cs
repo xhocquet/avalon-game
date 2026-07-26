@@ -1,17 +1,15 @@
-using System.Runtime.InteropServices;
 using xpTURN.Klotho.Deterministic.Math;
+using System.Runtime.InteropServices;
+using Meesles.Avalon.Sim.Assets;
 using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Models;
 
 [KlothoComponent(108)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-// The ability to attack: who this unit is targeting, how far it can reach, and how fast it can
-// swing. The damage magnitude is NOT here - that's a Stats value (Stats.Strength), resolved at
-// attack time by StatsSystem.CalculateDamage.
-public partial struct Combat : IComponent {
-  public FP64 AttackRange;
-  public int AttackCooldownTicks;
-  public int CooldownRemainingTicks;
+public partial struct Combat(MinionStatsAsset stats) : IComponent {
+  public FP64 AttackRange = stats.AttackRange;
+  public int AttackCooldownTicks = stats.AttackCooldownTicks;
+  public int CooldownRemainingTicks = 0;
   public EntityRef Target;
 }
