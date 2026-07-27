@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using Meesles.Avalon.Sim.Factories;
@@ -40,7 +39,7 @@ public class WaveSpawnSystem : ISystem {
     for (var i = 0; i < count; i++) {
       var slotIndex = GetFirstFreeSlot(ref frame, origin, teamId, rules.MinionSpacing);
       var position = GetSpawnPosition(origin, rules.MinionSpacing, slotIndex);
-      SpawnMinion(ref frame, stats, position, teamId, waveId);
+      MinionFactory.Spawn(ref frame, stats, position, teamId, waveId);
     }
   }
 
@@ -108,29 +107,5 @@ public class WaveSpawnSystem : ISystem {
       vector.x * cos + vector.z * sin,
       FP64.Zero,
       -vector.x * sin + vector.z * cos);
-  }
-
-  private static void SpawnMinion(ref Frame frame, MinionStatsAsset stats, FPVector3 position, int teamId,
-    int waveId) {
-    var entity = frame.CreateEntity();
-
-    frame.Add(entity, TransformFactory.At(position));
-    frame.Add(entity, new Unit {
-      UnitId = UnitLookup.NextUnitId(ref frame),
-      UnitTypeId = SimulationSetup.MinionUnitTypeId
-    });
-    frame.Add(entity, new OwnerComponent { OwnerId = teamId });
-    frame.Add(entity, new Team { TeamId = teamId });
-    frame.Add(entity, new Minion { WaveId = waveId });
-    frame.Add(entity, new Controllable());
-    frame.Add(entity, new Health(stats.Health));
-    frame.Add(entity, new Stats { Strength = stats.AttackDamage });
-    frame.Add(entity, new Combat {
-      AttackRange = stats.AttackRange,
-      AttackCooldownTicks = stats.AttackCooldownTicks,
-      CooldownRemainingTicks = 0
-    });
-
-    frame.Add(entity, NavAgentFactory.At(position, stats.MoveSpeed, stats.Radius));
   }
 }

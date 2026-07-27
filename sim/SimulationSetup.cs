@@ -12,9 +12,9 @@ using xpTURN.Klotho.ECS.Systems;
 namespace Meesles.Avalon.Sim;
 
 public static class SimulationSetup {
-  private const int PlayerUnitTypeId = 1;
+  public const int PlayerUnitTypeId = 1;
   public const int MinionUnitTypeId = 2;
-  private const int CrystalUnitTypeId = 100;
+  public const int CrystalUnitTypeId = 100;
   public const int TurretUnitTypeId = 101;
   public const int DefaultFactionId = AssetIds.FactionHairyWizards;
 
@@ -73,28 +73,11 @@ public static class SimulationSetup {
     var crystalStats = frame.AssetRegistry.Get<CrystalStatsAsset>();
 
     foreach (var teamId in teamIds) {
-      var crystalEntity = frame.CreateEntity();
       var crystalPosition = RequireMarkerPosition(layout, MapMarkerType.Crystal, teamId);
+      CrystalFactory.Spawn(ref frame, crystalStats, crystalPosition, teamId);
 
-      frame.Add(crystalEntity, TransformFactory.At(crystalPosition));
-      frame.Add(crystalEntity, new Unit {
-        UnitId = UnitLookup.NextUnitId(ref frame),
-        UnitTypeId = CrystalUnitTypeId
-      });
-      frame.Add(crystalEntity, new OwnerComponent { OwnerId = teamId });
-      frame.Add(crystalEntity, new Team(teamId));
-      frame.Add(crystalEntity, new Crystal { CrystalId = teamId });
-      frame.Add(crystalEntity, new Health(crystalStats.Health));
-
-      var spawnEntity = frame.CreateEntity();
       var spawnPosition = RequireMarkerPosition(layout, MapMarkerType.SpawnPoint, teamId);
-
-      frame.Add(spawnEntity, TransformFactory.At(spawnPosition));
-      frame.Add(spawnEntity, new Team(teamId));
-      frame.Add(spawnEntity, new SpawnPoint {
-        SpawnPointId = teamId,
-        UnitTypeId = MinionUnitTypeId
-      });
+      SpawnPointFactory.Spawn(ref frame, spawnPosition, teamId);
     }
   }
 
@@ -121,34 +104,9 @@ public static class SimulationSetup {
   public static void SpawnHero(ref Frame frame, int playerId, int teamId, int factionId) {
     var playerStats = frame.AssetRegistry.Get<PlayerStatsAsset>();
     var combatStats = frame.AssetRegistry.Get<MinionStatsAsset>();
-
-    var entity = frame.CreateEntity();
     var initialPos = GetHeroSpawnPositionForTeam(ref frame, teamId);
 
-    frame.Add(entity, TransformFactory.At(initialPos));
-    frame.Add(entity, new OwnerComponent { OwnerId = playerId });
-    frame.Add(entity, new Player { PlayerId = playerId });
-    frame.Add(entity, new Team(teamId));
-    frame.Add(entity, new Faction(factionId));
-    frame.Add(entity, new Hero(playerId));
-    frame.Add(entity, new Unit {
-      UnitId = UnitLookup.NextUnitId(ref frame),
-      UnitTypeId = PlayerUnitTypeId
-    });
-    frame.Add(entity, new Controllable());
-    frame.Add(entity, new Inventory());
-    frame.Add(entity, new Stats {
-      Strength = combatStats != null ? combatStats.AttackDamage : 0,
-      GoldPerTick = playerStats != null ? playerStats.StartingGoldPerTick : 0
-    });
-
-    if (playerStats != null)
-      frame.Add(entity, new Health(playerStats.Health));
-
-    if (combatStats != null)
-      frame.Add(entity, new Combat(combatStats));
-
-    frame.Add(entity, NavAgentFactory.At(initialPos, playerStats.MoveSpeed, playerStats.Radius));
+    HeroFactory.Spawn(ref frame, playerStats, combatStats, initialPos, playerId, teamId, factionId);
   }
 
   private static void SpawnTeamTurrets(ref Frame frame, List<int> teamIds, MapLayoutAsset layout) {
@@ -164,27 +122,11 @@ public static class SimulationSetup {
           continue;
 
         turretIndex++;
-        var turretEntity = frame.CreateEntity();
-        frame.Add(turretEntity, TransformFactory.At(layout.MarkerPositions[i]));
-        frame.Add(turretEntity, new Unit {
-          UnitId = UnitLookup.NextUnitId(ref frame),
-          UnitTypeId = TurretUnitTypeId
-        });
-        frame.Add(turretEntity, new Team(teamId));
-        frame.Add(turretEntity, new Turret { TurretId = teamId * 100 + turretIndex });
-        frame.Add(turretEntity, new Health(turretStats.Health));
-        frame.Add(turretEntity, new Stats { Strength = turretStats.AttackDamage });
-        frame.Add(turretEntity, new Combat {
-          AttackRange = turretStats.AttackRange,
-          AttackCooldownTicks = turretStats.AttackCooldownTicks,
-          CooldownRemainingTicks = 0
-        });
+        TurretFactory.Spawn(ref frame, turretStats, layout.MarkerPositions[i], teamId, turretIndex);
       }
     }
   }
 
-  // Oases are neutral: no Team/Health/Combat/Unit, so they're structurally invisible to
-  // TargetAcquisitionSystem and DamageSystem (both gate on Team+Health) and never move or attack.
   private static void SpawnOases(ref Frame frame, MapLayoutAsset layout) {
     var oasisIndex = 0;
     var typeInt = (int)MapMarkerType.Oasis;
@@ -203,9 +145,6 @@ public static class SimulationSetup {
     }
   }
 
-  // Pickups are neutral like Oases: no Team/Health/Unit, so PickupSystem is the only thing that
-  // ever touches them (proximity-based collect). MarkerValues carries the per-marker Amount
-  // authored on the SimMarkerNode in the editor; missing values default to 0.
   private static void SpawnPickups(ref Frame frame, MapLayoutAsset layout) {
     var typeInt = (int)MapMarkerType.Pickup;
     var markerCount = layout?.MarkerTypes?.Length ?? 0;
