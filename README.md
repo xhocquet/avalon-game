@@ -13,10 +13,6 @@
 | ⬜ | Add model/team tinting for structure views. |
 | ⬜ | Multi-threaded A* — leverage 6-8 cores for parallel path queries. |
 
-## Code Review: `sim/`
-
-Review of all hand-written code under [`sim/`](sim) (excluding `Tools/Generated/`), covering code conventions, style consistency, defensive code, deterministic math, and code organization.
-
 ### Determinism
 
 The obvious axis is clean: **zero** `float`, `double`, `Math.`, `DateTime`, `Random`, or LINQ anywhere in `sim/`. RNG is derived purely from `(worldSeed, featureKey, oasisId, tick)` ([`OasisSpawnSystem.cs:106-112`](sim/Systems/OasisSpawnSystem.cs)), ties break on `UnitId` ([`TargetAcquisitionSystem.cs:101`](sim/Systems/TargetAcquisitionSystem.cs), [`GroupFormation.cs:53`](sim/Navigation/GroupFormation.cs)), and `GetAuthoredTeamIds` sorts before use. [`SpatialHashGrid`](sim/Navigation/SpatialHashGrid.cs) keys cells by exact coordinate instead of enumerating the dictionary — deliberately, and documented.
@@ -46,6 +42,9 @@ The codebase already knows this rule and states it twice:
 `NavigationAgentSystem` is the one system that breaks it. The other caches (`_heroAvoidanceGrid`, `_minionAvoidanceGrid`, `_candidateGrid`) are cleared and rebuilt every tick, so they're fine; [`FlowFieldCache`](sim/Navigation/FlowFieldCache.cs) derives from the static navmesh, also fine. Fix is to move the last-snapped position onto the nav agent (or a small component) so it rides the snapshot.
 
 Note the determinism baseline test won't catch this — running the sim twice from scratch produces identical `_lastSnappedPositions` both times. It only shows up under rollback.
+--------------------------------------------------------------------------------------
+add rollback test to prove this issue^
+--------------------------------------------------------------------------------------
 
 **The same array is indexed by iteration slot, not by entity.**
 
@@ -56,17 +55,6 @@ Note the determinism baseline test won't catch this — running the sim twice fr
 **[`MapLayoutAsset.TryGetByTypeAndTeam`](sim/Assets/MapLayoutAsset.cs) (`:19-22`) trusts the parallel-array invariant it can't see.** It null-checks `MarkerTypes`, then indexes `MarkerTeams[i]` and `MarkerPositions[i]` with the same `i`. A short or null companion array from a bad `Assets.json` throws deep inside world init. [`SimulationSetup.SpawnPickups:156`](sim/SimulationSetup.cs) does the right thing for the fourth array (`MarkerValues != null && i < MarkerValues.Length`) — the asset should enforce that for all four, once, rather than each caller remembering.
 
 **Untrusted command payloads have no bound check.** [`MoveCommand.DeserializeData:44`](sim/Commands/MoveCommand.cs) and [`AttackCommand:41`](sim/Commands/AttackCommand.cs) read an `Int16` count off the wire and size an array from it with no cap. Complementary hole on the write side: `AddUnitId` grows unboxed past `short.MaxValue`, at which point `(short)UnitIdCount` truncates in `SerializeData` while `GetSerializedSize` returns the untruncated length — the two disagree about the frame size. A selection-size cap enforced in both `AddUnitId` and `DeserializeData` closes both ends.
-
-**[`ScoreSystem.IsTimeoutTick`](sim/Systems/ScoreSystem.cs) (`:49-51`) is fragile twice over:**
-
-```csharp
-var matchEndTick = matchDurationMs / frame.DeltaTimeMs;   // unguarded divide
-return frame.Tick == matchEndTick;                        // exact equality
-```
-
-[`RespawnSystem:109`](sim/Systems/RespawnSystem.cs) guards the identical division (`frame.DeltaTimeMs > 0 ? frame.DeltaTimeMs : 16`); `ScoreSystem` doesn't. And exact `==` means a single missed evaluation on that tick leaves the match running forever — `>=` costs nothing and can't miss.
-
-**[`GroupFormation.GetForward:66`](sim/Navigation/GroupFormation.cs)** divides by `units.Count` with no zero guard. Safe today only because [`CommandSystem:246`](sim/Systems/CommandSystem.cs) returns early when the count is 1 or 0.
 
 ### Convention violations
 

@@ -24,6 +24,8 @@ public readonly struct FormationUnit(EntityRef entity, int unitId, bool isHero, 
 // destination ORCA packs them wherever they fit and NavigationAgentSystem's settle logic freezes
 // them there.
 public static class GroupFormation {
+  private static readonly FPVector2 DefaultForward = new(FP64.Zero, FP64.One);
+
   // Sorts `units` in place (heroes first, then unit id, so peers agree on the order) and fills
   // `destinations` with one target per unit, index-aligned to the sorted list. A null `query`
   // skips navmesh snapping.
@@ -57,16 +59,19 @@ public static class GroupFormation {
     return a.UnitId.CompareTo(b.UnitId);
   }
 
-  // Direction of travel: centroid toward the click. Clicking the centroid itself yields no
-  // direction, so fall back to +Z.
+  // Direction of travel: centroid toward the click. An empty group has no centroid, and clicking
+  // the centroid itself yields no direction; both fall back to +Z.
   private static FPVector2 GetForward(List<FormationUnit> units, FPVector3 target) {
+    if (units.Count == 0)
+      return DefaultForward;
+
     var centroid = FPVector3.Zero;
     for (var i = 0; i < units.Count; i++)
       centroid += units[i].Position;
     centroid /= FP64.FromInt(units.Count);
 
     var forward = (target - centroid).ToXZ();
-    return forward.sqrMagnitude > FP64.Zero ? forward.normalized : new FPVector2(FP64.Zero, FP64.One);
+    return forward.sqrMagnitude > FP64.Zero ? forward.normalized : DefaultForward;
   }
 
   // Back the blob off far enough that its front edge clears the hero. No hero, no offset.

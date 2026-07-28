@@ -92,9 +92,7 @@ public class ScoreSystemTests {
   public void Update_OnTimeoutRaisesGameOverAndStoresDrawEndState() {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
-    var rules = frame.AssetRegistry.Get<MatchRulesAsset>();
-    frame.Tick = (rules.MatchDuration * xpTURN.Klotho.Deterministic.Math.FP64.FromInt(1000)).ToInt()
-        / frame.DeltaTimeMs;
+    frame.Tick = GetTimeoutTick(ref frame);
 
     var collector = new EventCollector();
     collector.BeginTick(frame.Tick);
@@ -113,6 +111,64 @@ public class ScoreSystemTests {
     result.WinnerPlayerId.Should().Be(MatchResult.NoWinnerPlayerId);
     result.WinnerTeamId.Should().Be(MatchResult.NoWinnerTeamId);
     result.Reason.Should().Be(MatchEndReason.Timeout);
+  }
+
+  [Fact]
+  public void Update_OnTickPastTimeoutStillEndsMatch() {
+    var harness = SimHarness.CreateInitialized();
+    var frame = harness.Frame;
+    // The exact timeout tick can be missed (a rollback resimulation that starts past it, a system
+    // ordering change); the check is >= so a skipped tick can't leave the match running forever.
+    frame.Tick = GetTimeoutTick(ref frame) + 5;
+
+    var collector = new EventCollector();
+    collector.BeginTick(frame.Tick);
+    frame.EventRaiser = collector;
+
+    new ScoreSystem().Update(ref frame);
+
+    collector.Count.Should().Be(1);
+    collector.Collected[0].Should().BeOfType<GameOverEvent>();
+
+    ref readonly var matchEnd = ref frame.GetReadOnlySingleton<MatchEndStateComponent>();
+    matchEnd.Ended.Should().BeTrue();
+    matchEnd.WinnerPlayerId.Should().Be(-1);
+
+    MatchResultReader.TryRead(ref frame, frame.Tick, out var result).Should().BeTrue();
+    result.Reason.Should().Be(MatchEndReason.Timeout);
+  }
+
+  [Fact]
+  public void Update_WithZeroDeltaTimeFallsBackToDefaultTickLength() {
+    var harness = SimHarness.CreateInitialized();
+    var frame = harness.Frame;
+    var timeoutTickAt16Ms = GetTimeoutTick(ref frame);
+    frame.DeltaTimeMs = 0;
+
+    var collector = new EventCollector();
+    frame.EventRaiser = collector;
+
+    frame.Tick = timeoutTickAt16Ms - 1;
+    collector.BeginTick(frame.Tick);
+    new ScoreSystem().Update(ref frame);
+
+    collector.Count.Should().Be(0);
+    frame.GetReadOnlySingleton<MatchEndStateComponent>().Ended.Should().BeFalse();
+
+    frame.Tick = timeoutTickAt16Ms;
+    collector.BeginTick(frame.Tick);
+    new ScoreSystem().Update(ref frame);
+
+    collector.Count.Should().Be(1);
+    collector.Collected[0].Should().BeOfType<GameOverEvent>();
+    frame.GetReadOnlySingleton<MatchEndStateComponent>().Ended.Should().BeTrue();
+  }
+
+  private static int GetTimeoutTick(ref Frame frame) {
+    var rules = frame.AssetRegistry.Get<MatchRulesAsset>();
+    var matchDurationMs = (rules.MatchDuration * xpTURN.Klotho.Deterministic.Math.FP64.FromInt(1000)).ToInt();
+    var deltaTimeMs = frame.DeltaTimeMs > 0 ? frame.DeltaTimeMs : SimHarness.DefaultDeltaTimeMs;
+    return matchDurationMs / deltaTimeMs;
   }
 
   private static EntityRef GetCrystalForTeam(ref Frame frame, int teamId) {
