@@ -43,9 +43,17 @@ $serverFiles = @($staged | Where-Object { $_.StartsWith("server/") })
 $testsFiles  = @($staged | Where-Object { $_.StartsWith("tests/") })
 $toolsFiles  = @($staged | Where-Object { $_.StartsWith("tools/") })
 
+# sim/ owns no project of its own — it is compiled as linked source by client, server,
+# and tests alike, so it matched none of the buckets above and went unformatted. Route it
+# through the tests project: that one globs $(SimRoot)\**\*.cs, so a new sim/ subdirectory
+# is covered automatically, whereas the client csproj lists subdirs one by one and would
+# silently skip it. dotnet format resolves --include against the physical path of a linked
+# document, which is what git hands us here.
+$simFiles    = @($staged | Where-Object { $_.StartsWith("sim/") -and -not $_.StartsWith("sim/Tools/") })
+
 Invoke-DotnetFormat "client/Meesles.Avalon.Client.csproj" $clientFiles
 Invoke-DotnetFormat "server/Server.csproj"                 $serverFiles
-Invoke-DotnetFormat "tests/Avalon.Sim.Tests/Avalon.Sim.Tests.csproj" $testsFiles
+Invoke-DotnetFormat "tests/Avalon.Sim.Tests/Avalon.Sim.Tests.csproj" ($testsFiles + $simFiles)
 Invoke-DotnetFormat "tools/AssetGen/AssetGen.csproj"       $toolsFiles
 
 git add -- $staged

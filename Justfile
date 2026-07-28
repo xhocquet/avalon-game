@@ -69,6 +69,10 @@ clean:
     @& .\scripts\clean.ps1
     dotnet clean .\server\Server.csproj
 
+# Reformat only. The default "Full Cleanup" profile also reorders type members, which
+# alphabetized NavigationAgentSystem's fields and split comment blocks off what they
+# document. sim/ is formatted by the pre-commit hook too, so keep this to whitespace/layout
+# the way dotnet format is — otherwise the two tools fight over every sim file.
 format:
     & "{{ resharper_cleanup }}" .\client\Meesles.Avalon.Client.sln \
-      --exclude="**\addons\klotho\**"
+      --profile="Built-in: Reformat Code" --exclude="**\addons\klotho\**"

@@ -59,16 +59,16 @@ public sealed class SpatialHashGrid {
     var maxZ = CellCoord(center.y + radius);
 
     for (var x = minX; x <= maxX; x++)
-    for (var z = minZ; z <= maxZ; z++) {
-      if (!_cells.TryGetValue((x, z), out var cell))
-        continue;
+      for (var z = minZ; z <= maxZ; z++) {
+        if (!_cells.TryGetValue((x, z), out var cell))
+          continue;
 
-      for (var i = 0; i < cell.Count; i++) {
-        var delta = cell[i].Position - center;
-        if (delta.sqrMagnitude <= radiusSq)
-          results.Add(cell[i].Entity);
+        for (var i = 0; i < cell.Count; i++) {
+          var delta = cell[i].Position - center;
+          if (delta.sqrMagnitude <= radiusSq)
+            results.Add(cell[i].Entity);
+        }
       }
-    }
   }
 
   private (int x, int z) CellKey(FPVector2 position) {

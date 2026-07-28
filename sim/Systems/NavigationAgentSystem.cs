@@ -266,7 +266,10 @@ public sealed class NavigationAgentSystem : ISystem {
 
     if (!frame.Has<MinionSettleTracker>(entity))
       frame.Add(entity, new MinionSettleTracker {
-        TargetX = goalXZ.x, TargetZ = goalXZ.y, BestDist = dist, StuckTicks = 0
+        TargetX = goalXZ.x,
+        TargetZ = goalXZ.y,
+        BestDist = dist,
+        StuckTicks = 0
       });
 
     ref var settle = ref frame.Get<MinionSettleTracker>(entity);
