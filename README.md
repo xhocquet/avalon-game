@@ -118,8 +118,6 @@ Given the memory note about minion counts, `WaveSpawnSystem` is the one that wil
 
 - **[`Stats.Defense` and `Stats.Speed`](sim/Components/Stats.cs) (`:9-10`)** are never read anywhere in `sim/`, `client/`, `server/`, or `tests/`. They default to 100 and ride every rollback snapshot.
 - **[`FlowFieldCache.Version` and `Invalidate()`](sim/Navigation/FlowFieldCache.cs)** are never called — meaning flow fields are never invalidated. Harmless while the navmesh is static, but the API implies otherwise.
-- ~~**[`TriangleFlowField.Cost` and `GoalTriangleIndex`](sim/Navigation/TriangleFlowField.cs)** are written in the constructor and never read.~~ Fixed — both commented out; `cost` stays a Dijkstra local, so the `FP64[triCount]` is no longer retained per cached field.
-- ~~**[`FactionAsset.ChampionUnitTypeId` and `MinionStatsAssetId`](sim/Assets/FactionAsset.cs)** are authored in both faction rows of `Assets.json` and never read.~~ Fixed — commented out with their `KlothoOrder` slots reserved, keys dropped from `Assets.json`, `Assets.bytes` regenerated.
 - **[`Pickup.Type`](sim/Components/Pickup.cs)** is a commented-out field with a TODO.
 
 ### Stale comments
@@ -135,13 +133,3 @@ Given the memory note about minion counts, `WaveSpawnSystem` is the one that wil
 Traced: it's safe, but only because both sites remove the **current** entity. Swap-back moves the tail element into a slot the cursor has already passed, and the stale tail slot still resolves to that same entity — so it gets visited exactly once, just later. Remove a *different* entity mid-iteration and the guarantee breaks.
 
 Worth a comment, because the rest of the codebase takes the opposite approach: [`DeathSystem`](sim/Systems/DeathSystem.cs), [`PickupSystem`](sim/Systems/PickupSystem.cs), [`TeamPruneSystem`](sim/Systems/TeamPruneSystem.cs), [`WaveSpawnSystem`](sim/Systems/WaveSpawnSystem.cs), and [`HeroSpawnSystem`](sim/Systems/HeroSpawnSystem.cs) all snapshot into a list first, three of them with comments explaining why. Two systems relying on an unstated subtlety instead is the kind of thing that survives until someone adds a second removal.
-
-### What's good
-
-Worth saying, since the above is all deficits. [`AssetIds.cs`](sim/Assets/AssetIds.cs) and [`ComponentIds.cs`](sim/Components/ComponentIds.cs) are genuinely excellent — stable-id ledgers with explicit "next free" markers, the reuse hazard spelled out, and a note on *why* they're kept in numeric order rather than grouped by file. The comment culture throughout explains **why** rather than what ([`NavigationTuningAsset`](sim/Assets/NavigationTuningAsset.cs)'s settle-tuning block, [`Inventory`](sim/Components/Inventory.cs)'s fixed-buffer rationale with the byte math worked out, [`LobbyPlayerConfig`](sim/Network/LobbyPlayerConfig.cs)'s "off the deterministic path by design"). Asset-driven tuning is the dominant pattern and the five violations above are the exceptions. And the deterministic-math discipline is real — not one floating-point operation in the whole simulation.
-
-### Top three
-
-1. The `_lastSnappedPositions` rollback leak (silent desync).
-2. The `HeroFactory` NRE (one line).
-3. `DeathSystem` kill attribution (wrong gameplay outcome plus an O(n²) scan).
