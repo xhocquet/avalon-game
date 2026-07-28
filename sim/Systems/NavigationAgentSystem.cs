@@ -45,7 +45,6 @@ public sealed class NavigationAgentSystem : ISystem {
 
   public void Update(ref Frame frame) {
     var tuning = frame.AssetRegistry.Get<NavigationTuningAsset>();
-    if (tuning == null) return;
 
     _heroAvoidanceGrid ??= new SpatialHashGrid(tuning.AvoidanceGridCellSize);
     _minionAvoidanceGrid ??= new SpatialHashGrid(tuning.AvoidanceGridCellSize);

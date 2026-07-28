@@ -39,7 +39,6 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
   public void Update(ref Frame frame) {
     var stats = frame.AssetRegistry.Get<PlayerStatsAsset>();
     var rules = frame.AssetRegistry.Get<MovementRulesAsset>();
-    if (stats == null || rules == null) return;
 
     var dt = FP64.FromInt(frame.DeltaTimeMs) / FP64.FromInt(1000);
     var step = stats.MoveSpeed * dt;
@@ -87,7 +86,7 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
       return;
     }
 
-    if (!frame.AssetRegistry.TryGet<ShopItemAsset>(command.ItemAssetId, out var item) || item == null) {
+    if (!frame.AssetRegistry.TryGet<ShopItemAsset>(command.ItemAssetId, out var item)) {
       frame.Logger.KInformation(
         $"[Shop] REJECT tick={frame.Tick} playerId={command.PlayerId} itemId={command.ItemAssetId} reason=item_asset_missing");
       return;
@@ -147,13 +146,13 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
       return false;
 
     var teamId = frame.GetReadOnly<Team>(heroEntity).TeamId;
-    if (!frame.AssetRegistry.TryGet<MapLayoutAsset>(out var layout) || layout == null)
+    if (!frame.AssetRegistry.TryGet<MapLayoutAsset>(out var layout))
       return false;
 
     if (!layout.TryGetByTypeAndTeam(MapMarkerType.Shop, teamId, out var shopPos))
       return false;
 
-    if (!frame.AssetRegistry.TryGet<ShopRulesAsset>(out var shopRules) || shopRules == null)
+    if (!frame.AssetRegistry.TryGet<ShopRulesAsset>(out var shopRules))
       return false;
 
     var heroPos = frame.GetReadOnly<TransformComponent>(heroEntity).Position;

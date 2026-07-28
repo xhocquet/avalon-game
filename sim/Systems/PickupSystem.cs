@@ -11,7 +11,6 @@ public class PickupSystem : ISystem {
 
   public void Update(ref Frame frame) {
     var rules = frame.AssetRegistry.Get<PickupRulesAsset>();
-    if (rules == null) return;
 
     _collected.Clear();
 

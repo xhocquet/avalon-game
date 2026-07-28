@@ -7,7 +7,7 @@ namespace Meesles.Avalon;
 public class InventorySystem : ISystem {
   public void Update(ref Frame frame) {
     var playerStats = frame.AssetRegistry.Get<PlayerStatsAsset>();
-    if (playerStats == null || playerStats.GoldTickIntervalMs <= 0)
+    if (playerStats.GoldTickIntervalMs <= 0)
       return;
 
     var filter = frame.Filter<Inventory, Stats>();

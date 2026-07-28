@@ -43,8 +43,6 @@ public class ScoreSystem : ISystem {
 
   private static bool IsTimeoutTick(ref Frame frame) {
     var rules = frame.AssetRegistry.Get<MatchRulesAsset>();
-    if (rules == null)
-      return false;
 
     var matchDurationMs = (rules.MatchDuration * FP64.FromInt(1000)).ToInt();
     var matchEndTick = matchDurationMs / frame.DeltaTimeMs;

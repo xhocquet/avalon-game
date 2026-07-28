@@ -14,7 +14,6 @@ public class OasisSpawnSystem : ISystem {
 
   public void Update(ref Frame frame) {
     var rules = frame.AssetRegistry.Get<PickupRulesAsset>();
-    if (rules == null) return;
 
     AdvanceCooldowns(ref frame, rules);
     AdvancePending(ref frame, rules);

@@ -21,7 +21,7 @@ public static class SimulationSetup {
   // How long setup waits on faction picks before proceeding with whatever is on the board. Shared
   // by HeroSpawnSystem and TeamPruneSystem so they agree on when setup is over.
   public static int GetSetupGraceTicks(ref Frame frame) {
-    return frame.AssetRegistry.Get<MatchRulesAsset>()?.SetupGraceTicks ?? 0;
+    return frame.AssetRegistry.Get<MatchRulesAsset>().SetupGraceTicks;
   }
 
   public static void RegisterSystems(EcsSimulation simulation, NavigationRuntime navigation = null) {
@@ -131,7 +131,7 @@ public static class SimulationSetup {
     var oasisIndex = 0;
     var typeInt = (int)MapMarkerType.Oasis;
     var markerCount = layout?.MarkerTypes?.Length ?? 0;
-    var initialCooldownMs = frame.AssetRegistry.Get<PickupRulesAsset>()?.OasisSpawnIntervalMs ?? 0;
+    var initialCooldownMs = frame.AssetRegistry.Get<PickupRulesAsset>().OasisSpawnIntervalMs;
 
     for (var i = 0; i < markerCount; i++) {
       if (layout.MarkerTypes[i] != typeInt)

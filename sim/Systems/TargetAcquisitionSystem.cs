@@ -17,7 +17,6 @@ public class TargetAcquisitionSystem : ISystem {
 
   public void Update(ref Frame frame) {
     var rules = frame.AssetRegistry.Get<CombatRulesAsset>();
-    if (rules == null) return;
 
     _candidateGrid ??= new SpatialHashGrid(rules.TargetGridCellSize);
     BuildCandidateGrid(ref frame);
@@ -122,7 +121,7 @@ public class TargetAcquisitionSystem : ISystem {
       return attackRange;
 
     var stats = frame.AssetRegistry.Get<MinionStatsAsset>();
-    var multiplier = stats != null && stats.AttackReacquireRangeMultiplier > FP64.Zero
+    var multiplier = stats.AttackReacquireRangeMultiplier > FP64.Zero
       ? stats.AttackReacquireRangeMultiplier
       : FP64.FromInt(3);
     return attackRange * multiplier;

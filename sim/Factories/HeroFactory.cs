@@ -24,16 +24,11 @@ public static class HeroFactory {
     frame.Add(entity, new Controllable());
     frame.Add(entity, new Inventory());
     frame.Add(entity, new Stats {
-      Strength = combatStats != null ? combatStats.AttackDamage : 0,
-      GoldPerTick = playerStats != null ? playerStats.StartingGoldPerTick : 0
+      Strength = combatStats.AttackDamage,
+      GoldPerTick = playerStats.StartingGoldPerTick
     });
-
-    if (playerStats != null)
-      frame.Add(entity, new Health(playerStats.Health));
-
-    if (combatStats != null)
-      frame.Add(entity, new Combat(combatStats));
-
+    frame.Add(entity, new Health(playerStats.Health));
+    frame.Add(entity, new Combat(combatStats));
     frame.Add(entity, NavAgentFactory.At(position, playerStats.MoveSpeed, playerStats.Radius));
 
     return entity;

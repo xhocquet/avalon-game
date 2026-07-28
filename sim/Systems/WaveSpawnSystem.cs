@@ -11,7 +11,6 @@ public class WaveSpawnSystem : ISystem {
   public void Update(ref Frame frame) {
     var rules = frame.AssetRegistry.Get<WaveRulesAsset>();
     var stats = frame.AssetRegistry.Get<MinionStatsAsset>();
-    if (rules == null || stats == null) return;
     if (rules.SpawnIntervalTicks <= 0 || rules.MinionsPerWave <= 0) return;
 
     var rel = frame.Tick - rules.FirstWaveDelayTicks;

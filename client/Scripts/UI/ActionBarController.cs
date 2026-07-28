@@ -62,7 +62,7 @@ public sealed class ActionBarController {
   }
 
   private static bool WithinRange(Frame frame, float heroX, float heroZ, Vector3 shopPos) {
-    if (!frame.AssetRegistry.TryGet<ShopRulesAsset>(out var rules) || rules == null)
+    if (!frame.AssetRegistry.TryGet<ShopRulesAsset>(out var rules))
       return false;
 
     var dx = heroX - shopPos.X;
@@ -140,9 +140,7 @@ public sealed class ActionBarController {
   }
 
   private static int GetCost(Frame frame, int itemId) {
-    return frame.AssetRegistry.TryGet<ShopItemAsset>(itemId, out var asset) && asset != null
-      ? asset.Cost
-      : -1;
+    return frame.AssetRegistry.TryGet<ShopItemAsset>(itemId, out var asset) ? asset.Cost : -1;
   }
 
   private static bool TryGetLocalHero(Frame frame, int playerId, out int teamId, out int gold,

@@ -53,21 +53,6 @@ Note the determinism baseline test won't catch this — running the sim twice fr
 
 ### Defensive code
 
-The posture is inconsistent rather than absent — most systems open with a clean `if (rules == null) return;`, then a handful of spots skip the guard entirely.
-
-**[`HeroFactory.Spawn`](sim/Factories/HeroFactory.cs) will throw an NRE.** It null-checks `playerStats` twice and then dereferences it unconditionally:
-
-```csharp
-// HeroFactory.cs:36-42
-if (playerStats != null)
-  frame.Add(entity, new Health(playerStats.Health));
-if (combatStats != null)
-  frame.Add(entity, new Combat(combatStats));
-frame.Add(entity, NavAgentFactory.At(position, playerStats.MoveSpeed, playerStats.Radius));  // ← boom
-```
-
-Either the guards are load-bearing (then line 42 needs one) or they aren't (then drop them and let it fail loudly at the top). [`MinionFactory`](sim/Factories/MinionFactory.cs), [`CrystalFactory`](sim/Factories/CrystalFactory.cs), and [`TurretFactory`](sim/Factories/TurretFactory.cs) all take the second position and dereference `stats` unguarded — so the codebase disagrees with itself about which is right.
-
 **[`MapLayoutAsset.TryGetByTypeAndTeam`](sim/Assets/MapLayoutAsset.cs) (`:19-22`) trusts the parallel-array invariant it can't see.** It null-checks `MarkerTypes`, then indexes `MarkerTeams[i]` and `MarkerPositions[i]` with the same `i`. A short or null companion array from a bad `Assets.json` throws deep inside world init. [`SimulationSetup.SpawnPickups:156`](sim/SimulationSetup.cs) does the right thing for the fourth array (`MarkerValues != null && i < MarkerValues.Length`) — the asset should enforce that for all four, once, rather than each caller remembering.
 
 **Untrusted command payloads have no bound check.** [`MoveCommand.DeserializeData:44`](sim/Commands/MoveCommand.cs) and [`AttackCommand:41`](sim/Commands/AttackCommand.cs) read an `Int16` count off the wire and size an array from it with no cap. Complementary hole on the write side: `AddUnitId` grows unboxed past `short.MaxValue`, at which point `(short)UnitIdCount` truncates in `SerializeData` while `GetSerializedSize` returns the untruncated length — the two disagree about the frame size. A selection-size cap enforced in both `AddUnitId` and `DeserializeData` closes both ends.
