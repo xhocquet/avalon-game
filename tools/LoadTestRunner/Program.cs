@@ -90,7 +90,7 @@ static NavigationRuntime LoadNavigationRuntime() {
     return NavigationRuntime.FromBytes(File.ReadAllBytes(navPath), logger: null);
 }
 
-sealed class TimingCapture : IKLogger {
+class TimingCapture : IKLogger {
     public readonly List<string> Lines = new();
     public bool IsEnabled(KLogLevel level) => true;
     public void Log(KLogLevel level, string message, Exception exception) => Lines.Add(message);

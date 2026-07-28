@@ -129,9 +129,9 @@ public class DeterminismBaselineTests {
     return AppContext.BaseDirectory;
   }
 
-  public sealed record HashSample(int Tick, long Hash);
+  public record HashSample(int Tick, long Hash);
 
-  public sealed record HashRunDump(
+  public record HashRunDump(
       int TickCount,
       int MaxPlayers,
       int Seed,

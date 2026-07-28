@@ -11,7 +11,7 @@ namespace Meesles.Avalon;
 //
 // The grid is rebuilt only when the owned-item counts actually change, so steady-state syncs are
 // allocation-free (just an int[] compare) and survive rollback: a corrected count simply repaints.
-public sealed class InventoryPanelController {
+public class InventoryPanelController {
   private const float CellSize = 58f;
 
   private readonly ShopItemCatalog _catalog;

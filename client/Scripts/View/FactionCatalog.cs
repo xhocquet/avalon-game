@@ -8,7 +8,7 @@ using Meesles.Avalon.Sim.Assets;
 
 namespace Meesles.Avalon;
 
-public sealed class FactionCatalog {
+public class FactionCatalog {
   public const int FactionHairyWizardsId = AssetIds.FactionHairyWizards;
   public const int FactionShroomsId = AssetIds.FactionShrooms;
   public const int DefaultFactionId = FactionHairyWizardsId;
@@ -66,7 +66,7 @@ public sealed class FactionCatalog {
     public readonly string PortraitTexturePath = portraitTexturePath;
   }
 
-  public sealed class FactionData {
+  public class FactionData {
     public string DisplayName;
     public int FactionId;
     public PackedScene HeroScene;

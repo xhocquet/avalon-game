@@ -6,7 +6,7 @@ using xpTURN.Klotho.Logging;
 
 namespace Meesles.Avalon.Client.Scripts;
 
-public sealed class MultiplayerSessionHandoff {
+public class MultiplayerSessionHandoff {
   private static MultiplayerSessionHandoff _pending;
 
   public IKLogger Logger { get; init; }

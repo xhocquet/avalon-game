@@ -507,5 +507,5 @@ public class AttackCommandExecutionTests {
     return false;
   }
 
-  private sealed record UnitSnapshot(int UnitId, int TeamId, FPVector3 Position);
+  private record UnitSnapshot(int UnitId, int TeamId, FPVector3 Position);
 }

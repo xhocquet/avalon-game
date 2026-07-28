@@ -4,7 +4,7 @@ using xpTURN.Klotho.Logging;
 
 namespace Meesles.Avalon.Sim.Navigation;
 
-public sealed class NavigationRuntime {
+public class NavigationRuntime {
   private NavigationRuntime(FPNavMesh navMesh, FPNavMeshQuery query, FPNavMeshPathfinder pathfinder,
     FPNavMeshFunnel funnel, FPNavAvoidance avoidance, FPNavAgentSystem agentSystem,
     FlowFieldCache flowFields) {

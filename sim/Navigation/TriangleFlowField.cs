@@ -3,7 +3,7 @@ using xpTURN.Klotho.Deterministic.Navigation;
 
 namespace Meesles.Avalon.Sim.Navigation;
 
-public sealed class TriangleFlowField {
+public class TriangleFlowField {
   public const int AT_GOAL = -1;
   public const int UNREACHABLE = -2;
   public readonly FP64[] Cost;

@@ -17,7 +17,7 @@ namespace Meesles.Avalon;
 // grid is rebuilt only on the hidden<->shown transition — while shown it just refreshes each item's
 // affordability (enabled/greyed) every frame. Proximity here is a UX hint: the sim re-checks gold and range
 // authoritatively when the PurchaseItemCommand lands, so a stale/optimistic button is harmless.
-public sealed class ActionBarController {
+public class ActionBarController {
   private const float CellSize = 58f;
 
   // The grid always holds exactly this many cells so its footprint never changes: buy buttons when a

@@ -633,15 +633,15 @@ public class SimInvariantTests {
     return (5000 + frame.DeltaTimeMs - 1) / frame.DeltaTimeMs;
   }
 
-  private sealed record UnitSnapshot(int UnitId, int UnitTypeId);
+  private record UnitSnapshot(int UnitId, int UnitTypeId);
 
-  private sealed record StructureSnapshot(int Id, int TeamId, int OwnerId);
+  private record StructureSnapshot(int Id, int TeamId, int OwnerId);
 
-  private sealed record PlayerSnapshot(int PlayerId, int TeamId, int Score);
+  private record PlayerSnapshot(int PlayerId, int TeamId, int Score);
 
-  private sealed record PlayerTransformSnapshot(int PlayerId, FPVector3 Position);
+  private record PlayerTransformSnapshot(int PlayerId, FPVector3 Position);
 
-  private sealed record MinionSnapshot(int WaveId, int TeamId, int OwnerId, int UnitId, FPVector3 Position);
+  private record MinionSnapshot(int WaveId, int TeamId, int OwnerId, int UnitId, FPVector3 Position);
 
-  private sealed record UnitPositionSnapshot(int UnitId, int UnitTypeId, int TeamId, FPVector3 Position);
+  private record UnitPositionSnapshot(int UnitId, int UnitTypeId, int TeamId, FPVector3 Position);
 }

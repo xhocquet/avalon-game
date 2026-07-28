@@ -382,7 +382,7 @@ public partial class LobbyUI : Control, IViewHud {
     _resultPanel.Visible = false;
   }
 
-  private sealed class PlayerSlot {
+  private class PlayerSlot {
     public Label Name;
     public TextureRect Portrait;
     public Label Status;

@@ -88,7 +88,7 @@ public static class UnitLookup {
 
   // Rebuild before resolving a batch of ids. Caller-owned, never cached across ticks: a stale index
   // survives a rollback and resolves against a frame that no longer exists.
-  public sealed class Index {
+  public class Index {
     private readonly Dictionary<int, EntityRef> _index = new();
 
     public void Rebuild(ref Frame frame) {

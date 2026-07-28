@@ -10,7 +10,7 @@ using Meesles.Avalon.Sim.Assets;
 
 namespace Meesles.Avalon;
 
-public sealed class ShopItemCatalog {
+public class ShopItemCatalog {
   public const int EyeKeyId = AssetIds.ShopItemEyeKey;
   public const int FlowerBladeId = AssetIds.ShopItemFlowerBlade;
   public const int PatchCoatId = AssetIds.ShopItemPatchCoat;
@@ -63,7 +63,7 @@ public sealed class ShopItemCatalog {
     public readonly string IconTexturePath = iconTexturePath;
   }
 
-  public sealed class ShopItemData {
+  public class ShopItemData {
     public string DisplayName;
     public int ItemId;
     public Texture2D IconTexture;

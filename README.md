@@ -95,7 +95,6 @@ var forward = new FPVector3(-origin.x, FP64.Zero, -origin.z);
 Most of this is cosmetic, but it's the kind that accumulates:
 
 - **Namespace vs. folder.** Every file in [`sim/Systems/`](sim/Systems) declares `namespace Meesles.Avalon`, while everything else in `sim/` uses `Meesles.Avalon.Sim`, `.Sim.Components`, `.Sim.Navigation`, etc. Systems are the only directory whose namespace doesn't track its path.
-- **`sealed`.** Applied to `NavigationAgentSystem`, `SpatialHashGrid`, `TriangleFlowField`, `FlowFieldCache`, `NavigationRuntime`, `UnitLookup.Index` — and to none of the other twelve systems.
 - **[`TriangleFlowField.AT_GOAL` / `UNREACHABLE`](sim/Navigation/TriangleFlowField.cs) (`:7-8`)** are the only SCREAMING_CASE identifiers in the project; every other constant is PascalCase (`NoWinnerPlayerId`, `RandomFeatureKey`, `FirstUnitId`, `MaxItems`).
 - **[`SimulationSetup.cs:84`](sim/SimulationSetup.cs)** takes `Boolean spawnHeroesNow` — the only BCL alias in `sim/`.
 - **[`SimulationSetup.cs:68-70`](sim/SimulationSetup.cs)** has a 116-character `====== PRIVATE ======` ASCII banner that appears nowhere else.

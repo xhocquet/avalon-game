@@ -88,7 +88,7 @@ public class SimEventHub {
       list[i](evt);
   }
 
-  private sealed class Subscription : IDisposable {
+  private class Subscription : IDisposable {
     private List<Action<SimulationEvent>> _list;
     private Action<SimulationEvent> _wrapper;
 

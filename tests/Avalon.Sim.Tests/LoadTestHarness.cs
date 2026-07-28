@@ -134,7 +134,7 @@ public class LoadTestHarness {
     public long StateHash;
   }
 
-  private sealed class TimingCapture : IKLogger {
+  private class TimingCapture : IKLogger {
     public readonly List<string> Lines = new();
 
     public bool IsEnabled(KLogLevel level) => true;

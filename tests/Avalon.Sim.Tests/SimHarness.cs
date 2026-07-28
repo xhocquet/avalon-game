@@ -10,7 +10,7 @@ using AvalonMoveCommand = Meesles.Avalon.Sim.Commands.MoveCommand;
 
 namespace Meesles.Avalon.Sim.Tests;
 
-public sealed class SimHarness {
+public class SimHarness {
   public const int DefaultMaxPlayers = 2;
   public const int DefaultMaxEntities = 1024;
   public const int DefaultMaxRollbackTicks = 50;

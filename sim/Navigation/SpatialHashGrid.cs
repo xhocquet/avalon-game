@@ -12,7 +12,7 @@ namespace Meesles.Avalon.Sim.Navigation;
 ///   would otherwise scan every entity. Cell lookups are keyed by exact coordinates rather than
 ///   dictionary enumeration, so results stay deterministic regardless of hash iteration order.
 /// </summary>
-public sealed class SpatialHashGrid {
+public class SpatialHashGrid {
   private readonly Dictionary<(int x, int z), List<(EntityRef Entity, FPVector2 Position)>> _cells = new();
   private readonly FP64 _inverseCellSize;
 

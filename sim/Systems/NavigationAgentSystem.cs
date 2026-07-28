@@ -12,7 +12,7 @@ namespace Meesles.Avalon;
 
 // All steering/settle/spread tuning lives in NavigationTuningAsset (Assets.json). Squared
 // distances are derived once per tick from the linear values authored there.
-public sealed class NavigationAgentSystem : ISystem {
+public class NavigationAgentSystem : ISystem {
   private readonly NavigationRuntime _navigation;
   private readonly List<EntityRef> _nearbyAgents = new();
   private int _allCount;
