@@ -70,25 +70,16 @@ return frame.Tick == matchEndTick;                        // exact equality
 
 ### Convention violations
 
-[`sim/AGENTS.md`](sim/AGENTS.md) states: *"Systems hold no tuning constants. Gameplay numbers live in `client/Sim/Data/Assets.json`."* Five places don't:
+[`sim/AGENTS.md`](sim/AGENTS.md) states: *"Systems hold no tuning constants. Gameplay numbers live in `client/Sim/Data/Assets.json`."* Four places don't:
 
 | Location | Constant |
 | -------- | -------- |
 | [`TargetAcquisitionSystem.cs:127`](sim/Systems/TargetAcquisitionSystem.cs) | `FP64.FromInt(3)` reacquire-range fallback |
 | [`NavAgentFactory.cs:11`](sim/Factories/NavAgentFactory.cs) | `speed * FP64.FromInt(12)` acceleration |
 | [`NavigationRuntime.cs:37`](sim/Navigation/NavigationRuntime.cs) | `avoidance.TimeHorizon = FP64.FromInt(2)` |
-| [`WaveSpawnSystem.cs:83`](sim/Systems/WaveSpawnSystem.cs) | `spacing * FP64.FromInt(2)` spawn-cluster offset |
 | [`RespawnSystem.cs:44`](sim/Systems/RespawnSystem.cs) | `player.Score -= 1` death penalty |
 
 The ORCA time horizon is the sharpest one: it has a four-line comment explaining the tuning rationale in exactly the register [`NavigationTuningAsset`](sim/Assets/NavigationTuningAsset.cs) was built for, and it sits in code instead. `TargetAcquisitionSystem`'s `FP64.FromInt(3)` is a fallback that silently masks a missing asset row — the surrounding code style would be `if (stats == null) return;`.
-
-[`WaveSpawnSystem.GetSpawnPosition:78`](sim/Systems/WaveSpawnSystem.cs) has a subtler one — a hardcoded assumption rather than a number:
-
-```csharp
-var forward = new FPVector3(-origin.x, FP64.Zero, -origin.z);
-```
-
-"Toward the lane" is defined as "toward world origin." That's true for the current symmetric map and silently wrong for any map whose center isn't (0,0). It belongs in [`MapLayoutAsset`](sim/Assets/MapLayoutAsset.cs) next to the spawn marker.
 
 ### Style consistency
 

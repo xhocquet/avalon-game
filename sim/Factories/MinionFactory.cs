@@ -6,10 +6,11 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon.Sim.Factories;
 
 public static class MinionFactory {
-  public static EntityRef Spawn(ref Frame frame, MinionStatsAsset stats, FPVector3 position, int teamId, int waveId) {
+  public static EntityRef Spawn(ref Frame frame, MinionStatsAsset stats, FPVector3 position, FP64 facing,
+    int teamId, int waveId) {
     var entity = frame.CreateEntity();
 
-    frame.Add(entity, TransformFactory.At(position));
+    frame.Add(entity, TransformFactory.At(position, facing));
     frame.Add(entity, new Unit {
       UnitId = UnitLookup.NextUnitId(ref frame),
       UnitTypeId = SimulationSetup.MinionUnitTypeId

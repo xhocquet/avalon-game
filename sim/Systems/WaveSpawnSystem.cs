@@ -38,7 +38,7 @@ public class WaveSpawnSystem : ISystem {
     for (var i = 0; i < count; i++) {
       var slotIndex = GetFirstFreeSlot(ref frame, origin, teamId, rules.MinionSpacing);
       var position = GetSpawnPosition(origin, rules.MinionSpacing, slotIndex);
-      MinionFactory.Spawn(ref frame, stats, position, teamId, waveId);
+      MinionFactory.Spawn(ref frame, stats, position, GetSpawnFacing(origin, position), teamId, waveId);
     }
   }
 
@@ -69,19 +69,20 @@ public class WaveSpawnSystem : ISystem {
     return false;
   }
 
-  // Compact hex-packed cluster centred just in front of the spawn point (toward the lane). Ring
-  // k holds 6k slots at radius k*spacing; slot 0 is the centre. This packs minions as tightly as
-  // they settle when moving, instead of the old wide 90° fan that sprawled across the base. The
-  // occupancy-based free-slot search fills innermost-first and reuses slots as minions march off.
+  // Compact hex-packed cluster centred on the spawn point. Ring k holds 6k slots at radius
+  // k*spacing; slot 0 is the centre. This packs minions as tightly as they settle when moving,
+  // instead of the old wide 90° fan that sprawled across the base. The occupancy-based free-slot
+  // search fills innermost-first and reuses slots as minions march off.
+  //
+  // Ring slots are laid out from a fixed world basis (+Z, so slot 0 of each ring is at angle 0).
+  // This used to derive the basis from the direction to the world origin and push the whole
+  // cluster two spacings along it — "toward the lane" defined as "toward (0,0)". That happens to
+  // hold for the current symmetric map and is silently wrong for any map not centred there, so
+  // the cluster now sits on the spawn point and grows outward from it. The starting angle of a
+  // rotationally symmetric ring carries no meaning, so a fixed basis costs nothing.
   private static FPVector3 GetSpawnPosition(FPVector3 origin, FP64 spacing, int index) {
-    var forward = new FPVector3(-origin.x, FP64.Zero, -origin.z);
-    forward = forward.sqrMagnitude == FP64.Zero
-      ? new FPVector3(FP64.Zero, FP64.Zero, FP64.One)
-      : forward.normalized;
-
-    var center = origin + forward * (spacing * FP64.FromInt(2));
     if (index <= 0)
-      return center;
+      return origin;
 
     var ring = 1;
     var ringStart = 1;
@@ -95,16 +96,16 @@ public class WaveSpawnSystem : ISystem {
     var slot = index - ringStart;
     var radius = spacing * FP64.FromInt(ring);
     var angle = FP64.TwoPi / FP64.FromInt(capacity) * FP64.FromInt(slot);
-    var offset = RotateXZ(forward, angle) * radius;
-    return center + offset;
+    var offset = new FPVector3(FP64.Sin(angle), FP64.Zero, FP64.Cos(angle)) * radius;
+    return origin + offset;
   }
 
-  private static FPVector3 RotateXZ(FPVector3 vector, FP64 angle) {
-    var sin = FP64.Sin(angle);
-    var cos = FP64.Cos(angle);
-    return new FPVector3(
-      vector.x * cos + vector.z * sin,
-      FP64.Zero,
-      -vector.x * sin + vector.z * cos);
+  // Minions spawn facing away from the spawn point they came out of, so a wave fans outward
+  // instead of every slot staring down +Z until NavigationAgentSystem overwrites Rotation from
+  // velocity on the first tick they move. Same Atan2(x, z) yaw convention as that system and
+  // CommandSystem. Slot 0 sits on the spawn point itself and has no outward direction.
+  private static FP64 GetSpawnFacing(FPVector3 origin, FPVector3 position) {
+    var away = position - origin;
+    return away.sqrMagnitude == FP64.Zero ? FP64.Zero : FP64.Atan2(away.x, away.z);
   }
 }
