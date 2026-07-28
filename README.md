@@ -97,7 +97,6 @@ Most of this is cosmetic, but it's the kind that accumulates:
 - **Namespace vs. folder.** Every file in [`sim/Systems/`](sim/Systems) declares `namespace Meesles.Avalon`, while everything else in `sim/` uses `Meesles.Avalon.Sim`, `.Sim.Components`, `.Sim.Navigation`, etc. Systems are the only directory whose namespace doesn't track its path.
 - **[`TriangleFlowField.AT_GOAL` / `UNREACHABLE`](sim/Navigation/TriangleFlowField.cs) (`:7-8`)** are the only SCREAMING_CASE identifiers in the project; every other constant is PascalCase (`NoWinnerPlayerId`, `RandomFeatureKey`, `FirstUnitId`, `MaxItems`).
 - **[`SimulationSetup.cs:84`](sim/SimulationSetup.cs)** takes `Boolean spawnHeroesNow` — the only BCL alias in `sim/`.
-- **[`SimulationSetup.cs:68-70`](sim/SimulationSetup.cs)** has a 116-character `====== PRIVATE ======` ASCII banner that appears nowhere else.
 - **[`Enums.cs`](sim/Enums.cs)** bundles three unrelated enums into a catch-all while every other type gets its own file.
 - **[`TargetAcquisitionSystem.cs:85`](sim/Systems/TargetAcquisitionSystem.cs)** compares `candidate.Index == attacker.Index`; [`DeathSystem.cs:92`](sim/Systems/DeathSystem.cs) compares full `EntityRef` equality (`combat.Target != deadEntity`). `EntityRef` is `(Index, Version)` and implements `IEquatable`. The Index-only form is correct within a tick but is the weaker habit.
 - **[`NavigationAgentSystem` field order](sim/Systems/NavigationAgentSystem.cs) (`:16-40`)** looks alphabetized by tooling — `_heroCount` sits between the grids and the hero arrays, `_minionCount` between `_lastSnappedPositions` and `_minionEntities`, splitting comment blocks from what they document.
@@ -108,8 +107,6 @@ Most of this is cosmetic, but it's the kind that accumulates:
 **Four capacity helpers where one already exists.** [`NavigationAgentSystem`](sim/Systems/NavigationAgentSystem.cs) has a correct generic `EnsureCapacity(ref EntityRef[], int)` at `:351` — and then `EnsureHeroCapacity` (`:359`), `EnsureMinionCapacity` (`:367`), and `EnsureAllCapacity` (`:324`) reimplement the identical doubling loop. Only `EnsureAllCapacity` justifies itself (it resizes a parallel array); the other two are pure copy-paste.
 
 **Set-or-add-`UnitMoveTarget` appears three times**, character-for-character: [`CommandSystem.SetAttackMoveTarget:219`](sim/Systems/CommandSystem.cs), [`CommandSystem.SetTarget:293`](sim/Systems/CommandSystem.cs), [`AttackIntentSystem.SetMoveTarget:107`](sim/Systems/AttackIntentSystem.cs). The clear-`Combat.Target` idiom is likewise duplicated across `CommandSystem:287`, `AttackIntentSystem:101`, and [`RespawnSystem:85`](sim/Systems/RespawnSystem.cs). These are the ECS equivalent of a setter — one shared `UnitIntent` helper class would cover both.
-
-**[`ScoreSystem`](sim/Systems/ScoreSystem.cs) reimplements `List.Contains`** at `:109-121` (`AddUnique`/`Contains`) while [`TeamPruneSystem:88`](sim/Systems/TeamPruneSystem.cs) just calls `_activeTeams.Contains(teamId)` for the same job.
 
 **[`MoveCommand`](sim/Commands/MoveCommand.cs) and [`AttackCommand`](sim/Commands/AttackCommand.cs) are structurally identical** — same growable `int[]`, same `Add`/`Get`, same count-prefixed serialization — with no shared base.
 

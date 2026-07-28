@@ -65,10 +65,6 @@ public static class SimulationSetup {
     SpawnPickups(ref frame, layout);
   }
 
-  // ==================================================================================================================
-  // =============================================== PRIVATE ==========================================================
-  // ==================================================================================================================
-
   private static void SpawnTeamCrystalsAndSpawnPoints(ref Frame frame, List<int> teamIds, MapLayoutAsset layout) {
     var crystalStats = frame.AssetRegistry.Get<CrystalStatsAsset>();
 

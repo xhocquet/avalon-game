@@ -65,7 +65,8 @@ public class ScoreSystem : ISystem {
     var playerFilter = frame.Filter<Player, Team>();
     while (playerFilter.Next(out var playerEntity)) {
       ref readonly var team = ref frame.GetReadOnly<Team>(playerEntity);
-      AddUnique(_playerTeamIds, team.TeamId);
+      if (!_playerTeamIds.Contains(team.TeamId))
+        _playerTeamIds.Add(team.TeamId);
     }
 
     if (_playerTeamIds.Count <= 1)
@@ -74,8 +75,8 @@ public class ScoreSystem : ISystem {
     var crystalFilter = frame.Filter<Crystal, Team>();
     while (crystalFilter.Next(out var crystalEntity)) {
       ref readonly var team = ref frame.GetReadOnly<Team>(crystalEntity);
-      if (Contains(_playerTeamIds, team.TeamId))
-        AddUnique(_aliveCrystalTeamIds, team.TeamId);
+      if (_playerTeamIds.Contains(team.TeamId) && !_aliveCrystalTeamIds.Contains(team.TeamId))
+        _aliveCrystalTeamIds.Add(team.TeamId);
     }
 
     if (_aliveCrystalTeamIds.Count != 1)
@@ -101,20 +102,6 @@ public class ScoreSystem : ISystem {
       return true;
 
     playerId = NoWinnerPlayerId;
-    return false;
-  }
-
-  private static void AddUnique(List<int> values, int value) {
-    if (!Contains(values, value))
-      values.Add(value);
-  }
-
-  private static bool Contains(List<int> values, int value) {
-    foreach (var v in values) {
-      if (v == value)
-        return true;
-    }
-
     return false;
   }
 }
