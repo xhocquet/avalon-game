@@ -118,7 +118,8 @@ Given the memory note about minion counts, `WaveSpawnSystem` is the one that wil
 
 - **[`Stats.Defense` and `Stats.Speed`](sim/Components/Stats.cs) (`:9-10`)** are never read anywhere in `sim/`, `client/`, `server/`, or `tests/`. They default to 100 and ride every rollback snapshot.
 - **[`FlowFieldCache.Version` and `Invalidate()`](sim/Navigation/FlowFieldCache.cs)** are never called — meaning flow fields are never invalidated. Harmless while the navmesh is static, but the API implies otherwise.
-- **[`TriangleFlowField.Cost` and `GoalTriangleIndex`](sim/Navigation/TriangleFlowField.cs) (`:9`, `:12`)** are written in the constructor and never read. `Cost` is a `FP64[triCount]` retained for the lifetime of every cached field.
+- ~~**[`TriangleFlowField.Cost` and `GoalTriangleIndex`](sim/Navigation/TriangleFlowField.cs)** are written in the constructor and never read.~~ Fixed — both commented out; `cost` stays a Dijkstra local, so the `FP64[triCount]` is no longer retained per cached field.
+- ~~**[`FactionAsset.ChampionUnitTypeId` and `MinionStatsAssetId`](sim/Assets/FactionAsset.cs)** are authored in both faction rows of `Assets.json` and never read.~~ Fixed — commented out with their `KlothoOrder` slots reserved, keys dropped from `Assets.json`, `Assets.bytes` regenerated.
 - **[`Pickup.Type`](sim/Components/Pickup.cs)** is a commented-out field with a TODO.
 
 ### Stale comments

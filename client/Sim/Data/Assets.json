@@ -97,16 +97,12 @@
   {
     "$type": "Meesles.Avalon.Sim.Assets.FactionAsset, Meesles.Avalon.Client",
     "AssetId": 200,
-    "ChampionUnitTypeId": 10,
-    "MinionUnitTypeId": 2,
-    "MinionStatsAssetId": 103
+    "MinionUnitTypeId": 2
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.FactionAsset, Meesles.Avalon.Client",
     "AssetId": 201,
-    "ChampionUnitTypeId": 11,
-    "MinionUnitTypeId": 2,
-    "MinionStatsAssetId": 103
+    "MinionUnitTypeId": 2
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.ShopItemAsset, Meesles.Avalon.Client",

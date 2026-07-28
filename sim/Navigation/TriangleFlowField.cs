@@ -6,17 +6,16 @@ namespace Meesles.Avalon.Sim.Navigation;
 public class TriangleFlowField {
   public const int AtGoal = -1;
   public const int Unreachable = -2;
-  public readonly FP64[] Cost;
   public readonly FPVector2[] ExitDirection;
-
-  public readonly int GoalTriangleIndex;
   public readonly int[] NextTriangle;
 
-  private TriangleFlowField(int goalTriangleIndex, int[] nextTriangle, FPVector2[] exitDirection, FP64[] cost) {
-    GoalTriangleIndex = goalTriangleIndex;
+  // Restore if we need dist-to-goal (e.g. ETA/threat maps) or to identify the goal triangle
+  // public readonly FP64[] Cost;
+  // public readonly int GoalTriangleIndex;
+
+  private TriangleFlowField(int[] nextTriangle, FPVector2[] exitDirection) {
     NextTriangle = nextTriangle;
     ExitDirection = exitDirection;
-    Cost = cost;
   }
 
   public static TriangleFlowField Compute(FPNavMesh navMesh, int goalTriIndex) {
@@ -97,7 +96,7 @@ public class TriangleFlowField {
       exitDir[i] = mag > FP64.Zero ? dir / mag : FPVector2.Zero;
     }
 
-    return new TriangleFlowField(goalTriIndex, next, exitDir, cost);
+    return new TriangleFlowField(next, exitDir);
   }
 
   private static FPVector2 GetPortalMidpoint(FPNavMesh navMesh, int fromTri, int toTri) {

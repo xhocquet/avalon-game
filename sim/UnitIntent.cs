@@ -4,10 +4,7 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
 
-// Set/clear helpers for the two components that carry a unit's current order. Both are
-// optional components, so every write is a set-or-add and every clear is a guarded remove —
-// the ECS equivalent of a property setter. CommandSystem, AttackIntentSystem and
-// RespawnSystem all drive the same pair, and each had its own copy of these four lines.
+// Depends on optional components: UnitMoveTarget, AttackTargetUnitId, Combat
 public static class UnitIntent {
   public static void SetMoveTarget(ref Frame frame, EntityRef entity, FPVector3 target) {
     if (frame.Has<UnitMoveTarget>(entity)) {
