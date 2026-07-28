@@ -56,15 +56,12 @@ public class NavigationAgentSystem : ISystem {
     var dt = FP64.FromInt(frame.DeltaTimeMs) / FP64.FromInt(1000);
     var snapThresholdSqr = tuning.PositionSnapThreshold * tuning.PositionSnapThreshold;
 
-    // Phase 1: Collect and categorize all nav agents
-    var filter = frame.Filter<NavAgentComponent, TransformComponent>();
+    // Phase 1: Collect and categorize all nav agents.
+    // Dead units awaiting respawn are frozen at their spawn point by
+    // RespawnSystem. Exclude them entirely so navigation neither snaps
+    // their transform onto the navmesh nor lets them push living units.
+    var filter = frame.FilterWithout<NavAgentComponent, TransformComponent, PendingRespawn>();
     while (filter.Next(out var entity)) {
-      // Dead units awaiting respawn are frozen at their spawn point by
-      // RespawnSystem. Exclude them entirely so navigation neither snaps
-      // their transform onto the navmesh nor lets them push living units.
-      if (frame.Has<PendingRespawn>(entity))
-        continue;
-
       ref var nav = ref frame.Get<NavAgentComponent>(entity);
       ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
 
@@ -239,7 +236,7 @@ public class NavigationAgentSystem : ISystem {
       }
 
       var next = field.NextTriangle[currentTri];
-      if (next == TriangleFlowField.AT_GOAL || next == TriangleFlowField.UNREACHABLE) {
+      if (next == TriangleFlowField.AtGoal || next == TriangleFlowField.Unreachable) {
         var mag = FP64.Sqrt(distSqr);
         nav.DesiredVelocity = mag > FP64.Zero ? toTargetXZ / mag * nav.Speed : FPVector2.Zero;
       }

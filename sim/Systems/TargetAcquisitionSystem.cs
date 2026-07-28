@@ -21,7 +21,9 @@ public class TargetAcquisitionSystem : ISystem {
     _candidateGrid ??= new SpatialHashGrid(rules.TargetGridCellSize);
     BuildCandidateGrid(ref frame);
 
-    var filter = frame.Filter<Unit, Team, Combat, TransformComponent>();
+    // Attackers that already hold a target are excluded outright — reacquisition is
+    // AttackIntentSystem's job, not this system's.
+    var filter = frame.FilterWithout<Unit, Team, Combat, TransformComponent, AttackTargetUnitId>();
     while (filter.Next(out var attacker)) {
       if (!CanAcquireTargets(ref frame, attacker))
         continue;
@@ -51,9 +53,6 @@ public class TargetAcquisitionSystem : ISystem {
   }
 
   private static bool CanAcquireTargets(ref Frame frame, EntityRef entity) {
-    if (frame.Has<AttackTargetUnitId>(entity))
-      return false;
-
     if (frame.Has<UnitMoveTarget>(entity))
       return false;
 
@@ -81,7 +80,7 @@ public class TargetAcquisitionSystem : ISystem {
 
     for (var i = 0; i < _nearbyCandidates.Count; i++) {
       var candidate = _nearbyCandidates[i];
-      if (candidate.Index == attacker.Index)
+      if (candidate == attacker)
         continue;
 
       var priority = GetTargetPriority(ref frame, candidate);

@@ -20,15 +20,15 @@ public class AttackIntentSystem : ISystem {
   private void UpdateAttacker(ref Frame frame, EntityRef attacker) {
     if (!frame.Has<Combat>(attacker)) {
       LogAttackState(ref frame, attacker, 0, "cleared_no_combat");
-      ClearAttackIntent(ref frame, attacker);
+      UnitIntent.ClearAttackIntent(ref frame, attacker);
       return;
     }
 
     var targetUnitId = frame.GetReadOnly<AttackTargetUnitId>(attacker).TargetUnitId;
     if (!TryResolveTarget(ref frame, attacker, targetUnitId, out var target)) {
       LogAttackState(ref frame, attacker, targetUnitId, "cleared_invalid_target");
-      ClearAttackIntent(ref frame, attacker);
-      ClearMoveTarget(ref frame, attacker);
+      UnitIntent.ClearAttackIntent(ref frame, attacker);
+      UnitIntent.ClearMoveTarget(ref frame, attacker);
       return;
     }
 
@@ -57,7 +57,7 @@ public class AttackIntentSystem : ISystem {
     ref var combat = ref frame.Get<Combat>(attacker);
     var wasOutOfRange = !combat.Target.IsValid;
     combat.Target = target;
-    ClearMoveTarget(ref frame, attacker);
+    UnitIntent.ClearMoveTarget(ref frame, attacker);
 
     if (wasOutOfRange)
       LogAttackState(ref frame, attacker, targetUnitId, $"in_range distSq={distSq} rangeSq={rangeSq}");
@@ -69,8 +69,8 @@ public class AttackIntentSystem : ISystem {
     combat.Target = default;
 
     if (frame.Has<Turret>(attacker)) {
-      ClearAttackIntent(ref frame, attacker);
-      ClearMoveTarget(ref frame, attacker);
+      UnitIntent.ClearAttackIntent(ref frame, attacker);
+      UnitIntent.ClearMoveTarget(ref frame, attacker);
       return;
     }
 
@@ -94,30 +94,9 @@ public class AttackIntentSystem : ISystem {
     return attackerTeam.TeamId != targetTeam.TeamId;
   }
 
-  private static void ClearAttackIntent(ref Frame frame, EntityRef entity) {
-    if (frame.Has<AttackTargetUnitId>(entity))
-      frame.Remove<AttackTargetUnitId>(entity);
-
-    if (frame.Has<Combat>(entity)) {
-      ref var combat = ref frame.Get<Combat>(entity);
-      combat.Target = default;
-    }
-  }
-
   private static void SetMoveTarget(ref Frame frame, EntityRef entity, FPVector3 target) {
     target.y = FP64.Zero;
-    if (frame.Has<UnitMoveTarget>(entity)) {
-      ref var moveTarget = ref frame.Get<UnitMoveTarget>(entity);
-      moveTarget.Target = target;
-      return;
-    }
-
-    frame.Add(entity, new UnitMoveTarget { Target = target });
-  }
-
-  private static void ClearMoveTarget(ref Frame frame, EntityRef entity) {
-    if (frame.Has<UnitMoveTarget>(entity))
-      frame.Remove<UnitMoveTarget>(entity);
+    UnitIntent.SetMoveTarget(ref frame, entity, target);
   }
 
   private static void LogAttackState(ref Frame frame, EntityRef attacker, int attackTargetUnitId, string state) {

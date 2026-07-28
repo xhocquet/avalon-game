@@ -217,13 +217,7 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
 
   private static void SetAttackMoveTarget(ref Frame frame, EntityRef entity, FPVector3 target) {
     target.y = FP64.Zero;
-    if (frame.Has<UnitMoveTarget>(entity)) {
-      ref var moveTarget = ref frame.Get<UnitMoveTarget>(entity);
-      moveTarget.Target = target;
-      return;
-    }
-
-    frame.Add(entity, new UnitMoveTarget { Target = target });
+    UnitIntent.SetMoveTarget(ref frame, entity, target);
   }
 
   private static void SetAttackTarget(ref Frame frame, EntityRef entity, int targetUnitId) {
@@ -280,21 +274,9 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
     }
   }
 
+  // A move order cancels any standing attack order.
   private static void SetTarget(ref Frame frame, EntityRef entity, FPVector3 target) {
-    if (frame.Has<AttackTargetUnitId>(entity)) {
-      frame.Remove<AttackTargetUnitId>(entity);
-      if (frame.Has<Combat>(entity)) {
-        ref var combat = ref frame.Get<Combat>(entity);
-        combat.Target = default;
-      }
-    }
-
-    if (frame.Has<UnitMoveTarget>(entity)) {
-      ref var moveTarget = ref frame.Get<UnitMoveTarget>(entity);
-      moveTarget.Target = target;
-    }
-    else {
-      frame.Add(entity, new UnitMoveTarget { Target = target });
-    }
+    UnitIntent.ClearAttackIntent(ref frame, entity);
+    UnitIntent.SetMoveTarget(ref frame, entity, target);
   }
 }

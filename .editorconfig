@@ -27,5 +27,13 @@ resharper_indent_nested_lock_stmt = true
 resharper_indent_nested_usings_stmt = true
 resharper_indent_nested_while_stmt = true
 
+# Constants are PascalCase, not SCREAMING_CASE. ReSharper's `AaBb` is a literal pattern, so
+# it rejects the underscore; the Roslyn equivalent does not (its pascal_case treats `_` as a
+# word separator, so SOME_VALUE passes). IDE/inspectcode only — `just format` runs the
+# reformat-only profile and applies no naming rules.
+resharper_csharp_naming_rule.constants = AaBb
+resharper_csharp_naming_rule.private_constants = AaBb
+resharper_csharp_naming_rule.local_constants = AaBb
+
 [*.md]
 trim_trailing_whitespace = false

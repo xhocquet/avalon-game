@@ -95,10 +95,8 @@ var forward = new FPVector3(-origin.x, FP64.Zero, -origin.z);
 Most of this is cosmetic, but it's the kind that accumulates:
 
 - **Namespace vs. folder.** Every file in [`sim/Systems/`](sim/Systems) declares `namespace Meesles.Avalon`, while everything else in `sim/` uses `Meesles.Avalon.Sim`, `.Sim.Components`, `.Sim.Navigation`, etc. Systems are the only directory whose namespace doesn't track its path.
-- **[`TriangleFlowField.AT_GOAL` / `UNREACHABLE`](sim/Navigation/TriangleFlowField.cs) (`:7-8`)** are the only SCREAMING_CASE identifiers in the project; every other constant is PascalCase (`NoWinnerPlayerId`, `RandomFeatureKey`, `FirstUnitId`, `MaxItems`).
 - **[`SimulationSetup.cs:84`](sim/SimulationSetup.cs)** takes `Boolean spawnHeroesNow` — the only BCL alias in `sim/`.
 - **[`Enums.cs`](sim/Enums.cs)** bundles three unrelated enums into a catch-all while every other type gets its own file.
-- **[`TargetAcquisitionSystem.cs:85`](sim/Systems/TargetAcquisitionSystem.cs)** compares `candidate.Index == attacker.Index`; [`DeathSystem.cs:92`](sim/Systems/DeathSystem.cs) compares full `EntityRef` equality (`combat.Target != deadEntity`). `EntityRef` is `(Index, Version)` and implements `IEquatable`. The Index-only form is correct within a tick but is the weaker habit.
 - **[`NavigationAgentSystem` field order](sim/Systems/NavigationAgentSystem.cs) (`:16-40`)** looks alphabetized by tooling — `_heroCount` sits between the grids and the hero arrays, `_minionCount` between `_lastSnappedPositions` and `_minionEntities`, splitting comment blocks from what they document.
 - **[`MinionStatsAsset`](sim/Assets/MinionStatsAsset.cs) is also the hero combat asset** ([`HeroFactory.cs:9`](sim/Factories/HeroFactory.cs) says so explicitly, and [`Combat`](sim/Components/Combat.cs)'s primary constructor at `:12` takes `MinionStatsAsset`). Meanwhile [`TurretFactory:26`](sim/Factories/TurretFactory.cs) can't use that constructor and hand-rolls the object initializer. The type is really `CombatStatsAsset`.
 
@@ -106,16 +104,11 @@ Most of this is cosmetic, but it's the kind that accumulates:
 
 **Four capacity helpers where one already exists.** [`NavigationAgentSystem`](sim/Systems/NavigationAgentSystem.cs) has a correct generic `EnsureCapacity(ref EntityRef[], int)` at `:351` — and then `EnsureHeroCapacity` (`:359`), `EnsureMinionCapacity` (`:367`), and `EnsureAllCapacity` (`:324`) reimplement the identical doubling loop. Only `EnsureAllCapacity` justifies itself (it resizes a parallel array); the other two are pure copy-paste.
 
-**Set-or-add-`UnitMoveTarget` appears three times**, character-for-character: [`CommandSystem.SetAttackMoveTarget:219`](sim/Systems/CommandSystem.cs), [`CommandSystem.SetTarget:293`](sim/Systems/CommandSystem.cs), [`AttackIntentSystem.SetMoveTarget:107`](sim/Systems/AttackIntentSystem.cs). The clear-`Combat.Target` idiom is likewise duplicated across `CommandSystem:287`, `AttackIntentSystem:101`, and [`RespawnSystem:85`](sim/Systems/RespawnSystem.cs). These are the ECS equivalent of a setter — one shared `UnitIntent` helper class would cover both.
-
 **[`MoveCommand`](sim/Commands/MoveCommand.cs) and [`AttackCommand`](sim/Commands/AttackCommand.cs) are structurally identical** — same growable `int[]`, same `Add`/`Get`, same count-prefixed serialization — with no shared base.
-
-**Klotho's `FilterWithout<>` is never used.** Three systems hand-roll exclusions the API supports directly: [`DeathSystem:16-18`](sim/Systems/DeathSystem.cs) (`Filter<Unit, Health>` + skip `Player`), [`NavigationAgentSystem:61-66`](sim/Systems/NavigationAgentSystem.cs) (skip `PendingRespawn`), [`TargetAcquisitionSystem:55-59`](sim/Systems/TargetAcquisitionSystem.cs).
 
 **Two hot paths do full O(n²) scans while a spatial grid sits unused next door.** `TargetAcquisitionSystem` correctly buckets candidates into a [`SpatialHashGrid`](sim/Navigation/SpatialHashGrid.cs) — but:
 
 - [`WaveSpawnSystem.GetFirstFreeSlot:46`](sim/Systems/WaveSpawnSystem.cs) probes slots in an unbounded `while` loop, and each probe (`IsSlotOccupied:54`) scans *every minion on the map* for that team. That's O(slots × minions) per wave-spawn tick, growing quadratically with wave size.
-- [`PickupSystem:22-27`](sim/Systems/PickupSystem.cs) nests `Filter<Inventory, TransformComponent>` inside `Filter<Pickup, TransformComponent>` — O(pickups × collectors) every tick.
 
 Given the memory note about minion counts, `WaveSpawnSystem` is the one that will bite first.
 

@@ -4,8 +4,8 @@ using xpTURN.Klotho.Deterministic.Navigation;
 namespace Meesles.Avalon.Sim.Navigation;
 
 public class TriangleFlowField {
-  public const int AT_GOAL = -1;
-  public const int UNREACHABLE = -2;
+  public const int AtGoal = -1;
+  public const int Unreachable = -2;
   public readonly FP64[] Cost;
   public readonly FPVector2[] ExitDirection;
 
@@ -26,11 +26,11 @@ public class TriangleFlowField {
     var cost = new FP64[triCount];
 
     for (var i = 0; i < triCount; i++) {
-      next[i] = UNREACHABLE;
+      next[i] = Unreachable;
       cost[i] = FP64.MaxValue;
     }
 
-    next[goalTriIndex] = AT_GOAL;
+    next[goalTriIndex] = AtGoal;
     cost[goalTriIndex] = FP64.Zero;
 
     // Dijkstra BFS from goal outward using a simple priority queue.

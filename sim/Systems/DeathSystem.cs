@@ -13,11 +13,9 @@ public class DeathSystem : ISystem {
   public void Update(ref Frame frame) {
     _deadUnits.Clear();
 
-    var filter = frame.Filter<Unit, Health>();
+    // Players die through RespawnSystem, not here.
+    var filter = frame.FilterWithout<Unit, Health, Player>();
     while (filter.Next(out var entity)) {
-      if (frame.Has<Player>(entity))
-        continue;
-
       ref readonly var health = ref frame.GetReadOnly<Health>(entity);
       if (health.Current > 0)
         continue;
