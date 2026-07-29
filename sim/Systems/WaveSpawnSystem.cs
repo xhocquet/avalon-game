@@ -2,66 +2,105 @@ using System.Collections.Generic;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using Meesles.Avalon.Sim.Factories;
+using Meesles.Avalon.Sim.Navigation;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon;
 
 public class WaveSpawnSystem : ISystem {
+  private readonly List<EntityRef> _nearbyMinions = new();
+  private readonly List<(FPVector3 Position, int TeamId)> _sources = new();
+
+  // Built on first use: the cell size derives from MinionSpacing, which isn't available at
+  // construction time. Rebuilt if the asset value changes.
+  private SpatialHashGrid _occupancyGrid;
+  private FP64 _occupancyGridCellSize;
+
   public void Update(ref Frame frame) {
     var rules = frame.AssetRegistry.Get<WaveRulesAsset>();
     var stats = frame.AssetRegistry.Get<MinionStatsAsset>();
-    if (rules.SpawnIntervalTicks <= 0 || rules.MinionsPerWave <= 0) return;
+    if (rules.SpawnIntervalTicks <= 0 || rules.MinionsPerWave <= 0 || rules.MinionSpacing <= FP64.Zero) return;
 
     var rel = frame.Tick - rules.FirstWaveDelayTicks;
     if (rel < 0 || rel % rules.SpawnIntervalTicks != 0) return;
     var waveId = rel / rules.SpawnIntervalTicks;
 
+    BuildOccupancyGrid(ref frame, rules.MinionSpacing);
+
     // Snapshot spawn points before creating entities so we don't mutate the set
     // we're iterating. Filter order is deterministic, so this stays in sync.
-    var sources = new List<(FPVector3 Position, int TeamId)>();
+    _sources.Clear();
     var filter = frame.Filter<SpawnPoint, Team, TransformComponent>();
     while (filter.Next(out var entity)) {
       ref readonly var team = ref frame.Get<Team>(entity);
       ref readonly var transform = ref frame.Get<TransformComponent>(entity);
-      sources.Add((transform.Position, team.TeamId));
+      _sources.Add((transform.Position, team.TeamId));
     }
 
-    foreach (var source in sources)
+    foreach (var source in _sources)
       SpawnWave(ref frame, rules, stats, source.Position, source.TeamId, waveId);
   }
 
-  private static void SpawnWave(ref Frame frame, WaveRulesAsset rules, MinionStatsAsset stats, FPVector3 origin,
-    int teamId, int waveId) {
-    var count = rules.MinionsPerWave;
+  // Broad-phase: bucket every minion once per spawn tick so the slot search only distance-checks
+  // the handful sitting near each slot instead of every minion on the map. Spawned minions are
+  // inserted as they're created so later slots in the same wave see them.
+  private void BuildOccupancyGrid(ref Frame frame, FP64 spacing) {
+    if (_occupancyGrid == null || _occupancyGridCellSize != spacing) {
+      _occupancyGrid = new SpatialHashGrid(spacing);
+      _occupancyGridCellSize = spacing;
+    }
 
-    for (var i = 0; i < count; i++) {
-      var slotIndex = GetFirstFreeSlot(ref frame, origin, teamId, rules.MinionSpacing);
-      var position = GetSpawnPosition(origin, rules.MinionSpacing, slotIndex);
-      MinionFactory.Spawn(ref frame, stats, position, GetSpawnFacing(origin, position), teamId, waveId);
+    _occupancyGrid.Clear();
+
+    var filter = frame.Filter<Minion, Team, TransformComponent>();
+    while (filter.Next(out var entity)) {
+      ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
+      _occupancyGrid.Insert(entity, transform.Position.ToXZ());
     }
   }
 
-  private static int GetFirstFreeSlot(ref Frame frame, FPVector3 origin, int teamId, FP64 spacing) {
-    var slot = 0;
+  private void SpawnWave(ref Frame frame, WaveRulesAsset rules, MinionStatsAsset stats, FPVector3 origin,
+    int teamId, int waveId) {
+    var count = rules.MinionsPerWave;
+
+    // Slots below the last free one were occupied and stay occupied — nothing is removed mid-wave —
+    // so each minion resumes the scan past the slot the previous one took instead of restarting.
+    var searchStart = 0;
+
+    for (var i = 0; i < count; i++) {
+      var slotIndex = GetFirstFreeSlot(ref frame, origin, teamId, rules.MinionSpacing, searchStart);
+      var position = GetSpawnPosition(origin, rules.MinionSpacing, slotIndex);
+      var minion = MinionFactory.Spawn(ref frame, stats, position, GetSpawnFacing(origin, position), teamId, waveId);
+      _occupancyGrid.Insert(minion, position.ToXZ());
+      searchStart = slotIndex + 1;
+    }
+  }
+
+  private int GetFirstFreeSlot(ref Frame frame, FPVector3 origin, int teamId, FP64 spacing, int startSlot) {
+    var slot = startSlot;
     while (IsSlotOccupied(ref frame, origin, teamId, spacing, slot))
       slot++;
 
     return slot;
   }
 
-  private static bool IsSlotOccupied(ref Frame frame, FPVector3 origin, int teamId, FP64 spacing, int slot) {
+  private bool IsSlotOccupied(ref Frame frame, FPVector3 origin, int teamId, FP64 spacing, int slot) {
     var slotPosition = GetSpawnPosition(origin, spacing, slot);
     var occupiedRadius = spacing * FP64.Half;
     var occupiedRadiusSqr = occupiedRadius * occupiedRadius;
 
-    var filter = frame.Filter<Minion, Team, TransformComponent>();
-    while (filter.Next(out var entity)) {
-      ref readonly var team = ref frame.Get<Team>(entity);
+    // The grid filters on XZ distance, which never exceeds the full 3D distance, so its results are
+    // a superset of the occupants and the exact 3D test below still decides.
+    _occupancyGrid.QueryRadius(slotPosition.ToXZ(), occupiedRadius, _nearbyMinions);
+
+    for (var i = 0; i < _nearbyMinions.Count; i++) {
+      var entity = _nearbyMinions[i];
+      ref readonly var team = ref frame.GetReadOnly<Team>(entity);
       if (team.TeamId != teamId)
         continue;
 
-      ref readonly var transform = ref frame.Get<TransformComponent>(entity);
+      ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
       if ((transform.Position - slotPosition).sqrMagnitude <= occupiedRadiusSqr)
         return true;
     }

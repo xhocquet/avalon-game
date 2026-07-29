@@ -33,8 +33,6 @@ Most of this is cosmetic, but it's the kind that accumulates:
 
 **Four capacity helpers where one already exists.** [`NavigationAgentSystem`](sim/Systems/NavigationAgentSystem.cs) has a correct generic `EnsureCapacity(ref EntityRef[], int)` at `:351` — and then `EnsureHeroCapacity` (`:359`), `EnsureMinionCapacity` (`:367`), and `EnsureAllCapacity` (`:324`) reimplement the identical doubling loop. Only `EnsureAllCapacity` justifies itself (it resizes a parallel array); the other two are pure copy-paste.
 
-**[`MoveCommand`](sim/Commands/MoveCommand.cs) and [`AttackCommand`](sim/Commands/AttackCommand.cs) are structurally identical** — same growable `int[]`, same `Add`/`Get`, same count-prefixed serialization — with no shared base.
-
 **Two hot paths do full O(n²) scans while a spatial grid sits unused next door.** `TargetAcquisitionSystem` correctly buckets candidates into a [`SpatialHashGrid`](sim/Navigation/SpatialHashGrid.cs) — but:
 
 - [`WaveSpawnSystem.GetFirstFreeSlot:46`](sim/Systems/WaveSpawnSystem.cs) probes slots in an unbounded `while` loop, and each probe (`IsSlotOccupied:54`) scans *every minion on the map* for that team. That's O(slots × minions) per wave-spawn tick, growing quadratically with wave size.
