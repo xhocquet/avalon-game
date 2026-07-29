@@ -58,7 +58,8 @@
     "AssetId": 110,
     "MatchDuration": 300.0,
     "SetupGraceTicks": 30,
-    "RespawnDelayMs": 5000
+    "RespawnDelayMs": 5000,
+    "DeathScorePenalty": 1
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.PickupRulesAsset, Meesles.Avalon.Client",
@@ -87,7 +88,9 @@
     "BlockedSpeed": 2.5,
     "HeroSteeringSpread": 1,
     "MinionSteeringSpread": 1,
-    "AvoidanceSpread": 1
+    "AvoidanceSpread": 1,
+    "AvoidanceTimeHorizon": 2.0,
+    "AccelerationFactor": 12.0
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.CombatRulesAsset, Meesles.Avalon.Client",

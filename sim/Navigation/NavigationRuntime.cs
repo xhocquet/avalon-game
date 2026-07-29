@@ -1,4 +1,3 @@
-using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.Deterministic.Navigation;
 using xpTURN.Klotho.Logging;
 
@@ -30,11 +29,9 @@ public class NavigationRuntime {
     var query = new FPNavMeshQuery(navMesh, logger);
     var pathfinder = new FPNavMeshPathfinder(navMesh, query, logger);
     var funnel = new FPNavMeshFunnel(navMesh, query, logger);
+    // Left at Klotho defaults here: the runtime is built before any frame exists, so
+    // NavigationAgentSystem applies NavigationTuningAsset's ORCA tuning once it has one.
     var avoidance = new FPNavAvoidance();
-    // Shorten the ORCA time horizon (Klotho default 3s). At MoveSpeed 5 a 3s horizon makes
-    // agents veer around collisions ~15u out and oscillate; 2s reacts later but more decisively
-    // and lets packed groups settle instead of shuffling over each other.
-    avoidance.TimeHorizon = FP64.FromInt(2);
     var agentSystem = new FPNavAgentSystem(navMesh, query, pathfinder, funnel, logger);
     agentSystem.SetAvoidance(avoidance);
     var flowFields = new FlowFieldCache(navMesh);

@@ -13,7 +13,8 @@
   - `MinionSteeringSpread` — flow field steering interval (default 1)
   - `AvoidanceSpread` — ORCA collision avoidance interval (default 1)
   - Set to N to update 1/N of agents per tick. Phases are offset (0, 1, 2) so they don't spike the same frame.
-- The same asset holds the steering/settle tuning (arrival radii, brake distance, blocked/stuck settle thresholds, ORCA neighbour radius). Distances are authored linearly; the system squares them per tick.
+- The same asset holds the steering/settle tuning (arrival radii, brake distance, blocked/stuck settle thresholds, ORCA neighbour radius and time horizon, nav-agent acceleration factor). Distances are authored linearly; the system squares them per tick.
+- `NavigationRuntime` is built before any frame exists, so it leaves ORCA at Klotho defaults; `NavigationAgentSystem` pushes `AvoidanceTimeHorizon` onto it each tick.
 - Movement integration and transform sync run every tick regardless of spread, keeping positions smooth.
 - spread=N multiplies each agent's steering refresh interval by N ticks (see `server/simulationconfig.json` for the tick rate). Small values stay within the genre's acceptable latency for AI-controlled units.
 

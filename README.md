@@ -56,19 +56,6 @@ add rollback test to prove this issue^
 
 **Untrusted command payloads have no bound check.** [`MoveCommand.DeserializeData:44`](sim/Commands/MoveCommand.cs) and [`AttackCommand:41`](sim/Commands/AttackCommand.cs) read an `Int16` count off the wire and size an array from it with no cap. Complementary hole on the write side: `AddUnitId` grows unboxed past `short.MaxValue`, at which point `(short)UnitIdCount` truncates in `SerializeData` while `GetSerializedSize` returns the untruncated length — the two disagree about the frame size. A selection-size cap enforced in both `AddUnitId` and `DeserializeData` closes both ends.
 
-### Convention violations
-
-[`sim/AGENTS.md`](sim/AGENTS.md) states: *"Systems hold no tuning constants. Gameplay numbers live in `client/Sim/Data/Assets.json`."* Four places don't:
-
-| Location | Constant |
-| -------- | -------- |
-| [`TargetAcquisitionSystem.cs:127`](sim/Systems/TargetAcquisitionSystem.cs) | `FP64.FromInt(3)` reacquire-range fallback |
-| [`NavAgentFactory.cs:11`](sim/Factories/NavAgentFactory.cs) | `speed * FP64.FromInt(12)` acceleration |
-| [`NavigationRuntime.cs:37`](sim/Navigation/NavigationRuntime.cs) | `avoidance.TimeHorizon = FP64.FromInt(2)` |
-| [`RespawnSystem.cs:44`](sim/Systems/RespawnSystem.cs) | `player.Score -= 1` death penalty |
-
-The ORCA time horizon is the sharpest one: it has a four-line comment explaining the tuning rationale in exactly the register [`NavigationTuningAsset`](sim/Assets/NavigationTuningAsset.cs) was built for, and it sits in code instead. `TargetAcquisitionSystem`'s `FP64.FromInt(3)` is a fallback that silently masks a missing asset row — the surrounding code style would be `if (stats == null) return;`.
-
 ### Style consistency
 
 Most of this is cosmetic, but it's the kind that accumulates:

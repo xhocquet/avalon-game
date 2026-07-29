@@ -57,4 +57,14 @@ public partial class NavigationTuningAsset : IDataAsset {
   [KlothoOrder(11)] public int HeroSteeringSpread;
   [KlothoOrder(12)] public int MinionSteeringSpread;
   [KlothoOrder(13)] public int AvoidanceSpread;
+
+  // Seconds of lookahead ORCA plans against (Klotho default 3). At MoveSpeed 5 a 3s horizon makes
+  // agents veer around collisions ~15u out and oscillate; 2s reacts later but more decisively and
+  // lets packed groups settle instead of shuffling over each other. NavigationAgentSystem pushes
+  // this onto the avoidance runtime each tick.
+  [KlothoOrder(14)] public FP64 AvoidanceTimeHorizon;
+
+  // Multiplier on a unit's MoveSpeed that gives its nav-agent acceleration, so a unit reaches full
+  // speed in ~1/Factor seconds regardless of how fast it moves. Applied by NavAgentFactory.
+  [KlothoOrder(15)] public FP64 AccelerationFactor;
 }

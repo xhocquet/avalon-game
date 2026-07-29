@@ -29,7 +29,7 @@ public static class HeroFactory {
     });
     frame.Add(entity, new Health(playerStats.Health));
     frame.Add(entity, new Combat(combatStats));
-    frame.Add(entity, NavAgentFactory.At(position, playerStats.MoveSpeed, playerStats.Radius));
+    frame.Add(entity, NavAgentFactory.At(ref frame, position, playerStats.MoveSpeed, playerStats.Radius));
 
     return entity;
   }

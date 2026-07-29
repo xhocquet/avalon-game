@@ -18,4 +18,7 @@ public partial class MatchRulesAsset : IDataAsset {
 
   // Wall-clock delay before a dead hero respawns; RespawnSystem converts it to ticks.
   [KlothoOrder(2)] public int RespawnDelayMs;
+
+  // Score a player loses on death, subtracted by RespawnSystem when the hero goes down.
+  [KlothoOrder(3)] public int DeathScorePenalty;
 }

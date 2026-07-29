@@ -114,6 +114,9 @@ public class NavigationAgentSystem : ISystem {
     // Phase 4: ORCA avoidance with separate collision layers (spread across ticks)
     var avoidance = _navigation.Avoidance;
     if (avoidance != null) {
+      // The runtime is constructed without a frame, so its ORCA tuning is applied here instead.
+      avoidance.TimeHorizon = tuning.AvoidanceTimeHorizon;
+
       _minionAvoidanceGrid.Clear();
       _heroAvoidanceGrid.Clear();
 

@@ -33,7 +33,8 @@ public class RespawnSystem : ISystem {
   }
 
   private static void BeginRespawn(ref Frame frame, EntityRef entity) {
-    var delayTicks = GetRespawnDelayTicks(ref frame);
+    var rules = frame.AssetRegistry.Get<MatchRulesAsset>();
+    var delayTicks = GetRespawnDelayTicks(ref frame, rules);
     frame.Add(entity, new PendingRespawn { RemainingTicks = delayTicks });
 
     ref var player = ref frame.Get<Player>(entity);
@@ -41,7 +42,7 @@ public class RespawnSystem : ISystem {
     ref readonly var unit = ref frame.GetReadOnly<Unit>(entity);
     ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
 
-    player.Score -= 1;
+    player.Score -= rules?.DeathScorePenalty ?? 0;
     ClearActiveState(ref frame, entity, transform.Position);
 
     if (frame.EventRaiser != null) {
@@ -101,8 +102,7 @@ public class RespawnSystem : ISystem {
     }
   }
 
-  private static int GetRespawnDelayTicks(ref Frame frame) {
-    var rules = frame.AssetRegistry.Get<MatchRulesAsset>();
+  private static int GetRespawnDelayTicks(ref Frame frame, MatchRulesAsset rules) {
     var delayMs = rules?.RespawnDelayMs ?? 0;
     var deltaTimeMs = frame.DeltaTimeMs > 0 ? frame.DeltaTimeMs : 16;
     return (delayMs + deltaTimeMs - 1) / deltaTimeMs;

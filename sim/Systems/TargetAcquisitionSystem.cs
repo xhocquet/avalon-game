@@ -120,9 +120,6 @@ public class TargetAcquisitionSystem : ISystem {
       return attackRange;
 
     var stats = frame.AssetRegistry.Get<MinionStatsAsset>();
-    var multiplier = stats.AttackReacquireRangeMultiplier > FP64.Zero
-      ? stats.AttackReacquireRangeMultiplier
-      : FP64.FromInt(3);
-    return attackRange * multiplier;
+    return attackRange * stats.AttackReacquireRangeMultiplier;
   }
 }
