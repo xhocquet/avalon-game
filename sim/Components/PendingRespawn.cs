@@ -3,7 +3,7 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Components;
 
-// Added by DeathSystem, counted down and cleared by RespawnSystem.
+// Added, counted down and removed by RespawnSystem. DeathSystem skips Player entities entirely.
 [KlothoComponent(ComponentIds.PendingRespawn)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public partial struct PendingRespawn : IComponent {

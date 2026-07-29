@@ -77,7 +77,7 @@ public static class SimulationSetup {
     }
   }
 
-  private static void SpawnHeroes(ref Frame frame, List<int> playerIds, Boolean spawnHeroesNow) {
+  private static void SpawnHeroes(ref Frame frame, List<int> playerIds, bool spawnHeroesNow) {
     for (var playerIndex = 0; playerIndex < playerIds.Count; playerIndex++) {
       var playerId = playerIds[playerIndex];
       var teamId = playerIndex + 1;

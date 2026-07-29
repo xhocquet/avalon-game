@@ -26,18 +26,20 @@ public class DamageSystem : ISystem {
       }
 
       var damage = GetAttackDamage(ref frame, attacker);
+      var attackerUnitId = TryGetUnitId(ref frame, attacker, out var srcId) ? srcId : 0;
 
       ref var health = ref frame.Get<Health>(target);
       var healthBefore = health.Current;
       health.Current -= damage;
       if (health.Current < 0)
         health.Current = 0;
+      health.LastDamagerUnitId = attackerUnitId;
 
       combat.CooldownRemainingTicks = combat.AttackCooldownTicks;
 
       if (frame.EventRaiser != null) {
         var evt = EventPool.Get<AttackHitEvent>();
-        evt.AttackerUnitId = TryGetUnitId(ref frame, attacker, out var srcId) ? srcId : 0;
+        evt.AttackerUnitId = attackerUnitId;
         evt.TargetUnitId = TryGetUnitId(ref frame, target, out var tgtId) ? tgtId : 0;
         evt.Damage = damage;
         evt.AttackerPosition = frame.Has<TransformComponent>(attacker)

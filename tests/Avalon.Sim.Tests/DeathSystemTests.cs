@@ -22,8 +22,9 @@ public class DeathSystemTests {
     int destroyerUnitId = frame.GetReadOnly<Unit>(attacker).UnitId;
     int destroyerTeamId = frame.GetReadOnly<Team>(attacker).TeamId;
     int destroyerOwnerId = frame.GetReadOnly<OwnerComponent>(attacker).OwnerId;
-    frame.Get<Combat>(attacker).Target = crystal;
-    frame.Get<Health>(crystal).Current = 0;
+    ref var crystalHealth = ref frame.Get<Health>(crystal);
+    crystalHealth.Current = 0;
+    crystalHealth.LastDamagerUnitId = destroyerUnitId;
 
     var collector = new EventCollector();
     collector.BeginTick(7);
@@ -46,6 +47,58 @@ public class DeathSystemTests {
   }
 
   [Fact]
+  public void Update_CreditsKillingBlowNotLowestUnitIdAttacker() {
+    var harness = SimHarness.CreateInitialized();
+    var frame = harness.Frame;
+    EntityRef crystal = GetFirstCrystalEntity(ref frame);
+    int crystalTeamId = frame.GetReadOnly<Team>(crystal).TeamId;
+    int enemyTeamId = crystalTeamId + 1;
+
+    EntityRef bystander = SpawnTestAttacker(ref frame, enemyTeamId);
+    EntityRef killer = SpawnTestAttacker(ref frame, enemyTeamId);
+    int killerUnitId = frame.GetReadOnly<Unit>(killer).UnitId;
+    frame.GetReadOnly<Unit>(bystander).UnitId.Should().BeLessThan(killerUnitId);
+
+    // Both hold the corpse as their target; only the killer landed the fatal hit.
+    frame.Get<Combat>(bystander).Target = crystal;
+    frame.Get<Combat>(killer).Target = crystal;
+    ref var health = ref frame.Get<Health>(crystal);
+    health.Current = 0;
+    health.LastDamagerUnitId = killerUnitId;
+
+    var collector = new EventCollector();
+    collector.BeginTick(7);
+    frame.EventRaiser = collector;
+
+    var system = new DeathSystem();
+    system.Update(ref frame);
+
+    var evt = collector.Collected[0].Should().BeOfType<CrystalDestroyedEvent>().Subject;
+    evt.DestroyerUnitId.Should().Be(killerUnitId);
+    evt.DestroyerTeamId.Should().Be(enemyTeamId);
+  }
+
+  [Fact]
+  public void Update_LeavesDestroyerUnresolvedWhenNothingDealtDamage() {
+    var harness = SimHarness.CreateInitialized();
+    var frame = harness.Frame;
+    EntityRef crystal = GetFirstCrystalEntity(ref frame);
+    frame.Get<Health>(crystal).Current = 0;
+
+    var collector = new EventCollector();
+    collector.BeginTick(7);
+    frame.EventRaiser = collector;
+
+    var system = new DeathSystem();
+    system.Update(ref frame);
+
+    var evt = collector.Collected[0].Should().BeOfType<CrystalDestroyedEvent>().Subject;
+    evt.DestroyerUnitId.Should().Be(0);
+    evt.DestroyerTeamId.Should().Be(0);
+    evt.DestroyerOwnerId.Should().Be(0);
+  }
+
+  [Fact]
   public void Update_RemovesDeadTurretAndRaisesTurretDestroyedEvent() {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
@@ -53,8 +106,9 @@ public class DeathSystemTests {
     EntityRef attacker = GetEnemyCombatUnit(ref frame, turret);
     int unitId = frame.GetReadOnly<Unit>(turret).UnitId;
     int destroyerUnitId = frame.GetReadOnly<Unit>(attacker).UnitId;
-    frame.Get<Combat>(attacker).Target = turret;
-    frame.Get<Health>(turret).Current = 0;
+    ref var turretHealth = ref frame.Get<Health>(turret);
+    turretHealth.Current = 0;
+    turretHealth.LastDamagerUnitId = destroyerUnitId;
 
     var collector = new EventCollector();
     collector.BeginTick(7);
@@ -167,6 +221,27 @@ public class DeathSystemTests {
       return entity;
 
     throw new Xunit.Sdk.XunitException("Expected an initialized hero entity.");
+  }
+
+  private static EntityRef SpawnTestAttacker(ref Frame frame, int teamId) {
+    var entity = frame.CreateEntity();
+
+    frame.Add(entity, TransformFactory.At(FPVector3.Zero));
+    frame.Add(entity, new Unit {
+      UnitId = UnitLookup.NextUnitId(ref frame),
+      UnitTypeId = SimulationSetup.MinionUnitTypeId,
+    });
+    frame.Add(entity, new Team { TeamId = teamId });
+    frame.Add(entity, new OwnerComponent { OwnerId = teamId });
+    frame.Add(entity, new Minion { WaveId = 99 });
+    frame.Add(entity, new Health(100));
+    frame.Add(entity, new Combat {
+      AttackRange = FP64.FromInt(2),
+      AttackCooldownTicks = 30,
+      CooldownRemainingTicks = 0,
+    });
+
+    return entity;
   }
 
   private static EntityRef SpawnTestMinion(ref Frame frame) {

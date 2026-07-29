@@ -162,6 +162,8 @@ public class NavigationAgentSystem : ISystem {
       // the sim transform on y=0 so units don't render at terrain height. This is the only
       // seam where 3D navmesh data crosses into the sim transform.
       transform.Position = new FPVector3(nav.Position.x, FP64.Zero, nav.Position.z);
+      // nav.Velocity is an FPVector2 on the XZ plane, so .y here IS Z — this is the same
+      // Atan2(x, z) yaw convention as CommandSystem and WaveSpawnSystem, not a swapped axis.
       if (nav.Velocity.sqrMagnitude > FP64.Zero)
         transform.Rotation = FP64.Atan2(nav.Velocity.x, nav.Velocity.y);
 

@@ -10,7 +10,9 @@ namespace Meesles.Avalon.Sim.Navigation;
 ///   Deterministic uniform spatial hash over the XZ plane. Rebuilt once per tick (Clear + Insert)
 ///   and queried as a broad-phase for proximity lookups (target acquisition, avoidance, etc.) that
 ///   would otherwise scan every entity. Cell lookups are keyed by exact coordinates rather than
-///   dictionary enumeration, so results stay deterministic regardless of hash iteration order.
+///   dictionary enumeration, so query results stay deterministic regardless of hash iteration
+///   order. <see cref="Clear" /> does enumerate the dictionary, but only to return pooled lists —
+///   nothing sim-visible depends on that order.
 /// </summary>
 public class SpatialHashGrid {
   private readonly Dictionary<(int x, int z), List<(EntityRef Entity, FPVector2 Position)>> _cells = new();

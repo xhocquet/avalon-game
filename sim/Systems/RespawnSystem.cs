@@ -65,6 +65,7 @@ public class RespawnSystem : ISystem {
 
     transform.Position = SimulationSetup.GetHeroSpawnPositionForTeam(ref frame, team.TeamId);
     health.Current = health.Max;
+    health.LastDamagerUnitId = 0;
     frame.Remove<PendingRespawn>(entity);
     ClearActiveState(ref frame, entity, transform.Position);
 

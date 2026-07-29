@@ -10,8 +10,13 @@ namespace Meesles.Avalon;
 public class DeathSystem : ISystem {
   private readonly List<DeadUnitSnapshot> _deadUnits = [];
 
+  // Rebuilt from scratch on the first death of each tick and never read before that rebuild, so
+  // nothing here survives a rollback.
+  private readonly UnitLookup.Index _unitIdIndex = new();
+
   public void Update(ref Frame frame) {
     _deadUnits.Clear();
+    var indexBuilt = false;
 
     // Players die through RespawnSystem, not here.
     var filter = frame.FilterWithout<Unit, Health, Player>();
@@ -20,9 +25,15 @@ public class DeathSystem : ISystem {
       if (health.Current > 0)
         continue;
 
+      var lastDamagerUnitId = health.LastDamagerUnitId;
+      if (!indexBuilt) {
+        _unitIdIndex.Rebuild(ref frame);
+        indexBuilt = true;
+      }
+
       ref readonly var unit = ref frame.GetReadOnly<Unit>(entity);
       var destroyed = ResolveUnitContext(ref frame, entity);
-      var destroyer = ResolveDestroyerContext(ref frame, entity);
+      var destroyer = ResolveDestroyerContext(ref frame, lastDamagerUnitId);
       var position = FPVector3.Zero;
       if (frame.Has<TransformComponent>(entity))
         position = frame.GetReadOnly<TransformComponent>(entity).Position;
@@ -82,20 +93,13 @@ public class DeathSystem : ISystem {
     frame.EventRaiser.RaiseEvent(unitDied);
   }
 
-  private static UnitContext ResolveDestroyerContext(ref Frame frame, EntityRef deadEntity) {
-    UnitContext destroyer = default;
-    var filter = frame.Filter<Unit, Combat>();
-    while (filter.Next(out var attacker)) {
-      ref readonly var combat = ref frame.GetReadOnly<Combat>(attacker);
-      if (combat.Target != deadEntity)
-        continue;
+  // The killer is whoever landed the fatal hit, recorded by DamageSystem. It may already be dead
+  // itself this tick, but every destroy happens after the snapshot pass, so it still resolves.
+  private UnitContext ResolveDestroyerContext(ref Frame frame, int lastDamagerUnitId) {
+    if (lastDamagerUnitId == 0 || !_unitIdIndex.TryGet(lastDamagerUnitId, out var destroyer))
+      return default;
 
-      var candidate = ResolveUnitContext(ref frame, attacker);
-      if (destroyer.UnitId == 0 || candidate.UnitId < destroyer.UnitId)
-        destroyer = candidate;
-    }
-
-    return destroyer;
+    return ResolveUnitContext(ref frame, destroyer);
   }
 
   private static UnitContext ResolveUnitContext(ref Frame frame, EntityRef entity) {
