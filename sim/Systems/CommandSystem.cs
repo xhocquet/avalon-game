@@ -20,6 +20,9 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
   private readonly UnitLookup.Index _unitIndex = new();
 
   public void OnCommand(ref Frame frame, ICommand command) {
+    if (!CommandValidation.Accept(ref frame, command))
+      return;
+
     switch (command) {
       case MoveCommand move:
         HandleMoveCommand(ref frame, move);
@@ -67,6 +70,14 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
   }
 
   private static void HandleSelectFactionCommand(ref Frame frame, SelectFactionCommand command) {
+    // The pick only feeds HeroSpawnSystem. Once the hero exists it is settled, and a later pick would
+    // only re-skin the team's minions in the view layer.
+    if (TryGetPlayerHero(ref frame, command.PlayerId, out _)) {
+      frame.Logger.KInformation(
+        $"[Faction] REJECT tick={frame.Tick} playerId={command.PlayerId} factionId={command.FactionId} reason=hero_already_spawned");
+      return;
+    }
+
     var filter = frame.Filter<PlayerFaction>();
     while (filter.Next(out var entity)) {
       ref var slot = ref frame.Get<PlayerFaction>(entity);

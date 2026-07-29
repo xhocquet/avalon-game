@@ -27,6 +27,19 @@
 - Klotho asset id ranges (both the AssetId and wire TypeId planes) are tracked in `sim/Assets/AssetIds.cs`; allocate from the "next free" markers there.
 - Systems hold no tuning constants. Gameplay numbers live in `client/Sim/Data/Assets.json` and are read through `frame.AssetRegistry.Get<T>()`; after editing the JSON run `just` asset generation (`dotnet run --project tools/AssetGen`) to rebuild `Assets.bytes`.
 
+# Command Validation
+
+Command payloads come off the wire from untrusted peers, and nothing between the socket and the simulation catches an exception — LiteNetLib's `ProcessEvent`, `ServerNetworkService.HandleClientInputMessage`, and `ServerLoop.ExecuteCycle` all let one propagate, and `ServerLoop.Run` has no `catch`. A command that throws or corrupts state while deserializing takes the server process down with every room on it, so validation is not optional for a new command type.
+
+Every command passes through two layers before a handler runs:
+
+1. **Structural**, inside the command's own `DeserializeData`. A variable-length field must never size a buffer or advance the reader from an unchecked wire count. See [`UnitIdList.Deserialize`](Commands/UnitIdList.cs) for the pattern: reject a negative or over-cap count, refuse a count whose bytes are not present, skip a payload that is present but over-cap (catchup and spectator batches read several commands from one reader, so an unread payload misaligns the rest of the batch), and expose the verdict as an `IsValid` flag. Commands are pooled and only `PlayerId`/`Tick` are reset on rent, so every field the deserializer owns must be reassigned on every pass.
+2. **Domain**, in [`CommandValidation.Accept`](Commands/CommandValidation.cs), called once from `CommandSystem.OnCommand`. Checks that each field names something that can exist — a coordinate inside the world envelope, an asset id the registry knows. Handlers then spend their own checks on game state (ownership, gold, range), which is where those belong.
+
+Both layers run inside the simulation so client prediction and the authoritative server reach the same verdict for the same frame. Validating on the server ingest path instead would accept a command locally that the server discarded, and the client would mispredict every time.
+
+Wire limits live in [`CommandLimits`](Commands/CommandLimits.cs), not `Assets.json`: they must be identical on both sides and stable across recorded replays. `MaxSelectedUnits` is derived from the unreliable-datagram budget, since LiteNetLib throws rather than fragment an unreliable packet — an oversized selection would crash the sending client too.
+
 # Commands
 
 - Sim tests from repo root: `just test`
