@@ -35,10 +35,6 @@ Most of this is cosmetic, but it's the kind that accumulates:
 
 **Two hot paths do full O(n²) scans while a spatial grid sits unused next door.** `TargetAcquisitionSystem` correctly buckets candidates into a [`SpatialHashGrid`](sim/Navigation/SpatialHashGrid.cs) — but:
 
-- [`WaveSpawnSystem.GetFirstFreeSlot:46`](sim/Systems/WaveSpawnSystem.cs) probes slots in an unbounded `while` loop, and each probe (`IsSlotOccupied:54`) scans *every minion on the map* for that team. That's O(slots × minions) per wave-spawn tick, growing quadratically with wave size.
-
-Given the memory note about minion counts, `WaveSpawnSystem` is the one that will bite first.
-
 **[`DeathSystem.ResolveDestroyerContext:87-101`](sim/Systems/DeathSystem.cs) is both slow and wrong.** It runs a full `Filter<Unit, Combat>` scan *per dead unit*, and then attributes the kill to whichever attacker currently targeting the corpse has the **lowest `UnitId`** — not the one that landed the killing blow. [`DamageSystem:32`](sim/Systems/DamageSystem.cs) knows exactly who dealt the fatal damage and throws that away. Recording the last damager on the [`Health`](sim/Components/Health.cs) component would make attribution correct and delete the scan.
 
 ### Dead code
