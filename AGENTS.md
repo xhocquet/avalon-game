@@ -46,7 +46,8 @@ Config authority chain:
 
 # Testing
 
-- `just test` — xunit sim suite ([`tests/Avalon.Sim.Tests/`](tests/Avalon.Sim.Tests)): invariants, determinism baseline, combat, death, nav, scoring, spatial grid. [`SimHarness`](tests/Avalon.Sim.Tests/SimHarness.cs) boots a full sim with no Godot dependency.
+- `just test` — xunit sim suite ([`tests/Avalon.Sim.Tests/`](tests/Avalon.Sim.Tests)): invariants, determinism baseline, rollback determinism, combat, death, nav, scoring, spatial grid. [`SimHarness`](tests/Avalon.Sim.Tests/SimHarness.cs) boots a full sim with no Godot dependency.
+- **Rollback determinism**: the determinism baseline re-runs from tick 0, so it cannot catch a system cache that fails to roll back — both of its runs rebuild the cache identically. [`RollbackHarness`](tests/Avalon.Sim.Tests/RollbackHarness.cs) drives the shape prediction actually produces (server sim + client sim that mispredicts, rolls back, and resimulates) and is what to reach for when adding cross-tick state to a system. Any per-tick state a system remembers must live in frame state or an `ISnapshotParticipant`, or the discarded prediction branch leaks into the replay.
 - `just smoke` — boots server + 2 headless Godot clients, asserts `=== CLIENT OK ===` at tick 120 with no sim exceptions ([`scripts/smoke.ps1`](scripts/smoke.ps1)).
 - `just loadtest [ticks=1000]` — [`LoadTestHarness`](tests/Avalon.Sim.Tests/LoadTestHarness.cs) runs a headless sim, reporting per-system timings every 500 ticks.
 - `just loadtest-profile [ticks=10000]` — same under `dotnet-trace`; writes a Speedscope flame graph to `TestResults/loadtest/loadtest_profile.speedscope.json`.

@@ -15,8 +15,6 @@
 
 ### Determinism
 
-The obvious axis is clean: **zero** `float`, `double`, `Math.`, `DateTime`, `Random`, or LINQ anywhere in `sim/`. RNG is derived purely from `(worldSeed, featureKey, oasisId, tick)` ([`OasisSpawnSystem.cs:106-112`](sim/Systems/OasisSpawnSystem.cs)), ties break on `UnitId` ([`TargetAcquisitionSystem.cs:101`](sim/Systems/TargetAcquisitionSystem.cs), [`GroupFormation.cs:53`](sim/Navigation/GroupFormation.cs)), and `GetAuthoredTeamIds` sorts before use. [`SpatialHashGrid`](sim/Navigation/SpatialHashGrid.cs) keys cells by exact coordinate instead of enumerating the dictionary — deliberately, and documented.
-
 The problem is one axis nobody checked: **state that lives on a system instead of in the frame.**
 
 **[`NavigationAgentSystem._lastSnappedPositions`](sim/Systems/NavigationAgentSystem.cs) (`:35`, written at `:314`) is a rollback divergence vector.**

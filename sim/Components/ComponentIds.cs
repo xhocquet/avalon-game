@@ -32,6 +32,7 @@ public static class ComponentIds {
   public const int PickupIdCounter = 123;
   public const int MatchSetupState = 124;
   public const int MinionSettleTracker = 125;
+  public const int NavSnapTracker = 126;
 
-  // Next free id: 126
+  // Next free id: 127
 }

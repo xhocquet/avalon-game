@@ -32,7 +32,6 @@ public class NavigationAgentSystem : ISystem {
 
   // Spread-subset arrays for steering/avoidance phases
   private EntityRef[] _heroSubset = new EntityRef[16];
-  private FPVector3[] _lastSnappedPositions = new FPVector3[128];
   private int _minionCount;
 
   // Minion entities use flow fields
@@ -66,7 +65,7 @@ public class NavigationAgentSystem : ISystem {
       ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
 
       EnsureAllCapacity(_allCount + 1);
-      SyncAgentPosition(ref nav, transform.Position, _allCount, snapThresholdSqr);
+      SyncAgentPosition(ref frame, entity, ref nav, transform.Position, snapThresholdSqr);
       _allEntities[_allCount++] = entity;
 
       var isMinion = frame.Has<Minion>(entity);
@@ -295,14 +294,30 @@ public class NavigationAgentSystem : ISystem {
     return settle.StuckTicks >= tuning.SettleStuckTicks && distSqr <= settleZoneSqr;
   }
 
-  private void SyncAgentPosition(ref NavAgentComponent nav, FPVector3 position, int slotIndex,
-    FP64 snapThresholdSqr) {
-    var delta = position - _lastSnappedPositions[slotIndex];
-    var moveSqr = delta.x * delta.x + delta.z * delta.z;
+  // Re-snapping every agent onto the navmesh every tick is the expensive half of the position
+  // sync, so an agent that has barely moved since its last snap keeps its current triangle and is
+  // passed through untouched.
+  //
+  // The last-snapped position is read from NavSnapTracker — frame state, per entity — rather than
+  // from a system field. Both properties matter. Frame state because the branch below decides
+  // nav.Position, which becomes transform.Position: a copy that did not roll back would let a
+  // client's discarded prediction branch flip the choice on resimulation and land the unit
+  // somewhere the server never put it. Per entity because the alternative (an array indexed by
+  // position in this tick's filter order) re-points at a different agent whenever the agent set
+  // changes — a death, a spawn, a unit entering or leaving PendingRespawn.
+  private void SyncAgentPosition(ref Frame frame, EntityRef entity, ref NavAgentComponent nav,
+    FPVector3 position, FP64 snapThresholdSqr) {
+    var tracked = frame.Has<NavSnapTracker>(entity);
 
-    if (nav.CurrentTriangleIndex >= 0 && moveSqr < snapThresholdSqr) {
-      nav.Position = position;
-      return;
+    if (tracked && nav.CurrentTriangleIndex >= 0) {
+      ref readonly var snap = ref frame.GetReadOnly<NavSnapTracker>(entity);
+      var deltaX = position.x - snap.LastSnappedX;
+      var deltaZ = position.z - snap.LastSnappedZ;
+
+      if (deltaX * deltaX + deltaZ * deltaZ < snapThresholdSqr) {
+        nav.Position = position;
+        return;
+      }
     }
 
     var snapXZ = _navigation.Query.ClosestPointOnNavMesh(position.ToXZ(), out var snapTri);
@@ -313,7 +328,12 @@ public class NavigationAgentSystem : ISystem {
     if (snapTri >= 0)
       nav.CurrentTriangleIndex = snapTri;
 
-    _lastSnappedPositions[slotIndex] = nav.Position;
+    if (!tracked)
+      frame.Add(entity, new NavSnapTracker());
+
+    ref var updated = ref frame.Get<NavSnapTracker>(entity);
+    updated.LastSnappedX = nav.Position.x;
+    updated.LastSnappedZ = nav.Position.z;
   }
 
   private static bool DestinationChanged(in NavAgentComponent nav, FPVector3 target) {
@@ -329,7 +349,6 @@ public class NavigationAgentSystem : ISystem {
     var newSize = _allEntities.Length;
     while (newSize < required) newSize *= 2;
     Array.Resize(ref _allEntities, newSize);
-    Array.Resize(ref _lastSnappedPositions, newSize);
   }
 
   private static int BuildSpreadSubset(
