@@ -165,7 +165,7 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
 
   private void HandleMoveCommand(ref Frame frame, MoveCommand command) {
     var target = new FPVector3(command.TargetX, FP64.Zero, command.TargetZ);
-    if (command.UnitIdCount > 0) {
+    if (command.UnitIds.Count > 0) {
       ApplySelectedUnitTargets(ref frame, command, target);
       return;
     }
@@ -174,26 +174,24 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
   }
 
   private void HandleAttackCommand(ref Frame frame, AttackCommand command) {
-    _unitIndex.Rebuild(ref frame);
-    if (!TryResolveAttackTarget(ref frame, command, out var targetEntity, out var playerTeamId))
+    if (!CollectOrderedUnits(ref frame, command, _formationUnits, out var playerTeamId))
+      return;
+
+    if (!TryResolveAttackTarget(ref frame, command, playerTeamId, out var targetEntity))
       return;
 
     ref readonly var targetTransform = ref frame.GetReadOnly<TransformComponent>(targetEntity);
-    for (var i = 0; i < command.SourceUnitIdCount; i++) {
-      var sourceUnitId = command.GetSourceUnitId(i);
-      if (!_unitIndex.TryGetControllableTeamUnitById(ref frame, playerTeamId, sourceUnitId, out var sourceEntity))
-        continue;
-
-      SetAttackMoveTarget(ref frame, sourceEntity, targetTransform.Position);
-      SetAttackTarget(ref frame, sourceEntity, command.TargetUnitId);
+    for (var i = 0; i < _formationUnits.Count; i++) {
+      var source = _formationUnits[i];
+      SetAttackMoveTarget(ref frame, source.Entity, targetTransform.Position);
+      SetAttackTarget(ref frame, source.Entity, command.TargetUnitId);
       frame.Logger.KDebug(
-        $"[Combat] AttackCommand accepted tick={frame.Tick} playerId={command.PlayerId} sourceUnitId={sourceUnitId} targetUnitId={command.TargetUnitId} moveTarget=({targetTransform.Position.x}, {targetTransform.Position.z})");
+        $"[Combat] AttackCommand accepted tick={frame.Tick} playerId={command.PlayerId} sourceUnitId={source.UnitId} targetUnitId={command.TargetUnitId} moveTarget=({targetTransform.Position.x}, {targetTransform.Position.z})");
     }
   }
 
-  private bool TryResolveAttackTarget(ref Frame frame, AttackCommand command,
-    out EntityRef targetEntity, out int playerTeamId) {
-    playerTeamId = 0;
+  private bool TryResolveAttackTarget(ref Frame frame, AttackCommand command, int playerTeamId,
+    out EntityRef targetEntity) {
     if (!_unitIndex.TryGet(command.TargetUnitId, out targetEntity))
       return false;
 
@@ -203,9 +201,6 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
 
     ref readonly var health = ref frame.GetReadOnly<Health>(targetEntity);
     if (health.Current <= 0)
-      return false;
-
-    if (!UnitLookup.TryGetPlayerTeamId(ref frame, command.PlayerId, out playerTeamId))
       return false;
 
     ref readonly var targetTeam = ref frame.GetReadOnly<Team>(targetEntity);
@@ -231,8 +226,7 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
   }
 
   private void ApplySelectedUnitTargets(ref Frame frame, MoveCommand command, FPVector3 target) {
-    CollectSelectedUnits(ref frame, command, _formationUnits);
-    if (_formationUnits.Count == 0)
+    if (!CollectOrderedUnits(ref frame, command, _formationUnits, out _))
       return;
 
     var rules = frame.AssetRegistry.Get<MovementRulesAsset>();
@@ -247,21 +241,27 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
       SetTarget(ref frame, _formationUnits[i].Entity, _formationDestinations[i]);
   }
 
-  private void CollectSelectedUnits(ref Frame frame, MoveCommand command, List<FormationUnit> units) {
+  // Shared front half of every unit order: resolve the commanded ids to entities the issuing player
+  // actually controls, leaving _unitIndex rebuilt for the caller. False means the order has nobody
+  // to act on and should be dropped.
+  private bool CollectOrderedUnits(ref Frame frame, IUnitOrderCommand command, List<FormationUnit> units,
+    out int teamId) {
     units.Clear();
-    if (!UnitLookup.TryGetPlayerTeamId(ref frame, command.PlayerId, out var teamId))
-      return;
+    if (!UnitLookup.TryGetPlayerTeamId(ref frame, command.PlayerId, out teamId))
+      return false;
 
     _unitIndex.Rebuild(ref frame);
-    for (var i = 0; i < command.UnitIdCount; i++) {
-      var unitId = command.GetUnitId(i);
-      if (!_unitIndex.TryGetControllableTeamUnitById(ref frame, teamId, unitId, out var entity))
+    var unitIds = command.UnitIds;
+    for (var i = 0; i < unitIds.Count; i++) {
+      if (!_unitIndex.TryGetControllableTeamUnitById(ref frame, teamId, unitIds[i], out var entity))
         continue;
 
       ref readonly var unit = ref frame.GetReadOnly<Unit>(entity);
       ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
       units.Add(new FormationUnit(entity, unit.UnitId, frame.Has<Hero>(entity), transform.Position));
     }
+
+    return units.Count > 0;
   }
 
   private static void ApplyLocalHeroTarget(ref Frame frame, int playerId, FPVector3 target) {

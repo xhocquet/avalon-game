@@ -81,7 +81,7 @@ public class SimHarness {
     };
 
     foreach (int sourceUnitId in sourceUnitIds)
-      command.AddSourceUnitId(sourceUnitId);
+      command.UnitIds.Add(sourceUnitId);
 
     return command;
   }

@@ -179,7 +179,7 @@ public class SimInvariantTests {
 
     MinionSnapshot teamOneMinion = GetMinions(harness).First(minion => minion.TeamId == 1);
     var command = SimHarness.MoveCommand(1, 0, FP64.One, -FP64.One);
-    command.AddUnitId(teamOneMinion.UnitId);
+    command.UnitIds.Add(teamOneMinion.UnitId);
 
     harness.Tick(command);
 
@@ -208,7 +208,7 @@ public class SimInvariantTests {
         .First(unit => unit.TeamId == 1 && unit.UnitTypeId == SimulationSetup.TurretUnitTypeId);
 
     var command = SimHarness.MoveCommand(1, 0, FP64.One, -FP64.One);
-    command.AddUnitId(turret.UnitId);
+    command.UnitIds.Add(turret.UnitId);
 
     harness.Tick(command);
 
@@ -236,8 +236,8 @@ public class SimInvariantTests {
     // navmesh hole (central structure), so a group move there strands the A* hero and piles
     // minions at the rim — not what this test is exercising.
     var command = SimHarness.MoveCommand(1, 0, FP64.FromInt(-10), FP64.FromInt(10));
-    command.AddUnitId(hero.UnitId);
-    command.AddUnitId(minion.UnitId);
+    command.UnitIds.Add(hero.UnitId);
+    command.UnitIds.Add(minion.UnitId);
 
     harness.Tick(command);
     for (int tick = 0; tick < 12; tick++)
@@ -281,8 +281,8 @@ public class SimInvariantTests {
 
     // (-10, 10) is open ground; (0, 0) is inside the central navmesh hole and unreachable.
     var command = SimHarness.MoveCommand(1, 0, FP64.FromInt(-10), FP64.FromInt(10));
-    command.AddUnitId(hero.UnitId);
-    command.AddUnitId(minion.UnitId);
+    command.UnitIds.Add(hero.UnitId);
+    command.UnitIds.Add(minion.UnitId);
 
     harness.Tick(command);
     for (int tick = 0; tick < 800; tick++)
@@ -319,7 +319,7 @@ public class SimInvariantTests {
 
     var command = SimHarness.MoveCommand(1, 0, FP64.Zero, FP64.Zero);
     foreach (var minion in startMinions)
-      command.AddUnitId(minion.UnitId);
+      command.UnitIds.Add(minion.UnitId);
 
     harness.Tick(command);
     for (int tick = 0; tick < 60; tick++)

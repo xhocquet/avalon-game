@@ -76,13 +76,13 @@ public class SimCallbacks(
     if (_input != null && _input.TryConsumeAttackCommand(out var attackCommand)) {
       sender.Send(attackCommand);
       LogCommandSent("AttackCommand", tick, playerId,
-        $"targetUnitId={attackCommand.TargetUnitId} sourceCount={attackCommand.SourceUnitIdCount}");
+        $"targetUnitId={attackCommand.TargetUnitId} sourceCount={attackCommand.UnitIds.Count}");
       return;
     }
 
     if (_input != null && _input.TryConsumeMoveCommand(out var moveCommand)) {
       LogCommandSent("MoveCommand", tick, playerId,
-        $"target=({moveCommand.TargetX}, {moveCommand.TargetZ}) unitCount={moveCommand.UnitIdCount}");
+        $"target=({moveCommand.TargetX}, {moveCommand.TargetZ}) unitCount={moveCommand.UnitIds.Count}");
       sender.Send(moveCommand);
     }
   }

@@ -11,11 +11,11 @@ public class AttackCommandTests {
     var command = new AttackCommand { TargetUnitId = 99 };
 
     for (int i = 0; i < 12; i++)
-      command.AddSourceUnitId(i + 1);
+      command.UnitIds.Add(i + 1);
 
-    command.SourceUnitIdCount.Should().Be(12);
-    for (int i = 0; i < command.SourceUnitIdCount; i++)
-      command.GetSourceUnitId(i).Should().Be(i + 1);
+    command.UnitIds.Count.Should().Be(12);
+    for (int i = 0; i < command.UnitIds.Count; i++)
+      command.UnitIds[i].Should().Be(i + 1);
   }
 
   [Fact]
@@ -25,19 +25,19 @@ public class AttackCommandTests {
       Tick = 17,
       TargetUnitId = 44,
     };
-    original.AddSourceUnitId(10);
-    original.AddSourceUnitId(11);
-    original.AddSourceUnitId(12);
+    original.UnitIds.Add(10);
+    original.UnitIds.Add(11);
+    original.UnitIds.Add(12);
 
     var restored = RoundTrip(original);
 
     restored.PlayerId.Should().Be(2);
     restored.Tick.Should().Be(17);
     restored.TargetUnitId.Should().Be(44);
-    restored.SourceUnitIdCount.Should().Be(3);
-    restored.GetSourceUnitId(0).Should().Be(10);
-    restored.GetSourceUnitId(1).Should().Be(11);
-    restored.GetSourceUnitId(2).Should().Be(12);
+    restored.UnitIds.Count.Should().Be(3);
+    restored.UnitIds[0].Should().Be(10);
+    restored.UnitIds[1].Should().Be(11);
+    restored.UnitIds[2].Should().Be(12);
   }
 
   [Fact]
@@ -45,8 +45,8 @@ public class AttackCommandTests {
     var command = new AttackCommand { TargetUnitId = 44 };
     command.GetSerializedSize().Should().Be(18);
 
-    command.AddSourceUnitId(10);
-    command.AddSourceUnitId(11);
+    command.UnitIds.Add(10);
+    command.UnitIds.Add(11);
 
     command.GetSerializedSize().Should().Be(26);
   }

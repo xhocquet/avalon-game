@@ -13,41 +13,6 @@
 | ⬜ | Add model/team tinting for structure views. |
 | ⬜ | Multi-threaded A* — leverage 6-8 cores for parallel path queries. |
 
-### Determinism
-
-The problem is one axis nobody checked: **state that lives on a system instead of in the frame.**
-
-**[`NavigationAgentSystem._lastSnappedPositions`](sim/Systems/NavigationAgentSystem.cs) (`:35`, written at `:314`) is a rollback divergence vector.**
-
-```csharp
-// NavigationAgentSystem.cs:298-309
-var delta = position - _lastSnappedPositions[slotIndex];
-var moveSqr = delta.x * delta.x + delta.z * delta.z;
-if (nav.CurrentTriangleIndex >= 0 && moveSqr < snapThresholdSqr) {
-  nav.Position = position;   // skip the navmesh snap
-  return;
-}
-var snapXZ = _navigation.Query.ClosestPointOnNavMesh(...);  // …or snap, changing nav.Position
-```
-
-The branch taken decides whether `nav.Position` gets snapped, which feeds `transform.Position` at `:166`. The array is a plain field on the system — it is not frame state, so it does not roll back. A client that mispredicts and resimulates ticks T..T+n carries `_lastSnappedPositions` from the *mispredicted* run into the replay; the server never had those values. Different branch, different position.
-
-The codebase already knows this rule and states it twice:
-
-- [`MatchSetupState.cs:7`](sim/Components/MatchSetupState.cs) — *"Stored in frame state (not on the system) so it rolls back deterministically"*
-- [`UnitLookup.cs:89`](sim/UnitLookup.cs) — *"never cached across ticks: a stale index survives a rollback and resolves against a frame that no longer exists"*
-
-`NavigationAgentSystem` is the one system that breaks it. The other caches (`_heroAvoidanceGrid`, `_minionAvoidanceGrid`, `_candidateGrid`) are cleared and rebuilt every tick, so they're fine; [`FlowFieldCache`](sim/Navigation/FlowFieldCache.cs) derives from the static navmesh, also fine. Fix is to move the last-snapped position onto the nav agent (or a small component) so it rides the snapshot.
-
-Note the determinism baseline test won't catch this — running the sim twice from scratch produces identical `_lastSnappedPositions` both times. It only shows up under rollback.
---------------------------------------------------------------------------------------
-add rollback test to prove this issue^
---------------------------------------------------------------------------------------
-
-**The same array is indexed by iteration slot, not by entity.**
-
-`SyncAgentPosition(ref nav, transform.Position, _allCount, snapThresholdSqr)` at `:73` passes the running collection counter as the slot. Slot 3 is whichever agent happened to be 4th in filter order this tick. Spawn a minion, kill a hero, and slot 3 is a different unit — so the "has this agent moved far enough to re-snap?" test compares agent A's position against agent B's last snap. When it wrongly decides *not* to snap, `nav.CurrentTriangleIndex` is left stale while `nav.Position` takes the raw transform, which is how an agent drifts off-mesh with a bad triangle index. This is deterministic (both sides compute the same wrong answer), so it's a correctness bug rather than a desync — but it compounds the one above.
-
 ### Defensive code
 
 **[`MapLayoutAsset.TryGetByTypeAndTeam`](sim/Assets/MapLayoutAsset.cs) (`:19-22`) trusts the parallel-array invariant it can't see.** It null-checks `MarkerTypes`, then indexes `MarkerTeams[i]` and `MarkerPositions[i]` with the same `i`. A short or null companion array from a bad `Assets.json` throws deep inside world init. [`SimulationSetup.SpawnPickups:156`](sim/SimulationSetup.cs) does the right thing for the fourth array (`MarkerValues != null && i < MarkerValues.Length`) — the asset should enforce that for all four, once, rather than each caller remembering.

@@ -4,46 +4,24 @@ using xpTURN.Klotho.Serialization;
 namespace Meesles.Avalon.Sim.Commands;
 
 [KlothoSerializable(103)]
-public partial class AttackCommand : CommandBase {
-  private int[] _sourceUnitIds = new int[8];
-
+public partial class AttackCommand : CommandBase, IUnitOrderCommand {
   public int TargetUnitId;
   public override bool IsContinuousInput => false;
 
-  public int SourceUnitIdCount { get; private set; }
+  public UnitIdList UnitIds { get; } = new();
 
-  public void AddSourceUnitId(int unitId) {
-    if (SourceUnitIdCount == _sourceUnitIds.Length) {
-      var grown = new int[_sourceUnitIds.Length * 2];
-      _sourceUnitIds.CopyTo(grown, 0);
-      _sourceUnitIds = grown;
-    }
-
-    _sourceUnitIds[SourceUnitIdCount++] = unitId;
-  }
-
-  public int GetSourceUnitId(int index) {
-    return _sourceUnitIds[index];
-  }
-
-  // 12 header + 4 target unit id + 2 source count + 4 per source id
+  // 12 header + 4 target unit id + unit ids
   public override int GetSerializedSize() {
-    return 18 + SourceUnitIdCount * 4;
+    return 16 + UnitIds.SerializedSize;
   }
 
   protected override void SerializeData(ref SpanWriter writer) {
     writer.WriteInt32(TargetUnitId);
-    writer.WriteInt16((short)SourceUnitIdCount);
-    for (var i = 0; i < SourceUnitIdCount; i++)
-      writer.WriteInt32(_sourceUnitIds[i]);
+    UnitIds.Serialize(ref writer);
   }
 
   protected override void DeserializeData(ref SpanReader reader) {
     TargetUnitId = reader.ReadInt32();
-    SourceUnitIdCount = reader.ReadInt16();
-    if (_sourceUnitIds.Length < SourceUnitIdCount)
-      _sourceUnitIds = new int[SourceUnitIdCount];
-    for (var i = 0; i < SourceUnitIdCount; i++)
-      _sourceUnitIds[i] = reader.ReadInt32();
+    UnitIds.Deserialize(ref reader);
   }
 }

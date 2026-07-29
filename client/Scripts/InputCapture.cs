@@ -296,7 +296,7 @@ public class InputCapture : IDisposable {
 
     foreach (var view in _selectedViews) {
       if (!TryGetUnitId(view, out var unitId)) continue;
-      command.AddUnitId(unitId);
+      command.UnitIds.Add(unitId);
     }
 
     _pendingMoveCommand = command;
@@ -308,10 +308,10 @@ public class InputCapture : IDisposable {
 
     foreach (var view in _selectedViews) {
       if (!TryGetUnitId(view, out var unitId)) continue;
-      command.AddSourceUnitId(unitId);
+      command.UnitIds.Add(unitId);
     }
 
-    if (command.SourceUnitIdCount == 0)
+    if (command.UnitIds.Count == 0)
       return;
 
     _pendingAttackCommand = command;

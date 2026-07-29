@@ -63,7 +63,7 @@ public class AttackCommandExecutionTests {
     var (source, target) = SpawnFirstWave(harness);
 
     var move = SimHarness.MoveCommand(1, 0, FP64.One, -FP64.One);
-    move.AddUnitId(source.UnitId);
+    move.UnitIds.Add(source.UnitId);
     harness.Tick(move);
 
     HasMoveTarget(harness.Frame, source.UnitId).Should().BeTrue();
@@ -241,7 +241,7 @@ public class AttackCommandExecutionTests {
     HasCombatTarget(harness.Frame, source.UnitId).Should().BeTrue();
 
     var move = SimHarness.MoveCommand(1, 1, FP64.FromInt(5), FP64.FromInt(-5));
-    move.AddUnitId(source.UnitId);
+    move.UnitIds.Add(source.UnitId);
     harness.Tick(move);
 
     HasAttackTarget(harness.Frame, source.UnitId).Should().BeFalse();

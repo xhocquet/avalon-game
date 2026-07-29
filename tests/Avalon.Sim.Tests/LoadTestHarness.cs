@@ -76,9 +76,9 @@ public class LoadTestHarness {
       ref readonly var unit = ref frame.GetReadOnly<Unit>(entity);
       ref readonly var team = ref frame.GetReadOnly<Team>(entity);
       if (team.TeamId == 1)
-        cmd1.AddUnitId(unit.UnitId);
+        cmd1.UnitIds.Add(unit.UnitId);
       else if (team.TeamId == 2)
-        cmd2.AddUnitId(unit.UnitId);
+        cmd2.UnitIds.Add(unit.UnitId);
     }
 
     harness.Tick(cmd1, cmd2);
