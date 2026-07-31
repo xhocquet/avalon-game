@@ -11,7 +11,10 @@ public enum MapMarkerType {
 
 public enum StatType {
   Strength = 0,
-  GoldPerTick = 1
+  GoldPerTick = 1,
+  MoveSpeed = 2,
+  AttackSpeed = 3,
+  MaxHealth = 4
 }
 
 public enum MatchEndReason {

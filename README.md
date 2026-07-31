@@ -17,7 +17,6 @@
 
 **[`MapLayoutAsset.TryGetByTypeAndTeam`](sim/Assets/MapLayoutAsset.cs) (`:19-22`) trusts the parallel-array invariant it can't see.** It null-checks `MarkerTypes`, then indexes `MarkerTeams[i]` and `MarkerPositions[i]` with the same `i`. A short or null companion array from a bad `Assets.json` throws deep inside world init. [`SimulationSetup.SpawnPickups:156`](sim/SimulationSetup.cs) does the right thing for the fourth array (`MarkerValues != null && i < MarkerValues.Length`) — the asset should enforce that for all four, once, rather than each caller remembering.
 
-**Untrusted command payloads have no bound check.** [`MoveCommand.DeserializeData:44`](sim/Commands/MoveCommand.cs) and [`AttackCommand:41`](sim/Commands/AttackCommand.cs) read an `Int16` count off the wire and size an array from it with no cap. Complementary hole on the write side: `AddUnitId` grows unboxed past `short.MaxValue`, at which point `(short)UnitIdCount` truncates in `SerializeData` while `GetSerializedSize` returns the untruncated length — the two disagree about the frame size. A selection-size cap enforced in both `AddUnitId` and `DeserializeData` closes both ends.
 
 ### Style consistency
 
@@ -26,7 +25,7 @@ Most of this is cosmetic, but it's the kind that accumulates:
 - **Namespace vs. folder.** Every file in [`sim/Systems/`](sim/Systems) declares `namespace Meesles.Avalon`, while everything else in `sim/` uses `Meesles.Avalon.Sim`, `.Sim.Components`, `.Sim.Navigation`, etc. Systems are the only directory whose namespace doesn't track its path.
 - **[`Enums.cs`](sim/Enums.cs)** bundles three unrelated enums into a catch-all while every other type gets its own file.
 - **[`NavigationAgentSystem` field order](sim/Systems/NavigationAgentSystem.cs) (`:16-40`)** looks alphabetized by tooling — `_heroCount` sits between the grids and the hero arrays, `_minionCount` between `_lastSnappedPositions` and `_minionEntities`, splitting comment blocks from what they document.
-- **[`MinionStatsAsset`](sim/Assets/MinionStatsAsset.cs) is also the hero combat asset** ([`HeroFactory.cs:9`](sim/Factories/HeroFactory.cs) says so explicitly, and [`Combat`](sim/Components/Combat.cs)'s primary constructor at `:12` takes `MinionStatsAsset`). Meanwhile [`TurretFactory:26`](sim/Factories/TurretFactory.cs) can't use that constructor and hand-rolls the object initializer. The type is really `CombatStatsAsset`.
+- **[`TargetAcquisitionSystem:122`](sim/Systems/TargetAcquisitionSystem.cs) reads `MinionStatsAsset.AttackReacquireRangeMultiplier` for every attacker**, heroes and turrets included. Heroes now take their combat profile from [`HeroAsset`](sim/Assets/HeroAsset.cs), so this is the last field where the minion row still speaks for everyone; it's a rule, not a stat, and belongs on `CombatRulesAsset`.
 
 ### Organization & duplication
 

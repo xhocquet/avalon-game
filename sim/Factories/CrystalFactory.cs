@@ -18,6 +18,7 @@ public static class CrystalFactory {
     frame.Add(entity, new Team(teamId));
     frame.Add(entity, new Crystal { CrystalId = teamId });
     frame.Add(entity, new Health(stats.Health));
+    frame.Add(entity, new Stats { MaxHealth = stats.Health });
 
     return entity;
   }

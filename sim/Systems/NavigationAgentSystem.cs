@@ -66,6 +66,13 @@ public class NavigationAgentSystem : ISystem {
 
       EnsureAllCapacity(_allCount + 1);
       SyncAgentPosition(ref frame, entity, ref nav, transform.Position, snapThresholdSqr);
+
+      // Stats.MoveSpeed is the authority on how fast a unit moves; the agent's own Speed is a
+      // cache of it. Re-reading it every tick is what makes a speed item or slow debuff take
+      // effect, since the agent was seeded once at spawn and never hears about stat changes.
+      if (frame.Has<Stats>(entity))
+        nav.Speed = frame.GetReadOnly<Stats>(entity).MoveSpeed;
+
       _allEntities[_allCount++] = entity;
 
       var isMinion = frame.Has<Minion>(entity);

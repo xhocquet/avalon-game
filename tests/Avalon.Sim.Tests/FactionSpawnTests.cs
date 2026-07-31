@@ -30,7 +30,7 @@ public class FactionSpawnTests {
     harness.Tick(SimHarness.SelectFactionCommand(playerId: 1, tick: 0, factionId: FactionB));
 
     harness.Count<Hero>().Should().Be(1, "only player 1 has picked");
-    EntityRef hero = FindHero(harness, playerId: 1);
+    EntityRef hero = harness.FindHero(playerId: 1);
     harness.Frame.GetReadOnly<Faction>(hero).FactionId.Should().Be(FactionB);
   }
 
@@ -44,19 +44,8 @@ public class FactionSpawnTests {
       harness.Tick();
 
     harness.Count<Hero>().Should().Be(SimHarness.DefaultMaxPlayers);
-    harness.Frame.GetReadOnly<Faction>(FindHero(harness, playerId: 1)).FactionId.Should().Be(FactionA);
-    harness.Frame.GetReadOnly<Faction>(FindHero(harness, playerId: 2)).FactionId
+    harness.Frame.GetReadOnly<Faction>(harness.FindHero(playerId: 1)).FactionId.Should().Be(FactionA);
+    harness.Frame.GetReadOnly<Faction>(harness.FindHero(playerId: 2)).FactionId
       .Should().Be(SimulationSetup.DefaultFactionId);
-  }
-
-  private static EntityRef FindHero(SimHarness harness, int playerId) {
-    var frame = harness.Frame;
-    var filter = frame.Filter<Hero>();
-    while (filter.Next(out var entity)) {
-      if (frame.GetReadOnly<Hero>(entity).PlayerId == playerId)
-        return entity;
-    }
-
-    throw new System.InvalidOperationException($"No hero for player {playerId}.");
   }
 }

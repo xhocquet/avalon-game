@@ -6,8 +6,8 @@ namespace Meesles.Avalon;
 
 public class InventorySystem : ISystem {
   public void Update(ref Frame frame) {
-    var playerStats = frame.AssetRegistry.Get<PlayerStatsAsset>();
-    if (playerStats.GoldTickIntervalMs <= 0)
+    var matchRules = frame.AssetRegistry.Get<MatchRulesAsset>();
+    if (matchRules.GoldTickIntervalMs <= 0)
       return;
 
     var filter = frame.Filter<Inventory, Stats>();
@@ -16,8 +16,8 @@ public class InventorySystem : ISystem {
       ref var inventory = ref frame.Get<Inventory>(entity);
 
       inventory.GoldAccrualRemainderMs += frame.DeltaTimeMs;
-      while (inventory.GoldAccrualRemainderMs >= playerStats.GoldTickIntervalMs) {
-        inventory.GoldAccrualRemainderMs -= playerStats.GoldTickIntervalMs;
+      while (inventory.GoldAccrualRemainderMs >= matchRules.GoldTickIntervalMs) {
+        inventory.GoldAccrualRemainderMs -= matchRules.GoldTickIntervalMs;
         inventory.Gold += goldPerTick;
       }
     }

@@ -11,7 +11,7 @@ public class SimHarnessTests {
   public void CreateInitialized_LoadsAssetsAndCreatesInitialWorld() {
     var harness = SimHarness.CreateInitialized();
 
-    harness.AssetRegistry.Get<PlayerStatsAsset>().Should().NotBeNull();
+    harness.AssetRegistry.Get<MatchRulesAsset>().Should().NotBeNull();
     harness.AssetRegistry.Get<WaveRulesAsset>().Should().NotBeNull();
 
     harness.Count<Hero>().Should().Be(2);

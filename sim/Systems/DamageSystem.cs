@@ -1,6 +1,7 @@
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Core;
+using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Logging;
 
@@ -35,7 +36,7 @@ public class DamageSystem : ISystem {
         health.Current = 0;
       health.LastDamagerUnitId = attackerUnitId;
 
-      combat.CooldownRemainingTicks = combat.AttackCooldownTicks;
+      combat.CooldownRemainingTicks = GetCooldownTicks(ref frame, attacker, in combat);
 
       if (frame.EventRaiser != null) {
         var evt = EventPool.Get<AttackHitEvent>();
@@ -59,6 +60,20 @@ public class DamageSystem : ISystem {
   // Attackers without a Stats block (nothing today, but structures/summons may skip it) deal nothing.
   private static int GetAttackDamage(ref Frame frame, EntityRef attacker) {
     return frame.Has<Stats>(attacker) ? frame.GetReadOnly<Stats>(attacker).AttackDamage : 0;
+  }
+
+  // Combat.AttackCooldownTicks is the unit's base period; Stats.AttackSpeed is the multiplier items
+  // and skills move. Dividing here rather than storing a modified period means bonuses stay additive
+  // on the rate (two +50% items give ×2, not ×2.25) and rounding happens once per attack instead of
+  // compounding. Rounds to nearest tick, floors at 1 so no attack speed can fire twice in a tick.
+  private static int GetCooldownTicks(ref Frame frame, EntityRef attacker, in Combat combat) {
+    var attackSpeed = frame.Has<Stats>(attacker) ? frame.GetReadOnly<Stats>(attacker).AttackSpeed : FP64.One;
+    if (attackSpeed <= FP64.Zero)
+      return combat.AttackCooldownTicks;
+
+    var half = FP64.One / FP64.FromInt(2);
+    var ticks = (FP64.FromInt(combat.AttackCooldownTicks) / attackSpeed + half).ToInt();
+    return ticks < 1 ? 1 : ticks;
   }
 
   private static bool TryGetDamageTarget(ref Frame frame, EntityRef attacker, EntityRef target,

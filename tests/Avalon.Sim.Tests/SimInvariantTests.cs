@@ -473,8 +473,7 @@ public class SimInvariantTests {
     system.Update(ref frame);
 
     hero = FindHeroEntity(harness, playerId: 1);
-    ref readonly var health = ref frame.GetReadOnly<Health>(hero);
-    health.Current.Should().Be(health.Max);
+    frame.GetReadOnly<Health>(hero).Current.Should().Be(frame.GetReadOnly<Stats>(hero).MaxHealth);
     frame.Has<PendingRespawn>(hero).Should().BeFalse();
     FPVector3 spawnPosition = SimulationSetup.GetHeroSpawnPositionForTeam(ref frame, teamId: 1);
     frame.GetReadOnly<TransformComponent>(hero).Position.Should().Be(spawnPosition);

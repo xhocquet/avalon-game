@@ -178,10 +178,11 @@ public class AttackCommandExecutionTests {
     FPVector3 targetPosition = GetPosition(harness.Frame, unitId: 2);
     SetPosition(harness, unitId: 3, targetPosition + new FPVector3(FP64.One, FP64.Zero, FP64.Zero));
     int startHealth = GetHealth(harness.Frame, unitId: 2);
+    int attackDamage = GetAttackDamage(harness.Frame, unitId: 3);
 
     harness.Tick(SimHarness.AttackCommand(1, 0, targetUnitId: 2, sourceUnitIds: 3));
 
-    GetHealth(harness.Frame, unitId: 2).Should().Be(startHealth - 10);
+    GetHealth(harness.Frame, unitId: 2).Should().Be(startHealth - attackDamage);
   }
 
   [Fact]
@@ -372,6 +373,12 @@ public class AttackCommandExecutionTests {
     TryGetEntityByUnitId(frame, unitId, out var entity).Should().BeTrue();
     frame.Has<Health>(entity).Should().BeTrue();
     return frame.GetReadOnly<Health>(entity).Current;
+  }
+
+  private static int GetAttackDamage(Frame frame, int unitId) {
+    TryGetEntityByUnitId(frame, unitId, out var entity).Should().BeTrue();
+    frame.Has<Stats>(entity).Should().BeTrue();
+    return frame.GetReadOnly<Stats>(entity).AttackDamage;
   }
 
   private static int GetCooldown(Frame frame, int unitId) {

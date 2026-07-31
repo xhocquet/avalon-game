@@ -29,20 +29,20 @@ public class SimHarness {
   }
 
   public static SimHarness CreateInitialized(
-      int maxPlayers = DefaultMaxPlayers,
-      int maxEntities = DefaultMaxEntities,
-      int maxRollbackTicks = DefaultMaxRollbackTicks,
-      int deltaTimeMs = DefaultDeltaTimeMs,
-      bool spawnHeroesNow = true) {
+    int maxPlayers = DefaultMaxPlayers,
+    int maxEntities = DefaultMaxEntities,
+    int maxRollbackTicks = DefaultMaxRollbackTicks,
+    int deltaTimeMs = DefaultDeltaTimeMs,
+    bool spawnHeroesNow = true) {
     WarmupRegistry.RunAll();
 
     var assetRegistry = LoadAssetRegistry();
     var navigation = LoadNavigationRuntime();
     var simulation = new EcsSimulation(
-        maxEntities,
-        maxRollbackTicks,
-        deltaTimeMs,
-        assetRegistry: assetRegistry);
+      maxEntities,
+      maxRollbackTicks,
+      deltaTimeMs,
+      assetRegistry: assetRegistry);
 
     SimulationSetup.RegisterSystems(simulation, navigation);
     simulation.Initialize();
@@ -70,10 +70,10 @@ public class SimHarness {
   }
 
   public static Meesles.Avalon.Sim.Commands.AttackCommand AttackCommand(
-      int playerId,
-      int tick,
-      int targetUnitId,
-      params int[] sourceUnitIds) {
+    int playerId,
+    int tick,
+    int targetUnitId,
+    params int[] sourceUnitIds) {
     var command = new Meesles.Avalon.Sim.Commands.AttackCommand {
       PlayerId = playerId,
       Tick = tick,
@@ -86,13 +86,24 @@ public class SimHarness {
     return command;
   }
 
-  public static Meesles.Avalon.Sim.Commands.SelectFactionCommand SelectFactionCommand(
-      int playerId, int tick, int factionId) {
-    return new Meesles.Avalon.Sim.Commands.SelectFactionCommand {
+  public static Commands.SelectFactionCommand SelectFactionCommand(
+    int playerId, int tick, int factionId) {
+    return new Commands.SelectFactionCommand {
       PlayerId = playerId,
       Tick = tick,
       FactionId = factionId,
     };
+  }
+
+  public EntityRef FindHero(int playerId) {
+    var frame = Frame;
+    var filter = frame.Filter<Components.Hero>();
+    while (filter.Next(out var entity)) {
+      if (frame.GetReadOnly<Components.Hero>(entity).PlayerId == playerId)
+        return entity;
+    }
+
+    throw new InvalidOperationException($"No hero for player {playerId}.");
   }
 
   public int Count<TComponent>() where TComponent : unmanaged, IComponent {

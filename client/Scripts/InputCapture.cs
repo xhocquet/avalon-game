@@ -251,13 +251,13 @@ public class InputCapture : IDisposable {
       : ground;
   }
 
-  // The unit whose approach direction anchors target snapping: the selected champion if present,
+  // The unit whose approach direction anchors target snapping: the selected hero if present,
   // else the first selected unit, else the focus hero (covers the no-selection hero move where the
   // command carries no unit ids and the sim moves the player's own hero).
   private EntityViewNode GetMoveOriginView() {
-    var champion = GetSelectedChampionView();
-    if (champion != null)
-      return champion;
+    var hero = GetSelectedHeroView();
+    if (hero != null)
+      return hero;
     if (_selectedViews.Count > 0)
       return _selectedViews[0];
 
@@ -475,14 +475,12 @@ public class InputCapture : IDisposable {
 
     UpdateContextShop();
 
-    // Prefer the player's champion when it's part of the selection so a mixed group (hero + minions)
-    // always shows the hero portrait, rather than whatever unit happens to be first in the list.
-    var championView = GetSelectedChampionView();
-    var view = championView ?? (_selectedViews.Count > 0 ? _selectedViews[0] : null);
+    // Prefer the player's hero portrait
+    var heroView = GetSelectedHeroView();
+    var view = heroView ?? (_selectedViews.Count > 0 ? _selectedViews[0] : null);
 
-    // Named props/structures (turret, crystal, shop, fountain, pickup) show their own label. If the
-    // named view also resolves a faction (not currently the case for these) we reuse its portrait,
-    // otherwise the label stands alone with no portrait texture.
+    // Named props/structures (turret, crystal, shop, fountain, pickup) show their own label.
+    // Factions show theirs. Fallback to 'todo' image
     if (view is INamedView named) {
       Texture2D portrait = null;
       if (_factions != null && TryResolveHeroFactionId(view, out var namedFactionId))
@@ -495,9 +493,9 @@ public class InputCapture : IDisposable {
       var entry = _factions.Resolve(factionId);
       var label = entry.DisplayName;
 
-      // When the champion is the rendered portrait and minions are selected alongside it, surface
+      // When the hero is the rendered portrait and minions are selected alongside it, surface
       // the extra unit count next to the name (e.g. "Merlin +20").
-      if (championView != null) {
+      if (heroView != null) {
         var minionCount = CountSelectedMinions();
         if (minionCount > 0)
           label = $"{label} +{minionCount}";
@@ -510,9 +508,7 @@ public class InputCapture : IDisposable {
     _gameUI.SetFocusPortrait(null, null);
   }
 
-  // A shop is "in context" for the action bar only when it's the sole selection (single-click
-  // inspect). Selecting your own units clears it. The action bar re-checks proximity every frame,
-  // so this just tells it which shop (if any) the player is looking at.
+  // Only applied when the shop is sole selected
   private void UpdateContextShop() {
     var shop = _selectedViews.Count == 1 && _selectedViews[0] is ShopEntity s ? s : null;
     if (ReferenceEquals(shop, _contextShop)) return;
@@ -521,8 +517,8 @@ public class InputCapture : IDisposable {
     _gameUI?.SetContextShop(shop);
   }
 
-  // The player's champion (hero) if one is part of the current selection.
-  private EntityViewNode GetSelectedChampionView() {
+  // The player's hero if one is part of the current selection.
+  private EntityViewNode GetSelectedHeroView() {
     foreach (var view in _selectedViews)
       if (IsHeroView(view))
         return view;
@@ -530,7 +526,7 @@ public class InputCapture : IDisposable {
     return null;
   }
 
-  // Count of selected controllable units that aren't the champion, i.e. the minion tail of a
+  // Count of selected controllable units that aren't the hero, i.e. the minion tail of a
   // mixed selection. Structures/props (no unit id) don't count.
   private int CountSelectedMinions() {
     var count = 0;

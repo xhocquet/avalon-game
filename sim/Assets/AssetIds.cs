@@ -8,13 +8,10 @@ namespace Meesles.Avalon.Sim.Assets;
 // TypeIds at the bottom are the [KlothoDataAsset(typeId)] wire discriminator, one per class.
 // Everything else is a runtime AssetId, one per row in client/Sim/Data/Assets.json. Single-instance
 // assets reuse their type id as their instance id. Multi-instance assets get a block of their own —
-// factions at 200, shop items at 300 — since their rows keep multiplying and would otherwise chew
-// through the type-id range.
-//
-// Kept in numeric order (not grouped by file) so gaps and duplicate ids are visible at a glance.
+// factions at 200, shop items at 300, heroes at 400 — since their rows keep multiplying and would
+// otherwise chew through the type-id range.
 public static class AssetIds {
   // Single-instance assets: one row each in Assets.json, resolved via AssetRegistry.Get<T>().
-  public const int PlayerStats = 100;
   public const int WaveRules = 101;
   public const int MapLayout = 102;
   public const int MinionStats = 103;
@@ -27,26 +24,27 @@ public static class AssetIds {
   public const int NavigationTuning = 112;
   public const int CombatRules = 113;
 
-  // FactionAsset rows. Hero scenes and portraits for these ids live in FactionCatalog.
+  // FactionAsset, FactionCatalog
   public const int FactionHairyWizards = 200;
   public const int FactionShrooms = 201;
-
   // Next free faction id: 202
 
-  // ShopItemAsset rows. Icons and display names for these ids live in ShopItemCatalog.
+  // ShopItemAsset, ShopItemCatalog
   public const int ShopItemEyeKey = 300;
   public const int ShopItemFlowerBlade = 301;
   public const int ShopItemPatchCoat = 302;
   public const int ShopItemSmileyBomb = 303;
   public const int ShopItemSpikeBook = 304;
   public const int ShopItemSquirtGun = 305;
-
   // Next free shop item id: 306
+
+  // One HeroAsset per hero -> FactionAsset
+  public const int HeroHairyWizard = 400;
+  public const int HeroShroom = 401;
 
   // What the deserializer dispatches on to pick a type. Every asset class has one, including the
   // multi-instance ones that own no id above.
   public static class TypeIds {
-    public const int PlayerStats = 100;
     public const int WaveRules = 101;
     public const int MapLayout = 102;
     public const int MinionStats = 103;
@@ -60,7 +58,6 @@ public static class AssetIds {
     public const int PickupRules = 111;
     public const int NavigationTuning = 112;
     public const int CombatRules = 113;
-
-    // Next free type id: 114
+    public const int Hero = 114;
   }
 }

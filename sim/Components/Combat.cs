@@ -5,13 +5,27 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Components;
 
-// Attack reach and cadence plus the currently acquired target. TargetAcquisitionSystem picks
-// targets, AttackIntentSystem/DamageSystem resolve them.
+// Represents an in-progress attack
 [KlothoComponent(ComponentIds.Combat)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public partial struct Combat(MinionStatsAsset stats) : IComponent {
-  public FP64 AttackRange = stats.AttackRange;
-  public int AttackCooldownTicks = stats.AttackCooldownTicks;
-  public int CooldownRemainingTicks = 0;
+public partial struct Combat : IComponent {
+  public FP64 AttackRange;
+  public int AttackCooldownTicks;
+  public int CooldownRemainingTicks;
   public EntityRef Target;
+
+  public static Combat From(HeroAsset stats) => new() {
+    AttackRange = stats.AttackRange,
+    AttackCooldownTicks = stats.AttackCooldownTicks
+  };
+
+  public static Combat From(MinionStatsAsset stats) => new() {
+    AttackRange = stats.AttackRange,
+    AttackCooldownTicks = stats.AttackCooldownTicks
+  };
+
+  public static Combat From(TurretStatsAsset stats) => new() {
+    AttackRange = stats.AttackRange,
+    AttackCooldownTicks = stats.AttackCooldownTicks
+  };
 }

@@ -34,6 +34,7 @@ public static class SimulationSetup {
     simulation.AddSystem(new PickupSystem(), SystemPhase.Update);
     simulation.AddSystem(new TargetAcquisitionSystem(), SystemPhase.Update);
     simulation.AddSystem(new RespawnSystem(), SystemPhase.Update);
+    simulation.AddSystem(new HeroBehaviorSystem(), SystemPhase.Update);
     if (navigation != null)
       simulation.AddSystem(new NavigationAgentSystem(navigation), SystemPhase.Update);
     simulation.AddSystem(new AttackIntentSystem(), SystemPhase.Update);
@@ -98,11 +99,20 @@ public static class SimulationSetup {
   }
 
   public static void SpawnHero(ref Frame frame, int playerId, int teamId, int factionId) {
-    var playerStats = frame.AssetRegistry.Get<PlayerStatsAsset>();
-    var combatStats = frame.AssetRegistry.Get<MinionStatsAsset>();
+    var heroAsset = GetHeroAssetForFaction(ref frame, factionId);
+    var matchRules = frame.AssetRegistry.Get<MatchRulesAsset>();
     var initialPos = GetHeroSpawnPositionForTeam(ref frame, teamId);
 
-    HeroFactory.Spawn(ref frame, playerStats, combatStats, initialPos, playerId, teamId, factionId);
+    HeroFactory.Spawn(ref frame, heroAsset, matchRules, initialPos, playerId, teamId, factionId);
+  }
+
+  private static HeroAsset GetHeroAssetForFaction(ref Frame frame, int factionId) {
+    var faction = frame.AssetRegistry.Get<FactionAsset>(factionId);
+    if (frame.AssetRegistry.TryGet<HeroAsset>(faction.HeroAssetId, out var heroAsset))
+      return heroAsset;
+
+    throw new InvalidOperationException(
+      $"FactionAsset {factionId} names HeroAssetId {faction.HeroAssetId}, which is not in Assets.bytes.");
   }
 
   private static void SpawnTeamTurrets(ref Frame frame, List<int> teamIds, MapLayoutAsset layout) {

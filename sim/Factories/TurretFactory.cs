@@ -19,12 +19,8 @@ public static class TurretFactory {
     frame.Add(entity, new Team(teamId));
     frame.Add(entity, new Turret { TurretId = teamId * 100 + turretIndex });
     frame.Add(entity, new Health(stats.Health));
-    frame.Add(entity, new Stats { Strength = stats.AttackDamage });
-    frame.Add(entity, new Combat {
-      AttackRange = stats.AttackRange,
-      AttackCooldownTicks = stats.AttackCooldownTicks,
-      CooldownRemainingTicks = 0
-    });
+    frame.Add(entity, new Stats { Strength = stats.AttackDamage, MaxHealth = stats.Health });
+    frame.Add(entity, Combat.From(stats));
 
     return entity;
   }

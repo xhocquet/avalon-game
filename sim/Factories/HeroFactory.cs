@@ -1,13 +1,13 @@
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
+using Meesles.Avalon.Sim.Heroes;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Factories;
 
 public static class HeroFactory {
-  // Heroes draw their attack profile from MinionStatsAsset and everything else from PlayerStatsAsset.
-  public static EntityRef Spawn(ref Frame frame, PlayerStatsAsset playerStats, MinionStatsAsset combatStats,
+  public static EntityRef Spawn(ref Frame frame, HeroAsset heroAsset, MatchRulesAsset matchRules,
     FPVector3 position, int playerId, int teamId, int factionId) {
     var entity = frame.CreateEntity();
 
@@ -16,7 +16,7 @@ public static class HeroFactory {
     frame.Add(entity, new Player { PlayerId = playerId });
     frame.Add(entity, new Team(teamId));
     frame.Add(entity, new Faction(factionId));
-    frame.Add(entity, new Hero(playerId));
+    frame.Add(entity, new Hero(playerId, heroAsset.AssetId));
     frame.Add(entity, new Unit {
       UnitId = UnitLookup.NextUnitId(ref frame),
       UnitTypeId = SimulationSetup.PlayerUnitTypeId
@@ -24,12 +24,17 @@ public static class HeroFactory {
     frame.Add(entity, new Controllable());
     frame.Add(entity, new Inventory());
     frame.Add(entity, new Stats {
-      Strength = combatStats.AttackDamage,
-      GoldPerTick = playerStats.StartingGoldPerTick
+      Strength = heroAsset.AttackDamage,
+      MaxHealth = heroAsset.Health,
+      MoveSpeed = heroAsset.MoveSpeed,
+      GoldPerTick = matchRules.StartingGoldPerTick
     });
-    frame.Add(entity, new Health(playerStats.Health));
-    frame.Add(entity, new Combat(combatStats));
-    frame.Add(entity, NavAgentFactory.At(ref frame, position, playerStats.MoveSpeed, playerStats.Radius));
+    frame.Add(entity, new Health(heroAsset.Health));
+    frame.Add(entity, Combat.From(heroAsset));
+    frame.Add(entity, NavAgentFactory.At(ref frame, position, heroAsset.MoveSpeed, heroAsset.Radius));
+
+    // Register hero-specific logic
+    HeroBehaviors.Get(heroAsset.BehaviorId).OnSpawn(ref frame, entity, heroAsset);
 
     return entity;
   }

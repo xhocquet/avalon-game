@@ -184,20 +184,16 @@ public partial class GameUI : CanvasLayer, IViewHud {
     }
   }
 
-  // HP is continuous state (damage, heals, respawn resets), so it is read from the frame every
-  // tick rather than pushed via SimEventHub - polling stays correct through rollback and never
-  // misses an intermediate value. The local hero entity persists through death (Health.Current
-  // drops to 0) and respawn (refilled to Max), so this reflects the dead/respawning window too.
   private void UpdateLocalPlayerHealth(Frame frame) {
     if (_localPlayerId is not int localId) return;
 
-    var filter = frame.Filter<Hero, Health>();
+    var filter = frame.Filter<Hero, Health, Stats>();
     while (filter.Next(out var entity)) {
       ref readonly var hero = ref frame.GetReadOnly<Hero>(entity);
       if (hero.PlayerId != localId) continue;
 
       ref readonly var health = ref frame.GetReadOnly<Health>(entity);
-      SetPlayerHealth(health.Current, health.Max);
+      SetPlayerHealth(health.Current, frame.GetReadOnly<Stats>(entity).MaxHealth);
       return;
     }
   }

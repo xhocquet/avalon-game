@@ -29,6 +29,7 @@
          Klotho generated code is supplied by the analyzer under obj/. -->
     <Compile Include="$(SimRoot)/*.cs"     Link="Sim/%(Filename)%(Extension)" />
     <Compile Include="$(SimRoot)/Assets/**/*.cs"   Link="Sim/Assets/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="$(SimRoot)/Heroes/**/*.cs" Link="Sim/Heroes/%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="$(SimRoot)/Commands/**/*.cs" Link="Sim/Commands/%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="$(SimRoot)/Events/**/*.cs"   Link="Sim/Events/%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="$(SimRoot)/Components/**/*.cs" Link="Sim/Components/%(RecursiveDir)%(Filename)%(Extension)" />

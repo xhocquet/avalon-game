@@ -1,14 +1,5 @@
 [
   {
-    "$type": "Meesles.Avalon.Sim.Assets.PlayerStatsAsset, Meesles.Avalon.Client",
-    "AssetId": 100,
-    "MoveSpeed": 5.0,
-    "Health": 100,
-    "Radius": 0.5,
-    "StartingGoldPerTick": 1,
-    "GoldTickIntervalMs": 1000
-  },
-  {
     "$type": "Meesles.Avalon.Sim.Assets.WaveRulesAsset, Meesles.Avalon.Client",
     "AssetId": 101,
     "FirstWaveDelayTicks": 30,
@@ -59,7 +50,9 @@
     "MatchDuration": 300.0,
     "SetupGraceTicks": 30,
     "RespawnDelayMs": 5000,
-    "DeathScorePenalty": 1
+    "DeathScorePenalty": 1,
+    "GoldTickIntervalMs": 1000,
+    "StartingGoldPerTick": 1
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.PickupRulesAsset, Meesles.Avalon.Client",
@@ -100,15 +93,13 @@
   {
     "$type": "Meesles.Avalon.Sim.Assets.FactionAsset, Meesles.Avalon.Client",
     "AssetId": 200,
-    "ChampionUnitTypeId": 10,
-    "MinionUnitTypeId": 2,
+    "HeroAssetId": 400,
     "MinionStatsAssetId": 103
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.FactionAsset, Meesles.Avalon.Client",
     "AssetId": 201,
-    "ChampionUnitTypeId": 11,
-    "MinionUnitTypeId": 2,
+    "HeroAssetId": 401,
     "MinionStatsAssetId": 103
   },
   {
@@ -146,5 +137,27 @@
     "AssetId": 305,
     "Cost": 10,
     "AttackBonus": 10
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.HeroAsset, Meesles.Avalon.Client",
+    "AssetId": 400,
+    "BehaviorId": 0,
+    "Health": 90,
+    "MoveSpeed": 5.0,
+    "Radius": 0.5,
+    "AttackDamage": 12,
+    "AttackRange": 6.0,
+    "AttackCooldownTicks": 36
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.HeroAsset, Meesles.Avalon.Client",
+    "AssetId": 401,
+    "BehaviorId": 0,
+    "Health": 130,
+    "MoveSpeed": 4.5,
+    "Radius": 0.6,
+    "AttackDamage": 8,
+    "AttackRange": 3.0,
+    "AttackCooldownTicks": 24
   }
 ]

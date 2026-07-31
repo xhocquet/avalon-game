@@ -5,8 +5,6 @@ using xpTURN.Klotho.Serialization;
 namespace Meesles.Avalon.Sim.Assets;
 
 // Instance id is AssetIds.MovementRules; look it up with Get<MovementRulesAsset>().
-// Tuning for how ordered moves resolve: when a unit counts as arrived, and how a selected group
-// lays itself out around the click. See GroupFormation for what the layout fields mean.
 [KlothoDataAsset(AssetIds.TypeIds.MovementRules, AssetId = AssetIds.MovementRules, Key = "MovementRules")]
 public partial class MovementRulesAsset : IDataAsset {
   // Distance at which a directly-moved unit drops its move target instead of creeping the last bit.

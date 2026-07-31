@@ -40,21 +40,22 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
   }
 
   public void Update(ref Frame frame) {
-    var stats = frame.AssetRegistry.Get<PlayerStatsAsset>();
     var rules = frame.AssetRegistry.Get<MovementRulesAsset>();
 
     var dt = FP64.FromInt(frame.DeltaTimeMs) / FP64.FromInt(1000);
-    var step = stats.MoveSpeed * dt;
 
-    var filter = frame.Filter<UnitMoveTarget, TransformComponent>();
+    // Stats is in the filter because it carries the speed: a unit with no stat block has no speed
+    // to move at, and every unit that can be ordered around (hero, minion) has one.
+    var filter = frame.Filter<UnitMoveTarget, TransformComponent, Stats>();
     while (filter.Next(out var entity)) {
       if (!_moveNavAgentsDirectly && frame.Has<NavAgentComponent>(entity))
         continue;
 
       ref var moveTarget = ref frame.Get<UnitMoveTarget>(entity);
       ref var transform = ref frame.Get<TransformComponent>(entity);
-
+      var step = frame.GetReadOnly<Stats>(entity).MoveSpeed * dt;
       var toTarget = moveTarget.Target - transform.Position;
+
       toTarget.y = FP64.Zero;
       var dist = toTarget.magnitude;
       if (dist <= rules.StopDistance) {

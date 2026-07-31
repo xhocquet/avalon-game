@@ -5,6 +5,19 @@
 - Both sides call `SimulationSetup.RegisterSystems(...)` and `SimulationSetup.InitializeWorld(...)` through their `ISimulationCallbacks` implementations.
 - Godot client callbacks poll local input and send commands; server callbacks do not poll local input because Klotho injects client commands into the authoritative server simulation.
 
+# Heroes
+
+- A hero's numbers come from [`HeroAsset`](Assets/HeroAsset.cs) (rows in the `AssetIds.Hero*` block), reached via `FactionAsset.HeroAssetId`. `PlayerStatsAsset` is gone: its hero stats moved here and its gold fields to `MatchRulesAsset`.
+- An asset row is only the **spawn seed**. Live values that skills and items change belong on a component, and changes route through `Stats.Add(StatType, delta)` rather than writing fields. Never read a live value back off the asset.
+  - `MoveSpeed` → `Stats.MoveSpeed`; `NavigationAgentSystem` pushes it onto the nav agent every tick, `CommandSystem`'s direct-move path reads it.
+  - `AttackDamage` → `Stats.Strength`; `AttackRange` → `Combat.AttackRange`; `Health` → `Stats.MaxHealth` (`Health` holds only the current HP, which is transient state rather than a buffable stat).
+  - `AttackCooldownTicks` is the **base period** and stays put in `Combat`; `Stats.AttackSpeed` is the multiplier, and `DamageSystem` divides at the moment of the hit so bonuses stay additive on the rate and rounding never compounds.
+- The spawned entity stores `Hero.HeroAssetId`, so any system can get back to the row without going through the faction.
+- Hero-specific *code* lives in an [`IHeroBehavior`](Heroes/IHeroBehavior.cs) selected by `HeroAsset.BehaviorId` through [`HeroBehaviors.Get`](Heroes/HeroBehaviors.cs). `HeroFactory` calls `OnSpawn`; [`HeroBehaviorSystem`](Systems/HeroBehaviorSystem.cs) calls `OnTick` for every hero each tick.
+- Behaviors are **stateless singletons**. Components are the only rollback-safe storage — a field on a behavior survives a rollback and desyncs the client. Add a component in `OnSpawn` and mutate it in `OnTick`.
+- Components can't be subclassed (they are `[StructLayout(Sequential)]` structs snapshot by value), and adding a hero must never change the component layout heroes share.
+- Adding a hero: allocate an id in `AssetIds`, add the row to `Assets.json`, regenerate `Assets.bytes`, point a `FactionAsset` at it. Code is only needed when it wants behavior no existing `BehaviorId` covers.
+
 # Navigation & Temporal Spreading
 
 - `NavigationAgentSystem` handles all unit movement: hero A* pathfinding, minion flow-field steering, ORCA avoidance, and movement integration.
