@@ -5,22 +5,20 @@
 [ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="3_sj0n2"]
 
 [node name="Minion" unique_id=2050480386 instance=ExtResource("1_b1to5")]
-transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)
 script = ExtResource("2_nr8yw")
 
 [node name="Armature" parent="." index="0" unique_id=614863133]
-transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0.34673035, 0)
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 0, 0.052888036, 0)
 
 [node name="Skeleton3D" parent="Armature" index="0" unique_id=1902076970]
-bones/1/position = Vector3(-0.49685666, -0.008610994, 3.7511633e-08)
-bones/2/rotation = Quaternion(-0.004458361, 0.04289488, 0.99371636, -0.1032864)
-bones/3/rotation = Quaternion(-0.04495596, -0.013380039, -0.34940556, 0.9357968)
-bones/4/rotation = Quaternion(-0.08349863, -0.10392694, 0.74947995, 0.64846516)
-bones/5/rotation = Quaternion(0.11034905, -0.015826799, 0.10150197, 0.98856974)
-bones/6/rotation = Quaternion(0.0027329251, -0.032487478, 0.9959505, -0.08378346)
-bones/7/rotation = Quaternion(0.06528977, -0.00021297109, -0.17876862, 0.9817225)
-bones/8/rotation = Quaternion(0.029831063, 0.072537445, 0.6693201, 0.7388228)
-bones/9/rotation = Quaternion(-0.05701319, 0.008985507, 0.09848775, 0.99346316)
+bones/2/rotation = Quaternion(-0.013106903, 0.041085936, 0.9518099, -0.30364135)
+bones/3/rotation = Quaternion(-0.04763698, -0.0045998986, -0.12012323, 0.9916048)
+bones/4/rotation = Quaternion(-0.093129724, -0.09398459, 0.67777944, 0.7232626)
+bones/5/rotation = Quaternion(0.10950934, -0.024628336, 0.15794869, 0.9810471)
+bones/6/rotation = Quaternion(-0.008490303, -0.03147737, 0.9649828, 0.2602793)
+bones/7/rotation = Quaternion(0.042219616, -0.0009191678, -0.77149785, 0.6348289)
+bones/8/rotation = Quaternion(0.0319489, 0.06579116, 0.6070707, 0.7912749)
+bones/9/rotation = Quaternion(-0.05449833, 0.028035268, 0.30728787, 0.94964105)
 
 [node name="SelectionIndicator" parent="." index="1" unique_id=1272106412 instance=ExtResource("3_sj0n2")]
-transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 0, 0.04, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, 0)

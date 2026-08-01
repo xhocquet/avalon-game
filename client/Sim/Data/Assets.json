@@ -93,13 +93,36 @@
   {
     "$type": "Meesles.Avalon.Sim.Assets.FactionAsset, Meesles.Avalon.Client",
     "AssetId": 200,
+    "_Name": "Hairy Wizards",
     "HeroAssetId": 400,
     "MinionStatsAssetId": 103
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.FactionAsset, Meesles.Avalon.Client",
     "AssetId": 201,
+    "_Name": "Shrooms",
     "HeroAssetId": 401,
+    "MinionStatsAssetId": 103
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.FactionAsset, Meesles.Avalon.Client",
+    "AssetId": 202,
+    "_Name": "Crystal Warriors",
+    "HeroAssetId": 402,
+    "MinionStatsAssetId": 103
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.FactionAsset, Meesles.Avalon.Client",
+    "AssetId": 203,
+    "_Name": "Skinwalker Tribe",
+    "HeroAssetId": 403,
+    "MinionStatsAssetId": 103
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.FactionAsset, Meesles.Avalon.Client",
+    "AssetId": 204,
+    "_Name": "Pickle Knights",
+    "HeroAssetId": 404,
     "MinionStatsAssetId": 103
   },
   {
@@ -159,5 +182,38 @@
     "AttackDamage": 8,
     "AttackRange": 3.0,
     "AttackCooldownTicks": 24
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.HeroAsset, Meesles.Avalon.Client",
+    "AssetId": 402,
+    "BehaviorId": 0,
+    "Health": 170,
+    "MoveSpeed": 3.8,
+    "Radius": 0.75,
+    "AttackDamage": 18,
+    "AttackRange": 3.5,
+    "AttackCooldownTicks": 45
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.HeroAsset, Meesles.Avalon.Client",
+    "AssetId": 403,
+    "BehaviorId": 0,
+    "Health": 100,
+    "MoveSpeed": 6.0,
+    "Radius": 0.45,
+    "AttackDamage": 14,
+    "AttackRange": 2.5,
+    "AttackCooldownTicks": 30
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.HeroAsset, Meesles.Avalon.Client",
+    "AssetId": 404,
+    "BehaviorId": 0,
+    "Health": 150,
+    "MoveSpeed": 4.4,
+    "Radius": 0.6,
+    "AttackDamage": 16,
+    "AttackRange": 3.0,
+    "AttackCooldownTicks": 40
   }
 ]

@@ -9,7 +9,7 @@ public partial class MinionEntity : TeamEntityViewNode, IAttackableView {
   private const string UnitsGroup = "units";
   private const string AnimRun = "Run";
   private const string AnimIdle = "Stand";
-  private static readonly Quaternion FlipY = new(Vector3.Up, Mathf.Pi);
+  // private static readonly Quaternion FlipY = new(Vector3.Up, Mathf.Pi);
 
   [Export] public string WalkAnimationOverride { get; set; } = "";
   [Export] public string IdleAnimationOverride { get; set; } = "";
@@ -92,9 +92,9 @@ public partial class MinionEntity : TeamEntityViewNode, IAttackableView {
     PlayOrStop(_isMoving ? RunAnim : IdleAnim);
   }
 
-  public override void OnLateUpdateView() {
-    Quaternion *= FlipY;
-  }
+  // public override void OnLateUpdateView() {
+  //   Quaternion *= FlipY;
+  // }
 
   public override bool OwnerMatches(int ownerId) {
     return _ownerId == ownerId;

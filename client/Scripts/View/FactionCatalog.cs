@@ -11,6 +11,9 @@ namespace Meesles.Avalon;
 public class FactionCatalog {
   public const int FactionHairyWizardsId = AssetIds.FactionHairyWizards;
   public const int FactionShroomsId = AssetIds.FactionShrooms;
+  public const int FactionCrystalWarriorsId = AssetIds.FactionCrystalWarriors;
+  public const int FactionSkinwalkerTribeId = AssetIds.FactionSkinwalkerTribe;
+  public const int FactionPickleKnightsId = AssetIds.FactionPickleKnights;
   public const int DefaultFactionId = FactionHairyWizardsId;
 
   public static readonly FactionDef[] FactionDefs = [
@@ -21,7 +24,21 @@ public class FactionCatalog {
     new(FactionShroomsId, "Shrooms",
       "res://Scenes/Heroes/SnailHead.tscn",
       "res://Scenes/Mobs/DeathSnail.tscn",
-      "res://Assets/Portraits/SnailHead.png")
+      "res://Assets/Portraits/SnailHead.png"),
+    new(FactionCrystalWarriorsId, "Crystal Warriors",
+      "res://Scenes/Heroes/CrystalGiant.tscn",
+      "res://Scenes/Mobs/CrystalTurtle.tscn",
+      "res://Assets/Portraits/CrystalWarrior.png"),
+    // No minion model of its own yet — borrows the Hairy Wizards' SwirlyEye as a stand-in.
+    new(FactionSkinwalkerTribeId, "Skinwalker Tribe",
+      "res://Scenes/Heroes/Skinwalker.tscn",
+      "res://Scenes/Mobs/SwirlyEye.tscn",
+      "res://Assets/Portraits/Skinwalker.png"),
+    // No minion model of its own yet — borrows the Shrooms' DeathSnail as a stand-in.
+    new(FactionPickleKnightsId, "Pickle Knights",
+      "res://Scenes/Heroes/PickleKnight.tscn",
+      "res://Scenes/Mobs/DeathSnail.tscn",
+      "res://Assets/Portraits/PickleKnight.png")
   ];
 
   private readonly Dictionary<int, FactionData> _byId = new();

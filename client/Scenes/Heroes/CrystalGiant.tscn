@@ -1,0 +1,61 @@
+[gd_scene format=3 uid="uid://mlocswueicgs"]
+
+[ext_resource type="PackedScene" uid="uid://lanienht7xp5" path="res://Assets/Heroes/CrystalWarriors/crystalgiant_multianimation.glb" id="1_t5jg0"]
+[ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="2_73r7p"]
+[ext_resource type="Script" uid="uid://cvasfy5yhl8gr" path="res://Scripts/View/HeroEntity.cs" id="2_hero"]
+
+[node name="CrystalKnight" unique_id=189552492 instance=ExtResource("1_t5jg0")]
+script = ExtResource("2_hero")
+WalkAnimationOverride = "preset_biped_run"
+IdleAnimationOverride = "preset_biped_idle"
+
+[node name="Armature" parent="." index="0" unique_id=1182412071]
+transform = Transform3D(-3.5762787e-07, 0, -4.0000005, 0, 4, 0, 4.0000005, 0, -3.5762787e-07, 0, 0, 0)
+
+[node name="Skeleton3D" parent="Armature" index="0" unique_id=351287092]
+bones/0/rotation = Quaternion(-0.49597603, 0.5039917, 0.503992, 0.49597597)
+bones/2/rotation = Quaternion(0.15757401, 0.8247349, 0.37403426, -0.3938034)
+bones/3/rotation = Quaternion(0.99379075, 0.048753355, 0.015209482, -0.09885213)
+bones/4/rotation = Quaternion(-0.06862352, 7.693081e-05, -0.0041025463, 0.9976342)
+bones/5/rotation = Quaternion(0.68894285, -0.12658657, 0.026073989, 0.7131997)
+bones/6/rotation = Quaternion(0.027733393, 0.007935536, -0.05142079, 0.9982604)
+bones/7/rotation = Quaternion(8.624768e-07, 0.00016553968, -2.0222453e-07, 1)
+bones/8/rotation = Quaternion(-3.844983e-06, 0.001541591, 3.0013007e-07, 0.9999988)
+bones/9/rotation = Quaternion(-5.741499e-06, 8.6464686e-05, -6.3649066e-05, 1)
+bones/10/rotation = Quaternion(-8.018547e-06, -8.64531e-05, 5.4315795e-05, 1)
+bones/11/rotation = Quaternion(0.9757874, -0.016375642, -0.02072894, -0.21712005)
+bones/12/rotation = Quaternion(-1.664757e-05, 0.0019713375, 7.607512e-06, 0.99999815)
+bones/13/rotation = Quaternion(-2.3457675e-07, -0.0019714772, -2.6451798e-07, 0.99999815)
+bones/14/rotation = Quaternion(-0.32284322, -0.03279228, -0.0065690116, 0.9458614)
+bones/15/rotation = Quaternion(0.804631, 0.17015895, -0.13488188, 0.5526498)
+bones/16/rotation = Quaternion(0.06312849, -0.007016702, 0.058207642, 0.9962818)
+bones/17/rotation = Quaternion(-6.978544e-05, 0.00028732535, -1.0622811e-05, 1)
+bones/18/rotation = Quaternion(-0.00016538115, -0.0017392843, 8.547363e-05, 0.99999857)
+bones/19/rotation = Quaternion(0.18792965, 0.8038293, 0.41037187, -0.38747373)
+bones/20/rotation = Quaternion(0.17269248, -0.0010272439, 0.014111937, 0.9848742)
+bones/21/rotation = Quaternion(0.034411907, -0.001034479, 0.014153936, 0.999307)
+bones/22/rotation = Quaternion(-0.19448061, -0.00065720594, -0.0075464793, 0.9808771)
+bones/23/rotation = Quaternion(0.0062530693, -0.0006284023, -0.005565882, 0.9999648)
+bones/24/rotation = Quaternion(0.053466927, -0.0026606536, -0.022306679, 0.9983169)
+bones/25/rotation = Quaternion(-0.6625306, 0.74814975, 0.027652837, 0.023675546)
+bones/26/rotation = Quaternion(-0.24919152, -0.024196532, -0.66684145, 0.7018836)
+bones/27/rotation = Quaternion(0.2828162, 0.085043915, -0.033751596, 0.9548002)
+bones/28/rotation = Quaternion(-9.163374e-07, 0.0024700405, 5.790795e-09, 0.99999696)
+bones/29/rotation = Quaternion(-4.7965987e-06, -0.0013881319, -6.514249e-07, 0.99999905)
+bones/30/rotation = Quaternion(0.18902509, 0.1724119, -0.25071728, 0.9336404)
+bones/31/rotation = Quaternion(4.7039893e-07, 0.0018454149, -1.3020518e-06, 0.9999984)
+bones/32/rotation = Quaternion(-1.2893343e-06, -0.0018450884, 1.7945512e-06, 0.9999984)
+bones/33/rotation = Quaternion(0.6967527, 0.7163418, 0.019990394, -0.031472925)
+bones/34/rotation = Quaternion(-0.29406807, 0.11264788, 0.62082857, 0.71791804)
+bones/35/rotation = Quaternion(3.4629867e-08, -0.0010330263, 6.430435e-07, 0.99999946)
+bones/36/rotation = Quaternion(-1.0140236e-06, 0.0010332926, -1.2438368e-06, 0.99999946)
+bones/37/rotation = Quaternion(0.21654056, -0.102617085, 0.07607111, 0.96788085)
+bones/38/rotation = Quaternion(-4.05334e-07, 2.0961026e-05, -3.7020015e-07, 1)
+bones/39/rotation = Quaternion(-5.2569358e-06, -9.283009e-05, -1.1071051e-07, 1)
+bones/40/rotation = Quaternion(-0.12765813, -0.19587512, 0.01006492, 0.972232)
+
+[node name="AnimationPlayer" parent="." index="1" unique_id=113289965]
+autoplay = &"preset_biped_idle"
+
+[node name="SelectionIndicator" parent="." index="2" unique_id=2143077504 instance=ExtResource("2_73r7p")]
+transform = Transform3D(1.4, 0, 0, 0, 1.4, 0, 0, 0, 1.4, 0, 0.04, 0)

@@ -27,7 +27,10 @@ public static class AssetIds {
   // FactionAsset, FactionCatalog
   public const int FactionHairyWizards = 200;
   public const int FactionShrooms = 201;
-  // Next free faction id: 202
+  public const int FactionCrystalWarriors = 202;
+  public const int FactionSkinwalkerTribe = 203;
+  public const int FactionPickleKnights = 204;
+  // Next free faction id: 205
 
   // ShopItemAsset, ShopItemCatalog
   public const int ShopItemEyeKey = 300;
@@ -41,6 +44,10 @@ public static class AssetIds {
   // One HeroAsset per hero -> FactionAsset
   public const int HeroHairyWizard = 400;
   public const int HeroShroom = 401;
+  public const int HeroCrystalGiant = 402;
+  public const int HeroSkinwalker = 403;
+  public const int HeroPickleKnight = 404;
+  // Next free hero id: 405
 
   // What the deserializer dispatches on to pick a type. Every asset class has one, including the
   // multi-instance ones that own no id above.
