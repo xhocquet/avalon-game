@@ -10,7 +10,7 @@ WalkAnimationOverride = "preset_biped_run"
 IdleAnimationOverride = "preset_biped_idle"
 
 [node name="Armature" parent="." index="0" unique_id=1492386888]
-transform = Transform3D(3.5, 0, 0, 0, 3.5, 0, 0, 0, 3.5, 0, 0, 0)
+transform = Transform3D(0, 0, -3.4999998, 0, 3.5, 0, 3.4999998, 0, 0, 0, 0, 0)
 
 [node name="Skeleton3D" parent="Armature" index="0" unique_id=574249132]
 bones/0/rotation = Quaternion(-0.49597603, 0.5039917, 0.503992, 0.49597597)
