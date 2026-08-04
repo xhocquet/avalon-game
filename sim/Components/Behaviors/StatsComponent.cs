@@ -9,8 +9,8 @@ namespace Meesles.Avalon.Sim.Components;
 [KlothoComponent(ComponentIds.Stats)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public partial struct StatsComponent() : IComponent {
-  public int Strength = 100;
-  public int Defense = 100;
+  public int Strength = 10;
+  public int Defense = 10;
   public int MaxHealth = 0;
   public FP64 MoveSpeed = FP64.Zero;
   public FP64 AttackSpeed = FP64.One;
@@ -22,6 +22,9 @@ public partial struct StatsComponent() : IComponent {
     switch (statType) {
       case StatType.Strength:
         Strength += delta.ToInt();
+        break;
+      case StatType.Defense:
+        Defense += delta.ToInt();
         break;
       case StatType.MaxHealth:
         MaxHealth += delta.ToInt();

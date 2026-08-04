@@ -16,7 +16,8 @@
     "AttackRange": 4.0,
     "AttackCooldownTicks": 30,
     "AttackReacquireRangeMultiplier": 3.0,
-    "Radius": 0.3
+    "Radius": 0.3,
+    "Defense": 10
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.TurretStatsAsset, Meesles.Avalon.Client",
@@ -24,12 +25,15 @@
     "Health": 100,
     "AttackDamage": 10,
     "AttackRange": 12.0,
-    "AttackCooldownTicks": 30
+    "AttackCooldownTicks": 30,
+    "AttackReacquireRangeMultiplier": 1.0,
+    "Defense": 10
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.CrystalStatsAsset, Meesles.Avalon.Client",
     "AssetId": 107,
-    "Health": 100
+    "Health": 100,
+    "Defense": 10
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.ShopRulesAsset, Meesles.Avalon.Client",
@@ -184,7 +188,9 @@
     "Radius": 0.5,
     "AttackDamage": 12,
     "AttackRange": 6.0,
-    "AttackCooldownTicks": 36
+    "AttackCooldownTicks": 36,
+    "AttackReacquireRangeMultiplier": 3.0,
+    "Defense": 10
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.HeroAsset, Meesles.Avalon.Client",
@@ -195,7 +201,9 @@
     "Radius": 0.6,
     "AttackDamage": 8,
     "AttackRange": 3.0,
-    "AttackCooldownTicks": 24
+    "AttackCooldownTicks": 24,
+    "AttackReacquireRangeMultiplier": 3.0,
+    "Defense": 10
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.HeroAsset, Meesles.Avalon.Client",
@@ -206,7 +214,9 @@
     "Radius": 0.75,
     "AttackDamage": 18,
     "AttackRange": 3.5,
-    "AttackCooldownTicks": 45
+    "AttackCooldownTicks": 45,
+    "AttackReacquireRangeMultiplier": 3.0,
+    "Defense": 10
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.HeroAsset, Meesles.Avalon.Client",
@@ -217,7 +227,9 @@
     "Radius": 0.45,
     "AttackDamage": 14,
     "AttackRange": 2.5,
-    "AttackCooldownTicks": 30
+    "AttackCooldownTicks": 30,
+    "AttackReacquireRangeMultiplier": 3.0,
+    "Defense": 10
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.HeroAsset, Meesles.Avalon.Client",
@@ -228,6 +240,8 @@
     "Radius": 0.6,
     "AttackDamage": 16,
     "AttackRange": 3.0,
-    "AttackCooldownTicks": 40
+    "AttackCooldownTicks": 40,
+    "AttackReacquireRangeMultiplier": 3.0,
+    "Defense": 10
   }
 ]

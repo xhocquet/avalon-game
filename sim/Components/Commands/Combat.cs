@@ -10,22 +10,26 @@ namespace Meesles.Avalon.Sim.Components;
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public partial struct Combat : IComponent {
   public FP64 AttackRange;
+  public FP64 AttackReacquireRangeMultiplier;
   public int AttackCooldownTicks;
   public int CooldownRemainingTicks;
   public EntityRef Target;
 
   public static Combat From(HeroAsset stats) => new() {
     AttackRange = stats.AttackRange,
+    AttackReacquireRangeMultiplier = stats.AttackReacquireRangeMultiplier,
     AttackCooldownTicks = stats.AttackCooldownTicks
   };
 
   public static Combat From(MinionStatsAsset stats) => new() {
     AttackRange = stats.AttackRange,
+    AttackReacquireRangeMultiplier = stats.AttackReacquireRangeMultiplier,
     AttackCooldownTicks = stats.AttackCooldownTicks
   };
 
   public static Combat From(TurretStatsAsset stats) => new() {
     AttackRange = stats.AttackRange,
+    AttackReacquireRangeMultiplier = stats.AttackReacquireRangeMultiplier,
     AttackCooldownTicks = stats.AttackCooldownTicks
   };
 }

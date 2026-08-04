@@ -231,6 +231,7 @@ public class DeathSystemTests {
     frame.Add(entity, new Health(100));
     frame.Add(entity, new Combat {
       AttackRange = FP64.FromInt(2),
+      AttackReacquireRangeMultiplier = FP64.FromInt(3),
       AttackCooldownTicks = 30,
       CooldownRemainingTicks = 0,
     });

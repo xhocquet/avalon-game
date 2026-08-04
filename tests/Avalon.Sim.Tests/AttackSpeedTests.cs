@@ -45,7 +45,11 @@ public class AttackSpeedTests {
 
     var attacker = SpawnMinion(ref frame, FPVector3.Zero, teamId: 1, health: 100);
     frame.Add(attacker, new StatsComponent { Strength = 10, AttackSpeed = attackSpeed });
-    frame.Add(attacker, new Combat { AttackRange = FP64.FromInt(3), AttackCooldownTicks = BaseCooldownTicks });
+    frame.Add(attacker, new Combat {
+      AttackRange = FP64.FromInt(3),
+      AttackReacquireRangeMultiplier = FP64.FromInt(3),
+      AttackCooldownTicks = BaseCooldownTicks
+    });
 
     var target = SpawnMinion(ref frame, new FPVector3(FP64.One, FP64.Zero, FP64.Zero), teamId: 2, health: 10000);
     frame.Add(target, new StatsComponent { Strength = 0 });

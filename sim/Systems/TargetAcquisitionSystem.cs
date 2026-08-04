@@ -31,7 +31,8 @@ public class TargetAcquisitionSystem : ISystem {
       ref readonly var combat = ref frame.GetReadOnly<Combat>(attacker);
       ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(attacker);
 
-      if (!TryAcquireTarget(ref frame, attacker, transform.Position, combat.AttackRange, out var targetUnitId))
+      var radius = combat.AttackRange * combat.AttackReacquireRangeMultiplier;
+      if (!TryAcquireTarget(ref frame, attacker, transform.Position, radius, out var targetUnitId))
         continue;
 
       frame.Add(attacker, new AttackTargetUnitId { TargetUnitId = targetUnitId });
@@ -61,9 +62,8 @@ public class TargetAcquisitionSystem : ISystem {
   }
 
   private bool TryAcquireTarget(ref Frame frame, EntityRef attacker,
-    FPVector3 attackerPosition, FP64 attackRange, out int targetUnitId) {
+    FPVector3 attackerPosition, FP64 radius, out int targetUnitId) {
     targetUnitId = 0;
-    var radius = GetAcquisitionRadius(ref frame, attacker, attackRange);
     var found = false;
     var bestPriority = int.MaxValue;
     var bestUnitId = int.MaxValue;
@@ -101,14 +101,10 @@ public class TargetAcquisitionSystem : ISystem {
       return 0;
     if (frame.Has<Hero>(entity))
       return 1;
+    if (frame.Has<Turret>(entity))
+      return 2;
+    if (frame.Has<Crystal>(entity))
+      return 3;
     return int.MaxValue;
-  }
-
-  private static FP64 GetAcquisitionRadius(ref Frame frame, EntityRef attacker, FP64 attackRange) {
-    if (frame.Has<Turret>(attacker))
-      return attackRange;
-
-    var stats = frame.AssetRegistry.Get<MinionStatsAsset>();
-    return attackRange * stats.AttackReacquireRangeMultiplier;
   }
 }

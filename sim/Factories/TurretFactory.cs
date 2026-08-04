@@ -19,7 +19,11 @@ public static class TurretFactory {
     frame.Add(entity, new TeamComponent(teamId));
     frame.Add(entity, new Turret { TurretId = teamId * 100 + turretIndex });
     frame.Add(entity, new Health(stats.Health));
-    frame.Add(entity, new StatsComponent { Strength = stats.AttackDamage, MaxHealth = stats.Health });
+    frame.Add(entity, new StatsComponent {
+      Strength = stats.AttackDamage,
+      MaxHealth = stats.Health,
+      Defense = stats.Defense
+    });
     frame.Add(entity, Combat.From(stats));
 
     return entity;

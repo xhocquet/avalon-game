@@ -52,7 +52,7 @@ public class ExperienceSystem : ISystem {
       return;
 
     var evt = EventPool.Get<HeroLeveledUpEvent>();
-    evt.UnitId = frame.Has<UnitIdComponent>(entity) ? frame.GetReadOnly<UnitIdComponent>(entity).UnitId : 0;
+    evt.UnitId = UnitLookup.GetUnitId(ref frame, entity);
     evt.PlayerId = frame.GetReadOnly<Hero>(entity).PlayerId;
     evt.Level = level;
     evt.Position = frame.Has<TransformComponent>(entity)

@@ -73,7 +73,7 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
   private static void HandleSelectFactionCommand(ref Frame frame, SelectFactionCommand command) {
     // The pick only feeds HeroSpawnSystem. Once the hero exists it is settled, and a later pick would
     // only re-skin the team's minions in the view layer.
-    if (TryGetPlayerHero(ref frame, command.PlayerId, out _)) {
+    if (UnitLookup.TryGetPlayerHero(ref frame, command.PlayerId, out _)) {
       frame.Logger.KInformation(
         $"[Faction] REJECT tick={frame.Tick} playerId={command.PlayerId} factionId={command.FactionId} reason=hero_already_spawned");
       return;
@@ -92,7 +92,7 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
   }
 
   private static void HandlePurchaseItemCommand(ref Frame frame, PurchaseItemCommand command) {
-    if (!TryGetPlayerHero(ref frame, command.PlayerId, out var heroEntity)) {
+    if (!UnitLookup.TryGetPlayerHero(ref frame, command.PlayerId, out var heroEntity)) {
       frame.Logger.KInformation(
         $"[Shop] REJECT tick={frame.Tick} playerId={command.PlayerId} reason=no_hero_for_player");
       return;
@@ -136,10 +136,6 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
 
     frame.Logger.KInformation(
       $"[Shop] ACCEPT tick={frame.Tick} playerId={command.PlayerId} itemId={command.ItemAssetId} cost={item.Cost} +str={item.AttackBonus} goldLeft={inventory.Gold} strengthNow={stats.Strength} items={inventory.ItemCount}");
-  }
-
-  private static bool TryGetPlayerHero(ref Frame frame, int playerId, out EntityRef heroEntity) {
-    return UnitLookup.TryGetPlayerHero(ref frame, playerId, out heroEntity);
   }
 
   private static bool IsHeroNearTeamShop(ref Frame frame, EntityRef heroEntity) {
@@ -201,7 +197,7 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
       return false;
 
     ref readonly var health = ref frame.GetReadOnly<Health>(targetEntity);
-    if (health.Current <= 0)
+    if (!health.IsAlive)
       return false;
 
     ref readonly var targetTeam = ref frame.GetReadOnly<TeamComponent>(targetEntity);

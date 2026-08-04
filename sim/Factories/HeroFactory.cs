@@ -28,7 +28,8 @@ public static class HeroFactory {
       Strength = heroAsset.AttackDamage,
       MaxHealth = heroAsset.Health,
       MoveSpeed = heroAsset.MoveSpeed,
-      GoldPerTick = matchRules.StartingGoldPerTick
+      GoldPerTick = matchRules.StartingGoldPerTick,
+      Defense = heroAsset.Defense
     });
     frame.Add(entity, new Health(heroAsset.Health));
     frame.Add(entity, Combat.From(heroAsset));

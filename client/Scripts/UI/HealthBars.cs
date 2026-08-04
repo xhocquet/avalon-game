@@ -42,7 +42,7 @@ public partial class HealthBars : ColorRect {
 
       ref readonly var health = ref frame.GetReadOnly<Health>(evn.EntityRef);
       var maxHealth = frame.GetReadOnly<StatsComponent>(evn.EntityRef).MaxHealth;
-      if (health.Current <= 0 || maxHealth <= 0) continue;
+      if (!health.IsAlive || maxHealth <= 0) continue;
 
       var ratio = Mathf.Clamp(health.Current / (float)maxHealth, 0.0f, 1.0f);
 

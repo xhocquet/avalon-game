@@ -22,7 +22,8 @@ public static class MinionFactory {
     frame.Add(entity, new StatsComponent {
       Strength = stats.AttackDamage,
       MaxHealth = stats.Health,
-      MoveSpeed = stats.MoveSpeed
+      MoveSpeed = stats.MoveSpeed,
+      Defense = stats.Defense
     });
     frame.Add(entity, Combat.From(stats));
     frame.Add(entity, NavAgentFactory.At(ref frame, position, stats.MoveSpeed, stats.Radius));

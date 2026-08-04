@@ -14,7 +14,8 @@ public enum StatType {
   GoldPerTick = 1,
   MoveSpeed = 2,
   AttackSpeed = 3,
-  MaxHealth = 4
+  MaxHealth = 4,
+  Defense = 5
 }
 
 public enum MatchEndReason {

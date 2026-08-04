@@ -11,6 +11,8 @@
 - An asset row is only the **spawn seed**. Live values that skills and items change belong on a component, and changes route through `Stats.Add(StatType, delta)` rather than writing fields. Never read a live value back off the asset.
   - `MoveSpeed` → `Stats.MoveSpeed`; `NavigationAgentSystem` pushes it onto the nav agent every tick, `CommandSystem`'s direct-move path reads it.
   - `AttackDamage` → `Stats.Strength`; `AttackRange` → `Combat.AttackRange`; `Health` → `Stats.MaxHealth` (`Health` holds only the current HP, which is transient state rather than a buffable stat).
+  - `Defense` → `Stats.Defense`, mitigating a fraction of each incoming hit (`damage * 100 / (100 + Defense)`) so stacking approaches but never reaches immunity. Every unit type carries its own base value.
+  - `AttackReacquireRangeMultiplier` → `Combat.AttackReacquireRangeMultiplier`; `TargetAcquisitionSystem` scales `Combat.AttackRange` by it to get the acquisition radius. Each unit type sources its own — turrets sit at 1.0 because they cannot chase.
   - `AttackCooldownTicks` is the **base period** and stays put in `Combat`; `Stats.AttackSpeed` is the multiplier, and `DamageSystem` divides at the moment of the hit so bonuses stay additive on the rate and rounding never compounds.
 - The spawned entity stores `Hero.HeroAssetId`, so any system can get back to the row without going through the faction.
 - Hero-specific *code* lives in an [`IHeroBehavior`](Heroes/IHeroBehavior.cs) selected by `HeroAsset.BehaviorId` through [`HeroBehaviors.Get`](Heroes/HeroBehaviors.cs). `HeroFactory` calls `OnSpawn`; [`HeroBehaviorSystem`](Systems/HeroBehaviorSystem.cs) calls `OnTick` for every hero each tick.

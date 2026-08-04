@@ -14,4 +14,5 @@ public partial class MinionStatsAsset : IDataAsset {
   [KlothoOrder(4)] public int AttackCooldownTicks;
   [KlothoOrder(5)] public FP64 AttackReacquireRangeMultiplier;
   [KlothoOrder(6)] public FP64 Radius;
+  [KlothoOrder(7)] public int Defense;
 }

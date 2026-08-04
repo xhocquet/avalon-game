@@ -27,7 +27,7 @@ public class DamageSystem : ISystem {
         continue;
       }
 
-      var damage = GetAttackDamage(ref frame, attacker);
+      var damage = Mitigate(ref frame, target, GetAttackDamage(ref frame, attacker));
       var attackerUnitId = UnitLookup.GetUnitId(ref frame, attacker);
 
       ref var health = ref frame.Get<Health>(target);
@@ -61,6 +61,21 @@ public class DamageSystem : ISystem {
   // Attackers without a StatsComponent block (nothing today, but structures/summons may skip it) deal nothing.
   private static int GetAttackDamage(ref Frame frame, EntityRef attacker) {
     return frame.Has<StatsComponent>(attacker) ? frame.GetReadOnly<StatsComponent>(attacker).AttackDamage : 0;
+  }
+
+  // Defense mitigates by a fraction rather than a flat subtraction, so stacking it approaches but never
+  // reaches immunity and low-damage attackers stay relevant. Integer math throughout to keep it
+  // deterministic; any landed hit floors at 1 so a high-defense target can never be unkillable.
+  private static int Mitigate(ref Frame frame, EntityRef target, int damage) {
+    if (damage <= 0 || !frame.Has<StatsComponent>(target))
+      return damage;
+
+    var defense = frame.GetReadOnly<StatsComponent>(target).Defense;
+    if (defense <= 0)
+      return damage;
+
+    var mitigated = damage * 100 / (100 + defense);
+    return mitigated < 1 ? 1 : mitigated;
   }
 
   // Combat.AttackCooldownTicks is the unit's base period; StatsComponent.AttackSpeed is the multiplier items

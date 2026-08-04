@@ -67,6 +67,12 @@ public static class UnitLookup {
       : 0;
   }
 
+  public static int GetUnitTypeId(ref Frame frame, EntityRef entity) {
+    return entity.IsValid && frame.Has<UnitIdComponent>(entity)
+      ? frame.GetReadOnly<UnitIdComponent>(entity).UnitTypeId
+      : 0;
+  }
+
   public static bool TryGetTeamUnitById(ref Frame frame, int teamId, int unitId, out EntityRef entity) {
     return TryGetEntityByUnitId(ref frame, unitId, out entity) && KeepIfOnTeam(ref frame, teamId, ref entity);
   }

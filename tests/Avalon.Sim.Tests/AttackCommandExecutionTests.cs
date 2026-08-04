@@ -179,10 +179,11 @@ public class AttackCommandExecutionTests {
     SetPosition(harness, unitId: 3, targetPosition + new FPVector3(FP64.One, FP64.Zero, FP64.Zero));
     int startHealth = GetHealth(harness.Frame, unitId: 2);
     int attackDamage = GetAttackDamage(harness.Frame, unitId: 3);
+    int defense = GetDefense(harness.Frame, unitId: 2);
 
     harness.Tick(SimHarness.AttackCommand(1, 0, targetUnitId: 2, sourceUnitIds: 3));
 
-    GetHealth(harness.Frame, unitId: 2).Should().Be(startHealth - attackDamage);
+    GetHealth(harness.Frame, unitId: 2).Should().Be(startHealth - attackDamage * 100 / (100 + defense));
   }
 
   [Fact]
@@ -195,8 +196,27 @@ public class AttackCommandExecutionTests {
 
     harness.Tick(SimHarness.AttackCommand(1, 0, target.UnitId, source.UnitId));
 
-    GetHealth(harness.Frame, target.UnitId).Should().Be(startHealth - 10);
+    GetHealth(harness.Frame, target.UnitId).Should().Be(startHealth - 9);
     GetCooldown(harness.Frame, source.UnitId).Should().Be(30);
+  }
+
+  [Theory]
+  [InlineData(0, 10)]    // no defense: the attacker's full 10 damage lands
+  [InlineData(10, 9)]    // the base every unit ships with
+  [InlineData(100, 5)]   // defense equal to the curve constant halves the hit
+  [InlineData(5000, 1)]  // mitigation floors at 1 rather than reaching immunity
+  public void DamageSystem_DefenseMitigatesDamageByAFraction(int defense, int expectedDamage) {
+    var harness = SimHarness.CreateInitialized();
+    var (source, target) = SpawnFirstWave(harness);
+    SetPosition(harness, source.UnitId, target.Position + new FPVector3(FP64.One, FP64.Zero, FP64.Zero));
+    SetDefense(harness, target.UnitId, defense);
+
+    int startHealth = GetHealth(harness.Frame, target.UnitId);
+    GetAttackDamage(harness.Frame, source.UnitId).Should().Be(10);
+
+    harness.Tick(SimHarness.AttackCommand(1, 0, target.UnitId, source.UnitId));
+
+    GetHealth(harness.Frame, target.UnitId).Should().Be(startHealth - expectedDamage);
   }
 
   [Fact]
@@ -221,7 +241,7 @@ public class AttackCommandExecutionTests {
     SetPosition(harness, unitId: 2, new FPVector3(FP64.FromInt(20), FP64.Zero, FP64.Zero));
     SetPosition(harness, unitId: 4, new FPVector3(FP64.FromInt(20), FP64.Zero, FP64.Zero));
     SetPosition(harness, source.UnitId, target.Position + new FPVector3(FP64.One, FP64.Zero, FP64.Zero));
-    SetHealth(harness, target.UnitId, 10);
+    SetHealth(harness, target.UnitId, 9);
 
     harness.Tick(SimHarness.AttackCommand(1, 0, target.UnitId, source.UnitId));
 
@@ -311,7 +331,7 @@ public class AttackCommandExecutionTests {
 
     harness.Tick();
 
-    GetHealth(harness.Frame, unitId: 4).Should().Be(startHealth - 10);
+    GetHealth(harness.Frame, unitId: 4).Should().Be(startHealth - 9);
     HasMoveTarget(harness.Frame, turret.UnitId).Should().BeFalse();
   }
 
@@ -333,6 +353,110 @@ public class AttackCommandExecutionTests {
     HasAttackTarget(harness.Frame, turret.UnitId).Should().BeFalse();
     HasCombatTarget(harness.Frame, turret.UnitId).Should().BeFalse();
     HasMoveTarget(harness.Frame, turret.UnitId).Should().BeFalse();
+  }
+
+  [Fact]
+  public void TargetAcquisition_AcquiresEnemyTurret() {
+    var harness = SimHarness.CreateInitialized();
+    var (source, _) = SpawnFirstWave(harness);
+    UnitSnapshot turret = GetTurrets(harness).First(turret => turret.TeamId == 2);
+
+    ScatterHostiles(harness, teamId: 1);
+    SetPosition(harness, source.UnitId, FPVector3.Zero);
+    SetPosition(harness, turret.UnitId, new FPVector3(FP64.FromInt(3), FP64.Zero, FP64.Zero));
+    ClearAttackTargets(harness);
+
+    harness.Tick();
+
+    GetAttackTarget(harness.Frame, source.UnitId).Should().Be(turret.UnitId);
+  }
+
+  [Fact]
+  public void TargetAcquisition_AcquiresEnemyCrystal() {
+    var harness = SimHarness.CreateInitialized();
+    var (source, _) = SpawnFirstWave(harness);
+    UnitSnapshot crystal = GetCrystals(harness).First(crystal => crystal.TeamId == 2);
+
+    ScatterHostiles(harness, teamId: 1);
+    SetPosition(harness, source.UnitId, FPVector3.Zero);
+    SetPosition(harness, crystal.UnitId, new FPVector3(FP64.FromInt(3), FP64.Zero, FP64.Zero));
+    ClearAttackTargets(harness);
+
+    harness.Tick();
+
+    GetAttackTarget(harness.Frame, source.UnitId).Should().Be(crystal.UnitId);
+  }
+
+  [Fact]
+  public void TargetAcquisition_DamagesAcquiredEnemyCrystal() {
+    var harness = SimHarness.CreateInitialized();
+    var (source, _) = SpawnFirstWave(harness);
+    UnitSnapshot crystal = GetCrystals(harness).First(crystal => crystal.TeamId == 2);
+
+    ScatterHostiles(harness, teamId: 1);
+    SetPosition(harness, source.UnitId, FPVector3.Zero);
+    SetPosition(harness, crystal.UnitId, new FPVector3(FP64.One, FP64.Zero, FP64.Zero));
+    int startHealth = GetHealth(harness.Frame, crystal.UnitId);
+    ClearAttackTargets(harness);
+
+    harness.Tick();
+
+    GetHealth(harness.Frame, crystal.UnitId).Should().Be(startHealth - 9);
+  }
+
+  [Fact]
+  public void TargetAcquisition_PrefersNearbyTurretOverNearerCrystal() {
+    var harness = SimHarness.CreateInitialized();
+    var (source, _) = SpawnFirstWave(harness);
+    UnitSnapshot turret = GetTurrets(harness).First(turret => turret.TeamId == 2);
+    UnitSnapshot crystal = GetCrystals(harness).First(crystal => crystal.TeamId == 2);
+
+    ScatterHostiles(harness, teamId: 1);
+    SetPosition(harness, source.UnitId, FPVector3.Zero);
+    SetPosition(harness, crystal.UnitId, new FPVector3(FP64.One, FP64.Zero, FP64.Zero));
+    SetPosition(harness, turret.UnitId, new FPVector3(FP64.FromInt(5), FP64.Zero, FP64.Zero));
+    ClearAttackTargets(harness);
+
+    harness.Tick();
+
+    GetAttackTarget(harness.Frame, source.UnitId).Should().Be(turret.UnitId);
+  }
+
+  [Fact]
+  public void TargetAcquisition_PrefersEnemyHeroOverNearerStructures() {
+    var harness = SimHarness.CreateInitialized();
+    var (source, _) = SpawnFirstWave(harness);
+    UnitSnapshot turret = GetTurrets(harness).First(turret => turret.TeamId == 2);
+    UnitSnapshot crystal = GetCrystals(harness).First(crystal => crystal.TeamId == 2);
+
+    ScatterHostiles(harness, teamId: 1);
+    SetPosition(harness, source.UnitId, FPVector3.Zero);
+    SetPosition(harness, crystal.UnitId, new FPVector3(FP64.One, FP64.Zero, FP64.Zero));
+    SetPosition(harness, turret.UnitId, new FPVector3(FP64.FromInt(2), FP64.Zero, FP64.Zero));
+    SetPosition(harness, unitId: 4, new FPVector3(FP64.FromInt(8), FP64.Zero, FP64.Zero));
+    ClearAttackTargets(harness);
+
+    harness.Tick();
+
+    GetAttackTarget(harness.Frame, source.UnitId).Should().Be(4);
+  }
+
+  [Fact]
+  public void TargetAcquisition_IgnoresFriendlyStructures() {
+    var harness = SimHarness.CreateInitialized();
+    var (source, _) = SpawnFirstWave(harness);
+    UnitSnapshot turret = GetTurrets(harness).First(turret => turret.TeamId == 1);
+    UnitSnapshot crystal = GetCrystals(harness).First(crystal => crystal.TeamId == 1);
+
+    ScatterHostiles(harness, teamId: 1);
+    SetPosition(harness, source.UnitId, FPVector3.Zero);
+    SetPosition(harness, crystal.UnitId, new FPVector3(FP64.One, FP64.Zero, FP64.Zero));
+    SetPosition(harness, turret.UnitId, new FPVector3(FP64.FromInt(2), FP64.Zero, FP64.Zero));
+    ClearAttackTargets(harness);
+
+    harness.Tick();
+
+    HasAttackTarget(harness.Frame, source.UnitId).Should().BeFalse();
   }
 
   private static bool HasAttackTarget(Frame frame, int unitId) {
@@ -379,6 +503,12 @@ public class AttackCommandExecutionTests {
     TryGetEntityByUnitId(frame, unitId, out var entity).Should().BeTrue();
     frame.Has<StatsComponent>(entity).Should().BeTrue();
     return frame.GetReadOnly<StatsComponent>(entity).AttackDamage;
+  }
+
+  private static int GetDefense(Frame frame, int unitId) {
+    TryGetEntityByUnitId(frame, unitId, out var entity).Should().BeTrue();
+    frame.Has<StatsComponent>(entity).Should().BeTrue();
+    return frame.GetReadOnly<StatsComponent>(entity).Defense;
   }
 
   private static int GetCooldown(Frame frame, int unitId) {
@@ -433,6 +563,37 @@ public class AttackCommandExecutionTests {
     return turrets.OrderBy(turret => turret.UnitId).ToArray();
   }
 
+  private static UnitSnapshot[] GetCrystals(SimHarness harness) {
+    var frame = harness.Frame;
+    var crystals = new List<UnitSnapshot>();
+    var filter = frame.Filter<Crystal, UnitIdComponent, TeamComponent, TransformComponent>();
+    while (filter.Next(out var entity)) {
+      ref readonly var unit = ref frame.GetReadOnly<UnitIdComponent>(entity);
+      ref readonly var team = ref frame.GetReadOnly<TeamComponent>(entity);
+      ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
+      crystals.Add(new UnitSnapshot(unit.UnitId, team.TeamId, transform.Position));
+    }
+
+    return crystals.OrderBy(crystal => crystal.UnitId).ToArray();
+  }
+
+  // Pushes every unit hostile to teamId far outside any acquisition radius so a test can place the
+  // handful it cares about and know nothing else is a candidate.
+  private static void ScatterHostiles(SimHarness harness, int teamId) {
+    var frame = harness.Frame;
+    var hostiles = new List<EntityRef>();
+    var filter = frame.Filter<UnitIdComponent, TeamComponent, TransformComponent>();
+    while (filter.Next(out var entity)) {
+      if (frame.GetReadOnly<TeamComponent>(entity).TeamId != teamId)
+        hostiles.Add(entity);
+    }
+
+    for (int i = 0; i < hostiles.Count; i++) {
+      ref var transform = ref frame.Get<TransformComponent>(hostiles[i]);
+      transform.Position = new FPVector3(FP64.FromInt(200 + i * 20), FP64.Zero, FP64.FromInt(200));
+    }
+  }
+
   private static void SetPosition(SimHarness harness, int unitId, FPVector3 position) {
     var frame = harness.Frame;
     TryGetEntityByUnitId(frame, unitId, out var entity).Should().BeTrue();
@@ -459,6 +620,14 @@ public class AttackCommandExecutionTests {
     frame.Has<Health>(entity).Should().BeTrue();
     ref var health = ref frame.Get<Health>(entity);
     health.Current = current;
+  }
+
+  private static void SetDefense(SimHarness harness, int unitId, int defense) {
+    var frame = harness.Frame;
+    TryGetEntityByUnitId(frame, unitId, out var entity).Should().BeTrue();
+    frame.Has<StatsComponent>(entity).Should().BeTrue();
+    ref var stats = ref frame.Get<StatsComponent>(entity);
+    stats.Defense = defense;
   }
 
   private static void ClearAttackTargets(SimHarness harness) {
@@ -495,6 +664,7 @@ public class AttackCommandExecutionTests {
     frame.Add(entity, new StatsComponent { Strength = 10 });
     frame.Add(entity, new Combat {
       AttackRange = FP64.FromInt(2),
+      AttackReacquireRangeMultiplier = FP64.FromInt(3),
       AttackCooldownTicks = 30,
       CooldownRemainingTicks = 0,
     });

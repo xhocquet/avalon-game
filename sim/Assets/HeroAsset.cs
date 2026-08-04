@@ -14,4 +14,6 @@ public partial class HeroAsset : IDataAsset {
   [KlothoOrder(4)] public int AttackDamage;
   [KlothoOrder(5)] public FP64 AttackRange;
   [KlothoOrder(6)] public int AttackCooldownTicks;
+  [KlothoOrder(7)] public FP64 AttackReacquireRangeMultiplier;
+  [KlothoOrder(8)] public int Defense;
 }

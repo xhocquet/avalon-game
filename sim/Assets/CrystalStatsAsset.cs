@@ -7,4 +7,5 @@ namespace Meesles.Avalon.Sim.Assets;
 [KlothoDataAsset(AssetIds.TypeIds.CrystalStats, AssetId = AssetIds.CrystalStats, Key = "CrystalStats")]
 public partial class CrystalStatsAsset : IDataAsset {
   [KlothoOrder(0)] public int Health;
+  [KlothoOrder(1)] public int Defense;
 }

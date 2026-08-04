@@ -11,4 +11,6 @@ public partial class TurretStatsAsset : IDataAsset {
   [KlothoOrder(1)] public int AttackDamage;
   [KlothoOrder(2)] public FP64 AttackRange;
   [KlothoOrder(0)] public int Health;
+  [KlothoOrder(4)] public FP64 AttackReacquireRangeMultiplier;
+  [KlothoOrder(5)] public int Defense;
 }

@@ -108,11 +108,12 @@ public class DeathSystem : ISystem {
   }
 
   private static UnitContext ResolveUnitContext(ref Frame frame, EntityRef entity) {
-    var hasUnitId = frame.Has<UnitIdComponent>(entity);
-    var unitId = hasUnitId ? frame.GetReadOnly<UnitIdComponent>(entity).UnitId : 0;
-    var unitTypeId = hasUnitId ? frame.GetReadOnly<UnitIdComponent>(entity).UnitTypeId : 0;
     var teamId = frame.Has<TeamComponent>(entity) ? frame.GetReadOnly<TeamComponent>(entity).TeamId : 0;
-    return new UnitContext(entity, unitId, unitTypeId, teamId);
+    return new UnitContext(
+      entity,
+      UnitLookup.GetUnitId(ref frame, entity),
+      UnitLookup.GetUnitTypeId(ref frame, entity),
+      teamId);
   }
 
   private readonly struct DeadUnitSnapshot(
