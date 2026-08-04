@@ -18,8 +18,8 @@ public class DeathSystem : ISystem {
     _deadUnits.Clear();
     var indexBuilt = false;
 
-    // Players die through RespawnSystem, not here.
-    var filter = frame.FilterWithout<UnitIdComponent, Health, Player>();
+    // Units that come back die through RespawnSystem, not here.
+    var filter = frame.FilterWithout<UnitIdComponent, Health, Respawns>();
     while (filter.Next(out var entity)) {
       ref readonly var health = ref frame.GetReadOnly<Health>(entity);
       if (health.IsAlive)

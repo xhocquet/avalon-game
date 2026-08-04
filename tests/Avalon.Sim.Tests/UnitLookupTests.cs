@@ -82,10 +82,10 @@ public class UnitLookupTests {
 
   private static int GetPlayerUnitId(SimHarness harness, int playerId) {
     var frame = harness.Frame;
-    var filter = frame.Filter<Player, UnitIdComponent>();
+    var filter = frame.Filter<Hero, UnitIdComponent>();
     while (filter.Next(out var entity)) {
-      ref readonly var player = ref frame.GetReadOnly<Player>(entity);
-      if (player.PlayerId != playerId)
+      ref readonly var hero = ref frame.GetReadOnly<Hero>(entity);
+      if (hero.PlayerId != playerId)
         continue;
 
       return frame.GetReadOnly<UnitIdComponent>(entity).UnitId;

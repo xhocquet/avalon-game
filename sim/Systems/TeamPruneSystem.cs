@@ -73,20 +73,12 @@ public class TeamPruneSystem : ISystem {
   }
 
   private void CollectActiveTeams(ref Frame frame) {
-    _activeTeams.Clear();
+    TeamRegistry.CollectActiveTeams(ref frame, _activeTeams);
 
+    // Pruning can run before every hero has spawned, so a confirmed slot also holds a team open.
     var slots = frame.Filter<PlayerFaction>();
     while (slots.Next(out var entity))
-      AddTeam(frame.GetReadOnly<PlayerFaction>(entity).TeamId);
-
-    var heroes = frame.Filter<Hero, TeamComponent>();
-    while (heroes.Next(out var entity))
-      AddTeam(frame.GetReadOnly<TeamComponent>(entity).TeamId);
-  }
-
-  private void AddTeam(int teamId) {
-    if (!_activeTeams.Contains(teamId))
-      _activeTeams.Add(teamId);
+      TeamRegistry.AddTeam(_activeTeams, frame.GetReadOnly<PlayerFaction>(entity).TeamId);
   }
 
   private void AddIfTeamless(EntityRef entity, ref Frame frame) {

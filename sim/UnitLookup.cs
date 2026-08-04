@@ -6,6 +6,7 @@ namespace Meesles.Avalon.Sim;
 
 public static class UnitLookup {
   public const int FirstUnitId = 1;
+  public const int NoPlayerId = -1;
 
   // Single global sequence for UnitIdComponent.UnitId
   public static void InitializeUnitIds(ref Frame frame, int nextUnitId = FirstUnitId) {
@@ -36,9 +37,9 @@ public static class UnitLookup {
     return false;
   }
 
-  // A player owns exactly one hero entity, and Player/Hero/TeamComponent all ride on it. Every
-  // "find this player's unit" question routes through here so the systems don't each pick a
-  // different one of those three components as the marker and drift apart.
+  // Hero.PlayerId is the single link from a unit back to whoever drives it. Every "find this
+  // player's unit" question routes through here so systems don't each pick their own marker and
+  // drift apart. Returns the first match: a player owns exactly one hero today.
   public static bool TryGetPlayerHero(ref Frame frame, int playerId, out EntityRef entity) {
     var filter = frame.Filter<Hero>();
     while (filter.Next(out entity)) {
@@ -58,6 +59,13 @@ public static class UnitLookup {
 
     teamId = 0;
     return false;
+  }
+
+  // The player driving this unit, or NoPlayerId when nothing does.
+  public static int GetControllerPlayerId(ref Frame frame, EntityRef entity) {
+    return entity.IsValid && frame.Has<Hero>(entity)
+      ? frame.GetReadOnly<Hero>(entity).PlayerId
+      : NoPlayerId;
   }
 
   // UnitIdComponent is optional on an entity, and every caller wants the same fallback.

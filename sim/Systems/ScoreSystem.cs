@@ -10,8 +10,8 @@ namespace Meesles.Avalon;
 
 public class ScoreSystem : ISystem {
   private const int NoWinnerPlayerId = -1;
+  private readonly List<int> _activeTeamIds = [];
   private readonly List<int> _aliveCrystalTeamIds = [];
-  private readonly List<int> _playerTeamIds = [];
 
   public void Update(ref Frame frame) {
     ref var matchEndState = ref GetOrCreateMatchEndState(ref frame);
@@ -60,23 +60,16 @@ public class ScoreSystem : ISystem {
 
   private bool TryEvaluateCrystalWin(ref Frame frame, out int winnerPlayerId) {
     winnerPlayerId = NoWinnerPlayerId;
-    _playerTeamIds.Clear();
     _aliveCrystalTeamIds.Clear();
 
-    var playerFilter = frame.Filter<Player, TeamComponent>();
-    while (playerFilter.Next(out var playerEntity)) {
-      ref readonly var team = ref frame.GetReadOnly<TeamComponent>(playerEntity);
-      if (!_playerTeamIds.Contains(team.TeamId))
-        _playerTeamIds.Add(team.TeamId);
-    }
-
-    if (_playerTeamIds.Count <= 1)
+    TeamRegistry.CollectActiveTeams(ref frame, _activeTeamIds);
+    if (_activeTeamIds.Count <= 1)
       return false;
 
     var crystalFilter = frame.Filter<Crystal, TeamComponent>();
     while (crystalFilter.Next(out var crystalEntity)) {
       ref readonly var team = ref frame.GetReadOnly<TeamComponent>(crystalEntity);
-      if (_playerTeamIds.Contains(team.TeamId) && !_aliveCrystalTeamIds.Contains(team.TeamId))
+      if (_activeTeamIds.Contains(team.TeamId) && !_aliveCrystalTeamIds.Contains(team.TeamId))
         _aliveCrystalTeamIds.Add(team.TeamId);
     }
 
@@ -88,15 +81,15 @@ public class ScoreSystem : ISystem {
 
   private static bool TryGetPlayerIdForTeam(ref Frame frame, int teamId, out int playerId) {
     playerId = int.MaxValue;
-    var filter = frame.Filter<Player, TeamComponent>();
+    var filter = frame.Filter<Hero, TeamComponent>();
     while (filter.Next(out var entity)) {
       ref readonly var team = ref frame.GetReadOnly<TeamComponent>(entity);
       if (team.TeamId != teamId)
         continue;
 
-      ref readonly var player = ref frame.GetReadOnly<Player>(entity);
-      if (player.PlayerId < playerId)
-        playerId = player.PlayerId;
+      ref readonly var hero = ref frame.GetReadOnly<Hero>(entity);
+      if (hero.PlayerId < playerId)
+        playerId = hero.PlayerId;
     }
 
     if (playerId != int.MaxValue)

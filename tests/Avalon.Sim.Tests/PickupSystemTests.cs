@@ -40,9 +40,9 @@ public class PickupSystemTests {
   }
 
   private static EntityRef FindHero(ref Frame frame, int playerId) {
-    var filter = frame.Filter<Player, InventoryComponent>();
+    var filter = frame.Filter<Hero, InventoryComponent>();
     while (filter.Next(out var entity)) {
-      if (frame.GetReadOnly<Player>(entity).PlayerId == playerId)
+      if (frame.GetReadOnly<Hero>(entity).PlayerId == playerId)
         return entity;
     }
 

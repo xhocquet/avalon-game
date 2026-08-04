@@ -10,7 +10,7 @@ namespace Meesles.Avalon;
 
 public class RespawnSystem : ISystem {
   public void Update(ref Frame frame) {
-    var filter = frame.Filter<Player, TeamComponent, UnitIdComponent, TransformComponent, Health>();
+    var filter = frame.Filter<Respawns, TeamComponent, UnitIdComponent, TransformComponent, Health>();
     while (filter.Next(out var entity)) {
       if (frame.Has<PendingRespawn>(entity)) {
         ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
@@ -32,24 +32,26 @@ public class RespawnSystem : ISystem {
   }
 
   private static void BeginRespawn(ref Frame frame, EntityRef entity) {
-    // Heroes never reach DeathSystem, so the kill credit for one is settled here.
+    // Respawning units never reach DeathSystem, so the kill credit for one is settled here.
     AwardKillExperience(ref frame, entity);
 
     var rules = frame.AssetRegistry.Get<MatchRulesAsset>();
     var delayTicks = GetRespawnDelayTicks(ref frame, rules);
     frame.Add(entity, new PendingRespawn { RemainingTicks = delayTicks });
 
-    ref var player = ref frame.Get<Player>(entity);
     ref readonly var team = ref frame.GetReadOnly<TeamComponent>(entity);
     ref readonly var unit = ref frame.GetReadOnly<UnitIdComponent>(entity);
     ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
 
-    player.Score -= rules?.DeathScorePenalty ?? 0;
+    // The score penalty lands on the human's record; a unit nobody is scoring for simply skips it.
+    if (frame.Has<Player>(entity))
+      frame.Get<Player>(entity).Score -= rules?.DeathScorePenalty ?? 0;
+
     ClearActiveState(ref frame, entity, transform.Position);
 
     if (frame.EventRaiser != null) {
       var evt = EventPool.Get<PlayerDiedEvent>();
-      evt.PlayerId = player.PlayerId;
+      evt.PlayerId = UnitLookup.GetControllerPlayerId(ref frame, entity);
       evt.TeamId = team.TeamId;
       evt.UnitId = unit.UnitId;
       evt.Position = transform.Position;
@@ -68,7 +70,6 @@ public class RespawnSystem : ISystem {
   }
 
   private static void CompleteRespawn(ref Frame frame, EntityRef entity) {
-    ref readonly var player = ref frame.GetReadOnly<Player>(entity);
     ref readonly var team = ref frame.GetReadOnly<TeamComponent>(entity);
     ref readonly var unit = ref frame.GetReadOnly<UnitIdComponent>(entity);
     ref var transform = ref frame.Get<TransformComponent>(entity);
@@ -82,7 +83,7 @@ public class RespawnSystem : ISystem {
 
     if (frame.EventRaiser != null) {
       var evt = EventPool.Get<PlayerRespawnedEvent>();
-      evt.PlayerId = player.PlayerId;
+      evt.PlayerId = UnitLookup.GetControllerPlayerId(ref frame, entity);
       evt.TeamId = team.TeamId;
       evt.UnitId = unit.UnitId;
       evt.Position = transform.Position;

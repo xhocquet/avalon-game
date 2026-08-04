@@ -64,17 +64,17 @@ public class SimInvariantTests {
 
     var frame = harness.Frame;
     bool player1HasTarget = false;
-    var filter = frame.Filter<Player, UnitMoveTarget>();
+    var filter = frame.Filter<Hero, UnitMoveTarget>();
     while (filter.Next(out var entity)) {
-      ref readonly var player = ref frame.Get<Player>(entity);
-      if (player.PlayerId == 1) {
+      ref readonly var hero = ref frame.Get<Hero>(entity);
+      if (hero.PlayerId == 1) {
         ref readonly var target = ref frame.Get<UnitMoveTarget>(entity);
         target.Target.x.Should().Be(FP64.One);
         target.Target.z.Should().Be(-FP64.One);
         player1HasTarget = true;
       }
       else {
-        Assert.Fail($"Player {player.PlayerId} should not have a UnitMoveTarget");
+        Assert.Fail($"Player {hero.PlayerId} should not have a UnitMoveTarget");
       }
     }
     player1HasTarget.Should().BeTrue("Player 1 should have a move target after MoveCommand");
@@ -514,12 +514,13 @@ public class SimInvariantTests {
   private static PlayerSnapshot[] GetPlayerSnapshots(SimHarness harness) {
     var frame = harness.Frame;
     var players = new List<PlayerSnapshot>();
-    var filter = frame.Filter<Player, TeamComponent>();
+    var filter = frame.Filter<Hero, Player, TeamComponent>();
     while (filter.Next(out var entity)) {
+      ref readonly var hero = ref frame.Get<Hero>(entity);
       ref readonly var player = ref frame.Get<Player>(entity);
       ref readonly var team = ref frame.Get<TeamComponent>(entity);
       players.Add(new PlayerSnapshot(
-          player.PlayerId,
+          hero.PlayerId,
           team.TeamId,
           player.Score));
     }
@@ -530,11 +531,11 @@ public class SimInvariantTests {
   private static PlayerTransformSnapshot[] GetPlayerTransforms(SimHarness harness) {
     var frame = harness.Frame;
     var transforms = new List<PlayerTransformSnapshot>();
-    var filter = frame.Filter<Player, TransformComponent>();
+    var filter = frame.Filter<Hero, TransformComponent>();
     while (filter.Next(out var entity)) {
-      ref readonly var player = ref frame.Get<Player>(entity);
+      ref readonly var hero = ref frame.Get<Hero>(entity);
       ref readonly var transform = ref frame.Get<TransformComponent>(entity);
-      transforms.Add(new PlayerTransformSnapshot(player.PlayerId, transform.Position));
+      transforms.Add(new PlayerTransformSnapshot(hero.PlayerId, transform.Position));
     }
 
     return transforms.OrderBy(transform => transform.PlayerId).ToArray();
@@ -571,10 +572,10 @@ public class SimInvariantTests {
 
   private static void SetPlayerHealth(SimHarness harness, int playerId, int current) {
     var frame = harness.Frame;
-    var filter = frame.Filter<Player, Health>();
+    var filter = frame.Filter<Hero, Health>();
     while (filter.Next(out var entity)) {
-      ref readonly var player = ref frame.Get<Player>(entity);
-      if (player.PlayerId != playerId)
+      ref readonly var hero = ref frame.Get<Hero>(entity);
+      if (hero.PlayerId != playerId)
         continue;
 
       ref var health = ref frame.Get<Health>(entity);
@@ -614,10 +615,10 @@ public class SimInvariantTests {
 
   private static EntityRef FindHeroEntity(SimHarness harness, int playerId) {
     var frame = harness.Frame;
-    var filter = frame.Filter<Player>();
+    var filter = frame.Filter<Hero>();
     while (filter.Next(out var entity)) {
-      ref readonly var player = ref frame.Get<Player>(entity);
-      if (player.PlayerId == playerId)
+      ref readonly var hero = ref frame.Get<Hero>(entity);
+      if (hero.PlayerId == playerId)
         return entity;
     }
 

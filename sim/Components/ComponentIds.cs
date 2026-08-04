@@ -34,6 +34,7 @@ public static class ComponentIds {
   public const int MinionSettleTracker = 125;
   public const int NavSnapTracker = 126;
   public const int Experience = 127;
+  public const int Respawns = 128;
 
-  // Next free id: 128
+  // Next free id: 129
 }

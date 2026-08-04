@@ -53,11 +53,12 @@ public partial class GameUI : CanvasLayer, IViewHud {
 
   public void SyncFromFrame(Frame frame) {
     int p1 = 0, p2 = 0;
-    var playerFilter = frame.Filter<Player>();
+    var playerFilter = frame.Filter<Hero, Player>();
     while (playerFilter.Next(out var entity)) {
+      int playerId = frame.GetReadOnly<Hero>(entity).PlayerId;
       ref readonly var player = ref frame.GetReadOnly<Player>(entity);
-      if (player.PlayerId <= 1) p1 = player.Score;
-      else if (player.PlayerId == 2) p2 = player.Score;
+      if (playerId <= 1) p1 = player.Score;
+      else if (playerId == 2) p2 = player.Score;
     }
 
     if (_scoreboardScoreLabel != null)
