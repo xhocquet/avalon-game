@@ -19,7 +19,6 @@ public partial class MinionEntity : TeamEntityViewNode, IAttackableView {
 
   private AnimationPlayer _anim;
   private bool _isMoving;
-  private int _ownerId = -1;
 
   private string RunAnim => string.IsNullOrEmpty(WalkAnimationOverride) ? AnimRun : WalkAnimationOverride;
   private string IdleAnim => string.IsNullOrEmpty(IdleAnimationOverride) ? AnimIdle : IdleAnimationOverride;
@@ -69,14 +68,11 @@ public partial class MinionEntity : TeamEntityViewNode, IAttackableView {
     var live = frame.Frame;
     if (live != null && live.Has<UnitIdComponent>(EntityRef))
       SetCachedUnitId(live.GetReadOnly<UnitIdComponent>(EntityRef).UnitId);
-    if (live != null && live.Has<OwnerComponent>(EntityRef))
-      _ownerId = live.GetReadOnly<OwnerComponent>(EntityRef).OwnerId;
     BindTeam(frame);
   }
 
   public override void OnDeactivate() {
     RemoveFromGroup(UnitsGroup);
-    _ownerId = -1;
     ClearTeam();
     _isMoving = false;
   }
@@ -95,8 +91,4 @@ public partial class MinionEntity : TeamEntityViewNode, IAttackableView {
   // public override void OnLateUpdateView() {
   //   Quaternion *= FlipY;
   // }
-
-  public override bool OwnerMatches(int ownerId) {
-    return _ownerId == ownerId;
-  }
 }

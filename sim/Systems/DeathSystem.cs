@@ -22,7 +22,7 @@ public class DeathSystem : ISystem {
     var filter = frame.FilterWithout<UnitIdComponent, Health, Player>();
     while (filter.Next(out var entity)) {
       ref readonly var health = ref frame.GetReadOnly<Health>(entity);
-      if (health.Current > 0)
+      if (health.IsAlive)
         continue;
 
       var lastDamagerUnitId = health.LastDamagerUnitId;
@@ -43,15 +43,20 @@ public class DeathSystem : ISystem {
         unit.UnitId,
         unit.UnitTypeId,
         destroyed.TeamId,
-        destroyed.OwnerId,
+        destroyer.Entity,
         destroyer.UnitId,
+        destroyer.UnitTypeId,
         destroyer.TeamId,
-        destroyer.OwnerId,
         position,
         frame.Has<Crystal>(entity),
         frame.Has<Crystal>(entity) ? frame.GetReadOnly<Crystal>(entity).CrystalId : 0,
         frame.Has<Turret>(entity)));
     }
+
+    // Paid out before anything is destroyed: a killer may itself be on the dead list this tick, and
+    // it still earns what it killed.
+    foreach (var dead in _deadUnits)
+      ExperienceRewards.AwardForKill(ref frame, dead.DestroyerEntity, dead.UnitTypeId, dead.TeamId);
 
     foreach (var dead in _deadUnits) {
       RaiseDeathEvent(ref frame, dead);
@@ -68,10 +73,8 @@ public class DeathSystem : ISystem {
       evt.UnitId = dead.UnitId;
       evt.CrystalId = dead.CrystalId;
       evt.TeamId = dead.TeamId;
-      evt.OwnerId = dead.OwnerId;
       evt.DestroyerUnitId = dead.DestroyerUnitId;
       evt.DestroyerTeamId = dead.DestroyerTeamId;
-      evt.DestroyerOwnerId = dead.DestroyerOwnerId;
       evt.Position = dead.Position;
       frame.EventRaiser.RaiseEvent(evt);
       return;
@@ -89,6 +92,8 @@ public class DeathSystem : ISystem {
     var unitDied = EventPool.Get<UnitDiedEvent>();
     unitDied.UnitId = dead.UnitId;
     unitDied.UnitTypeId = dead.UnitTypeId;
+    unitDied.DestroyerUnitId = dead.DestroyerUnitId;
+    unitDied.DestroyerUnitTypeId = dead.DestroyerUnitTypeId;
     unitDied.Position = dead.Position;
     frame.EventRaiser.RaiseEvent(unitDied);
   }
@@ -103,10 +108,11 @@ public class DeathSystem : ISystem {
   }
 
   private static UnitContext ResolveUnitContext(ref Frame frame, EntityRef entity) {
-    var unitId = frame.Has<UnitIdComponent>(entity) ? frame.GetReadOnly<UnitIdComponent>(entity).UnitId : 0;
+    var hasUnitId = frame.Has<UnitIdComponent>(entity);
+    var unitId = hasUnitId ? frame.GetReadOnly<UnitIdComponent>(entity).UnitId : 0;
+    var unitTypeId = hasUnitId ? frame.GetReadOnly<UnitIdComponent>(entity).UnitTypeId : 0;
     var teamId = frame.Has<TeamComponent>(entity) ? frame.GetReadOnly<TeamComponent>(entity).TeamId : 0;
-    var ownerId = frame.Has<OwnerComponent>(entity) ? frame.GetReadOnly<OwnerComponent>(entity).OwnerId : 0;
-    return new UnitContext(unitId, teamId, ownerId);
+    return new UnitContext(entity, unitId, unitTypeId, teamId);
   }
 
   private readonly struct DeadUnitSnapshot(
@@ -114,10 +120,10 @@ public class DeathSystem : ISystem {
     int unitId,
     int unitTypeId,
     int teamId,
-    int ownerId,
+    EntityRef destroyerEntity,
     int destroyerUnitId,
+    int destroyerUnitTypeId,
     int destroyerTeamId,
-    int destroyerOwnerId,
     FPVector3 position,
     bool isCrystal,
     int crystalId,
@@ -126,19 +132,22 @@ public class DeathSystem : ISystem {
     public readonly int UnitId = unitId;
     public readonly int UnitTypeId = unitTypeId;
     public readonly int TeamId = teamId;
-    public readonly int OwnerId = ownerId;
+
+    // Only valid for the rest of this tick - the killer may be destroyed by the pass below.
+    public readonly EntityRef DestroyerEntity = destroyerEntity;
     public readonly int DestroyerUnitId = destroyerUnitId;
+    public readonly int DestroyerUnitTypeId = destroyerUnitTypeId;
     public readonly int DestroyerTeamId = destroyerTeamId;
-    public readonly int DestroyerOwnerId = destroyerOwnerId;
     public readonly FPVector3 Position = position;
     public readonly bool IsCrystal = isCrystal;
     public readonly int CrystalId = crystalId;
     public readonly bool IsTurret = isTurret;
   }
 
-  private readonly struct UnitContext(int unitId, int teamId, int ownerId) {
+  private readonly struct UnitContext(EntityRef entity, int unitId, int unitTypeId, int teamId) {
+    public readonly EntityRef Entity = entity;
     public readonly int UnitId = unitId;
+    public readonly int UnitTypeId = unitTypeId;
     public readonly int TeamId = teamId;
-    public readonly int OwnerId = ownerId;
   }
 }

@@ -8,6 +8,4 @@ namespace Meesles.Avalon.Sim.Components;
 public partial struct Hero(int playerId, int heroAssetId) : IComponent {
   public int PlayerId = playerId;
   public int HeroAssetId = heroAssetId; // Get<HeroAsset>(id)
-  public int Level = 1;
-  public int Experience = 0;
 }

@@ -24,8 +24,8 @@ public class SimInvariantTests {
     GetCrystals(harness)
         .Should()
         .BeEquivalentTo([
-            new StructureSnapshot(1, 1, 1),
-            new StructureSnapshot(2, 2, 2),
+            new StructureSnapshot(1, 1),
+            new StructureSnapshot(2, 2),
         ]);
 
     UnitSnapshot[] units = GetUnits(harness);
@@ -99,7 +99,6 @@ public class SimInvariantTests {
     minions.Should().OnlyContain(minion => minion.WaveId == 0);
     minions.Count(minion => minion.TeamId == 1).Should().Be(rules.MinionsPerWave);
     minions.Count(minion => minion.TeamId == 2).Should().Be(rules.MinionsPerWave);
-    minions.Should().OnlyContain(minion => minion.OwnerId == minion.TeamId);
     minions.Select(minion => minion.UnitId).Should().OnlyHaveUniqueItems();
 
     // Minions pack into distinct hex slots. The spawner rejects any slot within half the spacing
@@ -502,12 +501,11 @@ public class SimInvariantTests {
   private static StructureSnapshot[] GetCrystals(SimHarness harness) {
     var frame = harness.Frame;
     var crystals = new List<StructureSnapshot>();
-    var filter = frame.Filter<Crystal, TeamComponent, OwnerComponent>();
+    var filter = frame.Filter<Crystal, TeamComponent>();
     while (filter.Next(out var entity)) {
       ref readonly var crystal = ref frame.Get<Crystal>(entity);
       ref readonly var team = ref frame.Get<TeamComponent>(entity);
-      ref readonly var owner = ref frame.Get<OwnerComponent>(entity);
-      crystals.Add(new StructureSnapshot(crystal.CrystalId, team.TeamId, owner.OwnerId));
+      crystals.Add(new StructureSnapshot(crystal.CrystalId, team.TeamId));
     }
 
     return crystals.OrderBy(crystal => crystal.Id).ToArray();
@@ -545,14 +543,13 @@ public class SimInvariantTests {
   private static MinionSnapshot[] GetMinions(SimHarness harness) {
     var frame = harness.Frame;
     var minions = new List<MinionSnapshot>();
-    var filter = frame.Filter<Minion, TeamComponent, UnitIdComponent, OwnerComponent, TransformComponent>();
+    var filter = frame.Filter<Minion, TeamComponent, UnitIdComponent, TransformComponent>();
     while (filter.Next(out var entity)) {
       ref readonly var minion = ref frame.Get<Minion>(entity);
       ref readonly var team = ref frame.Get<TeamComponent>(entity);
       ref readonly var unit = ref frame.Get<UnitIdComponent>(entity);
-      ref readonly var owner = ref frame.Get<OwnerComponent>(entity);
       ref readonly var transform = ref frame.Get<TransformComponent>(entity);
-      minions.Add(new MinionSnapshot(minion.WaveId, team.TeamId, owner.OwnerId, unit.UnitId, transform.Position));
+      minions.Add(new MinionSnapshot(minion.WaveId, team.TeamId, unit.UnitId, transform.Position));
     }
 
     return minions.OrderBy(minion => minion.UnitId).ToArray();
@@ -634,13 +631,13 @@ public class SimInvariantTests {
 
   private record UnitSnapshot(int UnitId, int UnitTypeId);
 
-  private record StructureSnapshot(int Id, int TeamId, int OwnerId);
+  private record StructureSnapshot(int Id, int TeamId);
 
   private record PlayerSnapshot(int PlayerId, int TeamId, int Score);
 
   private record PlayerTransformSnapshot(int PlayerId, FPVector3 Position);
 
-  private record MinionSnapshot(int WaveId, int TeamId, int OwnerId, int UnitId, FPVector3 Position);
+  private record MinionSnapshot(int WaveId, int TeamId, int UnitId, FPVector3 Position);
 
   private record UnitPositionSnapshot(int UnitId, int UnitTypeId, int TeamId, FPVector3 Position);
 }

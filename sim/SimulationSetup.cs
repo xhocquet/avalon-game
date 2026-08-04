@@ -41,6 +41,7 @@ public static class SimulationSetup {
     simulation.AddSystem(new AttackCooldownSystem(), SystemPhase.Update);
     simulation.AddSystem(new DamageSystem(), SystemPhase.Update);
     simulation.AddSystem(new DeathSystem(), SystemPhase.Update);
+    simulation.AddSystem(new ExperienceSystem(), SystemPhase.Update);
 
     simulation.AddSystem(new ScoreSystem(), SystemPhase.LateUpdate);
     simulation.AddSystem(new EventSystem(), SystemPhase.LateUpdate);

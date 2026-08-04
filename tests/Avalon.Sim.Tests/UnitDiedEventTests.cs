@@ -20,6 +20,8 @@ public class UnitDiedEventTests {
     var evt = new UnitDiedEvent {
       UnitId = 10,
       UnitTypeId = 2,
+      DestroyerUnitId = 20,
+      DestroyerUnitTypeId = 1,
       Position = new FPVector3(FP64.One, FP64.Zero, -FP64.One),
     };
 
@@ -27,6 +29,8 @@ public class UnitDiedEventTests {
 
     evt.UnitId.Should().Be(0);
     evt.UnitTypeId.Should().Be(0);
+    evt.DestroyerUnitId.Should().Be(0);
+    evt.DestroyerUnitTypeId.Should().Be(0);
     evt.Position.x.Should().Be(FP64.Zero);
     evt.Position.y.Should().Be(FP64.Zero);
     evt.Position.z.Should().Be(FP64.Zero);
@@ -46,10 +50,8 @@ public class UnitDiedEventTests {
       UnitId = 10,
       CrystalId = 1,
       TeamId = 2,
-      OwnerId = 3,
       DestroyerUnitId = 20,
       DestroyerTeamId = 4,
-      DestroyerOwnerId = 5,
     };
 
     evt.Reset();
@@ -57,10 +59,8 @@ public class UnitDiedEventTests {
     evt.UnitId.Should().Be(0);
     evt.CrystalId.Should().Be(0);
     evt.TeamId.Should().Be(0);
-    evt.OwnerId.Should().Be(0);
     evt.DestroyerUnitId.Should().Be(0);
     evt.DestroyerTeamId.Should().Be(0);
-    evt.DestroyerOwnerId.Should().Be(0);
   }
 
   [Fact]

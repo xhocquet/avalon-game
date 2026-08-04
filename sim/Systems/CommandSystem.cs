@@ -139,18 +139,7 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
   }
 
   private static bool TryGetPlayerHero(ref Frame frame, int playerId, out EntityRef heroEntity) {
-    var filter = frame.Filter<Hero>();
-    while (filter.Next(out var entity)) {
-      ref readonly var hero = ref frame.GetReadOnly<Hero>(entity);
-      if (hero.PlayerId != playerId)
-        continue;
-
-      heroEntity = entity;
-      return true;
-    }
-
-    heroEntity = default;
-    return false;
+    return UnitLookup.TryGetPlayerHero(ref frame, playerId, out heroEntity);
   }
 
   private static bool IsHeroNearTeamShop(ref Frame frame, EntityRef heroEntity) {
@@ -276,13 +265,8 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
   }
 
   private static void ApplyLocalHeroTarget(ref Frame frame, int playerId, FPVector3 target) {
-    var filter = frame.Filter<Player>();
-    while (filter.Next(out var entity)) {
-      ref readonly var player = ref frame.Get<Player>(entity);
-      if (player.PlayerId != playerId) continue;
-      SetTarget(ref frame, entity, target);
-      return;
-    }
+    if (UnitLookup.TryGetPlayerHero(ref frame, playerId, out var hero))
+      SetTarget(ref frame, hero, target);
   }
 
   // A move order cancels any standing attack order.

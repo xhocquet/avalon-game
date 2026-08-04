@@ -18,6 +18,16 @@
 - Components can't be subclassed (they are `[StructLayout(Sequential)]` structs snapshot by value), and adding a hero must never change the component layout heroes share.
 - Adding a hero: allocate an id in `AssetIds`, add the row to `Assets.json`, regenerate `Assets.bytes`, point a `FactionAsset` at it. Code is only needed when it wants behavior no existing `BehaviorId` covers.
 
+# XP & Leveling
+
+- Progression lives on [`ExperienceComponent`](Components/Behaviors/ExperienceComponent.cs) (Level, lifetime Experience), added to every hero by `HeroFactory`. It is deliberately not on `StatsComponent` — Stats holds buffable combat values that skills and items write through `Stats.Add`; XP is the input that *produces* those writes.
+- All numbers live in [`XpRulesAsset`](Assets/XpRulesAsset.cs) (row `AssetId: 115`): per-victim-type kill rates, the level curve, and the per-level stat gains. Rates are flat across players; a kill is worth what the victim is worth.
+- The curve is an arithmetic series in integers — level 2 costs `XpToSecondLevel`, each level after costs `XpPerLevelIncrement` more. `XpRulesAsset.TotalXpForLevel(level)` is the closed form and is what UI should use for a progress bar.
+- **Awarding** happens at the kill site through [`ExperienceRewards.AwardForKill`](ExperienceRewards.cs), called from `DeathSystem` (everything on the board) and `RespawnSystem.BeginRespawn` (heroes, which never reach `DeathSystem`). Credit goes to **whoever landed the fatal hit** (`Health.LastDamagerUnitId`, recorded by `DamageSystem`) and nowhere else — no team split, no proximity share. Only heroes carry an `ExperienceComponent`, so a kill credited to a minion or turret pays out nothing. Friendly fire and unattributed deaths award nothing.
+- `DeathSystem` resolves the killer once per corpse into `DeadUnitSnapshot` (entity + its `UnitIdComponent` + team/owner) and pays every award out in a pass **before** the destroy pass, so a killer that dies on the same tick still earns what it killed. `UnitDiedEvent` carries `DestroyerUnitId`/`DestroyerUnitTypeId` for the view.
+- **Spending** happens in [`ExperienceSystem`](Systems/ExperienceSystem.cs), registered right after `DeathSystem` so a kill lands its level on the same tick. It is the only writer of `Level`, applies gains via `Stats.Add`, tops current HP up by the MaxHealth delta (skipping a hero at 0 HP awaiting respawn), and raises one `HeroLeveledUpEvent` carrying the level reached even when several levels land at once.
+- XP is lifetime-earned and never reset, so it survives death and respawn for free — the hero entity is never destroyed.
+
 # Navigation & Temporal Spreading
 
 - `NavigationAgentSystem` handles all unit movement: hero A* pathfinding, minion flow-field steering, ORCA avoidance, and movement integration.
@@ -39,6 +49,13 @@
 - When changing gameplay rules, inspect `sim/` first instead of duplicating logic in `client/` or `server/`.
 - Klotho asset id ranges (both the AssetId and wire TypeId planes) are tracked in `sim/Assets/AssetIds.cs`; allocate from the "next free" markers there.
 - Systems hold no tuning constants. Gameplay numbers live in `client/Sim/Data/Assets.json` and are read through `frame.AssetRegistry.Get<T>()`; after editing the JSON run `just` asset generation (`dotnet run --project tools/AssetGen`) to rebuild `Assets.bytes`.
+
+# Ownership
+
+Two id spaces, and they do not mix:
+
+- **`TeamComponent.TeamId`** is the sim's answer to every "may this actor do this" question. Control (`UnitLookup.TryGetPlayerControllableUnitById`), hostility (`CombatTargeting.IsHostileAndAlive`), attack-order targeting, shop proximity, and kill credit all resolve through team. A player reaches their units via `Hero.PlayerId` → `TryGetPlayerTeamId` → team, so player-scoped rules never need a second owner field.
+- **`OwnerComponent.OwnerId` is a player id, and belongs only on the hero.** It is a Klotho built-in that the *view* layer reads as a player id: `EntityViewFactory.TryGetBindBehaviour`/`GetViewFlags` compare it against `Engine.LocalPlayerId` to choose predicted vs. verified render, and `EntityViewUpdaterNode` keys `PlayerViewRegistry` off it. Putting a team id there makes team 1's units render off the predicted frame for player 1 while team 2's interpolate — the ids happen to both number from 1, so it looks correct and silently isn't. Minions, crystals, and turrets carry no `OwnerComponent`; `OwnersMatch` short-circuits to true for entities without one, so their views need no `OwnerMatches` override.
 
 # Command Validation
 

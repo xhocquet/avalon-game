@@ -11,4 +11,8 @@ public partial struct Health(int current) : IComponent {
 
   // UnitIdComponent.UnitId of whoever last reduced Current
   public int LastDamagerUnitId = 0;
+
+  // A hero sits at zero while it waits on a respawn rather than being destroyed, so "not alive" and
+  // "gone" are different states. Everything that filters corpses out asks through here.
+  public readonly bool IsAlive => Current > 0;
 }

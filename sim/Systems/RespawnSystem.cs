@@ -26,13 +26,15 @@ public class RespawnSystem : ISystem {
         continue;
       }
 
-      ref readonly var health = ref frame.GetReadOnly<Health>(entity);
-      if (health.Current <= 0)
+      if (!frame.GetReadOnly<Health>(entity).IsAlive)
         BeginRespawn(ref frame, entity);
     }
   }
 
   private static void BeginRespawn(ref Frame frame, EntityRef entity) {
+    // Heroes never reach DeathSystem, so the kill credit for one is settled here.
+    AwardKillExperience(ref frame, entity);
+
     var rules = frame.AssetRegistry.Get<MatchRulesAsset>();
     var delayTicks = GetRespawnDelayTicks(ref frame, rules);
     frame.Add(entity, new PendingRespawn { RemainingTicks = delayTicks });
@@ -54,6 +56,15 @@ public class RespawnSystem : ISystem {
       evt.RespawnDelayTicks = delayTicks;
       frame.EventRaiser.RaiseEvent(evt);
     }
+  }
+
+  private static void AwardKillExperience(ref Frame frame, EntityRef entity) {
+    var lastDamagerUnitId = frame.GetReadOnly<Health>(entity).LastDamagerUnitId;
+    if (lastDamagerUnitId == 0 || !UnitLookup.TryGetEntityByUnitId(ref frame, lastDamagerUnitId, out var killer))
+      return;
+
+    var victimTeamId = frame.GetReadOnly<TeamComponent>(entity).TeamId;
+    ExperienceRewards.AwardForKill(ref frame, killer, SimulationSetup.PlayerUnitTypeId, victimTeamId);
   }
 
   private static void CompleteRespawn(ref Frame frame, EntityRef entity) {

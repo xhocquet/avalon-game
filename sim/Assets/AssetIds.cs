@@ -23,6 +23,7 @@ public static class AssetIds {
   public const int PickupRules = 111;
   public const int NavigationTuning = 112;
   public const int CombatRules = 113;
+  public const int XpRules = 115;
 
   // FactionAsset, FactionCatalog
   public const int FactionHairyWizards = 200;
@@ -66,5 +67,6 @@ public static class AssetIds {
     public const int NavigationTuning = 112;
     public const int CombatRules = 113;
     public const int Hero = 114;
+    public const int XpRules = 115;
   }
 }

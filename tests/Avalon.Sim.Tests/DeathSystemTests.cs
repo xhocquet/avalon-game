@@ -18,10 +18,8 @@ public class DeathSystemTests {
     int unitId = frame.GetReadOnly<UnitIdComponent>(crystal).UnitId;
     int crystalId = frame.GetReadOnly<Crystal>(crystal).CrystalId;
     int teamId = frame.GetReadOnly<TeamComponent>(crystal).TeamId;
-    int ownerId = frame.GetReadOnly<OwnerComponent>(crystal).OwnerId;
     int destroyerUnitId = frame.GetReadOnly<UnitIdComponent>(attacker).UnitId;
     int destroyerTeamId = frame.GetReadOnly<TeamComponent>(attacker).TeamId;
-    int destroyerOwnerId = frame.GetReadOnly<OwnerComponent>(attacker).OwnerId;
     ref var crystalHealth = ref frame.Get<Health>(crystal);
     crystalHealth.Current = 0;
     crystalHealth.LastDamagerUnitId = destroyerUnitId;
@@ -40,10 +38,8 @@ public class DeathSystemTests {
     evt.UnitId.Should().Be(unitId);
     evt.CrystalId.Should().Be(crystalId);
     evt.TeamId.Should().Be(teamId);
-    evt.OwnerId.Should().Be(ownerId);
     evt.DestroyerUnitId.Should().Be(destroyerUnitId);
     evt.DestroyerTeamId.Should().Be(destroyerTeamId);
-    evt.DestroyerOwnerId.Should().Be(destroyerOwnerId);
   }
 
   [Fact]
@@ -95,7 +91,6 @@ public class DeathSystemTests {
     var evt = collector.Collected[0].Should().BeOfType<CrystalDestroyedEvent>().Subject;
     evt.DestroyerUnitId.Should().Be(0);
     evt.DestroyerTeamId.Should().Be(0);
-    evt.DestroyerOwnerId.Should().Be(0);
   }
 
   [Fact]
@@ -188,7 +183,7 @@ public class DeathSystemTests {
   }
 
   private static EntityRef GetFirstCrystalEntity(ref Frame frame) {
-    var filter = frame.Filter<Crystal, UnitIdComponent, OwnerComponent, Health, TransformComponent>();
+    var filter = frame.Filter<Crystal, UnitIdComponent, TeamComponent, Health, TransformComponent>();
     if (filter.Next(out var entity))
       return entity;
 
@@ -205,7 +200,7 @@ public class DeathSystemTests {
 
   private static EntityRef GetEnemyCombatUnit(ref Frame frame, EntityRef target) {
     int targetTeamId = frame.GetReadOnly<TeamComponent>(target).TeamId;
-    var filter = frame.Filter<UnitIdComponent, TeamComponent, OwnerComponent, Combat>();
+    var filter = frame.Filter<UnitIdComponent, TeamComponent, Combat>();
     while (filter.Next(out var entity)) {
       ref readonly var team = ref frame.GetReadOnly<TeamComponent>(entity);
       if (team.TeamId != targetTeamId)
@@ -232,7 +227,6 @@ public class DeathSystemTests {
       UnitTypeId = SimulationSetup.MinionUnitTypeId,
     });
     frame.Add(entity, new TeamComponent { TeamId = teamId });
-    frame.Add(entity, new OwnerComponent { OwnerId = teamId });
     frame.Add(entity, new Minion { WaveId = 99 });
     frame.Add(entity, new Health(100));
     frame.Add(entity, new Combat {
@@ -254,7 +248,6 @@ public class DeathSystemTests {
       UnitTypeId = SimulationSetup.MinionUnitTypeId,
     });
     frame.Add(entity, new TeamComponent { TeamId = 1 });
-    frame.Add(entity, new OwnerComponent { OwnerId = 1 });
     frame.Add(entity, new Minion { WaveId = 99 });
     frame.Add(entity, new Health(100));
 

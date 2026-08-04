@@ -28,12 +28,10 @@ public class TargetAcquisitionSystem : ISystem {
       if (!CanAcquireTargets(ref frame, attacker))
         continue;
 
-      ref readonly var team = ref frame.GetReadOnly<TeamComponent>(attacker);
       ref readonly var combat = ref frame.GetReadOnly<Combat>(attacker);
       ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(attacker);
 
-      if (!TryAcquireTarget(ref frame, attacker, team.TeamId, transform.Position, combat.AttackRange,
-            out var targetUnitId))
+      if (!TryAcquireTarget(ref frame, attacker, transform.Position, combat.AttackRange, out var targetUnitId))
         continue;
 
       frame.Add(attacker, new AttackTargetUnitId { TargetUnitId = targetUnitId });
@@ -56,17 +54,13 @@ public class TargetAcquisitionSystem : ISystem {
     if (frame.Has<UnitMoveTarget>(entity))
       return false;
 
-    if (!frame.Has<Health>(entity))
-      return false;
-
-    ref readonly var health = ref frame.GetReadOnly<Health>(entity);
-    if (health.Current <= 0)
+    if (!frame.Has<Health>(entity) || !frame.GetReadOnly<Health>(entity).IsAlive)
       return false;
 
     return frame.Has<Minion>(entity) || frame.Has<Hero>(entity) || frame.Has<Turret>(entity);
   }
 
-  private bool TryAcquireTarget(ref Frame frame, EntityRef attacker, int attackerTeamId,
+  private bool TryAcquireTarget(ref Frame frame, EntityRef attacker,
     FPVector3 attackerPosition, FP64 attackRange, out int targetUnitId) {
     targetUnitId = 0;
     var radius = GetAcquisitionRadius(ref frame, attacker, attackRange);
@@ -87,12 +81,7 @@ public class TargetAcquisitionSystem : ISystem {
       if (priority == int.MaxValue)
         continue;
 
-      ref readonly var team = ref frame.GetReadOnly<TeamComponent>(candidate);
-      if (team.TeamId == attackerTeamId)
-        continue;
-
-      ref readonly var health = ref frame.GetReadOnly<Health>(candidate);
-      if (health.Current <= 0)
+      if (!CombatTargeting.IsHostileAndAlive(ref frame, attacker, candidate))
         continue;
 
       ref readonly var unit = ref frame.GetReadOnly<UnitIdComponent>(candidate);

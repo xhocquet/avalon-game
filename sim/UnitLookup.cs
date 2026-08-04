@@ -36,19 +36,35 @@ public static class UnitLookup {
     return false;
   }
 
-  public static bool TryGetPlayerTeamId(ref Frame frame, int playerId, out int teamId) {
-    var filter = frame.Filter<Player, TeamComponent>();
-    while (filter.Next(out var entity)) {
-      ref readonly var player = ref frame.GetReadOnly<Player>(entity);
-      if (player.PlayerId != playerId)
-        continue;
+  // A player owns exactly one hero entity, and Player/Hero/TeamComponent all ride on it. Every
+  // "find this player's unit" question routes through here so the systems don't each pick a
+  // different one of those three components as the marker and drift apart.
+  public static bool TryGetPlayerHero(ref Frame frame, int playerId, out EntityRef entity) {
+    var filter = frame.Filter<Hero>();
+    while (filter.Next(out entity)) {
+      if (frame.GetReadOnly<Hero>(entity).PlayerId == playerId)
+        return true;
+    }
 
-      teamId = frame.GetReadOnly<TeamComponent>(entity).TeamId;
+    entity = default;
+    return false;
+  }
+
+  public static bool TryGetPlayerTeamId(ref Frame frame, int playerId, out int teamId) {
+    if (TryGetPlayerHero(ref frame, playerId, out var hero) && frame.Has<TeamComponent>(hero)) {
+      teamId = frame.GetReadOnly<TeamComponent>(hero).TeamId;
       return true;
     }
 
     teamId = 0;
     return false;
+  }
+
+  // UnitIdComponent is optional on an entity, and every caller wants the same fallback.
+  public static int GetUnitId(ref Frame frame, EntityRef entity) {
+    return entity.IsValid && frame.Has<UnitIdComponent>(entity)
+      ? frame.GetReadOnly<UnitIdComponent>(entity).UnitId
+      : 0;
   }
 
   public static bool TryGetTeamUnitById(ref Frame frame, int teamId, int unitId, out EntityRef entity) {

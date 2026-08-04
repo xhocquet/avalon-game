@@ -14,7 +14,6 @@ public static class CrystalFactory {
       UnitId = UnitLookup.NextUnitId(ref frame),
       UnitTypeId = SimulationSetup.CrystalUnitTypeId
     });
-    frame.Add(entity, new OwnerComponent { OwnerId = teamId });
     frame.Add(entity, new TeamComponent(teamId));
     frame.Add(entity, new Crystal { CrystalId = teamId });
     frame.Add(entity, new Health(stats.Health));

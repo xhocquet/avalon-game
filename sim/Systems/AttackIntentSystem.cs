@@ -77,21 +77,13 @@ public class AttackIntentSystem : ISystem {
     SetMoveTarget(ref frame, attacker, frame.GetReadOnly<TransformComponent>(target).Position);
   }
 
+  // Beyond the shared hostility rule this system also needs the target's position, both to measure
+  // range and to walk to it.
   private bool TryResolveTarget(ref Frame frame, EntityRef attacker, int targetUnitId,
     out EntityRef target) {
-    if (!_unitIdIndex.TryGet(targetUnitId, out target))
-      return false;
-
-    if (!frame.Has<TeamComponent>(target) || !frame.Has<TransformComponent>(target) || !frame.Has<Health>(target))
-      return false;
-
-    ref readonly var health = ref frame.GetReadOnly<Health>(target);
-    if (health.Current <= 0)
-      return false;
-
-    ref readonly var attackerTeam = ref frame.GetReadOnly<TeamComponent>(attacker);
-    ref readonly var targetTeam = ref frame.GetReadOnly<TeamComponent>(target);
-    return attackerTeam.TeamId != targetTeam.TeamId;
+    return _unitIdIndex.TryGet(targetUnitId, out target) &&
+           frame.Has<TransformComponent>(target) &&
+           CombatTargeting.IsHostileAndAlive(ref frame, attacker, target);
   }
 
   private static void SetMoveTarget(ref Frame frame, EntityRef entity, FPVector3 target) {
@@ -100,20 +92,8 @@ public class AttackIntentSystem : ISystem {
   }
 
   private static void LogAttackState(ref Frame frame, EntityRef attacker, int attackTargetUnitId, string state) {
-    if (!TryGetUnitId(ref frame, attacker, out var sourceUnitId))
-      sourceUnitId = 0;
-
     frame.Logger.KDebug(
-      $"[Combat] AttackIntent tick={frame.Tick} sourceUnitId={sourceUnitId} targetUnitId={attackTargetUnitId} state={state}");
-  }
-
-  private static bool TryGetUnitId(ref Frame frame, EntityRef entity, out int unitId) {
-    if (frame.Has<UnitIdComponent>(entity)) {
-      unitId = frame.GetReadOnly<UnitIdComponent>(entity).UnitId;
-      return true;
-    }
-
-    unitId = 0;
-    return false;
+      $"[Combat] AttackIntent tick={frame.Tick} sourceUnitId={UnitLookup.GetUnitId(ref frame, attacker)} " +
+      $"targetUnitId={attackTargetUnitId} state={state}");
   }
 }

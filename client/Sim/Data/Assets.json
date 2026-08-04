@@ -91,6 +91,20 @@
     "TargetGridCellSize": 10.0
   },
   {
+    "$type": "Meesles.Avalon.Sim.Assets.XpRulesAsset, Meesles.Avalon.Client",
+    "AssetId": 115,
+    "XpPerMinionKill": 20,
+    "XpPerHeroKill": 120,
+    "XpPerTurretKill": 60,
+    "XpPerCrystalKill": 100,
+    "MaxLevel": 10,
+    "XpToSecondLevel": 100,
+    "XpPerLevelIncrement": 50,
+    "MaxHealthPerLevel": 20,
+    "StrengthPerLevel": 5,
+    "AttackSpeedPerLevel": 0.05
+  },
+  {
     "$type": "Meesles.Avalon.Sim.Assets.FactionAsset, Meesles.Avalon.Client",
     "AssetId": 200,
     "_Name": "Hairy Wizards",

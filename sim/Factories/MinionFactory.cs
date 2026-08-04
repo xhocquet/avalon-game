@@ -15,7 +15,6 @@ public static class MinionFactory {
       UnitId = UnitLookup.NextUnitId(ref frame),
       UnitTypeId = SimulationSetup.MinionUnitTypeId
     });
-    frame.Add(entity, new OwnerComponent { OwnerId = teamId });
     frame.Add(entity, new TeamComponent(teamId));
     frame.Add(entity, new Minion { WaveId = waveId });
     frame.Add(entity, new Controllable());

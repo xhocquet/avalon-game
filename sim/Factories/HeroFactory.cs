@@ -23,6 +23,7 @@ public static class HeroFactory {
     });
     frame.Add(entity, new Controllable());
     frame.Add(entity, new InventoryComponent());
+    frame.Add(entity, new ExperienceComponent());
     frame.Add(entity, new StatsComponent {
       Strength = heroAsset.AttackDamage,
       MaxHealth = heroAsset.Health,
