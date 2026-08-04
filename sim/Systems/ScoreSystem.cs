@@ -63,9 +63,9 @@ public class ScoreSystem : ISystem {
     _playerTeamIds.Clear();
     _aliveCrystalTeamIds.Clear();
 
-    var playerFilter = frame.Filter<Player, Team>();
+    var playerFilter = frame.Filter<Player, TeamComponent>();
     while (playerFilter.Next(out var playerEntity)) {
-      ref readonly var team = ref frame.GetReadOnly<Team>(playerEntity);
+      ref readonly var team = ref frame.GetReadOnly<TeamComponent>(playerEntity);
       if (!_playerTeamIds.Contains(team.TeamId))
         _playerTeamIds.Add(team.TeamId);
     }
@@ -73,9 +73,9 @@ public class ScoreSystem : ISystem {
     if (_playerTeamIds.Count <= 1)
       return false;
 
-    var crystalFilter = frame.Filter<Crystal, Team>();
+    var crystalFilter = frame.Filter<Crystal, TeamComponent>();
     while (crystalFilter.Next(out var crystalEntity)) {
-      ref readonly var team = ref frame.GetReadOnly<Team>(crystalEntity);
+      ref readonly var team = ref frame.GetReadOnly<TeamComponent>(crystalEntity);
       if (_playerTeamIds.Contains(team.TeamId) && !_aliveCrystalTeamIds.Contains(team.TeamId))
         _aliveCrystalTeamIds.Add(team.TeamId);
     }
@@ -88,9 +88,9 @@ public class ScoreSystem : ISystem {
 
   private static bool TryGetPlayerIdForTeam(ref Frame frame, int teamId, out int playerId) {
     playerId = int.MaxValue;
-    var filter = frame.Filter<Player, Team>();
+    var filter = frame.Filter<Player, TeamComponent>();
     while (filter.Next(out var entity)) {
-      ref readonly var team = ref frame.GetReadOnly<Team>(entity);
+      ref readonly var team = ref frame.GetReadOnly<TeamComponent>(entity);
       if (team.TeamId != teamId)
         continue;
 

@@ -24,8 +24,8 @@ public partial class CrystalEntity : TeamEntityViewNode, IAttackableView, INamed
     AddToGroup(UnitsGroup);
 
     var live = frame.Frame;
-    if (live != null && live.Has<Unit>(EntityRef))
-      SetCachedUnitId(live.GetReadOnly<Unit>(EntityRef).UnitId);
+    if (live != null && live.Has<UnitIdComponent>(EntityRef))
+      SetCachedUnitId(live.GetReadOnly<UnitIdComponent>(EntityRef).UnitId);
     BindTeam(frame);
   }
 

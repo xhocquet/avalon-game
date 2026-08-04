@@ -9,6 +9,6 @@ namespace Meesles.Avalon.Sim.Components;
 public partial struct Health(int current) : IComponent {
   public int Current = current;
 
-  // Unit.UnitId of whoever last reduced Current
+  // UnitIdComponent.UnitId of whoever last reduced Current
   public int LastDamagerUnitId = 0;
 }

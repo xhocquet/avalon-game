@@ -364,25 +364,25 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -37.024994, 3.5, 43.146317)
 [node name="BotwExplosionPillar2" parent="FireShowcase" unique_id=1852293721 instance=ExtResource("36_rjsyd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40.29437, 2, 30.58073)
 
-[node name="Player" parent="." unique_id=1682798515 instance=ExtResource("25_36e3y")]
+[node name="Wiz" parent="." unique_id=1682798515 instance=ExtResource("25_36e3y")]
 transform = Transform3D(0.58277553, 0, 0.81263316, 0, 1, 0, -0.81263316, 0, 0.58277553, -11.456522, 0.023467302, -14.669315)
 
-[node name="Player2" parent="." unique_id=189552492 instance=ExtResource("26_o2o48")]
+[node name="Crystal" parent="." unique_id=189552492 instance=ExtResource("26_o2o48")]
 transform = Transform3D(-0.05472371, 0, 0.9985016, 0, 1, 0, -0.9985016, 0, -0.05472371, -12.279676, 0.03340006, -10.065875)
 
-[node name="Player3" parent="." unique_id=1825753785 instance=ExtResource("27_gwvee")]
+[node name="Pickle" parent="." unique_id=1825753785 instance=ExtResource("27_gwvee")]
 transform = Transform3D(0.25881907, 0, 0.9659258, 0, 1, 0, -0.9659258, 0, 0.25881907, -11.466423, 0.09412241, -12.31485)
 
-[node name="Player4" parent="." unique_id=212024309 instance=ExtResource("28_3kenh")]
+[node name="Skinwalker" parent="." unique_id=212024309 instance=ExtResource("28_3kenh")]
 transform = Transform3D(0.999238, 0, -0.039033152, 0, 1, 0, 0.039033152, 0, 0.999238, -7.139937, 0.12498331, -15.854283)
 
-[node name="Player5" parent="." unique_id=765539556 instance=ExtResource("29_7ykkm")]
+[node name="Snailhead" parent="." unique_id=765539556 instance=ExtResource("29_7ykkm")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.575623, 0.100471735, -15.812639)
 
-[node name="Minion" parent="." unique_id=2050480386 instance=ExtResource("38_o2o48")]
+[node name="EyeSwirl" parent="." unique_id=2050480386 instance=ExtResource("38_o2o48")]
 transform = Transform3D(0.7254424, -0.009717241, 0.6882142, 0.010043461, 0.9999432, 0.0035319505, -0.68820953, 0.004349825, 0.7254989, -10.040207, -0.014511824, -14.206744)
 
-[node name="Minion2" parent="." unique_id=1985152823 instance=ExtResource("39_gwvee")]
+[node name="DeathSnail" parent="." unique_id=1985152823 instance=ExtResource("39_gwvee")]
 transform = Transform3D(-0.9550303, 0, -0.29650822, 0, 1, 0, 0.29650822, 0, -0.9550303, -8.914662, 0.04542756, -15.305027)
 
 [node name="CystalTurtle" parent="." unique_id=1847225907 instance=ExtResource("40_3kenh")]

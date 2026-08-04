@@ -5,6 +5,6 @@ namespace Meesles.Avalon.Sim.Components;
 
 [KlothoComponent(ComponentIds.Team)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public partial struct Team(int teamId) : IComponent {
+public partial struct TeamComponent(int teamId) : IComponent {
   public int TeamId = teamId;
 }

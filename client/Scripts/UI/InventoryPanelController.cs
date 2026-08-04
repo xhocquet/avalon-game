@@ -37,13 +37,13 @@ public class InventoryPanelController {
   }
 
   private void FillCounts(Frame frame, int playerId) {
-    var filter = frame.Filter<Hero, Inventory>();
+    var filter = frame.Filter<Hero, InventoryComponent>();
     while (filter.Next(out var entity)) {
       ref readonly var hero = ref frame.GetReadOnly<Hero>(entity);
       if (hero.PlayerId != playerId)
         continue;
 
-      ref readonly var inventory = ref frame.GetReadOnly<Inventory>(entity);
+      ref readonly var inventory = ref frame.GetReadOnly<InventoryComponent>(entity);
       for (var i = 0; i < ShopItemCatalog.ItemDefs.Length; i++)
         _counts[i] = inventory.CountOf(ShopItemCatalog.ItemDefs[i].Id);
       return;

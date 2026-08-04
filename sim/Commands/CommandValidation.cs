@@ -22,9 +22,9 @@ public static class CommandValidation {
   public static bool Accept(ref Frame frame, ICommand command) {
     switch (command) {
       case MoveCommand move:
-        return AcceptSelection(ref frame, move) && AcceptMoveTarget(ref frame, move);
+        return AcceptSelection(ref frame, move, move.UnitIds) && AcceptMoveTarget(ref frame, move);
       case AttackCommand attack:
-        return AcceptSelection(ref frame, attack);
+        return AcceptSelection(ref frame, attack, attack.UnitIds);
       case SelectFactionCommand faction:
         return AcceptFaction(ref frame, faction);
       default:
@@ -32,8 +32,8 @@ public static class CommandValidation {
     }
   }
 
-  private static bool AcceptSelection(ref Frame frame, IUnitOrderCommand command) {
-    if (command.UnitIds.IsValid)
+  private static bool AcceptSelection(ref Frame frame, ICommand command, UnitIdList unitIds) {
+    if (unitIds.IsValid)
       return true;
 
     Reject(ref frame, command, "malformed_selection");

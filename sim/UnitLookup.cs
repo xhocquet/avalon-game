@@ -7,7 +7,7 @@ namespace Meesles.Avalon.Sim;
 public static class UnitLookup {
   public const int FirstUnitId = 1;
 
-  // Single global sequence for Unit.UnitId
+  // Single global sequence for UnitIdComponent.UnitId
   public static void InitializeUnitIds(ref Frame frame, int nextUnitId = FirstUnitId) {
     if (frame.TryGetSingleton<UnitIdCounter>(out _)) return;
 
@@ -25,9 +25,9 @@ public static class UnitLookup {
   }
 
   public static bool TryGetEntityByUnitId(ref Frame frame, int unitId, out EntityRef entity) {
-    var filter = frame.Filter<Unit>();
+    var filter = frame.Filter<UnitIdComponent>();
     while (filter.Next(out entity)) {
-      ref readonly var unit = ref frame.GetReadOnly<Unit>(entity);
+      ref readonly var unit = ref frame.GetReadOnly<UnitIdComponent>(entity);
       if (unit.UnitId == unitId)
         return true;
     }
@@ -37,13 +37,13 @@ public static class UnitLookup {
   }
 
   public static bool TryGetPlayerTeamId(ref Frame frame, int playerId, out int teamId) {
-    var filter = frame.Filter<Player, Team>();
+    var filter = frame.Filter<Player, TeamComponent>();
     while (filter.Next(out var entity)) {
       ref readonly var player = ref frame.GetReadOnly<Player>(entity);
       if (player.PlayerId != playerId)
         continue;
 
-      teamId = frame.GetReadOnly<Team>(entity).TeamId;
+      teamId = frame.GetReadOnly<TeamComponent>(entity).TeamId;
       return true;
     }
 
@@ -71,7 +71,7 @@ public static class UnitLookup {
   }
 
   private static bool KeepIfOnTeam(ref Frame frame, int teamId, ref EntityRef entity) {
-    if (frame.Has<Team>(entity) && frame.GetReadOnly<Team>(entity).TeamId == teamId)
+    if (frame.Has<TeamComponent>(entity) && frame.GetReadOnly<TeamComponent>(entity).TeamId == teamId)
       return true;
 
     entity = default;
@@ -93,9 +93,9 @@ public static class UnitLookup {
 
     public void Rebuild(ref Frame frame) {
       _index.Clear();
-      var filter = frame.Filter<Unit>();
+      var filter = frame.Filter<UnitIdComponent>();
       while (filter.Next(out var entity)) {
-        ref readonly var unit = ref frame.GetReadOnly<Unit>(entity);
+        ref readonly var unit = ref frame.GetReadOnly<UnitIdComponent>(entity);
         _index[unit.UnitId] = entity;
       }
     }

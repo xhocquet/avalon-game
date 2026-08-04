@@ -44,16 +44,16 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
 
     var dt = FP64.FromInt(frame.DeltaTimeMs) / FP64.FromInt(1000);
 
-    // Stats is in the filter because it carries the speed: a unit with no stat block has no speed
+    // StatsComponent is in the filter because it carries the speed: a unit with no stat block has no speed
     // to move at, and every unit that can be ordered around (hero, minion) has one.
-    var filter = frame.Filter<UnitMoveTarget, TransformComponent, Stats>();
+    var filter = frame.Filter<UnitMoveTarget, TransformComponent, StatsComponent>();
     while (filter.Next(out var entity)) {
       if (!_moveNavAgentsDirectly && frame.Has<NavAgentComponent>(entity))
         continue;
 
       ref var moveTarget = ref frame.Get<UnitMoveTarget>(entity);
       ref var transform = ref frame.Get<TransformComponent>(entity);
-      var step = frame.GetReadOnly<Stats>(entity).MoveSpeed * dt;
+      var step = frame.GetReadOnly<StatsComponent>(entity).MoveSpeed * dt;
       var toTarget = moveTarget.Target - transform.Position;
 
       toTarget.y = FP64.Zero;
@@ -104,13 +104,13 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
       return;
     }
 
-    if (!frame.Has<Inventory>(heroEntity) || !frame.Has<Stats>(heroEntity)) {
+    if (!frame.Has<InventoryComponent>(heroEntity) || !frame.Has<StatsComponent>(heroEntity)) {
       frame.Logger.KInformation(
-        $"[Shop] REJECT tick={frame.Tick} playerId={command.PlayerId} reason=hero_missing_inventory_or_stats hasInv={frame.Has<Inventory>(heroEntity)} hasStats={frame.Has<Stats>(heroEntity)}");
+        $"[Shop] REJECT tick={frame.Tick} playerId={command.PlayerId} reason=hero_missing_inventory_or_stats hasInv={frame.Has<InventoryComponent>(heroEntity)} hasStats={frame.Has<StatsComponent>(heroEntity)}");
       return;
     }
 
-    ref var inventory = ref frame.Get<Inventory>(heroEntity);
+    ref var inventory = ref frame.Get<InventoryComponent>(heroEntity);
     if (inventory.Gold < item.Cost) {
       frame.Logger.KInformation(
         $"[Shop] REJECT tick={frame.Tick} playerId={command.PlayerId} itemId={command.ItemAssetId} reason=insufficient_gold gold={inventory.Gold} cost={item.Cost}");
@@ -131,7 +131,7 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
 
     inventory.Gold -= item.Cost;
     inventory.TryAddItem(command.ItemAssetId);
-    ref var stats = ref frame.Get<Stats>(heroEntity);
+    ref var stats = ref frame.Get<StatsComponent>(heroEntity);
     stats.Add(StatType.Strength, item.AttackBonus);
 
     frame.Logger.KInformation(
@@ -154,10 +154,10 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
   }
 
   private static bool IsHeroNearTeamShop(ref Frame frame, EntityRef heroEntity) {
-    if (!frame.Has<Team>(heroEntity) || !frame.Has<TransformComponent>(heroEntity))
+    if (!frame.Has<TeamComponent>(heroEntity) || !frame.Has<TransformComponent>(heroEntity))
       return false;
 
-    var teamId = frame.GetReadOnly<Team>(heroEntity).TeamId;
+    var teamId = frame.GetReadOnly<TeamComponent>(heroEntity).TeamId;
     if (!frame.AssetRegistry.TryGet<MapLayoutAsset>(out var layout))
       return false;
 
@@ -186,7 +186,7 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
   }
 
   private void HandleAttackCommand(ref Frame frame, AttackCommand command) {
-    if (!CollectOrderedUnits(ref frame, command, _formationUnits, out var playerTeamId))
+    if (!CollectOrderedUnits(ref frame, command.PlayerId, command.UnitIds, _formationUnits, out var playerTeamId))
       return;
 
     if (!TryResolveAttackTarget(ref frame, command, playerTeamId, out var targetEntity))
@@ -207,7 +207,7 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
     if (!_unitIndex.TryGet(command.TargetUnitId, out targetEntity))
       return false;
 
-    if (!frame.Has<Team>(targetEntity) || !frame.Has<Health>(targetEntity) ||
+    if (!frame.Has<TeamComponent>(targetEntity) || !frame.Has<Health>(targetEntity) ||
         !frame.Has<TransformComponent>(targetEntity))
       return false;
 
@@ -215,7 +215,7 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
     if (health.Current <= 0)
       return false;
 
-    ref readonly var targetTeam = ref frame.GetReadOnly<Team>(targetEntity);
+    ref readonly var targetTeam = ref frame.GetReadOnly<TeamComponent>(targetEntity);
     if (targetTeam.TeamId == playerTeamId)
       return false;
 
@@ -238,7 +238,7 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
   }
 
   private void ApplySelectedUnitTargets(ref Frame frame, MoveCommand command, FPVector3 target) {
-    if (!CollectOrderedUnits(ref frame, command, _formationUnits, out _))
+    if (!CollectOrderedUnits(ref frame, command.PlayerId, command.UnitIds, _formationUnits, out _))
       return;
 
     var rules = frame.AssetRegistry.Get<MovementRulesAsset>();
@@ -256,19 +256,18 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
   // Shared front half of every unit order: resolve the commanded ids to entities the issuing player
   // actually controls, leaving _unitIndex rebuilt for the caller. False means the order has nobody
   // to act on and should be dropped.
-  private bool CollectOrderedUnits(ref Frame frame, IUnitOrderCommand command, List<FormationUnit> units,
-    out int teamId) {
+  private bool CollectOrderedUnits(ref Frame frame, int playerId, UnitIdList unitIds,
+    List<FormationUnit> units, out int teamId) {
     units.Clear();
-    if (!UnitLookup.TryGetPlayerTeamId(ref frame, command.PlayerId, out teamId))
+    if (!UnitLookup.TryGetPlayerTeamId(ref frame, playerId, out teamId))
       return false;
 
     _unitIndex.Rebuild(ref frame);
-    var unitIds = command.UnitIds;
     for (var i = 0; i < unitIds.Count; i++) {
       if (!_unitIndex.TryGetControllableTeamUnitById(ref frame, teamId, unitIds[i], out var entity))
         continue;
 
-      ref readonly var unit = ref frame.GetReadOnly<Unit>(entity);
+      ref readonly var unit = ref frame.GetReadOnly<UnitIdComponent>(entity);
       ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
       units.Add(new FormationUnit(entity, unit.UnitId, frame.Has<Hero>(entity), transform.Position));
     }

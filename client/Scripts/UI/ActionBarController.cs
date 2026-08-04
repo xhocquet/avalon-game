@@ -150,14 +150,14 @@ public class ActionBarController {
     heroX = 0f;
     heroZ = 0f;
 
-    var filter = frame.Filter<Hero, Team, Inventory, TransformComponent>();
+    var filter = frame.Filter<Hero, TeamComponent, InventoryComponent, TransformComponent>();
     while (filter.Next(out var entity)) {
       ref readonly var hero = ref frame.GetReadOnly<Hero>(entity);
       if (hero.PlayerId != playerId)
         continue;
 
-      teamId = frame.GetReadOnly<Team>(entity).TeamId;
-      gold = frame.GetReadOnly<Inventory>(entity).Gold;
+      teamId = frame.GetReadOnly<TeamComponent>(entity).TeamId;
+      gold = frame.GetReadOnly<InventoryComponent>(entity).Gold;
       ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
       heroX = transform.Position.x.ToFloat();
       heroZ = transform.Position.z.ToFloat();

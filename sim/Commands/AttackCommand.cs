@@ -4,7 +4,7 @@ using xpTURN.Klotho.Serialization;
 namespace Meesles.Avalon.Sim.Commands;
 
 [KlothoSerializable(103)]
-public partial class AttackCommand : CommandBase, IUnitOrderCommand {
+public partial class AttackCommand : CommandBase {
   public int TargetUnitId;
   public override bool IsContinuousInput => false;
 

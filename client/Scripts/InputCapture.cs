@@ -556,10 +556,10 @@ public class InputCapture : IDisposable {
     if (frame == null || !frame.Has<Hero>(view.EntityRef))
       frame = view.Engine.VerifiedFrame.Frame;
 
-    if (frame == null || !frame.Has<Hero>(view.EntityRef) || !frame.Has<Faction>(view.EntityRef))
+    if (frame == null || !frame.Has<Hero>(view.EntityRef) || !frame.Has<FactionComponent>(view.EntityRef))
       return false;
 
-    factionId = frame.GetReadOnly<Faction>(view.EntityRef).FactionId;
+    factionId = frame.GetReadOnly<FactionComponent>(view.EntityRef).FactionId;
     return true;
   }
 
@@ -614,13 +614,13 @@ public class InputCapture : IDisposable {
       return false;
 
     var frame = view.Engine.PredictedFrame.Frame;
-    if (frame == null || !frame.Has<Unit>(view.EntityRef))
+    if (frame == null || !frame.Has<UnitIdComponent>(view.EntityRef))
       frame = view.Engine.VerifiedFrame.Frame;
 
-    if (frame == null || !frame.Has<Unit>(view.EntityRef))
+    if (frame == null || !frame.Has<UnitIdComponent>(view.EntityRef))
       return false;
 
-    unitId = frame.GetReadOnly<Unit>(view.EntityRef).UnitId;
+    unitId = frame.GetReadOnly<UnitIdComponent>(view.EntityRef).UnitId;
     return true;
   }
 
@@ -629,11 +629,11 @@ public class InputCapture : IDisposable {
       return false;
 
     var frame = view.Engine.PredictedFrame.Frame;
-    if (frame == null || !frame.Has<Unit>(view.EntityRef))
+    if (frame == null || !frame.Has<UnitIdComponent>(view.EntityRef))
       frame = view.Engine.VerifiedFrame.Frame;
 
     return frame != null
-           && frame.Has<Unit>(view.EntityRef)
+           && frame.Has<UnitIdComponent>(view.EntityRef)
            && frame.Has<Controllable>(view.EntityRef);
   }
 }

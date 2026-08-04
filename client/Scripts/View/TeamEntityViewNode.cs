@@ -20,8 +20,8 @@ public abstract partial class TeamEntityViewNode : EntityViewNode, ISelectableTe
 
   protected void BindTeam(FrameRef frame) {
     var live = frame.Frame;
-    var teamId = live != null && live.Has<Team>(EntityRef)
-      ? live.GetReadOnly<Team>(EntityRef).TeamId
+    var teamId = live != null && live.Has<TeamComponent>(EntityRef)
+      ? live.GetReadOnly<TeamComponent>(EntityRef).TeamId
       : -1;
     SetTeam(teamId);
   }

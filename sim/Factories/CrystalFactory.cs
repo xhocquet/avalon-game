@@ -10,15 +10,15 @@ public static class CrystalFactory {
     var entity = frame.CreateEntity();
 
     frame.Add(entity, TransformFactory.At(position));
-    frame.Add(entity, new Unit {
+    frame.Add(entity, new UnitIdComponent {
       UnitId = UnitLookup.NextUnitId(ref frame),
       UnitTypeId = SimulationSetup.CrystalUnitTypeId
     });
     frame.Add(entity, new OwnerComponent { OwnerId = teamId });
-    frame.Add(entity, new Team(teamId));
+    frame.Add(entity, new TeamComponent(teamId));
     frame.Add(entity, new Crystal { CrystalId = teamId });
     frame.Add(entity, new Health(stats.Health));
-    frame.Add(entity, new Stats { MaxHealth = stats.Health });
+    frame.Add(entity, new StatsComponent { MaxHealth = stats.Health });
 
     return entity;
   }

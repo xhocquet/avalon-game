@@ -71,10 +71,10 @@ public class LoadTestHarness {
     var cmd1 = new Commands.MoveCommand { PlayerId = 1, Tick = tick, TargetX = spawn2.x, TargetZ = spawn2.z };
     var cmd2 = new Commands.MoveCommand { PlayerId = 2, Tick = tick, TargetX = spawn1.x, TargetZ = spawn1.z };
 
-    var filter = frame.Filter<Unit, Team, Controllable>();
+    var filter = frame.Filter<UnitIdComponent, TeamComponent, Controllable>();
     while (filter.Next(out var entity)) {
-      ref readonly var unit = ref frame.GetReadOnly<Unit>(entity);
-      ref readonly var team = ref frame.GetReadOnly<Team>(entity);
+      ref readonly var unit = ref frame.GetReadOnly<UnitIdComponent>(entity);
+      ref readonly var team = ref frame.GetReadOnly<TeamComponent>(entity);
       if (team.TeamId == 1)
         cmd1.UnitIds.Add(unit.UnitId);
       else if (team.TeamId == 2)

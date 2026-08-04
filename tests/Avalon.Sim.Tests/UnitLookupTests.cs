@@ -15,7 +15,7 @@ public class UnitLookupTests {
 
     found.Should().BeTrue();
     entity.IsValid.Should().BeTrue();
-    frame.GetReadOnly<Unit>(entity).UnitId.Should().Be(1);
+    frame.GetReadOnly<UnitIdComponent>(entity).UnitId.Should().Be(1);
   }
 
   [Fact]
@@ -39,8 +39,8 @@ public class UnitLookupTests {
 
     found.Should().BeTrue();
     entity.IsValid.Should().BeTrue();
-    frame.GetReadOnly<Unit>(entity).UnitId.Should().Be(playerOneUnitId);
-    frame.GetReadOnly<Team>(entity).TeamId.Should().Be(1);
+    frame.GetReadOnly<UnitIdComponent>(entity).UnitId.Should().Be(playerOneUnitId);
+    frame.GetReadOnly<TeamComponent>(entity).TeamId.Should().Be(1);
   }
 
   [Fact]
@@ -82,13 +82,13 @@ public class UnitLookupTests {
 
   private static int GetPlayerUnitId(SimHarness harness, int playerId) {
     var frame = harness.Frame;
-    var filter = frame.Filter<Player, Unit>();
+    var filter = frame.Filter<Player, UnitIdComponent>();
     while (filter.Next(out var entity)) {
       ref readonly var player = ref frame.GetReadOnly<Player>(entity);
       if (player.PlayerId != playerId)
         continue;
 
-      return frame.GetReadOnly<Unit>(entity).UnitId;
+      return frame.GetReadOnly<UnitIdComponent>(entity).UnitId;
     }
 
     throw new Xunit.Sdk.XunitException($"Player {playerId} unit was not found.");
@@ -96,13 +96,13 @@ public class UnitLookupTests {
 
   private static int GetTurretUnitId(SimHarness harness, int teamId) {
     var frame = harness.Frame;
-    var filter = frame.Filter<Turret, Team, Unit>();
+    var filter = frame.Filter<Turret, TeamComponent, UnitIdComponent>();
     while (filter.Next(out var entity)) {
-      ref readonly var team = ref frame.GetReadOnly<Team>(entity);
+      ref readonly var team = ref frame.GetReadOnly<TeamComponent>(entity);
       if (team.TeamId != teamId)
         continue;
 
-      return frame.GetReadOnly<Unit>(entity).UnitId;
+      return frame.GetReadOnly<UnitIdComponent>(entity).UnitId;
     }
 
     throw new Xunit.Sdk.XunitException($"Team {teamId} turret unit was not found.");

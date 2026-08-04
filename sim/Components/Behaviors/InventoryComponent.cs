@@ -11,7 +11,7 @@ namespace Meesles.Avalon.Sim.Components;
 // Buffer size keeps the struct under the 128-byte component ceiling: 4 ints + MaxItems*4 = 112B.
 [KlothoComponent(ComponentIds.Inventory)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public unsafe partial struct Inventory : IComponent {
+public unsafe partial struct InventoryComponent : IComponent {
   // Repeatable buys stack, so each purchase appends another entry - this caps how many a hero may own.
   public const int MaxItems = 24;
 

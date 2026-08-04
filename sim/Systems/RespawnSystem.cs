@@ -10,7 +10,7 @@ namespace Meesles.Avalon;
 
 public class RespawnSystem : ISystem {
   public void Update(ref Frame frame) {
-    var filter = frame.Filter<Player, Team, Unit, TransformComponent, Health>();
+    var filter = frame.Filter<Player, TeamComponent, UnitIdComponent, TransformComponent, Health>();
     while (filter.Next(out var entity)) {
       if (frame.Has<PendingRespawn>(entity)) {
         ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
@@ -38,8 +38,8 @@ public class RespawnSystem : ISystem {
     frame.Add(entity, new PendingRespawn { RemainingTicks = delayTicks });
 
     ref var player = ref frame.Get<Player>(entity);
-    ref readonly var team = ref frame.GetReadOnly<Team>(entity);
-    ref readonly var unit = ref frame.GetReadOnly<Unit>(entity);
+    ref readonly var team = ref frame.GetReadOnly<TeamComponent>(entity);
+    ref readonly var unit = ref frame.GetReadOnly<UnitIdComponent>(entity);
     ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
 
     player.Score -= rules?.DeathScorePenalty ?? 0;
@@ -58,13 +58,13 @@ public class RespawnSystem : ISystem {
 
   private static void CompleteRespawn(ref Frame frame, EntityRef entity) {
     ref readonly var player = ref frame.GetReadOnly<Player>(entity);
-    ref readonly var team = ref frame.GetReadOnly<Team>(entity);
-    ref readonly var unit = ref frame.GetReadOnly<Unit>(entity);
+    ref readonly var team = ref frame.GetReadOnly<TeamComponent>(entity);
+    ref readonly var unit = ref frame.GetReadOnly<UnitIdComponent>(entity);
     ref var transform = ref frame.Get<TransformComponent>(entity);
     ref var health = ref frame.Get<Health>(entity);
 
     transform.Position = SimulationSetup.GetHeroSpawnPositionForTeam(ref frame, team.TeamId);
-    health.Current = frame.GetReadOnly<Stats>(entity).MaxHealth;
+    health.Current = frame.GetReadOnly<StatsComponent>(entity).MaxHealth;
     health.LastDamagerUnitId = 0;
     frame.Remove<PendingRespawn>(entity);
     ClearActiveState(ref frame, entity, transform.Position);

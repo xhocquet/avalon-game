@@ -12,7 +12,7 @@ public class AttackIntentSystem : ISystem {
   public void Update(ref Frame frame) {
     _unitIdIndex.Rebuild(ref frame);
 
-    var filter = frame.Filter<AttackTargetUnitId, Team, TransformComponent>();
+    var filter = frame.Filter<AttackTargetUnitId, TeamComponent, TransformComponent>();
     while (filter.Next(out var attacker))
       UpdateAttacker(ref frame, attacker);
   }
@@ -82,15 +82,15 @@ public class AttackIntentSystem : ISystem {
     if (!_unitIdIndex.TryGet(targetUnitId, out target))
       return false;
 
-    if (!frame.Has<Team>(target) || !frame.Has<TransformComponent>(target) || !frame.Has<Health>(target))
+    if (!frame.Has<TeamComponent>(target) || !frame.Has<TransformComponent>(target) || !frame.Has<Health>(target))
       return false;
 
     ref readonly var health = ref frame.GetReadOnly<Health>(target);
     if (health.Current <= 0)
       return false;
 
-    ref readonly var attackerTeam = ref frame.GetReadOnly<Team>(attacker);
-    ref readonly var targetTeam = ref frame.GetReadOnly<Team>(target);
+    ref readonly var attackerTeam = ref frame.GetReadOnly<TeamComponent>(attacker);
+    ref readonly var targetTeam = ref frame.GetReadOnly<TeamComponent>(target);
     return attackerTeam.TeamId != targetTeam.TeamId;
   }
 
@@ -108,8 +108,8 @@ public class AttackIntentSystem : ISystem {
   }
 
   private static bool TryGetUnitId(ref Frame frame, EntityRef entity, out int unitId) {
-    if (frame.Has<Unit>(entity)) {
-      unitId = frame.GetReadOnly<Unit>(entity).UnitId;
+    if (frame.Has<UnitIdComponent>(entity)) {
+      unitId = frame.GetReadOnly<UnitIdComponent>(entity).UnitId;
       return true;
     }
 

@@ -19,7 +19,7 @@ public class DeathSystem : ISystem {
     var indexBuilt = false;
 
     // Players die through RespawnSystem, not here.
-    var filter = frame.FilterWithout<Unit, Health, Player>();
+    var filter = frame.FilterWithout<UnitIdComponent, Health, Player>();
     while (filter.Next(out var entity)) {
       ref readonly var health = ref frame.GetReadOnly<Health>(entity);
       if (health.Current > 0)
@@ -31,7 +31,7 @@ public class DeathSystem : ISystem {
         indexBuilt = true;
       }
 
-      ref readonly var unit = ref frame.GetReadOnly<Unit>(entity);
+      ref readonly var unit = ref frame.GetReadOnly<UnitIdComponent>(entity);
       var destroyed = ResolveUnitContext(ref frame, entity);
       var destroyer = ResolveDestroyerContext(ref frame, lastDamagerUnitId);
       var position = FPVector3.Zero;
@@ -103,8 +103,8 @@ public class DeathSystem : ISystem {
   }
 
   private static UnitContext ResolveUnitContext(ref Frame frame, EntityRef entity) {
-    var unitId = frame.Has<Unit>(entity) ? frame.GetReadOnly<Unit>(entity).UnitId : 0;
-    var teamId = frame.Has<Team>(entity) ? frame.GetReadOnly<Team>(entity).TeamId : 0;
+    var unitId = frame.Has<UnitIdComponent>(entity) ? frame.GetReadOnly<UnitIdComponent>(entity).UnitId : 0;
+    var teamId = frame.Has<TeamComponent>(entity) ? frame.GetReadOnly<TeamComponent>(entity).TeamId : 0;
     var ownerId = frame.Has<OwnerComponent>(entity) ? frame.GetReadOnly<OwnerComponent>(entity).OwnerId : 0;
     return new UnitContext(unitId, teamId, ownerId);
   }

@@ -5,7 +5,7 @@ using xpTURN.Klotho.Serialization;
 namespace Meesles.Avalon.Sim.Commands;
 
 [KlothoSerializable(100)]
-public partial class MoveCommand : CommandBase, IUnitOrderCommand {
+public partial class MoveCommand : CommandBase {
   public FP64 TargetX;
   public FP64 TargetZ;
   public override bool IsContinuousInput => false;

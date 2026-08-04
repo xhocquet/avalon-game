@@ -38,10 +38,10 @@ public partial class HealthBars : ColorRect {
       var frame = evn.Engine?.PredictedFrame.Frame;
       if (frame == null) continue;
       if (!evn.EntityRef.IsValid || !frame.Has<Health>(evn.EntityRef)) continue;
-      if (!frame.Has<Stats>(evn.EntityRef)) continue;
+      if (!frame.Has<StatsComponent>(evn.EntityRef)) continue;
 
       ref readonly var health = ref frame.GetReadOnly<Health>(evn.EntityRef);
-      var maxHealth = frame.GetReadOnly<Stats>(evn.EntityRef).MaxHealth;
+      var maxHealth = frame.GetReadOnly<StatsComponent>(evn.EntityRef).MaxHealth;
       if (health.Current <= 0 || maxHealth <= 0) continue;
 
       var ratio = Mathf.Clamp(health.Current / (float)maxHealth, 0.0f, 1.0f);
@@ -65,10 +65,10 @@ public partial class HealthBars : ColorRect {
   }
 
   private Color GetFillColor(Frame frame, EntityViewNode view) {
-    if (!frame.Has<Team>(view.EntityRef))
+    if (!frame.Has<TeamComponent>(view.EntityRef))
       return NeutralFillColor;
 
-    var teamId = frame.GetReadOnly<Team>(view.EntityRef).TeamId;
+    var teamId = frame.GetReadOnly<TeamComponent>(view.EntityRef).TeamId;
     return teamId == 1 ? TeamOneFillColor : teamId == 2 ? TeamTwoFillColor : NeutralFillColor;
   }
 }

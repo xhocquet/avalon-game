@@ -7,7 +7,7 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Tests;
 
-// Stats.AttackSpeed scales the base period in Combat.AttackCooldownTicks. DamageSystem does the
+// StatsComponent.AttackSpeed scales the base period in Combat.AttackCooldownTicks. DamageSystem does the
 // division at the moment of the hit, so the base period stays intact and buffs stack on the rate.
 public class AttackSpeedTests {
   private const int BaseCooldownTicks = 30;
@@ -44,11 +44,11 @@ public class AttackSpeedTests {
     var frame = harness.Frame;
 
     var attacker = SpawnMinion(ref frame, FPVector3.Zero, teamId: 1, health: 100);
-    frame.Add(attacker, new Stats { Strength = 10, AttackSpeed = attackSpeed });
+    frame.Add(attacker, new StatsComponent { Strength = 10, AttackSpeed = attackSpeed });
     frame.Add(attacker, new Combat { AttackRange = FP64.FromInt(3), AttackCooldownTicks = BaseCooldownTicks });
 
     var target = SpawnMinion(ref frame, new FPVector3(FP64.One, FP64.Zero, FP64.Zero), teamId: 2, health: 10000);
-    frame.Add(target, new Stats { Strength = 0 });
+    frame.Add(target, new StatsComponent { Strength = 0 });
 
     return attacker;
   }
@@ -56,11 +56,11 @@ public class AttackSpeedTests {
   private static EntityRef SpawnMinion(ref Frame frame, FPVector3 position, int teamId, int health) {
     var entity = frame.CreateEntity();
     frame.Add(entity, TransformFactory.At(position));
-    frame.Add(entity, new Unit {
+    frame.Add(entity, new UnitIdComponent {
       UnitId = UnitLookup.NextUnitId(ref frame),
       UnitTypeId = SimulationSetup.MinionUnitTypeId
     });
-    frame.Add(entity, new Team { TeamId = teamId });
+    frame.Add(entity, new TeamComponent { TeamId = teamId });
     frame.Add(entity, new Minion { WaveId = 99 });
     frame.Add(entity, new Health(health));
 

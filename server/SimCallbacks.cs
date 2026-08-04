@@ -43,10 +43,10 @@ namespace Meesles.Avalon.Server {
 
       _logger.KInformation($"[SimCallbacks] Post-init entity positions:");
       var postFrame = engine.PredictedFrame.Frame;
-      var filter = postFrame.Filter<TransformComponent, Team>();
+      var filter = postFrame.Filter<TransformComponent, TeamComponent>();
       while (filter.Next(out var entity)) {
         ref readonly var pos = ref postFrame.GetReadOnly<TransformComponent>(entity);
-        ref readonly var team = ref postFrame.GetReadOnly<Team>(entity);
+        ref readonly var team = ref postFrame.GetReadOnly<TeamComponent>(entity);
         string kind = postFrame.Has<Crystal>(entity) ? "Crystal"
           : postFrame.Has<Turret>(entity) ? "Turret"
           : postFrame.Has<SpawnPoint>(entity) ? "SpawnPoint"

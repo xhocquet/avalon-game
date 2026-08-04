@@ -48,14 +48,14 @@ public class PurchaseItemCommandTests {
     var hero = FindHero(ref frame, PlayerId);
     PlaceHeroAtTeamShop(ref frame, hero);
     SetGold(ref frame, hero, 10);
-    var strengthBefore = frame.GetReadOnly<Stats>(hero).Strength;
+    var strengthBefore = frame.GetReadOnly<StatsComponent>(hero).Strength;
 
     harness.Tick(Purchase(EyeKeyItemId));
 
     frame = harness.Frame;
     hero = FindHero(ref frame, PlayerId);
-    frame.GetReadOnly<Stats>(hero).Strength.Should().Be(strengthBefore + 10);
-    frame.GetReadOnly<Inventory>(hero).Gold.Should().Be(0);
+    frame.GetReadOnly<StatsComponent>(hero).Strength.Should().Be(strengthBefore + 10);
+    frame.GetReadOnly<InventoryComponent>(hero).Gold.Should().Be(0);
   }
 
   [Fact]
@@ -67,14 +67,14 @@ public class PurchaseItemCommandTests {
     PlaceHeroAtTeamShop(ref frame, hero);
     SetGold(ref frame, hero, 100);
 
-    frame.GetReadOnly<Inventory>(hero).ItemCount.Should().Be(0);
+    frame.GetReadOnly<InventoryComponent>(hero).ItemCount.Should().Be(0);
 
     harness.Tick(Purchase(EyeKeyItemId));
     harness.Tick(Purchase(EyeKeyItemId));
 
     frame = harness.Frame;
     hero = FindHero(ref frame, PlayerId);
-    ref readonly var inventory = ref frame.GetReadOnly<Inventory>(hero);
+    ref readonly var inventory = ref frame.GetReadOnly<InventoryComponent>(hero);
 
     // Repeatable buys stack: two purchases append two ledger entries of the same asset id.
     inventory.ItemCount.Should().Be(2);
@@ -96,7 +96,7 @@ public class PurchaseItemCommandTests {
 
     frame = harness.Frame;
     hero = FindHero(ref frame, PlayerId);
-    frame.GetReadOnly<Inventory>(hero).ItemCount.Should().Be(0);
+    frame.GetReadOnly<InventoryComponent>(hero).ItemCount.Should().Be(0);
   }
 
   [Fact]
@@ -108,14 +108,14 @@ public class PurchaseItemCommandTests {
     var hero = FindHero(ref frame, PlayerId);
     PlaceHeroAtTeamShop(ref frame, hero);
     SetGold(ref frame, hero, item.Cost + 5);
-    var strengthBefore = frame.GetReadOnly<Stats>(hero).Strength;
+    var strengthBefore = frame.GetReadOnly<StatsComponent>(hero).Strength;
 
     harness.Tick(Purchase(EyeKeyItemId));
 
     frame = harness.Frame;
     hero = FindHero(ref frame, PlayerId);
-    frame.GetReadOnly<Inventory>(hero).Gold.Should().Be(5);
-    frame.GetReadOnly<Stats>(hero).Strength.Should().Be(strengthBefore + item.AttackBonus);
+    frame.GetReadOnly<InventoryComponent>(hero).Gold.Should().Be(5);
+    frame.GetReadOnly<StatsComponent>(hero).Strength.Should().Be(strengthBefore + item.AttackBonus);
   }
 
   [Fact]
@@ -127,14 +127,14 @@ public class PurchaseItemCommandTests {
     var hero = FindHero(ref frame, PlayerId);
     PlaceHeroFarFromShop(ref frame, hero);
     SetGold(ref frame, hero, 100);
-    var strengthBefore = frame.GetReadOnly<Stats>(hero).Strength;
+    var strengthBefore = frame.GetReadOnly<StatsComponent>(hero).Strength;
 
     harness.Tick(Purchase(EyeKeyItemId));
 
     frame = harness.Frame;
     hero = FindHero(ref frame, PlayerId);
-    frame.GetReadOnly<Inventory>(hero).Gold.Should().Be(100);
-    frame.GetReadOnly<Stats>(hero).Strength.Should().Be(strengthBefore);
+    frame.GetReadOnly<InventoryComponent>(hero).Gold.Should().Be(100);
+    frame.GetReadOnly<StatsComponent>(hero).Strength.Should().Be(strengthBefore);
   }
 
   [Fact]
@@ -146,14 +146,14 @@ public class PurchaseItemCommandTests {
     var hero = FindHero(ref frame, PlayerId);
     PlaceHeroAtTeamShop(ref frame, hero);
     SetGold(ref frame, hero, item.Cost - 1);
-    var strengthBefore = frame.GetReadOnly<Stats>(hero).Strength;
+    var strengthBefore = frame.GetReadOnly<StatsComponent>(hero).Strength;
 
     harness.Tick(Purchase(EyeKeyItemId));
 
     frame = harness.Frame;
     hero = FindHero(ref frame, PlayerId);
-    frame.GetReadOnly<Inventory>(hero).Gold.Should().Be(item.Cost - 1);
-    frame.GetReadOnly<Stats>(hero).Strength.Should().Be(strengthBefore);
+    frame.GetReadOnly<InventoryComponent>(hero).Gold.Should().Be(item.Cost - 1);
+    frame.GetReadOnly<StatsComponent>(hero).Strength.Should().Be(strengthBefore);
   }
 
   private static PurchaseItemCommand Purchase(int itemAssetId) {
@@ -172,19 +172,19 @@ public class PurchaseItemCommandTests {
   }
 
   private static FPVector3 TeamShopPosition(ref Frame frame, EntityRef hero) {
-    var teamId = frame.GetReadOnly<Team>(hero).TeamId;
+    var teamId = frame.GetReadOnly<TeamComponent>(hero).TeamId;
     frame.AssetRegistry.TryGet<MapLayoutAsset>(out var layout).Should().BeTrue();
     layout.TryGetByTypeAndTeam(MapMarkerType.Shop, teamId, out var shopPos).Should().BeTrue();
     return shopPos;
   }
 
   private static void SetGold(ref Frame frame, EntityRef hero, int gold) {
-    ref var inventory = ref frame.Get<Inventory>(hero);
+    ref var inventory = ref frame.Get<InventoryComponent>(hero);
     inventory.Gold = gold;
   }
 
   private static EntityRef FindHero(ref Frame frame, int playerId) {
-    var filter = frame.Filter<Player, Inventory>();
+    var filter = frame.Filter<Player, InventoryComponent>();
     while (filter.Next(out var entity))
       if (frame.GetReadOnly<Player>(entity).PlayerId == playerId)
         return entity;

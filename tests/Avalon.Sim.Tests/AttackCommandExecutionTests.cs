@@ -377,8 +377,8 @@ public class AttackCommandExecutionTests {
 
   private static int GetAttackDamage(Frame frame, int unitId) {
     TryGetEntityByUnitId(frame, unitId, out var entity).Should().BeTrue();
-    frame.Has<Stats>(entity).Should().BeTrue();
-    return frame.GetReadOnly<Stats>(entity).AttackDamage;
+    frame.Has<StatsComponent>(entity).Should().BeTrue();
+    return frame.GetReadOnly<StatsComponent>(entity).AttackDamage;
   }
 
   private static int GetCooldown(Frame frame, int unitId) {
@@ -408,10 +408,10 @@ public class AttackCommandExecutionTests {
   private static UnitSnapshot[] GetMinions(SimHarness harness) {
     var frame = harness.Frame;
     var minions = new List<UnitSnapshot>();
-    var filter = frame.Filter<Minion, Unit, Team, TransformComponent>();
+    var filter = frame.Filter<Minion, UnitIdComponent, TeamComponent, TransformComponent>();
     while (filter.Next(out var entity)) {
-      ref readonly var unit = ref frame.GetReadOnly<Unit>(entity);
-      ref readonly var team = ref frame.GetReadOnly<Team>(entity);
+      ref readonly var unit = ref frame.GetReadOnly<UnitIdComponent>(entity);
+      ref readonly var team = ref frame.GetReadOnly<TeamComponent>(entity);
       ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
       minions.Add(new UnitSnapshot(unit.UnitId, team.TeamId, transform.Position));
     }
@@ -422,10 +422,10 @@ public class AttackCommandExecutionTests {
   private static UnitSnapshot[] GetTurrets(SimHarness harness) {
     var frame = harness.Frame;
     var turrets = new List<UnitSnapshot>();
-    var filter = frame.Filter<Turret, Unit, Team, TransformComponent>();
+    var filter = frame.Filter<Turret, UnitIdComponent, TeamComponent, TransformComponent>();
     while (filter.Next(out var entity)) {
-      ref readonly var unit = ref frame.GetReadOnly<Unit>(entity);
-      ref readonly var team = ref frame.GetReadOnly<Team>(entity);
+      ref readonly var unit = ref frame.GetReadOnly<UnitIdComponent>(entity);
+      ref readonly var team = ref frame.GetReadOnly<TeamComponent>(entity);
       ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
       turrets.Add(new UnitSnapshot(unit.UnitId, team.TeamId, transform.Position));
     }
@@ -484,15 +484,15 @@ public class AttackCommandExecutionTests {
     int unitId = UnitLookup.NextUnitId(ref frame);
 
     frame.Add(entity, TransformFactory.At(position));
-    frame.Add(entity, new Unit {
+    frame.Add(entity, new UnitIdComponent {
       UnitId = unitId,
       UnitTypeId = SimulationSetup.MinionUnitTypeId,
     });
-    frame.Add(entity, new Team { TeamId = teamId });
+    frame.Add(entity, new TeamComponent { TeamId = teamId });
     frame.Add(entity, new Minion { WaveId = 99 });
     frame.Add(entity, new Controllable());
     frame.Add(entity, new Health(100));
-    frame.Add(entity, new Stats { Strength = 10 });
+    frame.Add(entity, new StatsComponent { Strength = 10 });
     frame.Add(entity, new Combat {
       AttackRange = FP64.FromInt(2),
       AttackCooldownTicks = 30,
@@ -503,9 +503,9 @@ public class AttackCommandExecutionTests {
   }
 
   private static bool TryGetEntityByUnitId(Frame frame, int unitId, out EntityRef entity) {
-    var filter = frame.Filter<Unit>();
+    var filter = frame.Filter<UnitIdComponent>();
     while (filter.Next(out entity)) {
-      ref readonly var unit = ref frame.GetReadOnly<Unit>(entity);
+      ref readonly var unit = ref frame.GetReadOnly<UnitIdComponent>(entity);
       if (unit.UnitId == unitId)
         return true;
     }

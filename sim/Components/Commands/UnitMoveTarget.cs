@@ -4,8 +4,7 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Components;
 
-// Steering destination consumed by NavigationAgentSystem. Movement is planar: only Target.x/z
-// matter (see sim/AGENTS.md).
+// Steering destination consumed by NavigationAgentSystem
 [KlothoComponent(ComponentIds.UnitMoveTarget)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public partial struct UnitMoveTarget : IComponent {

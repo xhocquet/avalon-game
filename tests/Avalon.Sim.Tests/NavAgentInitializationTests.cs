@@ -62,8 +62,8 @@ public class NavAgentInitializationTests {
     var hero = harness.FindHero(playerId: 1);
 
     var frame = harness.Frame;
-    var buffed = frame.GetReadOnly<Stats>(hero).MoveSpeed + FP64.FromInt(3);
-    frame.Get<Stats>(hero).MoveSpeed = buffed;
+    var buffed = frame.GetReadOnly<StatsComponent>(hero).MoveSpeed + FP64.FromInt(3);
+    frame.Get<StatsComponent>(hero).MoveSpeed = buffed;
     harness.Tick();
 
     harness.Frame.GetReadOnly<NavAgentComponent>(hero).Speed.Should().Be(buffed);

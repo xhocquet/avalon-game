@@ -14,16 +14,16 @@ public static class HeroFactory {
     frame.Add(entity, TransformFactory.At(position));
     frame.Add(entity, new OwnerComponent { OwnerId = playerId });
     frame.Add(entity, new Player { PlayerId = playerId });
-    frame.Add(entity, new Team(teamId));
-    frame.Add(entity, new Faction(factionId));
+    frame.Add(entity, new TeamComponent(teamId));
+    frame.Add(entity, new FactionComponent(factionId));
     frame.Add(entity, new Hero(playerId, heroAsset.AssetId));
-    frame.Add(entity, new Unit {
+    frame.Add(entity, new UnitIdComponent {
       UnitId = UnitLookup.NextUnitId(ref frame),
       UnitTypeId = SimulationSetup.PlayerUnitTypeId
     });
     frame.Add(entity, new Controllable());
-    frame.Add(entity, new Inventory());
-    frame.Add(entity, new Stats {
+    frame.Add(entity, new InventoryComponent());
+    frame.Add(entity, new StatsComponent {
       Strength = heroAsset.AttackDamage,
       MaxHealth = heroAsset.Health,
       MoveSpeed = heroAsset.MoveSpeed,

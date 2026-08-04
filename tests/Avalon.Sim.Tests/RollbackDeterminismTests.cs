@@ -216,9 +216,9 @@ public class RollbackDeterminismTests {
     var result = new SortedDictionary<int, NavAgentSample>();
     var frame = harness.Frame;
 
-    var filter = frame.Filter<Unit, NavAgentComponent, TransformComponent>();
+    var filter = frame.Filter<UnitIdComponent, NavAgentComponent, TransformComponent>();
     while (filter.Next(out var entity)) {
-      ref readonly var unit = ref frame.GetReadOnly<Unit>(entity);
+      ref readonly var unit = ref frame.GetReadOnly<UnitIdComponent>(entity);
       ref readonly var nav = ref frame.GetReadOnly<NavAgentComponent>(entity);
       ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
 

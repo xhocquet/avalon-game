@@ -182,8 +182,8 @@ public partial class MultiplayerGameNode : GameNode {
     _localViewFocused = true;
     _camera?.SetFollowTarget(view);
     var frame = view.Engine?.PredictedFrame.Frame;
-    if (frame != null && frame.Has<Team>(view.EntityRef))
-      Input.SetLocalTeamId(frame.GetReadOnly<Team>(view.EntityRef).TeamId);
+    if (frame != null && frame.Has<TeamComponent>(view.EntityRef))
+      Input.SetLocalTeamId(frame.GetReadOnly<TeamComponent>(view.EntityRef).TeamId);
     Input.SelectSingleView(view);
   }
 

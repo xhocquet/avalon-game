@@ -31,9 +31,9 @@ public class WaveSpawnSystem : ISystem {
     // Snapshot spawn points before creating entities so we don't mutate the set
     // we're iterating. Filter order is deterministic, so this stays in sync.
     _sources.Clear();
-    var filter = frame.Filter<SpawnPoint, Team, TransformComponent>();
+    var filter = frame.Filter<SpawnPoint, TeamComponent, TransformComponent>();
     while (filter.Next(out var entity)) {
-      ref readonly var team = ref frame.Get<Team>(entity);
+      ref readonly var team = ref frame.Get<TeamComponent>(entity);
       ref readonly var transform = ref frame.Get<TransformComponent>(entity);
       _sources.Add((transform.Position, team.TeamId));
     }
@@ -53,7 +53,7 @@ public class WaveSpawnSystem : ISystem {
 
     _occupancyGrid.Clear();
 
-    var filter = frame.Filter<Minion, Team, TransformComponent>();
+    var filter = frame.Filter<Minion, TeamComponent, TransformComponent>();
     while (filter.Next(out var entity)) {
       ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
       _occupancyGrid.Insert(entity, transform.Position.ToXZ());
@@ -96,7 +96,7 @@ public class WaveSpawnSystem : ISystem {
 
     for (var i = 0; i < _nearbyMinions.Count; i++) {
       var entity = _nearbyMinions[i];
-      ref readonly var team = ref frame.GetReadOnly<Team>(entity);
+      ref readonly var team = ref frame.GetReadOnly<TeamComponent>(entity);
       if (team.TeamId != teamId)
         continue;
 

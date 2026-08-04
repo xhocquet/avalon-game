@@ -18,15 +18,9 @@ public partial class NavigationTuningAsset : IDataAsset {
   // ~0.6s of reaction. Too small (was 2) and they only notice each other ~0.2s out — they overlap,
   // react abruptly, and never settle. Heroes use the avoidance runtime's own NeighborDist.
   [KlothoOrder(1)] public FP64 MinionNeighborDist;
-
-  // How far an agent must have moved since its last navmesh snap before we re-snap it.
-  [KlothoOrder(2)] public FP64 PositionSnapThreshold;
-
-  // Hard arrival radius for a minion's flow-field destination.
-  [KlothoOrder(3)] public FP64 FlowFieldArrivalDist;
-
-  // Inside this radius a minion abandons the flow field and steers straight at its slot.
-  [KlothoOrder(4)] public FP64 FlowFieldDirectSteerDist;
+  [KlothoOrder(2)] public FP64 PositionSnapThreshold; // Distance threshold until re-snapping to navmesh
+  [KlothoOrder(3)] public FP64 FlowFieldArrivalDist; // Arrival redius for the destination
+  [KlothoOrder(4)] public FP64 FlowFieldDirectSteerDist; // Radius when 'in' the flowfield, going straight
 
   // Ease-in radius: within this distance of the slot the minion decelerates instead of charging at
   // full speed, so it settles into place rather than overshooting and oscillating.
@@ -63,8 +57,5 @@ public partial class NavigationTuningAsset : IDataAsset {
   // lets packed groups settle instead of shuffling over each other. NavigationAgentSystem pushes
   // this onto the avoidance runtime each tick.
   [KlothoOrder(14)] public FP64 AvoidanceTimeHorizon;
-
-  // Multiplier on a unit's MoveSpeed that gives its nav-agent acceleration, so a unit reaches full
-  // speed in ~1/Factor seconds regardless of how fast it moves. Applied by NavAgentFactory.
-  [KlothoOrder(15)] public FP64 AccelerationFactor;
+  [KlothoOrder(15)] public FP64 AccelerationFactor; // Controls speed at which unit reaches full speed
 }

@@ -23,12 +23,12 @@ public class TargetAcquisitionSystem : ISystem {
 
     // Attackers that already hold a target are excluded outright — reacquisition is
     // AttackIntentSystem's job, not this system's.
-    var filter = frame.FilterWithout<Unit, Team, Combat, TransformComponent, AttackTargetUnitId>();
+    var filter = frame.FilterWithout<UnitIdComponent, TeamComponent, Combat, TransformComponent, AttackTargetUnitId>();
     while (filter.Next(out var attacker)) {
       if (!CanAcquireTargets(ref frame, attacker))
         continue;
 
-      ref readonly var team = ref frame.GetReadOnly<Team>(attacker);
+      ref readonly var team = ref frame.GetReadOnly<TeamComponent>(attacker);
       ref readonly var combat = ref frame.GetReadOnly<Combat>(attacker);
       ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(attacker);
 
@@ -45,7 +45,7 @@ public class TargetAcquisitionSystem : ISystem {
   private void BuildCandidateGrid(ref Frame frame) {
     _candidateGrid.Clear();
 
-    var filter = frame.Filter<Unit, Team, Health, TransformComponent>();
+    var filter = frame.Filter<UnitIdComponent, TeamComponent, Health, TransformComponent>();
     while (filter.Next(out var candidate)) {
       ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(candidate);
       _candidateGrid.Insert(candidate, transform.Position.ToXZ());
@@ -87,7 +87,7 @@ public class TargetAcquisitionSystem : ISystem {
       if (priority == int.MaxValue)
         continue;
 
-      ref readonly var team = ref frame.GetReadOnly<Team>(candidate);
+      ref readonly var team = ref frame.GetReadOnly<TeamComponent>(candidate);
       if (team.TeamId == attackerTeamId)
         continue;
 
@@ -95,7 +95,7 @@ public class TargetAcquisitionSystem : ISystem {
       if (health.Current <= 0)
         continue;
 
-      ref readonly var unit = ref frame.GetReadOnly<Unit>(candidate);
+      ref readonly var unit = ref frame.GetReadOnly<UnitIdComponent>(candidate);
       if (!found || priority < bestPriority || (priority == bestPriority && unit.UnitId < bestUnitId)) {
         found = true;
         bestPriority = priority;

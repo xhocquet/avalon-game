@@ -187,13 +187,13 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private void UpdateLocalPlayerHealth(Frame frame) {
     if (_localPlayerId is not int localId) return;
 
-    var filter = frame.Filter<Hero, Health, Stats>();
+    var filter = frame.Filter<Hero, Health, StatsComponent>();
     while (filter.Next(out var entity)) {
       ref readonly var hero = ref frame.GetReadOnly<Hero>(entity);
       if (hero.PlayerId != localId) continue;
 
       ref readonly var health = ref frame.GetReadOnly<Health>(entity);
-      SetPlayerHealth(health.Current, frame.GetReadOnly<Stats>(entity).MaxHealth);
+      SetPlayerHealth(health.Current, frame.GetReadOnly<StatsComponent>(entity).MaxHealth);
       return;
     }
   }
@@ -201,12 +201,12 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private void UpdateLocalPlayerInventory(Frame frame) {
     if (_localPlayerId is not int localId) return;
 
-    var filter = frame.Filter<Hero, Inventory>();
+    var filter = frame.Filter<Hero, InventoryComponent>();
     while (filter.Next(out var entity)) {
       ref readonly var hero = ref frame.GetReadOnly<Hero>(entity);
       if (hero.PlayerId != localId) continue;
 
-      ref readonly var inventory = ref frame.GetReadOnly<Inventory>(entity);
+      ref readonly var inventory = ref frame.GetReadOnly<InventoryComponent>(entity);
       SetGoldText(inventory.Gold);
       SetResourcesText(inventory.Resources);
       return;
@@ -226,12 +226,12 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private void UpdateLocalPlayerStats(Frame frame) {
     if (_localPlayerId is not int localId) return;
 
-    var filter = frame.Filter<Hero, Stats>();
+    var filter = frame.Filter<Hero, StatsComponent>();
     while (filter.Next(out var entity)) {
       ref readonly var hero = ref frame.GetReadOnly<Hero>(entity);
       if (hero.PlayerId != localId) continue;
 
-      ref readonly var stats = ref frame.GetReadOnly<Stats>(entity);
+      ref readonly var stats = ref frame.GetReadOnly<StatsComponent>(entity);
       SetStrengthText(stats.Strength);
       return;
     }

@@ -9,7 +9,7 @@ namespace Meesles.Avalon;
 
 public class DamageSystem : ISystem {
   public void Update(ref Frame frame) {
-    var filter = frame.Filter<Combat, Team, AttackTargetUnitId>();
+    var filter = frame.Filter<Combat, TeamComponent, AttackTargetUnitId>();
     while (filter.Next(out var attacker)) {
       ref var combat = ref frame.Get<Combat>(attacker);
       if (combat.CooldownRemainingTicks > 0) {
@@ -57,17 +57,17 @@ public class DamageSystem : ISystem {
     }
   }
 
-  // Attackers without a Stats block (nothing today, but structures/summons may skip it) deal nothing.
+  // Attackers without a StatsComponent block (nothing today, but structures/summons may skip it) deal nothing.
   private static int GetAttackDamage(ref Frame frame, EntityRef attacker) {
-    return frame.Has<Stats>(attacker) ? frame.GetReadOnly<Stats>(attacker).AttackDamage : 0;
+    return frame.Has<StatsComponent>(attacker) ? frame.GetReadOnly<StatsComponent>(attacker).AttackDamage : 0;
   }
 
-  // Combat.AttackCooldownTicks is the unit's base period; Stats.AttackSpeed is the multiplier items
+  // Combat.AttackCooldownTicks is the unit's base period; StatsComponent.AttackSpeed is the multiplier items
   // and skills move. Dividing here rather than storing a modified period means bonuses stay additive
   // on the rate (two +50% items give ×2, not ×2.25) and rounding happens once per attack instead of
   // compounding. Rounds to nearest tick, floors at 1 so no attack speed can fire twice in a tick.
   private static int GetCooldownTicks(ref Frame frame, EntityRef attacker, in Combat combat) {
-    var attackSpeed = frame.Has<Stats>(attacker) ? frame.GetReadOnly<Stats>(attacker).AttackSpeed : FP64.One;
+    var attackSpeed = frame.Has<StatsComponent>(attacker) ? frame.GetReadOnly<StatsComponent>(attacker).AttackSpeed : FP64.One;
     if (attackSpeed <= FP64.Zero)
       return combat.AttackCooldownTicks;
 
@@ -79,15 +79,15 @@ public class DamageSystem : ISystem {
   private static bool TryGetDamageTarget(ref Frame frame, EntityRef attacker, EntityRef target,
     out EntityRef resolvedTarget) {
     resolvedTarget = target;
-    if (!target.IsValid || !frame.Has<Health>(target) || !frame.Has<Team>(target))
+    if (!target.IsValid || !frame.Has<Health>(target) || !frame.Has<TeamComponent>(target))
       return false;
 
     ref readonly var health = ref frame.GetReadOnly<Health>(target);
     if (health.Current <= 0)
       return false;
 
-    ref readonly var attackerTeam = ref frame.GetReadOnly<Team>(attacker);
-    ref readonly var targetTeam = ref frame.GetReadOnly<Team>(target);
+    ref readonly var attackerTeam = ref frame.GetReadOnly<TeamComponent>(attacker);
+    ref readonly var targetTeam = ref frame.GetReadOnly<TeamComponent>(target);
     return attackerTeam.TeamId != targetTeam.TeamId;
   }
 
@@ -107,8 +107,8 @@ public class DamageSystem : ISystem {
   }
 
   private static bool TryGetUnitId(ref Frame frame, EntityRef entity, out int unitId) {
-    if (entity.IsValid && frame.Has<Unit>(entity)) {
-      unitId = frame.GetReadOnly<Unit>(entity).UnitId;
+    if (entity.IsValid && frame.Has<UnitIdComponent>(entity)) {
+      unitId = frame.GetReadOnly<UnitIdComponent>(entity).UnitId;
       return true;
     }
 

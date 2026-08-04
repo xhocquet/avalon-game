@@ -33,7 +33,7 @@
 
 # Working Rules
 
-- Prefer compact intent commands with stable `Unit.UnitId` references. Do not put transient ECS entity ids in command payloads.
+- Prefer compact intent commands with stable `UnitIdComponent.UnitId` references. Do not put transient ECS entity ids in command payloads.
 - Movement is planar: `TransformComponent.Position.x/z`.
 - NO dynamic physics. Use deterministic transform integration, radii, proximity queries, grids, and stable iteration order.
 - When changing gameplay rules, inspect `sim/` first instead of duplicating logic in `client/` or `server/`.
@@ -42,7 +42,7 @@
 
 # Command Validation
 
-Command payloads come off the wire from untrusted peers, and nothing between the socket and the simulation catches an exception — LiteNetLib's `ProcessEvent`, `ServerNetworkService.HandleClientInputMessage`, and `ServerLoop.ExecuteCycle` all let one propagate, and `ServerLoop.Run` has no `catch`. A command that throws or corrupts state while deserializing takes the server process down with every room on it, so validation is not optional for a new command type.
+Command payloads come off the wire from untrusted peers, and nothing between the socket and the simulation catches an exception. The path runs through Klotho's networking layer in `vendor/Klotho` (not the project's own `server/`): LiteNetLib's `ProcessEvent`, `ServerNetworkService.HandleClientInputMessage`, and `ServerLoop.ExecuteCycle` all let one propagate, and `ServerLoop.Run` wraps the loop in `try`/`finally` with no `catch`. A command that throws or corrupts state while deserializing takes the server process down with every room on it, so validation is not optional for a new command type.
 
 Every command passes through two layers before a handler runs:
 

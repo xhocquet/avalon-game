@@ -32,13 +32,13 @@ public class TeamPruneSystem : ISystem {
 
     _toDestroy.Clear();
     _prunedTeams.Clear();
-    var crystals = frame.Filter<Crystal, Team>();
+    var crystals = frame.Filter<Crystal, TeamComponent>();
     while (crystals.Next(out var entity))
       AddIfTeamless(entity, ref frame);
-    var turrets = frame.Filter<Turret, Team>();
+    var turrets = frame.Filter<Turret, TeamComponent>();
     while (turrets.Next(out var entity))
       AddIfTeamless(entity, ref frame);
-    var spawns = frame.Filter<SpawnPoint, Team>();
+    var spawns = frame.Filter<SpawnPoint, TeamComponent>();
     while (spawns.Next(out var entity))
       AddIfTeamless(entity, ref frame);
 
@@ -79,9 +79,9 @@ public class TeamPruneSystem : ISystem {
     while (slots.Next(out var entity))
       AddTeam(frame.GetReadOnly<PlayerFaction>(entity).TeamId);
 
-    var heroes = frame.Filter<Hero, Team>();
+    var heroes = frame.Filter<Hero, TeamComponent>();
     while (heroes.Next(out var entity))
-      AddTeam(frame.GetReadOnly<Team>(entity).TeamId);
+      AddTeam(frame.GetReadOnly<TeamComponent>(entity).TeamId);
   }
 
   private void AddTeam(int teamId) {
@@ -90,7 +90,7 @@ public class TeamPruneSystem : ISystem {
   }
 
   private void AddIfTeamless(EntityRef entity, ref Frame frame) {
-    var teamId = frame.GetReadOnly<Team>(entity).TeamId;
+    var teamId = frame.GetReadOnly<TeamComponent>(entity).TeamId;
     if (_activeTeams.Contains(teamId))
       return;
 

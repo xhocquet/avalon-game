@@ -3,7 +3,7 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Components;
 
-// Neutral, collectable resource pickup. Like Oasis, carries no Team/Health/Unit so it stays
+// Neutral, collectable resource pickup. Like Oasis, carries no TeamComponent/Health/UnitIdComponent so it stays
 // invisible to TargetAcquisitionSystem/DamageSystem; PickupSystem collects it by proximity only.
 [KlothoComponent(ComponentIds.Pickup)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]

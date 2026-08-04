@@ -15,12 +15,12 @@ public class DeathSystemTests {
     var frame = harness.Frame;
     EntityRef crystal = GetFirstCrystalEntity(ref frame);
     EntityRef attacker = GetEnemyCombatUnit(ref frame, crystal);
-    int unitId = frame.GetReadOnly<Unit>(crystal).UnitId;
+    int unitId = frame.GetReadOnly<UnitIdComponent>(crystal).UnitId;
     int crystalId = frame.GetReadOnly<Crystal>(crystal).CrystalId;
-    int teamId = frame.GetReadOnly<Team>(crystal).TeamId;
+    int teamId = frame.GetReadOnly<TeamComponent>(crystal).TeamId;
     int ownerId = frame.GetReadOnly<OwnerComponent>(crystal).OwnerId;
-    int destroyerUnitId = frame.GetReadOnly<Unit>(attacker).UnitId;
-    int destroyerTeamId = frame.GetReadOnly<Team>(attacker).TeamId;
+    int destroyerUnitId = frame.GetReadOnly<UnitIdComponent>(attacker).UnitId;
+    int destroyerTeamId = frame.GetReadOnly<TeamComponent>(attacker).TeamId;
     int destroyerOwnerId = frame.GetReadOnly<OwnerComponent>(attacker).OwnerId;
     ref var crystalHealth = ref frame.Get<Health>(crystal);
     crystalHealth.Current = 0;
@@ -51,13 +51,13 @@ public class DeathSystemTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     EntityRef crystal = GetFirstCrystalEntity(ref frame);
-    int crystalTeamId = frame.GetReadOnly<Team>(crystal).TeamId;
+    int crystalTeamId = frame.GetReadOnly<TeamComponent>(crystal).TeamId;
     int enemyTeamId = crystalTeamId + 1;
 
     EntityRef bystander = SpawnTestAttacker(ref frame, enemyTeamId);
     EntityRef killer = SpawnTestAttacker(ref frame, enemyTeamId);
-    int killerUnitId = frame.GetReadOnly<Unit>(killer).UnitId;
-    frame.GetReadOnly<Unit>(bystander).UnitId.Should().BeLessThan(killerUnitId);
+    int killerUnitId = frame.GetReadOnly<UnitIdComponent>(killer).UnitId;
+    frame.GetReadOnly<UnitIdComponent>(bystander).UnitId.Should().BeLessThan(killerUnitId);
 
     // Both hold the corpse as their target; only the killer landed the fatal hit.
     frame.Get<Combat>(bystander).Target = crystal;
@@ -104,8 +104,8 @@ public class DeathSystemTests {
     var frame = harness.Frame;
     EntityRef turret = GetFirstTurretEntity(ref frame);
     EntityRef attacker = GetEnemyCombatUnit(ref frame, turret);
-    int unitId = frame.GetReadOnly<Unit>(turret).UnitId;
-    int destroyerUnitId = frame.GetReadOnly<Unit>(attacker).UnitId;
+    int unitId = frame.GetReadOnly<UnitIdComponent>(turret).UnitId;
+    int destroyerUnitId = frame.GetReadOnly<UnitIdComponent>(attacker).UnitId;
     ref var turretHealth = ref frame.Get<Health>(turret);
     turretHealth.Current = 0;
     turretHealth.LastDamagerUnitId = destroyerUnitId;
@@ -130,8 +130,8 @@ public class DeathSystemTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     EntityRef entity = SpawnTestMinion(ref frame);
-    int unitId = frame.GetReadOnly<Unit>(entity).UnitId;
-    int unitTypeId = frame.GetReadOnly<Unit>(entity).UnitTypeId;
+    int unitId = frame.GetReadOnly<UnitIdComponent>(entity).UnitId;
+    int unitTypeId = frame.GetReadOnly<UnitIdComponent>(entity).UnitTypeId;
     var deathPosition = new FPVector3(FP64.FromInt(3), FP64.Zero, FP64.FromInt(4));
     frame.Get<TransformComponent>(entity).Position = deathPosition;
     frame.Get<Health>(entity).Current = 0;
@@ -157,7 +157,7 @@ public class DeathSystemTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     EntityRef entity = GetFirstCrystalEntity(ref frame);
-    int unitId = frame.GetReadOnly<Unit>(entity).UnitId;
+    int unitId = frame.GetReadOnly<UnitIdComponent>(entity).UnitId;
     frame.Get<Health>(entity).Current = 1;
 
     var collector = new EventCollector();
@@ -177,7 +177,7 @@ public class DeathSystemTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     EntityRef entity = GetFirstHeroEntity(ref frame);
-    int unitId = frame.GetReadOnly<Unit>(entity).UnitId;
+    int unitId = frame.GetReadOnly<UnitIdComponent>(entity).UnitId;
     frame.Get<Health>(entity).Current = 0;
 
     var system = new DeathSystem();
@@ -188,7 +188,7 @@ public class DeathSystemTests {
   }
 
   private static EntityRef GetFirstCrystalEntity(ref Frame frame) {
-    var filter = frame.Filter<Crystal, Unit, OwnerComponent, Health, TransformComponent>();
+    var filter = frame.Filter<Crystal, UnitIdComponent, OwnerComponent, Health, TransformComponent>();
     if (filter.Next(out var entity))
       return entity;
 
@@ -196,7 +196,7 @@ public class DeathSystemTests {
   }
 
   private static EntityRef GetFirstTurretEntity(ref Frame frame) {
-    var filter = frame.Filter<Turret, Unit, Health, TransformComponent>();
+    var filter = frame.Filter<Turret, UnitIdComponent, Health, TransformComponent>();
     if (filter.Next(out var entity))
       return entity;
 
@@ -204,10 +204,10 @@ public class DeathSystemTests {
   }
 
   private static EntityRef GetEnemyCombatUnit(ref Frame frame, EntityRef target) {
-    int targetTeamId = frame.GetReadOnly<Team>(target).TeamId;
-    var filter = frame.Filter<Unit, Team, OwnerComponent, Combat>();
+    int targetTeamId = frame.GetReadOnly<TeamComponent>(target).TeamId;
+    var filter = frame.Filter<UnitIdComponent, TeamComponent, OwnerComponent, Combat>();
     while (filter.Next(out var entity)) {
-      ref readonly var team = ref frame.GetReadOnly<Team>(entity);
+      ref readonly var team = ref frame.GetReadOnly<TeamComponent>(entity);
       if (team.TeamId != targetTeamId)
         return entity;
     }
@@ -216,7 +216,7 @@ public class DeathSystemTests {
   }
 
   private static EntityRef GetFirstHeroEntity(ref Frame frame) {
-    var filter = frame.Filter<Player, Unit, Health, TransformComponent>();
+    var filter = frame.Filter<Player, UnitIdComponent, Health, TransformComponent>();
     if (filter.Next(out var entity))
       return entity;
 
@@ -227,11 +227,11 @@ public class DeathSystemTests {
     var entity = frame.CreateEntity();
 
     frame.Add(entity, TransformFactory.At(FPVector3.Zero));
-    frame.Add(entity, new Unit {
+    frame.Add(entity, new UnitIdComponent {
       UnitId = UnitLookup.NextUnitId(ref frame),
       UnitTypeId = SimulationSetup.MinionUnitTypeId,
     });
-    frame.Add(entity, new Team { TeamId = teamId });
+    frame.Add(entity, new TeamComponent { TeamId = teamId });
     frame.Add(entity, new OwnerComponent { OwnerId = teamId });
     frame.Add(entity, new Minion { WaveId = 99 });
     frame.Add(entity, new Health(100));
@@ -249,11 +249,11 @@ public class DeathSystemTests {
     int unitId = UnitLookup.NextUnitId(ref frame);
 
     frame.Add(entity, TransformFactory.At(FPVector3.Zero));
-    frame.Add(entity, new Unit {
+    frame.Add(entity, new UnitIdComponent {
       UnitId = unitId,
       UnitTypeId = SimulationSetup.MinionUnitTypeId,
     });
-    frame.Add(entity, new Team { TeamId = 1 });
+    frame.Add(entity, new TeamComponent { TeamId = 1 });
     frame.Add(entity, new OwnerComponent { OwnerId = 1 });
     frame.Add(entity, new Minion { WaveId = 99 });
     frame.Add(entity, new Health(100));

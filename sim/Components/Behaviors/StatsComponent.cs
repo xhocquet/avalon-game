@@ -8,7 +8,7 @@ namespace Meesles.Avalon.Sim.Components;
 // Most values come from the faction hero's asset file
 [KlothoComponent(ComponentIds.Stats)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public partial struct Stats() : IComponent {
+public partial struct StatsComponent() : IComponent {
   public int Strength = 100;
   public int Defense = 100;
   public int MaxHealth = 0;

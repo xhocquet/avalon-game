@@ -31,15 +31,15 @@ public class UnitViewFactory : EntityViewFactory {
     return frame.Has<Minion>(entity) ? entry.MinionScene : entry.HeroScene;
   }
 
-  // Heroes carry Faction directly; other faction-aligned units (minions) inherit it from their
+  // Heroes carry FactionComponent directly; other faction-aligned units (minions) inherit it from their
   // team's pick. Returns 0 when neither is available — an id the catalog doesn't register, so
   // Resolve throws and surfaces the mis-configured unit rather than rendering a placeholder.
   private static int ResolveFactionId(Frame frame, EntityRef entity) {
-    if (frame.Has<Faction>(entity))
-      return frame.GetReadOnly<Faction>(entity).FactionId;
+    if (frame.Has<FactionComponent>(entity))
+      return frame.GetReadOnly<FactionComponent>(entity).FactionId;
 
-    if (frame.Has<Team>(entity)) {
-      var teamId = frame.GetReadOnly<Team>(entity).TeamId;
+    if (frame.Has<TeamComponent>(entity)) {
+      var teamId = frame.GetReadOnly<TeamComponent>(entity).TeamId;
       var filter = frame.Filter<PlayerFaction>();
       while (filter.Next(out var slot)) {
         ref readonly var pf = ref frame.GetReadOnly<PlayerFaction>(slot);

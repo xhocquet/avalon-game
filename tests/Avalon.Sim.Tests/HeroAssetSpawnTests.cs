@@ -34,9 +34,9 @@ public class HeroAssetSpawnTests {
       var heroAssetId = frame.GetReadOnly<Hero>(entity).HeroAssetId;
       var heroAsset = harness.AssetRegistry.Get<HeroAsset>(heroAssetId);
 
-      frame.GetReadOnly<Stats>(entity).MaxHealth.Should().Be(heroAsset.Health);
-      frame.GetReadOnly<Stats>(entity).Strength.Should().Be(heroAsset.AttackDamage);
-      frame.GetReadOnly<Stats>(entity).MoveSpeed.Should().Be(heroAsset.MoveSpeed);
+      frame.GetReadOnly<StatsComponent>(entity).MaxHealth.Should().Be(heroAsset.Health);
+      frame.GetReadOnly<StatsComponent>(entity).Strength.Should().Be(heroAsset.AttackDamage);
+      frame.GetReadOnly<StatsComponent>(entity).MoveSpeed.Should().Be(heroAsset.MoveSpeed);
 
       ref readonly var combat = ref frame.GetReadOnly<Combat>(entity);
       combat.AttackRange.Should().Be(heroAsset.AttackRange);
@@ -65,9 +65,9 @@ public class HeroAssetSpawnTests {
     var frame = harness.Frame;
     var hero = harness.FindHero(playerId);
 
-    frame.GetReadOnly<Stats>(hero).MaxHealth.Should().Be(expected.Health);
-    frame.GetReadOnly<Stats>(hero).Strength.Should().Be(expected.AttackDamage);
-    frame.GetReadOnly<Stats>(hero).MoveSpeed.Should().Be(expected.MoveSpeed);
+    frame.GetReadOnly<StatsComponent>(hero).MaxHealth.Should().Be(expected.Health);
+    frame.GetReadOnly<StatsComponent>(hero).Strength.Should().Be(expected.AttackDamage);
+    frame.GetReadOnly<StatsComponent>(hero).MoveSpeed.Should().Be(expected.MoveSpeed);
     frame.GetReadOnly<Combat>(hero).AttackRange.Should().Be(expected.AttackRange);
     frame.GetReadOnly<Combat>(hero).AttackCooldownTicks.Should().Be(expected.AttackCooldownTicks);
   }

@@ -9,7 +9,7 @@ public static class SpawnPointFactory {
     var entity = frame.CreateEntity();
 
     frame.Add(entity, TransformFactory.At(position));
-    frame.Add(entity, new Team(teamId));
+    frame.Add(entity, new TeamComponent(teamId));
     frame.Add(entity, new SpawnPoint {
       SpawnPointId = teamId,
       UnitTypeId = SimulationSetup.MinionUnitTypeId
