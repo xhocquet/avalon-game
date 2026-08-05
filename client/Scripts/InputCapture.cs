@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using Meesles.Avalon.Client.Scripts.View;
+using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Commands;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Deterministic.Math;
@@ -187,6 +188,11 @@ public class InputCapture : IDisposable {
     if (_camera == null) return;
 
     switch (@event) {
+      case InputEventKey { Pressed: true, Echo: false } key when TryGetSkillHotkeySlot(key.Keycode, out var slot):
+        if (_camera.IsGodmode) return;
+        QueueSkillCast(slot);
+        return;
+
       case InputEventMouseMotion motion:
         UpdateDragSelection(motion.Position);
         return;
@@ -200,6 +206,19 @@ public class InputCapture : IDisposable {
         if (rightClick.Pressed && IsPointerOverClickableUi()) return;
         HandleRightClick(rightClick);
         return;
+    }
+  }
+
+  // Q/W/E/R map to the four SkillSlots in order, matching the skill cells the bar renders left to right.
+  // Camera panning was moved off WASD onto the arrow keys so W is free (CameraController.NormalMoveDirection);
+  // godmode's flycam still uses WASD+QE, which is why the caller drops these while it's on.
+  private static bool TryGetSkillHotkeySlot(Key keycode, out int slot) {
+    switch (keycode) {
+      case Key.Q: slot = (int)SkillSlot.HardHit; return true;
+      case Key.W: slot = (int)SkillSlot.Buff; return true;
+      case Key.E: slot = (int)SkillSlot.RangeShot; return true;
+      case Key.R: slot = (int)SkillSlot.Ultimate; return true;
+      default: slot = -1; return false;
     }
   }
 

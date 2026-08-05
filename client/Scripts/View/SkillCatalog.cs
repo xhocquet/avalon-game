@@ -49,6 +49,11 @@ public class SkillCatalog {
       : throw new KeyNotFoundException($"No skill registered for id {skillId}.");
   }
 
+  // For UI that paints a slot before it knows the hero, where an unseeded id 0 is expected rather than a bug.
+  public bool TryResolve(int skillId, out SkillDef entry) {
+    return _byId.TryGetValue(skillId, out entry);
+  }
+
   public static SkillCatalog CreateDefault() {
     return new SkillCatalog(SkillDefs);
   }

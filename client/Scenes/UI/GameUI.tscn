@@ -175,7 +175,28 @@ offset_left = 4.0
 offset_right = 611.0
 offset_bottom = 24.0
 theme_override_font_sizes/font_size = 14
-text = "HP 90 / 100"
+text = "HP 80 / 100"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="XpBar" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox" unique_id=790217363]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+color = Color(0.6, 0.54901963, 0.2509804, 0.9019608)
+
+[node name="XpBarFill" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/XpBar" unique_id=1432411203]
+layout_mode = 0
+offset_right = 284.0
+offset_bottom = 24.0
+color = Color(0.7921569, 0.7490196, 0.3019608, 0.9490196)
+
+[node name="XpBarLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/XpBar" unique_id=311941905]
+layout_mode = 0
+offset_left = 4.0
+offset_right = 611.0
+offset_bottom = 24.0
+theme_override_font_sizes/font_size = 14
+text = "45% (45 / 100)"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -240,6 +261,15 @@ offset_right = 160.0
 offset_bottom = 84.0
 theme_override_font_sizes/font_size = 18
 text = "Strength: 0"
+
+[node name="LevelLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel" unique_id=142657491]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 88.0
+offset_right = 160.0
+offset_bottom = 112.0
+theme_override_font_sizes/font_size = 18
+text = "Level: 1"
 
 [node name="MarginContainer" type="MarginContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection" unique_id=562705946]
 layout_mode = 2

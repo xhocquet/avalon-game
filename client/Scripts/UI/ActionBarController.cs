@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using Godot;
-using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
-using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon;
@@ -29,12 +27,18 @@ public class ActionBarController {
   private readonly ShopItemCatalog _catalog;
   private readonly GridContainer _grid;
   private readonly Action<int> _onPurchase;
+
+  // Leading cells owned by another controller (SkillBarController's four skill slots). Everything from
+  // this index on is ours to clear and rebuild; anything before it we never touch.
+  private readonly int _reservedLeadingCells;
   private bool _shown;
 
-  public ActionBarController(GridContainer grid, ShopItemCatalog catalog, Action<int> onPurchase) {
+  public ActionBarController(GridContainer grid, ShopItemCatalog catalog, Action<int> onPurchase,
+    int reservedLeadingCells = 0) {
     _grid = grid;
     _catalog = catalog;
     _onPurchase = onPurchase;
+    _reservedLeadingCells = reservedLeadingCells;
     ClearGrid();
     FillEmptySlots();
   }
@@ -167,11 +171,13 @@ public class ActionBarController {
     return false;
   }
 
-  // Remove every current cell immediately (RemoveChild, not just QueueFree, so the grid never holds
-  // the old and new cells together for a frame). Callers repopulate right after.
+  // Remove every cell we own immediately (RemoveChild, not just QueueFree, so the grid never holds
+  // the old and new cells together for a frame). Callers repopulate right after. Iterated back to front
+  // so removals don't shift the indices still to be visited.
   private void ClearGrid() {
     if (_grid == null) return;
-    foreach (var child in _grid.GetChildren()) {
+    for (var i = _grid.GetChildCount() - 1; i >= _reservedLeadingCells; i--) {
+      var child = _grid.GetChild(i);
       _grid.RemoveChild(child);
       child.QueueFree();
     }

@@ -22,6 +22,8 @@ public partial class CameraController : Camera3D {
   private float _godmodePitch;
   private float _godmodeYaw;
   private bool _justExitedGodmode;
+  private bool _isMousePanning;
+  private Vector3 _mousePanAnchor;
   private CameraMode _mode = CameraMode.Free;
   private CameraMode _modeBeforeGodmode = CameraMode.Free;
   private bool _wasInGodmode;
@@ -54,6 +56,19 @@ public partial class CameraController : Camera3D {
 
     if (_mode == CameraMode.Godmode) {
       if (@event is InputEventMouseMotion motion) ApplyGodmodeLook(motion.Relative);
+      return;
+    }
+
+    if (@event is InputEventMouseButton { ButtonIndex: MouseButton.Middle } middle) {
+      if (middle.Pressed) BeginMousePan(middle.Position);
+      else EndMousePan();
+      GetViewport().SetInputAsHandled();
+      return;
+    }
+
+    if (_isMousePanning && @event is InputEventMouseMotion drag) {
+      UpdateMousePan(drag.Position);
+      GetViewport().SetInputAsHandled();
       return;
     }
 
@@ -101,6 +116,32 @@ public partial class CameraController : Camera3D {
     var t = -origin.Y / dir.Y;
     if (t < 0f) return null;
     return origin + dir * t;
+  }
+
+  // Middle-mouse drag pans the map: the world point grabbed on press stays pinned under the cursor for the
+  // whole drag. Anchoring on a world position and re-solving it every motion keeps the pan 1:1 at any zoom
+  // and self-corrects, where accumulating pixel deltas would drift as the camera moves under the cursor.
+  // Panning drops follow mode, same as a keyboard pan does.
+  private void BeginMousePan(Vector2 screenPos) {
+    var ground = ScreenToGround(screenPos);
+    if (ground == null) return;
+
+    _isMousePanning = true;
+    _mousePanAnchor = ground.Value;
+    _mode = CameraMode.Free;
+  }
+
+  private void UpdateMousePan(Vector2 screenPos) {
+    var ground = ScreenToGround(screenPos);
+    if (ground == null) return;
+
+    var delta = _mousePanAnchor - ground.Value;
+    delta.Y = 0f;
+    GlobalPosition += delta;
+  }
+
+  private void EndMousePan() {
+    _isMousePanning = false;
   }
 
   private void ProcessGodmode(float dt) {
@@ -160,6 +201,7 @@ public partial class CameraController : Camera3D {
   }
 
   private void OnEnterGodmode() {
+    _isMousePanning = false;
     Input.MouseMode = Input.MouseModeEnum.Captured;
     SyncGodmodeFromTransform();
   }
@@ -189,9 +231,14 @@ public partial class CameraController : Camera3D {
     return dir.LengthSquared() > 0f ? dir.Normalized() : dir;
   }
 
+  // Arrow keys, not WASD: Q/W/E/R are the hero's skill hotbar (see InputCapture), so a keyboard pan on
+  // W would cast and pan off the same tap. Godmode's flycam keeps WASD+QE — it suppresses the skill keys
+  // while it's on, so nothing there is double-bound.
   private Vector3 NormalMoveDirection() {
-    return MovementDirectionXz("move_forward", "move_backward", "move_left", "move_right");
+    return MovementDirectionXz("camera_up", "camera_down", "camera_left", "camera_right");
   }
+
+  public bool IsGodmode => _mode == CameraMode.Godmode;
 
   private void ApplyGodmodeLook(Vector2 delta) {
     _godmodeYaw -= delta.X * MouseSensitivity;

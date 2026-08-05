@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using Meesles.Avalon.Sim;
+using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Network;
@@ -18,9 +19,13 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private ColorRect _healthBar;
   private ColorRect _healthBarFill;
   private Label _healthBarLabel;
+  private ColorRect _xpBar;
+  private ColorRect _xpBarFill;
+  private Label _xpBarLabel;
   private Label _goldLabel;
   private Label _resourcesLabel;
   private Label _strengthLabel;
+  private Label _levelLabel;
   private int? _localPlayerId;
   private Label _resultLabel;
   private Panel _resultPanel;
@@ -29,16 +34,18 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private Control _tabUi;
 
   private ActionBarController _actionBar;
+  private SkillBarController _skillBar;
   private InventoryPanelController _inventoryPanel;
   private ShopItemCatalog _shopCatalog;
+  private SkillCatalog _skillCatalog;
   private ShopEntity _contextShop;
 
   // Set by InputCapture.BindGameUI: raised when the player clicks a shop buy button. InputCapture
   // turns the invocation into a PurchaseItemCommand.
   public Action<int> PurchaseRequested { get; set; }
 
-  // Same wiring for the skill tree: the argument is a SkillSlot index. Nothing raises these yet —
-  // the skill tree panel and hotbar are still to come — but the sim path behind them is live.
+  // Same wiring for the skill tree: the argument is a SkillSlot index. SkillBarController raises the
+  // upgrade one when a skill cell is clicked; nothing raises the cast one yet.
   public Action<int> SkillUpgradeRequested { get; set; }
   public Action<int> SkillCastRequested { get; set; }
 
@@ -72,6 +79,8 @@ public partial class GameUI : CanvasLayer, IViewHud {
     UpdateLocalPlayerHealth(frame);
     UpdateLocalPlayerInventory(frame);
     UpdateLocalPlayerStats(frame);
+    UpdateLocalPlayerExperience(frame);
+    _skillBar?.Update(frame, _localPlayerId);
     _actionBar?.Update(frame, _localPlayerId, _contextShop);
     _inventoryPanel?.Update(frame, _localPlayerId);
 
@@ -111,6 +120,12 @@ public partial class GameUI : CanvasLayer, IViewHud {
     _strengthLabel =
       GetNodeOrNull<Label>(
         "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/StrengthLabel");
+    _levelLabel =
+      GetNodeOrNull<Label>(
+        "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/LevelLabel");
+    _xpBar = GetNodeOrNull<ColorRect>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/XpBar");
+    _xpBarFill = GetNodeOrNull<ColorRect>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/XpBar/XpBarFill");
+    _xpBarLabel = GetNodeOrNull<Label>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/XpBar/XpBarLabel");
     _selectionRectangle = GetNode<Control>("DefaultUI/SelectionRectangle");
     _resultPanel = GetNodeOrNull<Panel>("DefaultUI/ResultPanel");
     _resultLabel = GetNodeOrNull<Label>("DefaultUI/ResultPanel/ResultLabel");
@@ -124,7 +139,13 @@ public partial class GameUI : CanvasLayer, IViewHud {
     var actionGrid = GetNodeOrNull<GridContainer>(
       "DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid");
     _shopCatalog = ShopItemCatalog.CreateDefault();
-    _actionBar = new ActionBarController(actionGrid, _shopCatalog, itemId => PurchaseRequested?.Invoke(itemId));
+    _skillCatalog = SkillCatalog.CreateDefault();
+
+    // Order matters: the skill bar claims the grid's leading cells, then the action bar is told how many
+    // to leave alone. Building them the other way round would let the action bar clear the skill cells.
+    _skillBar = new SkillBarController(actionGrid, _skillCatalog, slot => SkillUpgradeRequested?.Invoke(slot));
+    _actionBar = new ActionBarController(actionGrid, _shopCatalog, itemId => PurchaseRequested?.Invoke(itemId),
+      SkillBarController.SlotCount);
 
     var itemPanel = GetNodeOrNull<GridContainer>(
       "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MarginContainer/ItemPanel");
@@ -156,6 +177,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
     _eventSubscriptions.Add(hub.OnConfirmed<TurretDestroyedEvent>(OnTurretDestroyed));
     _eventSubscriptions.Add(hub.OnConfirmed<PlayerDiedEvent>(OnPlayerDied));
     _eventSubscriptions.Add(hub.OnConfirmed<PlayerRespawnedEvent>(OnPlayerRespawned));
+    _eventSubscriptions.Add(hub.OnConfirmed<HeroLeveledUpEvent>(OnHeroLeveledUp));
   }
 
   private void UnbindSimEvents() {
@@ -181,6 +203,11 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private void OnPlayerRespawned(PlayerRespawnedEvent evt) {
     if (_localPlayerId is int id && evt.PlayerId == id)
       ShowAnnouncement("Respawned");
+  }
+
+  private void OnHeroLeveledUp(HeroLeveledUpEvent evt) {
+    if (_localPlayerId is int id && evt.PlayerId == id)
+      ShowAnnouncement($"Level Up!  Level {evt.Level}");
   }
 
   public override void _Input(InputEvent @event) {
@@ -246,6 +273,44 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private void SetStrengthText(int strength) {
     if (_strengthLabel != null)
       _strengthLabel.Text = $"Strength: {strength}";
+  }
+
+  private void UpdateLocalPlayerExperience(Frame frame) {
+    if (_localPlayerId is not int localId) return;
+    if (!frame.AssetRegistry.TryGet<XpRulesAsset>(out var rules)) return;
+
+    var filter = frame.Filter<Hero, ExperienceComponent>();
+    while (filter.Next(out var entity)) {
+      ref readonly var hero = ref frame.GetReadOnly<Hero>(entity);
+      if (hero.PlayerId != localId) continue;
+
+      ref readonly var experience = ref frame.GetReadOnly<ExperienceComponent>(entity);
+      SetPlayerExperience(experience.Level, experience.Experience, rules);
+      return;
+    }
+  }
+
+  // ExperienceComponent.Experience is lifetime XP against cumulative thresholds, so the bar shows
+  // progress through the current level only: the span between this level's threshold and the next.
+  public void SetPlayerExperience(int level, int experience, XpRulesAsset rules) {
+    if (_levelLabel != null)
+      _levelLabel.Text = $"Level: {level}";
+
+    if (_xpBar == null || _xpBarFill == null || rules == null) return;
+
+    var atMaxLevel = level >= rules.MaxLevel;
+    var levelStart = rules.TotalXpForLevel(level);
+    var nextLevel = rules.TotalXpForLevel(level + 1);
+    var needed = nextLevel - levelStart;
+    var into = experience - levelStart;
+
+    var ratio = atMaxLevel || needed <= 0 ? 1f : Mathf.Clamp(into / (float)needed, 0f, 1f);
+    _xpBarFill.Size = new Vector2(_xpBar.Size.X * ratio, _xpBar.Size.Y);
+
+    if (_xpBarLabel != null)
+      _xpBarLabel.Text = atMaxLevel
+        ? $"MAX ({experience} XP)"
+        : $"{(int)(ratio * 100f)}% ({into} / {needed})";
   }
 
   public void SetPhase(SessionPhase phase) {
