@@ -12,10 +12,7 @@ public static class HeroFactory {
     var entity = frame.CreateEntity();
 
     frame.Add(entity, TransformFactory.At(position));
-    // Vendor render-path contract, not a sim link: EntityViewFactory/EntityViewUpdaterNode compare
-    // OwnerId against Engine.LocalPlayerId to pick predicted vs verified rendering. The sim's own
-    // "who drives this" link is Hero.PlayerId.
-    frame.Add(entity, new OwnerComponent { OwnerId = playerId });
+    frame.Add(entity, new OwnerComponent { OwnerId = playerId }); // Required by vendor code
     frame.Add(entity, new Player());
     frame.Add(entity, new TeamComponent(teamId));
     frame.Add(entity, new FactionComponent(factionId));

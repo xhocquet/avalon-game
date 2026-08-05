@@ -4,9 +4,7 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
 
-// A team is active if it has a champion on the field. Deliberately says nothing about humans, so an
-// all-bot team counts the same as a human one. ScoreSystem and TeamPruneSystem both ask this
-// question and must agree on the answer.
+// A team is active if it has a champion on the field
 public static class TeamRegistry {
   public static void CollectActiveTeams(ref Frame frame, List<int> teamIds) {
     teamIds.Clear();

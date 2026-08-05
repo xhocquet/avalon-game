@@ -7,12 +7,7 @@ using xpTURN.Klotho.Logging;
 
 namespace Meesles.Avalon;
 
-// Culls the bases (Crystal), defenses (Turret) and minion sources (SpawnPoint) of any team that no
-// player is on. InitializeWorld seeds a base for every team the map authors so the world is fully
-// populated during setup; this system deletes the unclaimed ones once team assignment has settled —
-// after every faction pick is confirmed, or after the shared setup grace window — and before the
-// first minion wave (it is registered ahead of WaveSpawnSystem). It runs exactly once; the outcome
-// is recorded in the MatchSetupState singleton so it survives rollback and never re-fires.
+// Culls units (Crystal, Turret, SpawnPoint) for inactive teams. Recorded in the sim as an event
 public class TeamPruneSystem : ISystem {
   private readonly List<int> _activeTeams = [];
   private readonly List<int> _prunedTeams = [];
