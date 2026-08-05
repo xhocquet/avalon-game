@@ -95,6 +95,22 @@ public class SimHarness {
     };
   }
 
+  public static Commands.UpgradeSkillCommand UpgradeSkillCommand(int playerId, int tick, int slot) {
+    return new Commands.UpgradeSkillCommand {
+      PlayerId = playerId,
+      Tick = tick,
+      Slot = slot,
+    };
+  }
+
+  public static Commands.CastSkillCommand CastSkillCommand(int playerId, int tick, int slot) {
+    return new Commands.CastSkillCommand {
+      PlayerId = playerId,
+      Tick = tick,
+      Slot = slot,
+    };
+  }
+
   public EntityRef FindHero(int playerId) {
     var frame = Frame;
     var filter = frame.Filter<Components.Hero>();

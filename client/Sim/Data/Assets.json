@@ -190,7 +190,12 @@
     "AttackRange": 6.0,
     "AttackCooldownTicks": 36,
     "AttackReacquireRangeMultiplier": 3.0,
-    "Defense": 10
+    "Defense": 10,
+    "SkillSetId": 0,
+    "Skill1AssetId": 500,
+    "Skill2AssetId": 501,
+    "Skill3AssetId": 502,
+    "Skill4AssetId": 503
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.HeroAsset, Meesles.Avalon.Client",
@@ -203,7 +208,12 @@
     "AttackRange": 3.0,
     "AttackCooldownTicks": 24,
     "AttackReacquireRangeMultiplier": 3.0,
-    "Defense": 10
+    "Defense": 10,
+    "SkillSetId": 1,
+    "Skill1AssetId": 504,
+    "Skill2AssetId": 505,
+    "Skill3AssetId": 506,
+    "Skill4AssetId": 507
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.HeroAsset, Meesles.Avalon.Client",
@@ -216,7 +226,12 @@
     "AttackRange": 3.5,
     "AttackCooldownTicks": 45,
     "AttackReacquireRangeMultiplier": 3.0,
-    "Defense": 10
+    "Defense": 10,
+    "SkillSetId": 2,
+    "Skill1AssetId": 508,
+    "Skill2AssetId": 509,
+    "Skill3AssetId": 510,
+    "Skill4AssetId": 511
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.HeroAsset, Meesles.Avalon.Client",
@@ -229,7 +244,12 @@
     "AttackRange": 2.5,
     "AttackCooldownTicks": 30,
     "AttackReacquireRangeMultiplier": 3.0,
-    "Defense": 10
+    "Defense": 10,
+    "SkillSetId": 3,
+    "Skill1AssetId": 512,
+    "Skill2AssetId": 513,
+    "Skill3AssetId": 514,
+    "Skill4AssetId": 515
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.HeroAsset, Meesles.Avalon.Client",
@@ -242,6 +262,151 @@
     "AttackRange": 3.0,
     "AttackCooldownTicks": 40,
     "AttackReacquireRangeMultiplier": 3.0,
-    "Defense": 10
+    "Defense": 10,
+    "SkillSetId": 4,
+    "Skill1AssetId": 516,
+    "Skill2AssetId": 517,
+    "Skill3AssetId": 518,
+    "Skill4AssetId": 519
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 500,
+    "_Name": "Hairy Wizard - Hard Hit",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 501,
+    "_Name": "Hairy Wizard - Buff",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 502,
+    "_Name": "Hairy Wizard - Range Shot",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 503,
+    "_Name": "Hairy Wizard - Ultimate",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 504,
+    "_Name": "Shroom - Hard Hit",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 505,
+    "_Name": "Shroom - Buff",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 506,
+    "_Name": "Shroom - Range Shot",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 507,
+    "_Name": "Shroom - Ultimate",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 508,
+    "_Name": "Crystal Giant - Hard Hit",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 509,
+    "_Name": "Crystal Giant - Buff",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 510,
+    "_Name": "Crystal Giant - Range Shot",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 511,
+    "_Name": "Crystal Giant - Ultimate",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 512,
+    "_Name": "Skinwalker - Hard Hit",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 513,
+    "_Name": "Skinwalker - Buff",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 514,
+    "_Name": "Skinwalker - Range Shot",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 515,
+    "_Name": "Skinwalker - Ultimate",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 516,
+    "_Name": "Pickle Knight - Hard Hit",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 517,
+    "_Name": "Pickle Knight - Buff",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 518,
+    "_Name": "Pickle Knight - Range Shot",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 519,
+    "_Name": "Pickle Knight - Ultimate",
+    "MaxRank": 4,
+    "CooldownMs": 3000
   }
 ]

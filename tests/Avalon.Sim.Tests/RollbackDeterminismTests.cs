@@ -23,6 +23,9 @@ public class RollbackDeterminismTests {
   private const int DriftTicks = 40;
   private const int DriftWarmupTicks = 60;
 
+  // Far more than the 4 ranks a slot can hold, so neither stream ever runs dry and stops diverging.
+  private const int SkillPointPool = 40;
+
   private readonly ITestOutputHelper _output;
 
   public RollbackDeterminismTests(ITestOutputHelper output) {
@@ -54,6 +57,58 @@ public class RollbackDeterminismTests {
       "resimulating a rolled-back tick range must reproduce the server's state exactly. A " +
       "divergence here means a system carried per-tick state in a plain field instead of in " +
       "frame state, so the discarded prediction branch leaked into the replay.");
+  }
+
+  // Skill state across a rollback boundary. Cooldown counters are the shape that fails here: written
+  // by a command on one tick, decremented every tick after, so a client that predicts a cast, rolls
+  // it back, and resimulates has to land on the server's remaining ticks exactly.
+  //
+  // The point pool is granted up front to both sims identically. Without it a hero has only the one
+  // point it spawned with, so every upgrade after the first is rejected for lack of points and the
+  // mispredicted branch quietly becomes a no-op — the test would pass while proving nothing.
+  [Fact]
+  public void Rollback_AfterMispredictedSkillUse_ReplayMatchesServerHashes() {
+    var rollback = RollbackHarness.Create();
+    rollback.Advance(1, beforeTick: sim => GrantSkillPoints(sim, SkillPointPool));
+
+    rollback.Advance(WarmupTicks, AuthoritativeSkills);
+    AssertSkillsAreInPlay(rollback.Server);
+    rollback.InSync.Should().BeTrue("the two sims must agree before the rollback");
+
+    rollback.MispredictAndRollback(MispredictedTicks, MispredictedSkills);
+    rollback.InSync.Should().BeTrue("restoring the snapshot should put the client back on the server");
+
+    var divergences = rollback.AdvanceAndCompare(ReplayTicks, AuthoritativeSkills);
+    Report(divergences, ReplayTicks, WarmupTicks);
+
+    divergences.Should().BeEmpty(
+      "skill points, ranks, and cooldowns all live on SkillsComponent, so a rollback must restore " +
+      "them with the rest of the frame. A divergence here means skill state was cached on a system " +
+      "or a behavior instead, and the discarded prediction branch leaked into the replay.");
+  }
+
+  // Guards the scenario above: if the authoritative stream is not actually ranking skills up and
+  // leaving a cooldown mid-burn at the snapshot tick, the rollback it wraps proves nothing.
+  private static void AssertSkillsAreInPlay(SimHarness harness) {
+    var frame = harness.Frame;
+    var hero = harness.FindHero(1);
+    var skill = harness.AssetRegistry.Get<Assets.SkillAsset>(
+      frame.GetReadOnly<SkillsComponent>(hero).GetSkillAssetId((int)SkillSlot.HardHit));
+
+    ref readonly var skills = ref frame.GetReadOnly<SkillsComponent>(hero);
+    skills.GetRank((int)SkillSlot.HardHit).Should().Be(skill.MaxRank,
+      "the warmup stream should have ranked HardHit all the way up");
+    skills.GetCooldownRemainingTicks((int)SkillSlot.HardHit).Should().BeGreaterThan(0,
+      "a cooldown must still be burning at the snapshot tick for the rollback to have to restore one");
+    skills.GetRank((int)SkillSlot.Ultimate).Should().Be(0,
+      "Ultimate is the slot the mispredicted branch touches, so it must be untouched here");
+  }
+
+  private static void GrantSkillPoints(SimHarness harness, int points) {
+    var frame = harness.Frame;
+    var filter = frame.Filter<Hero, SkillsComponent>();
+    while (filter.Next(out var entity))
+      frame.Get<SkillsComponent>(entity).SkillPoints = points;
   }
 
   // Regression test for NavigationAgentSystem's navmesh-snap bookkeeping.
@@ -266,6 +321,36 @@ public class RollbackDeterminismTests {
     return [
       SimHarness.MoveCommand(playerId: 1, tick, FP64.FromDouble(-20.0), FP64.FromDouble(-30.0)),
       SimHarness.MoveCommand(playerId: 2, tick, FP64.FromDouble(20.0), FP64.FromDouble(30.0)),
+    ];
+  }
+
+  // Both players rank up and cast HardHit on a slow, steady cadence — slow enough that the cooldown
+  // is genuinely mid-burn when the rollback lands rather than always at zero.
+  private static ICommand[] AuthoritativeSkills(int tick) {
+    if (tick % 40 == 0)
+      return [
+        SimHarness.UpgradeSkillCommand(playerId: 1, tick, (int)SkillSlot.HardHit),
+        SimHarness.UpgradeSkillCommand(playerId: 2, tick, (int)SkillSlot.HardHit),
+      ];
+
+    if (tick % 40 == 20)
+      return [
+        SimHarness.CastSkillCommand(playerId: 1, tick, (int)SkillSlot.HardHit),
+        SimHarness.CastSkillCommand(playerId: 2, tick, (int)SkillSlot.HardHit),
+      ];
+
+    return [];
+  }
+
+  // The discarded branch: both players pour points into Ultimate and cast it, a slot the
+  // authoritative stream never ranks at all. Its rank and cooldown are unambiguously state that only
+  // ever existed on the branch being thrown away.
+  private static ICommand[] MispredictedSkills(int tick) {
+    return [
+      SimHarness.UpgradeSkillCommand(playerId: 1, tick, (int)SkillSlot.Ultimate),
+      SimHarness.CastSkillCommand(playerId: 1, tick, (int)SkillSlot.Ultimate),
+      SimHarness.UpgradeSkillCommand(playerId: 2, tick, (int)SkillSlot.Ultimate),
+      SimHarness.CastSkillCommand(playerId: 2, tick, (int)SkillSlot.Ultimate),
     ];
   }
 

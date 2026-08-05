@@ -3,6 +3,7 @@ using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Commands;
 using Meesles.Avalon.Sim.Components;
+using Meesles.Avalon.Sim.Heroes.Skills;
 using Meesles.Avalon.Sim.Navigation;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
@@ -35,6 +36,12 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
         break;
       case PurchaseItemCommand purchase:
         HandlePurchaseItemCommand(ref frame, purchase);
+        break;
+      case UpgradeSkillCommand upgrade:
+        SkillActions.TryUpgrade(ref frame, upgrade.PlayerId, upgrade.Slot);
+        break;
+      case CastSkillCommand cast:
+        SkillActions.TryCast(ref frame, cast.PlayerId, cast.Slot);
         break;
     }
   }

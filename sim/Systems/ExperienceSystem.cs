@@ -45,6 +45,12 @@ public class ExperienceSystem : ISystem {
     ref var health = ref frame.Get<Health>(entity);
     if (health.IsAlive)
       health.Current += maxHealthGain;
+
+    // One skill point per level. Not a stat, so it does not route through Stats.Add - the tree spends
+    // these itself in SkillActions. Guarded rather than filtered on so a hero without the component
+    // still levels normally.
+    if (frame.Has<SkillsComponent>(entity))
+      frame.Get<SkillsComponent>(entity).SkillPoints += levelsGained;
   }
 
   private static void RaiseLevelUpEvent(ref Frame frame, EntityRef entity, int level) {

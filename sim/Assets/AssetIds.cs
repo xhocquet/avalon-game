@@ -50,6 +50,31 @@ public static class AssetIds {
   public const int HeroPickleKnight = 404;
   // Next free hero id: 405
 
+  // SkillAsset, SkillCatalog. Four rows per hero in slot order (HardHit, Buff, RangeShot, Ultimate),
+  // blocked hero-major in the same order as the Hero* block above. Every hero owns its own rows even
+  // where the numbers currently match, so retuning one hero's skill never touches another's.
+  public const int SkillHairyWizardHardHit = 500;
+  public const int SkillHairyWizardBuff = 501;
+  public const int SkillHairyWizardRangeShot = 502;
+  public const int SkillHairyWizardUltimate = 503;
+  public const int SkillShroomHardHit = 504;
+  public const int SkillShroomBuff = 505;
+  public const int SkillShroomRangeShot = 506;
+  public const int SkillShroomUltimate = 507;
+  public const int SkillCrystalGiantHardHit = 508;
+  public const int SkillCrystalGiantBuff = 509;
+  public const int SkillCrystalGiantRangeShot = 510;
+  public const int SkillCrystalGiantUltimate = 511;
+  public const int SkillSkinwalkerHardHit = 512;
+  public const int SkillSkinwalkerBuff = 513;
+  public const int SkillSkinwalkerRangeShot = 514;
+  public const int SkillSkinwalkerUltimate = 515;
+  public const int SkillPickleKnightHardHit = 516;
+  public const int SkillPickleKnightBuff = 517;
+  public const int SkillPickleKnightRangeShot = 518;
+  public const int SkillPickleKnightUltimate = 519;
+  // Next free skill id: 520
+
   // What the deserializer dispatches on to pick a type. Every asset class has one, including the
   // multi-instance ones that own no id above.
   public static class TypeIds {
@@ -68,5 +93,7 @@ public static class AssetIds {
     public const int CombatRules = 113;
     public const int Hero = 114;
     public const int XpRules = 115;
+    public const int Skill = 116;
+    // Next free type id: 117
   }
 }

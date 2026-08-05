@@ -16,4 +16,27 @@ public partial class HeroAsset : IDataAsset {
   [KlothoOrder(6)] public int AttackCooldownTicks;
   [KlothoOrder(7)] public FP64 AttackReacquireRangeMultiplier;
   [KlothoOrder(8)] public int Defense;
+
+  // Which IHeroSkillSet runs this hero's skill code (see Heroes/Skills/HeroSkillSets.cs). Kept apart
+  // from BehaviorId: that one selects spawn/tick logic and is 0 for every hero, while every hero
+  // needs its own skill file from the start.
+  [KlothoOrder(9)] public int SkillSetId;
+
+  // The four SkillAsset rows this hero owns, in SkillSlot order.
+  [KlothoOrder(10)] public int Skill1AssetId;
+  [KlothoOrder(11)] public int Skill2AssetId;
+  [KlothoOrder(12)] public int Skill3AssetId;
+  [KlothoOrder(13)] public int Skill4AssetId;
+
+  // Slot index -> the SkillAsset id in that slot, so callers never repeat the field mapping.
+  // Returns 0 for a slot outside the range, which resolves to no asset.
+  public int GetSkillAssetId(int slot) {
+    return slot switch {
+      0 => Skill1AssetId,
+      1 => Skill2AssetId,
+      2 => Skill3AssetId,
+      3 => Skill4AssetId,
+      _ => 0
+    };
+  }
 }

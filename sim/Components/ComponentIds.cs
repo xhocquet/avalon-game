@@ -35,6 +35,7 @@ public static class ComponentIds {
   public const int NavSnapTracker = 126;
   public const int Experience = 127;
   public const int Respawns = 128;
+  public const int Skills = 129;
 
-  // Next free id: 129
+  // Next free id: 130
 }

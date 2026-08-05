@@ -37,6 +37,11 @@ public partial class GameUI : CanvasLayer, IViewHud {
   // turns the invocation into a PurchaseItemCommand.
   public Action<int> PurchaseRequested { get; set; }
 
+  // Same wiring for the skill tree: the argument is a SkillSlot index. Nothing raises these yet —
+  // the skill tree panel and hotbar are still to come — but the sim path behind them is live.
+  public Action<int> SkillUpgradeRequested { get; set; }
+  public Action<int> SkillCastRequested { get; set; }
+
   private Label _timerLabel;
   private SubViewport _minimapViewport;
   private Camera3D _minimapCamera;

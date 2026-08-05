@@ -18,6 +18,16 @@ public enum StatType {
   Defense = 5
 }
 
+// Which of a hero's four skill slots a command or event refers to. The values are indices into
+// SkillsComponent's fixed buffers and into HeroAsset.Skill1..4AssetId, so they must stay 0-based and
+// contiguous.
+public enum SkillSlot {
+  HardHit = 0,
+  Buff = 1,
+  RangeShot = 2,
+  Ultimate = 3
+}
+
 public enum MatchEndReason {
   Unknown = 0,
   Crystal = 1,

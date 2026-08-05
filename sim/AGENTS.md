@@ -30,6 +30,18 @@
 - **Spending** happens in [`ExperienceSystem`](Systems/ExperienceSystem.cs), registered right after `DeathSystem` so a kill lands its level on the same tick. It is the only writer of `Level`, applies gains via `Stats.Add`, tops current HP up by the MaxHealth delta (skipping a hero at 0 HP awaiting respawn), and raises one `HeroLeveledUpEvent` carrying the level reached even when several levels land at once.
 - XP is lifetime-earned and never reset, so it survives death and respawn for free — the hero entity is never destroyed.
 
+# Skills & Upgrades
+
+- Every hero has four skill slots — `HardHit`, `Buff`, `RangeShot`, `Ultimate` ([`SkillSlot`](Enums.cs)) — each ranked 0-4. The slot indices are the indices into `SkillsComponent`'s fixed buffers and into `HeroAsset.Skill1..4AssetId`, so they must stay 0-based and contiguous.
+- Numbers live in [`SkillAsset`](Assets/SkillAsset.cs), four rows per hero in the `AssetIds.Skill*` block (500-519). Every hero owns its own rows even where they currently match, so retuning one hero's skill never touches another's. `CooldownMs` is authored in milliseconds; `SkillActions.CooldownTicks` converts it once, at cast time, with the same ceiling-divide `RespawnSystem` uses.
+- State lives on [`SkillsComponent`](Components/Behaviors/SkillsComponent.cs): unspent points, the four `SkillAsset` ids, ranks, and cooldowns, all as `fixed int` buffers (52B). `HeroFactory` copies the ids off `HeroAsset` at spawn, so nothing downstream reaches the asset registry to find out which skills a hero owns.
+- **Earning**: a hero spawns with 1 point (level 1 counts as a level) and `ExperienceSystem` grants one per level gained, so points always equal level. Points are not a stat and do not route through `Stats.Add` — the tree spends them itself.
+- **Spending and casting** both go through [`SkillActions`](Heroes/Skills/SkillActions.cs), dispatched from `CommandSystem` by `UpgradeSkillCommand` / `CastSkillCommand`. `CommandValidation` range-checks the slot first, and it is the only thing standing between a wire value and an unchecked fixed-buffer index. A cast starts its cooldown *before* running the effect, so an effect that kills or respawns its own caster cannot leave the slot free.
+- [`SkillSystem`](Systems/SkillSystem.cs) only burns cooldowns down, registered before `HeroBehaviorSystem` so skill state is current when behaviors tick. A cast on tick N loses one tick to it on that same tick, because commands are delivered before the Update phase — the same behaviour `AttackCooldownSystem` has, identical on both peers. It is not an off-by-one.
+- Hero-specific skill *code* lives in an [`IHeroSkillSet`](Heroes/Skills/IHeroSkillSet.cs) selected by `HeroAsset.SkillSetId` through [`HeroSkillSets.Get`](Heroes/Skills/HeroSkillSets.cs) — one file per hero under `Heroes/Skills/`, each owning all four of that hero's slots. This is deliberately separate from `BehaviorId`: that selects spawn/tick logic and is 0 for every hero, while skills are per-hero from the start. Like behaviors, skill sets are **stateless singletons**.
+- Effects are currently stubbed in `SharedSkillStubs`. Implementing one means replacing a single delegation in one hero's file; nothing in `SharedSkillStubs` is meant to survive as shared behaviour.
+- Not built yet: targeting (a cast carries only a slot), cast time, resource costs, respec, and rank prerequisites. A level gate would be a `MinHeroLevel` field on `SkillAsset` plus one rung in `SkillActions.TryUpgrade`.
+
 # Navigation & Temporal Spreading
 
 - `NavigationAgentSystem` handles all unit movement: hero A* pathfinding, minion flow-field steering, ORCA avoidance, and movement integration.

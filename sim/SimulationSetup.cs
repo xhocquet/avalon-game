@@ -34,6 +34,7 @@ public static class SimulationSetup {
     simulation.AddSystem(new PickupSystem(), SystemPhase.Update);
     simulation.AddSystem(new TargetAcquisitionSystem(), SystemPhase.Update);
     simulation.AddSystem(new RespawnSystem(), SystemPhase.Update);
+    simulation.AddSystem(new SkillSystem(), SystemPhase.Update);
     simulation.AddSystem(new HeroBehaviorSystem(), SystemPhase.Update);
     if (navigation != null)
       simulation.AddSystem(new NavigationAgentSystem(navigation), SystemPhase.Update);

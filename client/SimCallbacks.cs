@@ -73,6 +73,18 @@ public class SimCallbacks(
       return;
     }
 
+    if (_input != null && _input.TryConsumeUpgradeSkillCommand(out var upgradeSkillCommand)) {
+      sender.Send(upgradeSkillCommand);
+      LogCommandSent("UpgradeSkillCommand", tick, playerId, $"slot={upgradeSkillCommand.Slot}");
+      return;
+    }
+
+    if (_input != null && _input.TryConsumeCastSkillCommand(out var castSkillCommand)) {
+      sender.Send(castSkillCommand);
+      LogCommandSent("CastSkillCommand", tick, playerId, $"slot={castSkillCommand.Slot}");
+      return;
+    }
+
     if (_input != null && _input.TryConsumeAttackCommand(out var attackCommand)) {
       sender.Send(attackCommand);
       LogCommandSent("AttackCommand", tick, playerId,

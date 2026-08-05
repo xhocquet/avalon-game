@@ -1,4 +1,5 @@
 using Meesles.Avalon.Sim.Assets;
+using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
@@ -27,6 +28,10 @@ public static class CommandValidation {
         return AcceptSelection(ref frame, attack, attack.UnitIds);
       case SelectFactionCommand faction:
         return AcceptFaction(ref frame, faction);
+      case UpgradeSkillCommand upgrade:
+        return AcceptSkillSlot(ref frame, upgrade, upgrade.Slot);
+      case CastSkillCommand cast:
+        return AcceptSkillSlot(ref frame, cast, cast.Slot);
       default:
         return true;
     }
@@ -53,6 +58,16 @@ public static class CommandValidation {
       return true;
 
     Reject(ref frame, command, $"faction_asset_missing factionId={command.FactionId}");
+    return false;
+  }
+
+  // The only gate between a wire slot index and the fixed buffers on SkillsComponent, which are
+  // indexed unchecked.
+  private static bool AcceptSkillSlot(ref Frame frame, ICommand command, int slot) {
+    if (SkillsComponent.IsValidSlot(slot))
+      return true;
+
+    Reject(ref frame, command, $"skill_slot_out_of_range slot={slot}");
     return false;
   }
 

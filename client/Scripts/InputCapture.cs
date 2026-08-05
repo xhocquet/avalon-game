@@ -44,6 +44,8 @@ public class InputCapture : IDisposable {
   private AttackCommand _pendingAttackCommand;
   private MoveCommand _pendingMoveCommand;
   private PurchaseItemCommand _pendingPurchaseCommand;
+  private UpgradeSkillCommand _pendingUpgradeSkillCommand;
+  private CastSkillCommand _pendingCastSkillCommand;
   private ShopEntity _contextShop;
   private Node3D _singleplayerMoveTarget;
   private EntityViewUpdaterNode _viewRoot;
@@ -56,6 +58,8 @@ public class InputCapture : IDisposable {
     _pendingMoveCommand = null;
     _pendingAttackCommand = null;
     _pendingPurchaseCommand = null;
+    _pendingUpgradeSkillCommand = null;
+    _pendingCastSkillCommand = null;
     _contextShop = null;
     _camera = null;
     _gameUI?.SetSelectionRectangle(null);
@@ -82,8 +86,11 @@ public class InputCapture : IDisposable {
     _gameUI = gameUI;
     // The action bar renders shop actions and calls back here when the player clicks a buy button;
     // we turn that into a pending PurchaseItemCommand that SimCallbacks.OnPollInput sends next tick.
-    if (_gameUI != null)
+    if (_gameUI != null) {
       _gameUI.PurchaseRequested = QueuePurchase;
+      _gameUI.SkillUpgradeRequested = QueueSkillUpgrade;
+      _gameUI.SkillCastRequested = QueueSkillCast;
+    }
   }
 
   public void BindClickMarker(Node3D clickMarker) {
@@ -137,10 +144,32 @@ public class InputCapture : IDisposable {
     return command != null;
   }
 
+  public bool TryConsumeUpgradeSkillCommand(out UpgradeSkillCommand command) {
+    command = _pendingUpgradeSkillCommand;
+    _pendingUpgradeSkillCommand = null;
+    return command != null;
+  }
+
+  public bool TryConsumeCastSkillCommand(out CastSkillCommand command) {
+    command = _pendingCastSkillCommand;
+    _pendingCastSkillCommand = null;
+    return command != null;
+  }
+
   // Called by the action bar when the player clicks a shop buy button. Validation (gold, range) is
   // the sim's job — we just forward the intent; a rejected purchase is simply a no-op in the sim.
   public void QueuePurchase(int itemAssetId) {
     _pendingPurchaseCommand = new PurchaseItemCommand { ItemAssetId = itemAssetId };
+  }
+
+  // Skill intents, same deal: points, rank cap, and cooldown are all checked in the sim, so an
+  // ineligible slot is a no-op rather than something to gate here.
+  public void QueueSkillUpgrade(int slot) {
+    _pendingUpgradeSkillCommand = new UpgradeSkillCommand { Slot = slot };
+  }
+
+  public void QueueSkillCast(int slot) {
+    _pendingCastSkillCommand = new CastSkillCommand { Slot = slot };
   }
 
   public void ClearSingleplayerTarget() {
