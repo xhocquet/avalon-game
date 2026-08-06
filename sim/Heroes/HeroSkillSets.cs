@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Meesles.Avalon.Sim.Heroes.Skills;
+namespace Meesles.Avalon.Sim.Heroes;
 
 public static class HeroSkillSets {
   private static readonly Dictionary<int, IHeroSkillSet> SkillSets = new() {

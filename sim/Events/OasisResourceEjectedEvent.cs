@@ -4,8 +4,7 @@ using xpTURN.Klotho.Serialization;
 
 namespace Meesles.Avalon.Sim;
 
-// Fired the instant the resource actually leaves the oasis. FlightDurationMs is how long the
-// view has to animate the resource travelling from OasisPosition to TargetPosition before it lands.
+// Fired when a resource leaves the oasis
 [KlothoSerializable(110)]
 public partial class OasisResourceEjectedEvent : SimulationEvent {
   [KlothoOrder(0)] public int OasisId;
@@ -13,5 +12,6 @@ public partial class OasisResourceEjectedEvent : SimulationEvent {
   [KlothoOrder(2)] public FPVector3 OasisPosition;
   [KlothoOrder(3)] public FPVector3 TargetPosition;
   [KlothoOrder(4)] public int FlightDurationMs;
+
   public override EventMode Mode => EventMode.Synced;
 }

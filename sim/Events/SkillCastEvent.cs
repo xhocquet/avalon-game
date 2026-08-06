@@ -11,8 +11,7 @@ public partial class SkillCastEvent : SimulationEvent {
   [KlothoOrder(2)] public int Slot;
   [KlothoOrder(3)] public int SkillAssetId;
   [KlothoOrder(4)] public int Rank;
-
-  // Where the hero stood when it cast, so the view can place the effect without a live lookup.
   [KlothoOrder(5)] public FPVector3 Position;
+
   public override EventMode Mode => EventMode.Synced;
 }

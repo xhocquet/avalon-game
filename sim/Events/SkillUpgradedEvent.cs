@@ -10,8 +10,7 @@ public partial class SkillUpgradedEvent : SimulationEvent {
   [KlothoOrder(2)] public int Slot;
   [KlothoOrder(3)] public int SkillAssetId;
   [KlothoOrder(4)] public int NewRank;
-
-  // Points left after the spend, so the view can redraw the tree without re-reading the frame.
   [KlothoOrder(5)] public int RemainingPoints;
+
   public override EventMode Mode => EventMode.Synced;
 }

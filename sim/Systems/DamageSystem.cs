@@ -64,8 +64,7 @@ public class DamageSystem : ISystem {
   }
 
   // Defense mitigates by a fraction rather than a flat subtraction, so stacking it approaches but never
-  // reaches immunity and low-damage attackers stay relevant. Integer math throughout to keep it
-  // deterministic; any landed hit floors at 1 so a high-defense target can never be unkillable.
+  // reaches immunity and low-damage attackers stay relevant.
   private static int Mitigate(ref Frame frame, EntityRef target, int damage) {
     if (damage <= 0 || !frame.Has<StatsComponent>(target))
       return damage;
@@ -75,15 +74,13 @@ public class DamageSystem : ISystem {
       return damage;
 
     var mitigated = damage * 100 / (100 + defense);
-    return mitigated < 1 ? 1 : mitigated;
+    return mitigated < 1 ? 1 : mitigated; // Floor at 1 damage
   }
 
-  // Combat.AttackCooldownTicks is the unit's base period; StatsComponent.AttackSpeed is the multiplier items
-  // and skills move. Dividing here rather than storing a modified period means bonuses stay additive
-  // on the rate (two +50% items give ×2, not ×2.25) and rounding happens once per attack instead of
-  // compounding. Rounds to nearest tick, floors at 1 so no attack speed can fire twice in a tick.
   private static int GetCooldownTicks(ref Frame frame, EntityRef attacker, in Combat combat) {
-    var attackSpeed = frame.Has<StatsComponent>(attacker) ? frame.GetReadOnly<StatsComponent>(attacker).AttackSpeed : FP64.One;
+    var attackSpeed = frame.Has<StatsComponent>(attacker)
+      ? frame.GetReadOnly<StatsComponent>(attacker).AttackSpeed
+      : FP64.One;
     if (attackSpeed <= FP64.Zero)
       return combat.AttackCooldownTicks;
 

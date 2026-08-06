@@ -4,8 +4,7 @@ using xpTURN.Klotho.Serialization;
 
 namespace Meesles.Avalon.Sim;
 
-// Fired the instant an Oasis starts winding up a resource, before it's actually ejected.
-// Lets the view telegraph the coming eject (e.g. a glow/charge-up at the oasis).
+// Fired when an Oasis will spawn a resource, before it's actually ejected.
 [KlothoSerializable(109)]
 public partial class OasisResourcePreparingEvent : SimulationEvent {
   [KlothoOrder(0)] public int OasisId;
@@ -13,5 +12,6 @@ public partial class OasisResourcePreparingEvent : SimulationEvent {
   [KlothoOrder(2)] public FPVector3 OasisPosition;
   [KlothoOrder(3)] public FPVector3 TargetPosition;
   [KlothoOrder(4)] public int PrepareDurationMs;
+
   public override EventMode Mode => EventMode.Synced;
 }

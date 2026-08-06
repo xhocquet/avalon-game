@@ -1,11 +1,9 @@
 using Meesles.Avalon.Sim.Assets;
 using xpTURN.Klotho.ECS;
 
-namespace Meesles.Avalon.Sim.Heroes.Skills;
+namespace Meesles.Avalon.Sim.Heroes;
 
-// The Shroom's skill tree. Every slot currently delegates to SharedSkillStubs; implementing one means
-// replacing the body of the method below and nothing else.
-public sealed class ShroomSkills : IHeroSkillSet {
+public sealed class PickleKnightSkills : IHeroSkillSet {
   public void OnRankGained(ref Frame frame, EntityRef entity, int slot, SkillAsset skill, int newRank) {
     SharedSkillStubs.RankGained(ref frame, entity, skill, newRank);
   }

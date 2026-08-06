@@ -5,13 +5,14 @@ using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Logging;
 
-namespace Meesles.Avalon.Sim.Heroes.Skills;
+namespace Meesles.Avalon.Sim.Heroes;
 
 // The rules behind UpgradeSkillCommand and CastSkillCommand. CommandSystem dispatches straight into
 // these so the command layer stays a switch and the rules can be exercised without a wire round-trip.
 //
 // Both entry points assume the slot index has already cleared CommandValidation - it indexes fixed
 // buffers on SkillsComponent, so an unchecked value would read out of bounds.
+// TODO slot references are kinda sketch
 public static class SkillActions {
   // Spend one skill point to raise a slot's rank.
   public static bool TryUpgrade(ref Frame frame, int playerId, int slot) {

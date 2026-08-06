@@ -8,7 +8,7 @@ namespace Meesles.Avalon.Sim.Assets;
 // hero's SkillsComponent at spawn.
 //
 // Deliberately thin: this is the row per-rank tuning grows into once a skill does something. The
-// effect itself lives in code, in the hero's file under Heroes/Skills.
+// effect itself lives in code, in the hero's folder under Heroes/.
 [KlothoDataAsset(AssetIds.TypeIds.Skill)]
 public partial class SkillAsset : IDataAsset {
   [KlothoOrder(0)] public int MaxRank;

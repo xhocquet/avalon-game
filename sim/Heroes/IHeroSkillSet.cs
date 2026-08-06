@@ -1,11 +1,11 @@
 using Meesles.Avalon.Sim.Assets;
 using xpTURN.Klotho.ECS;
 
-namespace Meesles.Avalon.Sim.Heroes.Skills;
+namespace Meesles.Avalon.Sim.Heroes;
 
 // Per-hero skill logic, selected by HeroAsset.SkillSetId through HeroSkillSets.Get. One implementation
-// per hero, each owning all four of that hero's slots, so a skill is implemented by editing one method
-// in one file with no shared code to fork.
+// per hero, living in that hero's folder and owning all four of its slots, so a skill is implemented by
+// editing one method with no shared code to fork.
 //
 // Implementations are stateless singletons. A field here would survive a rollback and desync the
 // client - all skill state belongs on SkillsComponent or another component.

@@ -3,7 +3,7 @@ using FluentAssertions;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Commands;
 using Meesles.Avalon.Sim.Components;
-using Meesles.Avalon.Sim.Heroes.Skills;
+using Meesles.Avalon.Sim.Heroes;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Serialization;

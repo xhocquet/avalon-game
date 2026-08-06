@@ -17,7 +17,7 @@ public partial class HeroAsset : IDataAsset {
   [KlothoOrder(7)] public FP64 AttackReacquireRangeMultiplier;
   [KlothoOrder(8)] public int Defense;
 
-  // Which IHeroSkillSet runs this hero's skill code (see Heroes/Skills/HeroSkillSets.cs). Kept apart
+  // Which IHeroSkillSet runs this hero's skill code (see Heroes/HeroSkillSets.cs). Kept apart
   // from BehaviorId: that one selects spawn/tick logic and is 0 for every hero, while every hero
   // needs its own skill file from the start.
   [KlothoOrder(9)] public int SkillSetId;

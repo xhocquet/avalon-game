@@ -7,8 +7,8 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon;
 
-// Converts the XP that ExperienceRewards deposited into levels. Runs after DeathSystem so a kill
-// lands its level on the same tick it happened.
+// Converts the XP that ExperienceRewards deposited into levels
+// Runs after DeathSystem = same tick processing of hero kill experience
 public class ExperienceSystem : ISystem {
   public void Update(ref Frame frame) {
     if (!frame.AssetRegistry.TryGet<XpRulesAsset>(out var rules) || rules.MaxLevel <= 1)
@@ -46,9 +46,6 @@ public class ExperienceSystem : ISystem {
     if (health.IsAlive)
       health.Current += maxHealthGain;
 
-    // One skill point per level. Not a stat, so it does not route through Stats.Add - the tree spends
-    // these itself in SkillActions. Guarded rather than filtered on so a hero without the component
-    // still levels normally.
     if (frame.Has<SkillsComponent>(entity))
       frame.Get<SkillsComponent>(entity).SkillPoints += levelsGained;
   }

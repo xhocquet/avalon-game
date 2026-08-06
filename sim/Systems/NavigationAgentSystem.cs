@@ -55,10 +55,7 @@ public class NavigationAgentSystem : ISystem {
     var dt = FP64.FromInt(frame.DeltaTimeMs) / FP64.FromInt(1000);
     var snapThresholdSqr = tuning.PositionSnapThreshold * tuning.PositionSnapThreshold;
 
-    // Phase 1: Collect and categorize all nav agents.
-    // Dead units awaiting respawn are frozen at their spawn point by
-    // RespawnSystem. Exclude them entirely so navigation neither snaps
-    // their transform onto the navmesh nor lets them push living units.
+    // Phase 1: Collect and categorize all nav agents
     var filter = frame.FilterWithout<NavAgentComponent, TransformComponent, PendingRespawn>();
     while (filter.Next(out var entity)) {
       ref var nav = ref frame.Get<NavAgentComponent>(entity);
@@ -67,9 +64,6 @@ public class NavigationAgentSystem : ISystem {
       EnsureAllCapacity(_allCount + 1);
       SyncAgentPosition(ref frame, entity, ref nav, transform.Position, snapThresholdSqr);
 
-      // StatsComponent.MoveSpeed is the authority on how fast a unit moves; the agent's own Speed is a
-      // cache of it. Re-reading it every tick is what makes a speed item or slow debuff take
-      // effect, since the agent was seeded once at spawn and never hears about stat changes.
       if (frame.Has<StatsComponent>(entity))
         nav.Speed = frame.GetReadOnly<StatsComponent>(entity).MoveSpeed;
 
@@ -164,13 +158,9 @@ public class NavigationAgentSystem : ISystem {
       ref var nav = ref frame.Get<NavAgentComponent>(entity);
       ref var transform = ref frame.Get<TransformComponent>(entity);
 
-      // Flatten Y: Klotho's MoveAlongSurface re-projects nav.Position onto the 3D navmesh
-      // surface, so nav.Position.y carries terrain height. This is a ground-plane MOBA — keep
-      // the sim transform on y=0 so units don't render at terrain height. This is the only
-      // seam where 3D navmesh data crosses into the sim transform.
       transform.Position = new FPVector3(nav.Position.x, FP64.Zero, nav.Position.z);
       // nav.Velocity is an FPVector2 on the XZ plane, so .y here IS Z — this is the same
-      // Atan2(x, z) yaw convention as CommandSystem and WaveSpawnSystem, not a swapped axis.
+      // Atan2(x, z) yaw convention as CommandSystem and WaveSpawnSystem
       if (nav.Velocity.sqrMagnitude > FP64.Zero)
         transform.Rotation = FP64.Atan2(nav.Velocity.x, nav.Velocity.y);
 
@@ -303,17 +293,6 @@ public class NavigationAgentSystem : ISystem {
     return settle.StuckTicks >= tuning.SettleStuckTicks && distSqr <= settleZoneSqr;
   }
 
-  // Re-snapping every agent onto the navmesh every tick is the expensive half of the position
-  // sync, so an agent that has barely moved since its last snap keeps its current triangle and is
-  // passed through untouched.
-  //
-  // The last-snapped position is read from NavSnapTracker — frame state, per entity — rather than
-  // from a system field. Both properties matter. Frame state because the branch below decides
-  // nav.Position, which becomes transform.Position: a copy that did not roll back would let a
-  // client's discarded prediction branch flip the choice on resimulation and land the unit
-  // somewhere the server never put it. Per entity because the alternative (an array indexed by
-  // position in this tick's filter order) re-points at a different agent whenever the agent set
-  // changes — a death, a spawn, a unit entering or leaving PendingRespawn.
   private void SyncAgentPosition(ref Frame frame, EntityRef entity, ref NavAgentComponent nav,
     FPVector3 position, FP64 snapThresholdSqr) {
     var tracked = frame.Has<NavSnapTracker>(entity);
@@ -323,12 +302,14 @@ public class NavigationAgentSystem : ISystem {
       var deltaX = position.x - snap.LastSnappedX;
       var deltaZ = position.z - snap.LastSnappedZ;
 
+      // Use cached value while under threshold
       if (deltaX * deltaX + deltaZ * deltaZ < snapThresholdSqr) {
         nav.Position = position;
         return;
       }
     }
 
+    // Recalculate snap
     var snapXZ = _navigation.Query.ClosestPointOnNavMesh(position.ToXZ(), out var snapTri);
     nav.Position = snapTri >= 0
       ? new FPVector3(snapXZ.x, position.y, snapXZ.y)
