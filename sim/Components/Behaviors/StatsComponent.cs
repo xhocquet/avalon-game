@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using Meesles.Avalon.Sim.Assets;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
@@ -17,6 +18,13 @@ public partial struct StatsComponent() : IComponent {
   public int GoldPerTick = 0; // Seeded from MatchRulesAsset
 
   public readonly int AttackDamage => Strength < 0 ? 0 : Strength;
+
+  public static StatsComponent From(IUnitStatsAsset stats) => new() {
+    Strength = stats.AttackDamage,
+    MaxHealth = stats.Health,
+    MoveSpeed = stats.MoveSpeed,
+    Defense = stats.Defense
+  };
 
   public void Add(StatType statType, FP64 delta) {
     switch (statType) {

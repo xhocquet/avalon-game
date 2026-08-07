@@ -182,7 +182,7 @@ public static class SimulationSetup {
       var amount = layout.MarkerValues != null && i < layout.MarkerValues.Length ? layout.MarkerValues[i] : 0;
       var pickupEntity = frame.CreateEntity();
       frame.Add(pickupEntity, TransformFactory.At(layout.MarkerPositions[i]));
-      frame.Add(pickupEntity, new Pickup { PickupId = PickupIdGenerator.Next(ref frame), Amount = amount });
+      frame.Add(pickupEntity, new Pickup { PickupId = IdCounter<PickupIdCounter>.Next(ref frame), Amount = amount });
     }
   }
 

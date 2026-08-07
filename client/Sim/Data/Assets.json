@@ -352,7 +352,9 @@
     "ProjectileRadius": 0.25,
     "ProjectileCount": 3,
     "ProjectileSpacing": 1.0,
-    "ProjectileSpawnOffset": 1.0
+    "ProjectileSpawnOffset": 1.0,
+    "MinCastRange": 1.0,
+    "MaxCastRange": 10.0
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",

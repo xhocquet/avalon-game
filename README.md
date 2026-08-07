@@ -41,13 +41,6 @@
   fields, so it carries nothing on the wire. MatchResultReader works because it reads the component
   directly — the engine-facing path is the broken one.
 
-  3. Combat.Target is an EntityRef living across ticks — Components/Commands/Combat.cs:16
-
-  Directly contradicts the codebase's own rule (frame.Has<T> ignores version; store UnitId for cross-tick
-  refs). It's latent today because AttackIntentSystem re-resolves it every tick before DamageSystem reads
-  it — but the two filters disagree: AttackIntentSystem requires TransformComponent, DamageSystem does not.
-  An attacker with Combat + AttackTargetUnitId and no transform skips re-resolution and DamageSystem acts
-  on a stale ref.
 
   4. FlowFieldCache is unbounded — Navigation/FlowFieldCache.cs
 
@@ -67,83 +60,13 @@
   three. Mismatched arrays in Assets.json throw inside the sim — and per your own AGENTS.md, an exception
   on the command path takes the server down.
 
-  7. WaveSpawnSystem.GetFirstFreeSlot is an unbounded loop — Systems/WaveSpawnSystem.cs:81-86
-
-  while (IsSlotOccupied(...)) slot++ with no cap, and GetSpawnPosition walks rings from 0 on every call.
-  Terminates in practice; nothing enforces it.
-
-  8. No cast range — CommandValidation.AcceptCastTarget checks only the ±1024 world envelope, and
-  SkillActions.TryCast never bounds the aim point against the caster. A modified client casts across the
-  map. SkillAsset has no CastRange field to check against.
-
-  9. PurchaseItemCommand has no CommandValidation case — falls through default: return true
-  (Commands/CommandValidation.cs:35) while SelectFactionCommand's asset id is registry-checked. ShopActions
-  catches it, but the two-layer rule in AGENTS.md isn't applied uniformly.
 
   10. Target acquisition ignores distance — TargetAcquisitionSystem.cs:88 breaks ties by lowest UnitId
   after type priority. An attacker with two minions in range always shoots the older one, never the nearer
   one.
 
   Duplication
-
-  ┌───────────────────────────────────────┬────────────────────────────────────────────────────────────┐
-  │                 Where                 │                            What                            │
-  ├───────────────────────────────────────┼────────────────────────────────────────────────────────────┤
-  │                                       │ EnsureAllCapacity / EnsureHeroCapacity /                   │
-  │ NavigationAgentSystem.cs:336-384      │ EnsureMinionCapacity are three copies of the generic       │
-  │                                       │ EnsureCapacity sitting right beside them                   │
-  ├───────────────────────────────────────┼────────────────────────────────────────────────────────────┤
-  │ UnitLookup.cs:12-26,                  │ Three byte-identical Initialize/Next counter               │
-  │ PickupIdGenerator.cs,                 │ implementations                                            │
-  │ ProjectileIdGenerator.cs              │                                                            │
-  ├───────────────────────────────────────┼────────────────────────────────────────────────────────────┤
-  │ Combat.From ×3 + StatsComponent{…} ×4 │ HeroAsset/MinionStatsAsset/TurretStatsAsset each redeclare │
-  │  in factories                         │  the same six fields with no shared interface, forcing an  │
-  │                                       │ overload per asset type                                    │
-  ├───────────────────────────────────────┼────────────────────────────────────────────────────────────┤
-  │ RespawnSystem.cs:118,                 │ Ceiling ms→ticks plus the DeltaTimeMs > 0 ? : 16 fallback, │
-  │ SkillActions.cs:177,                  │  written out three times                                   │
-  │ ScoreSystem.cs:44                     │                                                            │
-  ├───────────────────────────────────────┼────────────────────────────────────────────────────────────┤
-  │ CommandValidation.cs:48-62            │ AcceptMoveTarget and AcceptCastTarget are identical apart  │
-  │                                       │ from the parameter type                                    │
-  ├───────────────────────────────────────┼────────────────────────────────────────────────────────────┤
-  while (IsSlotOccupied(...)) slot++ with no cap, and GetSpawnPosition walks rings from 0 on every call.
-  Terminates in practice; nothing enforces it.
-
-  8. No cast range — CommandValidation.AcceptCastTarget checks only the ±1024 world envelope, and
-  SkillActions.TryCast never bounds the aim point against the caster. A modified client casts across the
-  map. SkillAsset has no CastRange field to check against.
-
-
-  10. Target acquisition ignores distance — TargetAcquisitionSystem.cs:88 breaks ties by lowest UnitId
-  after type priority. An attacker with two minions in range always shoots the older one, never the
-  nearer one.
-
-  Duplication
-
-  ┌──────────────────────────────────────┬──────────────────────────────────────────────────────────┐
-  │                Where                 │                           What                           │
-  ├──────────────────────────────────────┼──────────────────────────────────────────────────────────┤
-  │ UnitLookup.cs:12-26,                 │ Three byte-identical Initialize/Next counter             │
-  │ PickupIdGenerator.cs,                │ implementations                                          │
-  │ ProjectileIdGenerator.cs             │                                                          │
-  ├──────────────────────────────────────┼──────────────────────────────────────────────────────────┤
-  │ Combat.From ×3 + StatsComponent{…}   │ HeroAsset/MinionStatsAsset/TurretStatsAsset each         │
-  │ ×4 in factories                      │ redeclare the same six fields with no shared interface,  │
-  │                                      │ forcing an overload per asset type                       │
-  ├──────────────────────────────────────┼──────────────────────────────────────────────────────────┤
-  │ RespawnSystem.cs:118,                │ Ceiling ms→ticks plus the DeltaTimeMs > 0 ? : 16         │
-  │ SkillActions.cs:177,                 │ fallback, written out three times                        │
-  │ ScoreSystem.cs:44                    │                                                          │
-  ├──────────────────────────────────────┼──────────────────────────────────────────────────────────┤
-  │ CommandValidation.cs:48-62           │ AcceptMoveTarget and AcceptCastTarget are identical      │
-  │                                      │ apart from the parameter type                            │
-  ├──────────────────────────────────────┼──────────────────────────────────────────────────────────┤
-  │ UnitLookup.TryGetEntityByUnitId vs   │ Two lookup mechanisms for the same question;             │
-  │ UnitLookup.Index                     │ RespawnSystem.AwardKillExperience:65 uses the O(n) scan  │
-  │                                      │ for the same job DeathSystem:104 does with the index     │
-  ├──────────────────────────────────────┼──────────────────────────────────────────────────────────┤
+  │ CommandValidation.cs:48-62│ AcceptMoveTarget and AcceptCastTarget are identical apart from the parameter type│
 
   Naming consistency
 
@@ -157,13 +80,11 @@
   - HeroAsset vs MinionStatsAsset/TurretStatsAsset/CrystalStatsAsset — same role, one drops Stats.
   - TurretStatsAsset declares fields in the order 3,1,2,0,4,5 relative to its KlothoOrder values. Works,
   reads as an accident.
-  - WaveSpawnSystem.cs:36-37 binds frame.Get<T> to ref readonly where every other read site uses
-  GetReadOnly.
   - Logging bypasses SimLog. AGENTS.md:87 says gameplay logging goes through SimLog so replayed ticks
   stay quiet, but CommandSystem.cs:105, AttackIntentSystem.cs:90, and DamageSystem.cs:67 call
   no explicit EventMode. The projectile pair is documented as deliberately Regular; AttackHitEvent isn't
   mentioned anywhere.
-  - Stray Events/GameOverEvent.cs.uid checked in.
+
 
   Design gaps
 
@@ -183,9 +104,6 @@
   is then inferred from winner == -1 in MatchResultReader:47 rather than recorded at the point the
   match ended — a crystal win with an unresolvable player reads as Timeout.
 
-  The IHeroBehavior layer is currently dead weight. One enum value, an empty DefaultHeroBehavior, and
-  HeroBehaviorSystem allocating a snapshot list every tick to call it. IHeroSkillSet is the layer doing
-  real work; behaviors could fold into it or be deleted until something needs them.
 
   ProjectileSystem.IsHostile:143 has two hostility paths. It prefers the live caster's team and only
   falls back to projectile.TeamId. The stamped team is the correct answer on its own — the live path
@@ -200,8 +118,3 @@
   InventoryComponent.GetItemAssetId index fixed int buffers with no bounds check. That's documented and
   gated for the skill path (CommandValidation.AcceptSkillSlot), but InventoryComponent.GetItemAssetId
   has no equivalent gate described anywhere, and both are reachable from the client's UI code.
-
-  ---
-  Want me to start fixing? My suggested order: (2) the match-end winner, (6) the marker-array guards,
-  (1) converting the three in-loop removals to deferred lists, then the duplication table — those are
-  mechanical and low-risk.

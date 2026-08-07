@@ -26,13 +26,9 @@ public static class HeroFactory {
     frame.Add(entity, new InventoryComponent());
     frame.Add(entity, new ExperienceComponent());
     frame.Add(entity, BuildSkills(heroAsset));
-    frame.Add(entity, new StatsComponent {
-      Strength = heroAsset.AttackDamage,
-      MaxHealth = heroAsset.Health,
-      MoveSpeed = heroAsset.MoveSpeed,
-      GoldPerTick = matchRules.StartingGoldPerTick,
-      Defense = heroAsset.Defense
-    });
+    var stats = StatsComponent.From(heroAsset);
+    stats.GoldPerTick = matchRules.StartingGoldPerTick;
+    frame.Add(entity, stats);
     frame.Add(entity, new Health(heroAsset.Health));
     frame.Add(entity, Combat.From(heroAsset));
     frame.Add(entity, NavAgentFactory.At(ref frame, position, heroAsset.MoveSpeed, heroAsset.Radius));

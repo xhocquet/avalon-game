@@ -472,7 +472,7 @@ public class AttackCommandExecutionTests {
   private static bool HasCombatTarget(Frame frame, int unitId) {
     return TryGetEntityByUnitId(frame, unitId, out var entity)
         && frame.Has<Combat>(entity)
-        && frame.GetReadOnly<Combat>(entity).Target.IsValid;
+        && frame.GetReadOnly<Combat>(entity).TargetUnitId != 0;
   }
 
   private static int GetAttackTarget(Frame frame, int unitId) {
@@ -643,7 +643,7 @@ public class AttackCommandExecutionTests {
         continue;
 
       ref var combat = ref frame.Get<Combat>(entity);
-      combat.Target = default;
+      combat.TargetUnitId = 0;
     }
   }
 

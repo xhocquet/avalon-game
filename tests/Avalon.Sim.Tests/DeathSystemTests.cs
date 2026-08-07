@@ -56,8 +56,9 @@ public class DeathSystemTests {
     frame.GetReadOnly<UnitIdComponent>(bystander).UnitId.Should().BeLessThan(killerUnitId);
 
     // Both hold the corpse as their target; only the killer landed the fatal hit.
-    frame.Get<Combat>(bystander).Target = crystal;
-    frame.Get<Combat>(killer).Target = crystal;
+    int crystalUnitId = frame.GetReadOnly<UnitIdComponent>(crystal).UnitId;
+    frame.Get<Combat>(bystander).TargetUnitId = crystalUnitId;
+    frame.Get<Combat>(killer).TargetUnitId = crystalUnitId;
     ref var health = ref frame.Get<Health>(crystal);
     health.Current = 0;
     health.LastDamagerUnitId = killerUnitId;

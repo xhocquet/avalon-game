@@ -32,5 +32,9 @@ tools/**/obj/
 sim/Tools/Generated/
 client/Sim/Tools/Generated/
 
+# Godot uid stubs outside the Godot project root (client/)
+*.uid
+!client/**/*.uid
+
 # Lore
 .lore/

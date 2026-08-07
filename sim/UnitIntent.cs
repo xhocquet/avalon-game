@@ -25,8 +25,8 @@ public static class UnitIntent {
       frame.Remove<UnitMoveTarget>(entity);
   }
 
-  // Sets the order only. Combat.Target is AttackIntentSystem's resolution of it and is not touched
-  // here — it resolves the order against range on the next tick.
+  // Sets the order only. Combat.TargetUnitId is AttackIntentSystem's resolution of it and is not
+  // touched here — it resolves the order against range on the next tick.
   public static void SetAttackTarget(ref Frame frame, EntityRef entity, int targetUnitId) {
     if (frame.Has<AttackTargetUnitId>(entity)) {
       ref var attackTarget = ref frame.Get<AttackTargetUnitId>(entity);
@@ -38,14 +38,14 @@ public static class UnitIntent {
   }
 
   // Drops the attack order and the resolved target together: AttackTargetUnitId is the order,
-  // Combat.Target is AttackIntentSystem's resolution of it
+  // Combat.TargetUnitId is AttackIntentSystem's resolution of it
   public static void ClearAttackIntent(ref Frame frame, EntityRef entity) {
     if (frame.Has<AttackTargetUnitId>(entity))
       frame.Remove<AttackTargetUnitId>(entity);
 
     if (frame.Has<Combat>(entity)) {
       ref var combat = ref frame.Get<Combat>(entity);
-      combat.Target = default;
+      combat.TargetUnitId = 0;
     }
   }
 }

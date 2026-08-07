@@ -9,6 +9,8 @@ namespace Meesles.Avalon.Sim.Components;
 [KlothoComponent(ComponentIds.UnitIdCounter)]
 [KlothoSingletonComponent]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public partial struct UnitIdCounter : IComponent {
+public partial struct UnitIdCounter : IComponent, IIdCounter {
   public int NextUnitId;
+
+  public int NextId { readonly get => NextUnitId; set => NextUnitId = value; }
 }

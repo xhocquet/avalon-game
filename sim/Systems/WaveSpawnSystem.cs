@@ -9,6 +9,11 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon;
 
 public class WaveSpawnSystem : ISystem {
+  // Outermost ring the cluster is allowed to grow to: 217 slots, ~8 spacings across. Reached only if
+  // that many same-team minions are parked on the spawn point, which caps both the search and the
+  // footprint. See SeekFreeSlot for what happens once it's hit.
+  internal const int MaxRing = 8;
+
   private readonly List<EntityRef> _nearbyMinions = new();
   private readonly List<(FPVector3 Position, int TeamId)> _sources = new();
 
@@ -33,8 +38,8 @@ public class WaveSpawnSystem : ISystem {
     _sources.Clear();
     var filter = frame.Filter<SpawnPoint, TeamComponent, TransformComponent>();
     while (filter.Next(out var entity)) {
-      ref readonly var team = ref frame.Get<TeamComponent>(entity);
-      ref readonly var transform = ref frame.Get<TransformComponent>(entity);
+      ref readonly var team = ref frame.GetReadOnly<TeamComponent>(entity);
+      ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
       _sources.Add((transform.Position, team.TeamId));
     }
 
@@ -66,27 +71,26 @@ public class WaveSpawnSystem : ISystem {
 
     // Slots below the last free one were occupied and stay occupied — nothing is removed mid-wave —
     // so each minion resumes the scan past the slot the previous one took instead of restarting.
-    var searchStart = 0;
+    var cursor = default(SlotCursor);
 
     for (var i = 0; i < count; i++) {
-      var slotIndex = GetFirstFreeSlot(ref frame, origin, teamId, rules.MinionSpacing, searchStart);
-      var position = GetSpawnPosition(origin, rules.MinionSpacing, slotIndex);
+      SeekFreeSlot(ref frame, ref cursor, origin, teamId, rules.MinionSpacing);
+      var position = cursor.GetPosition(origin, rules.MinionSpacing);
       var minion = MinionFactory.Spawn(ref frame, stats, position, GetSpawnFacing(origin, position), teamId, waveId);
       _occupancyGrid.Insert(minion, position.ToXZ());
-      searchStart = slotIndex + 1;
+      cursor.Advance();
     }
   }
 
-  private int GetFirstFreeSlot(ref Frame frame, FPVector3 origin, int teamId, FP64 spacing, int startSlot) {
-    var slot = startSlot;
-    while (IsSlotOccupied(ref frame, origin, teamId, spacing, slot))
-      slot++;
-
-    return slot;
+  // Steps outward until the cursor lands on a slot no same-team minion is sitting in. If the whole
+  // cluster out to MaxRing is occupied the cursor stops on the last slot and the remaining minions
+  // of the wave stack there — overlapping, but deterministically and without spinning or sprawling.
+  private void SeekFreeSlot(ref Frame frame, ref SlotCursor cursor, FPVector3 origin, int teamId, FP64 spacing) {
+    while (!cursor.AtLastSlot && IsSlotOccupied(ref frame, cursor.GetPosition(origin, spacing), teamId, spacing))
+      cursor.Advance();
   }
 
-  private bool IsSlotOccupied(ref Frame frame, FPVector3 origin, int teamId, FP64 spacing, int slot) {
-    var slotPosition = GetSpawnPosition(origin, spacing, slot);
+  private bool IsSlotOccupied(ref Frame frame, FPVector3 slotPosition, int teamId, FP64 spacing) {
     var occupiedRadius = spacing * FP64.Half;
     var occupiedRadiusSqr = occupiedRadius * occupiedRadius;
 
@@ -109,9 +113,9 @@ public class WaveSpawnSystem : ISystem {
   }
 
   // Compact hex-packed cluster centred on the spawn point. Ring k holds 6k slots at radius
-  // k*spacing; slot 0 is the centre. This packs minions as tightly as they settle when moving,
-  // instead of the old wide 90° fan that sprawled across the base. The occupancy-based free-slot
-  // search fills innermost-first and reuses slots as minions march off.
+  // k*spacing; the default cursor sits on the centre slot. This packs minions as tightly as they
+  // settle when moving, instead of the old wide 90° fan that sprawled across the base. The
+  // occupancy-based free-slot search fills innermost-first and reuses slots as minions march off.
   //
   // Ring slots are laid out from a fixed world basis (+Z, so slot 0 of each ring is at angle 0).
   // This used to derive the basis from the direction to the world origin and push the whole
@@ -119,24 +123,41 @@ public class WaveSpawnSystem : ISystem {
   // hold for the current symmetric map and is silently wrong for any map not centred there, so
   // the cluster now sits on the spawn point and grows outward from it. The starting angle of a
   // rotationally symmetric ring carries no meaning, so a fixed basis costs nothing.
-  private static FPVector3 GetSpawnPosition(FPVector3 origin, FP64 spacing, int index) {
-    if (index <= 0)
-      return origin;
+  //
+  // Held as (ring, slot) rather than a flat index so stepping outward stays O(1) — a scan that
+  // probes many slots would otherwise re-walk the rings from the centre to place each one.
+  internal struct SlotCursor {
+    private int _ring;
+    private int _slot;
 
-    var ring = 1;
-    var ringStart = 1;
-    var capacity = 6;
-    while (index >= ringStart + capacity) {
-      ringStart += capacity;
-      ring++;
-      capacity = 6 * ring;
+    public readonly bool AtLastSlot => _ring >= MaxRing && _slot >= 6 * MaxRing - 1;
+
+    public void Advance() {
+      if (AtLastSlot)
+        return;
+
+      if (_ring == 0) {
+        _ring = 1;
+        return;
+      }
+
+      _slot++;
+      if (_slot < 6 * _ring)
+        return;
+
+      _ring++;
+      _slot = 0;
     }
 
-    var slot = index - ringStart;
-    var radius = spacing * FP64.FromInt(ring);
-    var angle = FP64.TwoPi / FP64.FromInt(capacity) * FP64.FromInt(slot);
-    var offset = new FPVector3(FP64.Sin(angle), FP64.Zero, FP64.Cos(angle)) * radius;
-    return origin + offset;
+    public readonly FPVector3 GetPosition(FPVector3 origin, FP64 spacing) {
+      if (_ring == 0)
+        return origin;
+
+      var radius = spacing * FP64.FromInt(_ring);
+      var angle = FP64.TwoPi / FP64.FromInt(6 * _ring) * FP64.FromInt(_slot);
+      var offset = new FPVector3(FP64.Sin(angle), FP64.Zero, FP64.Cos(angle)) * radius;
+      return origin + offset;
+    }
   }
 
   // Minions spawn facing away from the spawn point they came out of, so a wave fans outward

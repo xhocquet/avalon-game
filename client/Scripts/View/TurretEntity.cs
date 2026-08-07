@@ -74,7 +74,7 @@ public partial class TurretEntity : TeamEntityViewNode, IAttackableView, INamedV
     }
 
     ref readonly var combat = ref frame.GetReadOnly<Combat>(EntityRef);
-    _loadingIndicator.Visible = combat.Target.IsValid;
+    _loadingIndicator.Visible = combat.TargetUnitId != 0;
     if (!_loadingIndicator.Visible || combat.AttackCooldownTicks <= 0) return;
 
     _loadingIndicatorMaterial?.SetShaderParameter(CooldownParam, CombatView.CooldownProgress(combat));

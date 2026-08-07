@@ -8,7 +8,11 @@ using xpTURN.Klotho.Logging;
 namespace Meesles.Avalon;
 
 public class DamageSystem : ISystem {
+  private readonly UnitLookup.Index _unitIdIndex = new();
+
   public void Update(ref Frame frame) {
+    _unitIdIndex.Rebuild(ref frame);
+
     var filter = frame.Filter<Combat, TeamComponent, AttackTargetUnitId>();
     while (filter.Next(out var attacker)) {
       ref var combat = ref frame.Get<Combat>(attacker);
@@ -17,13 +21,13 @@ public class DamageSystem : ISystem {
         continue;
       }
 
-      if (!combat.Target.IsValid)
+      if (combat.TargetUnitId == 0)
         continue;
 
-      var target = combat.Target;
-      if (!CombatTargeting.IsHostileAndAlive(ref frame, attacker, target)) {
-        LogDamageState(ref frame, attacker, combat.Target, "invalid_damage_target");
-        combat.Target = default;
+      if (!_unitIdIndex.TryGet(combat.TargetUnitId, out var target) ||
+          !CombatTargeting.IsHostileAndAlive(ref frame, attacker, target)) {
+        LogDamageState(ref frame, attacker, combat.TargetUnitId, "invalid_damage_target");
+        combat.TargetUnitId = 0;
         continue;
       }
 
@@ -33,7 +37,7 @@ public class DamageSystem : ISystem {
 
       combat.CooldownRemainingTicks = GetCooldownTicks(ref frame, attacker, in combat);
 
-      LogDamageState(ref frame, attacker, target,
+      LogDamageState(ref frame, attacker, combat.TargetUnitId,
         $"damage={damage} health={healthBefore}->{frame.GetReadOnly<Health>(target).Current} cooldown={combat.CooldownRemainingTicks}");
     }
   }
@@ -59,13 +63,13 @@ public class DamageSystem : ISystem {
     var cooldownStarted = combat.CooldownRemainingTicks == combat.AttackCooldownTicks - 1;
     var cooldownEnding = combat.CooldownRemainingTicks == 1;
     if (cooldownStarted || cooldownEnding)
-      LogDamageState(ref frame, attacker, combat.Target,
+      LogDamageState(ref frame, attacker, combat.TargetUnitId,
         $"cooldown_blocked cooldown={combat.CooldownRemainingTicks}");
   }
 
-  private static void LogDamageState(ref Frame frame, EntityRef attacker, EntityRef target, string state) {
+  private static void LogDamageState(ref Frame frame, EntityRef attacker, int targetUnitId, string state) {
     frame.Logger.KDebug(
       $"[Combat] DamageSystem tick={frame.Tick} sourceUnitId={UnitLookup.GetUnitId(ref frame, attacker)} " +
-      $"targetUnitId={UnitLookup.GetUnitId(ref frame, target)} state={state}");
+      $"targetUnitId={targetUnitId} state={state}");
   }
 }

@@ -42,7 +42,7 @@ public class OasisSpawnSystem : ISystem {
       ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
       var target = GetRandomTargetPosition(seed, oasis.OasisId, frame.Tick, transform.Position,
         rules.OasisEjectRadius);
-      var pickupId = PickupIdGenerator.Next(ref frame);
+      var pickupId = IdCounter<PickupIdCounter>.Next(ref frame);
 
       frame.Add(entity, new OasisEjectPending {
         PickupId = pickupId,

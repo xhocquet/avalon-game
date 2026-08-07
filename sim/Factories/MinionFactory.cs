@@ -19,12 +19,7 @@ public static class MinionFactory {
     frame.Add(entity, new Minion { WaveId = waveId });
     frame.Add(entity, new Controllable());
     frame.Add(entity, new Health(stats.Health));
-    frame.Add(entity, new StatsComponent {
-      Strength = stats.AttackDamage,
-      MaxHealth = stats.Health,
-      MoveSpeed = stats.MoveSpeed,
-      Defense = stats.Defense
-    });
+    frame.Add(entity, StatsComponent.From(stats));
     frame.Add(entity, Combat.From(stats));
     frame.Add(entity, NavAgentFactory.At(ref frame, position, stats.MoveSpeed, stats.Radius));
 

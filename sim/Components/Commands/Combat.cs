@@ -13,21 +13,12 @@ public partial struct Combat : IComponent {
   public FP64 AttackReacquireRangeMultiplier;
   public int AttackCooldownTicks;
   public int CooldownRemainingTicks;
-  public EntityRef Target;
 
-  public static Combat From(HeroAsset stats) => new() {
-    AttackRange = stats.AttackRange,
-    AttackReacquireRangeMultiplier = stats.AttackReacquireRangeMultiplier,
-    AttackCooldownTicks = stats.AttackCooldownTicks
-  };
+  // AttackIntentSystem's in-range resolution of AttackTargetUnitId; 0 when nothing is engaged.
+  // A unit id rather than an EntityRef: entity slots recycle, unit ids never do.
+  public int TargetUnitId;
 
-  public static Combat From(MinionStatsAsset stats) => new() {
-    AttackRange = stats.AttackRange,
-    AttackReacquireRangeMultiplier = stats.AttackReacquireRangeMultiplier,
-    AttackCooldownTicks = stats.AttackCooldownTicks
-  };
-
-  public static Combat From(TurretStatsAsset stats) => new() {
+  public static Combat From(IUnitStatsAsset stats) => new() {
     AttackRange = stats.AttackRange,
     AttackReacquireRangeMultiplier = stats.AttackReacquireRangeMultiplier,
     AttackCooldownTicks = stats.AttackCooldownTicks

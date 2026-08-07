@@ -33,7 +33,7 @@ public class AttackIntentSystem : ISystem {
     }
 
     if (IsWithinAttackRange(ref frame, attacker, target, out var distSq, out var rangeSq))
-      EngageTarget(ref frame, attacker, target, targetUnitId, distSq, rangeSq);
+      EngageTarget(ref frame, attacker, targetUnitId, distSq, rangeSq);
     else
       PursueTarget(ref frame, attacker, target);
   }
@@ -52,11 +52,11 @@ public class AttackIntentSystem : ISystem {
   }
 
   // In range: lock the target in and stop moving, logging only the out-of-range -> in-range edge.
-  private static void EngageTarget(ref Frame frame, EntityRef attacker, EntityRef target,
+  private static void EngageTarget(ref Frame frame, EntityRef attacker,
     int targetUnitId, FP64 distSq, FP64 rangeSq) {
     ref var combat = ref frame.Get<Combat>(attacker);
-    var wasOutOfRange = !combat.Target.IsValid;
-    combat.Target = target;
+    var wasOutOfRange = combat.TargetUnitId == 0;
+    combat.TargetUnitId = targetUnitId;
     UnitIntent.ClearMoveTarget(ref frame, attacker);
 
     if (wasOutOfRange)
@@ -66,7 +66,7 @@ public class AttackIntentSystem : ISystem {
   // Out of range: mobile units walk to the target, immobile turrets drop the intent entirely.
   private static void PursueTarget(ref Frame frame, EntityRef attacker, EntityRef target) {
     ref var combat = ref frame.Get<Combat>(attacker);
-    combat.Target = default;
+    combat.TargetUnitId = 0;
 
     if (frame.Has<Turret>(attacker)) {
       UnitIntent.ClearAttackIntent(ref frame, attacker);

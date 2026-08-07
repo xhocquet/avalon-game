@@ -18,6 +18,13 @@ public partial class SkillAsset : IDataAsset {
   [KlothoOrder(8)] public FP64 ProjectileSpacing;
   [KlothoOrder(9)] public FP64 ProjectileSpawnOffset; // Range is measured from the offset position
 
+  // Cast band around the caster, both optional: omitted in JSON (0) means unbounded on that end.
+  // SkillAim.ClampToCastRange pulls the aim point onto the band before the effect runs.
+  [KlothoOrder(10)] public FP64 MinCastRange;
+  [KlothoOrder(11)] public FP64 MaxCastRange;
+
+  public bool HasCastRange => MinCastRange > FP64.Zero || MaxCastRange > FP64.Zero;
+
   public int DamageAtRank(int rank) {
     return rank <= 0 ? 0 : Damage + DamagePerRank * (rank - 1);
   }

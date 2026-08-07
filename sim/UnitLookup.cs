@@ -5,25 +5,14 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon.Sim;
 
 public static class UnitLookup {
-  public const int FirstUnitId = 1;
+  public const int FirstUnitId = IdCounter<UnitIdCounter>.FirstId;
   public const int NoPlayerId = -1;
 
   // Single global sequence for UnitIdComponent.UnitId
-  public static void InitializeUnitIds(ref Frame frame, int nextUnitId = FirstUnitId) {
-    if (frame.TryGetSingleton<UnitIdCounter>(out _)) return;
+  public static void InitializeUnitIds(ref Frame frame, int nextUnitId = FirstUnitId) =>
+    IdCounter<UnitIdCounter>.Initialize(ref frame, nextUnitId);
 
-    var entity = frame.CreateEntity();
-    frame.Add(entity, new UnitIdCounter { NextUnitId = nextUnitId });
-  }
-
-  public static int NextUnitId(ref Frame frame) {
-    InitializeUnitIds(ref frame);
-
-    ref var state = ref frame.GetSingleton<UnitIdCounter>();
-    var unitId = state.NextUnitId;
-    state.NextUnitId += 1;
-    return unitId;
-  }
+  public static int NextUnitId(ref Frame frame) => IdCounter<UnitIdCounter>.Next(ref frame);
 
   public static bool TryGetEntityByUnitId(ref Frame frame, int unitId, out EntityRef entity) {
     var filter = frame.Filter<UnitIdComponent>();

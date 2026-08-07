@@ -32,7 +32,7 @@ public static class SkillProjectiles {
     for (var i = 0; i < count; i++) {
       var origin = muzzle + right * (firstOffset + spacing * FP64.FromInt(i));
       var projectile = new Projectile {
-        ProjectileId = ProjectileIdGenerator.Next(ref frame),
+        ProjectileId = IdCounter<ProjectileIdCounter>.Next(ref frame),
         SourceUnitId = sourceUnitId,
         TeamId = teamId,
         Damage = damage,

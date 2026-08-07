@@ -36,8 +36,9 @@ public static class SkillActions {
     return true;
   }
 
-  // Cast a learned slot that is off cooldown at a planar ground point. Self-cast skills pass their
-  // own position and ignore it.
+  // Cast a learned slot that is off cooldown at a planar ground point. The point is clamped to the
+  // row's cast band before any effect sees it, so a client aiming past its range casts at the edge
+  // rather than being rejected. Self-cast skills pass their own position and ignore it.
   public static bool TryCast(ref Frame frame, int playerId, int slot, FPVector3 target) {
     var block = EvaluateCast(ref frame, playerId, slot, out var heroEntity, out var heroAsset, out var skill);
     if (block != SkillBlock.None) {
@@ -58,7 +59,7 @@ public static class SkillActions {
     var casterPosition = frame.Has<TransformComponent>(heroEntity)
       ? frame.GetReadOnly<TransformComponent>(heroEntity).Position
       : FPVector3.Zero;
-    target.y = FP64.Zero;
+    target = SkillAim.ClampToCastRange(ref frame, heroEntity, skill, casterPosition, target);
 
     var ctx = new SkillCastContext(heroEntity, playerId, slot, skill, rank, casterPosition, target);
     HeroSkillSets.Get(heroAsset.SkillSetId).OnCast(ref frame, in ctx);
