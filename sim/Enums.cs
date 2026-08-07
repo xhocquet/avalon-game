@@ -18,18 +18,35 @@ public enum StatType {
   Defense = 5
 }
 
-// Which of a hero's four skill slots a command or event refers to. The values are indices into
-// SkillsComponent's fixed buffers and into HeroAsset.Skill1..4AssetId, so they must stay 0-based and
-// contiguous.
 public enum SkillSlot {
-  HardHit = 0,
-  Buff = 1,
-  RangeShot = 2,
+  Primary = 0,
+  Secondary = 1,
+  Tertiary = 2,
   Ultimate = 3
 }
 
+// Why a skill projectile left the board. Rides SkillProjectileDespawnedEvent as an int.
+public enum SkillProjectileEnd {
+  Hit = 1,
+  Expired = 2
+}
+
+// Authored in Assets.json, so the values must stay stable.
+public enum HeroBehavior {
+  Default = 0
+}
+
+// Authored in Assets.json, so the values must stay stable.
+public enum HeroSkillSet {
+  HairyWizard = 0,
+  Shroom = 1,
+  CrystalGiant = 2,
+  Skinwalker = 3,
+  PickleKnight = 4
+}
+
 public enum MatchEndReason {
-  Unknown = 0,
+  Unknown = 0, // Unused
   Crystal = 1,
   Timeout = 2
 }

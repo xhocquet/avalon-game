@@ -5,6 +5,7 @@ using Godot;
 using Meesles.Avalon.Client;
 using Meesles.Avalon.Client.Scripts;
 using Meesles.Avalon.Client.Scripts.View;
+using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.ECS;
@@ -126,14 +127,14 @@ public partial class MultiplayerGameNode : GameNode {
     var pickupScene = GD.Load<PackedScene>("res://Scenes/Objects/WaterBottle.tscn");
     var oasisScene = GD.Load<PackedScene>("res://Scenes/Objects/Oasis.tscn");
     foreach (var faction in _factions.Entries) {
-      _pool.Prewarm(faction.HeroScene, 2);
-      _pool.Prewarm(faction.MinionScene, 64);
+      TryPrewarm(_pool, faction.HeroScene, 2, $"{faction.DisplayName} hero");
+      TryPrewarm(_pool, faction.MinionScene, 64, $"{faction.DisplayName} minion");
     }
 
-    _pool.Prewarm(crystalScene, 2);
-    _pool.Prewarm(turretScene, 4);
-    _pool.Prewarm(pickupScene, 32);
-    _pool.Prewarm(oasisScene, 4);
+    TryPrewarm(_pool, crystalScene, 2, "Crystal");
+    TryPrewarm(_pool, turretScene, 4, "Turret");
+    TryPrewarm(_pool, pickupScene, 32, "Pickup");
+    TryPrewarm(_pool, oasisScene, 4, "Oasis");
 
     _view = new EntityViewUpdaterNode();
     AddChild(_view);
@@ -145,10 +146,13 @@ public partial class MultiplayerGameNode : GameNode {
     var turretScene = GD.Load<PackedScene>("res://Scenes/Objects/Turret.tscn");
     var pickupScene = GD.Load<PackedScene>("res://Scenes/Objects/WaterBottle.tscn");
     var oasisScene = GD.Load<PackedScene>("res://Scenes/Objects/Oasis.tscn");
-    return new UnitViewFactory(_factions, crystalScene, turretScene, pickupScene, oasisScene);
+    return new UnitViewFactory(_factions, crystalScene, turretScene, pickupScene, oasisScene, BrokenViewScenes);
   }
 
   private void OnSessionReady(bool autoReady) {
+    IKlothoEngine engine = _session.Engine;   // IsResimulation is a default interface member
+    SimLog.BindStage(() => engine.IsResimulation);
+    Input.BindEngine(engine);
     _view.Initialize(_session.Engine, CreateFactory(), _pool);
     _view.PlayerViews.OnLocalViewRegistered += OnLocalViewRegistered;
     _view.PlayerViews.OnLocalViewUnregistered += OnLocalViewUnregistered;
@@ -270,6 +274,7 @@ public partial class MultiplayerGameNode : GameNode {
   }
 
   public override void _ExitTree() {
+    SimLog.UnbindStage();
     UnbindCameraFollow();
     if (_driver != null)
       _driver.PreSessionUpdate -= CaptureRunningInput;

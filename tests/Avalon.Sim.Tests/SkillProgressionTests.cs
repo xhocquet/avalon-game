@@ -5,6 +5,7 @@ using Meesles.Avalon.Sim.Commands;
 using Meesles.Avalon.Sim.Components;
 using Meesles.Avalon.Sim.Heroes;
 using xpTURN.Klotho.Core;
+using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Serialization;
 using Xunit;
@@ -65,26 +66,26 @@ public class SkillProgressionTests {
   public void Upgrade_SpendsOnePointAndRaisesTheSlotOneRank() {
     var harness = SimHarness.CreateInitialized();
 
-    harness.Tick(SimHarness.UpgradeSkillCommand(PlayerId, 0, (int)SkillSlot.HardHit));
+    harness.Tick(SimHarness.UpgradeSkillCommand(PlayerId, 0, (int)SkillSlot.Primary));
 
     var frame = harness.Frame;
     ref readonly var skills = ref frame.GetReadOnly<SkillsComponent>(harness.FindHero(PlayerId));
     skills.SkillPoints.Should().Be(0);
-    skills.GetRank((int)SkillSlot.HardHit).Should().Be(1);
-    skills.GetRank((int)SkillSlot.Buff).Should().Be(0);
+    skills.GetRank((int)SkillSlot.Primary).Should().Be(1);
+    skills.GetRank((int)SkillSlot.Secondary).Should().Be(0);
   }
 
   [Fact]
   public void Upgrade_WithNoPointsLeft_IsRejected() {
     var harness = SimHarness.CreateInitialized();
-    harness.Tick(SimHarness.UpgradeSkillCommand(PlayerId, 0, (int)SkillSlot.HardHit));
+    harness.Tick(SimHarness.UpgradeSkillCommand(PlayerId, 0, (int)SkillSlot.Primary));
 
-    harness.Tick(SimHarness.UpgradeSkillCommand(PlayerId, 1, (int)SkillSlot.Buff));
+    harness.Tick(SimHarness.UpgradeSkillCommand(PlayerId, 1, (int)SkillSlot.Secondary));
 
     var frame = harness.Frame;
     ref readonly var skills = ref frame.GetReadOnly<SkillsComponent>(harness.FindHero(PlayerId));
     skills.SkillPoints.Should().Be(0);
-    skills.GetRank((int)SkillSlot.Buff).Should().Be(0);
+    skills.GetRank((int)SkillSlot.Secondary).Should().Be(0);
   }
 
   [Fact]
@@ -92,15 +93,15 @@ public class SkillProgressionTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     var hero = harness.FindHero(PlayerId);
-    var skill = SkillInSlot(harness, hero, SkillSlot.HardHit);
+    var skill = SkillInSlot(harness, hero, SkillSlot.Primary);
     GrantPoints(ref frame, hero, skill.MaxRank + 3);
 
     for (var i = 0; i < skill.MaxRank + 2; i++)
-      harness.Tick(SimHarness.UpgradeSkillCommand(PlayerId, i, (int)SkillSlot.HardHit));
+      harness.Tick(SimHarness.UpgradeSkillCommand(PlayerId, i, (int)SkillSlot.Primary));
 
     frame = harness.Frame;
     ref readonly var skills = ref frame.GetReadOnly<SkillsComponent>(harness.FindHero(PlayerId));
-    skills.GetRank((int)SkillSlot.HardHit).Should().Be(skill.MaxRank);
+    skills.GetRank((int)SkillSlot.Primary).Should().Be(skill.MaxRank);
     // Only MaxRank of the granted points could be spent; the surplus stays banked.
     skills.SkillPoints.Should().Be(3);
   }
@@ -149,12 +150,12 @@ public class SkillProgressionTests {
   public void Upgrade_OnOneHero_LeavesTheOtherHeroAlone() {
     var harness = SimHarness.CreateInitialized();
 
-    harness.Tick(SimHarness.UpgradeSkillCommand(PlayerId, 0, (int)SkillSlot.HardHit));
+    harness.Tick(SimHarness.UpgradeSkillCommand(PlayerId, 0, (int)SkillSlot.Primary));
 
     var frame = harness.Frame;
     ref readonly var other = ref frame.GetReadOnly<SkillsComponent>(harness.FindHero(2));
     other.SkillPoints.Should().Be(1);
-    other.GetRank((int)SkillSlot.HardHit).Should().Be(0);
+    other.GetRank((int)SkillSlot.Primary).Should().Be(0);
   }
 
   [Fact]
@@ -177,8 +178,14 @@ public class SkillProgressionTests {
 
   [Fact]
   public void CastSkillCommand_RoundTripsThroughTheWire() {
-    var original = new CastSkillCommand { PlayerId = 4, Tick = 21, Slot = 2 };
-    original.GetSerializedSize().Should().Be(16);
+    var original = new CastSkillCommand {
+      PlayerId = 4,
+      Tick = 21,
+      Slot = 2,
+      TargetX = FP64.FromFloat(12.5f),
+      TargetZ = FP64.FromFloat(-7.25f)
+    };
+    original.GetSerializedSize().Should().Be(32);
 
     var buffer = new byte[original.GetSerializedSize()];
     var writer = new SpanWriter(buffer);
@@ -191,6 +198,8 @@ public class SkillProgressionTests {
     restored.PlayerId.Should().Be(4);
     restored.Tick.Should().Be(21);
     restored.Slot.Should().Be(2);
+    restored.TargetX.Should().Be(original.TargetX);
+    restored.TargetZ.Should().Be(original.TargetZ);
   }
 
   // Catches drift between AssetIds, Assets.json, and HeroSkillSets at test time rather than at spawn,

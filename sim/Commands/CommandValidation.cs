@@ -31,7 +31,9 @@ public static class CommandValidation {
       case UpgradeSkillCommand upgrade:
         return AcceptSkillSlot(ref frame, upgrade, upgrade.Slot);
       case CastSkillCommand cast:
-        return AcceptSkillSlot(ref frame, cast, cast.Slot);
+        return AcceptSkillSlot(ref frame, cast, cast.Slot) && AcceptCastTarget(ref frame, cast);
+      case PurchaseItemCommand purchase:
+        return AcceptShopItem(ref frame, purchase);
       default:
         return true;
     }
@@ -53,11 +55,27 @@ public static class CommandValidation {
     return false;
   }
 
+  private static bool AcceptCastTarget(ref Frame frame, CastSkillCommand command) {
+    if (IsInWorldEnvelope(command.TargetX) && IsInWorldEnvelope(command.TargetZ))
+      return true;
+
+    Reject(ref frame, command, $"target_out_of_bounds x={command.TargetX} z={command.TargetZ}");
+    return false;
+  }
+
   private static bool AcceptFaction(ref Frame frame, SelectFactionCommand command) {
     if (frame.AssetRegistry.TryGet<FactionAsset>(command.FactionId, out _))
       return true;
 
     Reject(ref frame, command, $"faction_asset_missing factionId={command.FactionId}");
+    return false;
+  }
+
+  private static bool AcceptShopItem(ref Frame frame, PurchaseItemCommand command) {
+    if (frame.AssetRegistry.TryGet<ShopItemAsset>(command.ItemAssetId, out _))
+      return true;
+
+    Reject(ref frame, command, $"shop_item_asset_missing itemId={command.ItemAssetId}");
     return false;
   }
 
@@ -77,7 +95,7 @@ public static class CommandValidation {
   }
 
   private static void Reject(ref Frame frame, ICommand command, string reason) {
-    frame.Logger.KWarning(
+    SimLog.Warning(ref frame,
       $"[CommandValidation] REJECT tick={frame.Tick} playerId={command.PlayerId} cmd={command.GetType().Name} reason={reason}");
   }
 }

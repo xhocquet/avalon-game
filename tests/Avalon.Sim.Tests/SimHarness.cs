@@ -104,10 +104,17 @@ public class SimHarness {
   }
 
   public static Commands.CastSkillCommand CastSkillCommand(int playerId, int tick, int slot) {
+    return CastSkillCommand(playerId, tick, slot, FP64.Zero, FP64.Zero);
+  }
+
+  public static Commands.CastSkillCommand CastSkillCommand(
+    int playerId, int tick, int slot, FP64 targetX, FP64 targetZ) {
     return new Commands.CastSkillCommand {
       PlayerId = playerId,
       Tick = tick,
       Slot = slot,
+      TargetX = targetX,
+      TargetZ = targetZ,
     };
   }
 

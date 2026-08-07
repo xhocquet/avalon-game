@@ -47,7 +47,7 @@ public class TeamPruneSystem : ISystem {
         frame.EventRaiser.RaiseEvent(evt);
       }
 
-    frame.Logger.KInformation(
+    SimLog.Info(ref frame,
       $"[TeamPrune] tick={frame.Tick} activeTeams=[{string.Join(",", _activeTeams)}] " +
       $"prunedTeams=[{string.Join(",", _prunedTeams)}] prunedStructures={_toDestroy.Count}");
 

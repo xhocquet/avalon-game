@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using Godot;
@@ -17,6 +18,10 @@ public abstract partial class GameNode : Node {
   protected LobbyUI LobbyUi;
   protected IKLoggerFactory LoggerFactory;
 
+  // Scenes that failed the TryPrewarm probe. UnitViewFactory resolves these to null so the entities
+  // using them are skipped instead of throwing again on the first Rent.
+  protected readonly HashSet<PackedScene> BrokenViewScenes = [];
+
   protected void InitializeSharedNodes() {
     Input = new InputCapture();
     LobbyUi = GetNode<LobbyUI>("UILayer/LobbyUI");
@@ -29,6 +34,37 @@ public abstract partial class GameNode : Node {
     Input.BindClickMarker(GetNodeOrNull<Node3D>("Crosshair"));
   }
 
+
+  // PackedScene.Instantiate<EntityViewNode> throws when the scene root carries no EntityViewNode
+  // script (a model .tscn wired up without one). Unguarded that aborts _Ready mid-way, so the client
+  // comes up with no camera, no input binding and no units at all. Probe the root first: a mis-wired
+  // scene then costs only the entities that use it.
+  protected bool TryPrewarm(IGodotEntityViewPool pool, PackedScene scene, int count, string label) {
+    if (scene == null) {
+      LogViewSceneError($"[View] {label}: scene failed to load (null) — check the resource path.");
+      return false;
+    }
+
+    var probe = scene.Instantiate();
+    var isViewNode = probe is EntityViewNode;
+    probe.Free();
+
+    if (!isViewNode) {
+      BrokenViewScenes.Add(scene);
+      LogViewSceneError(
+        $"[View] {label}: '{scene.ResourcePath}' root is not an EntityViewNode — attach the " +
+        "HeroEntity/MinionEntity script to the scene root. Its units will not render this session.");
+      return false;
+    }
+
+    pool.Prewarm(scene, count);
+    return true;
+  }
+
+  private static void LogViewSceneError(string message) {
+    GD.PushError(message);   // editor Errors dock + stderr
+    GD.PrintErr(message);    // headless/smoke stderr, where PushError alone is easy to miss
+  }
 
   protected IKLogger CreateLogger(string filePrefix = "Client") {
     DisposeLoggerFactory();

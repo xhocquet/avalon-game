@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Godot;
+using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.ECS;
@@ -10,11 +11,16 @@ namespace Meesles.Avalon;
 // Drives the contextual ActionGrid in GameUI. It's meant to host a flexible assortment of actions
 // depending on what the player has selected; the first (and only, for now) context is the shop.
 //
-// When the player has a shop selected AND their hero is standing within the ShopRulesAsset's
-// InteractRange of it, the grid fills with one buy button per shop item; otherwise it empties. The
-// grid is rebuilt only on the hidden<->shown transition — while shown it just refreshes each item's
-// affordability (enabled/greyed) every frame. Proximity here is a UX hint: the sim re-checks gold and range
-// authoritatively when the PurchaseItemCommand lands, so a stale/optimistic button is harmless.
+// When the player has their own team's shop selected AND their hero is in range of it, the grid fills
+// with one buy button per shop item; otherwise it empties. The grid is rebuilt only on the
+// hidden<->shown transition — while shown it just refreshes each item's buyability (enabled/greyed)
+// every frame.
+//
+// Both the visibility test and the per-button state run through ShopActions — the same rules
+// PurchaseItemCommand is judged by — rather than re-deriving them here. Range in particular: the
+// ShopEntity node's transform comes from World.tscn and the sim's from the MapLayoutAsset Shop marker,
+// so measuring against the node would enable a button the sim then silently rejects wherever the two
+// disagree.
 public class ActionBarController {
   private const float CellSize = 58f;
 
@@ -51,40 +57,32 @@ public class ActionBarController {
       return;
     }
 
-    if (!TryGetLocalHero(frame, playerId, out var teamId, out var gold, out var heroX, out var heroZ)) {
+    if (!TryGetLocalHero(frame, playerId, out var hero, out var teamId)) {
       Hide();
       return;
     }
 
     // Only your own team's shop, and only while the hero is close enough to it.
-    if (contextShop.Team != teamId || !WithinRange(frame, heroX, heroZ, contextShop.GlobalPosition)) {
+    if (contextShop.Team != teamId || !ShopActions.IsHeroNearTeamShop(ref frame, hero)) {
       Hide();
       return;
     }
 
-    Show(frame, gold);
+    Show(frame, playerId);
   }
 
-  private static bool WithinRange(Frame frame, float heroX, float heroZ, Vector3 shopPos) {
-    if (!frame.AssetRegistry.TryGet<ShopRulesAsset>(out var rules))
-      return false;
-
-    var dx = heroX - shopPos.X;
-    var dz = heroZ - shopPos.Z;
-    var range = rules.InteractRange.ToFloat();
-    return dx * dx + dz * dz <= range * range;
-  }
-
-  private void Show(Frame frame, int gold) {
+  private void Show(Frame frame, int playerId) {
     if (!_shown) {
       Build(frame);
       _shown = true;
     }
 
+    // ShopActions.CanPurchase is the same predicate the sim judges the command by, so a greyed button
+    // and a rejected buy can never disagree.
     foreach (var item in _buttons) {
-      var affordable = item.Cost >= 0 && gold >= item.Cost;
-      item.Button.Disabled = !affordable;
-      item.Button.Modulate = affordable ? Colors.White : new Color(1f, 1f, 1f, 0.4f);
+      var buyable = ShopActions.CanPurchase(ref frame, playerId, item.ItemId);
+      item.Button.Disabled = !buyable;
+      item.Button.Modulate = buyable ? Colors.White : new Color(1f, 1f, 1f, 0.4f);
     }
   }
 
@@ -121,7 +119,7 @@ public class ActionBarController {
 
       AddCostBadge(button, cost);
       _grid.AddChild(button);
-      _buttons.Add(new ItemButton(itemId, cost, button));
+      _buttons.Add(new ItemButton(itemId, button));
     }
   }
 
@@ -147,12 +145,10 @@ public class ActionBarController {
     return frame.AssetRegistry.TryGet<ShopItemAsset>(itemId, out var asset) ? asset.Cost : -1;
   }
 
-  private static bool TryGetLocalHero(Frame frame, int playerId, out int teamId, out int gold,
-    out float heroX, out float heroZ) {
+  private static bool TryGetLocalHero(Frame frame, int playerId, out EntityRef heroEntity,
+    out int teamId) {
+    heroEntity = default;
     teamId = 0;
-    gold = 0;
-    heroX = 0f;
-    heroZ = 0f;
 
     var filter = frame.Filter<Hero, TeamComponent, InventoryComponent, TransformComponent>();
     while (filter.Next(out var entity)) {
@@ -160,11 +156,8 @@ public class ActionBarController {
       if (hero.PlayerId != playerId)
         continue;
 
+      heroEntity = entity;
       teamId = frame.GetReadOnly<TeamComponent>(entity).TeamId;
-      gold = frame.GetReadOnly<InventoryComponent>(entity).Gold;
-      ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
-      heroX = transform.Position.x.ToFloat();
-      heroZ = transform.Position.z.ToFloat();
       return true;
     }
 
@@ -200,9 +193,8 @@ public class ActionBarController {
     };
   }
 
-  private readonly struct ItemButton(int itemId, int cost, TextureButton button) {
+  private readonly struct ItemButton(int itemId, TextureButton button) {
     public readonly int ItemId = itemId;
-    public readonly int Cost = cost;
     public readonly TextureButton Button = button;
   }
 }

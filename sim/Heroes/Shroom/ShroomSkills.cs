@@ -4,40 +4,30 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon.Sim.Heroes;
 
 public sealed class ShroomSkills : IHeroSkillSet {
-  public void OnRankGained(ref Frame frame, EntityRef entity, int slot, SkillAsset skill, int newRank) {
-    SharedSkillStubs.RankGained(ref frame, entity, skill, newRank);
-  }
+  public void OnRankGained(ref Frame frame, EntityRef entity, int slot, SkillAsset skill, int newRank) { }
 
-  public void OnCast(ref Frame frame, EntityRef entity, int slot, SkillAsset skill, int rank) {
-    switch ((SkillSlot)slot) {
-      case SkillSlot.HardHit:
-        CastHardHit(ref frame, entity, skill, rank);
+  public void OnCast(ref Frame frame, in SkillCastContext ctx) {
+    switch ((SkillSlot)ctx.Slot) {
+      case SkillSlot.Primary:
+        CastVenomousSlobber(ref frame, in ctx);
         break;
-      case SkillSlot.Buff:
-        CastBuff(ref frame, entity, skill, rank);
+      case SkillSlot.Secondary:
+        CastSnailTrail(ref frame, in ctx);
         break;
-      case SkillSlot.RangeShot:
-        CastRangeShot(ref frame, entity, skill, rank);
+      case SkillSlot.Tertiary:
+        CastSwivelEyes(ref frame, in ctx);
         break;
       case SkillSlot.Ultimate:
-        CastUltimate(ref frame, entity, skill, rank);
+        CastMolt(ref frame, in ctx);
         break;
     }
   }
 
-  private static void CastHardHit(ref Frame frame, EntityRef entity, SkillAsset skill, int rank) {
-    SharedSkillStubs.CastHardHit(ref frame, entity, skill, rank);
-  }
+  private static void CastVenomousSlobber(ref Frame frame, in SkillCastContext ctx) { }
 
-  private static void CastBuff(ref Frame frame, EntityRef entity, SkillAsset skill, int rank) {
-    SharedSkillStubs.CastBuff(ref frame, entity, skill, rank);
-  }
+  private static void CastSnailTrail(ref Frame frame, in SkillCastContext ctx) { }
 
-  private static void CastRangeShot(ref Frame frame, EntityRef entity, SkillAsset skill, int rank) {
-    SharedSkillStubs.CastRangeShot(ref frame, entity, skill, rank);
-  }
+  private static void CastSwivelEyes(ref Frame frame, in SkillCastContext ctx) { }
 
-  private static void CastUltimate(ref Frame frame, EntityRef entity, SkillAsset skill, int rank) {
-    SharedSkillStubs.CastUltimate(ref frame, entity, skill, rank);
-  }
+  private static void CastMolt(ref Frame frame, in SkillCastContext ctx) { }
 }

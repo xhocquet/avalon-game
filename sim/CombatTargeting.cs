@@ -5,13 +5,23 @@ namespace Meesles.Avalon.Sim;
 
 public static class CombatTargeting {
   public static bool IsHostileAndAlive(ref Frame frame, EntityRef attacker, EntityRef target) {
+    return frame.Has<TeamComponent>(attacker) &&
+           IsHostileAndAlive(ref frame, frame.GetReadOnly<TeamComponent>(attacker).TeamId, target);
+  }
+
+  // Team-id overload: a projectile can outlive the caster entity it was fired from
+  public static bool IsHostileAndAlive(ref Frame frame, int teamId, EntityRef target) {
     if (!target.IsValid || !frame.Has<Health>(target) || !frame.Has<TeamComponent>(target))
       return false;
 
     if (!frame.GetReadOnly<Health>(target).IsAlive)
       return false;
 
-    return frame.Has<TeamComponent>(attacker) &&
-           frame.GetReadOnly<TeamComponent>(attacker).TeamId != frame.GetReadOnly<TeamComponent>(target).TeamId;
+    return frame.GetReadOnly<TeamComponent>(target).TeamId != teamId;
+  }
+
+  // Structures are excluded from skill hits; a skill that wants one checks past this
+  public static bool IsSkillHittable(ref Frame frame, EntityRef target) {
+    return frame.Has<Hero>(target) || frame.Has<Minion>(target);
   }
 }

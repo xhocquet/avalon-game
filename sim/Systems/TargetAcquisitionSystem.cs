@@ -35,7 +35,7 @@ public class TargetAcquisitionSystem : ISystem {
       if (!TryAcquireTarget(ref frame, attacker, transform.Position, radius, out var targetUnitId))
         continue;
 
-      frame.Add(attacker, new AttackTargetUnitId { TargetUnitId = targetUnitId });
+      UnitIntent.SetAttackTarget(ref frame, attacker, targetUnitId);
     }
   }
 

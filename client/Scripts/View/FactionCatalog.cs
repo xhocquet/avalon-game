@@ -34,10 +34,9 @@ public class FactionCatalog {
       "res://Scenes/Heroes/Skinwalker.tscn",
       "res://Scenes/Mobs/SwirlyEye.tscn",
       "res://Assets/Portraits/Skinwalker.png"),
-    // No minion model of its own yet — borrows the Shrooms' DeathSnail as a stand-in.
     new(FactionPickleKnightsId, "Pickle Knights",
       "res://Scenes/Heroes/PickleKnight.tscn",
-      "res://Scenes/Mobs/DeathSnail.tscn",
+      "res://Scenes/Mobs/CaperCreep.tscn",
       "res://Assets/Portraits/PickleKnight.png")
   ];
 

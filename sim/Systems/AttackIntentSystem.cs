@@ -74,7 +74,7 @@ public class AttackIntentSystem : ISystem {
       return;
     }
 
-    SetMoveTarget(ref frame, attacker, frame.GetReadOnly<TransformComponent>(target).Position);
+    UnitIntent.SetMoveTarget(ref frame, attacker, frame.GetReadOnly<TransformComponent>(target).Position);
   }
 
   // Beyond the shared hostility rule this system also needs the target's position, both to measure
@@ -84,11 +84,6 @@ public class AttackIntentSystem : ISystem {
     return _unitIdIndex.TryGet(targetUnitId, out target) &&
            frame.Has<TransformComponent>(target) &&
            CombatTargeting.IsHostileAndAlive(ref frame, attacker, target);
-  }
-
-  private static void SetMoveTarget(ref Frame frame, EntityRef entity, FPVector3 target) {
-    target.y = FP64.Zero;
-    UnitIntent.SetMoveTarget(ref frame, entity, target);
   }
 
   private static void LogAttackState(ref Frame frame, EntityRef attacker, int attackTargetUnitId, string state) {

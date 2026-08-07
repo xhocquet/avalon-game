@@ -12,26 +12,26 @@ namespace Meesles.Avalon;
 
 public class SkillCatalog {
   public static readonly SkillDef[] SkillDefs = [
-    new(AssetIds.SkillHairyWizardHardHit, AssetIds.HeroHairyWizard, SkillSlot.HardHit, "Hard Hit"),
-    new(AssetIds.SkillHairyWizardBuff, AssetIds.HeroHairyWizard, SkillSlot.Buff, "Buff"),
-    new(AssetIds.SkillHairyWizardRangeShot, AssetIds.HeroHairyWizard, SkillSlot.RangeShot, "Range Shot"),
-    new(AssetIds.SkillHairyWizardUltimate, AssetIds.HeroHairyWizard, SkillSlot.Ultimate, "Ultimate"),
-    new(AssetIds.SkillShroomHardHit, AssetIds.HeroShroom, SkillSlot.HardHit, "Hard Hit"),
-    new(AssetIds.SkillShroomBuff, AssetIds.HeroShroom, SkillSlot.Buff, "Buff"),
-    new(AssetIds.SkillShroomRangeShot, AssetIds.HeroShroom, SkillSlot.RangeShot, "Range Shot"),
-    new(AssetIds.SkillShroomUltimate, AssetIds.HeroShroom, SkillSlot.Ultimate, "Ultimate"),
-    new(AssetIds.SkillCrystalGiantHardHit, AssetIds.HeroCrystalGiant, SkillSlot.HardHit, "Hard Hit"),
-    new(AssetIds.SkillCrystalGiantBuff, AssetIds.HeroCrystalGiant, SkillSlot.Buff, "Buff"),
-    new(AssetIds.SkillCrystalGiantRangeShot, AssetIds.HeroCrystalGiant, SkillSlot.RangeShot, "Range Shot"),
-    new(AssetIds.SkillCrystalGiantUltimate, AssetIds.HeroCrystalGiant, SkillSlot.Ultimate, "Ultimate"),
-    new(AssetIds.SkillSkinwalkerHardHit, AssetIds.HeroSkinwalker, SkillSlot.HardHit, "Hard Hit"),
-    new(AssetIds.SkillSkinwalkerBuff, AssetIds.HeroSkinwalker, SkillSlot.Buff, "Buff"),
-    new(AssetIds.SkillSkinwalkerRangeShot, AssetIds.HeroSkinwalker, SkillSlot.RangeShot, "Range Shot"),
-    new(AssetIds.SkillSkinwalkerUltimate, AssetIds.HeroSkinwalker, SkillSlot.Ultimate, "Ultimate"),
-    new(AssetIds.SkillPickleKnightHardHit, AssetIds.HeroPickleKnight, SkillSlot.HardHit, "Hard Hit"),
-    new(AssetIds.SkillPickleKnightBuff, AssetIds.HeroPickleKnight, SkillSlot.Buff, "Buff"),
-    new(AssetIds.SkillPickleKnightRangeShot, AssetIds.HeroPickleKnight, SkillSlot.RangeShot, "Range Shot"),
-    new(AssetIds.SkillPickleKnightUltimate, AssetIds.HeroPickleKnight, SkillSlot.Ultimate, "Ultimate")
+    new(AssetIds.SkillHairyWizardPrimary, AssetIds.HeroHairyWizard, SkillSlot.Primary, "Hairball"),
+    new(AssetIds.SkillHairyWizardSecondary, AssetIds.HeroHairyWizard, SkillSlot.Secondary, "Strangle"),
+    new(AssetIds.SkillHairyWizardTertiary, AssetIds.HeroHairyWizard, SkillSlot.Tertiary, "Close Shave"),
+    new(AssetIds.SkillHairyWizardUltimate, AssetIds.HeroHairyWizard, SkillSlot.Ultimate, "Bad Hair Day"),
+    new(AssetIds.SkillShroomPrimary, AssetIds.HeroShroom, SkillSlot.Primary, "Venomous Slobber"),
+    new(AssetIds.SkillShroomSecondary, AssetIds.HeroShroom, SkillSlot.Secondary, "Snail Trail"),
+    new(AssetIds.SkillShroomTertiary, AssetIds.HeroShroom, SkillSlot.Tertiary, "Swivel Eyes"),
+    new(AssetIds.SkillShroomUltimate, AssetIds.HeroShroom, SkillSlot.Ultimate, "Molt"),
+    new(AssetIds.SkillCrystalGiantPrimary, AssetIds.HeroCrystalGiant, SkillSlot.Primary, "Spiky Punch"),
+    new(AssetIds.SkillCrystalGiantSecondary, AssetIds.HeroCrystalGiant, SkillSlot.Secondary, "Harden"),
+    new(AssetIds.SkillCrystalGiantTertiary, AssetIds.HeroCrystalGiant, SkillSlot.Tertiary, "Crystal Bullets"),
+    new(AssetIds.SkillCrystalGiantUltimate, AssetIds.HeroCrystalGiant, SkillSlot.Ultimate, "Carbon Compression"),
+    new(AssetIds.SkillSkinwalkerPrimary, AssetIds.HeroSkinwalker, SkillSlot.Primary, "Sprint"),
+    new(AssetIds.SkillSkinwalkerSecondary, AssetIds.HeroSkinwalker, SkillSlot.Secondary, "Daily Practice"),
+    new(AssetIds.SkillSkinwalkerTertiary, AssetIds.HeroSkinwalker, SkillSlot.Tertiary, "Eat to Survive"),
+    new(AssetIds.SkillSkinwalkerUltimate, AssetIds.HeroSkinwalker, SkillSlot.Ultimate, "Desperation"),
+    new(AssetIds.SkillPickleKnightPrimary, AssetIds.HeroPickleKnight, SkillSlot.Primary, "Slip 'n Slide"),
+    new(AssetIds.SkillPickleKnightSecondary, AssetIds.HeroPickleKnight, SkillSlot.Secondary, "Double Dip"),
+    new(AssetIds.SkillPickleKnightTertiary, AssetIds.HeroPickleKnight, SkillSlot.Tertiary, "Refresh"),
+    new(AssetIds.SkillPickleKnightUltimate, AssetIds.HeroPickleKnight, SkillSlot.Ultimate, "Exploosion")
   ];
 
   private readonly Dictionary<int, SkillDef> _byId = new();

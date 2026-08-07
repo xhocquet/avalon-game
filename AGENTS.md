@@ -6,6 +6,12 @@
 - `vendor/Klotho/`: upstream Klotho submodule source. Use it to inspect runtime/framework behavior that is consumed here through prebuilt DLLs.
 - `klotho-docs/`: copied Klotho source docs for local reference only; treat as read-only.
 
+# Comments
+- Prefer inline comments at the end of code if it fits: `var x = 123; // var x is ...`
+- Keep comments concise. Do not explain the 'why?' for code you add. Do not list consumers or other details.
+- Comments should just be about non-obvious implementation details. Do not re-describe what the code is already clear about.
+- De-fluff comments of LLM language and keep the dry and consistent with surrounding style
+
 # Agent Routing
 
 - If working in `client/`, follow [`client/AGENTS.md`](client/AGENTS.md) for Godot/editor/runtime context.
@@ -21,6 +27,7 @@
 - `server/Server.csproj` links `sim/**/*.cs` into the server build; the server does not maintain a separate simulation copy.
 - Client and server both call `SimulationSetup.RegisterSystems(...)` and `SimulationSetup.InitializeWorld(...)` through their `ISimulationCallbacks` implementations.
 - Godot client callbacks poll local input and send commands; server callbacks do not poll local input because Klotho injects client commands into the authoritative server simulation.
+- **A gameplay rule is written once, in `sim/`, and the client calls that same predicate — it never re-implements or approximates it.** A rule the client copies drifts from the one the sim enforces, and the symptom is a UI that offers an action the sim then rejects with nothing but a log line. So a `*Actions` class that owns a rule exposes a read-only `Can*` predicate beside its `Try*`, both running the same evaluation: `SkillActions.CanCast`/`CanUpgrade` gate the cast hotkeys in `InputCapture` and grey the cells in `SkillBarController`; `ShopActions.IsHeroNearTeamShop` gates the buy buttons in `ActionBarController`. Keep the predicates read-only and allocation-free — the HUD polls them every sync. This is a UX and bandwidth optimization, never a security one: the sim re-checks on arrival regardless, because a command arrives from an untrusted peer.
 
 # Network Architecture
 

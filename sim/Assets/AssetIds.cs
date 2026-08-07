@@ -50,28 +50,28 @@ public static class AssetIds {
   public const int HeroPickleKnight = 404;
   // Next free hero id: 405
 
-  // SkillAsset, SkillCatalog. Four rows per hero in slot order (HardHit, Buff, RangeShot, Ultimate),
+  // SkillAsset, SkillCatalog. Four rows per hero in slot order (Primary, Secondary, Tertiary, Ultimate),
   // blocked hero-major in the same order as the Hero* block above. Every hero owns its own rows even
   // where the numbers currently match, so retuning one hero's skill never touches another's.
-  public const int SkillHairyWizardHardHit = 500;
-  public const int SkillHairyWizardBuff = 501;
-  public const int SkillHairyWizardRangeShot = 502;
+  public const int SkillHairyWizardPrimary = 500;
+  public const int SkillHairyWizardSecondary = 501;
+  public const int SkillHairyWizardTertiary = 502;
   public const int SkillHairyWizardUltimate = 503;
-  public const int SkillShroomHardHit = 504;
-  public const int SkillShroomBuff = 505;
-  public const int SkillShroomRangeShot = 506;
+  public const int SkillShroomPrimary = 504;
+  public const int SkillShroomSecondary = 505;
+  public const int SkillShroomTertiary = 506;
   public const int SkillShroomUltimate = 507;
-  public const int SkillCrystalGiantHardHit = 508;
-  public const int SkillCrystalGiantBuff = 509;
-  public const int SkillCrystalGiantRangeShot = 510;
+  public const int SkillCrystalGiantPrimary = 508;
+  public const int SkillCrystalGiantSecondary = 509;
+  public const int SkillCrystalGiantTertiary = 510;
   public const int SkillCrystalGiantUltimate = 511;
-  public const int SkillSkinwalkerHardHit = 512;
-  public const int SkillSkinwalkerBuff = 513;
-  public const int SkillSkinwalkerRangeShot = 514;
+  public const int SkillSkinwalkerPrimary = 512;
+  public const int SkillSkinwalkerSecondary = 513;
+  public const int SkillSkinwalkerTertiary = 514;
   public const int SkillSkinwalkerUltimate = 515;
-  public const int SkillPickleKnightHardHit = 516;
-  public const int SkillPickleKnightBuff = 517;
-  public const int SkillPickleKnightRangeShot = 518;
+  public const int SkillPickleKnightPrimary = 516;
+  public const int SkillPickleKnightSecondary = 517;
+  public const int SkillPickleKnightTertiary = 518;
   public const int SkillPickleKnightUltimate = 519;
   // Next free skill id: 520
 

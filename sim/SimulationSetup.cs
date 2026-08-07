@@ -24,26 +24,44 @@ public static class SimulationSetup {
     return frame.AssetRegistry.Get<MatchRulesAsset>().SetupGraceTicks;
   }
 
+  // Order notes -
+  // Systems process in order they are defined. This means certain ordering is intentional:
+  // DeathSystem processes after all damage for the frame, so you get immediate feedback (and rewards)
   public static void RegisterSystems(EcsSimulation simulation, NavigationRuntime navigation = null) {
-    simulation.AddSystem(new CommandSystem(navigation), SystemPhase.Update);
-    simulation.AddSystem(new HeroSpawnSystem(), SystemPhase.Update);
+    // Bookkeeping
     simulation.AddSystem(new TeamPruneSystem(), SystemPhase.Update);
-    simulation.AddSystem(new WaveSpawnSystem(), SystemPhase.Update);
-    simulation.AddSystem(new InventorySystem(), SystemPhase.Update);
-    simulation.AddSystem(new OasisSpawnSystem(), SystemPhase.Update);
-    simulation.AddSystem(new PickupSystem(), SystemPhase.Update);
-    simulation.AddSystem(new TargetAcquisitionSystem(), SystemPhase.Update);
     simulation.AddSystem(new RespawnSystem(), SystemPhase.Update);
-    simulation.AddSystem(new SkillSystem(), SystemPhase.Update);
+    simulation.AddSystem(new HeroSpawnSystem(), SystemPhase.Update);
+    simulation.AddSystem(new WaveSpawnSystem(), SystemPhase.Update);
+    simulation.AddSystem(new OasisSpawnSystem(), SystemPhase.Update);
+
+    // Command intake is not what this slot buys: EcsSimulation.Tick drains every OnCommand ahead of the
+    // whole Update phase, so orders had already landed before the first system above ran. What sits here
+    // is CommandSystem.Update, the transform integrator for anything NavigationAgentSystem won't carry —
+    // every unit when navigation is null, otherwise only move targets held by non-nav agents. It sits
+    // beside the nav registration below so both movement paths land at the same point in the frame.
+    simulation.AddSystem(new CommandSystem(navigation), SystemPhase.Update);
+
+    // Hero behaviors and items will impact stats and other system
     simulation.AddSystem(new HeroBehaviorSystem(), SystemPhase.Update);
-    if (navigation != null)
+    simulation.AddSystem(new InventorySystem(), SystemPhase.Update);
+
+    if (navigation != null) // Movement
       simulation.AddSystem(new NavigationAgentSystem(navigation), SystemPhase.Update);
+
+    simulation.AddSystem(new PickupSystem(), SystemPhase.Update); // Depends on movement
+
+    // Begin offensive concepts
+    simulation.AddSystem(new TargetAcquisitionSystem(), SystemPhase.Update);
+    simulation.AddSystem(new SkillSystem(), SystemPhase.Update);
+    simulation.AddSystem(new ProjectileSystem(), SystemPhase.Update);
     simulation.AddSystem(new AttackIntentSystem(), SystemPhase.Update);
     simulation.AddSystem(new AttackCooldownSystem(), SystemPhase.Update);
     simulation.AddSystem(new DamageSystem(), SystemPhase.Update);
     simulation.AddSystem(new DeathSystem(), SystemPhase.Update);
-    simulation.AddSystem(new ExperienceSystem(), SystemPhase.Update);
 
+    // End of frame phase
+    simulation.AddSystem(new ExperienceSystem(), SystemPhase.Update);
     simulation.AddSystem(new ScoreSystem(), SystemPhase.LateUpdate);
     simulation.AddSystem(new EventSystem(), SystemPhase.LateUpdate);
   }

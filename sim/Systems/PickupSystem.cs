@@ -6,6 +6,8 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon;
 
+// TODO: not sure if iterating from the pickups makes sense - there may be some in a random corner of the
+// the map that has no heroes nearby. Should not iterate those
 public class PickupSystem : ISystem {
   private readonly List<EntityRef> _collected = [];
   private readonly List<Collector> _collectors = [];

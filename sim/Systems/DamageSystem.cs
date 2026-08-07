@@ -27,54 +27,20 @@ public class DamageSystem : ISystem {
         continue;
       }
 
-      var damage = Mitigate(ref frame, target, GetAttackDamage(ref frame, attacker));
-      var attackerUnitId = UnitLookup.GetUnitId(ref frame, attacker);
-
-      ref var health = ref frame.Get<Health>(target);
-      var healthBefore = health.Current;
-      health.Current -= damage;
-      if (health.Current < 0)
-        health.Current = 0;
-      health.LastDamagerUnitId = attackerUnitId;
+      var healthBefore = frame.GetReadOnly<Health>(target).Current;
+      var damage = DamageApplication.ApplyDamage(ref frame, attacker, target,
+        GetAttackDamage(ref frame, attacker));
 
       combat.CooldownRemainingTicks = GetCooldownTicks(ref frame, attacker, in combat);
 
-      if (frame.EventRaiser != null) {
-        var evt = EventPool.Get<AttackHitEvent>();
-        evt.AttackerUnitId = attackerUnitId;
-        evt.TargetUnitId = UnitLookup.GetUnitId(ref frame, target);
-        evt.Damage = damage;
-        evt.AttackerPosition = frame.Has<TransformComponent>(attacker)
-          ? frame.GetReadOnly<TransformComponent>(attacker).Position
-          : default;
-        evt.TargetPosition = frame.Has<TransformComponent>(target)
-          ? frame.GetReadOnly<TransformComponent>(target).Position
-          : default;
-        frame.EventRaiser.RaiseEvent(evt);
-      }
-
       LogDamageState(ref frame, attacker, target,
-        $"damage={damage} health={healthBefore}->{health.Current} cooldown={combat.CooldownRemainingTicks}");
+        $"damage={damage} health={healthBefore}->{frame.GetReadOnly<Health>(target).Current} cooldown={combat.CooldownRemainingTicks}");
     }
   }
 
   // Attackers without a StatsComponent block (nothing today, but structures/summons may skip it) deal nothing.
   private static int GetAttackDamage(ref Frame frame, EntityRef attacker) {
     return frame.Has<StatsComponent>(attacker) ? frame.GetReadOnly<StatsComponent>(attacker).AttackDamage : 0;
-  }
-
-  // Defense mitigates by a fraction rather than a flat subtraction, so stacking it approaches but never
-  // reaches immunity and low-damage attackers stay relevant.
-  private static int Mitigate(ref Frame frame, EntityRef target, int damage) {
-    if (damage <= 0 || !frame.Has<StatsComponent>(target))
-      return damage;
-
-    var defense = frame.GetReadOnly<StatsComponent>(target).Defense;
-    if (defense <= 0)
-      return damage;
-
-    var mitigated = damage * 100 / (100 + defense);
-    return mitigated < 1 ? 1 : mitigated; // Floor at 1 damage
   }
 
   private static int GetCooldownTicks(ref Frame frame, EntityRef attacker, in Combat combat) {

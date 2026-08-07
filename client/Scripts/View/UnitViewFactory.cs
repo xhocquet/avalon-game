@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Godot;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.ECS;
@@ -11,17 +12,26 @@ public class UnitViewFactory : EntityViewFactory {
   private readonly PackedScene _turretScene;
   private readonly PackedScene _pickupScene;
   private readonly PackedScene _oasisScene;
+  private readonly IReadOnlySet<PackedScene> _brokenScenes;
 
   public UnitViewFactory(FactionCatalog factions, PackedScene crystalScene, PackedScene turretScene,
-    PackedScene pickupScene = null, PackedScene oasisScene = null) {
+    PackedScene pickupScene = null, PackedScene oasisScene = null,
+    IReadOnlySet<PackedScene> brokenScenes = null) {
     _factions = factions;
     _crystalScene = crystalScene;
     _turretScene = turretScene;
     _pickupScene = pickupScene;
     _oasisScene = oasisScene;
+    _brokenScenes = brokenScenes;
   }
 
   protected override PackedScene ResolvePrefab(Frame frame, EntityRef entity) {
+    var scene = ResolveScene(frame, entity);
+    // Null is the framework's documented "skip this entity" path; the prewarm probe already logged why.
+    return _brokenScenes != null && _brokenScenes.Contains(scene) ? null : scene;
+  }
+
+  private PackedScene ResolveScene(Frame frame, EntityRef entity) {
     if (frame.Has<Crystal>(entity)) return _crystalScene;
     if (frame.Has<Turret>(entity)) return _turretScene;
     if (frame.Has<Pickup>(entity)) return _pickupScene;

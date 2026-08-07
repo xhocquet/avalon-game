@@ -156,6 +156,62 @@ public class PurchaseItemCommandTests {
     frame.GetReadOnly<StatsComponent>(hero).Strength.Should().Be(strengthBefore);
   }
 
+  // CommandValidation's own gate: an id the registry never heard of is dropped before ShopActions runs.
+  [Fact]
+  public void Purchase_UnknownItemId_IsNotExecuted() {
+    var harness = SimHarness.CreateInitialized();
+    var frame = harness.Frame;
+
+    var hero = FindHero(ref frame, PlayerId);
+    PlaceHeroAtTeamShop(ref frame, hero);
+    SetGold(ref frame, hero, 100);
+
+    harness.Tick(Purchase(999999));
+
+    frame = harness.Frame;
+    hero = FindHero(ref frame, PlayerId);
+    frame.GetReadOnly<InventoryComponent>(hero).Gold.Should().Be(100);
+    frame.GetReadOnly<InventoryComponent>(hero).ItemCount.Should().Be(0);
+  }
+
+  // The client gates buys on CanPurchase, so it has to answer exactly what TryPurchase would decide.
+  [Theory]
+  [InlineData(true, 100, EyeKeyItemId, true)]
+  [InlineData(false, 100, EyeKeyItemId, false)]
+  [InlineData(true, 0, EyeKeyItemId, false)]
+  [InlineData(true, 100, 999999, false)]
+  public void CanPurchase_AgreesWithTryPurchase(bool atShop, int gold, int itemId, bool expected) {
+    var harness = SimHarness.CreateInitialized();
+    var frame = harness.Frame;
+
+    var hero = FindHero(ref frame, PlayerId);
+    if (atShop)
+      PlaceHeroAtTeamShop(ref frame, hero);
+    else
+      PlaceHeroFarFromShop(ref frame, hero);
+    SetGold(ref frame, hero, gold);
+
+    ShopActions.CanPurchase(ref frame, PlayerId, itemId).Should().Be(expected);
+    ShopActions.TryPurchase(ref frame, PlayerId, itemId).Should().Be(expected);
+  }
+
+  [Fact]
+  public void CanPurchase_LeavesTheFrameUntouched() {
+    var harness = SimHarness.CreateInitialized();
+    var frame = harness.Frame;
+
+    var hero = FindHero(ref frame, PlayerId);
+    PlaceHeroAtTeamShop(ref frame, hero);
+    SetGold(ref frame, hero, 100);
+    var strengthBefore = frame.GetReadOnly<StatsComponent>(hero).Strength;
+
+    ShopActions.CanPurchase(ref frame, PlayerId, EyeKeyItemId).Should().BeTrue();
+
+    frame.GetReadOnly<InventoryComponent>(hero).Gold.Should().Be(100);
+    frame.GetReadOnly<InventoryComponent>(hero).ItemCount.Should().Be(0);
+    frame.GetReadOnly<StatsComponent>(hero).Strength.Should().Be(strengthBefore);
+  }
+
   private static PurchaseItemCommand Purchase(int itemAssetId) {
     return new PurchaseItemCommand { PlayerId = PlayerId, Tick = 0, ItemAssetId = itemAssetId };
   }

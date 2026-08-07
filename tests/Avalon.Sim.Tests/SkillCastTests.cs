@@ -3,6 +3,7 @@ using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using Meesles.Avalon.Sim.Heroes;
 using xpTURN.Klotho.Core;
+using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 using Xunit;
 
@@ -10,15 +11,15 @@ namespace Meesles.Avalon.Sim.Tests;
 
 public class SkillCastTests {
   private const int PlayerId = 1;
-  private const int HardHit = (int)SkillSlot.HardHit;
-  private const int Buff = (int)SkillSlot.Buff;
+  private const int Primary = (int)SkillSlot.Primary;
+  private const int Secondary = (int)SkillSlot.Secondary;
 
   [Fact]
   public void Cast_PutsTheSlotOnItsAuthoredCooldown() {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     var hero = harness.FindHero(PlayerId);
-    var skill = SkillProgressionTests.SkillInSlot(harness, hero, SkillSlot.HardHit);
+    var skill = SkillProgressionTests.SkillInSlot(harness, hero, SkillSlot.Primary);
     var expectedTicks = SkillActions.CooldownTicks(ref frame, skill);
 
     LearnAndCast(harness);
@@ -27,7 +28,7 @@ public class SkillCastTests {
     ref readonly var skills = ref frame.GetReadOnly<SkillsComponent>(harness.FindHero(PlayerId));
     // One tick already burned off: commands run before the Update phase, so SkillSystem decrements on
     // the same tick the cast landed.
-    skills.GetCooldownRemainingTicks(HardHit).Should().Be(expectedTicks - 1);
+    skills.GetCooldownRemainingTicks(Primary).Should().Be(expectedTicks - 1);
   }
 
   [Fact]
@@ -35,7 +36,7 @@ public class SkillCastTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     var hero = harness.FindHero(PlayerId);
-    var skill = SkillProgressionTests.SkillInSlot(harness, hero, SkillSlot.HardHit);
+    var skill = SkillProgressionTests.SkillInSlot(harness, hero, SkillSlot.Primary);
 
     var ticks = SkillActions.CooldownTicks(ref frame, skill);
 
@@ -52,14 +53,14 @@ public class SkillCastTests {
 
     var frame = harness.Frame;
     var remainingBefore = frame.GetReadOnly<SkillsComponent>(harness.FindHero(PlayerId))
-      .GetCooldownRemainingTicks(HardHit);
+      .GetCooldownRemainingTicks(Primary);
 
-    harness.Tick(SimHarness.CastSkillCommand(PlayerId, 2, HardHit));
+    harness.Tick(SimHarness.CastSkillCommand(PlayerId, 2, Primary));
 
     frame = harness.Frame;
     // Rejected, so the cooldown only advanced by the one tick that just ran - it was not restarted.
     frame.GetReadOnly<SkillsComponent>(harness.FindHero(PlayerId))
-      .GetCooldownRemainingTicks(HardHit).Should().Be(remainingBefore - 1);
+      .GetCooldownRemainingTicks(Primary).Should().Be(remainingBefore - 1);
   }
 
   [Fact]
@@ -67,7 +68,7 @@ public class SkillCastTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     var hero = harness.FindHero(PlayerId);
-    var skill = SkillProgressionTests.SkillInSlot(harness, hero, SkillSlot.HardHit);
+    var skill = SkillProgressionTests.SkillInSlot(harness, hero, SkillSlot.Primary);
     var cooldownTicks = SkillActions.CooldownTicks(ref frame, skill);
 
     LearnAndCast(harness);
@@ -75,25 +76,25 @@ public class SkillCastTests {
       harness.Tick();
 
     frame = harness.Frame;
-    frame.GetReadOnly<SkillsComponent>(harness.FindHero(PlayerId)).IsReady(HardHit).Should().BeTrue();
+    frame.GetReadOnly<SkillsComponent>(harness.FindHero(PlayerId)).IsReady(Primary).Should().BeTrue();
 
-    harness.Tick(SimHarness.CastSkillCommand(PlayerId, 100, HardHit));
+    harness.Tick(SimHarness.CastSkillCommand(PlayerId, 100, Primary));
 
     frame = harness.Frame;
     frame.GetReadOnly<SkillsComponent>(harness.FindHero(PlayerId))
-      .GetCooldownRemainingTicks(HardHit).Should().Be(cooldownTicks - 1);
+      .GetCooldownRemainingTicks(Primary).Should().Be(cooldownTicks - 1);
   }
 
   [Fact]
   public void Cast_OfAnUnlearnedSlot_IsRejected() {
     var harness = SimHarness.CreateInitialized();
 
-    harness.Tick(SimHarness.CastSkillCommand(PlayerId, 0, HardHit));
+    harness.Tick(SimHarness.CastSkillCommand(PlayerId, 0, Primary));
 
     var frame = harness.Frame;
     ref readonly var skills = ref frame.GetReadOnly<SkillsComponent>(harness.FindHero(PlayerId));
-    skills.GetRank(HardHit).Should().Be(0);
-    skills.GetCooldownRemainingTicks(HardHit).Should().Be(0);
+    skills.GetRank(Primary).Should().Be(0);
+    skills.GetCooldownRemainingTicks(Primary).Should().Be(0);
   }
 
   [Fact]
@@ -101,12 +102,12 @@ public class SkillCastTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     var hero = harness.FindHero(PlayerId);
-    frame.Get<SkillsComponent>(hero).TrySpendPoint(HardHit, 4).Should().BeTrue();
+    frame.Get<SkillsComponent>(hero).TrySpendPoint(Primary, 4).Should().BeTrue();
     frame.Get<Health>(hero).Current = 0;
 
-    SkillActions.TryCast(ref frame, PlayerId, HardHit).Should().BeFalse();
+    SkillActions.TryCast(ref frame, PlayerId, Primary, FPVector3.Zero).Should().BeFalse();
 
-    frame.GetReadOnly<SkillsComponent>(hero).GetCooldownRemainingTicks(HardHit).Should().Be(0);
+    frame.GetReadOnly<SkillsComponent>(hero).GetCooldownRemainingTicks(Primary).Should().Be(0);
   }
 
   [Fact]
@@ -115,30 +116,30 @@ public class SkillCastTests {
     var frame = harness.Frame;
     var hero = harness.FindHero(PlayerId);
     SkillProgressionTests.GrantPoints(ref frame, hero, 2);
-    harness.Tick(SimHarness.UpgradeSkillCommand(PlayerId, 0, HardHit));
-    harness.Tick(SimHarness.UpgradeSkillCommand(PlayerId, 1, Buff));
+    harness.Tick(SimHarness.UpgradeSkillCommand(PlayerId, 0, Primary));
+    harness.Tick(SimHarness.UpgradeSkillCommand(PlayerId, 1, Secondary));
 
-    harness.Tick(SimHarness.CastSkillCommand(PlayerId, 2, HardHit));
+    harness.Tick(SimHarness.CastSkillCommand(PlayerId, 2, Primary));
 
     frame = harness.Frame;
     ref readonly var skills = ref frame.GetReadOnly<SkillsComponent>(harness.FindHero(PlayerId));
-    skills.GetCooldownRemainingTicks(HardHit).Should().BeGreaterThan(0);
-    skills.GetCooldownRemainingTicks(Buff).Should().Be(0);
-    skills.IsReady(Buff).Should().BeTrue();
+    skills.GetCooldownRemainingTicks(Primary).Should().BeGreaterThan(0);
+    skills.GetCooldownRemainingTicks(Secondary).Should().Be(0);
+    skills.IsReady(Secondary).Should().BeTrue();
   }
 
   [Fact]
   public void Cast_OnOneHero_LeavesTheOtherHerosCooldownsAlone() {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
-    frame.Get<SkillsComponent>(harness.FindHero(2)).TrySpendPoint(HardHit, 4).Should().BeTrue();
+    frame.Get<SkillsComponent>(harness.FindHero(2)).TrySpendPoint(Primary, 4).Should().BeTrue();
 
     LearnAndCast(harness);
 
     frame = harness.Frame;
     ref readonly var other = ref frame.GetReadOnly<SkillsComponent>(harness.FindHero(2));
-    other.GetCooldownRemainingTicks(HardHit).Should().Be(0);
-    other.IsReady(HardHit).Should().BeTrue();
+    other.GetCooldownRemainingTicks(Primary).Should().Be(0);
+    other.IsReady(Primary).Should().BeTrue();
   }
 
   [Fact]
@@ -148,23 +149,26 @@ public class SkillCastTests {
     var hero = harness.FindHero(PlayerId);
     var unitId = frame.GetReadOnly<UnitIdComponent>(hero).UnitId;
     var position = frame.GetReadOnly<TransformComponent>(hero).Position;
-    frame.Get<SkillsComponent>(hero).TrySpendPoint(Buff, 4).Should().BeTrue();
-    var expectedSkillId = frame.GetReadOnly<SkillsComponent>(hero).GetSkillAssetId(Buff);
+    frame.Get<SkillsComponent>(hero).TrySpendPoint(Secondary, 4).Should().BeTrue();
+    var expectedSkillId = frame.GetReadOnly<SkillsComponent>(hero).GetSkillAssetId(Secondary);
 
     var collector = new EventCollector();
     collector.BeginTick(12);
     frame.EventRaiser = collector;
 
-    SkillActions.TryCast(ref frame, PlayerId, Buff).Should().BeTrue();
+    var target = position + new FPVector3(FP64.FromInt(5), FP64.Zero, FP64.FromInt(-3));
+    SkillActions.TryCast(ref frame, PlayerId, Secondary, target).Should().BeTrue();
 
     var evt = collector.Collected[0].Should().BeOfType<SkillCastEvent>().Subject;
     evt.Tick.Should().Be(12);
     evt.UnitId.Should().Be(unitId);
     evt.PlayerId.Should().Be(PlayerId);
-    evt.Slot.Should().Be(Buff);
+    evt.Slot.Should().Be(Secondary);
     evt.SkillAssetId.Should().Be(expectedSkillId);
     evt.Rank.Should().Be(1);
     evt.Position.Should().Be(position);
+    // Flattened to the ground plane on the way in, so the view never gets a target off the map floor.
+    evt.TargetPosition.Should().Be(new FPVector3(target.x, FP64.Zero, target.z));
   }
 
   [Theory]
@@ -199,9 +203,9 @@ public class SkillCastTests {
       skills.GetCooldownRemainingTicks(i).Should().Be(0);
   }
 
-  // Rank up HardHit and cast it, leaving the sim one tick past the cast.
+  // Rank up Primary and cast it, leaving the sim one tick past the cast.
   private static void LearnAndCast(SimHarness harness) {
-    harness.Tick(SimHarness.UpgradeSkillCommand(PlayerId, 0, HardHit));
-    harness.Tick(SimHarness.CastSkillCommand(PlayerId, 1, HardHit));
+    harness.Tick(SimHarness.UpgradeSkillCommand(PlayerId, 0, Primary));
+    harness.Tick(SimHarness.CastSkillCommand(PlayerId, 1, Primary));
   }
 }

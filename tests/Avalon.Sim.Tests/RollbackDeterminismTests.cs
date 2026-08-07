@@ -26,6 +26,10 @@ public class RollbackDeterminismTests {
   // Far more than the 4 ranks a slot can hold, so neither stream ever runs dry and stops diverging.
   private const int SkillPointPool = 40;
 
+  // Picked so the snapshot lands mid-volley: Crystal Bullets is off cooldown every ~188 ticks and
+  // each volley stays airborne for ~48 after that. AssertProjectilesAreInFlight holds it honest.
+  private const int ProjectileWarmupTicks = 230;
+
   private readonly ITestOutputHelper _output;
 
   public RollbackDeterminismTests(ITestOutputHelper output) {
@@ -87,18 +91,80 @@ public class RollbackDeterminismTests {
       "or a behavior instead, and the discarded prediction branch leaked into the replay.");
   }
 
+  // Skill projectiles across a rollback boundary — the shape SkillsComponent's cooldowns are not.
+  // A cast creates entities that keep moving on their own for ~50 ticks afterwards, so the snapshot
+  // has to restore a set of live projectiles mid-flight, at the right positions, with the right
+  // distance left to run. A projectile tracked in a list on ProjectileSystem instead of on its own
+  // entity would survive the restore and the client would resimulate against bullets the server
+  // never had.
+  //
+  // The discarded branch sends both heroes the other way, so the units near each in-flight bullet
+  // differ between the branch and the replay. That is what makes the hit tests during the discarded
+  // ticks genuinely different work rather than the same work twice.
+  [Fact]
+  public void Rollback_WithProjectilesInFlight_ReplayMatchesServerHashes() {
+    var rollback = RollbackHarness.Create(spawnHeroesNow: false);
+    rollback.Advance(1, CrystalWarriorPicks);
+    rollback.Advance(1, beforeTick: sim => GrantSkillPoints(sim, SkillPointPool));
+
+    rollback.Advance(ProjectileWarmupTicks, AuthoritativeBullets);
+    AssertProjectilesAreInFlight(rollback.Server);
+    rollback.InSync.Should().BeTrue("the two sims must agree before the rollback");
+
+    rollback.MispredictAndRollback(MispredictedTicks, Mispredicted);
+    rollback.InSync.Should().BeTrue("restoring the snapshot should put the client back on the server");
+
+    var divergences = rollback.AdvanceAndCompare(ReplayTicks, AuthoritativeBullets);
+    Report(divergences, ReplayTicks, ProjectileWarmupTicks);
+
+    divergences.Should().BeEmpty(
+      "a projectile's position, remaining range, and id all live on its own entity, so a rollback " +
+      "restores them with the rest of the frame. A divergence here means projectile state was " +
+      "cached on ProjectileSystem instead, and the discarded prediction branch leaked into the replay.");
+  }
+
+  // Guards the scenario above: a rollback that lands between volleys would restore nothing
+  // interesting and the test would pass while proving nothing.
+  private static void AssertProjectilesAreInFlight(SimHarness harness) {
+    harness.Count<Projectile>().Should().BeGreaterThan(0,
+      "the warmup stream must leave bullets in the air at the snapshot tick for the rollback to " +
+      "have any projectile state to restore");
+  }
+
+  // Both players rank up and fire Crystal Bullets every tick. The rank cap and the cooldown do the
+  // filtering, so a volley actually launches once per cooldown, identically on both sims.
+  private static ICommand[] AuthoritativeBullets(int tick) {
+    return [
+      SimHarness.UpgradeSkillCommand(playerId: 1, tick, (int)SkillSlot.Tertiary),
+      SimHarness.CastSkillCommand(playerId: 1, tick, (int)SkillSlot.Tertiary,
+        FP64.FromDouble(20.0), FP64.FromDouble(0.0)),
+      SimHarness.UpgradeSkillCommand(playerId: 2, tick, (int)SkillSlot.Tertiary),
+      SimHarness.CastSkillCommand(playerId: 2, tick, (int)SkillSlot.Tertiary,
+        FP64.FromDouble(-20.0), FP64.FromDouble(0.0)),
+    ];
+  }
+
+  // Crystal Giant is the only hero with a skill that fires anything, and the harness defaults every
+  // player to Hairy Wizards, so the faction has to be picked explicitly.
+  private static ICommand[] CrystalWarriorPicks(int tick) {
+    return [
+      SimHarness.SelectFactionCommand(playerId: 1, tick, Assets.AssetIds.FactionCrystalWarriors),
+      SimHarness.SelectFactionCommand(playerId: 2, tick, Assets.AssetIds.FactionCrystalWarriors),
+    ];
+  }
+
   // Guards the scenario above: if the authoritative stream is not actually ranking skills up and
   // leaving a cooldown mid-burn at the snapshot tick, the rollback it wraps proves nothing.
   private static void AssertSkillsAreInPlay(SimHarness harness) {
     var frame = harness.Frame;
     var hero = harness.FindHero(1);
     var skill = harness.AssetRegistry.Get<Assets.SkillAsset>(
-      frame.GetReadOnly<SkillsComponent>(hero).GetSkillAssetId((int)SkillSlot.HardHit));
+      frame.GetReadOnly<SkillsComponent>(hero).GetSkillAssetId((int)SkillSlot.Primary));
 
     ref readonly var skills = ref frame.GetReadOnly<SkillsComponent>(hero);
-    skills.GetRank((int)SkillSlot.HardHit).Should().Be(skill.MaxRank,
-      "the warmup stream should have ranked HardHit all the way up");
-    skills.GetCooldownRemainingTicks((int)SkillSlot.HardHit).Should().BeGreaterThan(0,
+    skills.GetRank((int)SkillSlot.Primary).Should().Be(skill.MaxRank,
+      "the warmup stream should have ranked Primary all the way up");
+    skills.GetCooldownRemainingTicks((int)SkillSlot.Primary).Should().BeGreaterThan(0,
       "a cooldown must still be burning at the snapshot tick for the rollback to have to restore one");
     skills.GetRank((int)SkillSlot.Ultimate).Should().Be(0,
       "Ultimate is the slot the mispredicted branch touches, so it must be untouched here");
@@ -324,19 +390,19 @@ public class RollbackDeterminismTests {
     ];
   }
 
-  // Both players rank up and cast HardHit on a slow, steady cadence — slow enough that the cooldown
+  // Both players rank up and cast Primary on a slow, steady cadence — slow enough that the cooldown
   // is genuinely mid-burn when the rollback lands rather than always at zero.
   private static ICommand[] AuthoritativeSkills(int tick) {
     if (tick % 40 == 0)
       return [
-        SimHarness.UpgradeSkillCommand(playerId: 1, tick, (int)SkillSlot.HardHit),
-        SimHarness.UpgradeSkillCommand(playerId: 2, tick, (int)SkillSlot.HardHit),
+        SimHarness.UpgradeSkillCommand(playerId: 1, tick, (int)SkillSlot.Primary),
+        SimHarness.UpgradeSkillCommand(playerId: 2, tick, (int)SkillSlot.Primary),
       ];
 
     if (tick % 40 == 20)
       return [
-        SimHarness.CastSkillCommand(playerId: 1, tick, (int)SkillSlot.HardHit),
-        SimHarness.CastSkillCommand(playerId: 2, tick, (int)SkillSlot.HardHit),
+        SimHarness.CastSkillCommand(playerId: 1, tick, (int)SkillSlot.Primary),
+        SimHarness.CastSkillCommand(playerId: 2, tick, (int)SkillSlot.Primary),
       ];
 
     return [];

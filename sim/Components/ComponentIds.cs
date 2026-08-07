@@ -36,6 +36,8 @@ public static class ComponentIds {
   public const int Experience = 127;
   public const int Respawns = 128;
   public const int Skills = 129;
+  public const int Projectile = 130;
+  public const int ProjectileIdCounter = 131;
 
-  // Next free id: 130
+  // Next free id: 132
 }

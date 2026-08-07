@@ -12,6 +12,7 @@ public partial class SkillCastEvent : SimulationEvent {
   [KlothoOrder(3)] public int SkillAssetId;
   [KlothoOrder(4)] public int Rank;
   [KlothoOrder(5)] public FPVector3 Position;
+  [KlothoOrder(6)] public FPVector3 TargetPosition;
 
   public override EventMode Mode => EventMode.Synced;
 }

@@ -272,140 +272,148 @@
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
     "AssetId": 500,
-    "_Name": "Hairy Wizard - Hard Hit",
+    "_Name": "Hairy Wizard - Hairball",
     "MaxRank": 4,
     "CooldownMs": 3000
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
     "AssetId": 501,
-    "_Name": "Hairy Wizard - Buff",
+    "_Name": "Hairy Wizard - Strangle",
     "MaxRank": 4,
     "CooldownMs": 3000
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
     "AssetId": 502,
-    "_Name": "Hairy Wizard - Range Shot",
+    "_Name": "Hairy Wizard - Close Shave",
     "MaxRank": 4,
     "CooldownMs": 3000
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
     "AssetId": 503,
-    "_Name": "Hairy Wizard - Ultimate",
+    "_Name": "Hairy Wizard - Bad Hair Day",
     "MaxRank": 4,
     "CooldownMs": 3000
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
     "AssetId": 504,
-    "_Name": "Shroom - Hard Hit",
+    "_Name": "Shroom - Venomous Slobber",
     "MaxRank": 4,
     "CooldownMs": 3000
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
     "AssetId": 505,
-    "_Name": "Shroom - Buff",
+    "_Name": "Shroom - Snail Trail",
     "MaxRank": 4,
     "CooldownMs": 3000
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
     "AssetId": 506,
-    "_Name": "Shroom - Range Shot",
+    "_Name": "Shroom - Swivel Eyes",
     "MaxRank": 4,
     "CooldownMs": 3000
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
     "AssetId": 507,
-    "_Name": "Shroom - Ultimate",
+    "_Name": "Shroom - Molt",
     "MaxRank": 4,
     "CooldownMs": 3000
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
     "AssetId": 508,
-    "_Name": "Crystal Giant - Hard Hit",
+    "_Name": "Crystal Giant - Spiky Punch",
     "MaxRank": 4,
     "CooldownMs": 3000
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
     "AssetId": 509,
-    "_Name": "Crystal Giant - Buff",
+    "_Name": "Crystal Giant - Harden",
     "MaxRank": 4,
     "CooldownMs": 3000
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
     "AssetId": 510,
-    "_Name": "Crystal Giant - Range Shot",
+    "_Name": "Crystal Giant - Crystal Bullets",
     "MaxRank": 4,
-    "CooldownMs": 3000
+    "CooldownMs": 3000,
+    "Damage": 25,
+    "DamagePerRank": 10,
+    "ProjectileSpeed": 14.0,
+    "ProjectileRange": 10.0,
+    "ProjectileRadius": 0.25,
+    "ProjectileCount": 3,
+    "ProjectileSpacing": 1.0,
+    "ProjectileSpawnOffset": 1.0
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
     "AssetId": 511,
-    "_Name": "Crystal Giant - Ultimate",
+    "_Name": "Crystal Giant - Carbon Compression",
     "MaxRank": 4,
     "CooldownMs": 3000
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
     "AssetId": 512,
-    "_Name": "Skinwalker - Hard Hit",
+    "_Name": "Skinwalker - Sprint",
     "MaxRank": 4,
     "CooldownMs": 3000
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
     "AssetId": 513,
-    "_Name": "Skinwalker - Buff",
+    "_Name": "Skinwalker - Daily Practice",
     "MaxRank": 4,
     "CooldownMs": 3000
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
     "AssetId": 514,
-    "_Name": "Skinwalker - Range Shot",
+    "_Name": "Skinwalker - Eat to Survive",
     "MaxRank": 4,
     "CooldownMs": 3000
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
     "AssetId": 515,
-    "_Name": "Skinwalker - Ultimate",
+    "_Name": "Skinwalker - Desperation",
     "MaxRank": 4,
     "CooldownMs": 3000
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
     "AssetId": 516,
-    "_Name": "Pickle Knight - Hard Hit",
+    "_Name": "Pickle Knight - Slip 'n Slide",
     "MaxRank": 4,
     "CooldownMs": 3000
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
     "AssetId": 517,
-    "_Name": "Pickle Knight - Buff",
+    "_Name": "Pickle Knight - Double Dip",
     "MaxRank": 4,
     "CooldownMs": 3000
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
     "AssetId": 518,
-    "_Name": "Pickle Knight - Range Shot",
+    "_Name": "Pickle Knight - Refresh",
     "MaxRank": 4,
     "CooldownMs": 3000
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
     "AssetId": 519,
-    "_Name": "Pickle Knight - Ultimate",
+    "_Name": "Pickle Knight - Exploosion",
     "MaxRank": 4,
     "CooldownMs": 3000
   }

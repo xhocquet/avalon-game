@@ -5,9 +5,11 @@ using Meesles.Avalon.Client.Scripts.View;
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Commands;
 using Meesles.Avalon.Sim.Components;
+using Meesles.Avalon.Sim.Heroes;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.Deterministic.Navigation;
 using xpTURN.Klotho.Godot;
+using IKlothoEngine = xpTURN.Klotho.Core.IKlothoEngine;   // Klotho.Core also defines MoveCommand
 
 namespace Meesles.Avalon;
 
@@ -36,6 +38,7 @@ public class InputCapture : IDisposable {
   private Vector2 _dragStartScreen;
   private EntityViewNode _fallbackFocusView;
   private FactionCatalog _factions;
+  private IKlothoEngine _engine;
   private FPNavMesh _navMesh;
   private FPNavMeshQuery _navQuery;
   private GameUI _gameUI;
@@ -69,6 +72,7 @@ public class InputCapture : IDisposable {
     _viewRoot = null;
     _fallbackFocusView = null;
     _factions = null;
+    _engine = null;
     _navMesh = null;
     _navQuery = null;
     _clickMarkerTween?.Kill();
@@ -108,6 +112,12 @@ public class InputCapture : IDisposable {
 
   public void BindFactionCatalog(FactionCatalog factions) {
     _factions = factions;
+  }
+
+  // Predicted frame + local player id, so a queued command can be checked against the sim's own rules
+  // before it goes out (see QueueSkillCast).
+  public void BindEngine(IKlothoEngine engine) {
+    _engine = engine;
   }
 
   // Read-only navmesh + query used to keep right-click move targets on walkable ground (see
@@ -157,20 +167,69 @@ public class InputCapture : IDisposable {
     return command != null;
   }
 
-  // Called by the action bar when the player clicks a shop buy button. Validation (gold, range) is
-  // the sim's job — we just forward the intent; a rejected purchase is simply a no-op in the sim.
   public void QueuePurchase(int itemAssetId) {
+    if (!CanPurchase(itemAssetId)) return;
     _pendingPurchaseCommand = new PurchaseItemCommand { ItemAssetId = itemAssetId };
   }
 
-  // Skill intents, same deal: points, rank cap, and cooldown are all checked in the sim, so an
-  // ineligible slot is a no-op rather than something to gate here.
   public void QueueSkillUpgrade(int slot) {
+    if (!CanAct(slot, SkillAction.Upgrade)) return;
     _pendingUpgradeSkillCommand = new UpgradeSkillCommand { Slot = slot };
   }
 
+  // Every cast carries the cursor's ground point
   public void QueueSkillCast(int slot) {
-    _pendingCastSkillCommand = new CastSkillCommand { Slot = slot };
+    if (!CanAct(slot, SkillAction.Cast)) return;
+
+    var aim = GetSkillAimPoint();
+    _pendingCastSkillCommand = new CastSkillCommand {
+      Slot = slot,
+      TargetX = FP64.FromFloat(aim.X),
+      TargetZ = FP64.FromFloat(aim.Z)
+    };
+  }
+
+  // Asked against the predicted frame with the sim's own predicate, so a dead hero, an unlearned slot or
+  // one still cooling never costs a round trip. The sim judges the command again when it lands - this
+  // only skips the ones already known to fail. Without an engine bound (or before the hero exists) the
+  // command goes out and the sim decides, which is the pre-existing behaviour.
+  private bool CanAct(int slot, SkillAction action) {
+    var frame = _engine?.PredictedFrame.Frame;
+    if (frame == null) return true;
+
+    return action == SkillAction.Cast
+      ? SkillActions.CanCast(ref frame, _engine.LocalPlayerId, slot)
+      : SkillActions.CanUpgrade(ref frame, _engine.LocalPlayerId, slot);
+  }
+
+  // Same deal for buys: an unaffordable, out-of-range or unknown item is dropped here rather than sent
+  // and rejected. ActionBarController greys those buttons off the same predicate.
+  private bool CanPurchase(int itemAssetId) {
+    var frame = _engine?.PredictedFrame.Frame;
+    if (frame == null) return true;
+
+    return ShopActions.CanPurchase(ref frame, _engine.LocalPlayerId, itemAssetId);
+  }
+
+  private enum SkillAction {
+    Cast,
+    Upgrade
+  }
+
+  // A ground pick only fails when the camera is looking parallel to the ground, which this top-down
+  // rig never does. Falling back to the caster's own position keeps the cast alive rather than
+  // aiming it at the map origin: self-cast skills don't care, and the sim reads a zero-length aim
+  // as "fire along my facing".
+  private Vector3 GetSkillAimPoint() {
+    if (_camera == null)
+      return Vector3.Zero;
+
+    var ground = _camera.ScreenToGround(_camera.GetViewport().GetMousePosition());
+    if (ground != null)
+      return ground.Value;
+
+    var hero = GetFallbackFocusView();
+    return hero != null ? hero.GlobalPosition : Vector3.Zero;
   }
 
   public void ClearSingleplayerTarget() {
@@ -214,11 +273,21 @@ public class InputCapture : IDisposable {
   // godmode's flycam still uses WASD+QE, which is why the caller drops these while it's on.
   private static bool TryGetSkillHotkeySlot(Key keycode, out int slot) {
     switch (keycode) {
-      case Key.Q: slot = (int)SkillSlot.HardHit; return true;
-      case Key.W: slot = (int)SkillSlot.Buff; return true;
-      case Key.E: slot = (int)SkillSlot.RangeShot; return true;
-      case Key.R: slot = (int)SkillSlot.Ultimate; return true;
-      default: slot = -1; return false;
+      case Key.Q:
+        slot = (int)SkillSlot.Primary;
+        return true;
+      case Key.W:
+        slot = (int)SkillSlot.Secondary;
+        return true;
+      case Key.E:
+        slot = (int)SkillSlot.Tertiary;
+        return true;
+      case Key.R:
+        slot = (int)SkillSlot.Ultimate;
+        return true;
+      default:
+        slot = -1;
+        return false;
     }
   }
 
@@ -257,11 +326,6 @@ public class InputCapture : IDisposable {
   //   - inside a structure/obstacle footprint (shop, trees) that carves a hole in the navmesh,
   //   - inside an obstacle "island" surrounded by walkable ground,
   //   - entirely off the map, past the navmesh's outer edge.
-  // Resolution is three-stage: clamp far-off-map clicks back onto the map extent (so a nearby
-  // snap has triangles to work with), then walk the navmesh from the moving unit toward the click
-  // and take the reachable point closest to it (the walkable spot hugging whatever blocks the way,
-  // on the side the unit approaches from), and finally fall back to the geometrically nearest
-  // walkable point when there's no unit to anchor the direction or the walk found no wall.
   private Vector3 SnapMoveTargetToWalkable(Vector3 ground) {
     if (_navQuery == null || _navMesh == null)
       return ground;

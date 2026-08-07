@@ -1,6 +1,7 @@
 using Godot;
 using Meesles.Avalon.Client;
 using Meesles.Avalon.Client.Scripts.View;
+using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Godot;
@@ -78,6 +79,9 @@ public partial class SingleplayerGameNode : GameNode {
     _session = _flow.StartHost(_simCfg, _sesCfg);
     _session.HostGame("Local", _sesCfg.MaxPlayers);
 
+    IKlothoEngine engine = _session.Engine;   // IsResimulation is a default interface member
+    SimLog.BindStage(() => engine.IsResimulation);
+    Input.BindEngine(engine);
     _view.Initialize(_session.Engine, CreateFactory(), _pool);
     _view.PlayerViews.OnLocalViewRegistered += OnLocalViewRegistered;
     _view.PlayerViews.OnLocalViewUnregistered += OnLocalViewUnregistered;
@@ -95,6 +99,7 @@ public partial class SingleplayerGameNode : GameNode {
   }
 
   private void StopSession() {
+    SimLog.UnbindStage();
     UnbindCameraFollow();
     _vfx?.Detach();
     _events?.Detach();
@@ -112,14 +117,14 @@ public partial class SingleplayerGameNode : GameNode {
     var pickupScene = GD.Load<PackedScene>("res://Scenes/Objects/WaterBottle.tscn");
     var oasisScene = GD.Load<PackedScene>("res://Scenes/Objects/Oasis.tscn");
     foreach (var faction in _factions.Entries) {
-      _pool.Prewarm(faction.HeroScene, _sesCfg.MaxPlayers);
-      _pool.Prewarm(faction.MinionScene, 64);
+      TryPrewarm(_pool, faction.HeroScene, _sesCfg.MaxPlayers, $"{faction.DisplayName} hero");
+      TryPrewarm(_pool, faction.MinionScene, 64, $"{faction.DisplayName} minion");
     }
 
-    _pool.Prewarm(crystalScene, _sesCfg.MaxPlayers);
-    _pool.Prewarm(turretScene, _sesCfg.MaxPlayers * 2);
-    _pool.Prewarm(pickupScene, 32);
-    _pool.Prewarm(oasisScene, 4);
+    TryPrewarm(_pool, crystalScene, _sesCfg.MaxPlayers, "Crystal");
+    TryPrewarm(_pool, turretScene, _sesCfg.MaxPlayers * 2, "Turret");
+    TryPrewarm(_pool, pickupScene, 32, "Pickup");
+    TryPrewarm(_pool, oasisScene, 4, "Oasis");
 
     _view = new EntityViewUpdaterNode();
     AddChild(_view);
@@ -131,7 +136,7 @@ public partial class SingleplayerGameNode : GameNode {
     var turretScene = GD.Load<PackedScene>("res://Scenes/Objects/Turret.tscn");
     var pickupScene = GD.Load<PackedScene>("res://Scenes/Objects/WaterBottle.tscn");
     var oasisScene = GD.Load<PackedScene>("res://Scenes/Objects/Oasis.tscn");
-    return new UnitViewFactory(_factions, crystalScene, turretScene, pickupScene, oasisScene);
+    return new UnitViewFactory(_factions, crystalScene, turretScene, pickupScene, oasisScene, BrokenViewScenes);
   }
 
   private void OnLocalViewRegistered(EntityViewNode view) {

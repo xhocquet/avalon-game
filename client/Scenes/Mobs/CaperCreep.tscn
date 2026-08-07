@@ -1,0 +1,36 @@
+[gd_scene format=3 uid="uid://jpnctrugpqg7"]
+
+[ext_resource type="PackedScene" uid="uid://cdjjx2l8mfh8r" path="res://Assets/Mobs/CaperCreep/capercreep_animations.glb" id="1_y1yu6"]
+[ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="2_6t0u1"]
+[ext_resource type="Script" uid="uid://drxwt8mq0b2k8" path="res://Scripts/View/MinionEntity.cs" id="3_minion"]
+
+[node name="capercreep_animations" unique_id=1094035730 instance=ExtResource("1_y1yu6")]
+script = ExtResource("3_minion")
+IdleAnimationOverride = "SwayingIdle"
+metadata/_edit_pinned_properties_ = [&"IdleAnimationOverride"]
+
+[node name="Armature" parent="." index="0" unique_id=980942376]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
+
+[node name="Skeleton3D" parent="Armature" index="0" unique_id=901132028]
+bones/0/position = Vector3(7.888609e-31, 0.057479322, 0)
+bones/0/rotation = Quaternion(2.2527244e-08, 0.7071068, -1.2457483e-08, 0.7071068)
+bones/1/rotation = Quaternion(0.9757416, 0.18238603, -0.08536074, -0.08589152)
+bones/2/rotation = Quaternion(0.22577916, 0.05233612, 0.7881202, 0.5702204)
+bones/3/rotation = Quaternion(-0.21619412, -0.023271468, -0.71381366, 0.6657242)
+bones/5/rotation = Quaternion(0.97574157, 0.18238512, 0.085362196, 0.085891984)
+bones/6/rotation = Quaternion(-0.7881199, 0.57022065, -0.2257789, 0.05233845)
+bones/7/rotation = Quaternion(-0.7138144, 0.6657237, -0.21619314, -0.023272559)
+bones/9/rotation = Quaternion(0.9791828, 0.031061292, -0.13913998, -0.14448655)
+bones/10/rotation = Quaternion(-0.33077458, 0.28222954, -0.10082135, 0.89485747)
+bones/11/rotation = Quaternion(0.14478907, 0.043018274, -0.49100462, 0.8579628)
+bones/12/rotation = Quaternion(0.97918284, 0.031061321, 0.13913998, 0.1444864)
+bones/13/rotation = Quaternion(0.33077434, -0.2822295, -0.10082143, 0.8948575)
+bones/14/rotation = Quaternion(-0.14478901, -0.043018427, -0.49100453, 0.85796285)
+bones/15/rotation = Quaternion(2.8098558e-15, -2.1284922e-08, -0.48694232, 0.8734341)
+
+[node name="AnimationPlayer" parent="." index="1" unique_id=217831628]
+autoplay = &"SwayingIdle"
+
+[node name="SelectionIndicator" parent="." index="2" unique_id=2143077504 instance=ExtResource("2_6t0u1")]
+transform = Transform3D(0.9, 0, 0, 0, 0.9, 0, 0, 0, 0.9, 0, 0.04, 0)

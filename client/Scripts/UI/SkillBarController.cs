@@ -3,6 +3,7 @@ using Godot;
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
+using Meesles.Avalon.Sim.Heroes;
 using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon;
@@ -64,13 +65,12 @@ public class SkillBarController {
         continue;
 
       ref readonly var skills = ref frame.GetReadOnly<SkillsComponent>(entity);
-      var hasPoints = skills.SkillPoints > 0;
 
       for (var slot = 0; slot < SlotCount; slot++) {
         var skillAssetId = skills.GetSkillAssetId(slot);
         var rank = skills.GetRank(slot);
         var maxRank = GetMaxRank(frame, skillAssetId);
-        Paint(slot, rank, maxRank, hasPoints && rank < maxRank, skillAssetId);
+        Paint(slot, rank, maxRank, SkillActions.CanUpgrade(ref frame, playerId, slot), skillAssetId);
       }
 
       return true;
