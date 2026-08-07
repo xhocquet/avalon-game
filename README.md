@@ -48,11 +48,6 @@
   caller in sim/. Deterministic (pure function of navmesh + goal), so not a desync — but a monotonic leak
   over a match, and TriangleFlowField.Compute is O(V²) with a linear-scan priority queue on each miss.
 
-  5. DamageSystem.LogCooldownBoundary is dead once AttackSpeed ≠ 1 — Systems/DamageSystem.cs:59
-
-  Compares CooldownRemainingTicks == AttackCooldownTicks - 1, but GetCooldownTicks divides the base by
-  AttackSpeed. The "cooldown started" line never fires for any hero past level 1.
-
   6. Unchecked parallel-array indexing in MapLayoutAsset
 
   TryGetByTypeAndTeam indexes MarkerTeams[i]/MarkerPositions[i] off MarkerTypes.Length.
@@ -60,10 +55,6 @@
   three. Mismatched arrays in Assets.json throw inside the sim — and per your own AGENTS.md, an exception
   on the command path takes the server down.
 
-
-  10. Target acquisition ignores distance — TargetAcquisitionSystem.cs:88 breaks ties by lowest UnitId
-  after type priority. An attacker with two minions in range always shoots the older one, never the nearer
-  one.
 
   Duplication
   │ CommandValidation.cs:48-62│ AcceptMoveTarget and AcceptCastTarget are identical apart from the parameter type│

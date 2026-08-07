@@ -16,10 +16,8 @@ public class DamageSystem : ISystem {
     var filter = frame.Filter<Combat, TeamComponent, AttackTargetUnitId>();
     while (filter.Next(out var attacker)) {
       ref var combat = ref frame.Get<Combat>(attacker);
-      if (combat.CooldownRemainingTicks > 0) {
-        LogCooldownBoundary(ref frame, attacker, combat);
+      if (combat.CooldownRemainingTicks > 0)
         continue;
-      }
 
       if (combat.TargetUnitId == 0)
         continue;
@@ -57,14 +55,6 @@ public class DamageSystem : ISystem {
     var half = FP64.One / FP64.FromInt(2);
     var ticks = (FP64.FromInt(combat.AttackCooldownTicks) / attackSpeed + half).ToInt();
     return ticks < 1 ? 1 : ticks;
-  }
-
-  private static void LogCooldownBoundary(ref Frame frame, EntityRef attacker, in Combat combat) {
-    var cooldownStarted = combat.CooldownRemainingTicks == combat.AttackCooldownTicks - 1;
-    var cooldownEnding = combat.CooldownRemainingTicks == 1;
-    if (cooldownStarted || cooldownEnding)
-      LogDamageState(ref frame, attacker, combat.TargetUnitId,
-        $"cooldown_blocked cooldown={combat.CooldownRemainingTicks}");
   }
 
   private static void LogDamageState(ref Frame frame, EntityRef attacker, int targetUnitId, string state) {
