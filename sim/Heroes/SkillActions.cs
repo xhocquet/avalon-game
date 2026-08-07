@@ -171,15 +171,8 @@ public static class SkillActions {
     AtMaxRank
   }
 
-  // Authored milliseconds -> ticks, rounded up so a cooldown never expires early. Same conversion
-  // RespawnSystem uses, including the fallback for a frame with no delta time yet.
   public static int CooldownTicks(ref Frame frame, SkillAsset skill) {
-    var cooldownMs = skill?.CooldownMs ?? 0;
-    if (cooldownMs <= 0)
-      return 0;
-
-    var deltaTimeMs = frame.DeltaTimeMs > 0 ? frame.DeltaTimeMs : 16;
-    return (cooldownMs + deltaTimeMs - 1) / deltaTimeMs;
+    return TickMath.MsToTicksCeil(ref frame, skill?.CooldownMs ?? 0);
   }
 
   private static void RaiseUpgradedEvent(ref Frame frame, EntityRef entity, int playerId, int slot,

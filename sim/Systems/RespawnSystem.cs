@@ -116,8 +116,6 @@ public class RespawnSystem : ISystem {
   }
 
   private static int GetRespawnDelayTicks(ref Frame frame, MatchRulesAsset rules) {
-    var delayMs = rules?.RespawnDelayMs ?? 0;
-    var deltaTimeMs = frame.DeltaTimeMs > 0 ? frame.DeltaTimeMs : 16;
-    return (delayMs + deltaTimeMs - 1) / deltaTimeMs;
+    return TickMath.MsToTicksCeil(ref frame, rules?.RespawnDelayMs ?? 0);
   }
 }

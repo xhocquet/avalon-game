@@ -3,25 +3,9 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Heroes;
 
-public sealed class CrystalGiantSkills : IHeroSkillSet {
-  public void OnRankGained(ref Frame frame, EntityRef entity, int slot, Assets.SkillAsset skill, int newRank) { }
-
-  public void OnCast(ref Frame frame, in SkillCastContext ctx) {
-    switch ((SkillSlot)ctx.Slot) {
-      case SkillSlot.Primary:
-        CastSpikyPunch(ref frame, in ctx);
-        break;
-      case SkillSlot.Secondary:
-        CastHarden(ref frame, in ctx);
-        break;
-      case SkillSlot.Tertiary:
-        CastCrystalBullets(ref frame, in ctx);
-        break;
-      case SkillSlot.Ultimate:
-        CastCarbonCompression(ref frame, in ctx);
-        break;
-    }
-  }
+public sealed class CrystalGiantSkills : HeroSkillSetBase {
+  public CrystalGiantSkills()
+    : base(CastSpikyPunch, CastHarden, CastCrystalBullets, CastCarbonCompression) { }
 
   private static void CastSpikyPunch(ref Frame frame, in SkillCastContext ctx) { }
 

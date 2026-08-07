@@ -45,8 +45,7 @@ public class ScoreSystem : ISystem {
     var rules = frame.AssetRegistry.Get<MatchRulesAsset>();
 
     var matchDurationMs = (rules.MatchDuration * FP64.FromInt(1000)).ToInt();
-    var deltaTimeMs = frame.DeltaTimeMs > 0 ? frame.DeltaTimeMs : 16;
-    var matchEndTick = matchDurationMs / deltaTimeMs;
+    var matchEndTick = matchDurationMs / TickMath.DeltaTimeMs(ref frame); // floor: the tick the clock hits zero
     return frame.Tick >= matchEndTick;
   }
 

@@ -115,9 +115,6 @@
   SkillActions.TryCast never bounds the aim point against the caster. A modified client casts across the
   map. SkillAsset has no CastRange field to check against.
 
-  9. PurchaseItemCommand has no CommandValidation case — falls through default: return true
-  (Commands/CommandValidation.cs:35) while SelectFactionCommand's asset id is registry-checked.
-  ShopActions catches it, but the two-layer rule in AGENTS.md isn't applied uniformly.
 
   10. Target acquisition ignores distance — TargetAcquisitionSystem.cs:88 breaks ties by lowest UnitId
   after type priority. An attacker with two minions in range always shoots the older one, never the
@@ -127,10 +124,6 @@
 
   ┌──────────────────────────────────────┬──────────────────────────────────────────────────────────┐
   │                Where                 │                           What                           │
-  ├──────────────────────────────────────┼──────────────────────────────────────────────────────────┤
-  │                                      │ EnsureAllCapacity / EnsureHeroCapacity /                 │
-  │ NavigationAgentSystem.cs:336-384     │ EnsureMinionCapacity are three copies of the generic     │
-  │                                      │ EnsureCapacity sitting right beside them                 │
   ├──────────────────────────────────────┼──────────────────────────────────────────────────────────┤
   │ UnitLookup.cs:12-26,                 │ Three byte-identical Initialize/Next counter             │
   │ PickupIdGenerator.cs,                │ implementations                                          │
@@ -151,10 +144,6 @@
   │ UnitLookup.Index                     │ RespawnSystem.AwardKillExperience:65 uses the O(n) scan  │
   │                                      │ for the same job DeathSystem:104 does with the index     │
   ├──────────────────────────────────────┼──────────────────────────────────────────────────────────┤
-  │                                      │ Identical 4-case switch ((SkillSlot)ctx.Slot) dispatch   │
-  │ 5× *Skills.cs                        │ per hero — a slot→method table on the base would remove  │
-  │                                      │ it                                                       │
-  └──────────────────────────────────────┴──────────────────────────────────────────────────────────┘
 
   Naming consistency
 

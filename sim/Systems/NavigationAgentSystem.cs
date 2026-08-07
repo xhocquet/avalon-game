@@ -61,7 +61,7 @@ public class NavigationAgentSystem : ISystem {
       ref var nav = ref frame.Get<NavAgentComponent>(entity);
       ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
 
-      EnsureAllCapacity(_allCount + 1);
+      EnsureCapacity(ref _allEntities, _allCount + 1);
       SyncAgentPosition(ref frame, entity, ref nav, transform.Position, snapThresholdSqr);
 
       if (frame.Has<StatsComponent>(entity))
@@ -72,7 +72,7 @@ public class NavigationAgentSystem : ISystem {
       var isMinion = frame.Has<Minion>(entity);
 
       if (isMinion && frame.Has<UnitMoveTarget>(entity)) {
-        EnsureMinionCapacity(_minionCount + 1);
+        EnsureCapacity(ref _minionEntities, _minionCount + 1);
         _minionEntities[_minionCount++] = entity;
       }
       else {
@@ -85,7 +85,7 @@ public class NavigationAgentSystem : ISystem {
           NavAgentComponent.Stop(ref nav);
         }
 
-        EnsureHeroCapacity(_heroCount + 1);
+        EnsureCapacity(ref _heroEntities, _heroCount + 1);
         _heroEntities[_heroCount++] = entity;
       }
     }
@@ -333,14 +333,6 @@ public class NavigationAgentSystem : ISystem {
            || nav.Destination.z != target.z;
   }
 
-  private void EnsureAllCapacity(int required) {
-    if (required <= _allEntities.Length)
-      return;
-    var newSize = _allEntities.Length;
-    while (newSize < required) newSize *= 2;
-    Array.Resize(ref _allEntities, newSize);
-  }
-
   private static int BuildSpreadSubset(
     EntityRef[] source, int count, int spread, int tick, int offset,
     ref EntityRef[] dest) {
@@ -365,21 +357,5 @@ public class NavigationAgentSystem : ISystem {
     var newSize = array.Length;
     while (newSize < required) newSize *= 2;
     Array.Resize(ref array, newSize);
-  }
-
-  private void EnsureHeroCapacity(int required) {
-    if (required <= _heroEntities.Length)
-      return;
-    var newSize = _heroEntities.Length;
-    while (newSize < required) newSize *= 2;
-    Array.Resize(ref _heroEntities, newSize);
-  }
-
-  private void EnsureMinionCapacity(int required) {
-    if (required <= _minionEntities.Length)
-      return;
-    var newSize = _minionEntities.Length;
-    while (newSize < required) newSize *= 2;
-    Array.Resize(ref _minionEntities, newSize);
   }
 }

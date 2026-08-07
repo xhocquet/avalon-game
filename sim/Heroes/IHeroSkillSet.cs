@@ -39,6 +39,28 @@ public interface IHeroSkillSet {
   void OnCast(ref Frame frame, in SkillCastContext ctx);
 }
 
+public delegate void SkillCastHandler(ref Frame frame, in SkillCastContext ctx);
+
+// Slot dispatch for the concrete hero skill sets: each hands the base its four cast methods in
+// SkillSlot order, keeping the skill's own name on the method.
+public abstract class HeroSkillSetBase : IHeroSkillSet {
+  private readonly SkillCastHandler[] _casts;
+
+  protected HeroSkillSetBase(SkillCastHandler primary, SkillCastHandler secondary,
+    SkillCastHandler tertiary, SkillCastHandler ultimate) {
+    _casts = [primary, secondary, tertiary, ultimate];
+  }
+
+  public virtual void OnRankGained(ref Frame frame, EntityRef entity, int slot, SkillAsset skill,
+    int newRank) { }
+
+  public void OnCast(ref Frame frame, in SkillCastContext ctx) {
+    if ((uint)ctx.Slot >= (uint)_casts.Length)
+      return;
+    _casts[ctx.Slot]?.Invoke(ref frame, in ctx);
+  }
+}
+
 public static class HeroSkillSets {
   // Non-deterministic cache
   private static readonly IHeroSkillSet[] Loaded = new IHeroSkillSet[Enum.GetValues<HeroSkillSet>().Length];
