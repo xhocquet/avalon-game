@@ -33,18 +33,11 @@ public class ExperienceSystem : ISystem {
   }
 
   private static void ApplyLevelGains(ref Frame frame, EntityRef entity, XpRulesAsset rules, int levelsGained) {
-    var maxHealthGain = rules.MaxHealthPerLevel * levelsGained;
-
     ref var stats = ref frame.Get<StatsComponent>(entity);
-    stats.Add(StatType.MaxHealth, FP64.FromInt(maxHealthGain));
     stats.Add(StatType.Strength, FP64.FromInt(rules.StrengthPerLevel * levelsGained));
     stats.Add(StatType.AttackSpeed, rules.AttackSpeedPerLevel * FP64.FromInt(levelsGained));
 
-    // A bigger pool would otherwise read as a heal debt. Skip a hero waiting on a respawn: it is at
-    // zero HP on purpose, and topping it up would read as alive to everything that checks Current.
-    ref var health = ref frame.Get<Health>(entity);
-    if (health.IsAlive)
-      health.Current += maxHealthGain;
+    HealthApplication.GrantMaxHealth(ref frame, entity, rules.MaxHealthPerLevel * levelsGained);
 
     if (frame.Has<SkillsComponent>(entity))
       frame.Get<SkillsComponent>(entity).SkillPoints += levelsGained;

@@ -73,11 +73,10 @@ public class RespawnSystem : ISystem {
     ref readonly var team = ref frame.GetReadOnly<TeamComponent>(entity);
     ref readonly var unit = ref frame.GetReadOnly<UnitIdComponent>(entity);
     ref var transform = ref frame.Get<TransformComponent>(entity);
-    ref var health = ref frame.Get<Health>(entity);
 
     transform.Position = SimulationSetup.GetHeroSpawnPositionForTeam(ref frame, team.TeamId);
-    health.Current = frame.GetReadOnly<StatsComponent>(entity).MaxHealth;
-    health.LastDamagerUnitId = 0;
+    HealthApplication.RestoreToFull(ref frame, entity);
+    frame.Get<Health>(entity).LastDamagerUnitId = 0;
     frame.Remove<PendingRespawn>(entity);
     ClearActiveState(ref frame, entity, transform.Position);
 
