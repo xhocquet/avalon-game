@@ -28,6 +28,9 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private Label _levelLabel;
   private int? _localPlayerId;
   private Label _resultLabel;
+  private Label _resultReasonLabel;
+  private GridContainer _resultScoreboard;
+  private Button _resultReturnButton;
   private Panel _resultPanel;
   private Label _scoreboardScoreLabel;
   private Control _selectionRectangle;
@@ -49,6 +52,14 @@ public partial class GameUI : CanvasLayer, IViewHud {
   public Action<int> SkillUpgradeRequested { get; set; }
   public Action<int> SkillCastRequested { get; set; }
 
+  // Raised by the end-of-match panel's button. GameNode tears the session down and swaps the scene.
+  public Action ReturnToLobbyRequested { get; set; }
+
+  // Upgrades queued but not yet run by the sim. InputCapture writes it as it queues commands and gates
+  // against it; the skill bar paints through it. Shared rather than owned by either so the button the
+  // player clicked and the rule that approves the next click read the same optimistic state.
+  public PredictedSkillState PredictedSkills { get; } = new();
+
   private Label _timerLabel;
   private SubViewport _minimapViewport;
   private Camera3D _minimapCamera;
@@ -64,17 +75,8 @@ public partial class GameUI : CanvasLayer, IViewHud {
   [Export] public float MinimapHeight { get; set; } = 60.0f;
 
   public void SyncFromFrame(Frame frame) {
-    int p1 = 0, p2 = 0;
-    var playerFilter = frame.Filter<Hero, Player>();
-    while (playerFilter.Next(out var entity)) {
-      int playerId = frame.GetReadOnly<Hero>(entity).PlayerId;
-      ref readonly var player = ref frame.GetReadOnly<Player>(entity);
-      if (playerId <= 1) p1 = player.Score;
-      else if (playerId == 2) p2 = player.Score;
-    }
-
     if (_scoreboardScoreLabel != null)
-      _scoreboardScoreLabel.Text = $"{p1} / {p2}";
+      _scoreboardScoreLabel.Text = FormatLiveScores(frame);
 
     UpdateLocalPlayerHealth(frame);
     UpdateLocalPlayerInventory(frame);
@@ -88,17 +90,93 @@ public partial class GameUI : CanvasLayer, IViewHud {
     SetTimerText(FormatMatchTime((int)elapsed));
   }
 
-  public void SetLocalPlayerId(int? playerId) {
-    _localPlayerId = playerId is int id && id >= 0 ? id : null;
+  // "P1 4 / P2 7", in player-id order rather than entity order so the reading doesn't shuffle tick to
+  // tick. Sized to the players actually on the board, not a fixed two.
+  private static string FormatLiveScores(Frame frame) {
+    var scores = new SortedDictionary<int, int>();
+    var playerFilter = frame.Filter<Hero, Player>();
+    while (playerFilter.Next(out var entity))
+      scores[frame.GetReadOnly<Hero>(entity).PlayerId] = frame.GetReadOnly<Player>(entity).Score;
+
+    var parts = new List<string>(scores.Count);
+    foreach (var (playerId, score) in scores)
+      parts.Add($"P{playerId} {score}");
+
+    return parts.Count > 0 ? string.Join(" / ", parts) : "0 / 0";
   }
 
-  public void ShowResult(string text) {
+  public void SetLocalPlayerId(int? playerId) {
+    _localPlayerId = playerId is int id && id >= 0 ? id : null;
+    PredictedSkills.Clear();   // session boundary - in-flight upgrades from the previous one are void
+  }
+
+  public void ShowResult(MatchResult result) {
+    if (_resultLabel != null) _resultLabel.Text = MatchResultText.Headline(result, _localPlayerId);
+    if (_resultReasonLabel != null) _resultReasonLabel.Text = MatchResultText.Reason(result);
+    BuildScoreboard(result);
     if (_resultPanel != null) _resultPanel.Visible = true;
-    if (_resultLabel != null) _resultLabel.Text = text;
+    if (_resultReturnButton != null) {
+      _resultReturnButton.Disabled = false;
+      _resultReturnButton.GrabFocus();
+    }
+  }
+
+  // Disabled on the way out: the scene change is deferred a frame, and a second press in that window
+  // would tear the session down twice.
+  private void OnReturnToLobbyPressed() {
+    if (_resultReturnButton != null) _resultReturnButton.Disabled = true;
+    ReturnToLobbyRequested?.Invoke();
   }
 
   public void HideResult() {
     if (_resultPanel != null) _resultPanel.Visible = false;
+  }
+
+  private static readonly string[] ScoreboardColumns =
+    ["Player", "Faction", "Score", "K / D", "Minions", "Structures", "Damage", "Level"];
+
+  private void BuildScoreboard(MatchResult result) {
+    if (_resultScoreboard == null) return;
+
+    foreach (var child in _resultScoreboard.GetChildren())
+      child.QueueFree();
+
+    foreach (var column in ScoreboardColumns)
+      _resultScoreboard.AddChild(ScoreboardCell(column, header: true));
+
+    if (result.Players == null) return;
+
+    foreach (var player in result.Players) {
+      // The winning side is the only thing distinguishing rows - player names ride the join
+      // handshake, which never reaches the sim, so the row is identified by player id.
+      var won = player.IsWinner;
+      _resultScoreboard.AddChild(ScoreboardCell($"P{player.PlayerId}", won: won));
+      _resultScoreboard.AddChild(ScoreboardCell(FactionName(player.FactionId), won: won));
+      _resultScoreboard.AddChild(ScoreboardCell($"{player.Score}", won: won));
+      _resultScoreboard.AddChild(ScoreboardCell($"{player.HeroKills} / {player.Deaths}", won: won));
+      _resultScoreboard.AddChild(ScoreboardCell($"{player.MinionKills}", won: won));
+      _resultScoreboard.AddChild(ScoreboardCell($"{player.StructureKills}", won: won));
+      _resultScoreboard.AddChild(ScoreboardCell($"{player.DamageDealt}", won: won));
+      _resultScoreboard.AddChild(ScoreboardCell($"{player.Level}", won: won));
+    }
+  }
+
+  private static Label ScoreboardCell(string text, bool header = false, bool won = false) {
+    var label = new Label { Text = text, HorizontalAlignment = HorizontalAlignment.Center };
+    label.AddThemeFontSizeOverride("font_size", header ? 13 : 16);
+    label.AddThemeColorOverride("font_color", header
+      ? new Color(0.62f, 0.63f, 0.66f)
+      : won ? new Color(0.95f, 0.82f, 0.42f) : new Color(0.86f, 0.87f, 0.9f));
+    return label;
+  }
+
+  // Name only - loading a FactionCatalog here would pull in every hero scene for a text column.
+  private static string FactionName(int factionId) {
+    foreach (var def in FactionCatalog.FactionDefs)
+      if (def.Id == factionId)
+        return def.Name;
+
+    return "-";
   }
 
   public override void _Ready() {
@@ -128,7 +206,12 @@ public partial class GameUI : CanvasLayer, IViewHud {
     _xpBarLabel = GetNodeOrNull<Label>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/XpBar/XpBarLabel");
     _selectionRectangle = GetNode<Control>("DefaultUI/SelectionRectangle");
     _resultPanel = GetNodeOrNull<Panel>("DefaultUI/ResultPanel");
-    _resultLabel = GetNodeOrNull<Label>("DefaultUI/ResultPanel/ResultLabel");
+    _resultLabel = GetNodeOrNull<Label>("DefaultUI/ResultPanel/Content/ResultLabel");
+    _resultReasonLabel = GetNodeOrNull<Label>("DefaultUI/ResultPanel/Content/ReasonLabel");
+    _resultScoreboard = GetNodeOrNull<GridContainer>("DefaultUI/ResultPanel/Content/Scoreboard");
+    _resultReturnButton = GetNodeOrNull<Button>("DefaultUI/ResultPanel/Content/Footer/ReturnButton");
+    if (_resultReturnButton != null)
+      _resultReturnButton.Pressed += OnReturnToLobbyPressed;
     _minimapViewport =
       GetNodeOrNull<SubViewport>("DefaultUI/BottomBar/MarginContainer/Panels/MinimapContainer/MinimapViewport");
     _portraitTexture = GetNodeOrNull<TextureRect>(
@@ -143,7 +226,8 @@ public partial class GameUI : CanvasLayer, IViewHud {
 
     // Order matters: the skill bar claims the grid's leading cells, then the action bar is told how many
     // to leave alone. Building them the other way round would let the action bar clear the skill cells.
-    _skillBar = new SkillBarController(actionGrid, _skillCatalog, slot => SkillUpgradeRequested?.Invoke(slot));
+    _skillBar = new SkillBarController(actionGrid, _skillCatalog, slot => SkillUpgradeRequested?.Invoke(slot),
+      PredictedSkills);
     _actionBar = new ActionBarController(actionGrid, _shopCatalog, itemId => PurchaseRequested?.Invoke(itemId),
       SkillBarController.SlotCount);
 

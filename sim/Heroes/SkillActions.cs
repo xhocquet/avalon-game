@@ -77,14 +77,32 @@ public static class SkillActions {
     return EvaluateCast(ref frame, playerId, slot, out _, out _, out _) == SkillBlock.None;
   }
 
+  // CanCast asked as if the slot had already gained pendingRanks ranks - an upgrade the client has
+  // queued but the predicted frame has not run yet. Safe for the client to act on: commands drain one
+  // per tick in queue order, so the upgrade always executes on an earlier tick than a cast queued
+  // after it, and the sim's own re-check at arrival sees the rank.
+  public static bool CanCast(ref Frame frame, int playerId, int slot, int pendingRanks) {
+    return EvaluateCast(ref frame, playerId, slot, out _, out _, out _, pendingRanks) == SkillBlock.None;
+  }
+
   public static bool CanUpgrade(ref Frame frame, int playerId, int slot) {
     return EvaluateUpgrade(ref frame, playerId, slot, out _, out _, out _) == SkillBlock.None;
+  }
+
+  // CanUpgrade asked as if pendingPoints points were already spent and the slot had already gained
+  // pendingRanks ranks. Klotho schedules local input InputDelayTicks ahead, so a command the client
+  // has queued is not in the predicted frame yet; without this the client would re-approve a slot it
+  // has already spent its last point on and the sim would reject the second command on arrival.
+  public static bool CanUpgrade(ref Frame frame, int playerId, int slot, int pendingPoints,
+    int pendingRanks) {
+    return EvaluateUpgrade(ref frame, playerId, slot, out _, out _, out _, pendingPoints, pendingRanks)
+           == SkillBlock.None;
   }
 
   // The cast rules, in one place. TryCast turns a block into a reject log; the client turns it into a
   // swallowed keypress. Nothing here mutates the frame.
   private static SkillBlock EvaluateCast(ref Frame frame, int playerId, int slot,
-    out EntityRef heroEntity, out HeroAsset heroAsset, out SkillAsset skill) {
+    out EntityRef heroEntity, out HeroAsset heroAsset, out SkillAsset skill, int pendingRanks = 0) {
     var block = Resolve(ref frame, playerId, slot, out heroEntity, out heroAsset, out skill);
     if (block != SkillBlock.None)
       return block;
@@ -93,23 +111,24 @@ public static class SkillActions {
       return SkillBlock.HeroDead;
 
     ref readonly var skills = ref frame.GetReadOnly<SkillsComponent>(heroEntity);
-    if (skills.GetRank(slot) <= 0)
+    if (skills.GetRank(slot) + pendingRanks <= 0)
       return SkillBlock.NotLearned;
 
     return skills.GetCooldownRemainingTicks(slot) > 0 ? SkillBlock.OnCooldown : SkillBlock.None;
   }
 
   private static SkillBlock EvaluateUpgrade(ref Frame frame, int playerId, int slot,
-    out EntityRef heroEntity, out HeroAsset heroAsset, out SkillAsset skill) {
+    out EntityRef heroEntity, out HeroAsset heroAsset, out SkillAsset skill,
+    int pendingPoints = 0, int pendingRanks = 0) {
     var block = Resolve(ref frame, playerId, slot, out heroEntity, out heroAsset, out skill);
     if (block != SkillBlock.None)
       return block;
 
     ref readonly var skills = ref frame.GetReadOnly<SkillsComponent>(heroEntity);
-    if (skills.SkillPoints <= 0)
+    if (skills.SkillPoints - pendingPoints <= 0)
       return SkillBlock.NoSkillPoints;
 
-    return skills.GetRank(slot) >= skill.MaxRank ? SkillBlock.AtMaxRank : SkillBlock.None;
+    return skills.GetRank(slot) + pendingRanks >= skill.MaxRank ? SkillBlock.AtMaxRank : SkillBlock.None;
   }
 
   // Shared front half: the player's hero, its asset row, and the SkillAsset sitting in the slot.

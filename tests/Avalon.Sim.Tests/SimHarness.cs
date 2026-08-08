@@ -118,6 +118,23 @@ public class SimHarness {
     };
   }
 
+  public static Commands.SetCheatCommand SetCheatCommand(
+    int playerId, int tick, CheatFlags flags, bool enabled = true) {
+    return new Commands.SetCheatCommand {
+      PlayerId = playerId,
+      Tick = tick,
+      Flags = (int)flags,
+      Enabled = enabled ? 1 : 0,
+    };
+  }
+
+  // ScoreSystem refuses to judge a match until the teamless prune has settled which teams hold a base,
+  // which is what a real match gets from TeamPruneSystem on its first ticks.
+  public void CompleteMatchSetup() {
+    var frame = Frame;
+    new TeamPruneSystem().Update(ref frame);
+  }
+
   public EntityRef FindHero(int playerId) {
     var frame = Frame;
     var filter = frame.Filter<Components.Hero>();

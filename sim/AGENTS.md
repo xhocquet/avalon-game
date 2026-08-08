@@ -49,6 +49,16 @@
 - Events are one per phase: `SkillCastEvent` (Synced) for the cast, `SkillProjectileSpawnedEvent`/`SkillProjectileDespawnedEvent` (Regular, matched on `ProjectileId`) for each bullet, and `AttackHitEvent` for the damage. Every id born raises exactly one despawn.
 - Not built yet: cast time, resource costs, respec, and rank prerequisites. A level gate would be a `MinHeroLevel` field on `SkillAsset` plus one rung in `SkillActions.TryUpgrade`.
 
+# Match End & Results
+
+- **The outcome is a team, not a player.** [`MatchOutcome`](Components/State/MatchOutcome.cs) (singleton, `EndTick`/`WinnerTeamId`/`Reason`) is the sim's record and the only thing anything downstream should read the winner from. Klotho's own `MatchEndStateComponent` carries `Ended` + a single `WinnerPlayerId` and cannot hold a reason, so `ScoreSystem` mirrors a *representative* player of the winning team into it purely to satisfy the engine. A win whose team has no hero left on the board reports `-1` there and is still a win in `MatchOutcome`.
+- `MatchEndReason` is **recorded at the point the match ends**, never inferred. `MatchResultReader` reads it off the component; deriving it from `winner == -1` is what made every unresolvable crystal win read as a timeout.
+- The **win condition keys off crystals, not heroes**: a team is in the match while its base stands, whether or not anyone is alive to defend it. `TeamPruneSystem` writes `MatchSetupState.ContenderTeamCount` once the teamless prune settles, and `ScoreSystem` only judges a match with 2+ contenders — otherwise a one-base map would insta-win on tick 0.
+- [`GameOverEvent`](Events/GameOverEvent.cs) carries `WinnerPlayerId`/`WinnerTeamId`/`Reason` as `[KlothoOrder]` fields. Without them the generated `GetContentHash()` is just the type id, so a crystal win and a timeout hash identically and Synced-event divergence can't tell them apart. `IMatchEndEvent.Reason` maps to a literal telemetry string, not the enum name.
+- **Per-player stats** live on [`Player`](Components/Units/Player.cs) (score, hero/minion/structure kills, deaths, damage) and are written only through [`MatchStats`](MatchStats.cs), the scoreboard's counterpart to `ExperienceRewards`. Both share `MatchStats.IsCreditableKill`, so kill credit and XP can never disagree about who earned what. `DamageApplication` credits damage, `DeathSystem` and `RespawnSystem` credit kills and deaths. Score values per victim type are `MatchRulesAsset` fields.
+- [`MatchResult`](MatchResult.cs) is the read-out: outcome, duration, and one `PlayerResult` row per hero, sorted by (team, player) so the JSON and the scoreboard don't shuffle. The server's `MatchResultSaveSystem` writes it; the client's `ViewCallbacks` reads it off the verified frame when `GameOverEvent` confirms.
+- The sim keeps ticking through Klotho's post-match grace window (`EndGraceMs`), so the client gates input on `MatchOutcome.Ended` in `InputCapture` — otherwise orders issued after the winner is decided still execute.
+
 # Navigation & Temporal Spreading
 
 - `NavigationAgentSystem` handles all unit movement: hero A* pathfinding, minion flow-field steering, ORCA avoidance, and movement integration.
@@ -100,6 +110,14 @@ Every command passes through two layers before a handler runs:
 Both layers run inside the simulation so client prediction and the authoritative server reach the same verdict for the same frame. Validating on the server ingest path instead would accept a command locally that the server discarded, and the client would mispredict every time.
 
 Wire limits live in [`CommandLimits`](Commands/CommandLimits.cs), not `Assets.json`: they must be identical on both sides and stable across recorded replays. `MaxSelectedUnits` is derived from the unreliable-datagram budget, since LiteNetLib throws rather than fragment an unreliable packet — an oversized selection would crash the sending client too.
+
+# Test Cheats
+
+`--godmode` on the client command line makes that player's hero take no damage. The flag is parsed by [`CheatOptions`](../client/Scripts/View/CheatOptions.cs), sent as `SetCheatCommand`, and stored per player in the `CheatState` singleton, which [`Cheats`](Cheats.cs) reads and `DamageApplication` gates on. Nothing authorizes the command beyond scoping it to the issuing player, so it is a development aid rather than a mode a shipped server should accept.
+
+Adding another cheat: a value in [`CheatFlags`](Enums.cs), the same bit in `Cheats.All` so validation accepts it, the arg in `CheatOptions`, and the read wherever the rule lives. The command and the storage need no change.
+
+`godmode` is a justfile variable, so the assignment goes **before** the recipe name — `just godmode=true quickplay 1000 202 201` — and `play`, `quickplay`, and `smoke` all pass it to both clients. After the recipe name it would be read as a positional argument instead.
 
 # Repo Commands
 

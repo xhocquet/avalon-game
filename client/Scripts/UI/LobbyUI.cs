@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using Meesles.Avalon.Client.Scripts.View;
+using Meesles.Avalon.Sim;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Network;
 
@@ -23,6 +24,7 @@ public partial class LobbyUI : Control, IViewHud {
   private bool _isReady;
   private Button _joinButton;
   private bool _localReady;
+  private int? _localPlayerId;
   private Label _playerId;
   private LineEdit _nameField;
   private LineEdit _portField;
@@ -303,8 +305,9 @@ public partial class LobbyUI : Control, IViewHud {
   }
 
   public void SetLocalPlayerId(int? playerId) {
-    if (playerId.HasValue && playerId.Value >= 0) {
-      var displayId = playerId.Value <= 0 ? 1 : playerId.Value;
+    _localPlayerId = playerId is int id && id >= 0 ? id : null;
+    if (_localPlayerId is int local) {
+      var displayId = local <= 0 ? 1 : local;
       _playerId.Text = $"P{displayId}";
     }
     else {
@@ -373,9 +376,10 @@ public partial class LobbyUI : Control, IViewHud {
     // LobbyUI shows lobby state, not ECS frame data
   }
 
-  public void ShowResult(string text) {
+  // The lobby has no room for the scoreboard the in-game panel shows, so it takes the one-liner.
+  public void ShowResult(MatchResult result) {
     _resultPanel.Visible = true;
-    _resultLabel.Text = text;
+    _resultLabel.Text = MatchResultText.Summary(result, _localPlayerId);
   }
 
   public void HideResult() {

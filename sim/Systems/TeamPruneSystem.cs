@@ -10,6 +10,7 @@ namespace Meesles.Avalon;
 // Culls units (Crystal, Turret, SpawnPoint) for inactive teams. Recorded in the sim as an event
 public class TeamPruneSystem : ISystem {
   private readonly List<int> _activeTeams = [];
+  private readonly List<int> _crystalTeams = [];
   private readonly List<int> _prunedTeams = [];
   private readonly List<EntityRef> _toDestroy = [];
 
@@ -51,7 +52,20 @@ public class TeamPruneSystem : ISystem {
       $"[TeamPrune] tick={frame.Tick} activeTeams=[{string.Join(",", _activeTeams)}] " +
       $"prunedTeams=[{string.Join(",", _prunedTeams)}] prunedStructures={_toDestroy.Count}");
 
-    MarkPruned(ref frame);
+    MarkPruned(ref frame, CountCrystalTeams(ref frame));
+  }
+
+  private int CountCrystalTeams(ref Frame frame) {
+    _crystalTeams.Clear();
+    var crystals = frame.Filter<Crystal, TeamComponent>();
+    while (crystals.Next(out var entity)) {
+      if (_toDestroy.Contains(entity))
+        continue;
+
+      TeamRegistry.AddTeam(_crystalTeams, frame.GetReadOnly<TeamComponent>(entity).TeamId);
+    }
+
+    return _crystalTeams.Count;
   }
 
   // Setup is done once no faction pick is still pending, or time limit expires
@@ -86,14 +100,15 @@ public class TeamPruneSystem : ISystem {
       _prunedTeams.Add(teamId);
   }
 
-  private static void MarkPruned(ref Frame frame) {
+  private static void MarkPruned(ref Frame frame, int contenderTeamCount) {
     if (!frame.TryGetSingleton<MatchSetupState>(out _)) {
       var entity = frame.CreateEntity();
-      frame.Add(entity, new MatchSetupState { TeamlessPruned = 1 });
+      frame.Add(entity, new MatchSetupState { TeamlessPruned = 1, ContenderTeamCount = contenderTeamCount });
       return;
     }
 
     ref var state = ref frame.GetSingleton<MatchSetupState>();
     state.TeamlessPruned = 1;
+    state.ContenderTeamCount = contenderTeamCount;
   }
 }

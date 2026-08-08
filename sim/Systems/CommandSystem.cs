@@ -44,6 +44,9 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
         SkillActions.TryCast(ref frame, cast.PlayerId, cast.Slot,
           new FPVector3(cast.TargetX, FP64.Zero, cast.TargetZ));
         break;
+      case SetCheatCommand cheat:
+        Cheats.Set(ref frame, cheat.PlayerId, (CheatFlags)cheat.Flags, cheat.Enabled != 0);
+        break;
     }
   }
 
@@ -101,6 +104,7 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
     for (var i = 0; i < _formationUnits.Count; i++) {
       var source = _formationUnits[i];
       UnitIntent.SetMoveTarget(ref frame, source.Entity, targetTransform.Position);
+      UnitIntent.AllowImmediateRepath(ref frame, source.Entity);
       UnitIntent.SetAttackTarget(ref frame, source.Entity, command.TargetUnitId);
       frame.Logger.KDebug(
         $"[Combat] AttackCommand accepted tick={frame.Tick} playerId={command.PlayerId} sourceUnitId={source.UnitId} targetUnitId={command.TargetUnitId} moveTarget=({targetTransform.Position.x}, {targetTransform.Position.z})");
@@ -170,5 +174,6 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
   private static void SetTarget(ref Frame frame, EntityRef entity, FPVector3 target) {
     UnitIntent.ClearAttackIntent(ref frame, entity);
     UnitIntent.SetMoveTarget(ref frame, entity, target);
+    UnitIntent.AllowImmediateRepath(ref frame, entity);
   }
 }

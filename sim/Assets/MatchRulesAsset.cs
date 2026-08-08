@@ -13,4 +13,7 @@ public partial class MatchRulesAsset : IDataAsset {
   [KlothoOrder(3)] public int DeathScorePenalty;
   [KlothoOrder(4)] public int GoldTickIntervalMs;
   [KlothoOrder(5)] public int StartingGoldPerTick;
+  [KlothoOrder(6)] public int HeroKillScore;
+  [KlothoOrder(7)] public int MinionKillScore;
+  [KlothoOrder(8)] public int StructureKillScore;
 }

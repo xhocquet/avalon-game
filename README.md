@@ -26,17 +26,6 @@ TeamPruneSystem all defer removals into a list for exactly this reason. The inva
 first group safe is undocumented and one refactor ("also clear the target's intent") away from breaking.
 Pick one convention.
 
-2. GameOverEvent reports every match as a draw — Events/GameOverEvent.cs:11-12
-
-int IMatchEndEvent.WinnerPlayerId => -1;
-FixedString32 IMatchEndEvent.Reason => default;
-
-ScoreSystem.EndMatch (Systems/ScoreSystem.cs:53-59) resolves a winner into MatchEndStateComponent and
-then raises an event that discards it. KlothoEngine.OnMatchEnded, IKlothoSessionObserver.OnMatchEnded,
-and Room's drain handler all read endEvt.WinnerPlayerId. The event also declares zero [KlothoOrder]
-fields, so it carries nothing on the wire. MatchResultReader works because it reads the component
-directly — the engine-facing path is the broken one.
-
 4. FlowFieldCache is unbounded — Navigation/FlowFieldCache.cs
 
 One int[triCount] + FPVector2[triCount] per distinct goal triangle, never evicted; Invalidate() has no
@@ -70,7 +59,7 @@ stay quiet, but CommandSystem.cs:105, AttackIntentSystem.cs:90, and DamageSystem
 no explicit EventMode. The projectile pair is documented as deliberately Regular; AttackHitEvent isn't
 mentioned anywhere.
 
-Design gaps
+## Design gaps
 
 StatsComponent is the weakest abstraction in the sim. Add truncates via .ToInt() for
 Strength/Defense/MaxHealth, so no fractional or percentage modifier is expressible — a +0.5 Strength
@@ -78,10 +67,6 @@ item is a no-op. There's no clamping (MaxHealth can reach ≤ 0; negative Defens
 raw damage), and no default: case, so a newly added StatType silently does nothing. GoldPerTick also
 sits in what is otherwise a combat block.
 
-Match end can't express a team win. ScoreSystem.TryEvaluateCrystalWin:66 returns false unless ≥2 teams
-are active, and TryGetPlayerIdForTeam collapses a winning team to its lowest PlayerId. MatchEndReason
-is then inferred from winner == -1 in MatchResultReader:47 rather than recorded at the point the
-match ended — a crystal win with an unresolvable player reads as Timeout.
 
 ProjectileSystem.IsHostile:143 has two hostility paths. It prefers the live caster's team and only
 falls back to projectile.TeamId. The stamped team is the correct answer on its own — the live path

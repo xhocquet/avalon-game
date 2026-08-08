@@ -85,12 +85,34 @@ public class UnitDiedEventTests {
   }
 
   [Fact]
-  public void GameOverEvent_UsesReservedTypeSyncedModeAndNoPayload() {
+  public void GameOverEvent_UsesReservedTypeAndSyncedMode() {
     var evt = new GameOverEvent();
-    var matchEnd = (IMatchEndEvent)evt;
 
     evt.EventTypeId.Should().Be(101);
     evt.Mode.Should().Be(EventMode.Synced);
-    matchEnd.Reason.Should().Be(default(FixedString32));
+  }
+
+  [Fact]
+  public void GameOverEvent_ExposesItsOutcomeThroughIMatchEndEvent() {
+    var evt = new GameOverEvent { WinnerPlayerId = 2, WinnerTeamId = 2, Reason = (int)MatchEndReason.Crystal };
+    var matchEnd = (IMatchEndEvent)evt;
+
+    matchEnd.WinnerPlayerId.Should().Be(2);
+    matchEnd.Reason.Should().Be(FixedString32.FromString("crystal"));
+
+    // The payload is what makes two different outcomes hash differently on the wire.
+    var timeout = new GameOverEvent { WinnerPlayerId = -1, WinnerTeamId = -1, Reason = (int)MatchEndReason.Timeout };
+    timeout.GetContentHash().Should().NotBe(evt.GetContentHash());
+  }
+
+  [Fact]
+  public void GameOverEvent_ResetClearsTheOutcomeForThePool() {
+    var evt = new GameOverEvent { WinnerPlayerId = 2, WinnerTeamId = 2, Reason = (int)MatchEndReason.Crystal };
+
+    evt.Reset();
+
+    evt.WinnerPlayerId.Should().Be(0);
+    evt.WinnerTeamId.Should().Be(0);
+    evt.Reason.Should().Be((int)MatchEndReason.Unknown);
   }
 }

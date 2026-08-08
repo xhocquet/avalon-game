@@ -6,17 +6,21 @@ resharper_cleanup := 'C:\Users\meesles\Downloads\JetBrains.ReSharper.CommandLine
 klotho_src := justfile_directory() + '\vendor\Klotho\com.xpturn.klotho\Godot~'
 klotho_dll := "xpTURN.Klotho.Runtime.dll"
 
+# Launch cheats, set before the recipe name: `just godmode=true quickplay`. A variable rather than a
+# recipe parameter so it does not have to be padded past the positional args it would otherwise follow.
+godmode := "false"
+
 default:
     @just --list
 
 # Multiplayer: Server + 2 clients
 play:
-    & .\scripts\play.ps1
+    & .\scripts\play.ps1 -Godmode:${{ godmode }}
 
 # `just play` + autostart
 quickplay ticks="0" faction1="200" faction2="201":
     & .\scripts\quickplay.ps1 -Ticks {{ ticks }} -Faction1 {{ faction1 }} \
-      -Faction2 {{ faction2 }}
+      -Faction2 {{ faction2 }} -Godmode:${{ godmode }}
 
 server:
     dotnet run --project .\tools\AssetGen
@@ -28,7 +32,7 @@ godot:
 
 # Headless smoke test: server + two headless clients, self-check
 smoke:
-    & .\scripts\smoke.ps1
+    & .\scripts\smoke.ps1 -Godmode:${{ godmode }}
 
 # Unit tests
 test:

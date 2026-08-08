@@ -56,7 +56,10 @@
     "RespawnDelayMs": 5000,
     "DeathScorePenalty": 1,
     "GoldTickIntervalMs": 1000,
-    "StartingGoldPerTick": 1
+    "StartingGoldPerTick": 1,
+    "HeroKillScore": 3,
+    "MinionKillScore": 1,
+    "StructureKillScore": 2
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.PickupRulesAsset, Meesles.Avalon.Client",

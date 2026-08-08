@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using Godot;
 using Meesles.Avalon.Client;
@@ -88,7 +87,7 @@ public partial class LobbyGameNode : GameNode {
     LobbyUi.SetReadyEnabled(false);
     LobbyUi.SetStopEnabled(false);
 
-    _quickplay = Array.IndexOf(OS.GetCmdlineUserArgs(), "--quickplay") >= 0;
+    _quickplay = QuickplayLaunch.Consume();
     ApplyFactionArg();
     ApplyNameArg();
     if (_quickplay) CallDeferred(MethodName.OnJoin);

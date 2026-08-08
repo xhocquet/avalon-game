@@ -16,6 +16,12 @@ namespace Meesles.Avalon;
 public class InputCapture : IDisposable {
   private const float DragSelectionThresholdPx = 6f;
 
+  // Move-order dedup: how long a just-issued target keeps swallowing repeats, and how close a click
+  // has to be to count as the same target. ~200ms at 30Hz - long enough for a double-click, short
+  // enough that it never eats a deliberate re-order.
+  private const int MoveDedupWindowTicks = 6;
+  private const float MoveDedupEpsilonSqr = 0.0025f;   // 0.05 units
+
   // Selection raycast: how far the mouse ray travels into the world, and a cap on how many stacked
   // pick colliders we skip past before giving up (front-most matching view wins).
   private const float PickRayLength = 1000f;
@@ -49,8 +55,10 @@ public class InputCapture : IDisposable {
   private int _localTeamId = 1;
   private AttackCommand _pendingAttackCommand;
   private MoveCommand _pendingMoveCommand;
+  private Vector3 _lastMoveTarget;
+  private int _lastMoveOrderTick = int.MinValue;
   private PurchaseItemCommand _pendingPurchaseCommand;
-  private UpgradeSkillCommand _pendingUpgradeSkillCommand;
+  private readonly Queue<UpgradeSkillCommand> _pendingUpgradeSkillCommands = new();
   private CastSkillCommand _pendingCastSkillCommand;
   private ShopEntity _contextShop;
   private Node3D _singleplayerMoveTarget;
@@ -66,7 +74,7 @@ public class InputCapture : IDisposable {
     _pendingMoveCommand = null;
     _pendingAttackCommand = null;
     _pendingPurchaseCommand = null;
-    _pendingUpgradeSkillCommand = null;
+    _pendingUpgradeSkillCommands.Clear();
     _pendingCastSkillCommand = null;
     _contextShop = null;
     _camera = null;
@@ -179,9 +187,7 @@ public class InputCapture : IDisposable {
   }
 
   public bool TryConsumeUpgradeSkillCommand(out UpgradeSkillCommand command) {
-    command = _pendingUpgradeSkillCommand;
-    _pendingUpgradeSkillCommand = null;
-    return command != null;
+    return _pendingUpgradeSkillCommands.TryDequeue(out command);
   }
 
   public bool TryConsumeCastSkillCommand(out CastSkillCommand command) {
@@ -195,9 +201,21 @@ public class InputCapture : IDisposable {
     _pendingPurchaseCommand = new PurchaseItemCommand { ItemAssetId = itemAssetId };
   }
 
+  // Klotho takes one command per player per tick, so rapid clicks queue rather than overwrite - at
+  // 30Hz two clicks inside 33ms are ordinary, and dropping the second reads as an eaten button.
   public void QueueSkillUpgrade(int slot) {
     if (!CanAct(slot, SkillAction.Upgrade)) return;
-    _pendingUpgradeSkillCommand = new UpgradeSkillCommand { Slot = slot };
+
+    _pendingUpgradeSkillCommands.Enqueue(new UpgradeSkillCommand { Slot = slot });
+    _gameUI?.PredictedSkills.PredictUpgrade(slot);
+    RepaintHud();
+  }
+
+  // The HUD only syncs on an executed sim tick, so an optimistic change made between ticks would still
+  // wait up to a tick to show. Push the frame through now instead - the same sync the engine drives.
+  private void RepaintHud() {
+    var frame = _engine?.PredictedFrame.Frame;
+    if (frame != null) _gameUI?.SyncFromFrame(frame);
   }
 
   // Every cast carries the cursor's ground point
@@ -216,13 +234,32 @@ public class InputCapture : IDisposable {
   // one still cooling never costs a round trip. The sim judges the command again when it lands - this
   // only skips the ones already known to fail. Without an engine bound (or before the hero exists) the
   // command goes out and the sim decides, which is the pre-existing behaviour.
+  // The sim keeps ticking through Klotho's post-match grace window, so an order issued after the
+  // winner is decided would still execute. Input stops at the source rather than in each handler.
+  private bool MatchEnded {
+    get {
+      var frame = _engine?.PredictedFrame.Frame;
+      return frame != null &&
+             frame.TryGetSingleton<MatchOutcome>(out var entity) &&
+             frame.GetReadOnly<MatchOutcome>(entity).Ended;
+    }
+  }
+
   private bool CanAct(int slot, SkillAction action) {
     var frame = _engine?.PredictedFrame.Frame;
     if (frame == null) return true;
+    if (MatchEnded) return false;
+
+    // Asked against the upgrades already queued too, so a slot ranked up a tick ago is castable now
+    // rather than after the frame catches up, and spending the last point twice is refused here rather
+    // than sent and rejected.
+    var predicted = _gameUI?.PredictedSkills;
+    var pendingRanks = predicted?.OutstandingFor(slot) ?? 0;
 
     return action == SkillAction.Cast
-      ? SkillActions.CanCast(ref frame, _engine.LocalPlayerId, slot)
-      : SkillActions.CanUpgrade(ref frame, _engine.LocalPlayerId, slot);
+      ? SkillActions.CanCast(ref frame, _engine.LocalPlayerId, slot, pendingRanks)
+      : SkillActions.CanUpgrade(ref frame, _engine.LocalPlayerId, slot,
+        predicted?.PendingPoints ?? 0, pendingRanks);
   }
 
   // Same deal for buys: an unaffordable, out-of-range or unknown item is dropped here rather than sent
@@ -230,6 +267,7 @@ public class InputCapture : IDisposable {
   private bool CanPurchase(int itemAssetId) {
     var frame = _engine?.PredictedFrame.Frame;
     if (frame == null) return true;
+    if (MatchEnded) return false;
 
     return ShopActions.CanPurchase(ref frame, _engine.LocalPlayerId, itemAssetId);
   }
@@ -267,7 +305,7 @@ public class InputCapture : IDisposable {
   }
 
   public void HandleUnhandledInput(InputEvent @event) {
-    if (_camera == null) return;
+    if (_camera == null || MatchEnded) return;
 
     switch (@event) {
       case InputEventKey { Echo: false } key when TryGetSkillHotkeySlot(key.Keycode, out var slot):
@@ -443,7 +481,10 @@ public class InputCapture : IDisposable {
     if (_singleplayerMoveTarget != null)
       _singleplayerMoveTarget.GlobalPosition = ground;
 
+    // The marker still plays on a deduped click - the order was understood, it just says the same
+    // thing as the one already in flight.
     PlayClickMarker(ground);
+    if (IsRedundantMoveOrder(ground)) return;
 
     var command = new MoveCommand {
       TargetX = FP64.FromFloat(ground.X),
@@ -457,6 +498,22 @@ public class InputCapture : IDisposable {
 
     _pendingMoveCommand = command;
     _pendingAttackCommand = null;
+    _lastMoveTarget = ground;
+    _lastMoveOrderTick = _engine?.CurrentTick ?? int.MinValue;
+  }
+
+  // Spam-clicking the same spot sends one MoveCommand per click, each one burning that tick's single
+  // command slot to re-issue an order the unit is already following. Bounded by a window rather than
+  // remembered indefinitely: a click on the same spot seconds later is a real order - the unit may
+  // have arrived, been displaced, or had the order overridden since - and must still go out.
+  private bool IsRedundantMoveOrder(Vector3 ground) {
+    if (_lastMoveOrderTick == int.MinValue) return false;
+    if (_engine == null) return false;
+
+    var age = _engine.CurrentTick - _lastMoveOrderTick;
+    if (age < 0 || age > MoveDedupWindowTicks) return false;
+
+    return ground.DistanceSquaredTo(_lastMoveTarget) <= MoveDedupEpsilonSqr;
   }
 
   private void QueueAttack(int targetUnitId) {
@@ -611,6 +668,10 @@ public class InputCapture : IDisposable {
     foreach (var view in _selectedViews)
       SetSelectionIndicator(view, false);
     _selectedViews.Clear();
+
+    // Every selection change routes through here. The same point ordered for a different unit set is
+    // a different order, so the dedup window must not carry across one.
+    _lastMoveOrderTick = int.MinValue;
   }
 
   private void ApplySingleSelection(EntityViewNode view) {

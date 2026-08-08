@@ -1,3 +1,5 @@
+using System;
+
 namespace Meesles.Avalon.Sim;
 
 public enum MapMarkerType {
@@ -43,6 +45,14 @@ public enum HeroSkillSet {
   CrystalGiant = 2,
   Skinwalker = 3,
   PickleKnight = 4
+}
+
+// Test-only toggles a player can turn on for itself. Bitmask, carried on the wire by SetCheatCommand,
+// so the values must stay stable. Keep in sync with Cheats.All.
+[Flags]
+public enum CheatFlags {
+  None = 0,
+  GodMode = 1 << 0 // Hero takes no damage
 }
 
 public enum MatchEndReason {

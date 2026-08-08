@@ -12,12 +12,10 @@ public static class ExperienceRewards {
   // The XP goes to whoever landed the fatal hit, and nowhere else. Only heroes carry an
   // ExperienceComponent today, so a kill credited to a minion or a turret simply pays out nothing.
   public static void AwardForKill(ref Frame frame, EntityRef killer, int victimUnitTypeId, int victimTeamId) {
-    // Nothing was credited with the damage (map damage, a decayed corpse), or the killer is gone.
-    if (!killer.IsValid || !frame.Has<ExperienceComponent>(killer))
-      return;
-
-    // Killing your own is worth nothing, or a team could farm its own minions.
-    if (frame.Has<TeamComponent>(killer) && frame.GetReadOnly<TeamComponent>(killer).TeamId == victimTeamId)
+    // Nothing was credited with the damage (map damage, a decayed corpse), the killer is gone, or it
+    // killed its own - the last of which would otherwise let a team farm its own minions.
+    if (!MatchStats.IsCreditableKill(ref frame, killer, victimTeamId) ||
+        !frame.Has<ExperienceComponent>(killer))
       return;
 
     var xp = GetKillXp(ref frame, victimUnitTypeId);

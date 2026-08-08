@@ -21,7 +21,7 @@ namespace Meesles.Avalon.Server {
       if (_saved)
         return;
 
-      if (!MatchResultReader.TryRead(ref frame, frame.Tick, out var result))
+      if (!MatchResultReader.TryRead(ref frame, out var result))
         return;
 
       _saved = true;
@@ -40,7 +40,8 @@ namespace Meesles.Avalon.Server {
 
       File.WriteAllText(path, JsonSerializer.Serialize(result, options));
       _logger.KInformation(
-        $"[MatchResult] saved path={path} winnerPlayerId={result.WinnerPlayerId} winnerTeamId={result.WinnerTeamId} reason={result.Reason} endTick={result.EndTick}");
+        $"[MatchResult] saved path={path} winnerTeamId={result.WinnerTeamId} winnerPlayerId={result.WinnerPlayerId} " +
+        $"reason={result.Reason} endTick={result.EndTick} players={result.Players.Length}");
     }
   }
 }

@@ -38,6 +38,8 @@ public static class ComponentIds {
   public const int Skills = 129;
   public const int Projectile = 130;
   public const int ProjectileIdCounter = 131;
+  public const int CheatState = 132;
+  public const int MatchOutcome = 133;
 
-  // Next free id: 132
+  // Next free id: 134
 }

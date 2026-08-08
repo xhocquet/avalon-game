@@ -15,7 +15,13 @@ public class SimCallbacks(
   InputCapture input,
   byte[] navMeshBytes,
   IKLogger logger) : ISimulationCallbacks {
+  private const int CheatSendTick = 60;
+  private const int CheatRetryIntervalTicks = 30;
+  private const int CheatMaxAttempts = 10;
+  private int _cheatAttempts;
+  private int _nextCheatSendTick = CheatSendTick;
   private bool _factionSelectionSent;
+  private IKlothoEngine _engine;
   private InputCapture _input = input;
 
   public void RegisterSystems(EcsSimulation simulation) {
@@ -25,6 +31,7 @@ public class SimCallbacks(
   }
 
   public void OnInitializeWorld(IKlothoEngine engine) {
+    _engine = engine;
     var frame = engine.PredictedFrame.Frame;
 
     if (frame.AssetRegistry.TryGet<MapLayoutAsset>(out var layout)) {
@@ -60,11 +67,36 @@ public class SimCallbacks(
     }
   }
 
+  // The frame is the confirmation: a rejected command leaves the flags unset, so it is asked again.
+  // Capped so a cheat the sim keeps refusing (an unknown flag) doesn't starve real input forever.
+  private bool ShouldSendCheats(int playerId, int tick) {
+    if (CheatOptions.Flags == CheatFlags.None || _cheatAttempts >= CheatMaxAttempts)
+      return false;
+    if (tick < _nextCheatSendTick)
+      return false;
+
+    var frame = _engine?.PredictedFrame.Frame;
+    return frame == null || !Cheats.AreAllEnabled(ref frame, playerId, CheatOptions.Flags);
+  }
+
   public void OnPollInput(int playerId, int tick, ICommandSender sender) {
     if (!_factionSelectionSent) {
       sender.Send(new SelectFactionCommand { FactionId = FactionSelection.SelectedFactionId });
       _factionSelectionSent = true;
       LogCommandSent("SelectFactionCommand", tick, playerId, $"factionId={FactionSelection.SelectedFactionId}");
+    }
+
+    // Resent until the flags show up in the frame rather than fired once. A command is stamped for the
+    // tick the poll reports, and during the bootstrap catch-up burst that tick can already be behind
+    // what the server has executed - InputCollector rejects it as a past tick and godmode silently
+    // never applies. Waiting for a fixed tick only moves which burst it lands in.
+    if (ShouldSendCheats(playerId, tick)) {
+      _cheatAttempts++;
+      _nextCheatSendTick = tick + CheatRetryIntervalTicks;
+      sender.Send(new SetCheatCommand { Flags = (int)CheatOptions.Flags, Enabled = 1 });
+      LogCommandSent("SetCheatCommand", tick, playerId,
+        $"flags={CheatOptions.Flags} attempt={_cheatAttempts}");
+      return;
     }
 
     if (_input != null && _input.TryConsumePurchaseCommand(out var purchaseCommand)) {

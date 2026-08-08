@@ -1,5 +1,6 @@
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Deterministic.Math;
+using xpTURN.Klotho.Deterministic.Navigation;
 using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
@@ -18,6 +19,20 @@ public static class UnitIntent {
     }
 
     frame.Add(entity, new UnitMoveTarget { Target = target });
+  }
+
+  // Lets the next destination change repath on the spot instead of waiting out PathRepathCooldown.
+  //
+  // The agent rate-limits repathing so a unit chasing a moving target doesn't rebuild its corridor
+  // every tick. But SetDestination drops the existing path before that check runs, so a destination
+  // change landing inside the window leaves the unit with no path and no replacement - it stands
+  // still until the window closes, up to 10 ticks. Chase retargeting should keep paying that cost;
+  // an order the player just issued should not, so only the command path clears it.
+  public static void AllowImmediateRepath(ref Frame frame, EntityRef entity) {
+    if (!frame.Has<NavAgentComponent>(entity)) return;
+
+    ref var nav = ref frame.Get<NavAgentComponent>(entity);
+    nav.LastRepathTick = 0;   // the "never pathed" sentinel the cooldown check already exempts
   }
 
   public static void ClearMoveTarget(ref Frame frame, EntityRef entity) {

@@ -31,17 +31,25 @@ public class SkillBarController {
 
   private static readonly Color InactiveColor = new(0.28f, 0.29f, 0.32f, 0.85f);
 
+  // Border shown on every cell while the hero has an unspent skill point, so the "go spend it" cue is
+  // visible without hunting for which slot lit up. Slot colour still says which ones can take it.
+  private const int PointHintBorderWidth = 3;
+  private static readonly Color PointHintBorderColor = new(0.98f, 0.82f, 0.22f, 1f);
+
   private static readonly string[] HotkeyLabels = ["Q", "W", "E", "R"];
 
   private readonly SkillCatalog _catalog;
   private readonly Cell[] _cells = new Cell[SlotCount];
   private readonly GridContainer _grid;
   private readonly Action<int> _onUpgrade;
+  private readonly PredictedSkillState _predicted;
 
-  public SkillBarController(GridContainer grid, SkillCatalog catalog, Action<int> onUpgrade) {
+  public SkillBarController(GridContainer grid, SkillCatalog catalog, Action<int> onUpgrade,
+    PredictedSkillState predicted) {
     _grid = grid;
     _catalog = catalog;
     _onUpgrade = onUpgrade;
+    _predicted = predicted;
     Build();
   }
 
@@ -54,7 +62,7 @@ public class SkillBarController {
 
     // No local hero yet (pre-spawn, or spectating): show the slots inert rather than stale.
     for (var slot = 0; slot < SlotCount; slot++)
-      Paint(slot, 0, 0, false, 0);
+      Paint(slot, 0, 0, false, 0, false);
   }
 
   private bool TryPaintLocalHero(Frame frame, int playerId) {
@@ -66,11 +74,21 @@ public class SkillBarController {
 
       ref readonly var skills = ref frame.GetReadOnly<SkillsComponent>(entity);
 
+      // Retire or age every slot's optimistic entry before anything reads it, so PendingPoints below
+      // is the count still genuinely in flight.
+      for (var slot = 0; slot < SlotCount; slot++)
+        _predicted?.Observe(slot, skills.GetRank(slot));
+
+      var pendingPoints = _predicted?.PendingPoints ?? 0;
+      var hasPoints = skills.SkillPoints - pendingPoints > 0;
+
       for (var slot = 0; slot < SlotCount; slot++) {
         var skillAssetId = skills.GetSkillAssetId(slot);
-        var rank = skills.GetRank(slot);
+        var pendingRanks = _predicted?.OutstandingFor(slot) ?? 0;
+        var rank = skills.GetRank(slot) + pendingRanks;
         var maxRank = GetMaxRank(frame, skillAssetId);
-        Paint(slot, rank, maxRank, SkillActions.CanUpgrade(ref frame, playerId, slot), skillAssetId);
+        var active = SkillActions.CanUpgrade(ref frame, playerId, slot, pendingPoints, pendingRanks);
+        Paint(slot, rank, maxRank, active, skillAssetId, hasPoints);
       }
 
       return true;
@@ -85,18 +103,21 @@ public class SkillBarController {
 
   // Cheap early-out on the values that actually drive the cell, so a steady-state sync does no string
   // formatting and no Godot property writes.
-  private void Paint(int slot, int rank, int maxRank, bool active, int skillAssetId) {
+  private void Paint(int slot, int rank, int maxRank, bool active, int skillAssetId, bool hasPoints) {
     var cell = _cells[slot];
     if (cell == null) return;
-    if (cell.Rank == rank && cell.MaxRank == maxRank && cell.Active == active && cell.SkillAssetId == skillAssetId)
+    if (cell.Rank == rank && cell.MaxRank == maxRank && cell.Active == active
+        && cell.SkillAssetId == skillAssetId && cell.HasPoints == hasPoints)
       return;
 
     cell.Rank = rank;
     cell.MaxRank = maxRank;
     cell.Active = active;
     cell.SkillAssetId = skillAssetId;
+    cell.HasPoints = hasPoints;
 
     cell.Rect.Color = active ? SlotColors[slot] : InactiveColor;
+    cell.PointHint.Visible = hasPoints;
     cell.Label.Text = rank.ToString();
     cell.Button.Disabled = !active;
     cell.Button.TooltipText = BuildTooltip(slot, rank, maxRank, skillAssetId);
@@ -138,6 +159,9 @@ public class SkillBarController {
     button.Pressed += () => _onUpgrade?.Invoke(captured);
     rect.AddChild(button);
 
+    var pointHint = CreatePointHint();
+    rect.AddChild(pointHint);
+
     var label = new Label {
       Name = "Rank",
       Text = "0",
@@ -153,7 +177,23 @@ public class SkillBarController {
 
     AddHotkeyBadge(rect, slot);
     _grid.AddChild(rect);
-    return new Cell(rect, label, button);
+    return new Cell(rect, label, button, pointHint);
+  }
+
+  // Border-only stylebox over the cell's fill: transparent background, so the slot colour underneath
+  // still reads through.
+  private static Panel CreatePointHint() {
+    var style = new StyleBoxFlat { BgColor = new Color(0f, 0f, 0f, 0f), BorderColor = PointHintBorderColor };
+    style.SetBorderWidthAll(PointHintBorderWidth);
+
+    var panel = new Panel {
+      Name = "PointHint",
+      MouseFilter = Control.MouseFilterEnum.Ignore,
+      Visible = false
+    };
+    panel.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+    panel.AddThemeStyleboxOverride("panel", style);
+    return panel;
   }
 
   // The cast hotkey pinned to the cell's top-left, so the Q/W/E/R binding is visible without a tooltip.
@@ -173,13 +213,15 @@ public class SkillBarController {
     rect.AddChild(badge);
   }
 
-  private sealed class Cell(ColorRect rect, Label label, Button button) {
+  private sealed class Cell(ColorRect rect, Label label, Button button, Panel pointHint) {
     public readonly Button Button = button;
     public readonly Label Label = label;
+    public readonly Panel PointHint = pointHint;
     public readonly ColorRect Rect = rect;
 
     // Last painted state. -1 so the first Paint always writes through.
     public bool Active;
+    public bool HasPoints;
     public int MaxRank = -1;
     public int Rank = -1;
     public int SkillAssetId = -1;

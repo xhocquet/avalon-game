@@ -33,7 +33,8 @@ public class RespawnSystem : ISystem {
 
   private static void BeginRespawn(ref Frame frame, EntityRef entity) {
     // Respawning units never reach DeathSystem, so the kill credit for one is settled here.
-    AwardKillExperience(ref frame, entity);
+    AwardKillCredit(ref frame, entity);
+    MatchStats.RecordDeath(ref frame, entity);
 
     var rules = frame.AssetRegistry.Get<MatchRulesAsset>();
     var delayTicks = GetRespawnDelayTicks(ref frame, rules);
@@ -42,10 +43,6 @@ public class RespawnSystem : ISystem {
     ref readonly var team = ref frame.GetReadOnly<TeamComponent>(entity);
     ref readonly var unit = ref frame.GetReadOnly<UnitIdComponent>(entity);
     ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
-
-    // The score penalty lands on the human's record; a unit nobody is scoring for simply skips it.
-    if (frame.Has<Player>(entity))
-      frame.Get<Player>(entity).Score -= rules?.DeathScorePenalty ?? 0;
 
     ClearActiveState(ref frame, entity, transform.Position);
 
@@ -60,13 +57,14 @@ public class RespawnSystem : ISystem {
     }
   }
 
-  private static void AwardKillExperience(ref Frame frame, EntityRef entity) {
+  private static void AwardKillCredit(ref Frame frame, EntityRef entity) {
     var lastDamagerUnitId = frame.GetReadOnly<Health>(entity).LastDamagerUnitId;
     if (lastDamagerUnitId == 0 || !UnitLookup.TryGetEntityByUnitId(ref frame, lastDamagerUnitId, out var killer))
       return;
 
     var victimTeamId = frame.GetReadOnly<TeamComponent>(entity).TeamId;
     ExperienceRewards.AwardForKill(ref frame, killer, SimulationSetup.PlayerUnitTypeId, victimTeamId);
+    MatchStats.RecordKill(ref frame, killer, SimulationSetup.PlayerUnitTypeId, victimTeamId);
   }
 
   private static void CompleteRespawn(ref Frame frame, EntityRef entity) {

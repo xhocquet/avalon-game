@@ -8,9 +8,11 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon;
 
+// Decides when the match is over and records the outcome. The outcome is team-shaped: MatchOutcome
+// holds the winning team, and the single player id Klotho's MatchEndStateComponent wants is derived
+// from it at the end. Nothing downstream should read the winner back out of that player id.
 public class ScoreSystem : ISystem {
   private const int NoWinnerPlayerId = -1;
-  private readonly List<int> _activeTeamIds = [];
   private readonly List<int> _aliveCrystalTeamIds = [];
 
   public void Update(ref Frame frame) {
@@ -18,15 +20,15 @@ public class ScoreSystem : ISystem {
     if (matchEndState.Ended)
       return;
 
-    if (TryEvaluateCrystalWin(ref frame, out var winnerPlayerId)) {
-      EndMatch(ref frame, ref matchEndState, winnerPlayerId);
+    if (TryEvaluateCrystalWin(ref frame, out var winnerTeamId)) {
+      EndMatch(ref frame, ref matchEndState, winnerTeamId, MatchEndReason.Crystal);
       return;
     }
 
     if (!IsTimeoutTick(ref frame))
       return;
 
-    EndMatch(ref frame, ref matchEndState, NoWinnerPlayerId);
+    EndMatch(ref frame, ref matchEndState, MatchOutcome.NoWinnerTeamId, MatchEndReason.Timeout);
   }
 
   private static ref MatchEndStateComponent GetOrCreateMatchEndState(ref Frame frame) {
@@ -49,37 +51,70 @@ public class ScoreSystem : ISystem {
     return frame.Tick >= matchEndTick;
   }
 
-  private void EndMatch(ref Frame frame, ref MatchEndStateComponent matchEndState, int winnerPlayerId) {
+  private void EndMatch(ref Frame frame, ref MatchEndStateComponent matchEndState, int winnerTeamId,
+    MatchEndReason reason) {
+    var outcome = new MatchOutcome {
+      EndTick = frame.Tick,
+      WinnerTeamId = winnerTeamId,
+      Reason = (int)reason
+    };
+    WriteOutcome(ref frame, outcome);
+
+    // The engine's own end state only speaks in players, so give it a representative of the winning
+    // team. A team that won with no hero left on the board reports a draw to Klotho and still records
+    // its win in MatchOutcome.
+    var winnerPlayerId = TryGetPlayerIdForTeam(ref frame, winnerTeamId, out var playerId)
+      ? playerId
+      : NoWinnerPlayerId;
     matchEndState.Ended = true;
     matchEndState.WinnerPlayerId = winnerPlayerId;
 
     var evt = EventPool.Get<GameOverEvent>();
+    evt.WinnerPlayerId = winnerPlayerId;
+    evt.WinnerTeamId = winnerTeamId;
+    evt.Reason = (int)reason;
     frame.EventRaiser?.RaiseEvent(evt);
   }
 
-  private bool TryEvaluateCrystalWin(ref Frame frame, out int winnerPlayerId) {
-    winnerPlayerId = NoWinnerPlayerId;
-    _aliveCrystalTeamIds.Clear();
+  private static void WriteOutcome(ref Frame frame, MatchOutcome outcome) {
+    if (!frame.TryGetSingleton<MatchOutcome>(out _)) {
+      frame.Add(frame.CreateEntity(), outcome);
+      return;
+    }
 
-    TeamRegistry.CollectActiveTeams(ref frame, _activeTeamIds);
-    if (_activeTeamIds.Count <= 1)
+    frame.GetSingleton<MatchOutcome>() = outcome;
+  }
+
+  // The win is keyed off crystals, not heroes: a team is in the match for as long as its base stands,
+  // whether or not anyone is currently alive to defend it.
+  private bool TryEvaluateCrystalWin(ref Frame frame, out int winnerTeamId) {
+    winnerTeamId = MatchOutcome.NoWinnerTeamId;
+
+    // Before the teamless prune the board still holds every authored base, so the count means nothing.
+    if (!frame.TryGetSingleton<MatchSetupState>(out var setupEntity))
       return false;
 
+    ref readonly var setup = ref frame.GetReadOnly<MatchSetupState>(setupEntity);
+    if (setup.TeamlessPruned == 0 || setup.ContenderTeamCount < 2)
+      return false;
+
+    _aliveCrystalTeamIds.Clear();
     var crystalFilter = frame.Filter<Crystal, TeamComponent>();
-    while (crystalFilter.Next(out var crystalEntity)) {
-      ref readonly var team = ref frame.GetReadOnly<TeamComponent>(crystalEntity);
-      if (_activeTeamIds.Contains(team.TeamId) && !_aliveCrystalTeamIds.Contains(team.TeamId))
-        _aliveCrystalTeamIds.Add(team.TeamId);
-    }
+    while (crystalFilter.Next(out var crystalEntity))
+      TeamRegistry.AddTeam(_aliveCrystalTeamIds, frame.GetReadOnly<TeamComponent>(crystalEntity).TeamId);
 
     if (_aliveCrystalTeamIds.Count != 1)
       return false;
 
-    return TryGetPlayerIdForTeam(ref frame, _aliveCrystalTeamIds[0], out winnerPlayerId);
+    winnerTeamId = _aliveCrystalTeamIds[0];
+    return true;
   }
 
   private static bool TryGetPlayerIdForTeam(ref Frame frame, int teamId, out int playerId) {
     playerId = int.MaxValue;
+    if (teamId == MatchOutcome.NoWinnerTeamId)
+      return false;
+
     var filter = frame.Filter<Hero, TeamComponent>();
     while (filter.Next(out var entity)) {
       ref readonly var team = ref frame.GetReadOnly<TeamComponent>(entity);

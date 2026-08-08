@@ -34,6 +34,8 @@ public static class CommandValidation {
         return AcceptSkillSlot(ref frame, cast, cast.Slot) && AcceptCastTarget(ref frame, cast);
       case PurchaseItemCommand purchase:
         return AcceptShopItem(ref frame, purchase);
+      case SetCheatCommand cheat:
+        return AcceptCheatFlags(ref frame, cheat);
       default:
         return true;
     }
@@ -76,6 +78,16 @@ public static class CommandValidation {
       return true;
 
     Reject(ref frame, command, $"shop_item_asset_missing itemId={command.ItemAssetId}");
+    return false;
+  }
+
+  // Unknown bits are rejected whole rather than masked off, so a client built against a newer
+  // CheatFlags gets a log line instead of a silently half-applied cheat.
+  private static bool AcceptCheatFlags(ref Frame frame, SetCheatCommand command) {
+    if (command.Flags != 0 && (command.Flags & ~(int)Cheats.All) == 0)
+      return true;
+
+    Reject(ref frame, command, $"unknown_cheat_flags flags={command.Flags}");
     return false;
   }
 

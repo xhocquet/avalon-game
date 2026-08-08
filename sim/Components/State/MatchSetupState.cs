@@ -11,4 +11,8 @@ namespace Meesles.Avalon.Sim.Components;
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public partial struct MatchSetupState : IComponent {
   public int TeamlessPruned;
+
+  // Distinct teams left holding a crystal once the prune settled. ScoreSystem needs the starting
+  // count to tell "one crystal left standing" from "this match only ever had one base".
+  public int ContenderTeamCount;
 }

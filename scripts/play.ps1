@@ -2,6 +2,7 @@
 # clients. Close both game windows to tear the server down.
 param(
   [int]    $Port = 7777,
+  [switch] $Godmode,
   [string] $Godot = $(if ($env:GODOT) { $env:GODOT } else { "C:\Users\meesles\Coding\Godot-4.6-mono\Godot_v4.6.3-stable_mono_win64.exe" })
 )
 
@@ -54,11 +55,15 @@ try {
     -WorkingDirectory $repoRoot -PassThru -WindowStyle Normal
   Start-Sleep -Seconds 6
 
+  # Anything after the bare `--` reaches the client as OS.GetCmdlineUserArgs().
+  $clientArgs = @("--path", (Join-Path $repoRoot "client"))
+  if ($Godmode) { $clientArgs += @("--", "--godmode") }
+
   Write-Host "[play] launching client 1..."
-  $client1 = Start-Process -FilePath $Godot -ArgumentList @("--path", (Join-Path $repoRoot "client")) -RedirectStandardError "NUL" -PassThru
+  $client1 = Start-Process -FilePath $Godot -ArgumentList $clientArgs -RedirectStandardError "NUL" -PassThru
   Start-Sleep -Seconds 3
   Write-Host "[play] launching client 2 - close both windows to stop."
-  $client2 = Start-Process -FilePath $Godot -ArgumentList @("--path", (Join-Path $repoRoot "client")) -RedirectStandardError "NUL" -PassThru
+  $client2 = Start-Process -FilePath $Godot -ArgumentList $clientArgs -RedirectStandardError "NUL" -PassThru
 
   $client1 | Wait-Process
   $client2 | Wait-Process

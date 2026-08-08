@@ -25,6 +25,13 @@ public class ViewCallbacks : IViewCallbacks {
   public void OnTickExecuted(int tick) {
     if (_engine == null || _engine.PredictedFrame.Frame == null) return;
     _hud?.SyncFromFrame(_engine.PredictedFrame.Frame);
+
+    // Backstop for the paths that never deliver the event: a resync/FullState restore past the end
+    // tick, or a client that joined after it. The state is what decides, not the notification.
+    if (!_gameOverShown && _engine.IsMatchEnded) {
+      _gameOverShown = true;
+      ShowResult();
+    }
   }
 
   public void SetHud(IViewHud hud) {
@@ -66,7 +73,7 @@ public class ViewCallbacks : IViewCallbacks {
       if (evt is not GameOverEvent) return;
 
       _gameOverShown = true;
-      _hud?.ShowResult(FormatResult(tick));
+      ShowResult();
     };
     _engine.OnEventConfirmed += _eventConfirmedHandler;
   }
@@ -77,19 +84,13 @@ public class ViewCallbacks : IViewCallbacks {
     _eventConfirmedHandler = null;
   }
 
-  private string FormatResult(int endTick) {
+  // The outcome and every scoreboard row come off the frame; the event only says the match is over.
+  // The verified frame is preferred so the numbers shown are the ones that stuck.
+  private void ShowResult() {
     var frame = _engine?.VerifiedFrame.Frame ?? _engine?.PredictedFrame.Frame;
-    if (frame == null)
-      return "Game Over";
+    if (frame == null || !MatchResultReader.TryRead(ref frame, out var result))
+      return;
 
-    if (!MatchResultReader.TryRead(ref frame, endTick, out var result))
-      return "Game Over";
-
-    if (result.IsDraw)
-      return $"Draw\nTimeout at tick {result.EndTick}";
-
-    var localPlayerId = _engine?.LocalPlayerId ?? -1;
-    var outcome = localPlayerId == result.WinnerPlayerId ? "Victory" : "Defeat";
-    return $"{outcome}\nWinner: P{result.WinnerPlayerId}";
+    _hud?.ShowResult(result);
   }
 }

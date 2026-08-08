@@ -13,6 +13,8 @@ using FileAccess = Godot.FileAccess;
 namespace Meesles.Avalon;
 
 public abstract partial class GameNode : Node {
+  protected const string LobbyScenePath = "res://Scenes/Lobby.tscn";
+
   protected GameUI GameUi;
   protected InputCapture Input;
   protected LobbyUI LobbyUi;
@@ -30,9 +32,21 @@ public abstract partial class GameNode : Node {
   protected void InitializeGameUI() {
     Input = new InputCapture();
     GameUi = GetNode<GameUI>("GameUI");
+    GameUi.ReturnToLobbyRequested = ReturnToLobby;
     Input.BindGameUI(GameUi);
     Input.BindClickMarker(GetNodeOrNull<Node3D>("Crosshair"));
   }
+
+  // The session and its driver can outlive this scene - the lobby hands both over and parents the
+  // driver to the tree root - so leaving has to stop them before the swap, or the old driver keeps
+  // ticking a dead session underneath the fresh lobby.
+  protected void ReturnToLobby() {
+    StopSessionForSceneExit();
+    GetTree().ChangeSceneToFile(LobbyScenePath);
+  }
+
+  // Nothing by default: a node whose driver is its own child is already torn down by _ExitTree.
+  protected virtual void StopSessionForSceneExit() { }
 
 
   // PackedScene.Instantiate<EntityViewNode> throws when the scene root carries no EntityViewNode

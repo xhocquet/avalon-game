@@ -8,6 +8,7 @@
 param(
   [int]    $Port = 7777,
   [int]    $TimeoutSeconds = 90,
+  [switch] $Godmode,
   [string] $Godot = $(if ($env:GODOT) { $env:GODOT } else { "C:\Users\meesles\Coding\Godot-4.6-mono\Godot_v4.6.3-stable_mono_win64.exe" })
 )
 
@@ -65,12 +66,15 @@ try {
     -PassThru -WindowStyle Hidden
   Start-Sleep -Seconds 6
 
+  $clientArgs = @("--headless", "--path", (Join-Path $repoRoot "client"), "--", "--quickplay")
+  if ($Godmode) { $clientArgs += "--godmode" }
+
   Write-Host "[smoke] launching client 1..."
-  $c1 = Start-Process -FilePath $Godot -ArgumentList @("--headless", "--path", (Join-Path $repoRoot "client"), "--", "--quickplay") `
+  $c1 = Start-Process -FilePath $Godot -ArgumentList $clientArgs `
     -RedirectStandardOutput $c1Out -RedirectStandardError $c1Err -PassThru
   Start-Sleep -Seconds 3
   Write-Host "[smoke] launching client 2..."
-  $c2 = Start-Process -FilePath $Godot -ArgumentList @("--headless", "--path", (Join-Path $repoRoot "client"), "--", "--quickplay") `
+  $c2 = Start-Process -FilePath $Godot -ArgumentList $clientArgs `
     -RedirectStandardOutput $c2Out -RedirectStandardError $c2Err -PassThru
 
   Write-Host "[smoke] waiting up to ${TimeoutSeconds}s for clients to finish (auto-quit at tick 120)..."

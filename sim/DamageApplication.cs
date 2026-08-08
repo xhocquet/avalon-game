@@ -9,8 +9,16 @@ namespace Meesles.Avalon.Sim;
 public static class DamageApplication {
   // Returns the damage actually dealt after mitigation.
   public static int ApplyDamage(ref Frame frame, EntityRef source, EntityRef target, int amount) {
-    var damage = Mitigate(ref frame, target, amount);
     var sourceUnitId = UnitLookup.GetUnitId(ref frame, source);
+
+    // Godmode still raises the hit so attack VFX and feedback play; only the health write is skipped,
+    // which also leaves LastDamagerUnitId alone and keeps kill credit off an attacker who dealt nothing.
+    if (Cheats.BlocksDamage(ref frame, target)) {
+      RaiseHitEvent(ref frame, source, target, sourceUnitId, 0);
+      return 0;
+    }
+
+    var damage = Mitigate(ref frame, target, amount);
 
     ref var health = ref frame.Get<Health>(target);
     health.Current -= damage;
@@ -21,6 +29,7 @@ public static class DamageApplication {
     // and ExperienceRewards.AwardForKill pays out against it. A kill that skips it awards nobody.
     health.LastDamagerUnitId = sourceUnitId;
 
+    MatchStats.RecordDamage(ref frame, source, target, damage);
     RaiseHitEvent(ref frame, source, target, sourceUnitId, damage);
     return damage;
   }

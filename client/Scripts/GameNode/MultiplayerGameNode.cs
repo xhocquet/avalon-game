@@ -277,6 +277,20 @@ public partial class MultiplayerGameNode : GameNode {
     }
   }
 
+  protected override void StopSessionForSceneExit() {
+    if (_driver == null) return;
+
+    _driver.PreSessionUpdate -= CaptureRunningInput;
+    _driver.DetachAndStop();
+    _session = null;
+    _transport?.Disconnect(); // releases the socket so the fresh lobby can bind its own
+
+    // A handed-off driver is parented to the tree root, so the scene swap would leave it behind.
+    if (!_ownsDriver)
+      _driver.QueueFree();
+    _driver = null;
+  }
+
   public override void _ExitTree() {
     SimLog.UnbindStage();
     UnbindCameraFollow();
