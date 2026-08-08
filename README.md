@@ -78,7 +78,6 @@ item is a no-op. There's no clamping (MaxHealth can reach ≤ 0; negative Defens
 raw damage), and no default: case, so a newly added StatType silently does nothing. GoldPerTick also
 sits in what is otherwise a combat block.
 
-
 Match end can't express a team win. ScoreSystem.TryEvaluateCrystalWin:66 returns false unless ≥2 teams
 are active, and TryGetPlayerIdForTeam collapses a winning team to its lowest PlayerId. MatchEndReason
 is then inferred from winner == -1 in MatchResultReader:47 rather than recorded at the point the

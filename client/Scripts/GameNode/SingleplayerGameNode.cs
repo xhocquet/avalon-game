@@ -21,6 +21,7 @@ public partial class SingleplayerGameNode : GameNode {
   private ISessionConfig _sesCfg;
   private KlothoSession _session;
   private ISimulationConfig _simCfg;
+  private SkillTelegraphManager _telegraphs;
 
   private LiteNetLibTransport _transport;
   private VfxManager _vfx;
@@ -90,6 +91,8 @@ public partial class SingleplayerGameNode : GameNode {
     BindTeamBaseCleanup(_events);
     _vfx = new VfxManager();
     _vfx.Attach(_events, _view);
+    _telegraphs = new SkillTelegraphManager();
+    _telegraphs.Attach(_events, _view, engine);
     GameUi.BindSimEvents(_events);
 
     _driver.Attach(_session);
@@ -102,6 +105,7 @@ public partial class SingleplayerGameNode : GameNode {
     SimLog.UnbindStage();
     UnbindCameraFollow();
     _vfx?.Detach();
+    _telegraphs?.Detach();
     _events?.Detach();
     _driver?.DetachAndStop(saveReplay: false);
     _view?.Cleanup();

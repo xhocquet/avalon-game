@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scenes/FX/Telegraphs/skill_telegraph.gd" id="1_root"]
+[ext_resource type="Script" uid="uid://f5phte33sgmk" path="res://addons/constructive_telegraphs/src/con_telegraph_instance_3d.gd" id="2_instance"]
+
+[node name="SkillTelegraph" type="Node3D"]
+script = ExtResource("1_root")
+
+[node name="ConTelegraphInstance3D" type="Node3D" parent="."]
+script = ExtResource("2_instance")
+has_pattern_noise = true
+metadata/_custom_type_script = "uid://f5phte33sgmk"
+
+[connection signal="fade_out_completed" from="ConTelegraphInstance3D" to="." method="_on_fade_out_completed"]

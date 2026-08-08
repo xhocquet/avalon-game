@@ -38,6 +38,7 @@ public partial class MultiplayerGameNode : GameNode {
   private KlothoSession _session;
   private ISimulationConfig _simCfg;
   private SimCallbacks _simulationCallbacks;
+  private SkillTelegraphManager _telegraphs;
   private LiteNetLibTransport _transport;
   private bool _verified;
   private VfxManager _vfx;
@@ -161,6 +162,8 @@ public partial class MultiplayerGameNode : GameNode {
     BindTeamBaseCleanup(_events);
     _vfx = new VfxManager();
     _vfx.Attach(_events, _view);
+    _telegraphs = new SkillTelegraphManager();
+    _telegraphs.Attach(_events, _view, engine);
     GameUi.BindSimEvents(_events);
     GameUi.SetPhase(_session.Phase);
     TryFocusRegisteredLocalView();
@@ -284,6 +287,7 @@ public partial class MultiplayerGameNode : GameNode {
     }
 
     _vfx?.Detach();
+    _telegraphs?.Detach();
     _events?.Detach();
     _view?.Cleanup();
     _viewCallbacks?.Cleanup();

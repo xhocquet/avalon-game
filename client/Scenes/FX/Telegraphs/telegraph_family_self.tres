@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ConTelegraphFamily" load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://dpk4h0oonxyrf" path="res://addons/constructive_telegraphs/src/con_telegraph_family.gd" id="1_family"]
+
+[resource]
+script = ExtResource("1_family")
+internal_name = &"Self"
+outline_group = &"Self"
+base_color = Color(0.09, 0.818, 1, 0.050980393)
+base_outline_color = Color(0.0862745, 0.819608, 1, 0.901961)
+fill_color = Color(0.09, 0.818, 1, 0.19607843)
+fill_highlight_color = Color(0.0862745, 0.819608, 1, 0.701961)
+fill_highlight_trail = 2.0
+pattern_noise_amplitude = 0.5
+pattern_noise_frequency = 0.05
+pattern_1_speed = 0.15
+metadata/_custom_type_script = "uid://dpk4h0oonxyrf"
