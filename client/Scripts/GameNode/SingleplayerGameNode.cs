@@ -93,6 +93,7 @@ public partial class SingleplayerGameNode : GameNode {
     _vfx.Attach(_events, _view);
     _telegraphs = new SkillTelegraphManager();
     _telegraphs.Attach(_events, _view, engine);
+    Input.BindTelegraphs(_telegraphs);
     GameUi.BindSimEvents(_events);
 
     _driver.Attach(_session);

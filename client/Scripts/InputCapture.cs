@@ -30,6 +30,8 @@ public class InputCapture : IDisposable {
   private static readonly FP64 NavSnapNoMoveSqr = FP64.FromDouble(0.01);
 
   private readonly List<EntityViewNode> _selectedViews = new();
+  private int _aimingSlot = -1;
+  private SkillTelegraphManager _telegraphs;
   private CameraController _camera;
   private Node3D _clickMarker;
   private Vector3 _clickMarkerBaseScale = Vector3.One;
@@ -59,6 +61,8 @@ public class InputCapture : IDisposable {
 
   public void Dispose() {
     ClearSelectedViews();
+    CancelSkillAim();
+    _telegraphs = null;
     _pendingMoveCommand = null;
     _pendingAttackCommand = null;
     _pendingPurchaseCommand = null;
@@ -131,11 +135,30 @@ public class InputCapture : IDisposable {
     _singleplayerMoveTarget = target;
   }
 
+  public void BindTelegraphs(SkillTelegraphManager telegraphs) {
+    CancelSkillAim();
+    _telegraphs = telegraphs;
+  }
+
   public void SetLocalTeamId(int teamId) {
     _localTeamId = teamId;
   }
 
-  public void CaptureInput() { }
+  // Per-frame while a skill key is held, so the preview tracks the cursor and the moving caster, and
+  // appears the moment a slot that was cooling becomes castable mid-hold.
+  public void CaptureInput() {
+    if (_aimingSlot < 0) return;
+
+    if (_camera == null || _camera.IsGodmode) {
+      CancelSkillAim();
+      return;
+    }
+
+    if (CanAct(_aimingSlot, SkillAction.Cast))
+      _telegraphs?.ShowAim(_aimingSlot, GetSkillAimPoint());
+    else
+      _telegraphs?.HideAim();
+  }
 
   public bool TryConsumeMoveCommand(out MoveCommand command) {
     command = _pendingMoveCommand;
@@ -247,9 +270,10 @@ public class InputCapture : IDisposable {
     if (_camera == null) return;
 
     switch (@event) {
-      case InputEventKey { Pressed: true, Echo: false } key when TryGetSkillHotkeySlot(key.Keycode, out var slot):
+      case InputEventKey { Echo: false } key when TryGetSkillHotkeySlot(key.Keycode, out var slot):
         if (_camera.IsGodmode) return;
-        QueueSkillCast(slot);
+        if (key.Pressed) BeginSkillAim(slot);
+        else ReleaseSkillAim(slot);
         return;
 
       case InputEventMouseMotion motion:
@@ -266,6 +290,26 @@ public class InputCapture : IDisposable {
         HandleRightClick(rightClick);
         return;
     }
+  }
+
+  // Hold to aim, release to cast. The slot is tracked from key-down regardless of CanAct so a skill that
+  // comes off cooldown while held still previews and still fires; both ends re-ask before anything is
+  // drawn or queued. The bar's click-to-cast path stays a single instant cast.
+  private void BeginSkillAim(int slot) {
+    _aimingSlot = slot;
+    if (CanAct(slot, SkillAction.Cast))
+      _telegraphs?.ShowAim(slot, GetSkillAimPoint());
+  }
+
+  private void ReleaseSkillAim(int slot) {
+    if (_aimingSlot != slot) return;
+    CancelSkillAim();
+    QueueSkillCast(slot);
+  }
+
+  private void CancelSkillAim() {
+    _aimingSlot = -1;
+    _telegraphs?.HideAim();
   }
 
   // Q/W/E/R map to the four SkillSlots in order, matching the skill cells the bar renders left to right.

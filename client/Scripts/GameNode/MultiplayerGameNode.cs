@@ -164,6 +164,7 @@ public partial class MultiplayerGameNode : GameNode {
     _vfx.Attach(_events, _view);
     _telegraphs = new SkillTelegraphManager();
     _telegraphs.Attach(_events, _view, engine);
+    Input.BindTelegraphs(_telegraphs);
     GameUi.BindSimEvents(_events);
     GameUi.SetPhase(_session.Phase);
     TryFocusRegisteredLocalView();

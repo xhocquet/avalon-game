@@ -31,6 +31,13 @@ func configure(family: ConTelegraphFamily, lane_count: int, lane_spacing: float,
 		instance.add_child(area)
 
 	instance.fill_progress = 0.0
+
+
+## Held at zero fill after configure(), which draws the outline without the sweep - that is the aim
+## preview. play() starts the sweep, after which fade_out_completed frees the node.
+func play() -> void:
+	var instance: ConTelegraphInstance3D = get_node("ConTelegraphInstance3D")
+	instance.fill_progress = 0.0
 	instance.in_progress = true
 
 
