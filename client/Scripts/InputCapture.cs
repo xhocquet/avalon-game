@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Godot;
 using Meesles.Avalon.Client.Scripts.View;
 using Meesles.Avalon.Sim;
+using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Commands;
 using Meesles.Avalon.Sim.Components;
 using Meesles.Avalon.Sim.Heroes;
@@ -57,7 +58,7 @@ public class InputCapture : IDisposable {
   private MoveCommand _pendingMoveCommand;
   private Vector3 _lastMoveTarget;
   private int _lastMoveOrderTick = int.MinValue;
-  private PurchaseItemCommand _pendingPurchaseCommand;
+  private readonly Queue<PurchaseItemCommand> _pendingPurchaseCommands = new();
   private readonly Queue<UpgradeSkillCommand> _pendingUpgradeSkillCommands = new();
   private CastSkillCommand _pendingCastSkillCommand;
   private ShopEntity _contextShop;
@@ -73,7 +74,7 @@ public class InputCapture : IDisposable {
     _telegraphs = null;
     _pendingMoveCommand = null;
     _pendingAttackCommand = null;
-    _pendingPurchaseCommand = null;
+    _pendingPurchaseCommands.Clear();
     _pendingUpgradeSkillCommands.Clear();
     _pendingCastSkillCommand = null;
     _contextShop = null;
@@ -181,9 +182,7 @@ public class InputCapture : IDisposable {
   }
 
   public bool TryConsumePurchaseCommand(out PurchaseItemCommand command) {
-    command = _pendingPurchaseCommand;
-    _pendingPurchaseCommand = null;
-    return command != null;
+    return _pendingPurchaseCommands.TryDequeue(out command);
   }
 
   public bool TryConsumeUpgradeSkillCommand(out UpgradeSkillCommand command) {
@@ -196,9 +195,14 @@ public class InputCapture : IDisposable {
     return command != null;
   }
 
+  // Queued rather than overwritten for the same reason skill upgrades are: Klotho takes one command per
+  // player per tick, and at 30Hz two clicks inside 33ms are ordinary.
   public void QueuePurchase(int itemAssetId) {
-    if (!CanPurchase(itemAssetId)) return;
-    _pendingPurchaseCommand = new PurchaseItemCommand { ItemAssetId = itemAssetId };
+    if (!CanPurchase(itemAssetId, out var cost)) return;
+
+    _pendingPurchaseCommands.Enqueue(new PurchaseItemCommand { ItemAssetId = itemAssetId });
+    _gameUI?.PredictedPurchases.PredictPurchase(itemAssetId, cost);
+    RepaintHud();
   }
 
   // Klotho takes one command per player per tick, so rapid clicks queue rather than overwrite - at
@@ -263,13 +267,22 @@ public class InputCapture : IDisposable {
   }
 
   // Same deal for buys: an unaffordable, out-of-range or unknown item is dropped here rather than sent
-  // and rejected. ActionBarController greys those buttons off the same predicate.
-  private bool CanPurchase(int itemAssetId) {
+  // and rejected. ActionBarController greys those buttons off the same predicate. Asked against the
+  // buys already queued, so spending the same gold twice is refused here rather than sent and rejected.
+  // The cost comes back out so the caller can book it as pending without a second registry lookup.
+  private bool CanPurchase(int itemAssetId, out int cost) {
+    cost = 0;
     var frame = _engine?.PredictedFrame.Frame;
     if (frame == null) return true;
     if (MatchEnded) return false;
 
-    return ShopActions.CanPurchase(ref frame, _engine.LocalPlayerId, itemAssetId);
+    var predicted = _gameUI?.PredictedPurchases;
+    if (!ShopActions.CanPurchase(ref frame, _engine.LocalPlayerId, itemAssetId,
+          predicted?.PendingGold ?? 0, predicted?.PendingItems ?? 0))
+      return false;
+
+    cost = frame.AssetRegistry.TryGet<ShopItemAsset>(itemAssetId, out var asset) ? asset.Cost : 0;
+    return true;
   }
 
   private enum SkillAction {

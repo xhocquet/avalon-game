@@ -33,6 +33,7 @@ public class ActionBarController {
   private readonly ShopItemCatalog _catalog;
   private readonly GridContainer _grid;
   private readonly Action<int> _onPurchase;
+  private readonly PredictedPurchaseState _predicted;
 
   // Leading cells owned by another controller (SkillBarController's four skill slots). Everything from
   // this index on is ours to clear and rebuild; anything before it we never touch.
@@ -40,10 +41,11 @@ public class ActionBarController {
   private bool _shown;
 
   public ActionBarController(GridContainer grid, ShopItemCatalog catalog, Action<int> onPurchase,
-    int reservedLeadingCells = 0) {
+    int reservedLeadingCells = 0, PredictedPurchaseState predicted = null) {
     _grid = grid;
     _catalog = catalog;
     _onPurchase = onPurchase;
+    _predicted = predicted;
     _reservedLeadingCells = reservedLeadingCells;
     ClearGrid();
     FillEmptySlots();
@@ -78,9 +80,13 @@ public class ActionBarController {
     }
 
     // ShopActions.CanPurchase is the same predicate the sim judges the command by, so a greyed button
-    // and a rejected buy can never disagree.
+    // and a rejected buy can never disagree. Asked against the buys already queued too, so gold the
+    // predicted frame has not deducted yet cannot be spent twice.
+    var pendingGold = _predicted?.PendingGold ?? 0;
+    var pendingItems = _predicted?.PendingItems ?? 0;
+
     foreach (var item in _buttons) {
-      var buyable = ShopActions.CanPurchase(ref frame, playerId, item.ItemId);
+      var buyable = ShopActions.CanPurchase(ref frame, playerId, item.ItemId, pendingGold, pendingItems);
       item.Button.Disabled = !buyable;
       item.Button.Modulate = buyable ? Colors.White : new Color(1f, 1f, 1f, 0.4f);
     }

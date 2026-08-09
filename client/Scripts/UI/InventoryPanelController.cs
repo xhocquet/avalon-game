@@ -18,10 +18,13 @@ public class InventoryPanelController {
   private readonly int[] _counts = new int[ShopItemCatalog.ItemDefs.Length];
   private readonly GridContainer _grid;
   private readonly int[] _rendered = new int[ShopItemCatalog.ItemDefs.Length];
+  private readonly PredictedPurchaseState _predicted;
 
-  public InventoryPanelController(GridContainer grid, ShopItemCatalog catalog) {
+  public InventoryPanelController(GridContainer grid, ShopItemCatalog catalog,
+    PredictedPurchaseState predicted = null) {
     _grid = grid;
     _catalog = catalog;
+    _predicted = predicted;
     ClearGrid();
     FillEmptySlots();
   }
@@ -44,8 +47,14 @@ public class InventoryPanelController {
         continue;
 
       ref readonly var inventory = ref frame.GetReadOnly<InventoryComponent>(entity);
-      for (var i = 0; i < ShopItemCatalog.ItemDefs.Length; i++)
-        _counts[i] = inventory.CountOf(ShopItemCatalog.ItemDefs[i].Id);
+
+      // Queued buys count as owned, so the icon lands on the same frame as the click and the sim's
+      // ledger takes over when the command runs. GameUI ages the optimistic entries before this runs.
+      for (var i = 0; i < ShopItemCatalog.ItemDefs.Length; i++) {
+        var itemId = ShopItemCatalog.ItemDefs[i].Id;
+        _counts[i] = inventory.CountOf(itemId) + (_predicted?.OutstandingFor(itemId) ?? 0);
+      }
+
       return;
     }
   }

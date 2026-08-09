@@ -60,6 +60,10 @@ public partial class GameUI : CanvasLayer, IViewHud {
   // player clicked and the rule that approves the next click read the same optimistic state.
   public PredictedSkillState PredictedSkills { get; } = new();
 
+  // Same arrangement for shop buys: InputCapture writes it as it queues PurchaseItemCommands and gates
+  // against it, the gold counter, the buy grid and the item panel all paint through it.
+  public PredictedPurchaseState PredictedPurchases { get; } = new();
+
   private Label _timerLabel;
   private SubViewport _minimapViewport;
   private Camera3D _minimapCamera;
@@ -107,7 +111,9 @@ public partial class GameUI : CanvasLayer, IViewHud {
 
   public void SetLocalPlayerId(int? playerId) {
     _localPlayerId = playerId is int id && id >= 0 ? id : null;
-    PredictedSkills.Clear(); // session boundary - in-flight upgrades from the previous one are void
+    // Session boundary - in-flight upgrades and buys from the previous one are void.
+    PredictedSkills.Clear();
+    PredictedPurchases.Clear();
   }
 
   public void ShowResult(MatchResult result) {
@@ -231,11 +237,11 @@ public partial class GameUI : CanvasLayer, IViewHud {
     _skillBar = new SkillBarController(actionGrid, _skillCatalog, slot => SkillUpgradeRequested?.Invoke(slot),
       PredictedSkills);
     _actionBar = new ActionBarController(actionGrid, _shopCatalog, itemId => PurchaseRequested?.Invoke(itemId),
-      SkillBarController.SlotCount);
+      SkillBarController.SlotCount, PredictedPurchases);
 
     var itemPanel = GetNodeOrNull<GridContainer>(
       "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MarginContainer/ItemPanel");
-    _inventoryPanel = new InventoryPanelController(itemPanel, _shopCatalog);
+    _inventoryPanel = new InventoryPanelController(itemPanel, _shopCatalog, PredictedPurchases);
 
     SetSelectionRectangle(null);
     if (_resultPanel != null) _resultPanel.Visible = false;
@@ -317,6 +323,8 @@ public partial class GameUI : CanvasLayer, IViewHud {
     }
   }
 
+  // Runs before the shop and item controllers paint, so the optimistic buys they read have already
+  // been aged or retired against this frame.
   private void UpdateLocalPlayerInventory(Frame frame) {
     if (_localPlayerId is not int localId) return;
 
@@ -326,7 +334,10 @@ public partial class GameUI : CanvasLayer, IViewHud {
       if (hero.PlayerId != localId) continue;
 
       ref readonly var inventory = ref frame.GetReadOnly<InventoryComponent>(entity);
-      SetGoldText(inventory.Gold);
+      foreach (var def in ShopItemCatalog.ItemDefs)
+        PredictedPurchases.Observe(def.Id, inventory.CountOf(def.Id));
+
+      SetGoldText(inventory.Gold - PredictedPurchases.PendingGold);
       SetResourcesText(frame.Has<ResourcesComponent>(entity)
         ? frame.GetReadOnly<ResourcesComponent>(entity).Total
         : 0);
@@ -336,7 +347,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
 
   private void SetGoldText(int gold) {
     if (_goldLabel != null)
-      _goldLabel.Text = $"Gold: {gold}";
+      _goldLabel.Text = $"Gold: {(gold < 0 ? 0 : gold)}"; // a rollback can shrink gold under what's in flight
   }
 
   private void SetResourcesText(int resources) {

@@ -38,10 +38,20 @@ public static class ShopActions {
     return EvaluatePurchase(ref frame, playerId, itemAssetId, out _, out _) == PurchaseBlock.None;
   }
 
+  // CanPurchase asked as if pendingGold were already spent and pendingItems already in the ledger -
+  // buys the client has queued but the predicted frame has not run yet. Klotho schedules local input
+  // InputDelayTicks ahead, so without this the client would re-approve a buy it has already spent the
+  // gold on and the sim would reject the second command on arrival.
+  public static bool CanPurchase(ref Frame frame, int playerId, int itemAssetId, int pendingGold,
+    int pendingItems) {
+    return EvaluatePurchase(ref frame, playerId, itemAssetId, out _, out _, pendingGold, pendingItems)
+           == PurchaseBlock.None;
+  }
+
   // The purchase rules, in one place. TryPurchase turns a block into a reject log; the client turns it
   // into a greyed button. Nothing here mutates the frame.
   private static PurchaseBlock EvaluatePurchase(ref Frame frame, int playerId, int itemAssetId,
-    out EntityRef heroEntity, out ShopItemAsset item) {
+    out EntityRef heroEntity, out ShopItemAsset item, int pendingGold = 0, int pendingItems = 0) {
     item = null;
 
     if (!UnitLookup.TryGetPlayerHero(ref frame, playerId, out heroEntity))
@@ -54,13 +64,15 @@ public static class ShopActions {
       return PurchaseBlock.HeroMissingInventoryOrStats;
 
     ref readonly var inventory = ref frame.GetReadOnly<InventoryComponent>(heroEntity);
-    if (inventory.Gold < item.Cost)
+    if (inventory.Gold - pendingGold < item.Cost)
       return PurchaseBlock.InsufficientGold;
 
     if (!IsHeroNearTeamShop(ref frame, heroEntity))
       return PurchaseBlock.OutOfRange;
 
-    return inventory.IsItemsFull ? PurchaseBlock.InventoryFull : PurchaseBlock.None;
+    return inventory.ItemCount + pendingItems >= InventoryComponent.MaxItems
+      ? PurchaseBlock.InventoryFull
+      : PurchaseBlock.None;
   }
 
   // Block code -> the reason= text. Only walked on the reject path, so the diagnostic detail costs

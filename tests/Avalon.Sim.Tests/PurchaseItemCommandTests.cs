@@ -212,6 +212,38 @@ public class PurchaseItemCommandTests {
     frame.GetReadOnly<StatsComponent>(hero).Strength.Should().Be(strengthBefore);
   }
 
+  // The client books a queued buy's gold as pending before the sim has run it, so the second click on
+  // gold that only covers one item has to be refused locally rather than sent and rejected.
+  [Fact]
+  public void CanPurchase_CountsPendingGoldAgainstTheWallet() {
+    var harness = SimHarness.CreateInitialized();
+    var frame = harness.Frame;
+
+    var hero = FindHero(ref frame, PlayerId);
+    PlaceHeroAtTeamShop(ref frame, hero);
+    SetGold(ref frame, hero, 15); // one Eye Key at 10, not two
+
+    ShopActions.CanPurchase(ref frame, PlayerId, EyeKeyItemId, 0, 0).Should().BeTrue();
+    ShopActions.CanPurchase(ref frame, PlayerId, EyeKeyItemId, 10, 1).Should().BeFalse();
+  }
+
+  [Fact]
+  public void CanPurchase_CountsPendingItemsAgainstTheLedger() {
+    var harness = SimHarness.CreateInitialized();
+    var frame = harness.Frame;
+
+    var hero = FindHero(ref frame, PlayerId);
+    PlaceHeroAtTeamShop(ref frame, hero);
+    SetGold(ref frame, hero, 10_000);
+
+    ref var inventory = ref frame.Get<InventoryComponent>(hero);
+    for (var i = 0; i < InventoryComponent.MaxItems - 1; i++)
+      inventory.TryAddItem(EyeKeyItemId);
+
+    ShopActions.CanPurchase(ref frame, PlayerId, EyeKeyItemId, 0, 0).Should().BeTrue();
+    ShopActions.CanPurchase(ref frame, PlayerId, EyeKeyItemId, 0, 1).Should().BeFalse();
+  }
+
   private static PurchaseItemCommand Purchase(int itemAssetId) {
     return new PurchaseItemCommand { PlayerId = PlayerId, Tick = 0, ItemAssetId = itemAssetId };
   }
