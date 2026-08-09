@@ -34,8 +34,8 @@ public class PickupSystem : ISystem {
           continue;
 
         ref readonly var pickup = ref frame.GetReadOnly<Pickup>(pickupEntity);
-        ref var inventory = ref frame.Get<InventoryComponent>(collector.Entity);
-        inventory.Resources += pickup.Amount;
+        ref var resources = ref frame.Get<ResourcesComponent>(collector.Entity);
+        resources.Add(pickup.TypeAssetId, pickup.Amount);
 
         _collected.Add(pickupEntity);
         break;
@@ -52,7 +52,7 @@ public class PickupSystem : ISystem {
   private void CollectCollectors(ref Frame frame) {
     _collectors.Clear();
 
-    var filter = frame.Filter<InventoryComponent, TransformComponent>();
+    var filter = frame.Filter<ResourcesComponent, TransformComponent>();
     while (filter.Next(out var entity))
       _collectors.Add(new Collector(entity, frame.GetReadOnly<TransformComponent>(entity).Position));
   }

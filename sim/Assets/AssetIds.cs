@@ -75,6 +75,13 @@ public static class AssetIds {
   public const int SkillPickleKnightUltimate = 519;
   // Next free skill id: 520
 
+  // PickupTypeAsset, one row per collectable resource kind. Index-significant: a type's wallet slot
+  // in ResourcesComponent is its offset from PickupTypeBase (see PickupTypes), so a deleted type
+  // leaves its id as a hole and the block never grows past PickupTypes.MaxTypes.
+  public const int PickupTypeBase = 600;
+  public const int PickupTypeWater = 600;
+  // Next free pickup type id: 601
+
   // What the deserializer dispatches on to pick a type. Every asset class has one, including the
   // multi-instance ones that own no id above.
   public static class TypeIds {
@@ -94,6 +101,7 @@ public static class AssetIds {
     public const int Hero = 114;
     public const int XpRules = 115;
     public const int Skill = 116;
-    // Next free type id: 117
+    public const int PickupType = 117;
+    // Next free type id: 118
   }
 }

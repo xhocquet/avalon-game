@@ -12,6 +12,7 @@ public partial class OasisResourcePreparingEvent : SimulationEvent {
   [KlothoOrder(2)] public FPVector3 OasisPosition;
   [KlothoOrder(3)] public FPVector3 TargetPosition;
   [KlothoOrder(4)] public int PrepareDurationMs;
+  [KlothoOrder(5)] public int TypeAssetId;
 
   public override EventMode Mode => EventMode.Synced;
 }

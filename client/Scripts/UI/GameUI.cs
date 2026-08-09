@@ -325,7 +325,9 @@ public partial class GameUI : CanvasLayer, IViewHud {
 
       ref readonly var inventory = ref frame.GetReadOnly<InventoryComponent>(entity);
       SetGoldText(inventory.Gold);
-      SetResourcesText(inventory.Resources);
+      SetResourcesText(frame.Has<ResourcesComponent>(entity)
+        ? frame.GetReadOnly<ResourcesComponent>(entity).Total
+        : 0);
       return;
     }
   }

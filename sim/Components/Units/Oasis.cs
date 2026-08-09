@@ -8,5 +8,6 @@ namespace Meesles.Avalon.Sim.Components;
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public partial struct Oasis : IComponent {
   public int OasisId;
+  public int PickupTypeAssetId; // What this oasis ejects; authored on the map marker
   public int SpawnCooldownRemainingMs;
 }

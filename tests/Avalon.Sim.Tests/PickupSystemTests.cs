@@ -1,5 +1,7 @@
 using FluentAssertions;
+using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
+using Meesles.Avalon.Sim.Factories;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 using Xunit;
@@ -14,7 +16,7 @@ public class PickupSystemTests {
 
     var pickup = FirstPickup(ref frame);
     var heroEntity = FindHero(ref frame, playerId: 1);
-    var resourcesBefore = frame.GetReadOnly<InventoryComponent>(heroEntity).Resources;
+    var resourcesBefore = frame.GetReadOnly<ResourcesComponent>(heroEntity).Total;
 
     var command = SimHarness.MoveCommand(1, 0, pickup.Position.x, pickup.Position.z);
     harness.Tick(command);
@@ -25,10 +27,67 @@ public class PickupSystemTests {
     // so a hero walking toward one may collect several; check the resource gain rather than count.
     frame = harness.Frame;
     heroEntity = FindHero(ref frame, playerId: 1);
-    var resourcesAfter = frame.GetReadOnly<InventoryComponent>(heroEntity).Resources;
+    var resourcesAfter = frame.GetReadOnly<ResourcesComponent>(heroEntity).Total;
 
     resourcesAfter.Should().BeGreaterThan(resourcesBefore);
     ((resourcesAfter - resourcesBefore) % pickup.Amount).Should().Be(0);
+  }
+
+  [Fact]
+  public void CollectedPickup_CreditsItsOwnTypeSlot() {
+    var harness = SimHarness.CreateInitialized();
+    var frame = harness.Frame;
+
+    var heroEntity = FindHero(ref frame, playerId: 1);
+    var heroPosition = frame.GetReadOnly<TransformComponent>(heroEntity).Position;
+    SpawnPickupAt(ref frame, heroPosition, AssetIds.PickupTypeWater, amount: 7);
+
+    harness.Tick();
+
+    frame = harness.Frame;
+    heroEntity = FindHero(ref frame, playerId: 1);
+    ref readonly var resources = ref frame.GetReadOnly<ResourcesComponent>(heroEntity);
+    resources.CountOf(AssetIds.PickupTypeWater).Should().Be(7);
+    resources.Total.Should().Be(7);
+  }
+
+  [Fact]
+  public void PickupWithUnknownType_CreditsNothing() {
+    var harness = SimHarness.CreateInitialized();
+    var frame = harness.Frame;
+
+    var heroEntity = FindHero(ref frame, playerId: 1);
+    var heroPosition = frame.GetReadOnly<TransformComponent>(heroEntity).Position;
+    SpawnPickupAt(ref frame, heroPosition, typeAssetId: 0, amount: 7);
+
+    harness.Tick();
+
+    frame = harness.Frame;
+    heroEntity = FindHero(ref frame, playerId: 1);
+    frame.GetReadOnly<ResourcesComponent>(heroEntity).Total.Should().Be(0);
+  }
+
+  [Fact]
+  public void MapOases_EmitAnAuthoredPickupType() {
+    var harness = SimHarness.CreateInitialized();
+    var frame = harness.Frame;
+
+    var filter = frame.Filter<Oasis>();
+    var found = false;
+    while (filter.Next(out var entity)) {
+      found = true;
+      var typeAssetId = frame.GetReadOnly<Oasis>(entity).PickupTypeAssetId;
+      PickupTypes.SlotOf(typeAssetId).Should().NotBe(PickupTypes.InvalidSlot);
+      frame.AssetRegistry.TryGet<PickupTypeAsset>(typeAssetId, out _).Should().BeTrue();
+    }
+
+    found.Should().BeTrue();
+  }
+
+  private static void SpawnPickupAt(ref Frame frame, FPVector3 position, int typeAssetId, int amount) {
+    var entity = frame.CreateEntity();
+    frame.Add(entity, TransformFactory.At(position));
+    frame.Add(entity, new Pickup { PickupId = 9999, Amount = amount, TypeAssetId = typeAssetId });
   }
 
   private static (FPVector3 Position, int Amount) FirstPickup(ref Frame frame) {

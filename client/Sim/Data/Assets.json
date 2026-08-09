@@ -67,7 +67,7 @@
     "OasisSpawnIntervalMs": 5000,
     "OasisPrepareDurationMs": 800,
     "OasisFlightDurationMs": 700,
-    "OasisResourceAmount": 10,
+    "DefaultPickupTypeAssetId": 600,
     "OasisEjectRadius": 8.0,
     "MaxGroundPickups": 10,
     "CollectRange": 1.5
@@ -421,5 +421,11 @@
     "_Name": "Pickle Knight - Exploosion",
     "MaxRank": 4,
     "CooldownMs": 3000
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.PickupTypeAsset, Meesles.Avalon.Client",
+    "AssetId": 600,
+    "_Name": "Water",
+    "Amount": 10
   }
 ]

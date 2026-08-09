@@ -157,7 +157,7 @@ public static class SimulationSetup {
     var oasisIndex = 0;
     var typeInt = (int)MapMarkerType.Oasis;
     var markerCount = layout?.MarkerTypes?.Length ?? 0;
-    var initialCooldownMs = frame.AssetRegistry.Get<PickupRulesAsset>().OasisSpawnIntervalMs;
+    var rules = frame.AssetRegistry.Get<PickupRulesAsset>();
 
     for (var i = 0; i < markerCount; i++) {
       if (layout.MarkerTypes[i] != typeInt)
@@ -166,14 +166,20 @@ public static class SimulationSetup {
       oasisIndex++;
       var oasisEntity = frame.CreateEntity();
       frame.Add(oasisEntity, TransformFactory.At(layout.MarkerPositions[i]));
-      frame.Add(oasisEntity,
-        new Oasis { OasisId = oasisIndex, SpawnCooldownRemainingMs = initialCooldownMs });
+      frame.Add(oasisEntity, new Oasis {
+        OasisId = oasisIndex,
+        PickupTypeAssetId = ResolvePickupType(ref frame, layout, i, rules),
+        SpawnCooldownRemainingMs = rules.OasisSpawnIntervalMs
+      });
     }
   }
 
+  // Static, hand-placed pickups. Their marker value is an amount, so they always carry the default
+  // type; an oasis marker's value is a PickupTypeAsset id instead.
   private static void SpawnPickups(ref Frame frame, MapLayoutAsset layout) {
     var typeInt = (int)MapMarkerType.Pickup;
     var markerCount = layout?.MarkerTypes?.Length ?? 0;
+    var defaultTypeAssetId = frame.AssetRegistry.Get<PickupRulesAsset>().DefaultPickupTypeAssetId;
 
     for (var i = 0; i < markerCount; i++) {
       if (layout.MarkerTypes[i] != typeInt)
@@ -182,8 +188,24 @@ public static class SimulationSetup {
       var amount = layout.MarkerValues != null && i < layout.MarkerValues.Length ? layout.MarkerValues[i] : 0;
       var pickupEntity = frame.CreateEntity();
       frame.Add(pickupEntity, TransformFactory.At(layout.MarkerPositions[i]));
-      frame.Add(pickupEntity, new Pickup { PickupId = IdCounter<PickupIdCounter>.Next(ref frame), Amount = amount });
+      frame.Add(pickupEntity, new Pickup {
+        PickupId = IdCounter<PickupIdCounter>.Next(ref frame),
+        Amount = amount,
+        TypeAssetId = defaultTypeAssetId
+      });
     }
+  }
+
+  // An oasis marker names its resource in MarkerValues. Markers authored before pickup types existed
+  // leave it 0, and a type id the asset table doesn't know is an authoring slip - both fall back to
+  // the default rather than emitting pickups that credit no wallet slot.
+  private static int ResolvePickupType(ref Frame frame, MapLayoutAsset layout, int markerIndex,
+    PickupRulesAsset rules) {
+    var value = layout.MarkerValues != null && markerIndex < layout.MarkerValues.Length
+      ? layout.MarkerValues[markerIndex]
+      : 0;
+
+    return frame.AssetRegistry.TryGet<PickupTypeAsset>(value, out _) ? value : rules.DefaultPickupTypeAssetId;
   }
 
   // 1-indexed list

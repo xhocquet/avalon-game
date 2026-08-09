@@ -12,6 +12,7 @@ public partial class OasisResourceEjectedEvent : SimulationEvent {
   [KlothoOrder(2)] public FPVector3 OasisPosition;
   [KlothoOrder(3)] public FPVector3 TargetPosition;
   [KlothoOrder(4)] public int FlightDurationMs;
+  [KlothoOrder(5)] public int TypeAssetId;
 
   public override EventMode Mode => EventMode.Synced;
 }

@@ -43,15 +43,17 @@ public class OasisSpawnSystem : ISystem {
       var target = GetRandomTargetPosition(seed, oasis.OasisId, frame.Tick, transform.Position,
         rules.OasisEjectRadius);
       var pickupId = IdCounter<PickupIdCounter>.Next(ref frame);
+      var typeAssetId = oasis.PickupTypeAssetId;
 
       frame.Add(entity, new OasisEjectPending {
         PickupId = pickupId,
-        Amount = rules.OasisResourceAmount,
+        Amount = GetAmount(ref frame, typeAssetId),
+        TypeAssetId = typeAssetId,
         TargetPosition = target,
         RemainingMs = rules.OasisPrepareDurationMs
       });
 
-      RaisePreparing(ref frame, oasis.OasisId, pickupId, transform.Position, target,
+      RaisePreparing(ref frame, oasis.OasisId, pickupId, typeAssetId, transform.Position, target,
         rules.OasisPrepareDurationMs);
     }
   }
@@ -70,12 +72,13 @@ public class OasisSpawnSystem : ISystem {
       frame.Add(entity, new OasisResourceLanding {
         PickupId = pending.PickupId,
         Amount = pending.Amount,
+        TypeAssetId = pending.TypeAssetId,
         TargetPosition = pending.TargetPosition,
         RemainingMs = rules.OasisFlightDurationMs
       });
 
-      RaiseEjected(ref frame, oasis.OasisId, pending.PickupId, transform.Position, pending.TargetPosition,
-        rules.OasisFlightDurationMs);
+      RaiseEjected(ref frame, oasis.OasisId, pending.PickupId, pending.TypeAssetId, transform.Position,
+        pending.TargetPosition, rules.OasisFlightDurationMs);
       frame.Remove<OasisEjectPending>(entity);
     }
   }
@@ -88,16 +91,21 @@ public class OasisSpawnSystem : ISystem {
       if (landing.RemainingMs > 0)
         continue;
 
-      SpawnPickup(ref frame, landing.PickupId, landing.Amount, landing.TargetPosition);
-      RaiseLanded(ref frame, landing.PickupId, landing.TargetPosition, landing.Amount);
+      SpawnPickup(ref frame, landing.PickupId, landing.Amount, landing.TypeAssetId, landing.TargetPosition);
+      RaiseLanded(ref frame, landing.PickupId, landing.TypeAssetId, landing.TargetPosition, landing.Amount);
       frame.Remove<OasisResourceLanding>(entity);
     }
   }
 
-  private static void SpawnPickup(ref Frame frame, int pickupId, int amount, FPVector3 position) {
+  private static void SpawnPickup(ref Frame frame, int pickupId, int amount, int typeAssetId,
+    FPVector3 position) {
     var entity = frame.CreateEntity();
     frame.Add(entity, TransformFactory.At(position));
-    frame.Add(entity, new Pickup { PickupId = pickupId, Amount = amount });
+    frame.Add(entity, new Pickup { PickupId = pickupId, Amount = amount, TypeAssetId = typeAssetId });
+  }
+
+  private static int GetAmount(ref Frame frame, int typeAssetId) {
+    return frame.AssetRegistry.TryGet<PickupTypeAsset>(typeAssetId, out var type) ? type.Amount : 0;
   }
 
   // A point on a ring of radius `radius` around origin, at a uniformly random angle. Derived purely
@@ -118,37 +126,41 @@ public class OasisSpawnSystem : ISystem {
       : 0UL;
   }
 
-  private static void RaisePreparing(ref Frame frame, int oasisId, int pickupId, FPVector3 oasisPosition,
-    FPVector3 targetPosition, int prepareDurationMs) {
+  private static void RaisePreparing(ref Frame frame, int oasisId, int pickupId, int typeAssetId,
+    FPVector3 oasisPosition, FPVector3 targetPosition, int prepareDurationMs) {
     if (frame.EventRaiser == null) return;
 
     var evt = EventPool.Get<OasisResourcePreparingEvent>();
     evt.OasisId = oasisId;
     evt.PickupId = pickupId;
+    evt.TypeAssetId = typeAssetId;
     evt.OasisPosition = oasisPosition;
     evt.TargetPosition = targetPosition;
     evt.PrepareDurationMs = prepareDurationMs;
     frame.EventRaiser.RaiseEvent(evt);
   }
 
-  private static void RaiseEjected(ref Frame frame, int oasisId, int pickupId, FPVector3 oasisPosition,
-    FPVector3 targetPosition, int flightDurationMs) {
+  private static void RaiseEjected(ref Frame frame, int oasisId, int pickupId, int typeAssetId,
+    FPVector3 oasisPosition, FPVector3 targetPosition, int flightDurationMs) {
     if (frame.EventRaiser == null) return;
 
     var evt = EventPool.Get<OasisResourceEjectedEvent>();
     evt.OasisId = oasisId;
     evt.PickupId = pickupId;
+    evt.TypeAssetId = typeAssetId;
     evt.OasisPosition = oasisPosition;
     evt.TargetPosition = targetPosition;
     evt.FlightDurationMs = flightDurationMs;
     frame.EventRaiser.RaiseEvent(evt);
   }
 
-  private static void RaiseLanded(ref Frame frame, int pickupId, FPVector3 position, int amount) {
+  private static void RaiseLanded(ref Frame frame, int pickupId, int typeAssetId, FPVector3 position,
+    int amount) {
     if (frame.EventRaiser == null) return;
 
     var evt = EventPool.Get<OasisResourceLandedEvent>();
     evt.PickupId = pickupId;
+    evt.TypeAssetId = typeAssetId;
     evt.Position = position;
     evt.Amount = amount;
     frame.EventRaiser.RaiseEvent(evt);

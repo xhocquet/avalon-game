@@ -24,6 +24,7 @@ public static class HeroFactory {
     frame.Add(entity, new Controllable());
     frame.Add(entity, new Respawns());
     frame.Add(entity, new InventoryComponent());
+    frame.Add(entity, new ResourcesComponent());
     frame.Add(entity, new ExperienceComponent());
     frame.Add(entity, BuildSkills(heroAsset));
     var stats = StatsComponent.From(heroAsset);

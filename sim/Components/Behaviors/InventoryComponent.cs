@@ -3,12 +3,13 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Components;
 
-// Per-hero wallet + owned-item ledger. Gold/Resources accrue over time (see InventorySystem); the
+// Per-hero gold wallet + owned-item ledger. Gold accrues over time (see InventorySystem); the
 // item ledger is an append-only list of purchased ShopItemAsset ids, written by the shop purchase
-// handler. Stored as a fixed buffer (not a List) because components must be unmanaged, blittable
-// structs - the whole struct is snapshotted via a raw heap memcpy for rollback, and the generated
-// codec walks the fixed buffer for hashing/serialization (see HFSMState for the same pattern).
-// Buffer size keeps the struct under the 128-byte component ceiling: 4 ints + MaxItems*4 = 112B.
+// handler. Collected resources live in ResourcesComponent, tallied per pickup type. Stored as a
+// fixed buffer (not a List) because components must be unmanaged, blittable structs - the whole
+// struct is snapshotted via a raw heap memcpy for rollback, and the generated codec walks the fixed
+// buffer for hashing/serialization (see HFSMState for the same pattern). Buffer size keeps the
+// struct under the 128-byte component ceiling: 3 ints + MaxItems*4 = 108B.
 [KlothoComponent(ComponentIds.Inventory)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public unsafe partial struct InventoryComponent : IComponent {
@@ -17,7 +18,6 @@ public unsafe partial struct InventoryComponent : IComponent {
 
   public int Gold;
   public int GoldAccrualRemainderMs;
-  public int Resources;
 
   public int ItemCount;
   public fixed int ItemAssetIds[MaxItems];

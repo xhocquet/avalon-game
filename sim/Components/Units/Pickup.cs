@@ -10,5 +10,5 @@ namespace Meesles.Avalon.Sim.Components;
 public partial struct Pickup : IComponent {
   public int PickupId;
   public int Amount;
-  // public int Type; // TODO: distinguish resource types once more than one exists
+  public int TypeAssetId; // PickupTypeAsset id; fixed at spawn, never changes
 }

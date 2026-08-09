@@ -10,6 +10,7 @@ namespace Meesles.Avalon.Sim.Components;
 public partial struct OasisEjectPending : IComponent {
   public int PickupId;
   public int Amount;
+  public int TypeAssetId;
   public FPVector3 TargetPosition;
   public int RemainingMs;
 }

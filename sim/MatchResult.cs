@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.ECS;
 
@@ -7,7 +8,8 @@ namespace Meesles.Avalon.Sim;
 // One player's line on the end-of-match scoreboard, read off their hero at the moment the match ended.
 public readonly struct PlayerResult {
   public PlayerResult(int playerId, int teamId, int factionId, bool isWinner, int score, int heroKills,
-    int deaths, int minionKills, int structureKills, int damageDealt, int level, int gold) {
+    int deaths, int minionKills, int structureKills, int damageDealt, int level, int gold,
+    int[] resourcesByType) {
     PlayerId = playerId;
     TeamId = teamId;
     FactionId = factionId;
@@ -20,6 +22,7 @@ public readonly struct PlayerResult {
     DamageDealt = damageDealt;
     Level = level;
     Gold = gold;
+    ResourcesByType = resourcesByType;
   }
 
   public int PlayerId { get; }
@@ -34,6 +37,20 @@ public readonly struct PlayerResult {
   public int DamageDealt { get; }
   public int Level { get; }
   public int Gold { get; }
+
+  // Collected resources, indexed by PickupTypes slot. Length is always PickupTypes.MaxTypes; slots
+  // for types the round never used stay 0.
+  public int[] ResourcesByType { get; }
+
+  public int Resources {
+    get {
+      var total = 0;
+      for (var i = 0; i < ResourcesByType.Length; i++)
+        total += ResourcesByType[i];
+
+      return total;
+    }
+  }
 }
 
 public readonly struct MatchResult {
@@ -117,7 +134,8 @@ public static class MatchResultReader {
         record.StructureKills,
         record.DamageDealt,
         frame.Has<ExperienceComponent>(entity) ? frame.GetReadOnly<ExperienceComponent>(entity).Level : 0,
-        frame.Has<InventoryComponent>(entity) ? frame.GetReadOnly<InventoryComponent>(entity).Gold : 0));
+        frame.Has<InventoryComponent>(entity) ? frame.GetReadOnly<InventoryComponent>(entity).Gold : 0,
+        ReadResources(ref frame, entity)));
     }
 
     if (players.Count == 0)
@@ -128,5 +146,17 @@ public static class MatchResultReader {
       ? a.TeamId.CompareTo(b.TeamId)
       : a.PlayerId.CompareTo(b.PlayerId));
     return players.ToArray();
+  }
+
+  private static int[] ReadResources(ref Frame frame, EntityRef entity) {
+    var counts = new int[PickupTypes.MaxTypes];
+    if (!frame.Has<ResourcesComponent>(entity))
+      return counts;
+
+    ref readonly var resources = ref frame.GetReadOnly<ResourcesComponent>(entity);
+    for (var slot = 0; slot < PickupTypes.MaxTypes; slot++)
+      counts[slot] = resources.GetSlot(slot);
+
+    return counts;
   }
 }

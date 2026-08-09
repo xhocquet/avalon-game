@@ -40,6 +40,7 @@ public static class ComponentIds {
   public const int ProjectileIdCounter = 131;
   public const int CheatState = 132;
   public const int MatchOutcome = 133;
+  public const int Resources = 134;
 
-  // Next free id: 134
+  // Next free id: 135
 }
