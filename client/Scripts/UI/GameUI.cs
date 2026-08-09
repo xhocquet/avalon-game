@@ -107,7 +107,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
 
   public void SetLocalPlayerId(int? playerId) {
     _localPlayerId = playerId is int id && id >= 0 ? id : null;
-    PredictedSkills.Clear();   // session boundary - in-flight upgrades from the previous one are void
+    PredictedSkills.Clear(); // session boundary - in-flight upgrades from the previous one are void
   }
 
   public void ShowResult(MatchResult result) {
@@ -166,7 +166,9 @@ public partial class GameUI : CanvasLayer, IViewHud {
     label.AddThemeFontSizeOverride("font_size", header ? 13 : 16);
     label.AddThemeColorOverride("font_color", header
       ? new Color(0.62f, 0.63f, 0.66f)
-      : won ? new Color(0.95f, 0.82f, 0.42f) : new Color(0.86f, 0.87f, 0.9f));
+      : won
+        ? new Color(0.95f, 0.82f, 0.42f)
+        : new Color(0.86f, 0.87f, 0.9f));
     return label;
   }
 

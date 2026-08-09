@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
@@ -5,80 +6,79 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
 
+// One resource kind on a player's line. Only the kinds the round actually used get a row, so a
+// scoreboard never has to render a column of zeros for a type this map never spawned.
+public readonly struct ResourceTally {
+  public ResourceTally(int typeAssetId, int count) {
+    TypeAssetId = typeAssetId;
+    Count = count;
+  }
+
+  public int TypeAssetId { get; }
+  public int Count { get; }
+}
+
+// A resource kind the round used, and what was feeding it.
+public readonly struct ResourceTypeSummary {
+  public ResourceTypeSummary(int typeAssetId, int amountPerPickup, int oasisCount) {
+    TypeAssetId = typeAssetId;
+    AmountPerPickup = amountPerPickup;
+    OasisCount = oasisCount;
+  }
+
+  public int TypeAssetId { get; }
+  public int AmountPerPickup { get; }
+  public int OasisCount { get; }
+}
+
+// The setup the round was played under, read off the frame at the moment it ended. Everything here
+// is sim-side; wall-clock time and the network seed belong to whoever is writing the record out.
+public readonly struct MatchContext {
+  public string MapName { get; init; }
+  public int TickIntervalMs { get; init; }
+  public int MatchDurationSec { get; init; } // the timeout limit, not how long this match ran
+  public int ContenderTeamCount { get; init; }
+  public ResourceTypeSummary[] ResourceTypes { get; init; }
+}
+
 // One player's line on the end-of-match scoreboard, read off their hero at the moment the match ended.
 public readonly struct PlayerResult {
-  public PlayerResult(int playerId, int teamId, int factionId, bool isWinner, int score, int heroKills,
-    int deaths, int minionKills, int structureKills, int damageDealt, int level, int gold,
-    int[] resourcesByType) {
-    PlayerId = playerId;
-    TeamId = teamId;
-    FactionId = factionId;
-    IsWinner = isWinner;
-    Score = score;
-    HeroKills = heroKills;
-    Deaths = deaths;
-    MinionKills = minionKills;
-    StructureKills = structureKills;
-    DamageDealt = damageDealt;
-    Level = level;
-    Gold = gold;
-    ResourcesByType = resourcesByType;
-  }
+  public int PlayerId { get; init; }
 
-  public int PlayerId { get; }
-  public int TeamId { get; }
-  public int FactionId { get; }
-  public bool IsWinner { get; }
-  public int Score { get; }
-  public int HeroKills { get; }
-  public int Deaths { get; }
-  public int MinionKills { get; }
-  public int StructureKills { get; }
-  public int DamageDealt { get; }
-  public int Level { get; }
-  public int Gold { get; }
+  // Off the sim path - the join handshake carries it, so it is only set when the caller passes a
+  // name lookup. Null on every peer that has no roster to resolve it against.
+  public string Name { get; init; }
 
-  // Collected resources, indexed by PickupTypes slot. Length is always PickupTypes.MaxTypes; slots
-  // for types the round never used stay 0.
-  public int[] ResourcesByType { get; }
+  public int TeamId { get; init; }
+  public int FactionId { get; init; }
+  public int HeroAssetId { get; init; }
+  public bool IsWinner { get; init; }
+  public int Score { get; init; }
+  public int HeroKills { get; init; }
+  public int Deaths { get; init; }
+  public int MinionKills { get; init; }
+  public int StructureKills { get; init; }
+  public int DamageDealt { get; init; }
+  public int Level { get; init; }
+  public int Gold { get; init; }
 
-  public int Resources {
-    get {
-      var total = 0;
-      for (var i = 0; i < ResourcesByType.Length; i++)
-        total += ResourcesByType[i];
+  // One row per kind in MatchContext.ResourceTypes, same order.
+  public ResourceTally[] Resources { get; init; }
 
-      return total;
-    }
-  }
+  public int TotalResources { get; init; }
 }
 
 public readonly struct MatchResult {
   public const int NoWinnerPlayerId = -1;
   public const int NoWinnerTeamId = MatchOutcome.NoWinnerTeamId;
 
-  public MatchResult(
-    int endTick,
-    int durationMs,
-    int winnerPlayerId,
-    int winnerTeamId,
-    MatchEndReason reason,
-    PlayerResult[] players
-  ) {
-    EndTick = endTick;
-    DurationMs = durationMs;
-    WinnerPlayerId = winnerPlayerId;
-    WinnerTeamId = winnerTeamId;
-    Reason = reason;
-    Players = players;
-  }
-
-  public int EndTick { get; }
-  public int DurationMs { get; }
-  public int WinnerPlayerId { get; }
-  public int WinnerTeamId { get; }
-  public MatchEndReason Reason { get; }
-  public PlayerResult[] Players { get; }
+  public int EndTick { get; init; }
+  public int DurationMs { get; init; }
+  public int WinnerPlayerId { get; init; }
+  public int WinnerTeamId { get; init; }
+  public MatchEndReason Reason { get; init; }
+  public MatchContext Context { get; init; }
+  public PlayerResult[] Players { get; init; }
 
   // The team is the outcome. A win whose player id could not be resolved is still a win.
   public bool HasWinner => WinnerTeamId != NoWinnerTeamId;
@@ -87,8 +87,12 @@ public readonly struct MatchResult {
 
 public static class MatchResultReader {
   private static readonly PlayerResult[] NoPlayers = [];
+  private static readonly ResourceTypeSummary[] NoResourceTypes = [];
+  private static readonly ResourceTally[] NoResources = [];
 
-  public static bool TryRead(ref Frame frame, out MatchResult result) {
+  // nameLookup resolves a player id to a display name; pass null where no roster is available.
+  public static bool TryRead(ref Frame frame, out MatchResult result,
+    Func<int, string> nameLookup = null) {
     result = default;
 
     if (!frame.TryGetSingleton<MatchOutcome>(out var outcomeEntity))
@@ -103,17 +107,73 @@ public static class MatchResultReader {
     if (frame.TryGetSingleton<MatchEndStateComponent>(out var matchEndEntity))
       winnerPlayerId = frame.GetReadOnly<MatchEndStateComponent>(matchEndEntity).WinnerPlayerId;
 
-    result = new MatchResult(
-      outcome.EndTick,
-      outcome.EndTick * TickMath.DeltaTimeMs(ref frame),
-      winnerPlayerId,
-      outcome.WinnerTeamId,
-      (MatchEndReason)outcome.Reason,
-      ReadPlayers(ref frame, outcome.WinnerTeamId));
+    var resourceTypes = ReadResourceTypes(ref frame);
+    result = new MatchResult {
+      EndTick = outcome.EndTick,
+      DurationMs = outcome.EndTick * TickMath.DeltaTimeMs(ref frame),
+      WinnerPlayerId = winnerPlayerId,
+      WinnerTeamId = outcome.WinnerTeamId,
+      Reason = (MatchEndReason)outcome.Reason,
+      Context = ReadContext(ref frame, resourceTypes),
+      Players = ReadPlayers(ref frame, outcome.WinnerTeamId, resourceTypes, nameLookup)
+    };
     return true;
   }
 
-  private static PlayerResult[] ReadPlayers(ref Frame frame, int winnerTeamId) {
+  private static MatchContext ReadContext(ref Frame frame, ResourceTypeSummary[] resourceTypes) {
+    var rules = frame.AssetRegistry.Get<MatchRulesAsset>();
+    var contenderTeamCount = frame.TryGetSingleton<MatchSetupState>(out var setupEntity)
+      ? frame.GetReadOnly<MatchSetupState>(setupEntity).ContenderTeamCount
+      : 0;
+
+    return new MatchContext {
+      MapName = frame.AssetRegistry.TryGet<MapLayoutAsset>(out var layout) ? layout.MapName : null,
+      TickIntervalMs = TickMath.DeltaTimeMs(ref frame),
+      MatchDurationSec = rules.MatchDuration.ToInt(),
+      ContenderTeamCount = contenderTeamCount,
+      ResourceTypes = resourceTypes
+    };
+  }
+
+  // What the round actually spawned: every kind an oasis ejects, plus any kind a player is holding
+  // (hand-placed pickups have no oasis behind them and would otherwise leave an unlabelled tally).
+  private static ResourceTypeSummary[] ReadResourceTypes(ref Frame frame) {
+    var oasisCounts = new int[PickupTypes.MaxTypes];
+    var used = new bool[PickupTypes.MaxTypes];
+
+    var oasisFilter = frame.Filter<Oasis>();
+    while (oasisFilter.Next(out var oasisEntity)) {
+      var slot = PickupTypes.SlotOf(frame.GetReadOnly<Oasis>(oasisEntity).PickupTypeAssetId);
+      if (slot == PickupTypes.InvalidSlot)
+        continue;
+
+      oasisCounts[slot]++;
+      used[slot] = true;
+    }
+
+    var walletFilter = frame.Filter<ResourcesComponent>();
+    while (walletFilter.Next(out var walletEntity)) {
+      ref readonly var wallet = ref frame.GetReadOnly<ResourcesComponent>(walletEntity);
+      for (var slot = 0; slot < PickupTypes.MaxTypes; slot++)
+        if (wallet.GetSlot(slot) > 0)
+          used[slot] = true;
+    }
+
+    var types = new List<ResourceTypeSummary>();
+    for (var slot = 0; slot < PickupTypes.MaxTypes; slot++) {
+      if (!used[slot])
+        continue;
+
+      var typeAssetId = PickupTypes.AssetIdOf(slot);
+      var amount = frame.AssetRegistry.TryGet<PickupTypeAsset>(typeAssetId, out var type) ? type.Amount : 0;
+      types.Add(new ResourceTypeSummary(typeAssetId, amount, oasisCounts[slot]));
+    }
+
+    return types.Count > 0 ? types.ToArray() : NoResourceTypes;
+  }
+
+  private static PlayerResult[] ReadPlayers(ref Frame frame, int winnerTeamId,
+    ResourceTypeSummary[] resourceTypes, Func<int, string> nameLookup) {
     var players = new List<PlayerResult>();
 
     var filter = frame.Filter<Hero, Player, TeamComponent>();
@@ -121,21 +181,32 @@ public static class MatchResultReader {
       ref readonly var hero = ref frame.GetReadOnly<Hero>(entity);
       ref readonly var record = ref frame.GetReadOnly<Player>(entity);
       var teamId = frame.GetReadOnly<TeamComponent>(entity).TeamId;
+      var resources = ReadResources(ref frame, entity, resourceTypes, out var totalResources);
 
-      players.Add(new PlayerResult(
-        hero.PlayerId,
-        teamId,
-        frame.Has<FactionComponent>(entity) ? frame.GetReadOnly<FactionComponent>(entity).FactionId : 0,
-        teamId == winnerTeamId,
-        record.Score,
-        record.HeroKills,
-        record.Deaths,
-        record.MinionKills,
-        record.StructureKills,
-        record.DamageDealt,
-        frame.Has<ExperienceComponent>(entity) ? frame.GetReadOnly<ExperienceComponent>(entity).Level : 0,
-        frame.Has<InventoryComponent>(entity) ? frame.GetReadOnly<InventoryComponent>(entity).Gold : 0,
-        ReadResources(ref frame, entity)));
+      players.Add(new PlayerResult {
+        PlayerId = hero.PlayerId,
+        Name = nameLookup?.Invoke(hero.PlayerId),
+        TeamId = teamId,
+        FactionId = frame.Has<FactionComponent>(entity)
+          ? frame.GetReadOnly<FactionComponent>(entity).FactionId
+          : 0,
+        HeroAssetId = hero.HeroAssetId,
+        IsWinner = teamId == winnerTeamId,
+        Score = record.Score,
+        HeroKills = record.HeroKills,
+        Deaths = record.Deaths,
+        MinionKills = record.MinionKills,
+        StructureKills = record.StructureKills,
+        DamageDealt = record.DamageDealt,
+        Level = frame.Has<ExperienceComponent>(entity)
+          ? frame.GetReadOnly<ExperienceComponent>(entity).Level
+          : 0,
+        Gold = frame.Has<InventoryComponent>(entity)
+          ? frame.GetReadOnly<InventoryComponent>(entity).Gold
+          : 0,
+        Resources = resources,
+        TotalResources = totalResources
+      });
     }
 
     if (players.Count == 0)
@@ -148,15 +219,20 @@ public static class MatchResultReader {
     return players.ToArray();
   }
 
-  private static int[] ReadResources(ref Frame frame, EntityRef entity) {
-    var counts = new int[PickupTypes.MaxTypes];
-    if (!frame.Has<ResourcesComponent>(entity))
-      return counts;
+  private static ResourceTally[] ReadResources(ref Frame frame, EntityRef entity,
+    ResourceTypeSummary[] resourceTypes, out int total) {
+    total = 0;
+    if (resourceTypes.Length == 0 || !frame.Has<ResourcesComponent>(entity))
+      return NoResources;
 
-    ref readonly var resources = ref frame.GetReadOnly<ResourcesComponent>(entity);
-    for (var slot = 0; slot < PickupTypes.MaxTypes; slot++)
-      counts[slot] = resources.GetSlot(slot);
+    ref readonly var wallet = ref frame.GetReadOnly<ResourcesComponent>(entity);
+    var tallies = new ResourceTally[resourceTypes.Length];
+    for (var i = 0; i < resourceTypes.Length; i++) {
+      var count = wallet.CountOf(resourceTypes[i].TypeAssetId);
+      tallies[i] = new ResourceTally(resourceTypes[i].TypeAssetId, count);
+      total += count;
+    }
 
-    return counts;
+    return tallies;
   }
 }

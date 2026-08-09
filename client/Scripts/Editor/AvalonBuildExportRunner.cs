@@ -48,7 +48,7 @@ public partial class AvalonBuildExportRunner : RefCounted {
     try {
       ExportNavMesh(root);
       ExportStaticColliders(root);
-      ExportMapLayout(root);
+      ExportMapLayout(root, scenePath);
     }
     catch (Exception ex) {
       GD.PushError(ex.Message);
@@ -136,7 +136,7 @@ public partial class AvalonBuildExportRunner : RefCounted {
     LogStaticColliderSummary(colliders, bytesRes, skippedUnsupported);
   }
 
-  private static void ExportMapLayout(Node root) {
+  private static void ExportMapLayout(Node root, string scenePath) {
     var types = new List<int>();
     var teams = new List<int>();
     var positions = new List<FPVector3>();
@@ -149,7 +149,8 @@ public partial class AvalonBuildExportRunner : RefCounted {
       MarkerTypes = types.ToArray(),
       MarkerTeams = teams.ToArray(),
       MarkerPositions = positions.ToArray(),
-      MarkerValues = values.ToArray()
+      MarkerValues = values.ToArray(),
+      MapName = ResolveMapName(root, scenePath)
     };
 
     var serializables = new List<IDataAssetSerializable> { asset };
@@ -159,6 +160,13 @@ public partial class AvalonBuildExportRunner : RefCounted {
     var json = DataAssetJsonSerializer.SerializeMixedCollection(new List<IDataAsset> { asset });
     File.WriteAllText(ProjectSettings.GlobalizePath(MapLayoutJsonPath), json);
     GD.Print($"[AvalonBuildExportRunner] Exported {asset.MarkerTypes.Length} markers -> {MapLayoutBytesPath}");
+  }
+
+  // The scene file names the map, same convention ExportStaticColliders uses for its output name:
+  // duplicating the .tscn is what makes a new map, so nothing has to be authored or remembered.
+  private static string ResolveMapName(Node root, string scenePath) {
+    var path = string.IsNullOrEmpty(scenePath) ? root.SceneFilePath : scenePath;
+    return string.IsNullOrEmpty(path) ? root.Name : path.GetFile().GetBaseName();
   }
 
   private static T FindFirst<T>(Node node) where T : Node {

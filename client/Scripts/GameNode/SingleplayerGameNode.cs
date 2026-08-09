@@ -80,7 +80,7 @@ public partial class SingleplayerGameNode : GameNode {
     _session = _flow.StartHost(_simCfg, _sesCfg);
     _session.HostGame("Local", _sesCfg.MaxPlayers);
 
-    IKlothoEngine engine = _session.Engine;   // IsResimulation is a default interface member
+    IKlothoEngine engine = _session.Engine; // IsResimulation is a default interface member
     SimLog.BindStage(() => engine.IsResimulation);
     Input.BindEngine(engine);
     _view.Initialize(_session.Engine, CreateFactory(), _pool);

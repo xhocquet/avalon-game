@@ -63,13 +63,17 @@ if (!transport.Listen("0.0.0.0", port, maxRooms * maxPlayers)) {
 // RoomRouter consumes the RoomHandshakeMessage and routes peers to the room; RoomManager
 // wires EcsSimulation / ServerNetworkService / KlothoEngine / CommandFactory per room internally.
 var router = new RoomRouter(transport, logger);
-var roomManagerConfig = new RoomManagerConfigBuilder((roomLogger) => new SimCallbacks(roomLogger, maxPlayers, navMeshBytes))
+// Closed over below: rooms are only ever created once loop.Run() is under way, long after the
+// assignment. SimCallbacks needs it to find its own room's roster when it writes the match result.
+RoomManager roomManager = null;
+var roomManagerConfig = new RoomManagerConfigBuilder((roomLogger) =>
+    new SimCallbacks(roomLogger, maxPlayers, navMeshBytes, () => roomManager))
   .WithRoomLimits(maxRooms, maxPlayers, maxSpectatorsPerRoom: 0)
   .WithSimulationConfig(simConfig)
   .WithSessionConfig(sessionConfig)
   .WithDerivedSimulation(sharedRegistry)
   .Build();
-var roomManager = new RoomManager(transport, router, loggerFactory, roomManagerConfig);
+roomManager = new RoomManager(transport, router, loggerFactory, roomManagerConfig);
 
 logger.KInformation(
   $"[AvalonServer] listening on port {port}, maxPlayers={maxPlayers}, tickInterval={tickIntervalMs}ms");

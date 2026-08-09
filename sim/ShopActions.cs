@@ -71,7 +71,8 @@ public static class ShopActions {
       case PurchaseBlock.NoHero: return "no_hero_for_player";
       case PurchaseBlock.ItemAssetMissing: return "item_asset_missing";
       case PurchaseBlock.HeroMissingInventoryOrStats:
-        return $"hero_missing_inventory_or_stats hasInv={frame.Has<InventoryComponent>(heroEntity)} hasStats={frame.Has<StatsComponent>(heroEntity)}";
+        return
+          $"hero_missing_inventory_or_stats hasInv={frame.Has<InventoryComponent>(heroEntity)} hasStats={frame.Has<StatsComponent>(heroEntity)}";
       case PurchaseBlock.OutOfRange: return "out_of_range";
     }
 

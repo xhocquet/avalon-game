@@ -151,7 +151,7 @@ public partial class MultiplayerGameNode : GameNode {
   }
 
   private void OnSessionReady(bool autoReady) {
-    IKlothoEngine engine = _session.Engine;   // IsResimulation is a default interface member
+    IKlothoEngine engine = _session.Engine; // IsResimulation is a default interface member
     SimLog.BindStage(() => engine.IsResimulation);
     Input.BindEngine(engine);
     _view.Initialize(_session.Engine, CreateFactory(), _pool);

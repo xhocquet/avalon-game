@@ -13,5 +13,8 @@ namespace Meesles.Avalon.Sim.Components;
 public partial struct PickupIdCounter : IComponent, IIdCounter {
   public int NextPickupId;
 
-  public int NextId { readonly get => NextPickupId; set => NextPickupId = value; }
+  public int NextId {
+    readonly get => NextPickupId;
+    set => NextPickupId = value;
+  }
 }

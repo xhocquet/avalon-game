@@ -14,5 +14,5 @@ public partial struct Player : IComponent {
   public int Deaths;
   public int MinionKills;
   public int StructureKills; // turrets and crystals
-  public int DamageDealt;    // post-mitigation, hostiles only
+  public int DamageDealt; // post-mitigation, hostiles only
 }

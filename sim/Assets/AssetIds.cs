@@ -101,6 +101,7 @@ public static class AssetIds {
     public const int Hero = 114;
     public const int XpRules = 115;
     public const int Skill = 116;
+
     public const int PickupType = 117;
     // Next free type id: 118
   }

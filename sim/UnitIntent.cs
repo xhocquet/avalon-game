@@ -32,7 +32,7 @@ public static class UnitIntent {
     if (!frame.Has<NavAgentComponent>(entity)) return;
 
     ref var nav = ref frame.Get<NavAgentComponent>(entity);
-    nav.LastRepathTick = 0;   // the "never pathed" sentinel the cooldown check already exempts
+    nav.LastRepathTick = 0; // the "never pathed" sentinel the cooldown check already exempts
   }
 
   public static void ClearMoveTarget(ref Frame frame, EntityRef entity) {

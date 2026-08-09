@@ -12,5 +12,8 @@ namespace Meesles.Avalon.Sim.Components;
 public partial struct UnitIdCounter : IComponent, IIdCounter {
   public int NextUnitId;
 
-  public int NextId { readonly get => NextUnitId; set => NextUnitId = value; }
+  public int NextId {
+    readonly get => NextUnitId;
+    set => NextUnitId = value;
+  }
 }

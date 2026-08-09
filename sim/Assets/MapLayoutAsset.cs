@@ -12,6 +12,11 @@ public partial class MapLayoutAsset : IDataAsset {
   [KlothoOrder(2)] public FPVector3[] MarkerPositions;
   [KlothoOrder(3)] public int[] MarkerValues;
 
+  // Identity, not a display label: the exporter fills it from the map scene's filename, so it is
+  // whatever the .tscn is called. A pretty name for the UI belongs in a client-side catalog keyed
+  // off this, the way FactionCatalog carries the names FactionAsset doesn't.
+  [KlothoOrder(4)] public string MapName;
+
   public bool TryGetByTypeAndTeam(MapMarkerType type, int teamId, out FPVector3 position) {
     position = FPVector3.Zero;
     if (MarkerTypes == null) return false;

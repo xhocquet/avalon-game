@@ -9,7 +9,7 @@ using Meesles.Avalon.Sim.Heroes;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.Deterministic.Navigation;
 using xpTURN.Klotho.Godot;
-using IKlothoEngine = xpTURN.Klotho.Core.IKlothoEngine;   // Klotho.Core also defines MoveCommand
+using IKlothoEngine = xpTURN.Klotho.Core.IKlothoEngine; // Klotho.Core also defines MoveCommand
 
 namespace Meesles.Avalon;
 
@@ -20,7 +20,7 @@ public class InputCapture : IDisposable {
   // has to be to count as the same target. ~200ms at 30Hz - long enough for a double-click, short
   // enough that it never eats a deliberate re-order.
   private const int MoveDedupWindowTicks = 6;
-  private const float MoveDedupEpsilonSqr = 0.0025f;   // 0.05 units
+  private const float MoveDedupEpsilonSqr = 0.0025f; // 0.05 units
 
   // Selection raycast: how far the mouse ray travels into the world, and a cap on how many stacked
   // pick colliders we skip past before giving up (front-most matching view wins).

@@ -1,6 +1,9 @@
+using System;
+using System.Collections.Generic;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Logging;
+using xpTURN.Klotho.Network;
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
@@ -11,19 +14,44 @@ namespace Meesles.Avalon.Server {
     private readonly IKLogger _logger;
     private readonly int _maxPlayers;
     private readonly byte[] _navMeshBytes;
+    private readonly Func<RoomManager> _roomManager;
+    private MatchResultSaveSystem _resultSaver;
 
-    public SimCallbacks(IKLogger logger, int maxPlayers, byte[] navMeshBytes) {
+    // roomManager is resolved lazily: RoomManager owns the factory that builds this instance, so it
+    // does not exist yet at construction.
+    public SimCallbacks(IKLogger logger, int maxPlayers, byte[] navMeshBytes,
+      Func<RoomManager> roomManager = null) {
       _logger = logger;
       _maxPlayers = maxPlayers;
       _navMeshBytes = navMeshBytes;
+      _roomManager = roomManager;
     }
 
     public void RegisterSystems(EcsSimulation simulation) {
       SimulationSetup.RegisterSystems(simulation, NavigationRuntime.FromBytes(_navMeshBytes, _logger));
-      simulation.AddSystem(new MatchResultSaveSystem(_logger), SystemPhase.LateUpdate);
+      _resultSaver = new MatchResultSaveSystem(_logger, ResolveRoster);
+      simulation.AddSystem(_resultSaver, SystemPhase.LateUpdate);
+    }
+
+    // The room that owns this callbacks instance is the one whose roster describes this match.
+    private IReadOnlyList<IPlayerInfo> ResolveRoster() {
+      var manager = _roomManager?.Invoke();
+      if (manager == null)
+        return null;
+
+      for (var roomId = 0; roomId < manager.MaxRooms; roomId++) {
+        var room = manager.GetRoom(roomId);
+        if (ReferenceEquals(room?.Callbacks, this))
+          return room.NetworkService.Players;
+      }
+
+      return null;
     }
 
     public void OnInitializeWorld(IKlothoEngine engine) {
+      _resultSaver?.SetSessionParameters(engine.RandomSeed, engine.SessionConfig.MaxPlayers,
+        engine.SessionConfig.MinPlayers);
+
       var frame = engine.PredictedFrame.Frame;
 
       if (frame.AssetRegistry.TryGet<MapLayoutAsset>(out var layout)) {

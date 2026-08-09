@@ -40,10 +40,19 @@ public partial class GodotFPMapLayoutExporter : RefCounted {
       MarkerTypes = types.ToArray(),
       MarkerTeams = teams.ToArray(),
       MarkerPositions = positions.ToArray(),
-      MarkerValues = values.ToArray()
+      MarkerValues = values.ToArray(),
+      MapName = ResolveMapName(root)
     };
 
     Save(asset);
+  }
+
+  // The scene file names the map: duplicating it is what makes a new map, so the name can't go
+  // stale the way an authored property or the root node's name could. Falls back to the node name
+  // for a scene that has never been saved.
+  private static string ResolveMapName(Node root) {
+    var scenePath = root.SceneFilePath;
+    return string.IsNullOrEmpty(scenePath) ? root.Name : scenePath.GetFile().GetBaseName();
   }
 
   private static readonly Regex TeamFolderPattern = new(@"^Team(\d+)$", RegexOptions.Compiled);

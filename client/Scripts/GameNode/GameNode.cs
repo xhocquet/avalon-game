@@ -76,8 +76,8 @@ public abstract partial class GameNode : Node {
   }
 
   private static void LogViewSceneError(string message) {
-    GD.PushError(message);   // editor Errors dock + stderr
-    GD.PrintErr(message);    // headless/smoke stderr, where PushError alone is easy to miss
+    GD.PushError(message); // editor Errors dock + stderr
+    GD.PrintErr(message); // headless/smoke stderr, where PushError alone is easy to miss
   }
 
   protected IKLogger CreateLogger(string filePrefix = "Client") {

@@ -13,5 +13,8 @@ namespace Meesles.Avalon.Sim.Components;
 public partial struct ProjectileIdCounter : IComponent, IIdCounter {
   public int NextProjectileId;
 
-  public int NextId { readonly get => NextProjectileId; set => NextProjectileId = value; }
+  public int NextId {
+    readonly get => NextProjectileId;
+    set => NextProjectileId = value;
+  }
 }

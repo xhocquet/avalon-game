@@ -174,7 +174,8 @@ public class SkillTelegraphManager {
 
   // Origin follows the rendered caster when it has a view, so the lanes start at the hero the player is
   // looking at rather than at the sim position the interpolated view trails.
-  private static bool TryResolveCastAim(SkillCastEvent evt, Node3D casterView, out Vector3 origin, out Vector3 direction) {
+  private static bool TryResolveCastAim(SkillCastEvent evt, Node3D casterView, out Vector3 origin,
+    out Vector3 direction) {
     var castPosition = evt.Position.ToVector3();
     origin = casterView?.GlobalPosition ?? castPosition;
     origin.Y = castPosition.Y;
