@@ -101,13 +101,14 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
       return;
 
     ref readonly var targetTransform = ref frame.GetReadOnly<TransformComponent>(targetEntity);
+    var approach = NavTargets.SnapToWalkable(navigation?.Query, targetTransform.Position);
     for (var i = 0; i < _formationUnits.Count; i++) {
       var source = _formationUnits[i];
-      UnitIntent.SetMoveTarget(ref frame, source.Entity, targetTransform.Position);
+      UnitIntent.SetMoveTarget(ref frame, source.Entity, approach);
       UnitIntent.AllowImmediateRepath(ref frame, source.Entity);
       UnitIntent.SetAttackTarget(ref frame, source.Entity, command.TargetUnitId);
       frame.Logger.KDebug(
-        $"[Combat] AttackCommand accepted tick={frame.Tick} playerId={command.PlayerId} sourceUnitId={source.UnitId} targetUnitId={command.TargetUnitId} moveTarget=({targetTransform.Position.x}, {targetTransform.Position.z})");
+        $"[Combat] AttackCommand accepted tick={frame.Tick} playerId={command.PlayerId} sourceUnitId={source.UnitId} targetUnitId={command.TargetUnitId} moveTarget=({approach.x}, {approach.z})");
     }
   }
 

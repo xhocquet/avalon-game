@@ -1,12 +1,13 @@
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Components;
+using Meesles.Avalon.Sim.Navigation;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Logging;
 
 namespace Meesles.Avalon;
 
-public class AttackIntentSystem : ISystem {
+public class AttackIntentSystem(NavigationRuntime navigation = null) : ISystem {
   private readonly UnitLookup.Index _unitIdIndex = new();
 
   public void Update(ref Frame frame) {
@@ -64,7 +65,7 @@ public class AttackIntentSystem : ISystem {
   }
 
   // Out of range: mobile units walk to the target, immobile turrets drop the intent entirely.
-  private static void PursueTarget(ref Frame frame, EntityRef attacker, EntityRef target) {
+  private void PursueTarget(ref Frame frame, EntityRef attacker, EntityRef target) {
     ref var combat = ref frame.Get<Combat>(attacker);
     combat.TargetUnitId = 0;
 
@@ -74,7 +75,9 @@ public class AttackIntentSystem : ISystem {
       return;
     }
 
-    UnitIntent.SetMoveTarget(ref frame, attacker, frame.GetReadOnly<TransformComponent>(target).Position);
+    var approach = NavTargets.SnapToWalkable(navigation?.Query,
+      frame.GetReadOnly<TransformComponent>(target).Position);
+    UnitIntent.SetMoveTarget(ref frame, attacker, approach);
   }
 
   // Beyond the shared hostility rule this system also needs the target's position, both to measure

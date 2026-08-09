@@ -55,7 +55,7 @@ public static class SimulationSetup {
     simulation.AddSystem(new TargetAcquisitionSystem(), SystemPhase.Update);
     simulation.AddSystem(new SkillSystem(), SystemPhase.Update);
     simulation.AddSystem(new ProjectileSystem(), SystemPhase.Update);
-    simulation.AddSystem(new AttackIntentSystem(), SystemPhase.Update);
+    simulation.AddSystem(new AttackIntentSystem(navigation), SystemPhase.Update);
     simulation.AddSystem(new AttackCooldownSystem(), SystemPhase.Update);
     simulation.AddSystem(new DamageSystem(), SystemPhase.Update);
     simulation.AddSystem(new DeathSystem(), SystemPhase.Update);

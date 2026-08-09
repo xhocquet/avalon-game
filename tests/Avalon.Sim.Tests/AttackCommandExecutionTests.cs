@@ -159,6 +159,8 @@ public class AttackCommandExecutionTests {
     HasAttackTarget(harness.Frame, unitId: 3).Should().BeFalse();
   }
 
+  // Unit 2 is a crystal, so its own footprint holes the navmesh underneath it and the order lands on
+  // the walkable rim instead of the exact centre (see StructureAttack_* below).
   [Fact]
   public void HeroAttackCommand_SetsMoveTargetImmediately() {
     var harness = SimHarness.CreateInitialized();
@@ -169,7 +171,7 @@ public class AttackCommandExecutionTests {
     FPVector3 targetPosition = GetPosition(harness.Frame, unitId: 2);
     GetMoveTarget(harness.Frame, unitId: 3)
       .Should()
-      .Be(new FPVector3(targetPosition.x, FP64.Zero, targetPosition.z));
+      .Be(SnapToWalkable(harness, new FPVector3(targetPosition.x, FP64.Zero, targetPosition.z)));
   }
 
   [Fact]
@@ -592,6 +594,10 @@ public class AttackCommandExecutionTests {
       ref var transform = ref frame.Get<TransformComponent>(hostiles[i]);
       transform.Position = new FPVector3(FP64.FromInt(200 + i * 20), FP64.Zero, FP64.FromInt(200));
     }
+  }
+
+  private static FPVector3 SnapToWalkable(SimHarness harness, FPVector3 target) {
+    return Meesles.Avalon.Sim.Navigation.NavTargets.SnapToWalkable(harness.Navigation.Query, target);
   }
 
   private static void SetPosition(SimHarness harness, int unitId, FPVector3 position) {
