@@ -112,8 +112,8 @@ public partial class MultiplayerGameNode : GameNode {
     _joining = true;
     _joinTask = _flow.JoinServerDrivenAsync(
       _transport,
-      "127.0.0.1",
-      7777,
+      ServerEndpoint.Host,
+      ServerEndpoint.Port,
       RoomId,
       _sesCfg,
       _driver.TrackConnection);

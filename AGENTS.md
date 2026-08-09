@@ -51,6 +51,16 @@ Config authority chain:
 - Server build: `dotnet build .\server\Server.csproj`
 - Server build if normal output is locked by a running server: `dotnet build .\server\Server.csproj -o C:\tmp\avalon-server-build`
 
+# Deployment
+
+- Remote deploy tooling is `scripts/deploy/`, driven by `just` recipes and configured from a gitignored `.env` at the repo root (`.env.example` documents the keys). Read [`docs/deployment.md`](docs/deployment.md) before changing any of it.
+- Target shape: self-contained `linux-x64` publish → tarball over SSH → versioned `releases/<stamp>/` with a `current` symlink → systemd unit. Rollback is a symlink swap.
+- `just deploy-check` (preflight), `just deploy`, `just deploy-status`, `just remote-{start,stop,restart,logs}`, `just rollback`.
+- The publish is verified against the assets `Program.cs` loads at startup (`Data/*.bytes`, both config files); add to `$requiredAssets` in [`scripts/deploy/publish.ps1`](scripts/deploy/publish.ps1) when startup gains a new required file.
+- Do not enable trimming on the server publish — Klotho's generated registration and reflection roots are invisible to the trimmer.
+- `just client` exports a distributable game client pointed at the deployed server. The endpoint is baked as `client/server_endpoint.json` (gitignored, written and removed around the export); [`ServerEndpoint`](client/Scripts/ServerEndpoint.cs) resolves `--server=host:port` > that file > `127.0.0.1:7777`, which is what keeps a working copy on localhost.
+- Editor-only scripts in `client/Scripts/Editor/` must be wrapped in `#if TOOLS`. Exports compile without `TOOLS` defined, so an unguarded `EditorInterface` reference breaks every export while leaving `just play` working.
+
 # Testing
 
 - `just test` — xunit sim suite ([`tests/Avalon.Sim.Tests/`](tests/Avalon.Sim.Tests)): invariants, determinism baseline, rollback determinism, combat, death, nav, scoring, spatial grid. [`SimHarness`](tests/Avalon.Sim.Tests/SimHarness.cs) boots a full sim with no Godot dependency.

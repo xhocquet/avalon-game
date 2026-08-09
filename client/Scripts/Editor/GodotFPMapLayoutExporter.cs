@@ -2,6 +2,7 @@
 // their world-space positions into MapLayout.bytes + JSON sidecar.
 // plugin.gd instantiates this [GlobalClass] and calls ExportMapLayout().
 
+#if TOOLS
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -106,3 +107,4 @@ public partial class GodotFPMapLayoutExporter : RefCounted {
     GD.Print($"[GodotFPMapLayoutExporter] Exported {asset.MarkerTypes.Length} markers → {OutputBytesPath}");
   }
 }
+#endif

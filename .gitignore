@@ -25,8 +25,15 @@ tests/**/obj/
 tools/**/bin/
 tools/**/obj/
 
-# Local scratch space
+# Local scratch space (also holds deploy publish/dist output)
 .tmp/
+
+# Deploy config — hosts, users, key paths
+.env
+.env.local
+
+# Baked into exported clients only; a working copy must fall back to localhost
+client/server_endpoint.json
 
 # Klotho analyzer/editor snapshots. Builds use analyzer output from obj/.
 sim/Tools/Generated/

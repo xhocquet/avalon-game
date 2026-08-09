@@ -83,7 +83,7 @@ public partial class LobbyGameNode : GameNode {
     LobbyUi.OnUnreadyClicked += OnUnready;
     LobbyUi.OnStopClicked += OnStop;
     LobbyUi.OnFactionSelected += OnFactionSelected;
-    LobbyUi.SetInitialHost("127.0.0.1", 7777);
+    LobbyUi.SetInitialHost(ServerEndpoint.Host, ServerEndpoint.Port);
     LobbyUi.SetReadyEnabled(false);
     LobbyUi.SetStopEnabled(false);
 

@@ -42,7 +42,7 @@ public partial class LobbyUI : Control, IViewHud {
   private Label _timer;
 
   public string Host => _ipField?.Text?.Trim();
-  public int Port => int.TryParse(_portField?.Text, out var p) ? p : 7777;
+  public int Port => int.TryParse(_portField?.Text, out var p) ? p : ServerEndpoint.Port;
 
   public event Action OnJoinClicked;
   public event Action OnReadyClicked;

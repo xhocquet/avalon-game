@@ -73,9 +73,67 @@ clean:
     @& .\scripts\clean.ps1
     dotnet clean .\server\Server.csproj
 
+# `just clean` + every bin/obj in the solution
+clean-deep:
+    @& .\scripts\clean.ps1 -Deep
+    dotnet clean .\server\Server.csproj
+
 # Report .cs comment blocks longer than N lines, grouped by file
 lint-comments min="3" top="0":
     & .\scripts\lint-comments.ps1 -MinLines {{ min }} -Top {{ top }}
+
+### Deployment ##################################################################
+# Config comes from .env at the repo root (copy .env.example). See docs/deployment.md.
+#
+# These run under pwsh 7, not the 5.1 `set shell` the rest of the file uses: the SSH helpers
+# need ProcessStartInfo.ArgumentList, which .NET Framework does not have.
+
+# Preflight the remote: SSH, sudo, systemd, layout, disk, port
+deploy-check:
+    pwsh -NoProfile -File .\scripts\deploy\doctor.ps1
+
+# One-time remote provisioning: service user, directories, systemd unit
+deploy-setup *args:
+    pwsh -NoProfile -File .\scripts\deploy\provision.ps1 {{ args }}
+
+# Build a deployable linux-x64 tarball into .tmp/dist (no remote contact)
+publish *args:
+    pwsh -NoProfile -File .\scripts\deploy\publish.ps1 {{ args }}
+
+# Export a distributable game client into .tmp/client, pointed at the .env server.
+# `just client -Preset Linux`, `-Debug`, `-NoZip`, or `-ServerHost x -ServerPort n` to override.
+client *args:
+    pwsh -NoProfile -File .\scripts\deploy\export-client.ps1 {{ args }}
+
+# Build, upload, swap the release symlink, restart, health check
+deploy *args:
+    pwsh -NoProfile -File .\scripts\deploy\deploy.ps1 {{ args }}
+
+# Deploy the tarball already in .tmp/dist
+redeploy:
+    pwsh -NoProfile -File .\scripts\deploy\deploy.ps1 -SkipBuild
+
+deploy-status *args:
+    pwsh -NoProfile -File .\scripts\deploy\status.ps1 {{ args }}
+
+# Swap back to a previous release. `just rollback -List` to see them.
+rollback *args:
+    pwsh -NoProfile -File .\scripts\deploy\rollback.ps1 {{ args }}
+
+remote-start:
+    pwsh -NoProfile -File .\scripts\deploy\service.ps1 -Action start
+
+remote-stop:
+    pwsh -NoProfile -File .\scripts\deploy\service.ps1 -Action stop
+
+remote-restart:
+    pwsh -NoProfile -File .\scripts\deploy\service.ps1 -Action restart
+
+# `just remote-logs -Follow` to tail
+remote-logs *args:
+    pwsh -NoProfile -File .\scripts\deploy\service.ps1 -Action logs {{ args }}
+
+#################################################################################
 
 # Reformat only. The default "Full Cleanup" profile also reorders type members, which
 # alphabetized NavigationAgentSystem's fields and split comment blocks off what they

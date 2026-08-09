@@ -1,0 +1,37 @@
+[Unit]
+Description=Avalon dedicated game server
+Documentation=https://github.com/xhocquet/avalon-game
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=@RUN_USER@
+Group=@RUN_USER@
+WorkingDirectory=@REMOTE_DIR@/current
+ExecStart=@REMOTE_DIR@/current/Meesles.Avalon.Server @GAME_PORT@ @LOG_LEVEL@
+
+# The tick loop exits cleanly on SIGINT; SIGTERM would drop the match mid-write.
+KillSignal=SIGINT
+TimeoutStopSec=15
+Restart=always
+RestartSec=2
+
+# Server GC is already on via the csproj; this keeps it set if the property ever moves.
+Environment=DOTNET_gcServer=1
+Environment=DOTNET_EnableDiagnostics=0
+
+LimitNOFILE=65535
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=@REMOTE_DIR@
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=@SERVICE@
+
+[Install]
+WantedBy=multi-user.target
