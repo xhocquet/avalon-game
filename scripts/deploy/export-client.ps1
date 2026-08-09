@@ -24,6 +24,10 @@ $targetPort = if ($ServerPort) { $ServerPort } else { [int] $cfg.AVALON_GAME_POR
 
 if (-not (Test-Path -LiteralPath $godotConsole)) { throw "Godot not found at $godotConsole" }
 
+# No-op until .env carries AVALON_ANDROID_KEYSTORE_*. Count only — the values are secrets.
+$keystoreVars = Set-AndroidKeystoreEnv $cfg
+if ($keystoreVars) { Write-Ok "Android keystore: $keystoreVars var(s) from .env" }
+
 Write-Step "Baking endpoint ${targetHost}:${targetPort}"
 $endpoint = [ordered]@{
   host      = $targetHost

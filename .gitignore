@@ -4,6 +4,8 @@
 .vs/
 *.user
 *.suo
+.claude/settings.local.json
+.claude/worktrees/
 
 # Server build outputs and runtime logs
 server/bin/
@@ -29,8 +31,18 @@ tools/**/obj/
 .tmp/
 
 # Deploy config — hosts, users, key paths
-.env
-.env.local
+.env*
+!.env.example
+
+# Key material, should never be in-tree
+*.pem
+*.key
+*.pfx
+*.p12
+*.keystore
+*.jks
+id_rsa*
+id_ed25519*
 
 # Baked into exported clients only; a working copy must fall back to localhost
 client/server_endpoint.json

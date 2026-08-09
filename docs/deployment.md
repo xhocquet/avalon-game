@@ -121,6 +121,34 @@ Editor-only scripts under `client/Scripts/Editor/` must be wrapped in `#if TOOLS
 the assembly in a configuration without `TOOLS` defined, so anything touching `EditorInterface`
 outside a guard breaks every export.
 
+### Signing credentials
+
+No Android preset exists yet; this is the wiring for when one does. Godot splits export options
+across two files: anything flagged `PROPERTY_USAGE_SECRET` — all six `keystore/*` fields — plus
+the script encryption key go to `client/.godot/export_credentials.cfg`, never to
+`client/export_presets.cfg`. The presets file is tracked; `.godot/` is not.
+
+Better still, keep the credentials out of the project entirely. `EditorExportPreset::get_or_env`
+checks the environment *before* the preset field, so setting these in `.env` means Godot never
+writes a credentials file at all:
+
+```
+AVALON_ANDROID_KEYSTORE_RELEASE_PATH=C:\keys\avalon-release.keystore
+AVALON_ANDROID_KEYSTORE_RELEASE_USER=avalon
+AVALON_ANDROID_KEYSTORE_RELEASE_PASSWORD=...
+```
+
+`just client` maps them to `GODOT_ANDROID_KEYSTORE_*` (`Set-AndroidKeystoreEnv` in `_env.ps1`)
+and reports a count, never the values. `_DEBUG_` variants exist for the debug keystore. Store the
+keystore itself outside the repo; `*.keystore`/`*.jks` are gitignored as a backstop.
+
+Generate one with (`keytool` ships with the JDK):
+
+```powershell
+keytool -genkeypair -v -keystore C:\keys\avalon-release.keystore -alias avalon `
+  -keyalg RSA -keysize 2048 -validity 10000
+```
+
 ## Config
 
 Everything lives in `.env` at the repo root (gitignored). `.env.example` documents each key.

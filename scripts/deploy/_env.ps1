@@ -58,6 +58,30 @@ function Import-DeployEnv {
   return $cfg
 }
 
+# Godot reads these before the preset's own keystore fields (EditorExportPreset::get_or_env), so
+# signing config stays in .env and never reaches client/.godot/export_credentials.cfg.
+function Set-AndroidKeystoreEnv {
+  param([hashtable] $Cfg)
+
+  $map = @{
+    AVALON_ANDROID_KEYSTORE_DEBUG_PATH       = "GODOT_ANDROID_KEYSTORE_DEBUG_PATH"
+    AVALON_ANDROID_KEYSTORE_DEBUG_USER       = "GODOT_ANDROID_KEYSTORE_DEBUG_USER"
+    AVALON_ANDROID_KEYSTORE_DEBUG_PASSWORD   = "GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD"
+    AVALON_ANDROID_KEYSTORE_RELEASE_PATH     = "GODOT_ANDROID_KEYSTORE_RELEASE_PATH"
+    AVALON_ANDROID_KEYSTORE_RELEASE_USER     = "GODOT_ANDROID_KEYSTORE_RELEASE_USER"
+    AVALON_ANDROID_KEYSTORE_RELEASE_PASSWORD = "GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD"
+  }
+
+  $set = 0
+  foreach ($key in $map.Keys) {
+    $value = $Cfg[$key]
+    if (-not $value) { continue }
+    [Environment]::SetEnvironmentVariable($map[$key], $value, "Process")
+    $set++
+  }
+  return $set
+}
+
 function Get-SshArgs {
   param([hashtable] $Cfg)
 
