@@ -8,9 +8,8 @@ public partial class PurchaseItemCommand : CommandBase {
   public int ItemAssetId;
   public override bool IsContinuousInput => false;
 
-  // 12 header + 4 item asset id
   public override int GetSerializedSize() {
-    return 16;
+    return CommandLimits.HeaderBytes + CommandLimits.Int32Bytes; // item asset id
   }
 
   protected override void SerializeData(ref SpanWriter writer) {

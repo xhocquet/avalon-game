@@ -3,115 +3,66 @@ using xpTURN.Klotho.Deterministic.Navigation;
 
 namespace Meesles.Avalon.Sim.Navigation;
 
+// One goal's routing table: per triangle, the neighbour to cross into on the way there. Built by
+// FlowFieldBuilder and immutable afterwards.
 public class TriangleFlowField {
   public const int AtGoal = -1;
   public const int Unreachable = -2;
-  public readonly FPVector2[] ExitDirection;
   public readonly int[] NextTriangle;
 
   // Restore if we need dist-to-goal (e.g. ETA/threat maps) or to identify the goal triangle
   // public readonly FP64[] Cost;
   // public readonly int GoalTriangleIndex;
 
-  private TriangleFlowField(int[] nextTriangle, FPVector2[] exitDirection) {
+  private readonly FPVector2[] _exitDirection;
+  private readonly bool[] _exitKnown;
+  private readonly FPNavMesh _navMesh;
+
+  internal TriangleFlowField(FPNavMesh navMesh, int[] nextTriangle) {
+    _navMesh = navMesh;
     NextTriangle = nextTriangle;
-    ExitDirection = exitDirection;
+    _exitDirection = new FPVector2[nextTriangle.Length];
+    _exitKnown = new bool[nextTriangle.Length];
   }
 
-  public static TriangleFlowField Compute(FPNavMesh navMesh, int goalTriIndex) {
-    var triCount = navMesh.Triangles.Length;
-    var next = new int[triCount];
-    var exitDir = new FPVector2[triCount];
-    var cost = new FP64[triCount];
+  // Direction from the triangle's centre toward the midpoint of the portal leading to the next
+  // triangle in the path. Each one costs a fixed-point sqrt and divide, and a field is only ever
+  // asked about the handful of triangles units are standing in, so they're filled in on demand
+  // rather than all at build time. The value is a pure function of the navmesh and the route, so
+  // when it gets computed is invisible to the simulation.
+  public FPVector2 GetExitDirection(int triangle) {
+    if (_exitKnown[triangle])
+      return _exitDirection[triangle];
 
-    for (var i = 0; i < triCount; i++) {
-      next[i] = Unreachable;
-      cost[i] = FP64.MaxValue;
+    var direction = FPVector2.Zero;
+    var nextTri = NextTriangle[triangle];
+
+    if (nextTri >= 0) {
+      ref var tri = ref _navMesh.Triangles[triangle];
+      var toPortal = GetPortalMidpoint(triangle, nextTri) - tri.centerXZ;
+      var mag = toPortal.magnitude;
+      if (mag > FP64.Zero)
+        direction = toPortal / mag;
     }
 
-    next[goalTriIndex] = AtGoal;
-    cost[goalTriIndex] = FP64.Zero;
-
-    // Dijkstra BFS from goal outward using a simple priority queue.
-    // With <1000 triangles, an array-scan "queue" is fast enough and avoids allocations.
-    var open = new bool[triCount];
-    open[goalTriIndex] = true;
-    var openCount = 1;
-
-    while (openCount > 0) {
-      // Find lowest-cost open node
-      var current = -1;
-      var bestCost = FP64.MaxValue;
-      for (var i = 0; i < triCount; i++)
-        if (open[i] && cost[i] < bestCost) {
-          bestCost = cost[i];
-          current = i;
-        }
-
-      if (current < 0)
-        break;
-
-      open[current] = false;
-      openCount--;
-
-      ref var currentTri = ref navMesh.Triangles[current];
-
-      for (var edge = 0; edge < 3; edge++) {
-        var neighborIdx = currentTri.GetNeighbor(edge);
-        if (neighborIdx < 0)
-          continue;
-
-        ref var neighborTri = ref navMesh.Triangles[neighborIdx];
-        if (neighborTri.isBlocked)
-          continue;
-
-        var delta = neighborTri.centerXZ - currentTri.centerXZ;
-        var edgeCost = delta.magnitude * neighborTri.costMultiplier;
-        var newCost = cost[current] + edgeCost;
-
-        if (newCost < cost[neighborIdx]) {
-          cost[neighborIdx] = newCost;
-          next[neighborIdx] = current;
-
-          if (!open[neighborIdx]) {
-            open[neighborIdx] = true;
-            openCount++;
-          }
-        }
-      }
-    }
-
-    // Compute exit directions: from each triangle's center toward the portal midpoint
-    // leading to the next triangle in the path.
-    for (var i = 0; i < triCount; i++) {
-      if (next[i] < 0) {
-        exitDir[i] = FPVector2.Zero;
-        continue;
-      }
-
-      var nextTri = next[i];
-      var portalMid = GetPortalMidpoint(navMesh, i, nextTri);
-      var dir = portalMid - navMesh.Triangles[i].centerXZ;
-      var mag = dir.magnitude;
-      exitDir[i] = mag > FP64.Zero ? dir / mag : FPVector2.Zero;
-    }
-
-    return new TriangleFlowField(next, exitDir);
+    _exitDirection[triangle] = direction;
+    _exitKnown[triangle] = true;
+    return direction;
   }
 
-  private static FPVector2 GetPortalMidpoint(FPNavMesh navMesh, int fromTri, int toTri) {
-    ref var tri = ref navMesh.Triangles[fromTri];
+  private FPVector2 GetPortalMidpoint(int fromTri, int toTri) {
+    ref var tri = ref _navMesh.Triangles[fromTri];
 
     for (var edge = 0; edge < 3; edge++)
       if (tri.GetNeighbor(edge) == toTri) {
         tri.GetEdgeVertices(edge, out var va, out var vb);
-        var a = navMesh.Vertices[va];
-        var b = navMesh.Vertices[vb];
+        var a = _navMesh.Vertices[va];
+        var b = _navMesh.Vertices[vb];
         return new FPVector2(
           (a.x + b.x) * FP64.Half,
           (a.z + b.z) * FP64.Half);
       }
 
-    return navMesh.Triangles[fromTri].centerXZ;
+    return tri.centerXZ;
   }
 }

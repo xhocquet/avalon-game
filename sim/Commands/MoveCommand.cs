@@ -12,9 +12,8 @@ public partial class MoveCommand : CommandBase {
 
   public UnitIdList UnitIds { get; } = new();
 
-  // 12 header + 8 TargetX + 8 TargetZ + unit ids
   public override int GetSerializedSize() {
-    return 28 + UnitIds.SerializedSize;
+    return CommandLimits.HeaderBytes + CommandLimits.Fp64Bytes * 2 + UnitIds.SerializedSize; // TargetX, TargetZ
   }
 
   protected override void SerializeData(ref SpanWriter writer) {

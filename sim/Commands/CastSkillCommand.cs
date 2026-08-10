@@ -11,9 +11,9 @@ public partial class CastSkillCommand : CommandBase {
   public FP64 TargetZ;
   public override bool IsContinuousInput => false;
 
-  // 12 header + 4 slot + 8 TargetX + 8 TargetZ
   public override int GetSerializedSize() {
-    return 32;
+    // slot + TargetX, TargetZ
+    return CommandLimits.HeaderBytes + CommandLimits.Int32Bytes + CommandLimits.Fp64Bytes * 2;
   }
 
   protected override void SerializeData(ref SpanWriter writer) {

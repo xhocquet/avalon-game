@@ -244,11 +244,12 @@ public class NavigationAgentSystem : ISystem {
       else {
         var dist = FP64.Sqrt(distSqr);
         var directDir = toTargetXZ / dist;
-        var blended = field.ExitDirection[currentTri] + directDir;
+        var exitDir = field.GetExitDirection(currentTri);
+        var blended = exitDir + directDir;
         var blendMag = blended.magnitude;
         nav.DesiredVelocity = blendMag > FP64.Zero
           ? blended / blendMag * nav.Speed
-          : field.ExitDirection[currentTri] * nav.Speed;
+          : exitDir * nav.Speed;
       }
 
       nav.Status = (byte)FPNavAgentStatus.Moving;

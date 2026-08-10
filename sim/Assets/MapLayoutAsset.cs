@@ -1,3 +1,4 @@
+using System;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Serialization;
@@ -17,11 +18,20 @@ public partial class MapLayoutAsset : IDataAsset {
   // off this, the way FactionCatalog carries the names FactionAsset doesn't.
   [KlothoOrder(4)] public string MapName;
 
+  // The exporter fills the three required arrays in lockstep, but a hand-edited MapLayout.json can
+  // leave them ragged. Scanning to the shortest drops the trailing markers on every peer identically
+  // instead of throwing partway through a lockstep tick. MarkerValues is excluded: it postdates the
+  // others, so layouts authored before it are legitimately short, and its readers already clamp.
+  public int MarkerCount =>
+    MarkerTypes == null || MarkerTeams == null || MarkerPositions == null
+      ? 0
+      : Math.Min(MarkerTypes.Length, Math.Min(MarkerTeams.Length, MarkerPositions.Length));
+
   public bool TryGetByTypeAndTeam(MapMarkerType type, int teamId, out FPVector3 position) {
     position = FPVector3.Zero;
-    if (MarkerTypes == null) return false;
     var typeInt = (int)type;
-    for (var i = 0; i < MarkerTypes.Length; i++)
+    var markerCount = MarkerCount;
+    for (var i = 0; i < markerCount; i++)
       if (MarkerTypes[i] == typeInt && MarkerTeams[i] == teamId) {
         position = MarkerPositions[i];
         return true;

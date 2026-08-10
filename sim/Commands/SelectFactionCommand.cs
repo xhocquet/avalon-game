@@ -8,9 +8,8 @@ public partial class SelectFactionCommand : CommandBase {
   public int FactionId;
   public override bool IsContinuousInput => false;
 
-  // 12 header + 4 faction id
   public override int GetSerializedSize() {
-    return 16;
+    return CommandLimits.HeaderBytes + CommandLimits.Int32Bytes; // faction id
   }
 
   protected override void SerializeData(ref SpanWriter writer) {

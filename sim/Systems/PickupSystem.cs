@@ -6,8 +6,10 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon;
 
-// TODO: not sure if iterating from the pickups makes sense - there may be some in a random corner of the
-// the map that has no heroes nearby. Should not iterate those
+// No spatial broad-phase here, unlike the other proximity systems: pickups are capped at the map's
+// hand-placed Pickup markers plus PickupRulesAsset.MaxGroundPickups, and collectors are heroes, so
+// the pass is a few hundred XZ checks on cached positions. A SpatialHashGrid rebuild would cost more
+// than the scan it replaces.
 public class PickupSystem : ISystem {
   private readonly List<EntityRef> _collected = [];
   private readonly List<Collector> _collectors = [];

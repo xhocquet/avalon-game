@@ -10,9 +10,8 @@ public partial class UpgradeSkillCommand : CommandBase {
   public int Slot;
   public override bool IsContinuousInput => false;
 
-  // 12 header + 4 slot
   public override int GetSerializedSize() {
-    return 16;
+    return CommandLimits.HeaderBytes + CommandLimits.Int32Bytes; // slot
   }
 
   protected override void SerializeData(ref SpanWriter writer) {

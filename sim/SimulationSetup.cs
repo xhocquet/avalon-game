@@ -141,7 +141,7 @@ public static class SimulationSetup {
     foreach (var teamId in teamIds) {
       var turretIndex = 0;
       var typeInt = (int)MapMarkerType.Turret;
-      var markerCount = layout?.MarkerTypes?.Length ?? 0;
+      var markerCount = layout?.MarkerCount ?? 0;
 
       for (var i = 0; i < markerCount; i++) {
         if (layout.MarkerTypes[i] != typeInt || layout.MarkerTeams[i] != teamId)
@@ -156,7 +156,7 @@ public static class SimulationSetup {
   private static void SpawnOases(ref Frame frame, MapLayoutAsset layout) {
     var oasisIndex = 0;
     var typeInt = (int)MapMarkerType.Oasis;
-    var markerCount = layout?.MarkerTypes?.Length ?? 0;
+    var markerCount = layout?.MarkerCount ?? 0;
     var rules = frame.AssetRegistry.Get<PickupRulesAsset>();
 
     for (var i = 0; i < markerCount; i++) {
@@ -178,7 +178,7 @@ public static class SimulationSetup {
   // type; an oasis marker's value is a PickupTypeAsset id instead.
   private static void SpawnPickups(ref Frame frame, MapLayoutAsset layout) {
     var typeInt = (int)MapMarkerType.Pickup;
-    var markerCount = layout?.MarkerTypes?.Length ?? 0;
+    var markerCount = layout?.MarkerCount ?? 0;
     var defaultTypeAssetId = frame.AssetRegistry.Get<PickupRulesAsset>().DefaultPickupTypeAssetId;
 
     for (var i = 0; i < markerCount; i++) {
@@ -220,7 +220,7 @@ public static class SimulationSetup {
   // Distinct team ids the map authors a base (Crystal marker) for, sorted ascending for determinism.
   private static List<int> GetAuthoredTeamIds(MapLayoutAsset layout) {
     var teams = new List<int>();
-    var markerCount = layout?.MarkerTypes?.Length ?? 0;
+    var markerCount = layout?.MarkerCount ?? 0;
     var crystalType = (int)MapMarkerType.Crystal;
 
     for (var i = 0; i < markerCount; i++) {

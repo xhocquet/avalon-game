@@ -10,9 +10,8 @@ public partial class AttackCommand : CommandBase {
 
   public UnitIdList UnitIds { get; } = new();
 
-  // 12 header + 4 target unit id + unit ids
   public override int GetSerializedSize() {
-    return 16 + UnitIds.SerializedSize;
+    return CommandLimits.HeaderBytes + CommandLimits.Int32Bytes + UnitIds.SerializedSize; // target unit id
   }
 
   protected override void SerializeData(ref SpanWriter writer) {

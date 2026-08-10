@@ -2,22 +2,16 @@ using xpTURN.Klotho.Serialization;
 
 namespace Meesles.Avalon.Sim.Commands;
 
-// The selection payload shared by every unit order (move, attack, ...): a growable, count-prefixed
-// list of stable Unit.UnitId values. Composed into commands rather than inherited so an order can
-// carry it alongside whatever else it needs (a ground point, a target unit, ...).
+// A list of unit IDs used by other commands
 public sealed class UnitIdList {
-  private int[] _ids = new int[8];
-
-  public int Count { get; private set; }
-
   // Cleared when a deserialized payload declares a count this list will not honour. The order is
   // dropped by CommandValidation rather than executed against a truncated selection.
   public bool IsValid { get; private set; } = true;
-
-  // 2 count + 4 per id
-  public int SerializedSize => 2 + Count * 4;
-
+  // count + one id each
+  public int SerializedSize => CommandLimits.Int16Bytes + Count * CommandLimits.Int32Bytes;
   public int this[int index] => _ids[index];
+  private int[] _ids = new int[8];
+  public int Count { get; private set; }
 
   // False once the selection cap is reached: an order the transport cannot carry is worse than an
   // order over the first MaxSelectedUnits units, so the caller clamps instead of overflowing.
@@ -60,7 +54,7 @@ public sealed class UnitIdList {
     if (declared < 0)
       return;
 
-    var declaredBytes = declared * 4;
+    var declaredBytes = declared * CommandLimits.Int32Bytes;
     if (declaredBytes > reader.Remaining)
       return;
 

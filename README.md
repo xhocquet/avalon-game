@@ -7,8 +7,7 @@
 ### Dead code
 
 - **[`Stats.Defense` and `Stats.Speed`](sim/Components/Stats.cs) (`:9-10`)** are never read anywhere in `sim/`, `client/`, `server/`, or `tests/`. They default to 100 and ride every rollback snapshot.
-- **[`FlowFieldCache.Version` and `Invalidate()`](sim/Navigation/FlowFieldCache.cs)** are never called — meaning flow fields are never invalidated. Harmless while the navmesh is static, but the API implies otherwise.
-- **[`Pickup.Type`](sim/Components/Pickup.cs)** is a commented-out field with a TODO.
+- **[`FlowFieldCache.Version` and `Invalidate()`](sim/Navigation/FlowFieldCache.cs)** are never called — meaning flow fields are never invalidated. Harmless while the navmesh is static (nothing writes `isBlocked` at runtime), but the API implies otherwise.
 
 Correctness & determinism
 
@@ -26,21 +25,6 @@ TeamPruneSystem all defer removals into a list for exactly this reason. The inva
 first group safe is undocumented and one refactor ("also clear the target's intent") away from breaking.
 Pick one convention.
 
-4. FlowFieldCache is unbounded — Navigation/FlowFieldCache.cs
-
-One int[triCount] + FPVector2[triCount] per distinct goal triangle, never evicted; Invalidate() has no
-caller in sim/. Deterministic (pure function of navmesh + goal), so not a desync — but a monotonic leak
-over a match, and TriangleFlowField.Compute is O(V²) with a linear-scan priority queue on each miss.
-
-6. Unchecked parallel-array indexing in MapLayoutAsset
-
-TryGetByTypeAndTeam indexes MarkerTeams[i]/MarkerPositions[i] off MarkerTypes.Length.
-SimulationSetup.cs:182 guards MarkerValues with an explicit length check but nothing guards the other
-three. Mismatched arrays in Assets.json throw inside the sim — and per your own AGENTS.md, an exception
-on the command path takes the server down.
-
-Duplication
-│ CommandValidation.cs:48-62│ AcceptMoveTarget and AcceptCastTarget are identical apart from the parameter type│
 
 Naming consistency
 
@@ -52,8 +36,6 @@ TeamComponent, StatsComponent, SkillsComponent, FactionComponent, InventoryCompo
 ExperienceComponent, UnitIdComponent suffixed. ComponentIds then uses a third naming (Unit, Faction,
 Stats, Skills, Experience), so ComponentIds.Unit names UnitIdComponent.
 - HeroAsset vs MinionStatsAsset/TurretStatsAsset/CrystalStatsAsset — same role, one drops Stats.
-- TurretStatsAsset declares fields in the order 3,1,2,0,4,5 relative to its KlothoOrder values. Works,
-reads as an accident.
 - Logging bypasses SimLog. AGENTS.md:87 says gameplay logging goes through SimLog so replayed ticks
 stay quiet, but CommandSystem.cs:105, AttackIntentSystem.cs:90, and DamageSystem.cs:67 call
 no explicit EventMode. The projectile pair is documented as deliberately Regular; AttackHitEvent isn't
@@ -73,15 +55,8 @@ falls back to projectile.TeamId. The stamped team is the correct answer on its o
 means a caster whose team changes retargets bullets already in flight, and it costs a dictionary
 lookup per candidate per bullet.
 
-PickupSystem has no broad phase (its own TODO at line 9) — pickups × collectors every tick, while
-every other proximity query in the sim uses SpatialHashGrid.
-
 Fixed-buffer accessors are publicly unchecked.
 SkillsComponent.GetRank/GetSkillAssetId/GetCooldownRemainingTicks and
 InventoryComponent.GetItemAssetId index fixed int buffers with no bounds check. That's documented and
 gated for the skill path (CommandValidation.AcceptSkillSlot), but InventoryComponent.GetItemAssetId
 has no equivalent gate described anywhere, and both are reachable from the client's UI code.
-
-
-
-TODO: Implement telegraphs for first skill

@@ -11,9 +11,8 @@ public partial class SetCheatCommand : CommandBase {
   public int Enabled; // 0 = clear, 1 = set
   public override bool IsContinuousInput => false;
 
-  // 12 header + 4 flags + 4 enabled
   public override int GetSerializedSize() {
-    return 20;
+    return CommandLimits.HeaderBytes + CommandLimits.Int32Bytes * 2; // flags, enabled
   }
 
   protected override void SerializeData(ref SpanWriter writer) {

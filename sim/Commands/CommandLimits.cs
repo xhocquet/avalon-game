@@ -1,6 +1,14 @@
 namespace Meesles.Avalon.Sim.Commands;
 
 public static class CommandLimits {
+  // Wire widths the command payloads are built from.
+  public const int Int16Bytes = 2;
+  public const int Int32Bytes = 4;
+  public const int Fp64Bytes = 8;
+
+  // CommandBase header: type + playerId + tick
+  public const int HeaderBytes = Int32Bytes * 3;
+
   // Selection cap for unit orders, derived from the transport rather than from taste. Client input
   // rides ClientInputMessage, which is Unreliable, and LiteNetLib refuses to fragment an unreliable
   // packet (TooBigPacketException on send), so a whole order has to fit one datagram at the
