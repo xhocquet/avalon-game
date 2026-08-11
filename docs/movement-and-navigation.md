@@ -204,5 +204,5 @@ Spatial grids - `SpatialHashGrid`, cleared and refilled every tick, queried by r
 - `WaveSpawnSystem` builds a third at minion spacing, for spawn occupancy
 
 Other:
-- `*Spread` - stripes work across ticks. All three are `1` in `Assets.json`, so every agent runs every tick
+- `*Spread` - stripes work across ticks. All three are `1` in `Assets/rules.json`, so every agent runs every tick
 - `OffCorridorTicks` - # of ticks drifted off the corridor before forcing a repath

@@ -44,7 +44,7 @@ public class CrystalBulletsTests {
     shots.Select(s => s.Position.x).Distinct().Should().ContainSingle("all three advance together");
   }
 
-  // The whole skill is authored in one Assets.json row. Nothing about a bullet may be decided in
+  // The whole skill is authored in one asset row. Nothing about a bullet may be decided in
   // code, so every field on a spawned projectile is checked back against the asset it came from -
   // a hardcoded speed or damage fails here rather than quietly shipping.
   [Fact]

@@ -6,12 +6,12 @@ namespace Meesles.Avalon.Sim.Assets;
 //
 // Two id planes, unrelated to each other and to ComponentIds — id 100 here is not id 100 there.
 // TypeIds at the bottom are the [KlothoDataAsset(typeId)] wire discriminator, one per class.
-// Everything else is a runtime AssetId, one per row in client/Sim/Data/Assets.json. Single-instance
+// Everything else is a runtime AssetId, one per row under client/Sim/Data/Assets/. Single-instance
 // assets reuse their type id as their instance id. Multi-instance assets get a block of their own —
 // factions at 200, shop items at 300, heroes at 400 — since their rows keep multiplying and would
 // otherwise chew through the type-id range.
 public static class AssetIds {
-  // Single-instance assets: one row each in Assets.json, resolved via AssetRegistry.Get<T>().
+  // Single-instance assets: one row each under Assets/, resolved via AssetRegistry.Get<T>().
   public const int WaveRules = 101;
   public const int MapLayout = 102;
   public const int MinionStats = 103;

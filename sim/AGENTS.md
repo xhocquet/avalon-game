@@ -21,7 +21,7 @@
 - Hero-specific *code* lives in an [`IHeroBehavior`](Heroes/IHeroBehavior.cs) selected by `HeroAsset.BehaviorId` through [`HeroBehaviors.Get`](Heroes/IHeroBehavior.cs), which lazily builds only the behaviors a match actually asks for. `HeroFactory` calls `OnSpawn`; [`HeroBehaviorSystem`](Systems/HeroBehaviorSystem.cs) calls `OnTick` for every hero each tick.
 - Behaviors are **stateless singletons**. Components are the only rollback-safe storage — a field on a behavior survives a rollback and desyncs the client. Add a component in `OnSpawn` and mutate it in `OnTick`.
 - Components can't be subclassed (they are `[StructLayout(Sequential)]` structs snapshot by value), and adding a hero must never change the component layout heroes share.
-- Adding a hero: allocate an id in `AssetIds`, add the row to `Assets.json`, regenerate `Assets.bytes`, point a `FactionAsset` at it. Code is only needed when it wants behavior no existing `BehaviorId` covers.
+- Adding a hero: allocate ids in `AssetIds`, drop a `client/Sim/Data/Assets/heroes/<hero>.json` holding its `FactionAsset`, `HeroAsset` and four `SkillAsset` rows, regenerate `Assets.bytes`. Code is only needed when it wants behavior no existing `BehaviorId` covers.
 
 # XP & Leveling
 
@@ -39,7 +39,7 @@
 
 - [`StatsComponent`](Components/Behaviors/StatsComponent.cs) is one `FP64` per [`StatType`](Enums.cs), stored as a `fixed long` buffer of raw 32.32 values rather than named fields. That is deliberate: a stat cannot be forgotten in a `switch`, every write goes through the same clamp, and a fractional or percentage modifier (`+0.5` attack damage, `+2.9%` attack speed) survives instead of truncating. Named `readonly` properties keep call sites reading as `stats.MoveSpeed`.
 - `StatType` **indexes that buffer**, so its values must stay contiguous from 0 and [`StatRanges.Rows`](StatRanges.cs) must carry one row per entry in the same order. Nothing serializes the enum, so renumbering it is safe.
-- [`StatRanges`](StatRanges.cs) is a `(Min, Max, Initial)` row per stat and lives in **code, not `Assets.json`** — these are the bounds that stop the sim dividing by zero, inverting a mitigation curve, or leaving a unit with no health pool, the same class of thing as `CommandLimits`. Tuning belongs in the asset row, inside them.
+- [`StatRanges`](StatRanges.cs) is a `(Min, Max, Initial)` row per stat and lives in **code, not the asset JSON** — these are the bounds that stop the sim dividing by zero, inverting a mitigation curve, or leaving a unit with no health pool, the same class of thing as `CommandLimits`. Tuning belongs in the asset row, inside them.
 - A default-constructed block is all zeroes, which is out of range for anything with a non-zero floor (a `BaseAttackSpeed` of 0 would divide by zero in the cooldown). **`StatsComponent.Create()` is the only correct starting point**; `From(IUnitStatsAsset)` builds on it, and every factory goes through one of the two.
 - Damage is `FP64` end to end — `Health.Current`, `DamageApplication`, `SkillAsset.Damage`, `Projectile.Damage`, `ShopItemAsset.AttackBonus`, `AttackHitEvent.Damage`, `Player.DamageDealt`. Rounding happens only at the edges: `MatchResult` for the scoreboard JSON, and `.ToFloat()` in the view.
 - Gold accrual is **not** a stat. `GoldPerTick` sits on `InventoryComponent` beside the wallet it feeds.
@@ -80,7 +80,7 @@
 # Navigation & Temporal Spreading
 
 - `NavigationAgentSystem` handles all unit movement: hero A* pathfinding, minion flow-field steering, ORCA avoidance, and movement integration.
-- **Temporal spreading** distributes expensive phases across frames via `NavigationTuningAsset` (row `AssetId: 112` in `client/Sim/Data/Assets.json`):
+- **Temporal spreading** distributes expensive phases across frames via `NavigationTuningAsset` (row `AssetId: 112` in `client/Sim/Data/Assets/rules.json`):
   - `HeroSteeringSpread` — A* steering update interval (default 1 = every tick)
   - `MinionSteeringSpread` — flow field steering interval (default 1)
   - `AvoidanceSpread` — ORCA collision avoidance interval (default 1)
@@ -107,7 +107,7 @@ Removing the current entity's own component happens to survive this, because the
 - NO dynamic physics. Use deterministic transform integration, radii, proximity queries, grids, and stable iteration order.
 - When changing gameplay rules, inspect `sim/` first instead of duplicating logic in `client/` or `server/`.
 - Klotho asset id ranges (both the AssetId and wire TypeId planes) are tracked in `sim/Assets/AssetIds.cs`; allocate from the "next free" markers there.
-- Systems hold no tuning constants. Gameplay numbers live in `client/Sim/Data/Assets.json` and are read through `frame.AssetRegistry.Get<T>()`; after editing the JSON run `just` asset generation (`dotnet run --project tools/AssetGen`) to rebuild `Assets.bytes`.
+- Systems hold no tuning constants. Gameplay numbers live in `client/Sim/Data/Assets/` — one `*.json` array per topic, per-hero files under `heroes/` — and are read through `frame.AssetRegistry.Get<T>()`. `AssetGen` merges every `*.json` under that directory recursively, so a new file needs no index entry; after editing run `dotnet run --project tools/AssetGen` to rebuild `Assets.bytes`. It fails on a duplicate `AssetId` or a row without one.
 
 # Ownership
 

@@ -202,7 +202,7 @@ public class SkillProgressionTests {
     restored.TargetZ.Should().Be(original.TargetZ);
   }
 
-  // Catches drift between AssetIds, Assets.json, and HeroSkillSets at test time rather than at spawn,
+  // Catches drift between AssetIds, the hero asset files, and HeroSkillSets at test time rather than at spawn,
   // where a missing row would only surface as a rejected upgrade or a thrown KeyNotFoundException.
   [Fact]
   public void EveryHeroRow_NamesFourLoadableSkillsAndARegisteredSkillSet() {

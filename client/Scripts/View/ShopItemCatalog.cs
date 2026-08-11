@@ -1,6 +1,6 @@
 // Client-side presentation map for shop items.
 // Item IDs come from the sim-side ledger in sim/Assets/AssetIds.cs and match the ShopItemAsset
-// rows in client/Sim/Data/Assets.json (300 range).
+// rows in client/Sim/Data/Assets/shop-items.json (300 range).
 // Sim owns the mechanical data (Cost, AttackBonus); this catalog owns the portraits and
 // display names, which are presentation-only and never touch the deterministic sim.
 

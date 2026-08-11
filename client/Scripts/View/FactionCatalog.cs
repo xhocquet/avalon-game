@@ -1,6 +1,6 @@
 // Loads and manages Faction data
 // Faction IDs come from the sim-side ledger in sim/Assets/AssetIds.cs and match the
-// FactionAsset rows in client/Sim/Data/Assets.json
+// FactionAsset rows in client/Sim/Data/Assets/heroes/*.json
 
 using System.Collections.Generic;
 using Godot;

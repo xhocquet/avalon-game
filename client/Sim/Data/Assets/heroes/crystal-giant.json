@@ -1,0 +1,83 @@
+[
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.FactionAsset, Meesles.Avalon.Client",
+    "AssetId": 202,
+    "_Name": "Crystal Warriors",
+    "HeroAssetId": 402,
+    "MinionStatsAssetId": 103
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.HeroAsset, Meesles.Avalon.Client",
+    "AssetId": 402,
+    "BehaviorId": 0,
+    "SkillSetId": 2,
+    "Skill1AssetId": 508,
+    "Skill2AssetId": 509,
+    "Skill3AssetId": 510,
+    "Skill4AssetId": 511,
+    "BaseHealth": 650,
+    "HealthPerLevel": 110,
+    "BaseMana": 340,
+    "ManaPerLevel": 45,
+    "BaseHealthRegen": 6.0,
+    "HealthRegenPerLevel": 0.75,
+    "BaseManaRegen": 7.5,
+    "ManaRegenPerLevel": 0.6,
+    "BaseArmor": 37,
+    "ArmorPerLevel": 3.9,
+    "BaseMagicResist": 32,
+    "MagicResistPerLevel": 2.05,
+    "BaseAttackDamage": 68,
+    "AttackDamagePerLevel": 4.0,
+    "BaseAttackSpeed": 0.67,
+    "BonusAttackSpeedPerLevel": 0.029,
+    "AttackSpeedRatio": 0.67,
+    "AttackWindup": 0.20833,
+    "CritChance": 0,
+    "CritDamage": 1.75,
+    "MoveSpeed": 3.5,
+    "AttackRange": 1.75,
+    "AcquisitionRange": 4.0,
+    "GameplayRadius": 0.65,
+    "SelectionRadius": 1.35,
+    "PathingRadius": 0.26
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 508,
+    "_Name": "Crystal Giant - Spiky Punch",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 509,
+    "_Name": "Crystal Giant - Harden",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 510,
+    "_Name": "Crystal Giant - Crystal Bullets",
+    "MaxRank": 4,
+    "CooldownMs": 3000,
+    "Damage": 60,
+    "DamagePerRank": 30,
+    "ProjectileSpeed": 14.0,
+    "ProjectileRange": 10.0,
+    "ProjectileRadius": 0.25,
+    "ProjectileCount": 3,
+    "ProjectileSpacing": 1.0,
+    "ProjectileSpawnOffset": 1.0,
+    "MinCastRange": 1.0,
+    "MaxCastRange": 10.0
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 511,
+    "_Name": "Crystal Giant - Carbon Compression",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  }
+]

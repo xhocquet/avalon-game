@@ -1,0 +1,38 @@
+[
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.MinionStatsAsset, Meesles.Avalon.Client",
+    "AssetId": 103,
+    "Health": 477,
+    "Armor": 0,
+    "MagicResist": 0,
+    "AttackDamage": 12,
+    "AttackSpeed": 1.25,
+    "AttackWindup": 0.1667,
+    "MoveSpeed": 3.25,
+    "AttackRange": 1.0,
+    "AcquisitionRange": 7.0,
+    "GameplayRadius": 0.48,
+    "PathingRadius": 0.3
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.TurretStatsAsset, Meesles.Avalon.Client",
+    "AssetId": 106,
+    "Health": 2000,
+    "Armor": 0,
+    "MagicResist": 0,
+    "AttackDamage": 152,
+    "AttackSpeed": 0.83,
+    "AttackWindup": 0.1667,
+    "AttackRange": 7.75,
+    "AcquisitionRange": 7.75,
+    "GameplayRadius": 0.88
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.CrystalStatsAsset, Meesles.Avalon.Client",
+    "AssetId": 107,
+    "Health": 2500,
+    "Armor": 0,
+    "MagicResist": 0,
+    "GameplayRadius": 1.5
+  }
+]

@@ -10,7 +10,7 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon;
 
-// All steering/settle/spread tuning lives in NavigationTuningAsset (Assets.json). Squared
+// All steering/settle/spread tuning lives in NavigationTuningAsset (Assets/rules.json). Squared
 // distances are derived once per tick from the linear values authored there.
 public class NavigationAgentSystem : ISystem {
   private readonly NavigationRuntime _navigation;

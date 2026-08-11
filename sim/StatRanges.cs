@@ -5,7 +5,7 @@ namespace Meesles.Avalon.Sim;
 // The bounds every stat is held inside, plus the value a unit starts at before its asset row is
 // applied. These are not tuning: they are what keeps the sim from dividing by zero, inverting a
 // mitigation curve, or leaving a unit with no health pool, so they live in code beside CommandLimits
-// rather than in Assets.json where a bad edit would reach the simulation.
+// rather than in the asset JSON where a bad edit would reach the simulation.
 //
 // Rows is indexed by StatType and must stay in the enum's order - StatsComponent indexes both with
 // the same int, and the static constructor asserts the count.

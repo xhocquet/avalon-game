@@ -1,6 +1,6 @@
 // Client-side presentation map for hero skills.
 // Skill IDs come from the sim-side ledger in sim/Assets/AssetIds.cs and match the SkillAsset rows in
-// client/Sim/Data/Assets.json (500 range), four per hero in SkillSlot order.
+// client/Sim/Data/Assets/heroes/*.json (500 range), four per hero in SkillSlot order.
 // Sim owns the mechanical data (MaxRank, CooldownMs); this catalog owns the display names, which are
 // presentation-only and never touch the deterministic sim.
 

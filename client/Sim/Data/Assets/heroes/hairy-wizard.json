@@ -1,0 +1,73 @@
+[
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.FactionAsset, Meesles.Avalon.Client",
+    "AssetId": 200,
+    "_Name": "Hairy Wizards",
+    "HeroAssetId": 400,
+    "MinionStatsAssetId": 103
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.HeroAsset, Meesles.Avalon.Client",
+    "AssetId": 400,
+    "BehaviorId": 0,
+    "SkillSetId": 0,
+    "Skill1AssetId": 500,
+    "Skill2AssetId": 501,
+    "Skill3AssetId": 502,
+    "Skill4AssetId": 503,
+    "BaseHealth": 560,
+    "HealthPerLevel": 100,
+    "BaseMana": 480,
+    "ManaPerLevel": 60,
+    "BaseHealthRegen": 5.5,
+    "HealthRegenPerLevel": 0.55,
+    "BaseManaRegen": 8.0,
+    "ManaRegenPerLevel": 0.8,
+    "BaseArmor": 21,
+    "ArmorPerLevel": 4.2,
+    "BaseMagicResist": 30,
+    "MagicResistPerLevel": 1.3,
+    "BaseAttackDamage": 54,
+    "AttackDamagePerLevel": 3.0,
+    "BaseAttackSpeed": 0.625,
+    "BonusAttackSpeedPerLevel": 0.021,
+    "AttackSpeedRatio": 0.625,
+    "AttackWindup": 0.2,
+    "CritChance": 0,
+    "CritDamage": 1.75,
+    "MoveSpeed": 3.3,
+    "AttackRange": 5.5,
+    "AcquisitionRange": 6.5,
+    "GameplayRadius": 0.55,
+    "SelectionRadius": 1.1,
+    "PathingRadius": 0.26
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 500,
+    "_Name": "Hairy Wizard - Hairball",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 501,
+    "_Name": "Hairy Wizard - Strangle",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 502,
+    "_Name": "Hairy Wizard - Close Shave",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 503,
+    "_Name": "Hairy Wizard - Bad Hair Day",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  }
+]

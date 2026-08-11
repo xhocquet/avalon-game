@@ -1,0 +1,73 @@
+[
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.FactionAsset, Meesles.Avalon.Client",
+    "AssetId": 201,
+    "_Name": "Shrooms",
+    "HeroAssetId": 401,
+    "MinionStatsAssetId": 103
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.HeroAsset, Meesles.Avalon.Client",
+    "AssetId": 401,
+    "BehaviorId": 0,
+    "SkillSetId": 1,
+    "Skill1AssetId": 504,
+    "Skill2AssetId": 505,
+    "Skill3AssetId": 506,
+    "Skill4AssetId": 507,
+    "BaseHealth": 610,
+    "HealthPerLevel": 105,
+    "BaseMana": 300,
+    "ManaPerLevel": 40,
+    "BaseHealthRegen": 8.0,
+    "HealthRegenPerLevel": 0.8,
+    "BaseManaRegen": 7.0,
+    "ManaRegenPerLevel": 0.5,
+    "BaseArmor": 33,
+    "ArmorPerLevel": 4.0,
+    "BaseMagicResist": 32,
+    "MagicResistPerLevel": 2.05,
+    "BaseAttackDamage": 58,
+    "AttackDamagePerLevel": 3.2,
+    "BaseAttackSpeed": 0.75,
+    "BonusAttackSpeedPerLevel": 0.032,
+    "AttackSpeedRatio": 0.75,
+    "AttackWindup": 0.1667,
+    "CritChance": 0,
+    "CritDamage": 1.75,
+    "MoveSpeed": 3.4,
+    "AttackRange": 1.25,
+    "AcquisitionRange": 3.75,
+    "GameplayRadius": 0.6,
+    "SelectionRadius": 1.2,
+    "PathingRadius": 0.26
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 504,
+    "_Name": "Shroom - Venomous Slobber",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 505,
+    "_Name": "Shroom - Snail Trail",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 506,
+    "_Name": "Shroom - Swivel Eyes",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 507,
+    "_Name": "Shroom - Molt",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  }
+]

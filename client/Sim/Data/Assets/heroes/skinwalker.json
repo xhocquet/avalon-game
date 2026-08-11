@@ -1,0 +1,73 @@
+[
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.FactionAsset, Meesles.Avalon.Client",
+    "AssetId": 203,
+    "_Name": "Skinwalker Tribe",
+    "HeroAssetId": 403,
+    "MinionStatsAssetId": 103
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.HeroAsset, Meesles.Avalon.Client",
+    "AssetId": 403,
+    "BehaviorId": 0,
+    "SkillSetId": 3,
+    "Skill1AssetId": 512,
+    "Skill2AssetId": 513,
+    "Skill3AssetId": 514,
+    "Skill4AssetId": 515,
+    "BaseHealth": 590,
+    "HealthPerLevel": 95,
+    "BaseMana": 320,
+    "ManaPerLevel": 40,
+    "BaseHealthRegen": 7.0,
+    "HealthRegenPerLevel": 0.7,
+    "BaseManaRegen": 7.0,
+    "ManaRegenPerLevel": 0.5,
+    "BaseArmor": 32,
+    "ArmorPerLevel": 3.5,
+    "BaseMagicResist": 32,
+    "MagicResistPerLevel": 2.05,
+    "BaseAttackDamage": 62,
+    "AttackDamagePerLevel": 3.5,
+    "BaseAttackSpeed": 0.7,
+    "BonusAttackSpeedPerLevel": 0.033,
+    "AttackSpeedRatio": 0.7,
+    "AttackWindup": 0.1667,
+    "CritChance": 0,
+    "CritDamage": 1.75,
+    "MoveSpeed": 3.8,
+    "AttackRange": 1.25,
+    "AcquisitionRange": 4.0,
+    "GameplayRadius": 0.6,
+    "SelectionRadius": 1.2,
+    "PathingRadius": 0.26
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 512,
+    "_Name": "Skinwalker - Sprint",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 513,
+    "_Name": "Skinwalker - Daily Practice",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 514,
+    "_Name": "Skinwalker - Eat to Survive",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "AssetId": 515,
+    "_Name": "Skinwalker - Desperation",
+    "MaxRank": 4,
+    "CooldownMs": 3000
+  }
+]

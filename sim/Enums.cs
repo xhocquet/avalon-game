@@ -52,12 +52,12 @@ public enum SkillProjectileEnd {
   Expired = 2
 }
 
-// Authored in Assets.json, so the values must stay stable.
+// Authored in the asset JSON, so the values must stay stable.
 public enum HeroBehavior {
   Default = 0
 }
 
-// Authored in Assets.json, so the values must stay stable.
+// Authored in the asset JSON, so the values must stay stable.
 public enum HeroSkillSet {
   HairyWizard = 0,
   Shroom = 1,
