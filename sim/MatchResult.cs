@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
+using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
@@ -197,7 +198,7 @@ public static class MatchResultReader {
         Deaths = record.Deaths,
         MinionKills = record.MinionKills,
         StructureKills = record.StructureKills,
-        DamageDealt = record.DamageDealt,
+        DamageDealt = FP64.Round(record.DamageDealt).ToInt(), // Whole numbers on the scoreboard
         Level = frame.Has<ExperienceComponent>(entity)
           ? frame.GetReadOnly<ExperienceComponent>(entity).Level
           : 0,

@@ -13,7 +13,7 @@ public partial class CrystalEntity : TeamEntityViewNode, IAttackableView, INamed
 
   public void OnAttackVfx(Vector3 targetPosition) { }
 
-  public void OnHitVfx(int damage, Vector3 attackerPosition) { }
+  public void OnHitVfx(float damage, Vector3 attackerPosition) { }
 
   public override void OnInitialize() {
     EntityViewPhysics.DisableGodotCollision(this);

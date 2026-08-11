@@ -34,13 +34,16 @@ public class HeroAssetSpawnTests {
       var heroAssetId = frame.GetReadOnly<Hero>(entity).HeroAssetId;
       var heroAsset = harness.AssetRegistry.Get<HeroAsset>(heroAssetId);
 
-      frame.GetReadOnly<StatsComponent>(entity).MaxHealth.Should().Be(heroAsset.Health);
-      frame.GetReadOnly<StatsComponent>(entity).Strength.Should().Be(heroAsset.AttackDamage);
-      frame.GetReadOnly<StatsComponent>(entity).MoveSpeed.Should().Be(heroAsset.MoveSpeed);
-
-      ref readonly var combat = ref frame.GetReadOnly<Combat>(entity);
-      combat.AttackRange.Should().Be(heroAsset.AttackRange);
-      combat.AttackCooldownTicks.Should().Be(heroAsset.AttackCooldownTicks);
+      ref readonly var stats = ref frame.GetReadOnly<StatsComponent>(entity);
+      stats.MaxHealth.Should().Be(heroAsset.BaseHealth);
+      stats.AttackDamage.Should().Be(heroAsset.BaseAttackDamage);
+      stats.MoveSpeed.Should().Be(heroAsset.MoveSpeed);
+      stats.AttackRange.Should().Be(heroAsset.AttackRange);
+      stats.AcquisitionRange.Should().Be(heroAsset.AcquisitionRange);
+      stats.BaseAttackSpeed.Should().Be(heroAsset.BaseAttackSpeed);
+      stats.Armor.Should().Be(heroAsset.BaseArmor);
+      stats.MagicResist.Should().Be(heroAsset.BaseMagicResist);
+      stats.MaxMana.Should().Be(heroAsset.BaseMana);
     }
   }
 
@@ -65,10 +68,11 @@ public class HeroAssetSpawnTests {
     var frame = harness.Frame;
     var hero = harness.FindHero(playerId);
 
-    frame.GetReadOnly<StatsComponent>(hero).MaxHealth.Should().Be(expected.Health);
-    frame.GetReadOnly<StatsComponent>(hero).Strength.Should().Be(expected.AttackDamage);
-    frame.GetReadOnly<StatsComponent>(hero).MoveSpeed.Should().Be(expected.MoveSpeed);
-    frame.GetReadOnly<Combat>(hero).AttackRange.Should().Be(expected.AttackRange);
-    frame.GetReadOnly<Combat>(hero).AttackCooldownTicks.Should().Be(expected.AttackCooldownTicks);
+    ref readonly var stats = ref frame.GetReadOnly<StatsComponent>(hero);
+    stats.MaxHealth.Should().Be(expected.BaseHealth);
+    stats.AttackDamage.Should().Be(expected.BaseAttackDamage);
+    stats.MoveSpeed.Should().Be(expected.MoveSpeed);
+    stats.AttackRange.Should().Be(expected.AttackRange);
+    stats.BaseAttackSpeed.Should().Be(expected.BaseAttackSpeed);
   }
 }

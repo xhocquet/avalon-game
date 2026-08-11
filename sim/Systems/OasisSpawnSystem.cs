@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
@@ -11,6 +12,7 @@ namespace Meesles.Avalon;
 
 public class OasisSpawnSystem : ISystem {
   private const ulong RandomFeatureKey = 1;
+  private readonly List<EntityRef> _completed = [];
 
   public void Update(ref Frame frame) {
     var rules = frame.AssetRegistry.Get<PickupRulesAsset>();
@@ -58,7 +60,8 @@ public class OasisSpawnSystem : ISystem {
     }
   }
 
-  private static void AdvancePending(ref Frame frame, PickupRulesAsset rules) {
+  private void AdvancePending(ref Frame frame, PickupRulesAsset rules) {
+    _completed.Clear();
     var filter = frame.Filter<Oasis, OasisEjectPending, TransformComponent>();
     while (filter.Next(out var entity)) {
       ref var pending = ref frame.Get<OasisEjectPending>(entity);
@@ -79,11 +82,16 @@ public class OasisSpawnSystem : ISystem {
 
       RaiseEjected(ref frame, oasis.OasisId, pending.PickupId, pending.TypeAssetId, transform.Position,
         pending.TargetPosition, rules.OasisFlightDurationMs);
-      frame.Remove<OasisEjectPending>(entity);
+      _completed.Add(entity);
     }
+
+    // Deferred: OasisEjectPending is one of the filter's own types (see the iteration rule in AGENTS.md).
+    for (var i = 0; i < _completed.Count; i++)
+      frame.Remove<OasisEjectPending>(_completed[i]);
   }
 
-  private static void AdvanceLanding(ref Frame frame) {
+  private void AdvanceLanding(ref Frame frame) {
+    _completed.Clear();
     var filter = frame.Filter<Oasis, OasisResourceLanding>();
     while (filter.Next(out var entity)) {
       ref var landing = ref frame.Get<OasisResourceLanding>(entity);
@@ -93,8 +101,12 @@ public class OasisSpawnSystem : ISystem {
 
       SpawnPickup(ref frame, landing.PickupId, landing.Amount, landing.TypeAssetId, landing.TargetPosition);
       RaiseLanded(ref frame, landing.PickupId, landing.TypeAssetId, landing.TargetPosition, landing.Amount);
-      frame.Remove<OasisResourceLanding>(entity);
+      _completed.Add(entity);
     }
+
+    // Deferred: OasisResourceLanding is one of the filter's own types (see the iteration rule in AGENTS.md).
+    for (var i = 0; i < _completed.Count; i++)
+      frame.Remove<OasisResourceLanding>(_completed[i]);
   }
 
   private static void SpawnPickup(ref Frame frame, int pickupId, int amount, int typeAssetId,

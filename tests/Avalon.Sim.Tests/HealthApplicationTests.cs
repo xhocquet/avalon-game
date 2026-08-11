@@ -2,6 +2,7 @@ using FluentAssertions;
 using Meesles.Avalon.Sim.Components;
 using Xunit;
 using xpTURN.Klotho.Core;
+using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Tests;
@@ -12,12 +13,12 @@ public class HealthApplicationTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     EntityRef hero = harness.FindHero(1);
-    int maxHealth = frame.GetReadOnly<StatsComponent>(hero).MaxHealth;
-    frame.Get<Health>(hero).Current = maxHealth - 5;
+    var maxHealth = frame.GetReadOnly<StatsComponent>(hero).MaxHealth;
+    frame.Get<Health>(hero).Current = maxHealth - Fp(5);
 
-    int healed = HealthApplication.ApplyHeal(ref frame, hero, 500);
+    var healed = HealthApplication.ApplyHeal(ref frame, hero, Fp(500));
 
-    healed.Should().Be(5);
+    healed.Should().Be(Fp(5));
     frame.GetReadOnly<Health>(hero).Current.Should().Be(maxHealth);
   }
 
@@ -26,9 +27,9 @@ public class HealthApplicationTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     EntityRef hero = harness.FindHero(1);
-    int maxHealth = frame.GetReadOnly<StatsComponent>(hero).MaxHealth;
+    var maxHealth = frame.GetReadOnly<StatsComponent>(hero).MaxHealth;
 
-    HealthApplication.ApplyHeal(ref frame, hero, 50).Should().Be(0);
+    HealthApplication.ApplyHeal(ref frame, hero, Fp(50)).Should().Be(FP64.Zero);
     frame.GetReadOnly<Health>(hero).Current.Should().Be(maxHealth);
   }
 
@@ -37,10 +38,10 @@ public class HealthApplicationTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     EntityRef hero = harness.FindHero(1);
-    frame.Get<Health>(hero).Current = 10;
+    frame.Get<Health>(hero).Current = Fp(10);
 
-    HealthApplication.ApplyHeal(ref frame, hero, 25).Should().Be(25);
-    frame.GetReadOnly<Health>(hero).Current.Should().Be(35);
+    HealthApplication.ApplyHeal(ref frame, hero, Fp(25)).Should().Be(Fp(25));
+    frame.GetReadOnly<Health>(hero).Current.Should().Be(Fp(35));
   }
 
   [Fact]
@@ -48,10 +49,10 @@ public class HealthApplicationTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     EntityRef hero = harness.FindHero(1);
-    frame.Get<Health>(hero).Current = 0;
+    frame.Get<Health>(hero).Current = FP64.Zero;
 
-    HealthApplication.ApplyHeal(ref frame, hero, 100).Should().Be(0);
-    frame.GetReadOnly<Health>(hero).Current.Should().Be(0);
+    HealthApplication.ApplyHeal(ref frame, hero, Fp(100)).Should().Be(FP64.Zero);
+    frame.GetReadOnly<Health>(hero).Current.Should().Be(FP64.Zero);
     frame.GetReadOnly<Health>(hero).IsAlive.Should().BeFalse();
   }
 
@@ -60,7 +61,7 @@ public class HealthApplicationTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     EntityRef hero = harness.FindHero(1);
-    frame.Get<Health>(hero).Current = 0;
+    frame.Get<Health>(hero).Current = FP64.Zero;
 
     HealthApplication.RestoreToFull(ref frame, hero);
 
@@ -73,13 +74,13 @@ public class HealthApplicationTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     EntityRef hero = harness.FindHero(1);
-    int maxHealth = frame.GetReadOnly<StatsComponent>(hero).MaxHealth;
-    frame.Get<Health>(hero).Current = maxHealth - 40;
+    var maxHealth = frame.GetReadOnly<StatsComponent>(hero).MaxHealth;
+    frame.Get<Health>(hero).Current = maxHealth - Fp(40);
 
-    HealthApplication.GrantMaxHealth(ref frame, hero, 20);
+    HealthApplication.GrantMaxHealth(ref frame, hero, Fp(20));
 
-    frame.GetReadOnly<StatsComponent>(hero).MaxHealth.Should().Be(maxHealth + 20);
-    frame.GetReadOnly<Health>(hero).Current.Should().Be(maxHealth - 20);
+    frame.GetReadOnly<StatsComponent>(hero).MaxHealth.Should().Be(maxHealth + Fp(20));
+    frame.GetReadOnly<Health>(hero).Current.Should().Be(maxHealth - Fp(20));
   }
 
   [Fact]
@@ -87,13 +88,13 @@ public class HealthApplicationTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     EntityRef hero = harness.FindHero(1);
-    int maxHealth = frame.GetReadOnly<StatsComponent>(hero).MaxHealth;
-    frame.Get<Health>(hero).Current = 0;
+    var maxHealth = frame.GetReadOnly<StatsComponent>(hero).MaxHealth;
+    frame.Get<Health>(hero).Current = FP64.Zero;
 
-    HealthApplication.GrantMaxHealth(ref frame, hero, 20);
+    HealthApplication.GrantMaxHealth(ref frame, hero, Fp(20));
 
-    frame.GetReadOnly<StatsComponent>(hero).MaxHealth.Should().Be(maxHealth + 20);
-    frame.GetReadOnly<Health>(hero).Current.Should().Be(0);
+    frame.GetReadOnly<StatsComponent>(hero).MaxHealth.Should().Be(maxHealth + Fp(20));
+    frame.GetReadOnly<Health>(hero).Current.Should().Be(FP64.Zero);
   }
 
   [Fact]
@@ -101,12 +102,12 @@ public class HealthApplicationTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     EntityRef hero = harness.FindHero(1);
-    int maxHealth = frame.GetReadOnly<StatsComponent>(hero).MaxHealth;
+    var maxHealth = frame.GetReadOnly<StatsComponent>(hero).MaxHealth;
 
     HealthApplication.GrantMaxHealth(ref frame, hero, -maxHealth);
 
-    frame.GetReadOnly<StatsComponent>(hero).MaxHealth.Should().Be(0);
-    frame.GetReadOnly<Health>(hero).Current.Should().Be(1);
+    frame.GetReadOnly<StatsComponent>(hero).MaxHealth.Should().Be(FP64.One); // StatRanges floors the pool at 1
+    frame.GetReadOnly<Health>(hero).Current.Should().Be(FP64.One);
     frame.GetReadOnly<Health>(hero).IsAlive.Should().BeTrue();
   }
 
@@ -115,12 +116,14 @@ public class HealthApplicationTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     EntityRef hero = harness.FindHero(1);
-    int maxHealth = frame.GetReadOnly<StatsComponent>(hero).MaxHealth;
-    frame.Get<Health>(hero).Current = 10;
+    var maxHealth = frame.GetReadOnly<StatsComponent>(hero).MaxHealth;
+    frame.Get<Health>(hero).Current = Fp(10);
 
-    HealthApplication.GrantMaxHealth(ref frame, hero, -20);
+    HealthApplication.GrantMaxHealth(ref frame, hero, -Fp(20));
 
-    frame.GetReadOnly<StatsComponent>(hero).MaxHealth.Should().Be(maxHealth - 20);
-    frame.GetReadOnly<Health>(hero).Current.Should().Be(10);
+    frame.GetReadOnly<StatsComponent>(hero).MaxHealth.Should().Be(maxHealth - Fp(20));
+    frame.GetReadOnly<Health>(hero).Current.Should().Be(Fp(10));
   }
+
+  private static FP64 Fp(int value) => FP64.FromInt(value);
 }

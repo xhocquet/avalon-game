@@ -10,15 +10,14 @@ public class InventorySystem : ISystem {
     if (matchRules.GoldTickIntervalMs <= 0)
       return;
 
-    var filter = frame.Filter<InventoryComponent, StatsComponent>();
+    var filter = frame.Filter<InventoryComponent>();
     while (filter.Next(out var entity)) {
-      var goldPerTick = frame.GetReadOnly<StatsComponent>(entity).GoldPerTick;
       ref var inventory = ref frame.Get<InventoryComponent>(entity);
 
       inventory.GoldAccrualRemainderMs += frame.DeltaTimeMs;
       while (inventory.GoldAccrualRemainderMs >= matchRules.GoldTickIntervalMs) {
         inventory.GoldAccrualRemainderMs -= matchRules.GoldTickIntervalMs;
-        inventory.Gold += goldPerTick;
+        inventory.Gold += inventory.GoldPerTick;
       }
     }
   }

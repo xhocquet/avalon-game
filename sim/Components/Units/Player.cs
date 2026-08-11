@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Components;
@@ -14,5 +15,5 @@ public partial struct Player : IComponent {
   public int Deaths;
   public int MinionKills;
   public int StructureKills; // turrets and crystals
-  public int DamageDealt; // post-mitigation, hostiles only
+  public FP64 DamageDealt; // post-mitigation, hostiles only
 }

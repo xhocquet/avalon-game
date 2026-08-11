@@ -9,17 +9,17 @@ namespace Meesles.Avalon.Sim;
 public static class HealthApplication {
   // Returns HP actually restored. A unit at 0 stays there: it is either awaiting a respawn or about
   // to be destroyed, and topping it up would read as alive to everything that checks Current.
-  public static int ApplyHeal(ref Frame frame, EntityRef target, int amount) {
-    if (amount <= 0 || !frame.Has<Health>(target))
-      return 0;
+  public static FP64 ApplyHeal(ref Frame frame, EntityRef target, FP64 amount) {
+    if (amount <= FP64.Zero || !frame.Has<Health>(target))
+      return FP64.Zero;
 
     ref var health = ref frame.Get<Health>(target);
     if (!health.IsAlive)
-      return 0;
+      return FP64.Zero;
 
     var headroom = GetMaxHealth(ref frame, target) - health.Current;
-    if (headroom <= 0)
-      return 0;
+    if (headroom <= FP64.Zero)
+      return FP64.Zero;
 
     var healed = amount < headroom ? amount : headroom;
     health.Current += healed;
@@ -34,14 +34,14 @@ public static class HealthApplication {
 
   // Grows the pool and hands the same amount over as HP, so a bigger max never reads as a heal debt.
   // A negative amount shrinks the pool and pulls Current down with it, stopping at 1 rather than
-  // killing — a death here would carry no killer and pay no XP.
-  public static void GrantMaxHealth(ref Frame frame, EntityRef target, int amount) {
-    if (amount == 0 || !frame.Has<StatsComponent>(target))
+  // killing - a death here would carry no killer and pay no XP.
+  public static void GrantMaxHealth(ref Frame frame, EntityRef target, FP64 amount) {
+    if (amount == FP64.Zero || !frame.Has<StatsComponent>(target))
       return;
 
-    frame.Get<StatsComponent>(target).Add(StatType.MaxHealth, FP64.FromInt(amount));
+    frame.Get<StatsComponent>(target).Add(StatType.MaxHealth, amount);
 
-    if (amount > 0) {
+    if (amount > FP64.Zero) {
       ApplyHeal(ref frame, target, amount);
       return;
     }
@@ -52,10 +52,10 @@ public static class HealthApplication {
     ref var health = ref frame.Get<Health>(target);
     var max = GetMaxHealth(ref frame, target);
     if (health.IsAlive && health.Current > max)
-      health.Current = max < 1 ? 1 : max;
+      health.Current = max < FP64.One ? FP64.One : max;
   }
 
   // A unit with no StatsComponent has no pool to fill, so healing it is a no-op rather than unbounded.
-  public static int GetMaxHealth(ref Frame frame, EntityRef target) =>
-    frame.Has<StatsComponent>(target) ? frame.GetReadOnly<StatsComponent>(target).MaxHealth : 0;
+  public static FP64 GetMaxHealth(ref Frame frame, EntityRef target) =>
+    frame.Has<StatsComponent>(target) ? frame.GetReadOnly<StatsComponent>(target).MaxHealth : FP64.Zero;
 }

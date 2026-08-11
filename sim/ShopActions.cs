@@ -24,10 +24,10 @@ public static class ShopActions {
     inventory.Gold -= item.Cost;
     inventory.TryAddItem(itemAssetId);
     ref var stats = ref frame.Get<StatsComponent>(heroEntity);
-    stats.Add(StatType.Strength, item.AttackBonus);
+    stats.Add(StatType.AttackDamage, item.AttackBonus);
 
     SimLog.Info(ref frame,
-      $"[Shop] ACCEPT tick={frame.Tick} playerId={playerId} itemId={itemAssetId} cost={item.Cost} +str={item.AttackBonus} goldLeft={inventory.Gold} strengthNow={stats.Strength} items={inventory.ItemCount}");
+      $"[Shop] ACCEPT tick={frame.Tick} playerId={playerId} itemId={itemAssetId} cost={item.Cost} +ad={item.AttackBonus} goldLeft={inventory.Gold} attackDamageNow={stats.AttackDamage} items={inventory.ItemCount}");
     return true;
   }
 

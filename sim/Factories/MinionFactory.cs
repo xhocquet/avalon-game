@@ -20,8 +20,8 @@ public static class MinionFactory {
     frame.Add(entity, new Controllable());
     frame.Add(entity, new Health(stats.Health));
     frame.Add(entity, StatsComponent.From(stats));
-    frame.Add(entity, Combat.From(stats));
-    frame.Add(entity, NavAgentFactory.At(ref frame, position, stats.MoveSpeed, stats.Radius));
+    frame.Add(entity, new Combat());
+    frame.Add(entity, NavAgentFactory.At(ref frame, position, stats.MoveSpeed, stats.PathingRadius));
 
     return entity;
   }

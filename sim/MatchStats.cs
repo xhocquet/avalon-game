@@ -1,5 +1,6 @@
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
+using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
@@ -54,8 +55,8 @@ public static class MatchStats {
 
   // Post-mitigation damage, so the number matches the health the target actually lost. Friendly fire
   // is excluded for the same reason a friendly kill is worth nothing.
-  public static void RecordDamage(ref Frame frame, EntityRef source, EntityRef target, int damage) {
-    if (damage <= 0 || !frame.Has<Player>(source))
+  public static void RecordDamage(ref Frame frame, EntityRef source, EntityRef target, FP64 damage) {
+    if (damage <= FP64.Zero || !frame.Has<Player>(source))
       return;
 
     var targetTeamId = frame.Has<TeamComponent>(target)

@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Meesles.Avalon.Sim.Components;
 using Xunit;
+using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Tests;
@@ -61,9 +62,9 @@ public class CheatTests {
     var frame = harness.Frame;
     EntityRef hero = harness.FindHero(1);
     EntityRef attacker = harness.FindHero(2);
-    int before = frame.GetReadOnly<Health>(hero).Current;
+    var before = frame.GetReadOnly<Health>(hero).Current;
 
-    DamageApplication.ApplyDamage(ref frame, attacker, hero, 5000).Should().Be(0);
+    DamageApplication.ApplyDamage(ref frame, attacker, hero, FP64.FromInt(5000)).Should().Be(FP64.Zero);
 
     frame.GetReadOnly<Health>(hero).Current.Should().Be(before);
     frame.GetReadOnly<Health>(hero).LastDamagerUnitId.Should().Be(0);
@@ -76,10 +77,10 @@ public class CheatTests {
 
     var frame = harness.Frame;
     EntityRef target = harness.FindHero(2);
-    int before = frame.GetReadOnly<Health>(target).Current;
+    var before = frame.GetReadOnly<Health>(target).Current;
 
-    DamageApplication.ApplyDamage(ref frame, harness.FindHero(1), target, 10)
-      .Should().BeGreaterThan(0);
+    DamageApplication.ApplyDamage(ref frame, harness.FindHero(1), target, FP64.FromInt(10))
+      .Should().BeGreaterThan(FP64.Zero);
     frame.GetReadOnly<Health>(target).Current.Should().BeLessThan(before);
   }
 }

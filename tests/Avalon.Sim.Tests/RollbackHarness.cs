@@ -83,13 +83,19 @@ public sealed class RollbackHarness {
   /// both sims are on the same tick and — for everything that rolls back correctly — the same
   /// state. Any per-system state left holding values from the discarded branch is exactly what
   /// the following <see cref="AdvanceAndCompare"/> is looking for.
+  ///
+  /// <paramref name="beforeTick"/> runs against the client just before each discarded tick, after
+  /// the snapshot is taken - use it to drive state the commands alone cannot reach into the branch.
   /// </summary>
-  public void MispredictAndRollback(int ticks, Func<int, ICommand[]> commands) {
+  public void MispredictAndRollback(int ticks, Func<int, ICommand[]> commands,
+      Action<SimHarness> beforeTick = null) {
     int resumeTick = Tick;
     Client.Simulation.SaveSnapshot();
 
-    for (int i = 0; i < ticks; i++)
+    for (int i = 0; i < ticks; i++) {
+      beforeTick?.Invoke(Client);
       Client.Tick(commands?.Invoke(resumeTick + i) ?? []);
+    }
 
     Client.Simulation.Rollback(resumeTick);
   }

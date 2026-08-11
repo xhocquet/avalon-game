@@ -12,6 +12,9 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon.Sim.Tests;
 
 public class AttackCommandExecutionTests {
+  // MinionStatsAsset row 103
+  private static readonly FP64 MinionAttackDamage = FP64.FromInt(12);
+
   [Fact]
   public void CommandFactory_CreatesAttackCommand() {
     WarmupRegistry.RunAll();
@@ -179,13 +182,15 @@ public class AttackCommandExecutionTests {
     var harness = SimHarness.CreateInitialized();
     FPVector3 targetPosition = GetPosition(harness.Frame, unitId: 2);
     SetPosition(harness, unitId: 3, targetPosition + new FPVector3(FP64.One, FP64.Zero, FP64.Zero));
-    int startHealth = GetHealth(harness.Frame, unitId: 2);
-    int attackDamage = GetAttackDamage(harness.Frame, unitId: 3);
-    int defense = GetDefense(harness.Frame, unitId: 2);
+    var startHealth = GetHealth(harness.Frame, unitId: 2);
+    var attackDamage = GetAttackDamage(harness.Frame, unitId: 3);
+    var armor = GetArmor(harness.Frame, unitId: 2);
+    var hundred = FP64.FromInt(100);
 
     harness.Tick(SimHarness.AttackCommand(1, 0, targetUnitId: 2, sourceUnitIds: 3));
 
-    GetHealth(harness.Frame, unitId: 2).Should().Be(startHealth - attackDamage * 100 / (100 + defense));
+    GetHealth(harness.Frame, unitId: 2)
+      .Should().Be(startHealth - attackDamage * (hundred / (hundred + armor)));
   }
 
   [Fact]
@@ -194,31 +199,39 @@ public class AttackCommandExecutionTests {
     var (source, target) = SpawnFirstWave(harness);
     SetPosition(harness, source.UnitId, target.Position + new FPVector3(FP64.One, FP64.Zero, FP64.Zero));
 
-    int startHealth = GetHealth(harness.Frame, target.UnitId);
+    var startHealth = GetHealth(harness.Frame, target.UnitId);
 
     harness.Tick(SimHarness.AttackCommand(1, 0, target.UnitId, source.UnitId));
 
-    GetHealth(harness.Frame, target.UnitId).Should().Be(startHealth - 9);
-    GetCooldown(harness.Frame, source.UnitId).Should().Be(30);
+    // Minions carry no armor, so the whole hit lands. 1.25 attacks/sec over a 16ms tick is 50 ticks.
+    GetHealth(harness.Frame, target.UnitId).Should().Be(startHealth - MinionAttackDamage);
+    GetCooldown(harness.Frame, source.UnitId).Should().Be(50);
   }
 
+  // Expected damage is authored as a fraction so the case table stays independent of the formula
+  // rather than restating it.
   [Theory]
-  [InlineData(0, 10)]    // no defense: the attacker's full 10 damage lands
-  [InlineData(10, 9)]    // the base every unit ships with
-  [InlineData(100, 5)]   // defense equal to the curve constant halves the hit
-  [InlineData(5000, 1)]  // mitigation floors at 1 rather than reaching immunity
-  public void DamageSystem_DefenseMitigatesDamageByAFraction(int defense, int expectedDamage) {
+  [InlineData(0, 12, 1)]      // no armor: the attacker's full 12 damage lands
+  [InlineData(100, 6, 1)]     // armor equal to the curve constant halves the hit
+  [InlineData(10, 1200, 110)] // fractional now, where the int block rounded it to 10
+  [InlineData(5000, 1200, 1100)] // authored past the StatRanges ceiling, so it lands on armor 1000
+  [InlineData(-100, 18, 1)]   // negative armor amplifies instead of passing damage through raw
+  public void DamageSystem_ArmorScalesDamageByAFraction(int armor, int expectedNumerator,
+    int expectedDenominator) {
     var harness = SimHarness.CreateInitialized();
     var (source, target) = SpawnFirstWave(harness);
     SetPosition(harness, source.UnitId, target.Position + new FPVector3(FP64.One, FP64.Zero, FP64.Zero));
-    SetDefense(harness, target.UnitId, defense);
+    SetArmor(harness, target.UnitId, armor);
 
-    int startHealth = GetHealth(harness.Frame, target.UnitId);
-    GetAttackDamage(harness.Frame, source.UnitId).Should().Be(10);
+    var startHealth = GetHealth(harness.Frame, target.UnitId);
+    GetAttackDamage(harness.Frame, source.UnitId).Should().Be(MinionAttackDamage);
 
     harness.Tick(SimHarness.AttackCommand(1, 0, target.UnitId, source.UnitId));
 
-    GetHealth(harness.Frame, target.UnitId).Should().Be(startHealth - expectedDamage);
+    var expected = FP64.FromInt(expectedNumerator) / FP64.FromInt(expectedDenominator);
+    var dealt = startHealth - GetHealth(harness.Frame, target.UnitId);
+    FP64.Abs(dealt - expected).Should().BeLessThanOrEqualTo(FP64.FromRaw(4),
+      $"expected about {expected} damage but {dealt} landed");
   }
 
   [Fact]
@@ -228,12 +241,12 @@ public class AttackCommandExecutionTests {
     SetPosition(harness, source.UnitId, target.Position + new FPVector3(FP64.One, FP64.Zero, FP64.Zero));
 
     harness.Tick(SimHarness.AttackCommand(1, 0, target.UnitId, source.UnitId));
-    int healthAfterFirstHit = GetHealth(harness.Frame, target.UnitId);
+    var healthAfterFirstHit = GetHealth(harness.Frame, target.UnitId);
 
     harness.Tick();
 
     GetHealth(harness.Frame, target.UnitId).Should().Be(healthAfterFirstHit);
-    GetCooldown(harness.Frame, source.UnitId).Should().Be(29);
+    GetCooldown(harness.Frame, source.UnitId).Should().Be(49);
   }
 
   [Fact]
@@ -327,13 +340,17 @@ public class AttackCommandExecutionTests {
     UnitSnapshot turret = GetTurrets(harness).First(turret => turret.TeamId == 1);
 
     SetPosition(harness, turret.UnitId, FPVector3.Zero);
-    SetPosition(harness, unitId: 4, new FPVector3(FP64.FromInt(10), FP64.Zero, FP64.Zero));
-    int startHealth = GetHealth(harness.Frame, unitId: 4);
+    SetPosition(harness, unitId: 4, new FPVector3(FP64.FromInt(5), FP64.Zero, FP64.Zero));
+    var startHealth = GetHealth(harness.Frame, unitId: 4);
+    var turretDamage = GetAttackDamage(harness.Frame, turret.UnitId);
+    var armor = GetArmor(harness.Frame, unitId: 4);
+    var hundred = FP64.FromInt(100);
     ClearAttackTargets(harness);
 
     harness.Tick();
 
-    GetHealth(harness.Frame, unitId: 4).Should().Be(startHealth - 9);
+    GetHealth(harness.Frame, unitId: 4)
+      .Should().Be(startHealth - turretDamage * (hundred / (hundred + armor)));
     HasMoveTarget(harness.Frame, turret.UnitId).Should().BeFalse();
   }
 
@@ -343,7 +360,7 @@ public class AttackCommandExecutionTests {
     UnitSnapshot turret = GetTurrets(harness).First(turret => turret.TeamId == 1);
 
     SetPosition(harness, turret.UnitId, FPVector3.Zero);
-    SetPosition(harness, unitId: 4, new FPVector3(FP64.FromInt(10), FP64.Zero, FP64.Zero));
+    SetPosition(harness, unitId: 4, new FPVector3(FP64.FromInt(5), FP64.Zero, FP64.Zero));
     ClearAttackTargets(harness);
     harness.Tick();
 
@@ -398,12 +415,13 @@ public class AttackCommandExecutionTests {
     ScatterHostiles(harness, teamId: 1);
     SetPosition(harness, source.UnitId, FPVector3.Zero);
     SetPosition(harness, crystal.UnitId, new FPVector3(FP64.One, FP64.Zero, FP64.Zero));
-    int startHealth = GetHealth(harness.Frame, crystal.UnitId);
+    var startHealth = GetHealth(harness.Frame, crystal.UnitId);
     ClearAttackTargets(harness);
 
     harness.Tick();
 
-    GetHealth(harness.Frame, crystal.UnitId).Should().Be(startHealth - 9);
+    // Crystals carry no armor, so the minion's whole hit lands.
+    GetHealth(harness.Frame, crystal.UnitId).Should().Be(startHealth - MinionAttackDamage);
   }
 
   [Fact]
@@ -435,7 +453,7 @@ public class AttackCommandExecutionTests {
     SetPosition(harness, source.UnitId, FPVector3.Zero);
     SetPosition(harness, crystal.UnitId, new FPVector3(FP64.One, FP64.Zero, FP64.Zero));
     SetPosition(harness, turret.UnitId, new FPVector3(FP64.FromInt(2), FP64.Zero, FP64.Zero));
-    SetPosition(harness, unitId: 4, new FPVector3(FP64.FromInt(8), FP64.Zero, FP64.Zero));
+    SetPosition(harness, unitId: 4, new FPVector3(FP64.FromInt(6), FP64.Zero, FP64.Zero));
     ClearAttackTargets(harness);
 
     harness.Tick();
@@ -495,22 +513,22 @@ public class AttackCommandExecutionTests {
     return frame.GetReadOnly<TransformComponent>(entity).Position;
   }
 
-  private static int GetHealth(Frame frame, int unitId) {
+  private static FP64 GetHealth(Frame frame, int unitId) {
     TryGetEntityByUnitId(frame, unitId, out var entity).Should().BeTrue();
     frame.Has<Health>(entity).Should().BeTrue();
     return frame.GetReadOnly<Health>(entity).Current;
   }
 
-  private static int GetAttackDamage(Frame frame, int unitId) {
+  private static FP64 GetAttackDamage(Frame frame, int unitId) {
     TryGetEntityByUnitId(frame, unitId, out var entity).Should().BeTrue();
     frame.Has<StatsComponent>(entity).Should().BeTrue();
     return frame.GetReadOnly<StatsComponent>(entity).AttackDamage;
   }
 
-  private static int GetDefense(Frame frame, int unitId) {
+  private static FP64 GetArmor(Frame frame, int unitId) {
     TryGetEntityByUnitId(frame, unitId, out var entity).Should().BeTrue();
     frame.Has<StatsComponent>(entity).Should().BeTrue();
-    return frame.GetReadOnly<StatsComponent>(entity).Defense;
+    return frame.GetReadOnly<StatsComponent>(entity).Armor;
   }
 
   private static int GetCooldown(Frame frame, int unitId) {
@@ -628,12 +646,11 @@ public class AttackCommandExecutionTests {
     health.Current = current;
   }
 
-  private static void SetDefense(SimHarness harness, int unitId, int defense) {
+  private static void SetArmor(SimHarness harness, int unitId, int armor) {
     var frame = harness.Frame;
     TryGetEntityByUnitId(frame, unitId, out var entity).Should().BeTrue();
     frame.Has<StatsComponent>(entity).Should().BeTrue();
-    ref var stats = ref frame.Get<StatsComponent>(entity);
-    stats.Defense = defense;
+    frame.Get<StatsComponent>(entity).Set(StatType.Armor, FP64.FromInt(armor));
   }
 
   private static void ClearAttackTargets(SimHarness harness) {
@@ -666,14 +683,13 @@ public class AttackCommandExecutionTests {
     frame.Add(entity, new TeamComponent { TeamId = teamId });
     frame.Add(entity, new Minion { WaveId = 99 });
     frame.Add(entity, new Controllable());
-    frame.Add(entity, new Health(100));
-    frame.Add(entity, new StatsComponent { Strength = 10 });
-    frame.Add(entity, new Combat {
-      AttackRange = FP64.FromInt(2),
-      AttackReacquireRangeMultiplier = FP64.FromInt(3),
-      AttackCooldownTicks = 30,
-      CooldownRemainingTicks = 0,
-    });
+    frame.Add(entity, new Health(FP64.FromInt(100)));
+    frame.Add(entity, StatsComponent.Create()
+      .With(StatType.MaxHealth, FP64.FromInt(100))
+      .With(StatType.AttackDamage, FP64.FromInt(10))
+      .With(StatType.AttackRange, FP64.FromInt(2))
+      .With(StatType.AcquisitionRange, FP64.FromInt(6)));
+    frame.Add(entity, new Combat());
 
     return unitId;
   }

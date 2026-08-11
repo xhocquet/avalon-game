@@ -15,6 +15,7 @@ using MoveCommand = Meesles.Avalon.Sim.Commands.MoveCommand;
 namespace Meesles.Avalon;
 
 public class CommandSystem(NavigationRuntime navigation = null) : ISystem, ICommandSystem {
+  private readonly List<EntityRef> _arrived = [];
   private readonly List<FPVector3> _formationDestinations = [];
   private readonly List<FormationUnit> _formationUnits = [];
   private readonly bool _moveNavAgentsDirectly = navigation == null;
@@ -54,6 +55,7 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
     var rules = frame.AssetRegistry.Get<MovementRulesAsset>();
 
     var dt = FP64.FromInt(frame.DeltaTimeMs) / FP64.FromInt(1000);
+    _arrived.Clear();
 
     // StatsComponent is in the filter because it carries the speed: a unit with no stat block has no speed
     // to move at, and every unit that can be ordered around (hero, minion) has one.
@@ -70,7 +72,7 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
       toTarget.y = FP64.Zero;
       var dist = toTarget.magnitude;
       if (dist <= rules.StopDistance) {
-        frame.Remove<UnitMoveTarget>(entity);
+        _arrived.Add(entity);
         continue;
       }
 
@@ -79,6 +81,10 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
       transform.Position += move;
       transform.Rotation = FP64.Atan2(move.x, move.z);
     }
+
+    // Deferred: UnitMoveTarget is one of the filter's own types (see the iteration rule in AGENTS.md).
+    for (var i = 0; i < _arrived.Count; i++)
+      frame.Remove<UnitMoveTarget>(_arrived[i]);
   }
 
   private void HandleMoveCommand(ref Frame frame, MoveCommand command) {

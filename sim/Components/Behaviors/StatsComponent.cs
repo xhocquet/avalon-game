@@ -5,47 +5,88 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Components;
 
-// Represents stats belonging to a unit. Changes apply only to this unit.
-// Most values come from the faction hero's asset file
+// Every buffable value a unit carries. Changes apply only to this unit; base values come from the
+// unit's asset row and everything on top of them arrives through Add.
+//
+// Stored as one FP64-per-StatType buffer rather than named fields, so a stat that gains an enum
+// value cannot be forgotten in a switch and every write goes through the same clamp. FP64 has no
+// blittable fixed-buffer form, so the raw 32.32 longs are the storage and Get/Set convert; the
+// generated codec walks the buffer for serialization and hashing the same way SkillsComponent does.
+// Size: StatCount * 8 = 112B, inside the 128-byte component ceiling.
 [KlothoComponent(ComponentIds.Stats)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public partial struct StatsComponent() : IComponent {
-  public int Strength = 10;
-  public int Defense = 10;
-  public int MaxHealth = 0;
-  public FP64 MoveSpeed = FP64.Zero;
-  public FP64 AttackSpeed = FP64.One;
-  public int GoldPerTick = 0; // Seeded from MatchRulesAsset
+public unsafe partial struct StatsComponent : IComponent {
+  private fixed long _values[StatRanges.Count];
 
-  public readonly int AttackDamage => Strength < 0 ? 0 : Strength;
+  public readonly FP64 MaxHealth => Get(StatType.MaxHealth);
+  public readonly FP64 MaxMana => Get(StatType.MaxMana);
+  public readonly FP64 HealthRegen => Get(StatType.HealthRegen);
+  public readonly FP64 ManaRegen => Get(StatType.ManaRegen);
+  public readonly FP64 Armor => Get(StatType.Armor);
+  public readonly FP64 MagicResist => Get(StatType.MagicResist);
+  public readonly FP64 AttackDamage => Get(StatType.AttackDamage);
+  public readonly FP64 BaseAttackSpeed => Get(StatType.BaseAttackSpeed);
+  public readonly FP64 BonusAttackSpeed => Get(StatType.BonusAttackSpeed);
+  public readonly FP64 CritChance => Get(StatType.CritChance);
+  public readonly FP64 CritDamage => Get(StatType.CritDamage);
+  public readonly FP64 MoveSpeed => Get(StatType.MoveSpeed);
+  public readonly FP64 AttackRange => Get(StatType.AttackRange);
+  public readonly FP64 AcquisitionRange => Get(StatType.AcquisitionRange);
 
-  public static StatsComponent From(IUnitStatsAsset stats) => new() {
-    Strength = stats.AttackDamage,
-    MaxHealth = stats.Health,
-    MoveSpeed = stats.MoveSpeed,
-    Defense = stats.Defense
-  };
-
-  public void Add(StatType statType, FP64 delta) {
-    switch (statType) {
-      case StatType.Strength:
-        Strength += delta.ToInt();
-        break;
-      case StatType.Defense:
-        Defense += delta.ToInt();
-        break;
-      case StatType.MaxHealth:
-        MaxHealth += delta.ToInt();
-        break;
-      case StatType.MoveSpeed:
-        MoveSpeed += delta;
-        break;
-      case StatType.AttackSpeed:
-        AttackSpeed += delta;
-        break;
-      case StatType.GoldPerTick:
-        GoldPerTick += delta.ToInt();
-        break;
+  // Attacks per second, the form DamageSystem needs. Capped because the cooldown is its reciprocal.
+  public readonly FP64 AttacksPerSecond {
+    get {
+      var rate = BaseAttackSpeed * (FP64.One + BonusAttackSpeed);
+      return rate < AttackSpeedFloor ? AttackSpeedFloor : rate > AttackSpeedCap ? AttackSpeedCap : rate;
     }
+  }
+
+  private static readonly FP64 AttackSpeedCap = FP64.FromInt(5) / FP64.FromInt(2);
+  private static readonly FP64 AttackSpeedFloor = FP64.One / FP64.FromInt(10);
+
+  public readonly FP64 Get(StatType stat) => FP64.FromRaw(_values[(int)stat]);
+
+  public void Set(StatType stat, FP64 value) =>
+    _values[(int)stat] = StatRanges.Clamp(stat, value).RawValue;
+
+  public void Add(StatType stat, FP64 delta) => Set(stat, Get(stat) + delta);
+
+  // Chainable Set on a copy, so a caller building a block by hand reads like the object initializer
+  // the buffer took away: StatsComponent.Create().With(StatType.MoveSpeed, speed).
+  public readonly StatsComponent With(StatType stat, FP64 value) {
+    var copy = this;
+    copy.Set(stat, value);
+    return copy;
+  }
+
+  // A default-constructed component is all zeroes, which is out of range for anything with a
+  // non-zero floor - a BaseAttackSpeed of 0 would divide by zero in the cooldown. Every construction
+  // path starts here rather than from `default`.
+  public static StatsComponent Create() {
+    var stats = new StatsComponent();
+    for (var i = 0; i < StatRanges.Count; i++)
+      stats._values[i] = StatRanges.Of((StatType)i).Initial.RawValue;
+
+    return stats;
+  }
+
+  // Seeds the level-1 values off an asset row. Growth beyond level 1 is applied by ExperienceSystem
+  // through Add, so this is only ever the spawn seed.
+  public static StatsComponent From(IUnitStatsAsset asset) {
+    var stats = Create();
+    stats.Set(StatType.MaxHealth, asset.BaseHealth);
+    stats.Set(StatType.MaxMana, asset.BaseMana);
+    stats.Set(StatType.HealthRegen, asset.BaseHealthRegen);
+    stats.Set(StatType.ManaRegen, asset.BaseManaRegen);
+    stats.Set(StatType.Armor, asset.BaseArmor);
+    stats.Set(StatType.MagicResist, asset.BaseMagicResist);
+    stats.Set(StatType.AttackDamage, asset.BaseAttackDamage);
+    stats.Set(StatType.BaseAttackSpeed, asset.BaseAttackSpeed);
+    stats.Set(StatType.CritChance, asset.CritChance);
+    stats.Set(StatType.CritDamage, asset.CritDamage);
+    stats.Set(StatType.MoveSpeed, asset.MoveSpeed);
+    stats.Set(StatType.AttackRange, asset.AttackRange);
+    stats.Set(StatType.AcquisitionRange, asset.AcquisitionRange);
+    return stats;
   }
 }

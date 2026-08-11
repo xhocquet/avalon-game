@@ -23,16 +23,16 @@ public class TargetAcquisitionSystem : ISystem {
 
     // Attackers that already hold a target are excluded outright — reacquisition is
     // AttackIntentSystem's job, not this system's.
-    var filter = frame.FilterWithout<UnitIdComponent, TeamComponent, Combat, TransformComponent, AttackTargetUnitId>();
+    var filter = frame.FilterWithout<UnitIdComponent, TeamComponent, StatsComponent, TransformComponent, AttackTargetUnitId>();
     while (filter.Next(out var attacker)) {
-      if (!CanAcquireTargets(ref frame, attacker))
+      if (!frame.Has<Combat>(attacker) || !CanAcquireTargets(ref frame, attacker))
         continue;
 
-      ref readonly var combat = ref frame.GetReadOnly<Combat>(attacker);
+      ref readonly var stats = ref frame.GetReadOnly<StatsComponent>(attacker);
       ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(attacker);
 
-      var radius = combat.AttackRange * combat.AttackReacquireRangeMultiplier;
-      if (!TryAcquireTarget(ref frame, attacker, transform.Position, radius, out var targetUnitId))
+      if (!TryAcquireTarget(ref frame, attacker, transform.Position, stats.AcquisitionRange,
+            out var targetUnitId))
         continue;
 
       UnitIntent.SetAttackTarget(ref frame, attacker, targetUnitId);

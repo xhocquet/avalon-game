@@ -68,19 +68,18 @@ public class TargetAcquisitionTests {
 
   private static EntityRef SpawnAttacker(ref Frame frame) {
     var attacker = SpawnUnit(ref frame, FPVector3.Zero, teamId: 1);
-    frame.Add(attacker, new StatsComponent { Strength = 10, AttackSpeed = FP64.One });
-    frame.Add(attacker, new Combat {
-      AttackRange = FP64.FromInt(3),
-      AttackReacquireRangeMultiplier = FP64.FromInt(3),
-      AttackCooldownTicks = 30
-    });
+    frame.Add(attacker, StatsComponent.Create()
+      .With(StatType.AttackDamage, FP64.FromInt(10))
+      .With(StatType.AttackRange, FP64.FromInt(3))
+      .With(StatType.AcquisitionRange, FP64.FromInt(9)));
+    frame.Add(attacker, new Combat());
 
     return attacker;
   }
 
   private static EntityRef SpawnTarget(ref Frame frame, FP64 distance, bool isTurret = false) {
     var target = SpawnUnit(ref frame, new FPVector3(distance, FP64.Zero, FP64.Zero), teamId: 2, isTurret);
-    frame.Add(target, new StatsComponent { Strength = 0 });
+    frame.Add(target, StatsComponent.Create().With(StatType.AttackDamage, FP64.Zero));
 
     return target;
   }
@@ -97,7 +96,7 @@ public class TargetAcquisitionTests {
       frame.Add(entity, new Turret());
     else
       frame.Add(entity, new Minion { WaveId = 99 });
-    frame.Add(entity, new Health(10000));
+    frame.Add(entity, new Health(FP64.FromInt(10000)));
 
     return entity;
   }

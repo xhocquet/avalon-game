@@ -41,7 +41,7 @@ public partial class MinionEntity : TeamEntityViewNode, IAttackableView {
     // TODO: attack animation / particles
   }
 
-  public void OnHitVfx(int damage, Vector3 attackerPosition) {
+  public void OnHitVfx(float damage, Vector3 attackerPosition) {
     // TODO: hit reaction / particles
   }
 

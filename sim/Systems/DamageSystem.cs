@@ -33,7 +33,7 @@ public class DamageSystem : ISystem {
       var damage = DamageApplication.ApplyDamage(ref frame, attacker, target,
         GetAttackDamage(ref frame, attacker));
 
-      combat.CooldownRemainingTicks = GetCooldownTicks(ref frame, attacker, in combat);
+      combat.CooldownRemainingTicks = CombatTiming.CooldownTicks(ref frame, attacker);
 
       LogDamageState(ref frame, attacker, combat.TargetUnitId,
         $"damage={damage} health={healthBefore}->{frame.GetReadOnly<Health>(target).Current} cooldown={combat.CooldownRemainingTicks}");
@@ -41,20 +41,10 @@ public class DamageSystem : ISystem {
   }
 
   // Attackers without a StatsComponent block (nothing today, but structures/summons may skip it) deal nothing.
-  private static int GetAttackDamage(ref Frame frame, EntityRef attacker) {
-    return frame.Has<StatsComponent>(attacker) ? frame.GetReadOnly<StatsComponent>(attacker).AttackDamage : 0;
-  }
-
-  private static int GetCooldownTicks(ref Frame frame, EntityRef attacker, in Combat combat) {
-    var attackSpeed = frame.Has<StatsComponent>(attacker)
-      ? frame.GetReadOnly<StatsComponent>(attacker).AttackSpeed
-      : FP64.One;
-    if (attackSpeed <= FP64.Zero)
-      return combat.AttackCooldownTicks;
-
-    var half = FP64.One / FP64.FromInt(2);
-    var ticks = (FP64.FromInt(combat.AttackCooldownTicks) / attackSpeed + half).ToInt();
-    return ticks < 1 ? 1 : ticks;
+  private static FP64 GetAttackDamage(ref Frame frame, EntityRef attacker) {
+    return frame.Has<StatsComponent>(attacker)
+      ? frame.GetReadOnly<StatsComponent>(attacker).AttackDamage
+      : FP64.Zero;
   }
 
   private static void LogDamageState(ref Frame frame, EntityRef attacker, int targetUnitId, string state) {

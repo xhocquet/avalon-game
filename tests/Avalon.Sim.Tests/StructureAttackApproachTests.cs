@@ -64,7 +64,7 @@ public class StructureAttackApproachTests {
 
     // Parked outside attack range but close enough that the walk is a handful of ticks.
     SetPosition(harness, HeroUnitId, ApproachFrom(harness, turretPosition, FP64.FromInt(10)));
-    int startHealth = GetHealth(harness, turretUnitId);
+    var startHealth = GetHealth(harness, turretUnitId);
 
     harness.Tick(SimHarness.AttackCommand(HeroPlayerId, 0, turretUnitId, HeroUnitId));
     for (int i = 0; i < 120; i++)
@@ -120,10 +120,10 @@ public class StructureAttackApproachTests {
   }
 
   private static FP64 GetAttackRange(SimHarness harness, int unitId) {
-    return harness.Frame.GetReadOnly<Combat>(Entity(harness, unitId)).AttackRange;
+    return harness.Frame.GetReadOnly<StatsComponent>(Entity(harness, unitId)).AttackRange;
   }
 
-  private static int GetHealth(SimHarness harness, int unitId) {
+  private static FP64 GetHealth(SimHarness harness, int unitId) {
     return harness.Frame.GetReadOnly<Health>(Entity(harness, unitId)).Current;
   }
 

@@ -48,7 +48,7 @@ public class ProjectileSystem : ISystem {
 
       if (TryFindHit(ref frame, in projectile, start, end, step, out var target)) {
         DamageApplication.ApplyDamage(ref frame, ResolveSource(ref frame, in projectile), target,
-          projectile.Damage);
+          projectile.Damage, DamageType.Magical);
         SkillProjectiles.RaiseDespawned(ref frame, in projectile, end,
           UnitLookup.GetUnitId(ref frame, target), SkillProjectileEnd.Hit);
         _expired.Add(entity);

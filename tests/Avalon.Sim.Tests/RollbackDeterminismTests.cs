@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using FluentAssertions;
+using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using Xunit;
 using Xunit.Abstractions;
@@ -25,6 +26,9 @@ public class RollbackDeterminismTests {
 
   // Far more than the 4 ranks a slot can hold, so neither stream ever runs dry and stops diverging.
   private const int SkillPointPool = 40;
+
+  // Well past the cap, so the discarded branch lands every level a hero can reach at once.
+  private const int LevelUpExperience = 1_000_000;
 
   // Picked so the snapshot lands mid-volley: Crystal Bullets is off cooldown every ~188 ticks and
   // each volley stays airborne for ~48 after that. AssertProjectilesAreInFlight holds it honest.
@@ -168,6 +172,55 @@ public class RollbackDeterminismTests {
       "a cooldown must still be burning at the snapshot tick for the rollback to have to restore one");
     skills.GetRank((int)SkillSlot.Ultimate).Should().Be(0,
       "Ultimate is the slot the mispredicted branch touches, so it must be untouched here");
+  }
+
+  // Stat state across a rollback boundary. StatsComponent is a fixed buffer of raw FP64 values
+  // rather than named fields, so the generated codec has to walk it for both the snapshot and the
+  // hash - a buffer the generator skipped would restore as zeroes and desync silently. Levelling
+  // during the discarded branch is what puts a value in there that the replay must not inherit.
+  [Fact]
+  public void Rollback_AfterMispredictedLevelUps_ReplayMatchesServerHashes() {
+    var rollback = RollbackHarness.Create();
+
+    rollback.Advance(WarmupTicks, Authoritative);
+    rollback.InSync.Should().BeTrue("the two sims must agree before the rollback");
+
+    var levelInBranch = 0;
+    var maxLevel = rollback.Client.AssetRegistry.Get<XpRulesAsset>().MaxLevel;
+
+    // Levels land during the branch the client throws away, so the stats the replay resumes from
+    // have to come out of the snapshot rather than out of the discarded prediction.
+    rollback.MispredictAndRollback(MispredictedTicks, Mispredicted, beforeTick: sim => {
+      GrantExperience(sim, LevelUpExperience);
+      levelInBranch = HeroLevel(sim);
+    });
+
+    // Without this the grant could be a no-op and the test would pass while proving nothing.
+    levelInBranch.Should().Be(maxLevel, "the discarded branch has to actually move the stats");
+    HeroLevel(rollback.Client).Should().Be(1, "the rollback should undo those levels");
+    rollback.InSync.Should().BeTrue(
+      "restoring the snapshot should undo every stat the discarded branch granted");
+
+    var divergences = rollback.AdvanceAndCompare(ReplayTicks, Authoritative);
+    Report(divergences, ReplayTicks, WarmupTicks);
+
+    divergences.Should().BeEmpty(
+      "every stat lives in StatsComponent's value buffer, so a rollback must restore the whole " +
+      "buffer with the rest of the frame. A divergence here means the buffer is not being " +
+      "snapshotted or hashed, and level-up gains from the discarded branch leaked into the replay.");
+  }
+
+  private static int HeroLevel(SimHarness harness) {
+    var frame = harness.Frame;
+    var filter = frame.Filter<Hero, ExperienceComponent>();
+    return filter.Next(out var entity) ? frame.GetReadOnly<ExperienceComponent>(entity).Level : 0;
+  }
+
+  private static void GrantExperience(SimHarness harness, int experience) {
+    var frame = harness.Frame;
+    var filter = frame.Filter<Hero, ExperienceComponent>();
+    while (filter.Next(out var entity))
+      frame.Get<ExperienceComponent>(entity).Experience = experience;
   }
 
   private static void GrantSkillPoints(SimHarness harness, int points) {

@@ -11,7 +11,6 @@ public partial struct Projectile : IComponent {
   public int ProjectileId;
   public int SourceUnitId;
   public int TeamId;
-  public int Damage;
   public int SkillAssetId;
   public int Slot;
   public int Index; // Position within its volley
@@ -19,4 +18,5 @@ public partial struct Projectile : IComponent {
   public FP64 Speed;
   public FP64 RemainingDistance;
   public FP64 Radius; // Half the bullet's width
+  public FP64 Damage;
 }

@@ -230,12 +230,10 @@ public class DeathSystemTests {
     frame.Add(entity, new TeamComponent { TeamId = teamId });
     frame.Add(entity, new Minion { WaveId = 99 });
     frame.Add(entity, new Health(100));
-    frame.Add(entity, new Combat {
-      AttackRange = FP64.FromInt(2),
-      AttackReacquireRangeMultiplier = FP64.FromInt(3),
-      AttackCooldownTicks = 30,
-      CooldownRemainingTicks = 0,
-    });
+    frame.Add(entity, new Combat());
+    frame.Add(entity, StatsComponent.Create()
+      .With(StatType.AttackRange, FP64.FromInt(2))
+      .With(StatType.AcquisitionRange, FP64.FromInt(6)));
 
     return entity;
   }

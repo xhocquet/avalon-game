@@ -20,7 +20,7 @@ public static class TurretFactory {
     frame.Add(entity, new Turret { TurretId = teamId * 100 + turretIndex });
     frame.Add(entity, new Health(stats.Health));
     frame.Add(entity, StatsComponent.From(stats));
-    frame.Add(entity, Combat.From(stats));
+    frame.Add(entity, new Combat());
 
     return entity;
   }

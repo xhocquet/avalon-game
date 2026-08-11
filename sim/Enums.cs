@@ -11,13 +11,32 @@ public enum MapMarkerType {
   Pickup = 5
 }
 
+// Indexes StatsComponent's value buffer directly, so the values must stay contiguous from 0 and
+// StatRanges.Rows must carry one row per entry in the same order. Not serialized anywhere, so
+// renumbering is safe. Keep StatCount last.
 public enum StatType {
-  Strength = 0,
-  GoldPerTick = 1,
-  MoveSpeed = 2,
-  AttackSpeed = 3,
-  MaxHealth = 4,
-  Defense = 5
+  MaxHealth = 0,
+  MaxMana = 1,
+  HealthRegen = 2, // Per 5 seconds, the unit these are authored in
+  ManaRegen = 3, // Per 5 seconds
+  Armor = 4,
+  MagicResist = 5,
+  AttackDamage = 6,
+  BaseAttackSpeed = 7, // Attacks per second before bonuses
+  BonusAttackSpeed = 8, // Fraction of base; 0.493 is +49.3%
+  CritChance = 9, // 0-1
+  CritDamage = 10, // Multiplier; 1.75 is 175%
+  MoveSpeed = 11,
+  AttackRange = 12,
+  AcquisitionRange = 13,
+
+  StatCount = 14
+}
+
+// Which resist DamageApplication mitigates an incoming hit against.
+public enum DamageType {
+  Physical = 0,
+  Magical = 1
 }
 
 public enum SkillSlot {

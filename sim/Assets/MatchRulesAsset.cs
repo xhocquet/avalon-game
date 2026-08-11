@@ -16,4 +16,8 @@ public partial class MatchRulesAsset : IDataAsset {
   [KlothoOrder(6)] public int HeroKillScore;
   [KlothoOrder(7)] public int MinionKillScore;
   [KlothoOrder(8)] public int StructureKillScore;
+
+  // How often health/mana regen pays out. Regen stats are authored per 5 seconds, so a tick here
+  // grants RegenInterval/5000 of the stat. No system reads it yet.
+  [KlothoOrder(9)] public int RegenIntervalMs;
 }

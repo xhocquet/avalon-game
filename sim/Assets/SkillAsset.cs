@@ -9,8 +9,8 @@ namespace Meesles.Avalon.Sim.Assets;
 public partial class SkillAsset : IDataAsset {
   [KlothoOrder(0)] public int MaxRank;
   [KlothoOrder(1)] public int CooldownMs;
-  [KlothoOrder(2)] public int Damage;
-  [KlothoOrder(3)] public int DamagePerRank;
+  [KlothoOrder(2)] public FP64 Damage;
+  [KlothoOrder(3)] public FP64 DamagePerRank;
   [KlothoOrder(4)] public FP64 ProjectileSpeed; // Units/second
   [KlothoOrder(5)] public FP64 ProjectileRange;
   [KlothoOrder(6)] public FP64 ProjectileRadius;
@@ -25,7 +25,7 @@ public partial class SkillAsset : IDataAsset {
 
   public bool HasCastRange => MinCastRange > FP64.Zero || MaxCastRange > FP64.Zero;
 
-  public int DamageAtRank(int rank) {
-    return rank <= 0 ? 0 : Damage + DamagePerRank * (rank - 1);
+  public FP64 DamageAtRank(int rank) {
+    return rank <= 0 ? FP64.Zero : Damage + DamagePerRank * FP64.FromInt(rank - 1);
   }
 }

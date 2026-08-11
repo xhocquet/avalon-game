@@ -66,7 +66,7 @@ public class VfxManager {
     if (attackerView is IAttackableView attacker)
       attacker.OnAttackVfx(targetPos);
     if (targetView is IAttackableView target)
-      target.OnHitVfx(evt.Damage, attackerPos);
+      target.OnHitVfx(evt.Damage.ToFloat(), attackerPos);
   }
 
   private void HandleTurretDestroyed(TurretDestroyedEvent evt) {

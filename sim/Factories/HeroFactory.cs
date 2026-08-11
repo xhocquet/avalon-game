@@ -23,16 +23,15 @@ public static class HeroFactory {
     });
     frame.Add(entity, new Controllable());
     frame.Add(entity, new Respawns());
-    frame.Add(entity, new InventoryComponent());
+    frame.Add(entity, new InventoryComponent { GoldPerTick = matchRules.StartingGoldPerTick });
     frame.Add(entity, new ResourcesComponent());
     frame.Add(entity, new ExperienceComponent());
     frame.Add(entity, BuildSkills(heroAsset));
-    var stats = StatsComponent.From(heroAsset);
-    stats.GoldPerTick = matchRules.StartingGoldPerTick;
-    frame.Add(entity, stats);
-    frame.Add(entity, new Health(heroAsset.Health));
-    frame.Add(entity, Combat.From(heroAsset));
-    frame.Add(entity, NavAgentFactory.At(ref frame, position, heroAsset.MoveSpeed, heroAsset.Radius));
+    frame.Add(entity, StatsComponent.From(heroAsset));
+    frame.Add(entity, new Health(heroAsset.BaseHealth));
+    frame.Add(entity, new Combat());
+    frame.Add(entity,
+      NavAgentFactory.At(ref frame, position, heroAsset.MoveSpeed, heroAsset.PathingRadius));
 
     // Register hero-specific logic
     HeroBehaviors.Get(heroAsset.BehaviorId).OnSpawn(ref frame, entity, heroAsset);

@@ -182,19 +182,75 @@ public class ExperienceSystemTests {
     var frame = harness.Frame;
     var rules = harness.AssetRegistry.Get<XpRulesAsset>();
     EntityRef hero = harness.FindHero(1);
-    int baseStrength = frame.GetReadOnly<StatsComponent>(hero).Strength;
-    int baseMaxHealth = frame.GetReadOnly<StatsComponent>(hero).MaxHealth;
-    FP64 baseAttackSpeed = frame.GetReadOnly<StatsComponent>(hero).AttackSpeed;
-    int currentHealth = frame.GetReadOnly<Health>(hero).Current;
+    var heroAsset = HeroRow(harness, hero);
+    var baseAttackDamage = frame.GetReadOnly<StatsComponent>(hero).AttackDamage;
+    var baseMaxHealth = frame.GetReadOnly<StatsComponent>(hero).MaxHealth;
+    var baseArmor = frame.GetReadOnly<StatsComponent>(hero).Armor;
+    var currentHealth = frame.GetReadOnly<Health>(hero).Current;
     frame.Get<ExperienceComponent>(hero).Experience = rules.TotalXpForLevel(2);
 
     new ExperienceSystem().Update(ref frame);
 
+    var healthGain = StatGrowth.Between(rules, heroAsset.HealthPerLevel, 1, 2);
     ref readonly var stats = ref frame.GetReadOnly<StatsComponent>(hero);
-    stats.Strength.Should().Be(baseStrength + rules.StrengthPerLevel);
-    stats.MaxHealth.Should().Be(baseMaxHealth + rules.MaxHealthPerLevel);
-    stats.AttackSpeed.Should().Be(baseAttackSpeed + rules.AttackSpeedPerLevel);
-    frame.GetReadOnly<Health>(hero).Current.Should().Be(currentHealth + rules.MaxHealthPerLevel);
+    stats.AttackDamage.Should()
+      .Be(baseAttackDamage + StatGrowth.Between(rules, heroAsset.AttackDamagePerLevel, 1, 2));
+    stats.MaxHealth.Should().Be(baseMaxHealth + healthGain);
+    stats.Armor.Should().Be(baseArmor + StatGrowth.Between(rules, heroAsset.ArmorPerLevel, 1, 2));
+    frame.GetReadOnly<Health>(hero).Current.Should().Be(currentHealth + healthGain);
+  }
+
+  // The curve is not linear, so the gain has to be the difference between the two levels rather
+  // than a per-level step repeated - otherwise a multi-level tick lands somewhere else entirely.
+  [Fact]
+  public void LevellingSeveralStepsAtOnce_LandsWhereLevellingOneAtATimeDoes() {
+    var stepwise = SimHarness.CreateInitialized();
+    var atOnce = SimHarness.CreateInitialized();
+    var rules = stepwise.AssetRegistry.Get<XpRulesAsset>();
+
+    var stepwiseFrame = stepwise.Frame;
+    var stepwiseHero = stepwise.FindHero(1);
+    for (var level = 2; level <= 6; level++) {
+      stepwiseFrame.Get<ExperienceComponent>(stepwiseHero).Experience = rules.TotalXpForLevel(level);
+      new ExperienceSystem().Update(ref stepwiseFrame);
+    }
+
+    var atOnceFrame = atOnce.Frame;
+    var atOnceHero = atOnce.FindHero(1);
+    atOnceFrame.Get<ExperienceComponent>(atOnceHero).Experience = rules.TotalXpForLevel(6);
+    new ExperienceSystem().Update(ref atOnceFrame);
+
+    // Within a raw fixed-point unit or two: five separate Adds each round once, one Add rounds once.
+    // The residue is 2^-32 scale and identical on both peers, so it cannot desync a rollback.
+    for (var stat = 0; stat < StatRanges.Count; stat++) {
+      var atOnceValue = atOnceFrame.GetReadOnly<StatsComponent>(atOnceHero).Get((StatType)stat);
+      var stepwiseValue = stepwiseFrame.GetReadOnly<StatsComponent>(stepwiseHero).Get((StatType)stat);
+      FP64.Abs(atOnceValue - stepwiseValue).Should().BeLessThanOrEqualTo(FP64.FromRaw(8),
+        $"{(StatType)stat} must not depend on how the levels arrived");
+    }
+  }
+
+  // The authored ranges are level 1 to MaxLevel spans, so a capped hero has to land exactly on
+  // base + perLevel * (MaxLevel - 1). That is what makes StatGrowthCurveA/B readable as authored
+  // data rather than an arbitrary pair.
+  [Fact]
+  public void AtTheLevelCap_AStatLandsOnBasePlusItsWholeGrowth() {
+    var harness = SimHarness.CreateInitialized();
+    var frame = harness.Frame;
+    var rules = harness.AssetRegistry.Get<XpRulesAsset>();
+    EntityRef hero = harness.FindHero(1);
+    var heroAsset = HeroRow(harness, hero);
+    frame.Get<ExperienceComponent>(hero).Experience = rules.TotalXpForLevel(rules.MaxLevel);
+
+    new ExperienceSystem().Update(ref frame);
+
+    // Within a raw unit: the curve constants are authored as decimals, so the ramp reaches 1 at the
+    // cap only to fixed-point precision.
+    var levels = FP64.FromInt(rules.MaxLevel - 1);
+    ShouldBeAbout(frame.GetReadOnly<StatsComponent>(hero).MaxHealth,
+      heroAsset.BaseHealth + heroAsset.HealthPerLevel * levels);
+    ShouldBeAbout(frame.GetReadOnly<StatsComponent>(hero).Armor,
+      heroAsset.BaseArmor + heroAsset.ArmorPerLevel * levels);
   }
 
   [Fact]
@@ -203,7 +259,8 @@ public class ExperienceSystemTests {
     var frame = harness.Frame;
     var rules = harness.AssetRegistry.Get<XpRulesAsset>();
     EntityRef hero = harness.FindHero(1);
-    int baseStrength = frame.GetReadOnly<StatsComponent>(hero).Strength;
+    var heroAsset = HeroRow(harness, hero);
+    var baseAttackDamage = frame.GetReadOnly<StatsComponent>(hero).AttackDamage;
     frame.Get<ExperienceComponent>(hero).Experience = rules.TotalXpForLevel(4);
 
     var collector = new EventCollector();
@@ -213,7 +270,8 @@ public class ExperienceSystemTests {
     new ExperienceSystem().Update(ref frame);
 
     frame.GetReadOnly<ExperienceComponent>(hero).Level.Should().Be(4);
-    frame.GetReadOnly<StatsComponent>(hero).Strength.Should().Be(baseStrength + rules.StrengthPerLevel * 3);
+    frame.GetReadOnly<StatsComponent>(hero).AttackDamage.Should()
+      .Be(baseAttackDamage + StatGrowth.Between(rules, heroAsset.AttackDamagePerLevel, 1, 4));
     // Three levels in one tick is still one arrival, so the view gets one event carrying the level reached.
     collector.Count.Should().Be(1);
     collector.Collected[0].Should().BeOfType<HeroLeveledUpEvent>().Subject.Level.Should().Be(4);
@@ -238,7 +296,7 @@ public class ExperienceSystemTests {
     var frame = harness.Frame;
     var rules = harness.AssetRegistry.Get<XpRulesAsset>();
     EntityRef hero = harness.FindHero(1);
-    frame.Get<Health>(hero).Current = 0;
+    frame.Get<Health>(hero).Current = FP64.Zero;
     frame.Add(hero, new PendingRespawn { RemainingTicks = 30 });
     frame.Get<ExperienceComponent>(hero).Experience = rules.TotalXpForLevel(2);
 
@@ -271,7 +329,7 @@ public class ExperienceSystemTests {
     var frame = harness.Frame;
     EntityRef hero = harness.FindHero(1);
     frame.Get<ExperienceComponent>(hero).Experience = 250;
-    frame.Get<Health>(hero).Current = 0;
+    frame.Get<Health>(hero).Current = FP64.Zero;
 
     var system = new RespawnSystem();
     system.Update(ref frame);
@@ -333,5 +391,18 @@ public class ExperienceSystemTests {
     frame.Add(entity, new Health(100));
 
     return entity;
+  }
+
+  private static void ShouldBeAbout(FP64 actual, FP64 expected) {
+    // A thousandth of a point. The curve constants are authored as decimals, so the ramp reaches 1
+    // at the cap only to fixed-point precision, and 17 levels of that compound.
+    var tolerance = FP64.One / FP64.FromInt(1000);
+    FP64.Abs(actual - expected).Should().BeLessThanOrEqualTo(tolerance,
+      $"expected about {expected} but found {actual}");
+  }
+
+  private static HeroAsset HeroRow(SimHarness harness, EntityRef hero) {
+    var frame = harness.Frame;
+    return harness.AssetRegistry.Get<HeroAsset>(frame.GetReadOnly<Hero>(hero).HeroAssetId);
   }
 }

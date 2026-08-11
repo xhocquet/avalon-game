@@ -23,7 +23,7 @@ public class NavAgentInitializationTests {
 
       nav.Position.Should().Be(transform.Position);
       nav.Speed.Should().Be(heroAsset.MoveSpeed);
-      nav.Radius.Should().Be(heroAsset.Radius);
+      nav.Radius.Should().Be(heroAsset.PathingRadius);
     }
 
     filter.Count.Should().Be(2);
@@ -47,7 +47,7 @@ public class NavAgentInitializationTests {
 
       nav.Position.Should().Be(transform.Position);
       nav.Speed.Should().Be(stats.MoveSpeed);
-      nav.Radius.Should().Be(stats.Radius);
+      nav.Radius.Should().Be(stats.PathingRadius);
       count++;
     }
 
@@ -63,7 +63,7 @@ public class NavAgentInitializationTests {
 
     var frame = harness.Frame;
     var buffed = frame.GetReadOnly<StatsComponent>(hero).MoveSpeed + FP64.FromInt(3);
-    frame.Get<StatsComponent>(hero).MoveSpeed = buffed;
+    frame.Get<StatsComponent>(hero).Set(StatType.MoveSpeed, buffed);
     harness.Tick();
 
     harness.Frame.GetReadOnly<NavAgentComponent>(hero).Speed.Should().Be(buffed);

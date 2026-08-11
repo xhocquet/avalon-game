@@ -37,24 +37,24 @@ public class PurchaseItemCommandTests {
 
     item.Should().NotBeNull();
     item.Cost.Should().Be(10);
-    item.AttackBonus.Should().Be(10, "the .bytes must load AttackBonus, not just Cost");
+    item.AttackBonus.Should().Be(FP64.FromInt(10), "the .bytes must load AttackBonus, not just Cost");
   }
 
   [Fact]
-  public void Purchase_AppliesAbsoluteStrengthDelta() {
+  public void Purchase_AppliesAbsoluteAttackDamageDelta() {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
 
     var hero = FindHero(ref frame, PlayerId);
     PlaceHeroAtTeamShop(ref frame, hero);
     SetGold(ref frame, hero, 10);
-    var strengthBefore = frame.GetReadOnly<StatsComponent>(hero).Strength;
+    var attackDamageBefore = frame.GetReadOnly<StatsComponent>(hero).AttackDamage;
 
     harness.Tick(Purchase(EyeKeyItemId));
 
     frame = harness.Frame;
     hero = FindHero(ref frame, PlayerId);
-    frame.GetReadOnly<StatsComponent>(hero).Strength.Should().Be(strengthBefore + 10);
+    frame.GetReadOnly<StatsComponent>(hero).AttackDamage.Should().Be(attackDamageBefore + FP64.FromInt(10));
     frame.GetReadOnly<InventoryComponent>(hero).Gold.Should().Be(0);
   }
 
@@ -100,7 +100,7 @@ public class PurchaseItemCommandTests {
   }
 
   [Fact]
-  public void Purchase_InRangeWithEnoughGold_DeductsGoldAndBuffsStrength() {
+  public void Purchase_InRangeWithEnoughGold_DeductsGoldAndBuffsAttackDamage() {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     var item = harness.AssetRegistry.Get<ShopItemAsset>(EyeKeyItemId);
@@ -108,14 +108,14 @@ public class PurchaseItemCommandTests {
     var hero = FindHero(ref frame, PlayerId);
     PlaceHeroAtTeamShop(ref frame, hero);
     SetGold(ref frame, hero, item.Cost + 5);
-    var strengthBefore = frame.GetReadOnly<StatsComponent>(hero).Strength;
+    var attackDamageBefore = frame.GetReadOnly<StatsComponent>(hero).AttackDamage;
 
     harness.Tick(Purchase(EyeKeyItemId));
 
     frame = harness.Frame;
     hero = FindHero(ref frame, PlayerId);
     frame.GetReadOnly<InventoryComponent>(hero).Gold.Should().Be(5);
-    frame.GetReadOnly<StatsComponent>(hero).Strength.Should().Be(strengthBefore + item.AttackBonus);
+    frame.GetReadOnly<StatsComponent>(hero).AttackDamage.Should().Be(attackDamageBefore + item.AttackBonus);
   }
 
   [Fact]
@@ -127,14 +127,14 @@ public class PurchaseItemCommandTests {
     var hero = FindHero(ref frame, PlayerId);
     PlaceHeroFarFromShop(ref frame, hero);
     SetGold(ref frame, hero, 100);
-    var strengthBefore = frame.GetReadOnly<StatsComponent>(hero).Strength;
+    var attackDamageBefore = frame.GetReadOnly<StatsComponent>(hero).AttackDamage;
 
     harness.Tick(Purchase(EyeKeyItemId));
 
     frame = harness.Frame;
     hero = FindHero(ref frame, PlayerId);
     frame.GetReadOnly<InventoryComponent>(hero).Gold.Should().Be(100);
-    frame.GetReadOnly<StatsComponent>(hero).Strength.Should().Be(strengthBefore);
+    frame.GetReadOnly<StatsComponent>(hero).AttackDamage.Should().Be(attackDamageBefore);
   }
 
   [Fact]
@@ -146,14 +146,14 @@ public class PurchaseItemCommandTests {
     var hero = FindHero(ref frame, PlayerId);
     PlaceHeroAtTeamShop(ref frame, hero);
     SetGold(ref frame, hero, item.Cost - 1);
-    var strengthBefore = frame.GetReadOnly<StatsComponent>(hero).Strength;
+    var attackDamageBefore = frame.GetReadOnly<StatsComponent>(hero).AttackDamage;
 
     harness.Tick(Purchase(EyeKeyItemId));
 
     frame = harness.Frame;
     hero = FindHero(ref frame, PlayerId);
     frame.GetReadOnly<InventoryComponent>(hero).Gold.Should().Be(item.Cost - 1);
-    frame.GetReadOnly<StatsComponent>(hero).Strength.Should().Be(strengthBefore);
+    frame.GetReadOnly<StatsComponent>(hero).AttackDamage.Should().Be(attackDamageBefore);
   }
 
   // CommandValidation's own gate: an id the registry never heard of is dropped before ShopActions runs.
@@ -203,13 +203,13 @@ public class PurchaseItemCommandTests {
     var hero = FindHero(ref frame, PlayerId);
     PlaceHeroAtTeamShop(ref frame, hero);
     SetGold(ref frame, hero, 100);
-    var strengthBefore = frame.GetReadOnly<StatsComponent>(hero).Strength;
+    var attackDamageBefore = frame.GetReadOnly<StatsComponent>(hero).AttackDamage;
 
     ShopActions.CanPurchase(ref frame, PlayerId, EyeKeyItemId).Should().BeTrue();
 
     frame.GetReadOnly<InventoryComponent>(hero).Gold.Should().Be(100);
     frame.GetReadOnly<InventoryComponent>(hero).ItemCount.Should().Be(0);
-    frame.GetReadOnly<StatsComponent>(hero).Strength.Should().Be(strengthBefore);
+    frame.GetReadOnly<StatsComponent>(hero).AttackDamage.Should().Be(attackDamageBefore);
   }
 
   // The client books a queued buy's gold as pending before the sim has run it, so the second click on

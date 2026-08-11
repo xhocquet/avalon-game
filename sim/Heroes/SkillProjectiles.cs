@@ -14,7 +14,7 @@ public static class SkillProjectiles {
   // caster's facing rather than fanned outward - the three parallel bars Crystal Bullets telegraphs.
   // Offsets are symmetric about the aim line, so an odd count always puts one bullet dead centre.
   public static void SpawnVolley(ref Frame frame, in SkillCastContext ctx, FPVector3 direction,
-    int count, FP64 spacing, FP64 speed, FP64 range, FP64 radius, FP64 spawnOffset, int damage) {
+    int count, FP64 spacing, FP64 speed, FP64 range, FP64 radius, FP64 spawnOffset, FP64 damage) {
     if (count <= 0 || speed <= FP64.Zero || range <= FP64.Zero)
       return;
 

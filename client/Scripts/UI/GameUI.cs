@@ -318,7 +318,8 @@ public partial class GameUI : CanvasLayer, IViewHud {
       if (hero.PlayerId != localId) continue;
 
       ref readonly var health = ref frame.GetReadOnly<Health>(entity);
-      SetPlayerHealth(health.Current, frame.GetReadOnly<StatsComponent>(entity).MaxHealth);
+      SetPlayerHealth(health.Current.ToFloat(),
+        frame.GetReadOnly<StatsComponent>(entity).MaxHealth.ToFloat());
       return;
     }
   }
@@ -364,14 +365,14 @@ public partial class GameUI : CanvasLayer, IViewHud {
       if (hero.PlayerId != localId) continue;
 
       ref readonly var stats = ref frame.GetReadOnly<StatsComponent>(entity);
-      SetStrengthText(stats.Strength);
+      SetAttackDamageText(stats.AttackDamage.ToFloat());
       return;
     }
   }
 
-  private void SetStrengthText(int strength) {
+  private void SetAttackDamageText(float attackDamage) {
     if (_strengthLabel != null)
-      _strengthLabel.Text = $"Strength: {strength}";
+      _strengthLabel.Text = $"Attack damage: {attackDamage:0.#}";
   }
 
   private void UpdateLocalPlayerExperience(Frame frame) {

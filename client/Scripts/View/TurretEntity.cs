@@ -29,7 +29,7 @@ public partial class TurretEntity : TeamEntityViewNode, IAttackableView, INamedV
     // TODO: turret fire animation / particles
   }
 
-  public void OnHitVfx(int damage, Vector3 attackerPosition) {
+  public void OnHitVfx(float damage, Vector3 attackerPosition) {
     // TODO: hit reaction / particles
   }
 
@@ -73,11 +73,11 @@ public partial class TurretEntity : TeamEntityViewNode, IAttackableView, INamedV
       return;
     }
 
-    ref readonly var combat = ref frame.GetReadOnly<Combat>(EntityRef);
-    _loadingIndicator.Visible = combat.TargetUnitId != 0;
-    if (!_loadingIndicator.Visible || combat.AttackCooldownTicks <= 0) return;
+    _loadingIndicator.Visible = frame.GetReadOnly<Combat>(EntityRef).TargetUnitId != 0;
+    if (!_loadingIndicator.Visible) return;
 
-    _loadingIndicatorMaterial?.SetShaderParameter(CooldownParam, CombatView.CooldownProgress(combat));
+    _loadingIndicatorMaterial?.SetShaderParameter(CooldownParam,
+      CombatView.CooldownProgress(frame, EntityRef));
   }
 
   private void ApplyTeamTint() {

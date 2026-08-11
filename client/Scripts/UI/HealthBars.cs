@@ -41,10 +41,10 @@ public partial class HealthBars : ColorRect {
       if (!frame.Has<StatsComponent>(evn.EntityRef)) continue;
 
       ref readonly var health = ref frame.GetReadOnly<Health>(evn.EntityRef);
-      var maxHealth = frame.GetReadOnly<StatsComponent>(evn.EntityRef).MaxHealth;
-      if (!health.IsAlive || maxHealth <= 0) continue;
+      var maxHealth = frame.GetReadOnly<StatsComponent>(evn.EntityRef).MaxHealth.ToFloat();
+      if (!health.IsAlive || maxHealth <= 0f) continue;
 
-      var ratio = Mathf.Clamp(health.Current / (float)maxHealth, 0.0f, 1.0f);
+      var ratio = Mathf.Clamp(health.Current.ToFloat() / maxHealth, 0.0f, 1.0f);
 
       var worldPoint = node3d.GlobalPosition + new Vector3(0f, BarWorldYOffset, 0f);
       if (cam.IsPositionBehind(worldPoint)) continue;

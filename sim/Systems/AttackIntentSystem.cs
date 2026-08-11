@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Components;
 using Meesles.Avalon.Sim.Navigation;
@@ -8,47 +9,57 @@ using xpTURN.Klotho.Logging;
 namespace Meesles.Avalon;
 
 public class AttackIntentSystem(NavigationRuntime navigation = null) : ISystem {
+  private readonly List<EntityRef> _spentIntents = [];
   private readonly UnitLookup.Index _unitIdIndex = new();
 
   public void Update(ref Frame frame) {
     _unitIdIndex.Rebuild(ref frame);
+    _spentIntents.Clear();
 
     var filter = frame.Filter<AttackTargetUnitId, TeamComponent, TransformComponent>();
     while (filter.Next(out var attacker))
-      UpdateAttacker(ref frame, attacker);
+      if (!UpdateAttacker(ref frame, attacker))
+        _spentIntents.Add(attacker);
+
+    // Deferred: AttackTargetUnitId is one of the filter's own types (see the iteration rule in AGENTS.md).
+    for (var i = 0; i < _spentIntents.Count; i++)
+      UnitIntent.ClearAttackIntent(ref frame, _spentIntents[i]);
   }
 
-  private void UpdateAttacker(ref Frame frame, EntityRef attacker) {
+  // False means the order is spent and its AttackTargetUnitId comes off after the loop.
+  private bool UpdateAttacker(ref Frame frame, EntityRef attacker) {
     if (!frame.Has<Combat>(attacker)) {
       LogAttackState(ref frame, attacker, 0, "cleared_no_combat");
-      UnitIntent.ClearAttackIntent(ref frame, attacker);
-      return;
+      return false;
     }
 
     var targetUnitId = frame.GetReadOnly<AttackTargetUnitId>(attacker).TargetUnitId;
     if (!TryResolveTarget(ref frame, attacker, targetUnitId, out var target)) {
       LogAttackState(ref frame, attacker, targetUnitId, "cleared_invalid_target");
-      UnitIntent.ClearAttackIntent(ref frame, attacker);
       UnitIntent.ClearMoveTarget(ref frame, attacker);
-      return;
+      return false;
     }
 
-    if (IsWithinAttackRange(ref frame, attacker, target, out var distSq, out var rangeSq))
-      EngageTarget(ref frame, attacker, targetUnitId, distSq, rangeSq);
-    else
-      PursueTarget(ref frame, attacker, target);
+    if (!IsWithinAttackRange(ref frame, attacker, target, out var distSq, out var rangeSq))
+      return PursueTarget(ref frame, attacker, target);
+
+    EngageTarget(ref frame, attacker, targetUnitId, distSq, rangeSq);
+    return true;
   }
 
   private static bool IsWithinAttackRange(ref Frame frame, EntityRef attacker, EntityRef target,
     out FP64 distSq, out FP64 rangeSq) {
     ref readonly var attackerTransform = ref frame.GetReadOnly<TransformComponent>(attacker);
     ref readonly var targetTransform = ref frame.GetReadOnly<TransformComponent>(target);
-    ref readonly var combat = ref frame.GetReadOnly<Combat>(attacker);
+
+    var range = frame.Has<StatsComponent>(attacker)
+      ? frame.GetReadOnly<StatsComponent>(attacker).AttackRange
+      : FP64.Zero;
 
     var toTarget = targetTransform.Position - attackerTransform.Position;
     toTarget.y = FP64.Zero;
     distSq = toTarget.sqrMagnitude;
-    rangeSq = combat.AttackRange * combat.AttackRange;
+    rangeSq = range * range;
     return distSq <= rangeSq;
   }
 
@@ -65,19 +76,19 @@ public class AttackIntentSystem(NavigationRuntime navigation = null) : ISystem {
   }
 
   // Out of range: mobile units walk to the target, immobile turrets drop the intent entirely.
-  private void PursueTarget(ref Frame frame, EntityRef attacker, EntityRef target) {
+  private bool PursueTarget(ref Frame frame, EntityRef attacker, EntityRef target) {
     ref var combat = ref frame.Get<Combat>(attacker);
     combat.TargetUnitId = 0;
 
     if (frame.Has<Turret>(attacker)) {
-      UnitIntent.ClearAttackIntent(ref frame, attacker);
       UnitIntent.ClearMoveTarget(ref frame, attacker);
-      return;
+      return false;
     }
 
     var approach = NavTargets.SnapToWalkable(navigation?.Query,
       frame.GetReadOnly<TransformComponent>(target).Position);
     UnitIntent.SetMoveTarget(ref frame, attacker, approach);
+    return true;
   }
 
   // Beyond the shared hostility rule this system also needs the target's position, both to measure

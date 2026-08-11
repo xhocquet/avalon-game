@@ -18,6 +18,7 @@ public class ExperienceSystem : ISystem {
     while (filter.Next(out var entity)) {
       var levelsGained = 0;
       ref var experience = ref frame.Get<ExperienceComponent>(entity);
+      var levelBefore = experience.Level;
       while (experience.Level < rules.MaxLevel &&
              experience.Experience >= rules.TotalXpForLevel(experience.Level + 1)) {
         experience.Level++;
@@ -27,20 +28,40 @@ public class ExperienceSystem : ISystem {
       if (levelsGained == 0)
         continue;
 
-      ApplyLevelGains(ref frame, entity, rules, levelsGained);
+      ApplyLevelGains(ref frame, entity, rules, levelBefore, experience.Level);
       RaiseLevelUpEvent(ref frame, entity, frame.GetReadOnly<ExperienceComponent>(entity).Level);
     }
   }
 
-  private static void ApplyLevelGains(ref Frame frame, EntityRef entity, XpRulesAsset rules, int levelsGained) {
-    ref var stats = ref frame.Get<StatsComponent>(entity);
-    stats.Add(StatType.Strength, FP64.FromInt(rules.StrengthPerLevel * levelsGained));
-    stats.Add(StatType.AttackSpeed, rules.AttackSpeedPerLevel * FP64.FromInt(levelsGained));
-
-    HealthApplication.GrantMaxHealth(ref frame, entity, rules.MaxHealthPerLevel * levelsGained);
+  private static void ApplyLevelGains(ref Frame frame, EntityRef entity, XpRulesAsset rules,
+    int levelBefore, int levelAfter) {
+    var heroAsset = frame.AssetRegistry.Get<HeroAsset>(frame.GetReadOnly<Hero>(entity).HeroAssetId);
+    if (heroAsset != null)
+      ApplyGrowth(ref frame, entity, heroAsset, rules, levelBefore, levelAfter);
 
     if (frame.Has<SkillsComponent>(entity))
-      frame.Get<SkillsComponent>(entity).SkillPoints += levelsGained;
+      frame.Get<SkillsComponent>(entity).SkillPoints += levelAfter - levelBefore;
+  }
+
+  // Per-hero growth off the hero's own row, applied as the difference between the two levels rather
+  // than a flat step each - the curve is not linear, and several levels can land on one tick.
+  private static void ApplyGrowth(ref Frame frame, EntityRef entity, HeroAsset heroAsset,
+    XpRulesAsset rules, int levelBefore, int levelAfter) {
+    ref var stats = ref frame.Get<StatsComponent>(entity);
+    for (var i = 0; i < StatRanges.Count; i++) {
+      var stat = (StatType)i;
+
+      // MaxHealth moves through HealthApplication so current HP follows the pool up.
+      if (stat == StatType.MaxHealth)
+        continue;
+
+      var growth = heroAsset.GrowthOf(stat);
+      if (growth != FP64.Zero)
+        stats.Add(stat, StatGrowth.Between(rules, growth, levelBefore, levelAfter));
+    }
+
+    HealthApplication.GrantMaxHealth(ref frame, entity,
+      StatGrowth.Between(rules, heroAsset.GrowthOf(StatType.MaxHealth), levelBefore, levelAfter));
   }
 
   private static void RaiseLevelUpEvent(ref Frame frame, EntityRef entity, int level) {
