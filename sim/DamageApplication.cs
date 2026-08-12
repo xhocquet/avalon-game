@@ -11,19 +11,25 @@ public static class DamageApplication {
   private static readonly FP64 Hundred = FP64.FromInt(100);
   private static readonly FP64 Two = FP64.FromInt(2);
 
-  // Returns the damage actually dealt after mitigation.
+  // Returns the damage actually dealt after mitigation. `canCrit` is opt-in per source: auto-attacks
+  // roll against Stats.CritChance, skill damage does not.
   public static FP64 ApplyDamage(ref Frame frame, EntityRef source, EntityRef target, FP64 amount,
-    DamageType damageType = DamageType.Physical) {
+    DamageType damageType = DamageType.Physical, bool canCrit = false) {
     var sourceUnitId = UnitLookup.GetUnitId(ref frame, source);
 
     // Godmode still raises the hit so attack VFX and feedback play; only the health write is skipped,
     // which also leaves LastDamagerUnitId alone and keeps kill credit off an attacker who dealt nothing.
     if (Cheats.BlocksDamage(ref frame, target)) {
-      RaiseHitEvent(ref frame, source, target, sourceUnitId, FP64.Zero);
+      RaiseHitEvent(ref frame, source, target, sourceUnitId, FP64.Zero, false);
       return FP64.Zero;
     }
 
-    var damage = Mitigate(ref frame, target, amount, damageType);
+    var isCrit = false;
+    var incoming = canCrit
+      ? CriticalStrikes.Scale(ref frame, source, sourceUnitId, amount, out isCrit)
+      : amount;
+
+    var damage = Mitigate(ref frame, target, incoming, damageType);
 
     ref var health = ref frame.Get<Health>(target);
     health.Current -= damage;
@@ -35,7 +41,7 @@ public static class DamageApplication {
     health.LastDamagerUnitId = sourceUnitId;
 
     MatchStats.RecordDamage(ref frame, source, target, damage);
-    RaiseHitEvent(ref frame, source, target, sourceUnitId, damage);
+    RaiseHitEvent(ref frame, source, target, sourceUnitId, damage, isCrit);
     return damage;
   }
 
@@ -59,7 +65,7 @@ public static class DamageApplication {
   }
 
   private static void RaiseHitEvent(ref Frame frame, EntityRef source, EntityRef target,
-    int sourceUnitId, FP64 damage) {
+    int sourceUnitId, FP64 damage, bool isCrit) {
     if (frame.EventRaiser == null)
       return;
 
@@ -67,6 +73,7 @@ public static class DamageApplication {
     evt.AttackerUnitId = sourceUnitId;
     evt.TargetUnitId = UnitLookup.GetUnitId(ref frame, target);
     evt.Damage = damage;
+    evt.IsCrit = isCrit ? 1 : 0;
     evt.AttackerPosition = frame.Has<TransformComponent>(source)
       ? frame.GetReadOnly<TransformComponent>(source).Position
       : default;

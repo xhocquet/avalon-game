@@ -32,7 +32,8 @@ public static class StatRanges {
     /* CritDamage       */ new(Int(1), Int(5), Ratio(7, 4)),
     /* MoveSpeed        */ new(Int(0), Int(20), Int(0)),
     /* AttackRange      */ new(Int(0), Int(100), Int(1)),
-    /* AcquisitionRange */ new(Int(0), Int(200), Int(1))
+    /* AcquisitionRange */ new(Int(0), Int(200), Int(1)),
+    /* GameplayRadius   */ new(Int(0), Int(20), Int(0))
   ];
 
   static StatRanges() {

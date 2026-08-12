@@ -151,12 +151,9 @@ public class ProjectileSystem : ISystem {
     return _unitIndex.TryGet(projectile.SourceUnitId, out var source) ? source : default;
   }
 
-  // Heroes and minions carry their body radius on the nav agent (NavAgentFactory.At); structures
-  // have none and are excluded from skill hits anyway.
+  // The authored body, not the nav agent's PathingRadius - a unit is pathed thinner than it is hit.
   private static FP64 BodyRadius(ref Frame frame, EntityRef entity) {
-    return frame.Has<NavAgentComponent>(entity)
-      ? frame.GetReadOnly<NavAgentComponent>(entity).Radius
-      : FP64.Zero;
+    return CombatRange.GameplayRadiusOf(ref frame, entity);
   }
 
   // Normalized 0..1 position along [start, end] of the point closest to `point`. A zero-length

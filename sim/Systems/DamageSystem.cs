@@ -31,7 +31,7 @@ public class DamageSystem : ISystem {
 
       var healthBefore = frame.GetReadOnly<Health>(target).Current;
       var damage = DamageApplication.ApplyDamage(ref frame, attacker, target,
-        GetAttackDamage(ref frame, attacker));
+        GetAttackDamage(ref frame, attacker), DamageType.Physical, canCrit: true);
 
       combat.CooldownRemainingTicks = CombatTiming.CooldownTicks(ref frame, attacker);
 

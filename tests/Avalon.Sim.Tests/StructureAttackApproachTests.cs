@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using FluentAssertions;
+using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using Xunit;
 using xpTURN.Klotho.Deterministic.Math;
@@ -70,6 +71,34 @@ public class StructureAttackApproachTests {
     for (int i = 0; i < 120; i++)
       harness.Tick();
 
+    GetHealth(harness, turretUnitId).Should().BeLessThan(startHealth);
+  }
+
+  // The navmesh hole a turret carves is ~1.6m across, wider than any melee hero's authored reach,
+  // so a centre-to-centre range check leaves them chasing a structure they can never touch. Every
+  // faction has to be able to engage, not just the ranged default the other tests spawn.
+  [Theory]
+  [InlineData(AssetIds.FactionHairyWizards)]
+  [InlineData(AssetIds.FactionShrooms)]
+  [InlineData(AssetIds.FactionCrystalWarriors)]
+  [InlineData(AssetIds.FactionSkinwalkerTribe)]
+  [InlineData(AssetIds.FactionPickleKnights)]
+  public void EveryFactionsHero_EngagesATurretItWalksTo(int factionId) {
+    var harness = SimHarness.CreateInitialized(spawnHeroesNow: false);
+    harness.Tick(SimHarness.SelectFactionCommand(HeroPlayerId, 0, factionId));
+
+    var heroUnitId = harness.Frame.GetReadOnly<UnitIdComponent>(harness.FindHero(HeroPlayerId)).UnitId;
+    var (turretUnitId, turretPosition) = FindHostileTurret(harness);
+
+    SetPosition(harness, heroUnitId, ApproachFrom(harness, turretPosition, FP64.FromInt(6)));
+    var startHealth = GetHealth(harness, turretUnitId);
+
+    harness.Tick(SimHarness.AttackCommand(HeroPlayerId, 1, turretUnitId, heroUnitId));
+    for (int i = 0; i < 200; i++)
+      harness.Tick();
+
+    harness.Frame.GetReadOnly<Combat>(Entity(harness, heroUnitId)).TargetUnitId
+      .Should().Be(turretUnitId, "the hero has to close to a range it can actually reach from");
     GetHealth(harness, turretUnitId).Should().BeLessThan(startHealth);
   }
 

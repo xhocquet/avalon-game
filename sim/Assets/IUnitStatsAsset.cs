@@ -27,6 +27,6 @@ public interface IUnitStatsAsset {
   // Fraction of the attack cycle spent winding up before the hit lands. No system reads it yet.
   FP64 AttackWindup { get; }
 
-  FP64 GameplayRadius { get; } // What a hit tests against
+  FP64 GameplayRadius { get; } // What a hit tests against, and what AttackRange is measured from
   FP64 PathingRadius { get; } // What the nav agent occupies
 }

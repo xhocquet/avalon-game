@@ -11,7 +11,6 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon;
 
 public class OasisSpawnSystem : ISystem {
-  private const ulong RandomFeatureKey = 1;
   private readonly List<EntityRef> _completed = [];
 
   public void Update(ref Frame frame) {
@@ -25,7 +24,7 @@ public class OasisSpawnSystem : ISystem {
   // Oases stay clear of new triggers while a spawn is already winding up or in flight — cheap
   // insurance in case the prepare + flight durations are ever tuned close to the spawn interval.
   private static void AdvanceCooldowns(ref Frame frame, PickupRulesAsset rules) {
-    var seed = GetWorldSeed(ref frame);
+    var seed = SimRandom.WorldSeed(ref frame);
     var filter = frame.Filter<Oasis, TransformComponent>();
     while (filter.Next(out var entity)) {
       if (frame.Has<OasisEjectPending>(entity) || frame.Has<OasisResourceLanding>(entity))
@@ -125,17 +124,9 @@ public class OasisSpawnSystem : ISystem {
   private static FPVector3 GetRandomTargetPosition(ulong seed, int oasisId, int tick, FPVector3 origin,
     FP64 radius) {
     var index = (ulong)(uint)oasisId << 32 | (uint)tick;
-    var rng = DeterministicRandom.FromSeed(seed, RandomFeatureKey, index);
+    var rng = DeterministicRandom.FromSeed(seed, SimRandom.OasisEjectKey, index);
     var direction = rng.NextDirection2D();
     return origin + new FPVector3(direction.x * radius, FP64.Zero, direction.y * radius);
-  }
-
-  // KlothoEngine injects RandomSeedComponent before world init; headless test harnesses that
-  // build an EcsSimulation directly (skipping KlothoEngine) don't, so fall back to a fixed seed.
-  private static ulong GetWorldSeed(ref Frame frame) {
-    return frame.TryGetSingleton<RandomSeedComponent>(out var entity)
-      ? frame.GetReadOnly<RandomSeedComponent>(entity).Seed
-      : 0UL;
   }
 
   private static void RaisePreparing(ref Frame frame, int oasisId, int pickupId, int typeAssetId,

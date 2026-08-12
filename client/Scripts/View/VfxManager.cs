@@ -63,6 +63,9 @@ public class VfxManager {
     var line = DebugAttackLine.Create(attackerPos, targetPos);
     _view.AddChild(line);
 
+    var number = DebugDamageNumber.Create(evt.Damage.ToFloat(), targetPos, evt.IsCrit != 0);
+    _view.AddChild(number);
+
     if (attackerView is IAttackableView attacker)
       attacker.OnAttackVfx(targetPos);
     if (targetView is IAttackableView target)

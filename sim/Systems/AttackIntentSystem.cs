@@ -52,14 +52,10 @@ public class AttackIntentSystem(NavigationRuntime navigation = null) : ISystem {
     ref readonly var attackerTransform = ref frame.GetReadOnly<TransformComponent>(attacker);
     ref readonly var targetTransform = ref frame.GetReadOnly<TransformComponent>(target);
 
-    var range = frame.Has<StatsComponent>(attacker)
-      ? frame.GetReadOnly<StatsComponent>(attacker).AttackRange
-      : FP64.Zero;
-
     var toTarget = targetTransform.Position - attackerTransform.Position;
     toTarget.y = FP64.Zero;
     distSq = toTarget.sqrMagnitude;
-    rangeSq = range * range;
+    rangeSq = CombatRange.ReachSq(ref frame, attacker, target);
     return distSq <= rangeSq;
   }
 
