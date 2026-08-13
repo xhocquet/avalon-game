@@ -70,8 +70,6 @@ agent_max_climb = 0.01
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_4fgkh"]
 render_priority = 0
 shader = ExtResource("2_r08to")
-shader_parameter/alpha = 1.0
-shader_parameter/facing_fade = 0.0
 shader_parameter/subdivisions = 32.0
 shader_parameter/grid_width = 0.0
 shader_parameter/background_color = Color(0.5200098, 0.5200098, 0.5200098, 1)
@@ -100,8 +98,6 @@ size = Vector2(100, 100)
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_jb003"]
 render_priority = 0
 shader = ExtResource("2_r08to")
-shader_parameter/alpha = 1.0
-shader_parameter/facing_fade = 0.0
 shader_parameter/subdivisions = 4.0
 shader_parameter/grid_width = 0.0
 shader_parameter/background_color = Color(0.39016098, 0.009557823, 0.12412057, 1)
@@ -147,7 +143,6 @@ directional_shadow_mode = 1
 navigation_mesh = SubResource("NavigationMesh_ayvj0")
 
 [node name="GroundMesh" type="MeshInstance3D" parent="NavigationRegion3D" unique_id=52655680 groups=["navmesh_source"]]
-visible = false
 mesh = SubResource("PlaneMesh_ground")
 skeleton = NodePath("../..")
 
@@ -174,85 +169,232 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, 8)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.71502, 2.488261, -2.7334805)
 mesh = SubResource("BoxMesh_35lrw")
 
+[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle" unique_id=900000001 groups=["navmesh_source"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
+height = 5.0
+vertices = PackedVector3Array(-25, 0, -2.5, 25, 0, -2.5, 25, 0, 2.5, -25, 0, 2.5)
+affect_navigation_mesh = true
+carve_navigation_mesh = true
+
 [node name="Obstacle2" type="MeshInstance3D" parent="NavigationRegion3D" unique_id=685052148]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.71502, 2.488261, 17.28737)
 mesh = SubResource("BoxMesh_35lrw")
+
+[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle2" unique_id=900000002 groups=["navmesh_source"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
+height = 5.0
+vertices = PackedVector3Array(-25, 0, -2.5, 25, 0, -2.5, 25, 0, 2.5, -25, 0, 2.5)
+affect_navigation_mesh = true
+carve_navigation_mesh = true
 
 [node name="Obstacle4" type="MeshInstance3D" parent="NavigationRegion3D" unique_id=1703114278]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -55.116524, 2.488261, 35.986877)
 mesh = SubResource("BoxMesh_35lrw")
 
+[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle4" unique_id=900000003 groups=["navmesh_source"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
+height = 5.0
+vertices = PackedVector3Array(-25, 0, -2.5, 25, 0, -2.5, 25, 0, 2.5, -25, 0, 2.5)
+affect_navigation_mesh = true
+carve_navigation_mesh = true
+
 [node name="Obstacle5" type="MeshInstance3D" parent="NavigationRegion3D" unique_id=1222628413]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.63946, 2.488261, 40.630295)
 mesh = SubResource("BoxMesh_jb003")
+
+[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle5" unique_id=900000004 groups=["navmesh_source"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
+height = 5.0
+vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
+affect_navigation_mesh = true
+carve_navigation_mesh = true
 
 [node name="Obstacle6" type="MeshInstance3D" parent="NavigationRegion3D" unique_id=1158140626]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.408527, 2.488261, 28.067614)
 mesh = SubResource("BoxMesh_jb003")
 
+[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle6" unique_id=900000005 groups=["navmesh_source"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
+height = 5.0
+vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
+affect_navigation_mesh = true
+carve_navigation_mesh = true
+
 [node name="Obstacle7" type="MeshInstance3D" parent="NavigationRegion3D" unique_id=121532550]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 25.558018, 2.488261, 40.07943)
 mesh = SubResource("BoxMesh_jb003")
+
+[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle7" unique_id=900000006 groups=["navmesh_source"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
+height = 5.0
+vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
+affect_navigation_mesh = true
+carve_navigation_mesh = true
 
 [node name="Obstacle8" type="MeshInstance3D" parent="NavigationRegion3D" unique_id=559026593]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.495358, 2.488261, 48.6021)
 mesh = SubResource("BoxMesh_jb003")
 
+[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle8" unique_id=900000007 groups=["navmesh_source"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
+height = 5.0
+vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
+affect_navigation_mesh = true
+carve_navigation_mesh = true
+
 [node name="Obstacle9" type="MeshInstance3D" parent="NavigationRegion3D" unique_id=1167456849]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 37.805107, 2.488261, 25.816668)
 mesh = SubResource("BoxMesh_jb003")
+
+[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle9" unique_id=900000008 groups=["navmesh_source"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
+height = 5.0
+vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
+affect_navigation_mesh = true
+carve_navigation_mesh = true
 
 [node name="Obstacle10" type="MeshInstance3D" parent="NavigationRegion3D" unique_id=1760231597]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 48.570946, 2.488261, 35.728046)
 mesh = SubResource("BoxMesh_jb003")
 
+[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle10" unique_id=900000009 groups=["navmesh_source"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
+height = 5.0
+vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
+affect_navigation_mesh = true
+carve_navigation_mesh = true
+
 [node name="Obstacle11" type="MeshInstance3D" parent="NavigationRegion3D" unique_id=212457755]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 48.570946, 2.488261, 35.728046)
 mesh = SubResource("BoxMesh_jb003")
+
+[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle11" unique_id=900000010 groups=["navmesh_source"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
+height = 5.0
+vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
+affect_navigation_mesh = true
+carve_navigation_mesh = true
 
 [node name="Obstacle12" type="MeshInstance3D" parent="NavigationRegion3D" unique_id=1549438963]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -24.361227, 2.488261, -32.049164)
 mesh = SubResource("BoxMesh_jb003")
 
+[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle12" unique_id=900000011 groups=["navmesh_source"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
+height = 5.0
+vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
+affect_navigation_mesh = true
+carve_navigation_mesh = true
+
 [node name="Obstacle13" type="MeshInstance3D" parent="NavigationRegion3D" unique_id=1903652817]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.250717, 2.488261, -32.049164)
 mesh = SubResource("BoxMesh_jb003")
+
+[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle13" unique_id=900000012 groups=["navmesh_source"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
+height = 5.0
+vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
+affect_navigation_mesh = true
+carve_navigation_mesh = true
 
 [node name="Obstacle14" type="MeshInstance3D" parent="NavigationRegion3D" unique_id=1160654405]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.742157, 2.488261, -32.049164)
 mesh = SubResource("BoxMesh_jb003")
 
+[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle14" unique_id=900000013 groups=["navmesh_source"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
+height = 5.0
+vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
+affect_navigation_mesh = true
+carve_navigation_mesh = true
+
 [node name="Obstacle15" type="MeshInstance3D" parent="NavigationRegion3D" unique_id=1469549730]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2652779, 2.488261, -32.049164)
 mesh = SubResource("BoxMesh_jb003")
+
+[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle15" unique_id=900000014 groups=["navmesh_source"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
+height = 5.0
+vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
+affect_navigation_mesh = true
+carve_navigation_mesh = true
 
 [node name="Obstacle16" type="MeshInstance3D" parent="NavigationRegion3D" unique_id=1870520135]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.053185, 2.488261, -32.049164)
 mesh = SubResource("BoxMesh_jb003")
 
+[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle16" unique_id=900000015 groups=["navmesh_source"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
+height = 5.0
+vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
+affect_navigation_mesh = true
+carve_navigation_mesh = true
+
 [node name="Obstacle17" type="MeshInstance3D" parent="NavigationRegion3D" unique_id=1346369769]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.928108, 2.488261, -32.049164)
 mesh = SubResource("BoxMesh_jb003")
+
+[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle17" unique_id=900000016 groups=["navmesh_source"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
+height = 5.0
+vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
+affect_navigation_mesh = true
+carve_navigation_mesh = true
 
 [node name="Obstacle18" type="MeshInstance3D" parent="NavigationRegion3D" unique_id=1289271648]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.612942, 2.488261, -32.049164)
 mesh = SubResource("BoxMesh_jb003")
 
+[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle18" unique_id=900000017 groups=["navmesh_source"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
+height = 5.0
+vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
+affect_navigation_mesh = true
+carve_navigation_mesh = true
+
 [node name="Obstacle19" type="MeshInstance3D" parent="NavigationRegion3D" unique_id=1506393456]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26.107683, 2.488261, -32.049164)
 mesh = SubResource("BoxMesh_jb003")
+
+[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle19" unique_id=900000018 groups=["navmesh_source"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
+height = 5.0
+vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
+affect_navigation_mesh = true
+carve_navigation_mesh = true
 
 [node name="Obstacle20" type="MeshInstance3D" parent="NavigationRegion3D" unique_id=917616620]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.317284, 2.488261, -32.049164)
 mesh = SubResource("BoxMesh_jb003")
 
+[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle20" unique_id=900000019 groups=["navmesh_source"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
+height = 5.0
+vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
+affect_navigation_mesh = true
+carve_navigation_mesh = true
+
 [node name="Obstacle21" type="MeshInstance3D" parent="NavigationRegion3D" unique_id=966647391]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38.210075, 2.488261, -32.049164)
 mesh = SubResource("BoxMesh_jb003")
 
+[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle21" unique_id=900000020 groups=["navmesh_source"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
+height = 5.0
+vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
+affect_navigation_mesh = true
+carve_navigation_mesh = true
+
 [node name="Obstacle3" type="MeshInstance3D" parent="NavigationRegion3D" unique_id=1481779760]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -15.32341, 2.488261, 54.960846)
 mesh = SubResource("BoxMesh_35lrw")
+
+[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle3" unique_id=900000021 groups=["navmesh_source"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
+height = 5.0
+vertices = PackedVector3Array(-25, 0, -2.5, 25, 0, -2.5, 25, 0, 2.5, -25, 0, 2.5)
+affect_navigation_mesh = true
+carve_navigation_mesh = true
 
 [node name="Wiz" parent="." unique_id=1682798515 instance=ExtResource("4_hvd7u")]
 transform = Transform3D(0.58277553, 0, 0.81263316, 0, 1, 0, -0.81263316, 0, 0.58277553, -11.456522, 0.023467302, -14.669315)
@@ -280,171 +422,3 @@ transform = Transform3D(-0.48538953, 0, 0.87429804, 0, 1, 0, -0.87429804, 0, -0.
 
 [node name="CaperCreep" parent="." unique_id=1094035730 instance=ExtResource("12_hp4u6")]
 transform = Transform3D(0.4619498, 0, 0.8869061, 0, 1, 0, -0.8869061, 0, 0.4619498, -10.251447, 0.019338608, -12.241278)
-
-[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle" unique_id=900000001 groups=["navmesh_source"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
-vertices = PackedVector3Array(-25, 0, -2.5, 25, 0, -2.5, 25, 0, 2.5, -25, 0, 2.5)
-height = 5.0
-radius = 0.0
-affect_navigation_mesh = true
-carve_navigation_mesh = true
-
-[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle2" unique_id=900000002 groups=["navmesh_source"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
-vertices = PackedVector3Array(-25, 0, -2.5, 25, 0, -2.5, 25, 0, 2.5, -25, 0, 2.5)
-height = 5.0
-radius = 0.0
-affect_navigation_mesh = true
-carve_navigation_mesh = true
-
-[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle4" unique_id=900000003 groups=["navmesh_source"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
-vertices = PackedVector3Array(-25, 0, -2.5, 25, 0, -2.5, 25, 0, 2.5, -25, 0, 2.5)
-height = 5.0
-radius = 0.0
-affect_navigation_mesh = true
-carve_navigation_mesh = true
-
-[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle5" unique_id=900000004 groups=["navmesh_source"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
-vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
-height = 5.0
-radius = 0.0
-affect_navigation_mesh = true
-carve_navigation_mesh = true
-
-[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle6" unique_id=900000005 groups=["navmesh_source"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
-vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
-height = 5.0
-radius = 0.0
-affect_navigation_mesh = true
-carve_navigation_mesh = true
-
-[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle7" unique_id=900000006 groups=["navmesh_source"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
-vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
-height = 5.0
-radius = 0.0
-affect_navigation_mesh = true
-carve_navigation_mesh = true
-
-[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle8" unique_id=900000007 groups=["navmesh_source"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
-vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
-height = 5.0
-radius = 0.0
-affect_navigation_mesh = true
-carve_navigation_mesh = true
-
-[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle9" unique_id=900000008 groups=["navmesh_source"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
-vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
-height = 5.0
-radius = 0.0
-affect_navigation_mesh = true
-carve_navigation_mesh = true
-
-[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle10" unique_id=900000009 groups=["navmesh_source"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
-vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
-height = 5.0
-radius = 0.0
-affect_navigation_mesh = true
-carve_navigation_mesh = true
-
-[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle11" unique_id=900000010 groups=["navmesh_source"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
-vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
-height = 5.0
-radius = 0.0
-affect_navigation_mesh = true
-carve_navigation_mesh = true
-
-[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle12" unique_id=900000011 groups=["navmesh_source"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
-vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
-height = 5.0
-radius = 0.0
-affect_navigation_mesh = true
-carve_navigation_mesh = true
-
-[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle13" unique_id=900000012 groups=["navmesh_source"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
-vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
-height = 5.0
-radius = 0.0
-affect_navigation_mesh = true
-carve_navigation_mesh = true
-
-[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle14" unique_id=900000013 groups=["navmesh_source"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
-vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
-height = 5.0
-radius = 0.0
-affect_navigation_mesh = true
-carve_navigation_mesh = true
-
-[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle15" unique_id=900000014 groups=["navmesh_source"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
-vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
-height = 5.0
-radius = 0.0
-affect_navigation_mesh = true
-carve_navigation_mesh = true
-
-[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle16" unique_id=900000015 groups=["navmesh_source"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
-vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
-height = 5.0
-radius = 0.0
-affect_navigation_mesh = true
-carve_navigation_mesh = true
-
-[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle17" unique_id=900000016 groups=["navmesh_source"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
-vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
-height = 5.0
-radius = 0.0
-affect_navigation_mesh = true
-carve_navigation_mesh = true
-
-[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle18" unique_id=900000017 groups=["navmesh_source"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
-vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
-height = 5.0
-radius = 0.0
-affect_navigation_mesh = true
-carve_navigation_mesh = true
-
-[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle19" unique_id=900000018 groups=["navmesh_source"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
-vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
-height = 5.0
-radius = 0.0
-affect_navigation_mesh = true
-carve_navigation_mesh = true
-
-[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle20" unique_id=900000019 groups=["navmesh_source"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
-vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
-height = 5.0
-radius = 0.0
-affect_navigation_mesh = true
-carve_navigation_mesh = true
-
-[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle21" unique_id=900000020 groups=["navmesh_source"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
-vertices = PackedVector3Array(-2.5, 0, -2.5, 2.5, 0, -2.5, 2.5, 0, 2.5, -2.5, 0, 2.5)
-height = 5.0
-radius = 0.0
-affect_navigation_mesh = true
-carve_navigation_mesh = true
-
-[node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle3" unique_id=900000021 groups=["navmesh_source"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
-vertices = PackedVector3Array(-25, 0, -2.5, 25, 0, -2.5, 25, 0, 2.5, -25, 0, 2.5)
-height = 5.0
-radius = 0.0
-affect_navigation_mesh = true
-carve_navigation_mesh = true

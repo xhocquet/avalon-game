@@ -1,16 +1,4 @@
 shader_type spatial;
-// cull_disabled so a see-through box shows its far faces instead of reading as a hollow shell;
-// depth_draw_opaque keeps it out of the depth buffer, which is what lets the ground - and anything
-// drawn on it, like the move marker - stay visible behind an obstacle.
-render_mode blend_mix, depth_draw_opaque, cull_disabled;
-
-group_uniforms Transparency;
-// 1.0 leaves the surface looking solid. Obstacles want ~0.3; the ground should stay at 1.0.
-uniform float alpha : hint_range(0.0, 1.0, 0.01) = 1.0;
-// Fades the surface out as it faces the camera, so a box you look straight down at goes clear while
-// its silhouette stays readable. 0 disables it and applies `alpha` flat.
-uniform float facing_fade : hint_range(0.0, 1.0, 0.01) = 0.0;
-group_uniforms;
 
 uniform float subdivisions : hint_range(1, 1024, 1.0) = 32;
 uniform float grid_width : hint_range(0.0, 1.0, 0.01) = 0.02;
@@ -128,8 +116,4 @@ void fragment() {
 	if (pointGrid != 0.0) grid = mix(grid, point_color, pointGrid);
 	
 	ALBEDO = grid;
-
-	// Fresnel-style edge weighting: 1 at a grazing angle, 0 head-on.
-	float facing = 1.0 - abs(dot(normalize(NORMAL), normalize(VIEW)));
-	ALPHA = mix(alpha, alpha * facing, facing_fade);
 }
