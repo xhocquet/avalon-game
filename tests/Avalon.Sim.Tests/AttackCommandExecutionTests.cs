@@ -139,9 +139,9 @@ public class AttackCommandExecutionTests {
   public void AttackIntent_ClearsIntentWhenNoReacquireTargetIsInRadius() {
     var harness = SimHarness.CreateInitialized();
     var (source, target) = SpawnFirstWave(harness);
-    SetPosition(harness, source.UnitId, FPVector3.Zero);
-    SetPosition(harness, target.UnitId, new FPVector3(FP64.FromInt(2), FP64.Zero, FP64.Zero));
-    SetPosition(harness, unitId: 2, new FPVector3(FP64.FromInt(20), FP64.Zero, FP64.Zero));
+    SetPosition(harness, source.UnitId, OpenGround);
+    SetPosition(harness, target.UnitId, EastOfOpenGround(FP64.FromInt(2)));
+    SetPosition(harness, unitId: 2, EastOfOpenGround(FP64.FromInt(20)));
     harness.Tick(SimHarness.AttackCommand(1, 0, target.UnitId, source.UnitId));
 
     KillUnit(harness, target.UnitId);
@@ -289,11 +289,11 @@ public class AttackCommandExecutionTests {
     var harness = SimHarness.CreateInitialized();
     var (source, target) = SpawnFirstWave(harness);
     int extraMinionUnitId = SpawnTestMinion(harness, teamId: 2,
-      new FPVector3(FP64.FromInt(4), FP64.Zero, FP64.Zero));
+      EastOfOpenGround(FP64.FromInt(4)));
 
-    SetPosition(harness, source.UnitId, FPVector3.Zero);
-    SetPosition(harness, unitId: 4, new FPVector3(FP64.One, FP64.Zero, FP64.Zero));
-    SetPosition(harness, target.UnitId, new FPVector3(FP64.FromInt(3), FP64.Zero, FP64.Zero));
+    SetPosition(harness, source.UnitId, OpenGround);
+    SetPosition(harness, unitId: 4, EastOfOpenGround(FP64.One));
+    SetPosition(harness, target.UnitId, EastOfOpenGround(FP64.FromInt(3)));
     ClearAttackTargets(harness);
 
     harness.Tick();
@@ -307,9 +307,9 @@ public class AttackCommandExecutionTests {
     var harness = SimHarness.CreateInitialized();
     var (source, target) = SpawnFirstWave(harness);
 
-    SetPosition(harness, source.UnitId, FPVector3.Zero);
-    SetPosition(harness, unitId: 4, new FPVector3(FP64.One, FP64.Zero, FP64.Zero));
-    SetPosition(harness, target.UnitId, new FPVector3(FP64.FromInt(2), FP64.Zero, FP64.Zero));
+    SetPosition(harness, source.UnitId, OpenGround);
+    SetPosition(harness, unitId: 4, EastOfOpenGround(FP64.One));
+    SetPosition(harness, target.UnitId, EastOfOpenGround(FP64.FromInt(2)));
     ClearAttackTargets(harness);
 
     harness.Tick(SimHarness.AttackCommand(1, 0, targetUnitId: 4, sourceUnitIds: source.UnitId));
@@ -381,8 +381,8 @@ public class AttackCommandExecutionTests {
     UnitSnapshot turret = GetTurrets(harness).First(turret => turret.TeamId == 2);
 
     ScatterHostiles(harness, teamId: 1);
-    SetPosition(harness, source.UnitId, FPVector3.Zero);
-    SetPosition(harness, turret.UnitId, new FPVector3(FP64.FromInt(3), FP64.Zero, FP64.Zero));
+    SetPosition(harness, source.UnitId, OpenGround);
+    SetPosition(harness, turret.UnitId, EastOfOpenGround(FP64.FromInt(3)));
     ClearAttackTargets(harness);
 
     harness.Tick();
@@ -397,8 +397,8 @@ public class AttackCommandExecutionTests {
     UnitSnapshot crystal = GetCrystals(harness).First(crystal => crystal.TeamId == 2);
 
     ScatterHostiles(harness, teamId: 1);
-    SetPosition(harness, source.UnitId, FPVector3.Zero);
-    SetPosition(harness, crystal.UnitId, new FPVector3(FP64.FromInt(3), FP64.Zero, FP64.Zero));
+    SetPosition(harness, source.UnitId, OpenGround);
+    SetPosition(harness, crystal.UnitId, EastOfOpenGround(FP64.FromInt(3)));
     ClearAttackTargets(harness);
 
     harness.Tick();
@@ -413,8 +413,8 @@ public class AttackCommandExecutionTests {
     UnitSnapshot crystal = GetCrystals(harness).First(crystal => crystal.TeamId == 2);
 
     ScatterHostiles(harness, teamId: 1);
-    SetPosition(harness, source.UnitId, FPVector3.Zero);
-    SetPosition(harness, crystal.UnitId, new FPVector3(FP64.One, FP64.Zero, FP64.Zero));
+    SetPosition(harness, source.UnitId, OpenGround);
+    SetPosition(harness, crystal.UnitId, EastOfOpenGround(FP64.One));
     var startHealth = GetHealth(harness.Frame, crystal.UnitId);
     ClearAttackTargets(harness);
 
@@ -432,9 +432,9 @@ public class AttackCommandExecutionTests {
     UnitSnapshot crystal = GetCrystals(harness).First(crystal => crystal.TeamId == 2);
 
     ScatterHostiles(harness, teamId: 1);
-    SetPosition(harness, source.UnitId, FPVector3.Zero);
-    SetPosition(harness, crystal.UnitId, new FPVector3(FP64.One, FP64.Zero, FP64.Zero));
-    SetPosition(harness, turret.UnitId, new FPVector3(FP64.FromInt(5), FP64.Zero, FP64.Zero));
+    SetPosition(harness, source.UnitId, OpenGround);
+    SetPosition(harness, crystal.UnitId, EastOfOpenGround(FP64.One));
+    SetPosition(harness, turret.UnitId, EastOfOpenGround(FP64.FromInt(5)));
     ClearAttackTargets(harness);
 
     harness.Tick();
@@ -450,10 +450,10 @@ public class AttackCommandExecutionTests {
     UnitSnapshot crystal = GetCrystals(harness).First(crystal => crystal.TeamId == 2);
 
     ScatterHostiles(harness, teamId: 1);
-    SetPosition(harness, source.UnitId, FPVector3.Zero);
-    SetPosition(harness, crystal.UnitId, new FPVector3(FP64.One, FP64.Zero, FP64.Zero));
-    SetPosition(harness, turret.UnitId, new FPVector3(FP64.FromInt(2), FP64.Zero, FP64.Zero));
-    SetPosition(harness, unitId: 4, new FPVector3(FP64.FromInt(6), FP64.Zero, FP64.Zero));
+    SetPosition(harness, source.UnitId, OpenGround);
+    SetPosition(harness, crystal.UnitId, EastOfOpenGround(FP64.One));
+    SetPosition(harness, turret.UnitId, EastOfOpenGround(FP64.FromInt(2)));
+    SetPosition(harness, unitId: 4, EastOfOpenGround(FP64.FromInt(6)));
     ClearAttackTargets(harness);
 
     harness.Tick();
@@ -469,9 +469,9 @@ public class AttackCommandExecutionTests {
     UnitSnapshot crystal = GetCrystals(harness).First(crystal => crystal.TeamId == 1);
 
     ScatterHostiles(harness, teamId: 1);
-    SetPosition(harness, source.UnitId, FPVector3.Zero);
-    SetPosition(harness, crystal.UnitId, new FPVector3(FP64.One, FP64.Zero, FP64.Zero));
-    SetPosition(harness, turret.UnitId, new FPVector3(FP64.FromInt(2), FP64.Zero, FP64.Zero));
+    SetPosition(harness, source.UnitId, OpenGround);
+    SetPosition(harness, crystal.UnitId, EastOfOpenGround(FP64.One));
+    SetPosition(harness, turret.UnitId, EastOfOpenGround(FP64.FromInt(2)));
     ClearAttackTargets(harness);
 
     harness.Tick();
@@ -616,6 +616,16 @@ public class AttackCommandExecutionTests {
 
   private static FPVector3 SnapToWalkable(SimHarness harness, FPVector3 target) {
     return Meesles.Avalon.Sim.Navigation.NavTargets.SnapToWalkable(harness.Navigation.Query, target);
+  }
+
+  // These setups line units up a few metres apart and assert on what each can reach, so the line has
+  // to sit on ground the nav agents won't be snapped off. The map origin is not that: the fountain
+  // holes the navmesh out to ~4m there, and a minion placed at (0,0) lands on the rim metres from
+  // where the test put it. z=-14 is the map's longest clear corridor (x -21.5..25).
+  private static readonly FPVector3 OpenGround = new(FP64.FromInt(-18), FP64.Zero, FP64.FromInt(-14));
+
+  private static FPVector3 EastOfOpenGround(FP64 offset) {
+    return new FPVector3(OpenGround.x + offset, FP64.Zero, OpenGround.z);
   }
 
   private static void SetPosition(SimHarness harness, int unitId, FPVector3 position) {

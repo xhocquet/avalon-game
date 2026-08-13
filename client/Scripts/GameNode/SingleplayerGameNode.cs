@@ -31,6 +31,8 @@ public partial class SingleplayerGameNode : GameNode {
   public override void _Ready() {
     WarmupRegistry.RunAll();
 
+    InstantiateWorld();
+
     var logger = CreateLogger("Singleplayer");
     var registry = LoadAssetRegistry();
     var navMeshBytes = LoadNavigationMeshBytes();
@@ -92,7 +94,7 @@ public partial class SingleplayerGameNode : GameNode {
     _vfx = new VfxManager();
     _vfx.Attach(_events, _view);
     _telegraphs = new SkillTelegraphManager();
-    _telegraphs.Attach(_events, _view, engine);
+    _telegraphs.Attach(_events, _view, engine, this);
     Input.BindTelegraphs(_telegraphs);
     GameUi.BindSimEvents(_events);
 

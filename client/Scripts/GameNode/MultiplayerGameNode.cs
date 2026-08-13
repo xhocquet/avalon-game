@@ -163,7 +163,7 @@ public partial class MultiplayerGameNode : GameNode {
     _vfx = new VfxManager();
     _vfx.Attach(_events, _view);
     _telegraphs = new SkillTelegraphManager();
-    _telegraphs.Attach(_events, _view, engine);
+    _telegraphs.Attach(_events, _view, engine, this);
     Input.BindTelegraphs(_telegraphs);
     GameUi.BindSimEvents(_events);
     GameUi.SetPhase(_session.Phase);

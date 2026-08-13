@@ -18,7 +18,8 @@
     "StopDistance": 0.15,
     "MinionPackRadiusFactor": 0.4,
     "HeroClearance": 0.8,
-    "HeroLateralSpacing": 1.0
+    "HeroLateralSpacing": 1.0,
+    "MoveTargetEdgeClearance": 0.75
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.MatchRulesAsset, Meesles.Avalon.Client",

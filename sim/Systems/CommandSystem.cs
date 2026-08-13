@@ -88,7 +88,7 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
   }
 
   private void HandleMoveCommand(ref Frame frame, MoveCommand command) {
-    var target = new FPVector3(command.TargetX, FP64.Zero, command.TargetZ);
+    var target = ResolveMoveTarget(ref frame, new FPVector3(command.TargetX, FP64.Zero, command.TargetZ));
     if (command.UnitIds.Count > 0) {
       ApplySelectedUnitTargets(ref frame, command, target);
       return;
@@ -139,7 +139,8 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
       return;
     }
 
-    GroupFormation.Solve(_formationUnits, target, rules, navigation?.Query, _formationDestinations);
+    GroupFormation.Solve(_formationUnits, target, rules, navigation?.NavMesh, navigation?.Query,
+      _formationDestinations);
     for (var i = 0; i < _formationUnits.Count; i++)
       SetTarget(ref frame, _formationUnits[i].Entity, _formationDestinations[i]);
   }
@@ -175,6 +176,18 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
   private static void ApplyLocalHeroTarget(ref Frame frame, int playerId, FPVector3 target) {
     if (UnitLookup.TryGetPlayerHero(ref frame, playerId, out var hero))
       SetTarget(ref frame, hero, target);
+  }
+
+  // The client resolves the click through the same helper before it sends the command, so this
+  // normally hands the point straight back; it is here so a raw or hand-built command still lands
+  // somewhere walkable with the same breathing room off the edges.
+  private FPVector3 ResolveMoveTarget(ref Frame frame, FPVector3 target) {
+    if (navigation == null)
+      return target;
+
+    var rules = frame.AssetRegistry.Get<MovementRulesAsset>();
+    var clearance = rules != null ? rules.MoveTargetEdgeClearance : FP64.Zero;
+    return NavTargets.ResolveMoveTarget(navigation.NavMesh, navigation.Query, target, clearance);
   }
 
   // A move order cancels any standing attack order.

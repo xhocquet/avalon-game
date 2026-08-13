@@ -20,7 +20,7 @@ public class GroupFormationTests {
     var destinations = new List<FPVector3> { FPVector3.Zero };
 
     GroupFormation.Solve(units, new FPVector3(FP64.FromInt(5), FP64.Zero, FP64.FromInt(5)), rules,
-        query: null, destinations);
+        navMesh: null, query: null, destinations);
 
     destinations.Should().BeEmpty();
   }
@@ -37,7 +37,7 @@ public class GroupFormationTests {
     };
     var destinations = new List<FPVector3>();
 
-    GroupFormation.Solve(units, target, rules, query: null, destinations);
+    GroupFormation.Solve(units, target, rules, navMesh: null, query: null, destinations);
 
     destinations.Count.Should().Be(2);
     // Sorted heroes-first, so index 0 is the hero: single hero sits on the click itself.

@@ -45,8 +45,11 @@ public partial class LobbyGameNode : GameNode {
     WarmupRegistry.RunAll();
 
     _logger = CreateLogger();
-    _registry = LoadAssetRegistry();
-    var navMeshBytes = LoadNavigationMeshBytes();
+    // The lobby only ever drives the server-driven session, and the server picks its own map, so
+    // this session's data is the networked game type's regardless of what the cards are showing.
+    var networked = GameTypeCatalog.Resolve(GameTypeCatalog.DefaultId);
+    _registry = LoadAssetRegistry(networked.MapLayoutPath);
+    var navMeshBytes = LoadNavigationMeshBytes(networked.NavMeshPath);
     _simCfg = new SimulationConfig {
       Mode = NetworkMode.ServerDriven,
       InputDelayTicks = 2,
@@ -83,6 +86,7 @@ public partial class LobbyGameNode : GameNode {
     LobbyUi.OnUnreadyClicked += OnUnready;
     LobbyUi.OnStopClicked += OnStop;
     LobbyUi.OnFactionSelected += OnFactionSelected;
+    LobbyUi.OnStartLocalClicked += OnStartLocal;
     LobbyUi.SetInitialHost(ServerEndpoint.Host, ServerEndpoint.Port);
     LobbyUi.SetReadyEnabled(false);
     LobbyUi.SetStopEnabled(false);
@@ -90,7 +94,23 @@ public partial class LobbyGameNode : GameNode {
     _quickplay = QuickplayLaunch.Consume();
     ApplyFactionArg();
     ApplyNameArg();
-    if (_quickplay) CallDeferred(MethodName.OnJoin);
+    ApplyGameTypeArg();
+    if (_quickplay)
+      CallDeferred(GameTypeCatalog.Selected.IsLocal ? MethodName.OnStartLocal : MethodName.OnJoin);
+  }
+
+  // `--gametype=<id>` mirrors --faction: it picks a GameTypeCatalog entry without the lobby UI, so a
+  // playground can be launched straight from a script.
+  private void ApplyGameTypeArg() {
+    foreach (var arg in OS.GetCmdlineUserArgs()) {
+      if (!arg.StartsWith("--gametype=")) continue;
+      var value = arg["--gametype=".Length..].Trim();
+      if (GameTypeCatalog.Exists(value))
+        LobbyUi.SetGameType(value);
+      else
+        _logger.KError($"[Client] --gametype value '{value}' is not a known game type id.");
+      return;
+    }
   }
 
   // Lets `--faction=<id>` on the command line pick a faction without touching the lobby UI,
@@ -125,6 +145,7 @@ public partial class LobbyGameNode : GameNode {
   private void OnJoin() {
     if (_session != null || _joining) return;
     _joining = true;
+    LobbyUi.SetGameTypeEnabled(false);
 
     // Rides along in the join handshake as PlayerJoinMessage.ClaimedDisplayName. With no lobby server
     // issuing identity tickets, the server takes this at face value and publishes it as the roster's
@@ -170,6 +191,16 @@ public partial class LobbyGameNode : GameNode {
     LobbyUi.SetLocalReady(false);
     LobbyUi.SetPhase(SessionPhase.Disconnected);
     LobbyUi.SetConnected(false);
+    LobbyUi.SetGameTypeEnabled(true);
+  }
+
+  // Local game types skip the whole join/ready handshake — the game scene hosts its own session.
+  private void OnStartLocal() {
+    var gameType = GameTypeCatalog.Selected;
+    if (!gameType.IsLocal) return;
+
+    _logger.KInformation($"[Client] starting local game type '{gameType.Id}' -> {gameType.GameScenePath}");
+    GetTree().ChangeSceneToFile(gameType.GameScenePath);
   }
 
   private void OnSessionReady() {
@@ -241,6 +272,7 @@ public partial class LobbyGameNode : GameNode {
         _joining = false;
         _joinTask = null;
         LobbyUi.SetConnected(false);
+        LobbyUi.SetGameTypeEnabled(true);
       }
       else if (_joinTask.IsCompleted) {
         _session = _joinTask.Result;

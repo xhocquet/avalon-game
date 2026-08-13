@@ -4,6 +4,7 @@
 - Primary entrypoints: `project.godot`, `Scenes/Singleplayer.tscn`, `Scenes/Multiplayer.tscn`
 - Shared deterministic sim data lives in `Sim/Data/` (data assets only — Godot `res://` requires them inside the client project). Gameplay assets are authored as `*.json` arrays under `Sim/Data/Assets/` (one file per topic, one per hero under `heroes/`) and merged into `Sim/Data/Assets.bytes` by `dotnet run --project tools/AssetGen`. Only the `.bytes` is loaded at runtime or packed into an export.
 - Shared deterministic gameplay code lives in `sim/` at the repo root, not here. Changes there also affect the server build.
+- Maps/modes are listed in `Scripts/View/GameTypeCatalog.cs`: each entry names the game scene the lobby hands off to, the world scene that scene instances as "World", and the navmesh + MapLayout exports the sim loads. Networked types join the dedicated server (Avalon only — the server loads its own map data at startup); local types host the session in-process, which is what lets a playground run its own map. Adding a map means adding a `.tscn` (with at least a `SpawnPoint` marker per team), a catalog entry, and its scene path to `Scripts/Editor/run_build_exports.gd`.
 - Godot/Klotho integration lives under `addons/klotho/`. This is vendor code, avoid changing it whenever possible.
 - Klotho runtime/framework source lives in `../vendor/Klotho/`. Inspect it when enhancing or debugging behavior that crosses into the prebuilt runtime; avoid editing vendored code unless the task explicitly targets Klotho itself.
 

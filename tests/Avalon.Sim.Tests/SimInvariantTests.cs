@@ -62,6 +62,7 @@ public class SimInvariantTests {
 
     harness.Tick(SimHarness.MoveCommand(1, 0, FP64.One, -FP64.One));
 
+    var expected = ResolvedMoveTarget(harness, FP64.One, -FP64.One);
     var frame = harness.Frame;
     bool player1HasTarget = false;
     var filter = frame.Filter<Hero, UnitMoveTarget>();
@@ -69,8 +70,8 @@ public class SimInvariantTests {
       ref readonly var hero = ref frame.Get<Hero>(entity);
       if (hero.PlayerId == 1) {
         ref readonly var target = ref frame.Get<UnitMoveTarget>(entity);
-        target.Target.x.Should().Be(FP64.One);
-        target.Target.z.Should().Be(-FP64.One);
+        target.Target.x.Should().Be(expected.x);
+        target.Target.z.Should().Be(expected.z);
         player1HasTarget = true;
       }
       else {
@@ -195,9 +196,10 @@ public class SimInvariantTests {
 
     minionEntity.IsValid.Should().BeTrue();
     frame.Has<UnitMoveTarget>(minionEntity).Should().BeTrue();
+    var expected = ResolvedMoveTarget(harness, FP64.One, -FP64.One);
     ref readonly var target = ref frame.Get<UnitMoveTarget>(minionEntity);
-    target.Target.x.Should().Be(FP64.One);
-    target.Target.z.Should().Be(-FP64.One);
+    target.Target.x.Should().Be(expected.x);
+    target.Target.z.Should().Be(expected.z);
   }
 
   [Fact]
@@ -539,6 +541,14 @@ public class SimInvariantTests {
     }
 
     return transforms.OrderBy(transform => transform.PlayerId).ToArray();
+  }
+
+  // CommandSystem re-resolves a commanded point onto walkable ground with MoveTargetEdgeClearance of
+  // breathing room, so the stored target is the resolved one, not the raw command payload.
+  private static FPVector3 ResolvedMoveTarget(SimHarness harness, FP64 x, FP64 z) {
+    return Navigation.NavTargets.ResolveMoveTarget(harness.Navigation.NavMesh, harness.Navigation.Query,
+      new FPVector3(x, FP64.Zero, z),
+      harness.AssetRegistry.Get<MovementRulesAsset>().MoveTargetEdgeClearance);
   }
 
   private static MinionSnapshot[] GetMinions(SimHarness harness) {

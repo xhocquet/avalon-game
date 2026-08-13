@@ -104,7 +104,13 @@ public abstract partial class GameNode : Node {
     LoggerFactory = null;
   }
 
-  protected IDataAssetRegistry LoadAssetRegistry() {
+  // Map data follows the lobby's game type pick: one MapLayoutAsset and one navmesh are live per
+  // session, so they have to come from the same map the world scene was exported from.
+  protected static GameTypeCatalog.GameTypeDef GameType => GameTypeCatalog.Selected;
+
+  protected IDataAssetRegistry LoadAssetRegistry(string mapLayoutPath = null) {
+    mapLayoutPath ??= GameType.MapLayoutPath;
+
     var bytes = FileAccess.GetFileAsBytes("res://Sim/Data/Assets.bytes");
     if (bytes == null || bytes.Length == 0) {
       var err = FileAccess.GetOpenError();
@@ -115,27 +121,45 @@ public abstract partial class GameNode : Node {
     IDataAssetRegistryBuilder builder = new DataAssetRegistry();
     builder.RegisterRange(assets);
 
-    var layoutBytes = FileAccess.GetFileAsBytes("res://Sim/Data/MapLayout.bytes");
+    var layoutBytes = FileAccess.GetFileAsBytes(mapLayoutPath);
     if (layoutBytes == null || layoutBytes.Length == 0) {
       var err = FileAccess.GetOpenError();
-      throw new FileNotFoundException($"res://Sim/Data/MapLayout.bytes not found (err={err})");
+      throw new FileNotFoundException($"{mapLayoutPath} not found (err={err})");
     }
 
     var layoutAssets = DataAssetReader.LoadMixedCollectionFromBytes(layoutBytes);
     builder.RegisterRange(layoutAssets);
-    GD.Print($"[GameNode] MapLayout.bytes loaded: {layoutAssets.Count} asset(s)");
+    GD.Print($"[GameNode] {mapLayoutPath} loaded: {layoutAssets.Count} asset(s)");
 
     return builder.Build();
   }
 
-  protected byte[] LoadNavigationMeshBytes() {
-    var bytes = FileAccess.GetFileAsBytes("res://Sim/Data/NavigationRegion3D.NavMeshData.bytes");
+  protected byte[] LoadNavigationMeshBytes(string navMeshPath = null) {
+    navMeshPath ??= GameType.NavMeshPath;
+
+    var bytes = FileAccess.GetFileAsBytes(navMeshPath);
     if (bytes == null || bytes.Length == 0) {
       var err = FileAccess.GetOpenError();
-      throw new FileNotFoundException($"res://Sim/Data/NavigationRegion3D.NavMeshData.bytes not found (err={err})");
+      throw new FileNotFoundException($"{navMeshPath} not found (err={err})");
     }
 
     return bytes;
+  }
+
+  // The game scenes carry no authored world: the lobby's game type names the one to instance, and
+  // it lands under "World" because the team-base cleanup and the editor conventions expect it there.
+  protected Node InstantiateWorld() {
+    var scene = GD.Load<PackedScene>(GameType.WorldScenePath);
+    if (scene == null) {
+      GD.PushError($"[GameNode] World scene not found: {GameType.WorldScenePath}");
+      return null;
+    }
+
+    var world = scene.Instantiate<Node>();
+    world.Name = "World";
+    AddChild(world);
+    MoveChild(world, 0);
+    return world;
   }
 
   // Gives InputCapture its own read-only navmesh query so right-click move targets can be snapped

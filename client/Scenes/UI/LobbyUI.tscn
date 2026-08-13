@@ -172,6 +172,17 @@ theme_override_constants/h_separation = 10
 theme_override_constants/v_separation = 4
 columns = 2
 
+[node name="GameTypePrefixLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid"]
+custom_minimum_size = Vector2(64, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
+text = "Game"
+
+[node name="GameTypeLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "—"
+
 [node name="RoomPrefixLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid"]
 custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
@@ -237,6 +248,12 @@ mouse_filter = 2
 [node name="Buttons" type="VBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox"]
 layout_mode = 2
 theme_override_constants/separation = 6
+
+[node name="StartButton" type="Button" parent="Root/Columns/LeftColumn/Margin/VBox/Buttons"]
+visible = false
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+text = "Start"
 
 [node name="JoinButton" type="Button" parent="Root/Columns/LeftColumn/Margin/VBox/Buttons"]
 custom_minimum_size = Vector2(0, 36)
@@ -314,20 +331,18 @@ theme_override_constants/separation = 8
 layout_mode = 2
 theme_override_colors/font_color = Color(0.85, 0.85, 0.85, 1)
 theme_override_font_sizes/font_size = 18
-text = "MAP"
+text = "GAME TYPE"
 horizontal_alignment = 1
 
 [node name="TitleSeparator" type="HSeparator" parent="Root/Columns/MiddleColumn/MapPanel/Margin/VBox"]
 layout_mode = 2
 
-[node name="MapPlaceholder" type="Label" parent="Root/Columns/MiddleColumn/MapPanel/Margin/VBox"]
+[node name="GameTypeGrid" type="GridContainer" parent="Root/Columns/MiddleColumn/MapPanel/Margin/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
-theme_override_font_sizes/font_size = 28
-text = "TODO"
-horizontal_alignment = 1
-vertical_alignment = 1
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 12
+columns = 3
 
 
 [node name="RightColumn" type="PanelContainer" parent="Root/Columns"]

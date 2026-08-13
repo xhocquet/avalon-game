@@ -90,6 +90,7 @@ sample_partition_type = 2
 agent_radius = 0.2
 agent_max_climb = 0.01
 agent_max_slope = 0.02
+filter_baking_aabb = AABB(-150, -10, -150, 300, 11, 300)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ng1ea"]
 render_priority = 0
@@ -252,7 +253,7 @@ shader_parameter/outline_enabled = true
 shader_parameter/outline_color = Color(0.1, 0, 0.15, 1)
 shader_parameter/outline_thickness = 0.04
 
-[node name="World" type="Node3D" unique_id=1910615875]
+[node name="World2" type="Node3D" unique_id=1910615875]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1782293992]
 environment = SubResource("Environment_ofdpw")

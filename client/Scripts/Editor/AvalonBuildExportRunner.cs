@@ -19,8 +19,8 @@ namespace Meesles.Avalon;
 [GlobalClass]
 public partial class AvalonBuildExportRunner : RefCounted {
   private const string DefaultScenePath = "res://Scenes/World/World.tscn";
-  private const string MapLayoutBytesPath = "res://Sim/Data/MapLayout.bytes";
-  private const string MapLayoutJsonPath = "res://Sim/Data/MapLayout.json";
+  private const string DataDir = "res://Sim/Data";
+  private const string DefaultMapName = "World";
 
   // Node under NavigationRegion3D holding the gate geometry that's detached from the tree to bake
   // the "walls up" navmesh variant. Godot's nav bake parses the live tree, so nothing short of
@@ -45,10 +45,11 @@ public partial class AvalonBuildExportRunner : RefCounted {
   }
 
   public bool RunLoaded(Node root, string scenePath = DefaultScenePath) {
+    var mapName = ResolveMapName(root, scenePath);
     try {
-      ExportNavMesh(root);
+      ExportNavMesh(root, mapName);
       ExportStaticColliders(root);
-      ExportMapLayout(root, scenePath);
+      ExportMapLayout(root, mapName);
     }
     catch (Exception ex) {
       GD.PushError(ex.Message);
@@ -64,13 +65,27 @@ public partial class AvalonBuildExportRunner : RefCounted {
     EditorInterface.Singleton?.GetResourceFilesystem()?.Scan();
   }
 
-  private static void ExportNavMesh(Node root) {
+  private static void ExportNavMesh(Node root, string mapName) {
     var region = FindFirst<NavigationRegion3D>(root);
     if (region == null) throw new InvalidDataException("[AvalonBuildExportRunner] No NavigationRegion3D found.");
     if (region.NavigationMesh == null)
       throw new InvalidDataException("[AvalonBuildExportRunner] NavigationRegion3D has no NavigationMesh resource.");
 
     var exporter = new GodotFPNavMeshExporter();
+    // GodotFPNavMeshExporter names the file after the region, and every map scene calls its region
+    // NavigationRegion3D — so anything but the default map exports under the map name instead of
+    // overwriting the Avalon navmesh the server also loads.
+    var authoredName = region.Name;
+    if (mapName != DefaultMapName) region.Name = mapName;
+    try {
+      ExportNavMeshVariants(region, exporter);
+    }
+    finally {
+      region.Name = authoredName;
+    }
+  }
+
+  private static void ExportNavMeshVariants(NavigationRegion3D region, GodotFPNavMeshExporter exporter) {
     var originalName = region.Name;
 
     var gates = region.GetNodeOrNull<Node3D>(GatesNodeName);
@@ -136,7 +151,7 @@ public partial class AvalonBuildExportRunner : RefCounted {
     LogStaticColliderSummary(colliders, bytesRes, skippedUnsupported);
   }
 
-  private static void ExportMapLayout(Node root, string scenePath) {
+  private static void ExportMapLayout(Node root, string mapName) {
     var types = new List<int>();
     var teams = new List<int>();
     var positions = new List<FPVector3>();
@@ -150,16 +165,25 @@ public partial class AvalonBuildExportRunner : RefCounted {
       MarkerTeams = teams.ToArray(),
       MarkerPositions = positions.ToArray(),
       MarkerValues = values.ToArray(),
-      MapName = ResolveMapName(root, scenePath)
+      MapName = mapName
     };
 
+    // Only one MapLayoutAsset can be registered at a time (fixed AssetId), so each map gets its own
+    // file and the game type decides which one the session loads. The default map keeps the
+    // unsuffixed name the server's Data/ copy expects.
+    var bytesPath = MapLayoutPath(mapName, "bytes");
     var serializables = new List<IDataAssetSerializable> { asset };
     var bytes = DataAssetWriter.SerializeMixedCollectionToBytes(serializables);
-    File.WriteAllBytes(ProjectSettings.GlobalizePath(MapLayoutBytesPath), bytes);
+    File.WriteAllBytes(ProjectSettings.GlobalizePath(bytesPath), bytes);
 
     var json = DataAssetJsonSerializer.SerializeMixedCollection(new List<IDataAsset> { asset });
-    File.WriteAllText(ProjectSettings.GlobalizePath(MapLayoutJsonPath), json);
-    GD.Print($"[AvalonBuildExportRunner] Exported {asset.MarkerTypes.Length} markers -> {MapLayoutBytesPath}");
+    File.WriteAllText(ProjectSettings.GlobalizePath(MapLayoutPath(mapName, "json")), json);
+    GD.Print($"[AvalonBuildExportRunner] Exported {asset.MarkerTypes.Length} markers -> {bytesPath}");
+  }
+
+  private static string MapLayoutPath(string mapName, string extension) {
+    var suffix = mapName == DefaultMapName ? "" : $"_{mapName}";
+    return $"{DataDir}/MapLayout{suffix}.{extension}";
   }
 
   // The scene file names the map, same convention ExportStaticColliders uses for its output name:

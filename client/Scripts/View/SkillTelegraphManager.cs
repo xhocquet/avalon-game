@@ -15,16 +15,18 @@ namespace Meesles.Avalon.Client.Scripts.View;
 // Spawns the ground telegraph for a cast. Lifecycle mirrors VfxManager: the owning GameNode calls
 // Attach when a session starts and Detach when it stops.
 //
-// The decal itself is drawn by the constructive_telegraphs addon, which is not a UI layer: the
-// ConTelegraphManager node in World.tscn packs every visible telegraph into one data texture each
-// frame, and the ground material's next_pass reads it. So a telegraph node has no mesh of its own and
-// its parent is irrelevant — it only has to be in the tree and in the addon's group.
+// Attach builds a TelegraphLayer under the game node and parents every telegraph to it, so cast FX
+// live with the session rather than with the environment scene. The layer also hosts the addon's
+// ConTelegraphManager, which packs every visible telegraph into one data texture each frame for the
+// ground material's next_pass to read. A telegraph node therefore has no mesh of its own, and the
+// packer finds it through a tree group, so the layer is about ownership, not rendering.
 //
 // SkillCastEvent is Synced, so this rides the confirmed stream. On a predicting client that costs the
 // telegraph a round trip; making it instant means flipping the event to Regular and adding
 // OnPredicted/OnCanceled here, which is a sim-side change and not one this needed yet.
 public class SkillTelegraphManager {
   private const string TelegraphScenePath = "res://Scenes/FX/Telegraphs/SkillTelegraph.tscn";
+  private const string PackerScriptPath = "res://addons/constructive_telegraphs/src/con_telegraph_manager.gd";
 
   private static PackedScene _telegraphScene;
   private static readonly Dictionary<string, Resource> FamilyCache = new();
@@ -34,16 +36,19 @@ public class SkillTelegraphManager {
   private Node3D _aimNode;
   private int _aimSlot = -1;
   private IKlothoEngine _engine;
+  private Node3D _layer;
+  private Node _packer;
   private IDisposable _skillCastSub;
   private EntityViewUpdaterNode _view;
 
   // Registry and local player id come off the engine per event rather than being captured here:
   // MultiplayerGameNode adopts an already-running session from the lobby, and its own registry field
   // is only populated on the direct-join fallback path.
-  public void Attach(SimEventHub events, EntityViewUpdaterNode view, IKlothoEngine engine) {
+  public void Attach(SimEventHub events, EntityViewUpdaterNode view, IKlothoEngine engine, Node layerParent) {
     Detach();
     _view = view;
     _engine = engine;
+    CreateLayer(layerParent);
     _skillCastSub = events.OnConfirmed<SkillCastEvent>(HandleSkillCast);
   }
 
@@ -51,15 +56,45 @@ public class SkillTelegraphManager {
     HideAim();
     _skillCastSub?.Dispose();
     _skillCastSub = null;
+    ClearGroundOverlay();
+    if (_layer != null && GodotObject.IsInstanceValid(_layer))
+      _layer.QueueFree();
+    _layer = null;
+    _packer = null;
     _view = null;
     _engine = null;
+  }
+
+  private void CreateLayer(Node layerParent) {
+    if (layerParent == null) return;
+    _layer = new Node3D { Name = "TelegraphLayer" };
+    layerParent.AddChild(_layer);
+
+    var script = GD.Load<GDScript>(PackerScriptPath);
+    _packer = script?.New().As<Node>();
+    if (_packer == null) {
+      GD.PushError($"[Telegraph] {PackerScriptPath} failed to load — telegraphs will not draw.");
+      return;
+    }
+
+    _packer.Name = "ConTelegraphPacker";
+    _layer.AddChild(_packer);
+  }
+
+  // The packer writes into a shared material the world scene keeps using, so the last frame's decals
+  // would stay burned into the ground once it stops running. Push one empty frame on the way out.
+  private void ClearGroundOverlay() {
+    if (_packer == null || !GodotObject.IsInstanceValid(_packer)) return;
+    _packer.Call("init_data_transfer_texture");
+    _packer.Call("update_data_transfer_texture");
+    _packer.Call("update_surface_overlay_material");
   }
 
   // Aim preview for a held skill key. Same lanes the cast draws, parked at zero fill so it reads as an
   // outline rather than a sweep, re-aimed every frame while the key is down. Called unconditionally by
   // InputCapture: a slot with no catalog row, or one that resolves to nothing this frame, just hides.
   public void ShowAim(int slot, Vector3 aimPoint) {
-    if (_view == null || _engine == null) {
+    if (_view == null || _engine == null || _layer == null) {
       HideAim();
       return;
     }
@@ -127,7 +162,7 @@ public class SkillTelegraphManager {
   }
 
   private void HandleSkillCast(SkillCastEvent evt) {
-    if (_view == null) return;
+    if (_view == null || _layer == null) return;
     if (!_catalog.TryResolve(evt.SkillAssetId, out var def)) return;
 
     var registry = _engine?.PredictedFrame.Frame?.AssetRegistry;
@@ -159,7 +194,7 @@ public class SkillTelegraphManager {
     _telegraphScene ??= GD.Load<PackedScene>(TelegraphScenePath);
     if (_telegraphScene?.Instantiate() is not Node3D telegraph) return null;
 
-    _view.AddChild(telegraph);
+    _layer.AddChild(telegraph);
     telegraph.Call("configure",
       family,
       skill.ProjectileCount,

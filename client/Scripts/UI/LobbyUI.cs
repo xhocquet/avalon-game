@@ -12,6 +12,7 @@ public partial class LobbyUI : Control, IViewHud {
   private const int MaxSlots = 4;
 
   private readonly List<Button> _factionCards = [];
+  private readonly List<Button> _gameTypeCards = [];
   private readonly Dictionary<int, Texture2D> _factionPortraits = new();
 
   // playerId -> factionId, fed by LobbyGameNode from the LobbyPlayerConfig broadcast. Slots with no
@@ -20,7 +21,11 @@ public partial class LobbyUI : Control, IViewHud {
   private readonly PlayerSlot[] _slots = new PlayerSlot[MaxSlots];
 
   private GridContainer _factionGrid;
+  private GridContainer _gameTypeGrid;
+  private Label _gameTypeLabel;
+  private Button _startButton;
   private LineEdit _ipField;
+  private bool _isConnected;
   private bool _isReady;
   private Button _joinButton;
   private bool _localReady;
@@ -52,6 +57,9 @@ public partial class LobbyUI : Control, IViewHud {
   // Local pick changed. LobbyGameNode listens so it can re-broadcast the LobbyPlayerConfig.
   public event Action<int> OnFactionSelected;
 
+  // The "Start" button a local game type shows instead of Join/Ready.
+  public event Action OnStartLocalClicked;
+
   public override void _Ready() {
     const string left = "Root/Columns/LeftColumn/Margin/VBox";
     const string right = "Root/Columns/RightColumn/Margin/VBox";
@@ -61,17 +69,20 @@ public partial class LobbyUI : Control, IViewHud {
     _selectedFactionLabel = GetNode<Label>($"{left}/SelectionRow/SelectedFactionLabel");
     _ipField = GetNode<LineEdit>($"{left}/HostRow/IpField");
     _portField = GetNode<LineEdit>($"{left}/PortRow/PortField");
+    _gameTypeLabel = GetNode<Label>($"{left}/InfoGrid/GameTypeLabel");
     _room = GetNode<Label>($"{left}/InfoGrid/RoomLabel");
     _state = GetNode<Label>($"{left}/InfoGrid/StateLabel");
     _playerId = GetNode<Label>($"{left}/InfoGrid/PlayerIdLabel");
     _readyStatus = GetNode<Label>($"{left}/InfoGrid/ReadyStatusLabel");
     _timer = GetNode<Label>($"{left}/InfoGrid/TimerLabel");
     _status = GetNode<Label>($"{left}/StatusLabel");
+    _startButton = GetNode<Button>($"{left}/Buttons/StartButton");
     _joinButton = GetNode<Button>($"{left}/Buttons/JoinButton");
     _readyButton = GetNode<Button>($"{left}/Buttons/ReadyButton");
     _stopButton = GetNode<Button>($"{left}/Buttons/StopButton");
 
     _factionGrid = GetNode<GridContainer>("Root/Columns/MiddleColumn/FactionPanel/Margin/VBox/FactionGrid");
+    _gameTypeGrid = GetNode<GridContainer>("Root/Columns/MiddleColumn/MapPanel/Margin/VBox/GameTypeGrid");
 
     for (var i = 0; i < MaxSlots; i++) {
       var row = $"{right}/PlayerSlots/Slot{i}/Margin/Row";
@@ -94,9 +105,105 @@ public partial class LobbyUI : Control, IViewHud {
     _joinButton.Pressed += () => OnJoinClicked?.Invoke();
     _readyButton.Pressed += HandleReadyPressed;
     _stopButton.Pressed += () => OnStopClicked?.Invoke();
+    _startButton.Pressed += () => OnStartLocalClicked?.Invoke();
 
     BuildFactionCards();
+    BuildGameTypeCards();
     ClearSlots();
+  }
+
+  // -------------------------------------------------------------------- game type selection
+
+  // Same toggle-group card treatment as the faction grid, one per GameTypeCatalog entry. The pick
+  // decides which scene the lobby hands off to and which map data that scene's sim loads.
+  private void BuildGameTypeCards() {
+    var defs = GameTypeCatalog.GameTypes;
+    _gameTypeGrid.Columns = Math.Max(1, defs.Length);
+
+    var group = new ButtonGroup();
+    foreach (var def in defs) {
+      var card = new Button {
+        Name = $"GameTypeCard{def.Id}",
+        ToggleMode = true,
+        ButtonGroup = group,
+        CustomMinimumSize = new Vector2(0, 120),
+        SizeFlagsHorizontal = SizeFlags.ExpandFill,
+        SizeFlagsVertical = SizeFlags.ExpandFill,
+        TooltipText = def.Description
+      };
+      StyleFactionCard(card);
+
+      var margin = new MarginContainer { MouseFilter = MouseFilterEnum.Ignore };
+      margin.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+      foreach (var side in new[] { "left", "top", "right", "bottom" })
+        margin.AddThemeConstantOverride($"margin_{side}", 10);
+      card.AddChild(margin);
+
+      var vbox = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore, Alignment = BoxContainer.AlignmentMode.Center };
+      vbox.AddThemeConstantOverride("separation", 6);
+      margin.AddChild(vbox);
+
+      var title = new Label {
+        Text = def.Name,
+        HorizontalAlignment = HorizontalAlignment.Center,
+        MouseFilter = MouseFilterEnum.Ignore
+      };
+      title.AddThemeFontSizeOverride("font_size", 16);
+      vbox.AddChild(title);
+
+      var description = new Label {
+        Text = def.Description,
+        HorizontalAlignment = HorizontalAlignment.Center,
+        AutowrapMode = TextServer.AutowrapMode.WordSmart,
+        MouseFilter = MouseFilterEnum.Ignore
+      };
+      description.AddThemeFontSizeOverride("font_size", 12);
+      description.AddThemeColorOverride("font_color", new Color(0.62f, 0.62f, 0.62f));
+      vbox.AddChild(description);
+
+      var id = def.Id;
+      card.Pressed += () => SelectGameType(id);
+      _gameTypeGrid.AddChild(card);
+      _gameTypeCards.Add(card);
+    }
+
+    ApplySelectedGameType(GameTypeSelection.SelectedGameTypeId);
+  }
+
+  // Used by the --gametype= launch arg, which has no card to click.
+  public void SetGameType(string id) {
+    SelectGameType(id);
+  }
+
+  private void SelectGameType(string id) {
+    GameTypeSelection.SelectedGameTypeId = id;
+    ApplySelectedGameType(id);
+  }
+
+  // A local game type has no server to join and no roster to ready up against, so the connection
+  // controls swap for a single Start.
+  private void ApplySelectedGameType(string id) {
+    var defs = GameTypeCatalog.GameTypes;
+    for (var i = 0; i < _gameTypeCards.Count && i < defs.Length; i++)
+      _gameTypeCards[i].SetPressedNoSignal(defs[i].Id == id);
+
+    var selected = GameTypeCatalog.Resolve(id);
+    _gameTypeLabel.Text = selected.Name;
+
+    var local = selected.IsLocal;
+    _startButton.Visible = local;
+    _joinButton.Visible = !local;
+    _readyButton.Visible = !local;
+    _stopButton.Visible = !local;
+    if (local) _status.Text = "Local session — press Start";
+    else if (!_isConnected) _status.Text = "Not connected";
+  }
+
+  // Locked while a session is live: the pick decides which map the sim loaded, so changing it mid
+  // session would only desync the lobby's own labels.
+  public void SetGameTypeEnabled(bool enabled) {
+    foreach (var card in _gameTypeCards)
+      card.Disabled = !enabled;
   }
 
   // -------------------------------------------------------------------- faction selection
@@ -265,9 +372,11 @@ public partial class LobbyUI : Control, IViewHud {
     _timer.Text = "—";
     ClearSlots();
     HideResult();
+    ApplySelectedGameType(GameTypeSelection.SelectedGameTypeId);
   }
 
   public void SetConnected(bool connected, int roomId = 0) {
+    _isConnected = connected;
     _room.Text = connected ? $"#{roomId}" : "Not joined";
     // The name is claimed in the join handshake, so edits after joining would never reach the roster.
     // Lock the field rather than letting it drift out of sync with what other players see.

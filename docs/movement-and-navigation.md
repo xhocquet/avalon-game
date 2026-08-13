@@ -7,7 +7,7 @@ flowchart TB
     Click["Right-click"]
     What{"enemy or<br/>ground?"}
     Sel{"any of your own<br/>units selected?"}
-    Snap["Snap to walkable ground"]
+    Snap["Resolve to walkable ground<br/>(NavTargets)"]
     Marker["Show the click marker"]
     Same{"same spot as<br/>the last order?"}
     Attack["Attack order"]
@@ -30,6 +30,10 @@ flowchart TB
 ```
 
 - Clicking unrechable areas will move you as close as possible
+- `NavTargets.ResolveMoveTarget` is the sim's own resolver, so the point sent, the point
+  `CommandSystem` re-resolves, and the point the click marker draws at are the same one. It backs the
+  destination `MovementRulesAsset.MoveTargetEdgeClearance` off the nearest unwalkable edge — a
+  destination sitting on the boundary is one the agent grinds along instead of arriving at
 - Visual feedback is shown on all clicks regardless of deduplication
 - `_pendingMoveCommand` / `_pendingAttackCommand` - single slots, newest click wins
 

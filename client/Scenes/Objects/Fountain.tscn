@@ -28,3 +28,11 @@ skeleton = NodePath("../../..")
 
 [node name="Oasis" parent="." index="3" unique_id=475173050 instance=ExtResource("4_bq713")]
 transform = Transform3D(0.005, 0, 0, 0, 0.005, 0, 0, 0, 0.005, 0, -0.0005, -0.00017651558)
+
+[node name="NavObstacle" type="NavigationObstacle3D" parent="." index="4" unique_id=730747521]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.01, 0)
+vertices = PackedVector3Array(0.016, 0, 0, 0.0113, 0, 0.0113, 0, 0, 0.016, -0.0113, 0, 0.0113, -0.016, 0, 0, -0.0113, 0, -0.0113, 0, 0, -0.016, 0.0113, 0, -0.0113)
+height = 0.05
+radius = 0.0
+affect_navigation_mesh = true
+carve_navigation_mesh = true

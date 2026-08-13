@@ -1,0 +1,47 @@
+[
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.MapLayoutAsset, Meesles.Avalon.Client",
+    "MarkerTypes": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "MarkerTeams": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "MarkerPositions": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      {
+        "x": 8.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 8.0
+      },
+      {
+        "x": 8.0,
+        "y": 0.0,
+        "z": 8.0
+      }
+    ],
+    "MarkerValues": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "MapName": "NavPlayground",
+    "AssetId": 102
+  }
+]
