@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://lanienht7xp5"
-path="res://.godot/imported/crystalgiant_multianimation.glb-4ed55ba07934f1bca1a6d3f2386134fb.scn"
+uid="uid://cbptopvefqvvu"
+path="res://.godot/imported/crystalturtle.glb-96d2f183b965b1ca6020725827b056b8.scn"
 
 [deps]
 
-source_file="res://Assets/Heroes/CrystalWarriors/crystalgiant_multianimation.glb"
-dest_files=["res://.godot/imported/crystalgiant_multianimation.glb-4ed55ba07934f1bca1a6d3f2386134fb.scn"]
+source_file="res://Assets/Mobs/CrystalTurtle/crystalturtle.glb"
+dest_files=["res://.godot/imported/crystalturtle.glb-96d2f183b965b1ca6020725827b056b8.scn"]
 
 [params]
 
@@ -39,7 +39,7 @@ materials/extract_format=0
 materials/extract_path=""
 _subresources={
 "animations": {
-"preset_biped_idle": {
+"CrystalTurtle_Idle": {
 "save_to_file/enabled": false,
 "save_to_file/fallback_path": "",
 "save_to_file/keep_custom_tracks": "",
@@ -2095,7 +2095,7 @@ _subresources={
 "slice_99/start_frame": 0,
 "slices/amount": 0
 },
-"preset_biped_run": {
+"CrystalTurtle_Walk": {
 "save_to_file/enabled": false,
 "save_to_file/fallback_path": "",
 "save_to_file/keep_custom_tracks": "",

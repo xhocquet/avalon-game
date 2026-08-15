@@ -2,7 +2,6 @@
 
 [ext_resource type="PackedScene" uid="uid://bbvdly6vma5mr" path="res://Scenes/World/WorldEnvironment.tscn" id="1_2ytws"]
 [ext_resource type="Shader" uid="uid://dkl23k2monqos" path="res://Scenes/World/world_splatmap.gdshader" id="1_kuxid"]
-[ext_resource type="Material" uid="uid://cowspplyfkffa" path="res://addons/constructive_telegraphs/resources/con_telegraph_next_pass.tres" id="1_telegraph"]
 [ext_resource type="Texture2D" uid="uid://8e5e6xh3shr0" path="res://Assets/Props/Ground/Grass1/Grass007_2K-JPG_Color.jpg" id="2_7n4rk"]
 [ext_resource type="Texture2D" uid="uid://cnaqlf624yxyb" path="res://Assets/Props/Ground/texture3/ground_0013_color_2k.jpg" id="2_gr3albedo"]
 [ext_resource type="Texture2D" uid="uid://dqfh7hn7y4ydd" path="res://Assets/Props/Ground/texture3/ground_0013_ao_2k.jpg" id="2_gr3ao"]
@@ -40,7 +39,6 @@ agent_max_slope = 0.02
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ng1ea"]
 render_priority = 0
-next_pass = ExtResource("1_telegraph")
 shader = ExtResource("1_kuxid")
 shader_parameter/splatmap = ExtResource("12_jclsg")
 shader_parameter/blend_sharpness = 0.3

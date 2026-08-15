@@ -1,31 +1,20 @@
 [gd_scene format=3 uid="uid://bfkese80ta8j8"]
 
-[ext_resource type="PackedScene" uid="uid://cf8ctd40umbg7" path="res://Assets/Mobs/CrystalTurtle/crystalturtlewalking.glb" id="1_lxue8"]
+[ext_resource type="PackedScene" uid="uid://cbptopvefqvvu" path="res://Assets/Mobs/CrystalTurtle/crystalturtle.glb" id="1_lxue8"]
 [ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="2_3ka08"]
 [ext_resource type="Script" uid="uid://drxwt8mq0b2k8" path="res://Scripts/View/MinionEntity.cs" id="2_minion"]
 
 [node name="Minion" unique_id=1847225907 instance=ExtResource("1_lxue8")]
 script = ExtResource("2_minion")
-WalkAnimationOverride = "preset_quadruped_walk"
-IdleAnimationOverride = "preset_quadruped_walk"
+WalkAnimationOverride = "CrystalTurtle_Walk"
+IdleAnimationOverride = "CrystalTurtle_Idle"
+AttackAnimationOverride = "CrystalTurtle_Attack"
 
-[node name="Armature" parent="." index="0" unique_id=82867267]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.29706025, 0)
+[node name="CrystalTurtle_Rig" parent="." index="0" unique_id=82867267]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 0.29706025, 0)
 
-[node name="Skeleton3D" parent="Armature" index="0" unique_id=194010388]
-bones/0/position = Vector3(-1.8371793e-09, -0.32343772, -2.916747e-09)
-bones/0/rotation = Quaternion(9.737884e-13, 1, -8.5276056e-08, -7.5497894e-08)
-bones/1/rotation = Quaternion(0.0012952443, -0.0053800438, 0.80167246, 0.597738)
-bones/3/rotation = Quaternion(-0.23775016, 0.8708434, 0.15832712, -0.400049)
-bones/4/rotation = Quaternion(0.30018562, -0.16127066, -0.44964105, 0.82565325)
-bones/5/rotation = Quaternion(-0.28055435, -0.02030118, 0.10838355, 0.95348316)
-bones/6/rotation = Quaternion(-0.5908042, 0.76109767, 0.17888233, 0.1992035)
-bones/7/rotation = Quaternion(0.418312, 0.16440596, 0.6126672, 0.65009594)
-bones/8/rotation = Quaternion(-0.21616527, 0.9179054, -0.24053739, -0.22992222)
-bones/10/rotation = Quaternion(0.24633119, 0.8985725, 0.35678005, 0.06779707)
-
-[node name="backThigh_R" parent="Armature/Skeleton3D" index="0" unique_id=748914506]
-transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 0, 0)
+[node name="AnimationPlayer" parent="." index="1" unique_id=194010388]
+autoplay = &"CrystalTurtle_Idle"
 
 [node name="SelectionIndicator" parent="." index="2" unique_id=2143077504 instance=ExtResource("2_3ka08")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, 0)

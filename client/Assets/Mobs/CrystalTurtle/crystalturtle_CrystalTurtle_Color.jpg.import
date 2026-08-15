@@ -2,9 +2,9 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b005duw7t7m6q"
-path.s3tc="res://.godot/imported/crystalturtlewalking_Color_789a90f2-b0fb-45fb-8a38-e95a3411d790.jpg-effe4d2d15e998f5fe93347d569e0d69.s3tc.ctex"
-path.etc2="res://.godot/imported/crystalturtlewalking_Color_789a90f2-b0fb-45fb-8a38-e95a3411d790.jpg-effe4d2d15e998f5fe93347d569e0d69.etc2.ctex"
+uid="uid://blkui83rh2asj"
+path.s3tc="res://.godot/imported/crystalturtle_CrystalTurtle_Color.jpg-216abc07217b36ee59a6252dfb629aa7.s3tc.ctex"
+path.etc2="res://.godot/imported/crystalturtle_CrystalTurtle_Color.jpg-216abc07217b36ee59a6252dfb629aa7.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -15,8 +15,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://Assets/Mobs/CrystalTurtle/crystalturtlewalking_Color_789a90f2-b0fb-45fb-8a38-e95a3411d790.jpg"
-dest_files=["res://.godot/imported/crystalturtlewalking_Color_789a90f2-b0fb-45fb-8a38-e95a3411d790.jpg-effe4d2d15e998f5fe93347d569e0d69.s3tc.ctex", "res://.godot/imported/crystalturtlewalking_Color_789a90f2-b0fb-45fb-8a38-e95a3411d790.jpg-effe4d2d15e998f5fe93347d569e0d69.etc2.ctex"]
+source_file="res://Assets/Mobs/CrystalTurtle/crystalturtle_CrystalTurtle_Color.jpg"
+dest_files=["res://.godot/imported/crystalturtle_CrystalTurtle_Color.jpg-216abc07217b36ee59a6252dfb629aa7.s3tc.ctex", "res://.godot/imported/crystalturtle_CrystalTurtle_Color.jpg-216abc07217b36ee59a6252dfb629aa7.etc2.ctex"]
 
 [params]
 
@@ -41,5 +41,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=1024
+process/size_limit=0
 detect_3d/compress_to=0
