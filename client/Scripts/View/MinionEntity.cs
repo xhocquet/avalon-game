@@ -13,15 +13,20 @@ public partial class MinionEntity : TeamEntityViewNode, IAttackableView {
 
   [Export] public string WalkAnimationOverride { get; set; } = "";
   [Export] public string IdleAnimationOverride { get; set; } = "";
+  // No default: rigs without an authored attack clip leave this empty and fall back to debug lines.
+  [Export] public string AttackAnimationOverride { get; set; } = "";
 
   [Export] public float SelectPickRadius { get; set; } = 0.5f;
   [Export] public float SelectPickHeight { get; set; } = 1.2f;
 
   private AnimationPlayer _anim;
   private bool _isMoving;
+  private bool _isAttacking;
 
   private string RunAnim => string.IsNullOrEmpty(WalkAnimationOverride) ? AnimRun : WalkAnimationOverride;
   private string IdleAnim => string.IsNullOrEmpty(IdleAnimationOverride) ? AnimIdle : IdleAnimationOverride;
+  private bool HasAttackAnim => _anim != null && !string.IsNullOrEmpty(AttackAnimationOverride)
+                                && _anim.HasAnimation(AttackAnimationOverride);
 
   // Play() is a silent no-op when the name isn't on this model's AnimationPlayer (e.g. a rig with only
   // a single custom-named clip), which would otherwise leave whatever animation last played stuck looping.
@@ -37,8 +42,20 @@ public partial class MinionEntity : TeamEntityViewNode, IAttackableView {
     }
   }
 
-  public void OnAttackVfx(Vector3 targetPosition) {
-    // TODO: attack animation / particles
+  public bool OnAttackVfx(Vector3 targetPosition) {
+    if (!HasAttackAnim) return false;
+
+    _isAttacking = true;
+    _anim.Play(AttackAnimationOverride);
+    _anim.Seek(0.0, true); // Play() on the clip already running is a no-op, so rewind to restart it.
+    return true;
+  }
+
+  // The attack clip is one-shot and owns the rig until it ends; hand control back to locomotion.
+  private void OnAnimationFinished(StringName animName) {
+    if (!_isAttacking || (string)animName != AttackAnimationOverride) return;
+    _isAttacking = false;
+    PlayOrStop(_isMoving ? RunAnim : IdleAnim);
   }
 
   public void OnHitVfx(float damage, Vector3 attackerPosition) {
@@ -57,12 +74,19 @@ public partial class MinionEntity : TeamEntityViewNode, IAttackableView {
       var idleAnim = _anim.GetAnimation(IdleAnim);
       if (idleAnim != null)
         idleAnim.LoopMode = Animation.LoopModeEnum.Linear;
+
+      if (HasAttackAnim) {
+        // Must not loop, or AnimationFinished never fires and the minion is stuck swinging.
+        _anim.GetAnimation(AttackAnimationOverride).LoopMode = Animation.LoopModeEnum.None;
+        _anim.AnimationFinished += OnAnimationFinished;
+      }
     }
   }
 
   public override void OnActivate(FrameRef frame) {
     AddToGroup(UnitsGroup);
     _isMoving = false;
+    _isAttacking = false;
     if (_anim != null) PlayOrStop(IdleAnim);
 
     var live = frame.Frame;
@@ -75,6 +99,7 @@ public partial class MinionEntity : TeamEntityViewNode, IAttackableView {
     RemoveFromGroup(UnitsGroup);
     ClearTeam();
     _isMoving = false;
+    _isAttacking = false;
   }
 
   public override void OnUpdateView() {
@@ -85,6 +110,7 @@ public partial class MinionEntity : TeamEntityViewNode, IAttackableView {
     var moving = frame.Has<UnitMoveTarget>(EntityRef);
     if (moving == _isMoving) return;
     _isMoving = moving;
+    _isAttacking = false; // Locomotion changes cut the attack clip short.
     PlayOrStop(_isMoving ? RunAnim : IdleAnim);
   }
 

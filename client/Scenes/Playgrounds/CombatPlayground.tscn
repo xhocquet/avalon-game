@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://vuk38btq8hjc" path="res://Scenes/Mobs/DeathSnail.tscn" id="10_sy8x3"]
 [ext_resource type="PackedScene" uid="uid://bfkese80ta8j8" path="res://Scenes/Mobs/CrystalTurtle.tscn" id="11_6hhaa"]
 [ext_resource type="PackedScene" uid="uid://jpnctrugpqg7" path="res://Scenes/Mobs/CaperCreep.tscn" id="12_hp4u6"]
+[ext_resource type="PackedScene" uid="uid://bwb3aihrvx5ue" path="res://Scenes/Mobs/PatchRat.tscn" id="13_ptrat"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_dngt1"]
 shader = ExtResource("1_ohewj")
@@ -422,3 +423,6 @@ transform = Transform3D(-0.48538953, 0, 0.87429804, 0, 1, 0, -0.87429804, 0, -0.
 
 [node name="CaperCreep" parent="." unique_id=1094035730 instance=ExtResource("12_hp4u6")]
 transform = Transform3D(0.4619498, 0, 0.8869061, 0, 1, 0, -0.8869061, 0, 0.4619498, -10.251447, 0.019338608, -12.241278)
+
+[node name="PatchRat" parent="." unique_id=516344692 instance=ExtResource("13_ptrat")]
+transform = Transform3D(-0.6620578, 0, -0.74945277, 0, 1, 0, 0.74945277, 0, -0.6620578, -8.69523, 0, -14.147077)

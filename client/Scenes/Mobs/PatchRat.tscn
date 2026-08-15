@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://bwb3aihrvx5ue"]
+
+[ext_resource type="PackedScene" uid="uid://csvm1uhwspkob" path="res://Assets/Mobs/PatchRat/walking rat.glb" id="1_fq5py"]
+[ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="2_3yxmi"]
+[ext_resource type="Script" uid="uid://drxwt8mq0b2k8" path="res://Scripts/View/MinionEntity.cs" id="3_minion"]
+
+[node name="PatchRat" unique_id=516344692 instance=ExtResource("1_fq5py")]
+script = ExtResource("3_minion")
+WalkAnimationOverride = "preset_quadruped_walk"
+IdleAnimationOverride = "preset_quadruped_walk"
+metadata/_edit_pinned_properties_ = [&"WalkAnimationOverride", &"IdleAnimationOverride"]
+
+[node name="SelectionIndicator" parent="." index="2" unique_id=2143077504 instance=ExtResource("2_3yxmi")]
+transform = Transform3D(0.6, 0, 0, 0, 0.6, 0, 0, 0, 0.6, 0, 0.04, 0)
+visible = false

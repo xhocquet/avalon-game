@@ -9,10 +9,10 @@ script = ExtResource("2_hero")
 WalkAnimationOverride = "Walk"
 IdleAnimationOverride = "Idle"
 
-[node name="Armature" parent="." index="0" unique_id=1044269809]
+[node name="Armature" parent="." index="0" unique_id=743573304]
 transform = Transform3D(2.1971655, 0, -2.042661, 0, 2.9999998, 0, 2.042661, 0, 2.1971655, 0, 1.4783392, 0)
 
-[node name="Skeleton3D" parent="Armature" index="0" unique_id=2030976934]
+[node name="Skeleton3D" parent="Armature" index="0" unique_id=1827751152]
 bones/0/rotation = Quaternion(0.01845144, 0.03897493, 0.014419424, 0.9989658)
 bones/1/rotation = Quaternion(0.024239076, -0.031169038, -0.027141053, 0.99885154)
 bones/2/rotation = Quaternion(0.01783195, -0.04677064, -0.019166026, 0.99856263)

@@ -15,6 +15,8 @@ public partial class HeroEntity : TeamEntityViewNode, IPlayerView, IAttackableVi
 
   [Export] public string WalkAnimationOverride { get; set; } = "";
   [Export] public string IdleAnimationOverride { get; set; } = "";
+  // No default: rigs without an authored attack clip leave this empty and fall back to debug lines.
+  [Export] public string AttackAnimationOverride { get; set; } = "";
 
   [Export] public float SelectPickRadius { get; set; } = -1.0f;
   [Export] public float SelectPickHeight { get; set; } = -1.0f;
@@ -22,9 +24,12 @@ public partial class HeroEntity : TeamEntityViewNode, IPlayerView, IAttackableVi
   private AnimationPlayer _anim;
   private bool _isDead;
   private bool _isMoving;
+  private bool _isAttacking;
 
   private string WalkAnim => string.IsNullOrEmpty(WalkAnimationOverride) ? AnimWalk : WalkAnimationOverride;
   private string IdleAnim => string.IsNullOrEmpty(IdleAnimationOverride) ? AnimIdle : IdleAnimationOverride;
+  private bool HasAttackAnim => _anim != null && !string.IsNullOrEmpty(AttackAnimationOverride)
+                                && _anim.HasAnimation(AttackAnimationOverride);
 
   // Play() is a silent no-op when the name isn't on this model's AnimationPlayer (e.g. a rig with only
   // a walk clip), which would otherwise leave whatever animation last played stuck looping forever.
@@ -38,8 +43,20 @@ public partial class HeroEntity : TeamEntityViewNode, IPlayerView, IAttackableVi
     _anim.Play(animName);
   }
 
-  public void OnAttackVfx(Vector3 targetPosition) {
-    // TODO: attack animation / particles
+  public bool OnAttackVfx(Vector3 targetPosition) {
+    if (_isDead || !HasAttackAnim) return false;
+
+    _isAttacking = true;
+    _anim.Play(AttackAnimationOverride);
+    _anim.Seek(0.0, true); // Play() on the clip already running is a no-op, so rewind to restart it.
+    return true;
+  }
+
+  // The attack clip is one-shot and owns the rig until it ends; hand control back to locomotion.
+  private void OnAnimationFinished(StringName animName) {
+    if (!_isAttacking || (string)animName != AttackAnimationOverride) return;
+    _isAttacking = false;
+    if (!_isDead) PlayOrStop(_isMoving ? WalkAnim : IdleAnim);
   }
 
   public void OnHitVfx(float damage, Vector3 attackerPosition) {
@@ -61,6 +78,12 @@ public partial class HeroEntity : TeamEntityViewNode, IPlayerView, IAttackableVi
       var deathAnim = _anim.GetAnimation(AnimDeath);
       if (deathAnim != null)
         deathAnim.LoopMode = Animation.LoopModeEnum.None;
+
+      if (HasAttackAnim) {
+        // Must not loop, or AnimationFinished never fires and the hero is stuck swinging.
+        _anim.GetAnimation(AttackAnimationOverride).LoopMode = Animation.LoopModeEnum.None;
+        _anim.AnimationFinished += OnAnimationFinished;
+      }
     }
   }
 
@@ -68,6 +91,7 @@ public partial class HeroEntity : TeamEntityViewNode, IPlayerView, IAttackableVi
     AddToGroup(UnitsGroup);
     _isMoving = false;
     _isDead = false;
+    _isAttacking = false;
     if (_anim != null) PlayOrStop(IdleAnim);
 
     var live = frame.Frame;
@@ -83,6 +107,7 @@ public partial class HeroEntity : TeamEntityViewNode, IPlayerView, IAttackableVi
     OwnerId = -1;
     ClearTeam();
     _isDead = false;
+    _isAttacking = false;
   }
 
   public override void OnUpdateView() {
@@ -94,6 +119,7 @@ public partial class HeroEntity : TeamEntityViewNode, IPlayerView, IAttackableVi
     if (dead != _isDead) {
       _isDead = dead;
       _isMoving = false;
+      _isAttacking = false;
       PlayOrStop(_isDead ? AnimDeath : IdleAnim);
     }
 
@@ -103,6 +129,7 @@ public partial class HeroEntity : TeamEntityViewNode, IPlayerView, IAttackableVi
     var moving = frame.Has<UnitMoveTarget>(EntityRef);
     if (moving == _isMoving) return;
     _isMoving = moving;
+    _isAttacking = false; // Locomotion changes cut the attack clip short.
     PlayOrStop(_isMoving ? WalkAnim : IdleAnim);
   }
 

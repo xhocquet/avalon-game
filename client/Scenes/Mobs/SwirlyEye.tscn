@@ -22,3 +22,4 @@ bones/9/rotation = Quaternion(-0.05449833, 0.028035268, 0.30728787, 0.94964105)
 
 [node name="SelectionIndicator" parent="." index="1" unique_id=1272106412 instance=ExtResource("3_sj0n2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, 0)
+visible = false

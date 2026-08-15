@@ -41,6 +41,7 @@
 [ext_resource type="PackedScene" uid="uid://vuk38btq8hjc" path="res://Scenes/Mobs/DeathSnail.tscn" id="39_gwvee"]
 [ext_resource type="PackedScene" uid="uid://bfkese80ta8j8" path="res://Scenes/Mobs/CrystalTurtle.tscn" id="40_3kenh"]
 [ext_resource type="PackedScene" uid="uid://jpnctrugpqg7" path="res://Scenes/Mobs/CaperCreep.tscn" id="41_7ykkm"]
+[ext_resource type="PackedScene" uid="uid://bwb3aihrvx5ue" path="res://Scenes/Mobs/PatchRat.tscn" id="42_otmnd"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_dngt1"]
 shader = ExtResource("1_7ykkm")
@@ -414,28 +415,31 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -37.024994, 3.5, 43.146317)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40.29437, 2, 30.58073)
 
 [node name="Wiz" parent="." unique_id=1682798515 instance=ExtResource("25_36e3y")]
-transform = Transform3D(0.58277553, 0, 0.81263316, 0, 1, 0, -0.81263316, 0, 0.58277553, -11.456522, 0.023467302, -14.669315)
+transform = Transform3D(0.58277553, 0, 0.81263316, 0, 1, 0, -0.81263316, 0, 0.58277553, -11.287324, 0.023467302, -13.380169)
 
 [node name="Crystal" parent="." unique_id=189552492 instance=ExtResource("26_o2o48")]
 transform = Transform3D(-0.05472371, 0, 0.9985016, 0, 1, 0, -0.9985016, 0, -0.05472371, -12.279676, 0.03340006, -10.065875)
 
 [node name="Pickle" parent="." unique_id=1825753785 instance=ExtResource("27_gwvee")]
-transform = Transform3D(0.25881907, 0, 0.9659258, 0, 1, 0, -0.9659258, 0, 0.25881907, -11.466423, 0.09412241, -12.31485)
+transform = Transform3D(-0.07231559, 0, 0.9973818, 0, 1, 0, -0.9973818, 0, -0.07231559, -11.500211, 0.09412241, -11.851311)
 
 [node name="Skinwalker" parent="." unique_id=212024309 instance=ExtResource("28_3kenh")]
-transform = Transform3D(0.999238, 0, -0.039033152, 0, 1, 0, 0.039033152, 0, 0.999238, -7.139937, 0.12498331, -15.854283)
+transform = Transform3D(0.999238, 0, -0.039033152, 0, 1, 0, 0.039033152, 0, 0.999238, -9.056003, -0.012310982, -15.02817)
 
 [node name="Snailhead" parent="." unique_id=765539556 instance=ExtResource("29_7ykkm")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.575623, 0.100471735, -15.812639)
+transform = Transform3D(0.9795085, 0, 0.20140274, 0, 1, 0, -0.20140274, 0, 0.9795085, -10.178606, 0.1004715, -14.467575)
 
 [node name="EyeSwirl" parent="." unique_id=2050480386 instance=ExtResource("38_o2o48")]
-transform = Transform3D(0.96756035, -0.008826386, -0.25248578, 0.010043462, 0.9999432, 0.003531951, 0.25244027, -0.0059532067, 0.96759415, -10.08371, -0.014511824, -14.485473)
+transform = Transform3D(0.96756035, -0.008826386, -0.25248578, 0.010043462, 0.9999432, 0.003531951, 0.25244027, -0.0059532067, 0.96759415, -10.130425, -0.014511824, -13.140893)
 
 [node name="DeathSnail" parent="." unique_id=1985152823 instance=ExtResource("39_gwvee")]
-transform = Transform3D(0.7759914, 0, -0.63074356, 0, 1, 0, 0.63074356, 0, 0.7759914, -8.717089, 0.04542756, -15.056515)
+transform = Transform3D(0.99614435, 0, 0.087729484, 0, 1, 0, -0.087729484, 0, 0.99614435, -9.359143, 0.045428038, -13.886556)
 
 [node name="CystalTurtle" parent="." unique_id=1847225907 instance=ExtResource("40_3kenh")]
 transform = Transform3D(-0.48538953, 0, 0.87429804, 0, 1, 0, -0.87429804, 0, -0.48538953, -10.739081, 0, -10.136329)
 
 [node name="CaperCreep" parent="." unique_id=1094035730 instance=ExtResource("41_7ykkm")]
-transform = Transform3D(0.4619498, 0, 0.8869061, 0, 1, 0, -0.8869061, 0, 0.4619498, -10.251447, 0.019338608, -12.241278)
+transform = Transform3D(0.4619498, 0, 0.8869061, 0, 1, 0, -0.8869061, 0, 0.4619498, -10.511819, 0.019338608, -11.753307)
+
+[node name="PatchRat" parent="." unique_id=516344692 instance=ExtResource("42_otmnd")]
+transform = Transform3D(-0.6620578, 0, -0.74945277, 0, 1, 0, 0.74945277, 0, -0.6620578, -8.69523, -2.3841858e-07, -14.147077)

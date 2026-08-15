@@ -60,14 +60,13 @@ public class VfxManager {
     var attackerPos = attackerView?.GlobalPosition ?? evt.AttackerPosition.ToVector3();
     var targetPos = targetView?.GlobalPosition ?? evt.TargetPosition.ToVector3();
 
-    var line = DebugAttackLine.Create(attackerPos, targetPos);
-    _view.AddChild(line);
-
     var number = DebugDamageNumber.Create(evt.Damage.ToFloat(), targetPos, evt.IsCrit != 0);
     _view.AddChild(number);
 
-    if (attackerView is IAttackableView attacker)
-      attacker.OnAttackVfx(targetPos);
+    // The debug line stands in for rigs that have no attack clip yet.
+    if (attackerView is not IAttackableView attacker || !attacker.OnAttackVfx(targetPos))
+      _view.AddChild(DebugAttackLine.Create(attackerPos, targetPos));
+
     if (targetView is IAttackableView target)
       target.OnHitVfx(evt.Damage.ToFloat(), attackerPos);
   }

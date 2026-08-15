@@ -5,7 +5,6 @@
 - [`UnitLookup`](sim/UnitLookup.cs) provides stable identifiers for all units, and resolves them back to entities
 
 ### Dead code
-- **[`Stats.Defense` and `Stats.Speed`](sim/Components/Stats.cs) (`:9-10`)** are never read anywhere in `sim/`, `client/`, `server/`, or `tests/`. They default to 100 and ride every rollback snapshot.
 - **[`FlowFieldCache.Version` and `Invalidate()`](sim/Navigation/FlowFieldCache.cs)** are never called — meaning flow fields are never invalidated. Harmless while the navmesh is static (nothing writes `isBlocked` at runtime), but the API implies otherwise.
 
 ## Naming consistency

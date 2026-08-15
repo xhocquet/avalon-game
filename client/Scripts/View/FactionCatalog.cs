@@ -29,10 +29,9 @@ public class FactionCatalog {
       "res://Scenes/Heroes/CrystalGiant.tscn",
       "res://Scenes/Mobs/CrystalTurtle.tscn",
       "res://Assets/Portraits/CrystalWarrior.png"),
-    // No minion model of its own yet — borrows the Hairy Wizards' SwirlyEye as a stand-in.
     new(FactionSkinwalkerTribeId, "Skinwalker Tribe",
       "res://Scenes/Heroes/Skinwalker.tscn",
-      "res://Scenes/Mobs/SwirlyEye.tscn",
+      "res://Scenes/Mobs/PatchRat.tscn",
       "res://Assets/Portraits/Skinwalker.png"),
     new(FactionPickleKnightsId, "Pickle Knights",
       "res://Scenes/Heroes/PickleKnight.tscn",

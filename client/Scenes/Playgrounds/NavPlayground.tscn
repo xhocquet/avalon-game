@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://vuk38btq8hjc" path="res://Scenes/Mobs/DeathSnail.tscn" id="39_82p08"]
 [ext_resource type="PackedScene" uid="uid://bfkese80ta8j8" path="res://Scenes/Mobs/CrystalTurtle.tscn" id="40_ntk0k"]
 [ext_resource type="PackedScene" uid="uid://jpnctrugpqg7" path="res://Scenes/Mobs/CaperCreep.tscn" id="41_wrf2v"]
+[ext_resource type="PackedScene" uid="uid://bwb3aihrvx5ue" path="res://Scenes/Mobs/PatchRat.tscn" id="43_ptrat"]
 [ext_resource type="PackedScene" uid="uid://c4gqw5blm3y8s" path="res://Scenes/Objects/Spawn.tscn" id="42_spawn"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_dngt1"]
@@ -276,6 +277,9 @@ transform = Transform3D(-0.48538953, 0, 0.87429804, 0, 1, 0, -0.87429804, 0, -0.
 
 [node name="CaperCreep" parent="." unique_id=1094035730 instance=ExtResource("41_wrf2v")]
 transform = Transform3D(0.4619498, 0, 0.8869061, 0, 1, 0, -0.8869061, 0, 0.4619498, -10.251447, 0.019338608, -12.241278)
+
+[node name="PatchRat" parent="." unique_id=516344692 instance=ExtResource("43_ptrat")]
+transform = Transform3D(-0.6620578, 0, -0.74945277, 0, 1, 0, 0.74945277, 0, -0.6620578, -8.69523, 0, -14.147077)
 
 [node name="NavObstacle" type="NavigationObstacle3D" parent="NavigationRegion3D/Obstacle" unique_id=900000001 groups=["navmesh_source"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.488261, 0)
