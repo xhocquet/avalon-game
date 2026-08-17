@@ -14,6 +14,10 @@ namespace Meesles.Avalon;
 [Tool]
 [GlobalClass]
 public partial class ShopEntity : TeamEntityViewNode, INamedView {
+  // Shops live in World.tscn rather than under the view root, so the open-shop hotkey can't reach them
+  // by walking pooled views the way box-select does.
+  public const string ShopsGroup = "shops";
+
   public string DisplayName => "Shop";
 
   // Owning team for this shop. Set per-instance in World.tscn; the SimMarker export derives its own
@@ -33,6 +37,7 @@ public partial class ShopEntity : TeamEntityViewNode, INamedView {
       return;
 
     EntityViewPhysics.AddSelectionCollider(this, SelectPickRadius, SelectPickHeight);
+    AddToGroup(ShopsGroup);
     SetTeam(Team);
   }
 }

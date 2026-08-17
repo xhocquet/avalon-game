@@ -19,6 +19,8 @@ public partial class CameraController : Camera3D {
   private const float GodmodePitchMinDeg = -89f;
 
   private Node3D _followTarget;
+  private bool _isCameraLocked;
+  private bool _isFocusHeld;
   private float _godmodePitch;
   private float _godmodeYaw;
   private bool _justExitedGodmode;
@@ -56,6 +58,19 @@ public partial class CameraController : Camera3D {
 
     if (_mode == CameraMode.Godmode) {
       if (@event is InputEventMouseMotion motion) ApplyGodmodeLook(motion.Relative);
+      return;
+    }
+
+    if (@event.IsAction("focus_player")) {
+      if (@event.IsActionPressed("focus_player")) BeginFocusFollow();
+      else if (@event.IsActionReleased("focus_player")) EndFocusFollow();
+      GetViewport().SetInputAsHandled();
+      return;
+    }
+
+    if (@event.IsActionPressed("toggle_camera_lock")) {
+      ToggleCameraLock();
+      GetViewport().SetInputAsHandled();
       return;
     }
 
@@ -98,6 +113,11 @@ public partial class CameraController : Camera3D {
       return;
     }
 
+    if (IsFollowing) {
+      SmoothFollow(dt);
+      return;
+    }
+
     var freeMove = NormalMoveDirection();
     if (freeMove.LengthSquared() > 0f) {
       _mode = CameraMode.Free;
@@ -123,6 +143,8 @@ public partial class CameraController : Camera3D {
   // and self-corrects, where accumulating pixel deltas would drift as the camera moves under the cursor.
   // Panning drops follow mode, same as a keyboard pan does.
   private void BeginMousePan(Vector2 screenPos) {
+    if (IsFollowing) return;
+
     var ground = ScreenToGround(screenPos);
     if (ground == null) return;
 
@@ -188,6 +210,35 @@ public partial class CameraController : Camera3D {
     _wasInGodmode = isInGodmode;
   }
 
+  // Space held and the Y lock drive follow directly instead of going through _mode, so releasing either
+  // leaves the camera in whatever mode it was in beforehand rather than stomping it to Free.
+  private bool IsFollowing => (_isCameraLocked || _isFocusHeld) && IsValidFollowTarget();
+
+  // Tap centers on the player and leaves the camera there; hold keeps it centered until release. One
+  // path for both - a tap just ends the follow before the target has moved off the snap.
+  private void BeginFocusFollow() {
+    _isFocusHeld = true;
+    EndMousePan();
+    SnapToTarget();
+  }
+
+  private void EndFocusFollow() {
+    _isFocusHeld = false;
+  }
+
+  // The lock outranks panning while it's on: arrow keys and middle-mouse drag are ignored rather than
+  // fighting the follow every frame. Kept across a dead target so the camera re-locks on respawn.
+  private void ToggleCameraLock() {
+    _isCameraLocked = !_isCameraLocked;
+    if (_isCameraLocked) {
+      EndMousePan();
+      SnapToTarget();
+      return;
+    }
+
+    if (_mode == CameraMode.Follow) _mode = CameraMode.Free;
+  }
+
   private void ToggleGodmode() {
     if (_mode == CameraMode.Godmode) {
       _mode = _modeBeforeGodmode;
@@ -202,6 +253,7 @@ public partial class CameraController : Camera3D {
 
   private void OnEnterGodmode() {
     _isMousePanning = false;
+    _isFocusHeld = false;
     Input.MouseMode = Input.MouseModeEnum.Captured;
     SyncGodmodeFromTransform();
   }
@@ -210,7 +262,7 @@ public partial class CameraController : Camera3D {
     _justExitedGodmode = true;
     Input.MouseMode = Input.MouseModeEnum.Visible;
     GlobalTransform = new Transform3D(FollowBasis(), GlobalPosition);
-    if (_mode == CameraMode.Follow) SnapToTarget();
+    if (_mode == CameraMode.Follow || _isCameraLocked) SnapToTarget();
   }
 
   private Vector3 MovementDirectionXz(string forwardAction, string backwardAction, string leftAction,

@@ -320,6 +320,15 @@ public class InputCapture : IDisposable {
         else ReleaseSkillAim(slot);
         return;
 
+      case InputEventKey { Echo: false } shopKey when shopKey.IsActionPressed("open_shop"):
+        if (_camera.IsGodmode) return;
+        OpenTeamShop();
+        return;
+
+      case InputEventKey { Echo: false } selectAllKey when selectAllKey.IsActionPressed("select_all_minions"):
+        SelectAllOwnedMinions();
+        return;
+
       case InputEventMouseMotion motion:
         UpdateDragSelection(motion.Position);
         return;
@@ -334,6 +343,31 @@ public class InputCapture : IDisposable {
         HandleRightClick(rightClick);
         return;
     }
+  }
+
+  // Same result as clicking your own shop: it becomes the sole selection, which is what puts the buy
+  // grid in the action bar. Range is asked of ShopActions rather than measured against the ShopEntity
+  // node for the reason ActionBarController does the same — the node's transform comes from World.tscn
+  // and the sim's from the Shop map marker, and the key must not open a grid the sim would refuse.
+  private void OpenTeamShop() {
+    var frame = _engine?.PredictedFrame.Frame;
+    if (frame == null) return;
+    if (!UnitLookup.TryGetPlayerHero(ref frame, _engine.LocalPlayerId, out var hero)) return;
+    if (!ShopActions.IsHeroNearTeamShop(ref frame, hero)) return;
+
+    var shop = FindTeamShop();
+    if (shop != null) ApplySingleSelection(shop);
+  }
+
+  private ShopEntity FindTeamShop() {
+    var tree = _camera?.GetTree();
+    if (tree == null) return null;
+
+    foreach (var node in tree.GetNodesInGroup(ShopEntity.ShopsGroup))
+      if (node is ShopEntity shop && shop.Team == _localTeamId)
+        return shop;
+
+    return null;
   }
 
   // Hold to aim, release to cast. The slot is tracked from key-down regardless of CanAct so a skill that
@@ -388,11 +422,32 @@ public class InputCapture : IDisposable {
     return _camera?.GetViewport()?.GuiGetHoveredControl() is BaseButton;
   }
 
+  // The double-click arrives as a second press with DoubleClick set. Handling it here and skipping
+  // BeginDragSelection leaves _isLeftButtonDown false, so the release that follows falls out of
+  // EndDragSelection and can't collapse the type selection back to the single unit under the cursor.
   private void HandleLeftClick(InputEventMouseButton mouseButton) {
-    if (mouseButton.Pressed)
-      BeginDragSelection(mouseButton.Position);
-    else
-      EndDragSelection(mouseButton.Position);
+    if (mouseButton.Pressed) {
+      if (mouseButton.DoubleClick)
+        SelectSameTypeOnScreen(mouseButton.Position, GetSelectionMode(mouseButton));
+      else
+        BeginDragSelection(mouseButton.Position);
+      return;
+    }
+
+    EndDragSelection(mouseButton.Position, GetSelectionMode(mouseButton));
+  }
+
+  // Ctrl wins over Shift when both are down: removing is the narrower intent, and the alternative is
+  // a chord that silently means "add".
+  private static SelectionMode GetSelectionMode(InputEventWithModifiers modifiers) {
+    if (modifiers.CtrlPressed) return SelectionMode.Remove;
+    return modifiers.ShiftPressed ? SelectionMode.Add : SelectionMode.Replace;
+  }
+
+  private enum SelectionMode {
+    Replace,
+    Add,
+    Remove
   }
 
   private void HandleRightClick(InputEventMouseButton mouseButton) {
@@ -553,7 +608,7 @@ public class InputCapture : IDisposable {
     _gameUI?.SetSelectionRectangle(GetSelectionRectangle(_dragStartScreen, _dragCurrentScreen));
   }
 
-  private void EndDragSelection(Vector2 screenPosition) {
+  private void EndDragSelection(Vector2 screenPosition, SelectionMode mode) {
     if (!_isLeftButtonDown) return;
 
     _dragCurrentScreen = screenPosition;
@@ -563,13 +618,91 @@ public class InputCapture : IDisposable {
     _gameUI?.SetSelectionRectangle(null);
 
     if (wasDragging)
-      SelectOwnedViewsInRectangle(GetSelectionRectangle(_dragStartScreen, _dragCurrentScreen));
+      SelectOwnedViewsInRectangle(GetSelectionRectangle(_dragStartScreen, _dragCurrentScreen), mode);
     else
-      SelectNearestOwnedView(screenPosition);
+      SelectNearestOwnedView(screenPosition, mode);
   }
 
-  private void SelectNearestOwnedView(Vector2 screenPosition) {
-    ApplySingleSelection(PickView(screenPosition, CanClickSelectView) ?? GetFallbackFocusView());
+  // Add and remove pick with the command filter rather than the click filter: a structure or pickup can
+  // still be clicked on its own to inspect it, but shift-clicking one into a group that then takes a move
+  // order would build a selection the orders can't act on.
+  private void SelectNearestOwnedView(Vector2 screenPosition, SelectionMode mode) {
+    if (mode == SelectionMode.Replace) {
+      ApplySingleSelection(PickView(screenPosition, CanClickSelectView) ?? GetFallbackFocusView());
+      return;
+    }
+
+    var view = PickView(screenPosition, CanSelectView);
+    if (view == null) return; // A modified click on empty ground refines nothing; leave the group alone.
+
+    if (mode == SelectionMode.Add) AddToSelection(view);
+    else RemoveFromSelection(view);
+
+    UpdateFocusPortrait();
+  }
+
+  // Double-click type select. Scoped to what the camera currently shows, so it stays a "these ones here"
+  // gesture and the backtick select-all keeps its map-wide meaning.
+  private void SelectSameTypeOnScreen(Vector2 screenPosition, SelectionMode mode) {
+    var clicked = PickView(screenPosition, CanSelectView);
+    if (clicked == null || !TryGetUnitTypeId(clicked, out var unitTypeId)) return;
+    if (_viewRoot == null) return;
+
+    var matches = new List<EntityViewNode>();
+    foreach (var child in _viewRoot.GetChildren()) {
+      if (child is not EntityViewNode view) continue;
+      if (!CanSelectView(view) || !IsOnScreen(view)) continue;
+      if (!TryGetUnitTypeId(view, out var typeId) || typeId != unitTypeId) continue;
+
+      matches.Add(view);
+    }
+
+    ApplySelection(matches, mode);
+  }
+
+  private bool IsOnScreen(EntityViewNode view) {
+    if (_camera == null) return false;
+
+    var position = view.GlobalPosition;
+    if (_camera.IsPositionBehind(position)) return false;
+
+    var visible = _camera.GetViewport()?.GetVisibleRect();
+    return visible?.HasPoint(_camera.UnprojectPosition(position)) ?? false;
+  }
+
+  private void ApplySelection(List<EntityViewNode> views, SelectionMode mode) {
+    if (mode == SelectionMode.Replace) {
+      ClearSelectedViews();
+
+      // An empty result would otherwise leave nothing selected; fall back to the player's main hero so
+      // the selection/focus is never empty, matching the single-click behaviour.
+      if (views.Count == 0) {
+        ApplySingleSelection(GetFallbackFocusView());
+        return;
+      }
+    }
+
+    foreach (var view in views) {
+      if (mode == SelectionMode.Remove) RemoveFromSelection(view);
+      else AddToSelection(view);
+    }
+
+    UpdateFocusPortrait();
+  }
+
+  private void AddToSelection(EntityViewNode view) {
+    if (_selectedViews.Contains(view)) return;
+
+    _selectedViews.Add(view);
+    SetSelectionIndicator(view, true);
+    InvalidateMoveDedup();
+  }
+
+  private void RemoveFromSelection(EntityViewNode view) {
+    if (!_selectedViews.Remove(view)) return;
+
+    SetSelectionIndicator(view, false);
+    InvalidateMoveDedup();
   }
 
   // Raycast the mouse ray against each view's selection capsule (EntityViewPhysics.SelectionLayer) and
@@ -618,10 +751,10 @@ public class InputCapture : IDisposable {
     return null;
   }
 
-  private void SelectOwnedViewsInRectangle(Rect2 rectangle) {
-    ClearSelectedViews();
+  private void SelectOwnedViewsInRectangle(Rect2 rectangle, SelectionMode mode) {
     if (_viewRoot == null || _camera == null) return;
 
+    var boxed = new List<EntityViewNode>();
     foreach (var child in _viewRoot.GetChildren()) {
       if (child is not EntityViewNode view) continue;
       if (!CanSelectView(view)) continue;
@@ -629,18 +762,31 @@ public class InputCapture : IDisposable {
       var screen = _camera.UnprojectPosition(view.GlobalPosition);
       if (!rectangle.HasPoint(screen)) continue;
 
-      _selectedViews.Add(view);
-      SetSelectionIndicator(view, true);
+      boxed.Add(view);
     }
 
-    // An empty box would otherwise leave nothing selected; fall back to the player's main hero so the
-    // selection/focus is never empty, matching the single-click behaviour.
-    if (_selectedViews.Count == 0) {
-      ApplySingleSelection(GetFallbackFocusView());
-      return;
+    ApplySelection(boxed, mode);
+  }
+
+  // Backtick select-all. Map-wide rather than on-screen, and the hero is left out so the key stays a
+  // "grab the army" button you can press before framing the camera. Minions carry no per-player owner,
+  // only a team, so "yours" is the same team filter box-select uses.
+  private void SelectAllOwnedMinions() {
+    if (_viewRoot == null) return;
+
+    var minions = new List<EntityViewNode>();
+    foreach (var child in _viewRoot.GetChildren()) {
+      if (child is not EntityViewNode view) continue;
+      if (!CanSelectView(view) || IsHeroView(view)) continue;
+
+      minions.Add(view);
     }
 
-    UpdateFocusPortrait();
+    // No minions alive leaves the current selection alone; unlike an empty box this was never a click
+    // at the world, so there is nothing to fall back from.
+    if (minions.Count == 0) return;
+
+    ApplySelection(minions, SelectionMode.Replace);
   }
 
   private void ClearSelectedViews() {
@@ -648,8 +794,12 @@ public class InputCapture : IDisposable {
       SetSelectionIndicator(view, false);
     _selectedViews.Clear();
 
-    // Every selection change routes through here. The same point ordered for a different unit set is
-    // a different order, so the dedup window must not carry across one.
+    InvalidateMoveDedup();
+  }
+
+  // The same point ordered for a different unit set is a different order, so the dedup window must not
+  // carry across a selection change.
+  private void InvalidateMoveDedup() {
     _lastMoveOrderTick = int.MinValue;
   }
 
@@ -805,7 +955,21 @@ public class InputCapture : IDisposable {
   }
 
   private static bool TryGetUnitId(EntityViewNode view, out int unitId) {
-    unitId = 0;
+    var found = TryGetUnit(view, out var unit);
+    unitId = found ? unit.UnitId : 0;
+    return found;
+  }
+
+  // SimulationSetup's coarse Player/Minion/Turret/Crystal ids today; double-click type select follows
+  // whatever this subdivides into when minion roles land.
+  private static bool TryGetUnitTypeId(EntityViewNode view, out int unitTypeId) {
+    var found = TryGetUnit(view, out var unit);
+    unitTypeId = found ? unit.UnitTypeId : 0;
+    return found;
+  }
+
+  private static bool TryGetUnit(EntityViewNode view, out UnitIdComponent unit) {
+    unit = default;
     if (view.Engine == null || !view.EntityRef.IsValid)
       return false;
 
@@ -816,7 +980,7 @@ public class InputCapture : IDisposable {
     if (frame == null || !frame.Has<UnitIdComponent>(view.EntityRef))
       return false;
 
-    unitId = frame.GetReadOnly<UnitIdComponent>(view.EntityRef).UnitId;
+    unit = frame.GetReadOnly<UnitIdComponent>(view.EntityRef);
     return true;
   }
 
