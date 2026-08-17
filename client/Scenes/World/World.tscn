@@ -889,6 +889,7 @@ transform = Transform3D(-1.3113416e-07, 0, -3, 0, 3, 0, 3, 0, -1.3113416e-07, 9.
 transform = Transform3D(200, 0, 0, 0, 200, 0, 0, 0, 200, 0, 0.1, 0)
 
 [node name="Gates" type="Node3D" parent="NavigationRegion3D" unique_id=1381230673]
+visible = false
 
 [node name="HexGate" parent="NavigationRegion3D/Gates" unique_id=1115511473 instance=ExtResource("29_3a4wv")]
 transform = Transform3D(-0.7337535, -6.1583705e-08, -0.67941594, 0.0023716372, 0.9999939, -0.0025614058, 0.67941153, -0.003490768, -0.7337493, 14.040154, 0.037751418, 14.287382)

@@ -61,6 +61,16 @@ public class UnitViewFactory : EntityViewFactory {
     return 0;
   }
 
+  // A recycled index can land another unit of the same faction, which resolves the same prefab and so
+  // slips past the prefab check. UnitId comes from the monotonic counter and separates the two. Only
+  // rejects when both sides carry an id, so views that track none never churn.
+  public override bool IsSameEntity(Frame frame, EntityRef entity, EntityViewNode view) {
+    if (!view.TryGetCachedUnitId(out var cachedUnitId) || !frame.Has<UnitIdComponent>(entity))
+      return true;
+
+    return cachedUnitId == frame.GetReadOnly<UnitIdComponent>(entity).UnitId;
+  }
+
   protected override bool ShouldRender(Frame frame, EntityRef entity) {
     return frame.Has<Hero>(entity) || frame.Has<Crystal>(entity) || frame.Has<Turret>(entity) ||
            frame.Has<Minion>(entity) || frame.Has<Pickup>(entity) || frame.Has<Oasis>(entity);

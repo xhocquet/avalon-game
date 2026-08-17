@@ -24,6 +24,7 @@ public static class AssetIds {
   public const int NavigationTuning = 112;
   public const int CombatRules = 113;
   public const int XpRules = 115;
+  public const int GoldRules = 118;
 
   // FactionAsset, FactionCatalog
   public const int FactionHairyWizards = 200;
@@ -103,6 +104,7 @@ public static class AssetIds {
     public const int Skill = 116;
 
     public const int PickupType = 117;
-    // Next free type id: 118
+    public const int GoldRules = 118;
+    // Next free type id: 119
   }
 }

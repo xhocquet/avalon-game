@@ -30,6 +30,8 @@
     "DeathScorePenalty": 1,
     "GoldTickIntervalMs": 1000,
     "StartingGoldPerTick": 1,
+    "StartingGold": 400,
+    "GoldStartDelayMs": 60000,
     "HeroKillScore": 3,
     "MinionKillScore": 1,
     "StructureKillScore": 2,
@@ -70,6 +72,15 @@
     "$type": "Meesles.Avalon.Sim.Assets.CombatRulesAsset, Meesles.Avalon.Client",
     "AssetId": 113,
     "TargetGridCellSize": 10.0
+  },
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.GoldRulesAsset, Meesles.Avalon.Client",
+    "AssetId": 118,
+    "GoldPerMinionKill": 15,
+    "GoldPerHeroKill": 110,
+    "GoldPerTurretKill": 250,
+    "GoldPerCrystalKill": 500,
+    "GoldPerAssist": 50
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.XpRulesAsset, Meesles.Avalon.Client",

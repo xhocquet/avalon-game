@@ -37,6 +37,14 @@
 - It adds the **difference between the two levels**, not a per-level step repeated — the curve is not linear, so a multi-level tick would otherwise land somewhere else entirely. The base cancels out of that difference, which is why no base/bonus split is needed and item bonuses simply stack on top.
 - XP is lifetime-earned and never reset, so it survives death and respawn for free — the hero entity is never destroyed.
 
+# Gold
+
+- The wallet is [`InventoryComponent`](Components/Behaviors/InventoryComponent.cs). Gold arrives two ways: a passive trickle and kill bounties. Both are integers; there is no fractional gold.
+- **Pacing** is on `MatchRulesAsset` (row `AssetId: 110`), beside the match clock it is measured against: `StartingGold` is what `HeroFactory` seeds the wallet with, `GoldStartDelayMs` gates when the trickle opens, `GoldTickIntervalMs`/`StartingGoldPerTick` are its rate. [`InventorySystem`](Systems/InventorySystem.cs) gates on `frame.Tick`, not on how long a hero has existed, so a hero spawning late out of faction select doesn't get its own private delay. `GoldAccrualRemainderMs` doesn't bank during the delay, so the first payout lands one full interval after the gate opens.
+- **Bounties** are on [`GoldRulesAsset`](Assets/GoldRulesAsset.cs) (row `AssetId: 118`), the gold twin of `XpRulesAsset` — per-victim-type, flat across players. [`GoldRewards.AwardForKill`](GoldRewards.cs) mirrors `ExperienceRewards` exactly: same two call sites (`DeathSystem`, `RespawnSystem.BeginRespawn`), same `MatchStats.IsCreditableKill` gate, credit to the fatal hit only. Only heroes carry an `InventoryComponent`, so a kill credited to a minion or turret pays nothing.
+- `GoldPerAssist` is authored but unread — assists need a damage-participation window that `Health.LastDamagerUnitId` cannot provide. See the TODO in the root README.
+- Gold survives death and respawn for the same reason XP does: the hero entity is never destroyed. `StartingGold` is seeded once at spawn, not re-granted on respawn.
+
 # Stats
 
 - [`StatsComponent`](Components/Behaviors/StatsComponent.cs) is one `FP64` per [`StatType`](Enums.cs), stored as a `fixed long` buffer of raw 32.32 values rather than named fields. That is deliberate: a stat cannot be forgotten in a `switch`, every write goes through the same clamp, and a fractional or percentage modifier (`+0.5` attack damage, `+2.9%` attack speed) survives instead of truncating. Named `readonly` properties keep call sites reading as `stats.MoveSpeed`.

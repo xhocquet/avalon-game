@@ -13,11 +13,13 @@ public partial class MatchRulesAsset : IDataAsset {
   [KlothoOrder(3)] public int DeathScorePenalty;
   [KlothoOrder(4)] public int GoldTickIntervalMs;
   [KlothoOrder(5)] public int StartingGoldPerTick;
-  [KlothoOrder(6)] public int HeroKillScore;
-  [KlothoOrder(7)] public int MinionKillScore;
-  [KlothoOrder(8)] public int StructureKillScore;
+  [KlothoOrder(6)] public int StartingGold; // Wallet each hero spawns with
+  [KlothoOrder(7)] public int GoldStartDelayMs; // Measured from tick 0, not from hero spawn
+  [KlothoOrder(8)] public int HeroKillScore;
+  [KlothoOrder(9)] public int MinionKillScore;
+  [KlothoOrder(10)] public int StructureKillScore;
 
   // How often health/mana regen pays out. Regen stats are authored per 5 seconds, so a tick here
   // grants RegenInterval/5000 of the stat. No system reads it yet.
-  [KlothoOrder(9)] public int RegenIntervalMs;
+  [KlothoOrder(11)] public int RegenIntervalMs;
 }

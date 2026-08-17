@@ -69,8 +69,18 @@ namespace xpTURN.Klotho.Godot {
     public virtual EntityViewNode Create(Frame frame, EntityRef entity, BindBehaviour behaviour, ViewFlags flags) {
       var prefab = ResolvePrefab(frame, entity);
       if (prefab == null) return null;
-      return Pool != null ? Pool.Rent(prefab) : prefab.Instantiate<EntityViewNode>();
+      var view = Pool != null ? Pool.Rent(prefab) : prefab.Instantiate<EntityViewNode>();
+      if (view != null) view.SourcePrefab = prefab;
+      return view;
     }
+
+    // Rollback frees an entity index, and the next entity created can take that index back at the same
+    // version, so the updater re-resolves per reconcile to tell a retained view from a recycled slot.
+    public PackedScene PeekPrefab(Frame frame, EntityRef entity) => ResolvePrefab(frame, entity);
+
+    // Second half of that check: the prefab only separates recycled slots that changed kind. Games
+    // carrying a stable per-entity id override this to also catch a same-prefab recycle.
+    public virtual bool IsSameEntity(Frame frame, EntityRef entity, EntityViewNode view) => true;
 
     public virtual void Destroy(EntityViewNode view) {
       if (view == null) return;

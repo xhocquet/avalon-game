@@ -1,3 +1,4 @@
+using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.ECS;
@@ -10,6 +11,11 @@ public class InventorySystem : ISystem {
     if (matchRules.GoldTickIntervalMs <= 0)
       return;
 
+    // Gated on the match clock, not on how long a hero has existed, so a late-spawning hero doesn't
+    // get its own private delay.
+    if (frame.Tick < GoldStartTick(ref frame, matchRules))
+      return;
+
     var filter = frame.Filter<InventoryComponent>();
     while (filter.Next(out var entity)) {
       ref var inventory = ref frame.Get<InventoryComponent>(entity);
@@ -20,5 +26,13 @@ public class InventorySystem : ISystem {
         inventory.Gold += inventory.GoldPerTick;
       }
     }
+  }
+
+  private static int GoldStartTick(ref Frame frame, MatchRulesAsset matchRules) {
+    if (matchRules.GoldStartDelayMs <= 0)
+      return 0;
+
+    var deltaTimeMs = TickMath.DeltaTimeMs(ref frame);
+    return (matchRules.GoldStartDelayMs + deltaTimeMs - 1) / deltaTimeMs; // ceil: pay on/after the delay
   }
 }

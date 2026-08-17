@@ -123,6 +123,8 @@ public static class SimulationSetup {
     var matchRules = frame.AssetRegistry.Get<MatchRulesAsset>();
     var initialPos = GetHeroSpawnPositionForTeam(ref frame, teamId);
 
+    SimLog.Info(ref frame,
+      $"[Hero] SPAWN tick={frame.Tick} playerId={playerId} teamId={teamId} factionId={factionId}");
     HeroFactory.Spawn(ref frame, heroAsset, matchRules, initialPos, playerId, teamId, factionId);
   }
 

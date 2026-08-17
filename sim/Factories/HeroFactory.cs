@@ -23,7 +23,10 @@ public static class HeroFactory {
     });
     frame.Add(entity, new Controllable());
     frame.Add(entity, new Respawns());
-    frame.Add(entity, new InventoryComponent { GoldPerTick = matchRules.StartingGoldPerTick });
+    frame.Add(entity, new InventoryComponent {
+      Gold = matchRules.StartingGold,
+      GoldPerTick = matchRules.StartingGoldPerTick
+    });
     frame.Add(entity, new ResourcesComponent());
     frame.Add(entity, new ExperienceComponent());
     frame.Add(entity, BuildSkills(heroAsset));

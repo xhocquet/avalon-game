@@ -47,6 +47,19 @@ public class HeroAssetSpawnTests {
     }
   }
 
+  [Fact]
+  public void SpawnedHero_StartsWithTheStartingGoldFromMatchRules() {
+    var harness = SimHarness.CreateInitialized();
+    var frame = harness.Frame;
+    var matchRules = harness.AssetRegistry.Get<MatchRulesAsset>();
+
+    matchRules.StartingGold.Should().BeGreaterThan(0);
+
+    var filter = frame.Filter<Hero, InventoryComponent>();
+    while (filter.Next(out var entity))
+      frame.GetReadOnly<InventoryComponent>(entity).Gold.Should().Be(matchRules.StartingGold);
+  }
+
   // Two players picking different factions get heroes built from different rows. Asserting each
   // hero against its own faction's row (rather than against each other) keeps this honest whether
   // or not the two rows are currently tuned apart.

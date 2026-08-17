@@ -57,6 +57,7 @@ public class DeathSystem : ISystem {
     // it still earns what it killed.
     foreach (var dead in _deadUnits) {
       ExperienceRewards.AwardForKill(ref frame, dead.DestroyerEntity, dead.UnitTypeId, dead.TeamId);
+      GoldRewards.AwardForKill(ref frame, dead.DestroyerEntity, dead.UnitTypeId, dead.TeamId);
       MatchStats.RecordKill(ref frame, dead.DestroyerEntity, dead.UnitTypeId, dead.TeamId);
     }
 

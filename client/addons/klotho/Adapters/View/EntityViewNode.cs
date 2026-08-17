@@ -13,6 +13,9 @@ namespace xpTURN.Klotho.Godot {
     public BindBehaviour BindBehaviour { get; private set; } = BindBehaviour.Verified;
     public ViewFlags ViewFlags { get; private set; } = ViewFlags.None;
 
+    // Scene this instance came from, stamped by EntityViewFactory.Create. Survives pool reuse.
+    public PackedScene SourcePrefab { get; internal set; }
+
     internal void SetBindBehaviour(BindBehaviour value) => BindBehaviour = value;
     internal void SetViewFlags(ViewFlags value) => ViewFlags = value;
 

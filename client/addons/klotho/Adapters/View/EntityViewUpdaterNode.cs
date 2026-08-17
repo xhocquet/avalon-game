@@ -110,7 +110,11 @@ namespace xpTURN.Klotho.Godot {
       if (_viewsByEntityIndex.TryGetValue(entity.Index, out var existing)) {
         bool versionMatch = existing.EntityRef.Version == entity.Version;
         bool ownerMatch = OwnersMatch(existing, entity, frame.Frame);
-        if (versionMatch && ownerMatch) return; // same entity — keep the view
+        // Index and version alias across a rollback: a mispredicted entity's slot is handed back at the
+        // same version, and an unowned successor (a minion) passes the owner check too.
+        bool prefabMatch = existing.SourcePrefab == _factory.PeekPrefab(frame.Frame, entity);
+        bool identityMatch = _factory.IsSameEntity(frame.Frame, entity, existing);
+        if (versionMatch && ownerMatch && prefabMatch && identityMatch) return; // same entity — keep the view
 
         existing.OnDeactivate();
         TryUnregisterUnitView(existing);

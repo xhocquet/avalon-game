@@ -4,6 +4,11 @@
 - In the same way, we generate a deterministic navmesh to [`NavigationRegion3D.NavMeshData.bytes`](client/Sim/Data/NavigationRegion3D.NavMeshData.bytes)
 - [`UnitLookup`](sim/UnitLookup.cs) provides stable identifiers for all units, and resolves them back to entities
 
+## TODO
+- **Assist gold.** `GoldRulesAsset.GoldPerAssist` (50) is authored but nothing reads it. Assists need a
+damage-participation window per victim before a payout has anything to key off — `Health.LastDamagerUnitId`
+only remembers the fatal hit, so the killer is the only actor a death can currently credit.
+
 ### Dead code
 - **[`FlowFieldCache.Version` and `Invalidate()`](sim/Navigation/FlowFieldCache.cs)** are never called — meaning flow fields are never invalidated. Harmless while the navmesh is static (nothing writes `isBlocked` at runtime), but the API implies otherwise.
 
