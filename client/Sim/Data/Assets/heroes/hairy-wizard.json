@@ -47,7 +47,17 @@
     "AssetId": 500,
     "_Name": "Hairy Wizard - Hairball",
     "MaxRank": 4,
-    "CooldownMs": 3000
+    "CooldownMs": 3000,
+    "Damage": 80,
+    "DamagePerRank": 45,
+    "ProjectileSpeed": 12.0,
+    "ProjectileRange": 9.0,
+    "ProjectileRadius": 0.4,
+    "ProjectileCount": 1,
+    "ProjectileSpacing": 0,
+    "ProjectileSpawnOffset": 1.0,
+    "MinCastRange": 1.0,
+    "MaxCastRange": 9.0
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
@@ -61,7 +71,10 @@
     "AssetId": 502,
     "_Name": "Hairy Wizard - Close Shave",
     "MaxRank": 4,
-    "CooldownMs": 3000
+    "CooldownMs": 3000,
+    "BuffDurationMs": 5000,
+    "BuffPercent": 0.05,
+    "BuffPercentPerRank": 0.05
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",

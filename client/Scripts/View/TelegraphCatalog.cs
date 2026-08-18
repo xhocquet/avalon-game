@@ -16,7 +16,8 @@ public class TelegraphCatalog {
   private const string HostileFamily = "res://Scenes/FX/Telegraphs/telegraph_family_hostile.tres";
 
   public static readonly TelegraphDef[] TelegraphDefs = [
-    new(AssetIds.SkillCrystalGiantTertiary, SelfFamily, HostileFamily, 4f)
+    new(AssetIds.SkillCrystalGiantTertiary, SelfFamily, HostileFamily, 4f),
+    new(AssetIds.SkillHairyWizardPrimary, SelfFamily, HostileFamily, 4f)
   ];
 
   private readonly Dictionary<int, TelegraphDef> _bySkillAssetId = new();

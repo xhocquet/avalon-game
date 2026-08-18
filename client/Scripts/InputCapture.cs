@@ -373,10 +373,29 @@ public class InputCapture : IDisposable {
   // Hold to aim, release to cast. The slot is tracked from key-down regardless of CanAct so a skill that
   // comes off cooldown while held still previews and still fires; both ends re-ask before anything is
   // drawn or queued. The bar's click-to-cast path stays a single instant cast.
+  //
+  // A self-cast row has nothing to aim, so it goes out on key-down and never enters the hold: holding
+  // it would only delay a cast whose target is already known.
   private void BeginSkillAim(int slot) {
+    if (IsSelfCast(slot)) {
+      QueueSkillCast(slot);
+      return;
+    }
+
     _aimingSlot = slot;
     if (CanAct(slot, SkillAction.Cast))
       _telegraphs?.ShowAim(slot, GetSkillAimPoint());
+  }
+
+  // The flag is the sim's, off the slot's own row, so the key behaves the way the cast will resolve.
+  private bool IsSelfCast(int slot) {
+    var frame = _engine?.PredictedFrame.Frame;
+    if (frame == null) return false;
+    if (!UnitLookup.TryGetPlayerHero(ref frame, _engine.LocalPlayerId, out var hero)) return false;
+    if (!frame.Has<SkillsComponent>(hero)) return false;
+
+    var skillAssetId = frame.GetReadOnly<SkillsComponent>(hero).GetSkillAssetId(slot);
+    return frame.AssetRegistry.TryGet<SkillAsset>(skillAssetId, out var skill) && skill.IsSelfCast;
   }
 
   private void ReleaseSkillAim(int slot) {

@@ -61,7 +61,10 @@
     "AssetId": 518,
     "_Name": "Pickle Knight - Refresh",
     "MaxRank": 4,
-    "CooldownMs": 3000
+    "CooldownMs": 45000,
+    "HealPercent": 0.05,
+    "HealPercentPerRank": 0.05,
+    "SelfCast": 1
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",

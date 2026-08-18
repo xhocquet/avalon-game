@@ -224,7 +224,9 @@ public class SkillProgressionTests {
         var skill = harness.AssetRegistry.Get<SkillAsset>(skillAssetId);
         skill.Should().NotBeNull($"skill {skillAssetId} must load from the .bytes");
         skill.MaxRank.Should().Be(4);
-        skill.CooldownMs.Should().Be(3000);
+        // Tuned per row as skills get bodies, so only the shape is checked here - a row with no
+        // cooldown at all would be castable every tick.
+        skill.CooldownMs.Should().BePositive();
       }
     }
   }

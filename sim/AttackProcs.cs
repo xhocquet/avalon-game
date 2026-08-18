@@ -13,8 +13,12 @@ namespace Meesles.Avalon.Sim;
 public static class AttackProcs {
   // Arms the next attack, replacing whatever was waiting. Returns false when the unit cannot hold a
   // proc or the arming is a no-op.
+  //
+  // resetAttackCooldown clears the swing timer the caster is sitting on, so the empowered attack goes
+  // out on the cast tick rather than after the leftover of the auto that came before it. The cooldown
+  // restarts normally from that hit, so this buys one swing, not a faster attack rate.
   public static bool Arm(ref Frame frame, EntityRef entity, int sourceId, FP64 damageMultiplier,
-    int durationTicks) {
+    int durationTicks, bool resetAttackCooldown = false) {
     if (sourceId == 0 || durationTicks <= 0 || damageMultiplier <= FP64.Zero)
       return false;
 
@@ -25,6 +29,12 @@ public static class AttackProcs {
     proc.SourceId = sourceId;
     proc.DamageMultiplier = damageMultiplier;
     proc.ExpiryTick = frame.Tick + durationTicks;
+
+    // Casts run before the Update phase, so a cooldown cleared here is already 0 when DamageSystem
+    // reaches this attacker on the same tick.
+    if (resetAttackCooldown && frame.Has<Combat>(entity))
+      frame.Get<Combat>(entity).CooldownRemainingTicks = 0;
+
     return true;
   }
 

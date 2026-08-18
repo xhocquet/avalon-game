@@ -35,7 +35,22 @@ public partial class SkillAsset : IDataAsset {
   [KlothoOrder(16)] public FP64 ProcDamageMultiplier;
   [KlothoOrder(17)] public FP64 ProcDamageMultiplierPerRank;
 
+  // 0/1. Arming clears the caster's attack cooldown, so the empowered swing lands at once instead of
+  // waiting out the auto-attack that came before it. Per-row because not every proc wants it.
+  [KlothoOrder(18)] public int ProcResetsAttackCooldown;
+
+  // Heal block, authored as a fraction of the target's MaxHealth rather than a flat number so it keeps
+  // its meaning as the pool grows with level. HealPercent is rank 1, HealPercentPerRank the step after.
+  [KlothoOrder(19)] public FP64 HealPercent;
+  [KlothoOrder(20)] public FP64 HealPercentPerRank;
+
+  // 0/1. The skill has no aim: it resolves on the caster and the aim point is replaced with the
+  // caster's own position, so nothing downstream has to decide whether the target means anything. The
+  // client reads the same flag to fire on key-down instead of holding the key to aim.
+  [KlothoOrder(21)] public int SelfCast;
+
   public bool HasCastRange => MinCastRange > FP64.Zero || MaxCastRange > FP64.Zero;
+  public bool IsSelfCast => SelfCast != 0;
 
   public FP64 DamageAtRank(int rank) {
     return rank <= 0 ? FP64.Zero : Damage + DamagePerRank * FP64.FromInt(rank - 1);
@@ -43,6 +58,10 @@ public partial class SkillAsset : IDataAsset {
 
   public FP64 BuffPercentAtRank(int rank) {
     return rank <= 0 ? FP64.Zero : BuffPercent + BuffPercentPerRank * FP64.FromInt(rank - 1);
+  }
+
+  public FP64 HealPercentAtRank(int rank) {
+    return rank <= 0 ? FP64.Zero : HealPercent + HealPercentPerRank * FP64.FromInt(rank - 1);
   }
 
   public FP64 ProcDamageMultiplierAtRank(int rank) {

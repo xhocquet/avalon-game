@@ -19,18 +19,20 @@ namespace Meesles.Avalon.Sim.Tests;
 public class SkillCastRangeTests {
   private const int PlayerId = 1;
   private const int Primary = (int)SkillSlot.Primary;
+  private const int Secondary = (int)SkillSlot.Secondary;
 
+  // Secondary rather than Primary: the default hero's Primary is Hairball, which authors a band.
   [Fact]
   public void AnUnboundedRow_LeavesTheAimPointWhereTheClientPutIt() {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     var hero = harness.FindHero(PlayerId);
-    var skill = SkillProgressionTests.SkillInSlot(harness, hero, SkillSlot.Primary);
+    var skill = SkillProgressionTests.SkillInSlot(harness, hero, SkillSlot.Secondary);
     skill.MinCastRange.Should().Be(FP64.Zero);
     skill.MaxCastRange.Should().Be(FP64.Zero);
 
     var target = HeroPosition(harness) + FPVector3.Right * FP64.FromInt(400);
-    var cast = CastAt(harness, target);
+    var cast = CastAt(harness, target, Secondary);
 
     cast.TargetPosition.Should().Be(new FPVector3(target.x, FP64.Zero, target.z));
   }
@@ -113,16 +115,16 @@ public class SkillCastRangeTests {
 
   // Learns Primary and casts it at `target` on the current frame, returning the cast event the view
   // (and every effect) reads the aim point off.
-  private static SkillCastEvent CastAt(SimHarness harness, FPVector3 target) {
+  private static SkillCastEvent CastAt(SimHarness harness, FPVector3 target, int slot = Primary) {
     var frame = harness.Frame;
     var hero = harness.FindHero(PlayerId);
-    frame.Get<SkillsComponent>(hero).TrySpendPoint(Primary, 4).Should().BeTrue();
+    frame.Get<SkillsComponent>(hero).TrySpendPoint(slot, 4).Should().BeTrue();
 
     var collector = new EventCollector();
     collector.BeginTick(frame.Tick);
     frame.EventRaiser = collector;
 
-    SkillActions.TryCast(ref frame, PlayerId, Primary, target).Should().BeTrue();
+    SkillActions.TryCast(ref frame, PlayerId, slot, target).Should().BeTrue();
 
     return collector.Collected.OfType<SkillCastEvent>().Single();
   }

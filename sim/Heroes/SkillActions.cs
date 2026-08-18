@@ -59,7 +59,11 @@ public static class SkillActions {
     var casterPosition = frame.Has<TransformComponent>(heroEntity)
       ? frame.GetReadOnly<TransformComponent>(heroEntity).Position
       : FPVector3.Zero;
-    target = SkillAim.ClampToCastRange(ref frame, heroEntity, skill, casterPosition, target);
+    // A self-cast row carries no aim, so whatever point the client sent is discarded rather than
+    // clamped - the cast, its event, and any telegraph all resolve on the caster.
+    target = skill.IsSelfCast
+      ? casterPosition
+      : SkillAim.ClampToCastRange(ref frame, heroEntity, skill, casterPosition, target);
 
     var ctx = new SkillCastContext(heroEntity, playerId, slot, skill, rank, casterPosition, target);
     HeroSkillSets.Get(heroAsset.SkillSetId).OnCast(ref frame, in ctx);

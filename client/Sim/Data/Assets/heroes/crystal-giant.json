@@ -50,7 +50,8 @@
     "CooldownMs": 3000,
     "ProcDurationMs": 5000,
     "ProcDamageMultiplier": 4.0,
-    "ProcDamageMultiplierPerRank": 0
+    "ProcDamageMultiplierPerRank": 0,
+    "ProcResetsAttackCooldown": 1
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",

@@ -6,13 +6,15 @@ public sealed class CrystalGiantSkills : HeroSkillSetBase {
   public CrystalGiantSkills()
     : base(CastSpikyPunch, CastHarden, CastCrystalBullets, CastCarbonCompression) { }
 
-  // Arms the next auto-attack with the row's multiplier. Nothing happens on cast itself: the charge
-  // waits out its duration and is spent by the first attack that lands, or lapses unused.
+  // Arms the next auto-attack with the row's multiplier and resets the swing timer, so the punch goes
+  // out at once rather than waiting out the auto before it. The charge otherwise waits its duration
+  // and is spent by the first attack that lands, or lapses unused.
   private static void CastSpikyPunch(ref Frame frame, in SkillCastContext ctx) {
     var skill = ctx.Skill;
     AttackProcs.Arm(ref frame, ctx.Caster, skill.AssetId,
       skill.ProcDamageMultiplierAtRank(ctx.Rank),
-      TickMath.MsToTicksCeil(ref frame, skill.ProcDurationMs));
+      TickMath.MsToTicksCeil(ref frame, skill.ProcDurationMs),
+      skill.ProcResetsAttackCooldown != 0);
   }
 
   // Self-buff: raises both resists by the row's percentage of their current value for its duration.

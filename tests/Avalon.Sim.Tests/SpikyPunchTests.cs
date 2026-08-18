@@ -70,6 +70,7 @@ public class SpikyPunchTests {
     skill.ProcDamageMultiplier.Should().BeGreaterThan(FP64.One, "a multiplier of 1 empowers nothing");
     skill.ProcDamageMultiplierAtRank(2)
       .Should().Be(skill.ProcDamageMultiplier + skill.ProcDamageMultiplierPerRank);
+    skill.ProcResetsAttackCooldown.Should().Be(1, "Spiky Punch is authored to reset the swing timer");
 
     LearnAndCast(harness);
 
@@ -96,6 +97,44 @@ public class SpikyPunchTests {
     AttackOnce(harness, enemy).Should().Be(ExpectedHit(harness, enemy, FP64.One));
   }
 
+  // Arming resets the swing timer, so a punch cast right after an auto-attack goes out on the cast
+  // tick instead of waiting out the rest of that auto's cooldown.
+  [Fact]
+  public void ArmingResetsTheSwingTimerSoThePunchLandsAtOnce() {
+    var harness = CreateCrystalGiantHarness();
+    var skill = SpikyPunchAsset(harness);
+    var enemy = SpawnDummy(harness);
+    harness.Tick(SimHarness.UpgradeSkillCommand(CasterPlayerId, 0, Primary));
+
+    var plain = AttackOnce(harness, enemy);
+    var cooldownAfterAuto = AttackCooldownRemaining(harness);
+    cooldownAfterAuto.Should().BeGreaterThan(1, "the auto that just landed has to leave a real wait");
+
+    var empowered = TickAgainst(harness, enemy, SimHarness.CastSkillCommand(CasterPlayerId, 0, Primary));
+
+    empowered.Should().Be(plain * skill.ProcDamageMultiplierAtRank(1),
+      "the punch should land on the cast tick rather than waiting out the swing timer");
+    AttackCooldownRemaining(harness).Should().BeGreaterThan(0,
+      "the cooldown restarts from the punch - the reset buys one swing, not a faster attack rate");
+  }
+
+  // The reset is authored, not assumed: a proc that should not skip the wait leaves the field 0.
+  [Fact]
+  public void WithoutTheAuthoredReset_TheSwingTimerIsLeftAlone() {
+    var harness = CreateCrystalGiantHarness();
+    var enemy = SpawnDummy(harness);
+    var hero = harness.FindHero(CasterPlayerId);
+
+    AttackOnce(harness, enemy);
+    var cooldownBefore = AttackCooldownRemaining(harness);
+
+    var frame = harness.Frame;
+    AttackProcs.Arm(ref frame, hero, AssetIds.SkillCrystalGiantPrimary, FP64.FromInt(4),
+      durationTicks: 60);
+
+    AttackCooldownRemaining(harness).Should().Be(cooldownBefore);
+  }
+
   [Fact]
   public void Death_DropsTheChargeRatherThanSavingItForTheRespawn() {
     var harness = CreateCrystalGiantHarness();
@@ -116,10 +155,11 @@ public class SpikyPunchTests {
     var harness = CreateCrystalGiantHarness();
     var enemy = SpawnDummy(harness);
     harness.Frame.Add(enemy, StatsComponent.Create().With(StatType.Armor, FP64.FromInt(100)));
+    harness.Tick(SimHarness.UpgradeSkillCommand(CasterPlayerId, 0, Primary));
 
+    // The cast resets the swing timer, so the punch is the hit that lands on the cast tick.
     var plain = AttackOnce(harness, enemy);
-    LearnAndCast(harness);
-    var empowered = AttackOnce(harness, enemy);
+    var empowered = TickAgainst(harness, enemy, SimHarness.CastSkillCommand(CasterPlayerId, 0, Primary));
 
     // 100 armor halves an incoming hit, so a post-mitigation multiply would land 4x a halved number
     // instead of half a quadrupled one. They agree here only because the order is right.
@@ -196,22 +236,33 @@ public class SpikyPunchTests {
   }
 
   // Drives exactly one auto-attack through the real intent path - AttackIntentSystem resolves the
-  // order, DamageSystem lands the hit on the same tick - and returns what it took off the target.
-  // The dummy is parked inside the hero's reach first; it carries no nav agent, so it stays put.
+  // order, DamageSystem lands the hit on the same tick - by clearing the swing timer first.
   private static FP64 AttackOnce(SimHarness harness, EntityRef target) {
+    var frame = harness.Frame;
+    frame.Get<Combat>(harness.FindHero(CasterPlayerId)).CooldownRemainingTicks = 0;
+    return TickAgainst(harness, target);
+  }
+
+  // One tick with the caster holding an attack order on the target, returning what came off it. The
+  // swing timer is left alone, so whether an attack lands is the sim's call - which is what lets a
+  // cast that resets the cooldown show up as damage. The dummy is parked inside the hero's reach
+  // first; it carries no nav agent, so it stays put.
+  private static FP64 TickAgainst(SimHarness harness, EntityRef target, params ICommand[] commands) {
     var frame = harness.Frame;
     var hero = harness.FindHero(CasterPlayerId);
     DisableOtherAttackers(harness, hero);
 
     var heroPosition = frame.GetReadOnly<TransformComponent>(hero).Position;
     frame.Get<TransformComponent>(target).Position = heroPosition + FPVector3.Right;
-
     UnitIntent.SetAttackTarget(ref frame, hero, frame.GetReadOnly<UnitIdComponent>(target).UnitId);
-    frame.Get<Combat>(hero).CooldownRemainingTicks = 0;
 
     var healthBefore = frame.GetReadOnly<Health>(target).Current;
-    harness.Tick();
+    harness.Tick(commands);
     return healthBefore - harness.Frame.GetReadOnly<Health>(target).Current;
+  }
+
+  private static int AttackCooldownRemaining(SimHarness harness) {
+    return harness.Frame.GetReadOnly<Combat>(harness.FindHero(CasterPlayerId)).CooldownRemainingTicks;
   }
 
   // Leaves the caster as the only thing on the board that can deal damage, so the health delta of
