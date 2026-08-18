@@ -6,9 +6,27 @@ public sealed class CrystalGiantSkills : HeroSkillSetBase {
   public CrystalGiantSkills()
     : base(CastSpikyPunch, CastHarden, CastCrystalBullets, CastCarbonCompression) { }
 
-  private static void CastSpikyPunch(ref Frame frame, in SkillCastContext ctx) { }
+  // Arms the next auto-attack with the row's multiplier. Nothing happens on cast itself: the charge
+  // waits out its duration and is spent by the first attack that lands, or lapses unused.
+  private static void CastSpikyPunch(ref Frame frame, in SkillCastContext ctx) {
+    var skill = ctx.Skill;
+    AttackProcs.Arm(ref frame, ctx.Caster, skill.AssetId,
+      skill.ProcDamageMultiplierAtRank(ctx.Rank),
+      TickMath.MsToTicksCeil(ref frame, skill.ProcDurationMs));
+  }
 
-  private static void CastHarden(ref Frame frame, in SkillCastContext ctx) { }
+  // Self-buff: raises both resists by the row's percentage of their current value for its duration.
+  // Recasting refreshes rather than stacks - StatBuffApplication keys entries by (skill, stat).
+  private static void CastHarden(ref Frame frame, in SkillCastContext ctx) {
+    var skill = ctx.Skill;
+    var percent = skill.BuffPercentAtRank(ctx.Rank);
+    var durationTicks = TickMath.MsToTicksCeil(ref frame, skill.BuffDurationMs);
+
+    StatBuffApplication.ApplyPercent(ref frame, ctx.Caster, skill.AssetId, StatType.Armor, percent,
+      durationTicks);
+    StatBuffApplication.ApplyPercent(ref frame, ctx.Caster, skill.AssetId, StatType.MagicResist,
+      percent, durationTicks);
+  }
 
   // Skillshot: three parallel shards fired abreast toward the aim point,
   // each dying on the first enemy hero or minion it touches.

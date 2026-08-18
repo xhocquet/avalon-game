@@ -41,6 +41,9 @@ public static class ComponentIds {
   public const int CheatState = 132;
   public const int MatchOutcome = 133;
   public const int Resources = 134;
+  public const int StatBuffs = 135;
+  public const int AttackProc = 136;
+  public const int AttackHitIdCounter = 137;
 
-  // Next free id: 135
+  // Next free id: 138
 }

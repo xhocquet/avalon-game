@@ -92,11 +92,9 @@ public class RespawnSystem : ISystem {
   private static void ClearActiveState(ref Frame frame, EntityRef entity, FPVector3 navPosition) {
     UnitIntent.ClearMoveTarget(ref frame, entity);
     UnitIntent.ClearAttackIntent(ref frame, entity);
-    // Not part of the shared intent reset: a respawn also refunds the in-flight attack cooldown.
-    if (frame.Has<Combat>(entity)) {
-      ref var combat = ref frame.Get<Combat>(entity);
-      combat.CooldownRemainingTicks = 0;
-    }
+    StatBuffApplication.ClearAll(ref frame, entity);
+    AttackProcs.Clear(ref frame, entity);
+
 
     if (frame.Has<NavAgentComponent>(entity)) {
       ref var nav = ref frame.Get<NavAgentComponent>(entity);

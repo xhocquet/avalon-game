@@ -47,14 +47,20 @@
     "AssetId": 508,
     "_Name": "Crystal Giant - Spiky Punch",
     "MaxRank": 4,
-    "CooldownMs": 3000
+    "CooldownMs": 3000,
+    "ProcDurationMs": 5000,
+    "ProcDamageMultiplier": 4.0,
+    "ProcDamageMultiplierPerRank": 0
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
     "AssetId": 509,
     "_Name": "Crystal Giant - Harden",
     "MaxRank": 4,
-    "CooldownMs": 3000
+    "CooldownMs": 3000,
+    "BuffDurationMs": 10000,
+    "BuffPercent": 0.05,
+    "BuffPercentPerRank": 0.05
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",

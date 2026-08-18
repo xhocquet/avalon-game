@@ -26,7 +26,7 @@ public class SkillCastTests {
 
     frame = harness.Frame;
     ref readonly var skills = ref frame.GetReadOnly<SkillsComponent>(harness.FindHero(PlayerId));
-    // One tick already burned off: commands run before the Update phase, so SkillSystem decrements on
+    // One tick already burned off: commands run before the Update phase, so the cooldown pass decrements on
     // the same tick the cast landed.
     skills.GetCooldownRemainingTicks(Primary).Should().Be(expectedTicks - 1);
   }
@@ -190,7 +190,7 @@ public class SkillCastTests {
   }
 
   [Fact]
-  public void SkillSystem_NeverDrivesACooldownNegative() {
+  public void SkillCooldown_IsNeverDrivenNegative() {
     var harness = SimHarness.CreateInitialized();
     LearnAndCast(harness);
 

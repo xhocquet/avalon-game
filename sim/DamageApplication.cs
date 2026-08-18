@@ -13,14 +13,21 @@ public static class DamageApplication {
 
   // Returns the damage actually dealt after mitigation. `canCrit` is opt-in per source: auto-attacks
   // roll against Stats.CritChance, skill damage does not.
+  //
+  // `attackHitId` is the id this hit reports itself under. A caller that raises events about the hit
+  // before it lands - anything that modifies the damage on the way in, like an attack proc - takes an
+  // id from NextHitId first and passes it here so both sides of the story carry the same one.
+  // Everything else leaves it 0 and gets an id allocated here.
   public static FP64 ApplyDamage(ref Frame frame, EntityRef source, EntityRef target, FP64 amount,
-    DamageType damageType = DamageType.Physical, bool canCrit = false) {
+    DamageType damageType = DamageType.Physical, bool canCrit = false, int attackHitId = 0) {
     var sourceUnitId = UnitLookup.GetUnitId(ref frame, source);
+    if (attackHitId == 0)
+      attackHitId = NextHitId(ref frame);
 
     // Godmode still raises the hit so attack VFX and feedback play; only the health write is skipped,
     // which also leaves LastDamagerUnitId alone and keeps kill credit off an attacker who dealt nothing.
     if (Cheats.BlocksDamage(ref frame, target)) {
-      RaiseHitEvent(ref frame, source, target, sourceUnitId, FP64.Zero, false);
+      RaiseHitEvent(ref frame, source, target, sourceUnitId, FP64.Zero, false, attackHitId);
       return FP64.Zero;
     }
 
@@ -41,7 +48,7 @@ public static class DamageApplication {
     health.LastDamagerUnitId = sourceUnitId;
 
     MatchStats.RecordDamage(ref frame, source, target, damage);
-    RaiseHitEvent(ref frame, source, target, sourceUnitId, damage, isCrit);
+    RaiseHitEvent(ref frame, source, target, sourceUnitId, damage, isCrit, attackHitId);
     return damage;
   }
 
@@ -64,8 +71,14 @@ public static class DamageApplication {
     return mitigated < FP64.One ? FP64.One : mitigated; // Floor at 1 damage
   }
 
+  // Allocated whether or not anything is listening: the counter is frame state, so a peer that raises
+  // no events has to burn the same ids as one that does or the two frames stop hashing the same.
+  public static int NextHitId(ref Frame frame) {
+    return IdCounter<AttackHitIdCounter>.Next(ref frame);
+  }
+
   private static void RaiseHitEvent(ref Frame frame, EntityRef source, EntityRef target,
-    int sourceUnitId, FP64 damage, bool isCrit) {
+    int sourceUnitId, FP64 damage, bool isCrit, int attackHitId) {
     if (frame.EventRaiser == null)
       return;
 
@@ -74,6 +87,7 @@ public static class DamageApplication {
     evt.TargetUnitId = UnitLookup.GetUnitId(ref frame, target);
     evt.Damage = damage;
     evt.IsCrit = isCrit ? 1 : 0;
+    evt.AttackHitId = attackHitId;
     evt.AttackerPosition = frame.Has<TransformComponent>(source)
       ? frame.GetReadOnly<TransformComponent>(source).Position
       : default;

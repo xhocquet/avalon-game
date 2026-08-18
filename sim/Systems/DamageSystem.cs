@@ -30,8 +30,17 @@ public class DamageSystem : ISystem {
       }
 
       var healthBefore = frame.GetReadOnly<Health>(target).Current;
-      var damage = DamageApplication.ApplyDamage(ref frame, attacker, target,
-        GetAttackDamage(ref frame, attacker), DamageType.Physical, canCrit: true);
+
+      // The hit's id is taken up front so anything that modifies the damage on the way in reports
+      // itself under the same id the hit event will carry.
+      var attackHitId = DamageApplication.NextHitId(ref frame);
+
+      // Consume AttackProc after attack validation, right before damage application
+      var attackDamage = AttackProcs.Consume(ref frame, attacker, target, attackHitId,
+        GetAttackDamage(ref frame, attacker));
+
+      var damage = DamageApplication.ApplyDamage(ref frame, attacker, target, attackDamage,
+        DamageType.Physical, canCrit: true, attackHitId: attackHitId);
 
       combat.CooldownRemainingTicks = CombatTiming.CooldownTicks(ref frame, attacker);
 

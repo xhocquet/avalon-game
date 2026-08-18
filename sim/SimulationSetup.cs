@@ -35,6 +35,10 @@ public static class SimulationSetup {
     simulation.AddSystem(new WaveSpawnSystem(), SystemPhase.Update);
     simulation.AddSystem(new OasisSpawnSystem(), SystemPhase.Update);
 
+    // Every countdown in the frame - attack and skill cooldowns, buffs, attack procs - burned down in
+    // one pass, ahead of every reader of them, so nothing pays out a tick it no longer has.
+    simulation.AddSystem(new TimedEffectSystem(), SystemPhase.Update);
+
     // Command intake is not what this slot buys: EcsSimulation.Tick drains every OnCommand ahead of the
     // whole Update phase, so orders had already landed before the first system above ran. What sits here
     // is CommandSystem.Update, the transform integrator for anything NavigationAgentSystem won't carry —
@@ -53,10 +57,8 @@ public static class SimulationSetup {
 
     // Begin offensive concepts
     simulation.AddSystem(new TargetAcquisitionSystem(), SystemPhase.Update);
-    simulation.AddSystem(new SkillSystem(), SystemPhase.Update);
     simulation.AddSystem(new ProjectileSystem(), SystemPhase.Update);
     simulation.AddSystem(new AttackIntentSystem(navigation), SystemPhase.Update);
-    simulation.AddSystem(new AttackCooldownSystem(), SystemPhase.Update);
     simulation.AddSystem(new DamageSystem(), SystemPhase.Update);
     simulation.AddSystem(new DeathSystem(), SystemPhase.Update);
 

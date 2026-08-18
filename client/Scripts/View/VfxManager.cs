@@ -23,7 +23,10 @@ public class VfxManager {
   private static PackedScene _turretScene;
   private static PackedScene _crystalScene;
 
+  private readonly SkillCatalog _skills = SkillCatalog.CreateDefault();
+
   private IDisposable _attackHitSub;
+  private IDisposable _attackProcSub;
   private IDisposable _turretDestroyedSub;
   private IDisposable _crystalDestroyedSub;
   private EntityViewUpdaterNode _view;
@@ -34,6 +37,7 @@ public class VfxManager {
     // Predicted (not confirmed) so hits flash immediately on the local tick; a mispredicted
     // flash is transient and harmless, which is why UI state uses confirmed events but VFX do not.
     _attackHitSub = events.OnPredicted<AttackHitEvent>(HandleAttackHit);
+    _attackProcSub = events.OnPredicted<AttackProcConsumedEvent>(HandleAttackProcConsumed);
     // Death effects use the confirmed stream: these events are Synced, and a big one-shot
     // explosion would be jarring to spawn on a mispredicted tick and then rewind.
     _turretDestroyedSub = events.OnConfirmed<TurretDestroyedEvent>(HandleTurretDestroyed);
@@ -43,6 +47,8 @@ public class VfxManager {
   public void Detach() {
     _attackHitSub?.Dispose();
     _attackHitSub = null;
+    _attackProcSub?.Dispose();
+    _attackProcSub = null;
     _turretDestroyedSub?.Dispose();
     _turretDestroyedSub = null;
     _crystalDestroyedSub?.Dispose();
@@ -69,6 +75,20 @@ public class VfxManager {
 
     if (targetView is IAttackableView target)
       target.OnHitVfx(evt.Damage.ToFloat(), attackerPos);
+  }
+
+  // Each effect an attack spends names itself, so this scales to a hit that consumed several: one
+  // popup each, rather than one flag on the hit that cannot say which of them landed. Placeholder
+  // until skills carry their own VFX, keyed off SkillAssetId.
+  private void HandleAttackProcConsumed(AttackProcConsumedEvent evt) {
+    if (_view == null) return;
+
+    var label = _skills.TryResolve(evt.SkillAssetId, out var skill) ? skill.Name : "Proc";
+    var position = _view.ViewsByUnitId.TryGetValue(evt.TargetUnitId, out var targetView)
+      ? targetView.GlobalPosition
+      : Vector3.Zero;
+
+    _view.AddChild(DebugDamageNumber.Create(label, position, emphasized: true));
   }
 
   private void HandleTurretDestroyed(TurretDestroyedEvent evt) {

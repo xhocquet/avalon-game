@@ -12,4 +12,5 @@ public partial class AttackHitEvent : SimulationEvent {
   [KlothoOrder(3)] public FPVector3 AttackerPosition;
   [KlothoOrder(4)] public FPVector3 TargetPosition;
   [KlothoOrder(5)] public int IsCrit; // 0/1; Damage already carries the multiplier
+  [KlothoOrder(6)] public int AttackHitId;
 }

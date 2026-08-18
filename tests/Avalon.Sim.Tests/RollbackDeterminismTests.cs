@@ -127,6 +127,77 @@ public class RollbackDeterminismTests {
       "cached on ProjectileSystem instead, and the discarded prediction branch leaked into the replay.");
   }
 
+  // Timed stat buffs across a rollback boundary. A buff is two writes that must stay paired - the
+  // amount added to StatsComponent and the entry on StatBuffsComponent that owes it back - so a
+  // restore that reached one and not the other would leave a hero permanently hardened or hand back
+  // an amount it was never given. The discarded branch stacks a buff of its own so the snapshot has
+  // both a stat value and an entry the replay must not inherit.
+  [Fact]
+  public void Rollback_AfterMispredictedBuff_ReplayMatchesServerHashes() {
+    var rollback = RollbackHarness.Create(spawnHeroesNow: false);
+    rollback.Advance(1, CrystalWarriorPicks);
+    rollback.Advance(1, beforeTick: sim => GrantSkillPoints(sim, SkillPointPool));
+
+    rollback.Advance(WarmupTicks, AuthoritativeBuffs);
+    AssertBuffsAreActive(rollback.Server);
+    rollback.InSync.Should().BeTrue("the two sims must agree before the rollback");
+
+    var armorAtSnapshot = HeroArmor(rollback.Client);
+    var armorInBranch = FP64.Zero;
+    rollback.MispredictAndRollback(MispredictedTicks, Mispredicted, beforeTick: sim => {
+      ApplyBranchBuff(sim);
+      armorInBranch = HeroArmor(sim);
+    });
+
+    // Without this the branch could be a no-op and the test would pass while proving nothing.
+    armorInBranch.Should().BeGreaterThan(armorAtSnapshot, "the discarded branch has to move the stat");
+    HeroArmor(rollback.Client).Should().Be(armorAtSnapshot, "the rollback should undo that buff");
+    rollback.InSync.Should().BeTrue("restoring the snapshot should put the client back on the server");
+
+    var divergences = rollback.AdvanceAndCompare(ReplayTicks, AuthoritativeBuffs);
+    Report(divergences, ReplayTicks, WarmupTicks);
+
+    divergences.Should().BeEmpty(
+      "a buff's applied amount and its expiry tick live on StatBuffsComponent, so a rollback " +
+      "restores them with the stat they moved. A divergence here means buff state was tracked " +
+      "on TimedEffectSystem instead, and the discarded prediction branch leaked into the replay.");
+  }
+
+  // Both players rank up and cast Harden every tick; the rank cap and the cooldown do the filtering.
+  private static ICommand[] AuthoritativeBuffs(int tick) {
+    return [
+      SimHarness.UpgradeSkillCommand(playerId: 1, tick, (int)SkillSlot.Secondary),
+      SimHarness.CastSkillCommand(playerId: 1, tick, (int)SkillSlot.Secondary),
+      SimHarness.UpgradeSkillCommand(playerId: 2, tick, (int)SkillSlot.Secondary),
+      SimHarness.CastSkillCommand(playerId: 2, tick, (int)SkillSlot.Secondary),
+    ];
+  }
+
+  // A second buff source on the same stat, so the branch stacks an entry beside the one Harden is
+  // already holding rather than refreshing it.
+  private static void ApplyBranchBuff(SimHarness harness) {
+    var frame = harness.Frame;
+    var filter = frame.Filter<Hero, StatsComponent>();
+    while (filter.Next(out var entity))
+      StatBuffApplication.ApplyPercent(ref frame, entity, Assets.AssetIds.SkillCrystalGiantUltimate,
+        StatType.Armor, FP64.FromInt(1) / FP64.FromInt(2), durationTicks: 600);
+  }
+
+  private static FP64 HeroArmor(SimHarness harness) {
+    var frame = harness.Frame;
+    var hero = harness.FindHero(1);
+    return frame.GetReadOnly<StatsComponent>(hero).Armor;
+  }
+
+  // Guards the scenario above: a snapshot taken with no buff running would restore nothing
+  // interesting.
+  private static void AssertBuffsAreActive(SimHarness harness) {
+    var frame = harness.Frame;
+    StatBuffApplication.ActiveCount(ref frame, harness.FindHero(1)).Should().BeGreaterThan(0,
+      "the warmup stream must leave a buff running at the snapshot tick for the rollback to have " +
+      "any buff state to restore");
+  }
+
   // Guards the scenario above: a rollback that lands between volleys would restore nothing
   // interesting and the test would pass while proving nothing.
   private static void AssertProjectilesAreInFlight(SimHarness harness) {

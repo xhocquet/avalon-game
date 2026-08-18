@@ -235,7 +235,7 @@ public class AttackCommandExecutionTests {
   }
 
   [Fact]
-  public void AttackCooldownSystem_DecrementsCooldownAndPreventsRepeatedDamage() {
+  public void AttackCooldown_DecrementsAndPreventsRepeatedDamage() {
     var harness = SimHarness.CreateInitialized();
     var (source, target) = SpawnFirstWave(harness);
     SetPosition(harness, source.UnitId, target.Position + new FPVector3(FP64.One, FP64.Zero, FP64.Zero));

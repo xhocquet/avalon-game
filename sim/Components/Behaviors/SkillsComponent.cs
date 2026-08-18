@@ -63,9 +63,9 @@ public unsafe partial struct SkillsComponent : IComponent {
     CooldownRemainingTicks[slot] = ticks;
   }
 
-  // Called once per tick by SkillSystem. A skill cast on tick N loses one tick here on that same tick,
-  // because commands are delivered before the Update phase runs - the same one-tick behaviour
-  // AttackCooldownSystem has, identical on both peers. It is not an off-by-one.
+  // Called once per tick by TimedEffectSystem. A skill cast on tick N loses one tick here on that same
+  // tick, because commands are delivered before the Update phase runs - the same one-tick behaviour
+  // attack cooldowns have, identical on both peers. It is not an off-by-one.
   public void TickCooldowns() {
     for (var i = 0; i < MaxSlots; i++)
       if (CooldownRemainingTicks[i] > 0)

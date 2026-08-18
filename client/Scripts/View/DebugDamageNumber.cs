@@ -19,10 +19,18 @@ public partial class DebugDamageNumber : Label3D {
   private float _elapsed;
 
   public static DebugDamageNumber Create(float damage, Vector3 targetPosition, bool isCrit) {
+    return Create(
+      isCrit ? $"{Mathf.RoundToInt(damage)}!" : Mathf.RoundToInt(damage).ToString(),
+      targetPosition, isCrit);
+  }
+
+  // Same popup with arbitrary text, for the effects that name themselves rather than reporting a
+  // number - a consumed proc says which skill landed.
+  public static DebugDamageNumber Create(string text, Vector3 targetPosition, bool emphasized) {
     var node = new DebugDamageNumber {
-      Text = isCrit ? $"{Mathf.RoundToInt(damage)}!" : Mathf.RoundToInt(damage).ToString(),
-      FontSize = isCrit ? CritFontSize : NormalFontSize,
-      Modulate = isCrit ? CritColor : NormalColor,
+      Text = text,
+      FontSize = emphasized ? CritFontSize : NormalFontSize,
+      Modulate = emphasized ? CritColor : NormalColor,
       OutlineSize = 12,
       OutlineModulate = new Color(0f, 0f, 0f, 0.7f),
       Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,

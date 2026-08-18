@@ -37,3 +37,6 @@ SkillsComponent.GetRank/GetSkillAssetId/GetCooldownRemainingTicks and
 InventoryComponent.GetItemAssetId index fixed int buffers with no bounds check. That's documented and
 gated for the skill path (CommandValidation.AcceptSkillSlot), but InventoryComponent.GetItemAssetId
 has no equivalent gate described anywhere, and both are reachable from the client's UI code.
+
+
+## Replace skill damage, attack damage, etc. with curves instead of simple functions
