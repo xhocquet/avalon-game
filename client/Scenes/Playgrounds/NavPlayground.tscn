@@ -2,6 +2,7 @@
 
 [ext_resource type="Shader" uid="uid://bhwohms71lgqr" path="res://Scenes/World/sky.gdshader" id="1_a1dmr"]
 [ext_resource type="Shader" uid="uid://bs8labgoy6u1p" path="res://Scenes/Playgrounds/grid.gdshader" id="2_o3mhv"]
+[ext_resource type="Material" uid="uid://cowspplyfkffa" path="res://addons/constructive_telegraphs/resources/con_telegraph_next_pass.tres" id="1_telegraph"]
 [ext_resource type="PackedScene" uid="uid://dixg6cag7iwnc" path="res://Scenes/Heroes/AllHairWizard.tscn" id="33_ummst"]
 [ext_resource type="PackedScene" uid="uid://mlocswueicgs" path="res://Scenes/Heroes/CrystalGiant.tscn" id="34_whk3q"]
 [ext_resource type="PackedScene" uid="uid://ry63ypkrgtjk" path="res://Scenes/Heroes/PickleKnight.tscn" id="35_lccjp"]
@@ -70,6 +71,7 @@ geometry_source_group_name = &"navmesh_source"
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_4fgkh"]
 render_priority = 0
+next_pass = ExtResource("1_telegraph")
 shader = ExtResource("2_o3mhv")
 shader_parameter/subdivisions = 32.0
 shader_parameter/grid_width = 0.0

@@ -1,7 +1,7 @@
 extends Node3D
-## Lane telegraph, the runtime-built shape of demo_spell_7: N parallel bars running down local -Z.
-## Every number comes from the caster's SkillAsset row via configure(), so the geometry can't drift
-## from what the sim fires. Colour/effects come from the family resource the caller picks.
+## Runtime-built telegraph shapes, one configure per shape: parallel lanes (the demo_spell_7 layout)
+## or a cone. Every number comes from the caster's SkillAsset row, so the geometry can't drift from
+## what the sim fires. Colour/effects come from the family resource the caller picks.
 
 const AreaScript := preload("res://addons/constructive_telegraphs/src/con_telegraph_area_3d.gd")
 
@@ -29,6 +29,26 @@ func configure(family: ConTelegraphFamily, lane_count: int, lane_spacing: float,
 			0,
 			-(start_offset + lane_length * 0.5))
 		instance.add_child(area)
+
+	instance.fill_progress = 0.0
+
+
+## Cone telegraph: one wedge of angle_degrees opening down local -Z, reaching radius from the node's
+## own origin. height is the vertical half-extent, the same decal-only concern lanes have.
+func configure_cone(family: ConTelegraphFamily, radius: float, angle_degrees: float,
+		fill_seconds: float, height: float) -> void:
+	var instance: ConTelegraphInstance3D = get_node("ConTelegraphInstance3D")
+	instance.family = family
+	instance.fill_duration = maxf(fill_seconds, 0.01)
+
+	var area: ConTelegraphArea3D = AreaScript.new()
+	area.name = "Cone"
+	area.shape_primitive = ConTelegraphArea3D.ShapePrimitive.CYLINDER
+	area.fill_mode = ConTelegraphArea3D.FillMode.IN_TO_OUT
+	area.radius = radius
+	area.angle = angle_degrees
+	area.extents = Vector3(radius, height, radius)
+	instance.add_child(area)
 
 	instance.fill_progress = 0.0
 

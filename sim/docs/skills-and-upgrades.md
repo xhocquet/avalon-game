@@ -13,7 +13,7 @@
 - [`TimedEffectSystem`](../Systems/TimedEffectSystem.cs) owns every per-tick countdown in the frame — attack and skill cooldowns, buff expiry, proc and burst expiry. Registered before `HeroBehaviorSystem` and ahead of `DamageSystem`, so a cooldown reaching 0 is spendable on the same tick. A cast on tick N loses one tick to it on that same tick, because commands are delivered before the Update phase — identical on both peers, so it is not an off-by-one. **A new countdown belongs in that pass, not in a system of its own.**
 - `RespawnSystem.ClearActiveState` drops buffs, procs, and bursts on death rather than letting the clocks run out on a corpse.
 
-Five effect lifecycles are built; every other slot is an empty cast method.
+Six effect lifecycles are built; every other slot is an empty cast method.
 
 | Lifecycle | Applied through | Row block | Example |
 | --- | --- | --- | --- |
@@ -22,8 +22,10 @@ Five effect lifecycles are built; every other slot is an empty cast method.
 | Empowered attack | [`AttackProcs`](../AttackProcs.cs) | `Proc*` | Spiky Punch |
 | Heal | [`HealthApplication.ApplyHeal`](../HealthApplication.cs) | `HealPercent*` | Refresh |
 | Attack burst | [`AttackBursts`](../AttackBursts.cs) | `Burst*` | Double Dip |
+| Cone | [`SkillCones.ApplyDamage`](../Heroes/SkillCones.cs) | `Damage`, `Cone*` | Venomous Slobber |
 
 - **Projectiles** are one entity per bullet carrying a [`Projectile`](../Components/Units/Projectile.cs), advanced by [`ProjectileSystem`](../Systems/ProjectileSystem.cs) ahead of `DamageSystem` so a projectile kill reaches `DeathSystem` the same tick. A projectile carries no `TeamComponent`/`Health`/`UnitIdComponent` — those are what would make it a target — so the firing team rides on the component as a plain int. Hits are proximity, not physics: the `SpatialHashGrid` broad phase `TargetAcquisitionSystem` uses, then the tick's swept segment against each candidate's `Stats.GameplayRadius`, nearest along the segment with `UnitId` as the tie-break. `CombatTargeting.IsSkillHittable` keeps structures out by default.
+- **Cones** resolve on the cast tick and put nothing in the world: `SkillCones.ApplyDamage` walks the units once, damages everything hostile inside the wedge, and is done. `ConeAngleDegrees` is the **full** opening angle and `ConeRange` the reach from the caster's centre, widened by the target's own body; bearing is measured to the target's centre, so a wide body is easier to catch at the far edge than at the sides. Author `MaxCastRange` equal to `ConeRange` - the aim clamp is what the telegraph draws, and a longer band would draw a wedge past what the hit search reaches. Hits are collected before any damage lands, because the first `ApplyDamage` of a match allocates the hit-id singleton and that creates an entity mid-filter.
 - **Buffs** store an **absolute expiry tick**, so expiry is one comparison per entry and a rollback replay lands where it did the first time; applied on tick N for D ticks is worth its bonus on N..N+D-1. An entry records **what the stat actually moved by**, not the fraction asked for — `StatRanges` clamps and the stat underneath moves on its own. Entries key on `(source asset id, stat)`, so a recast refreshes instead of compounding; a different source stacks, up to `StatBuffsComponent.MaxEntries`. Which stats one lands on is the skill's business — Harden takes `Armor` and `MagicResist`, one entry each.
 - **Procs and bursts** are siblings — one changes what an attack is worth, the other how soon the next comes — and **`DamageSystem` is the only consumer of either**, so a skill or a projectile can never eat a charge the player is holding. Both spend at the point the attack is committed to, past the dead/friendly checks.
   - The proc multiplier is a **total** (4 is 400% of a normal hit) and lands on raw damage **before mitigation**, where `CriticalStrikes` puts its own; the two stack multiplicatively. One slot, not a buffer: re-arming replaces.

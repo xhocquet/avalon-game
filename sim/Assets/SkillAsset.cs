@@ -62,8 +62,15 @@ public partial class SkillAsset : IDataAsset {
   // other lifecycle.
   [KlothoOrder(26)] public int BurstResetsAttackCooldown;
 
+  // Cone block. ConeRange is how far the wedge reaches from the caster's centre and ConeAngleDegrees
+  // its full opening angle; what it does to what it catches is the skill's own business, and its
+  // damage comes off the shared Damage/DamagePerRank pair.
+  [KlothoOrder(27)] public FP64 ConeRange;
+  [KlothoOrder(28)] public FP64 ConeAngleDegrees;
+
   public bool HasCastRange => MinCastRange > FP64.Zero || MaxCastRange > FP64.Zero;
   public bool IsSelfCast => SelfCast != 0;
+  public bool HasCone => ConeRange > FP64.Zero && ConeAngleDegrees > FP64.Zero;
 
   public FP64 DamageAtRank(int rank) {
     return rank <= 0 ? FP64.Zero : Damage + DamagePerRank * FP64.FromInt(rank - 1);

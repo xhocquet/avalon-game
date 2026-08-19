@@ -13,10 +13,11 @@ namespace Meesles.Avalon;
 // index, so this controller builds its cells once and never adds or removes a child afterwards.
 //
 // Each cell is a coloured rect with the skill's current rank centred on it, and a flat transparent Button
-// on top that spends a point. Colour carries the only state the player needs at a glance: coloured means
-// the slot can be ranked up right now, grey means it cannot - either the hero has no points banked or the
-// slot is already at MaxRank. The sim re-checks both when the UpgradeSkillCommand lands, so a cell that is
-// briefly optimistic is harmless.
+// on top that spends a point. Two independent cues: the fill is the slot colour while the skill can be
+// cast right now (learned, off cooldown, hero alive) and grey otherwise, and the border lights while the
+// slot can be ranked up. A cooling slot fills back up from the bottom in a dimmed slot colour as its
+// cooldown runs out, so the wait reads as a bar rather than a flat grey. The sim re-checks both gates
+// when the command lands, so a cell that is briefly optimistic is harmless.
 public class SkillBarController {
   private const float CellSize = 58f;
   public const int SlotCount = SkillsComponent.MaxSlots;
@@ -29,12 +30,20 @@ public class SkillBarController {
     new(0.78f, 0.62f, 0.26f, 0.88f)
   ];
 
+  // What the cooldown sweep fills with. Dimmed so a nearly-recovered slot never passes for a ready one.
+  private static readonly Color[] CooldownColors = [
+    SlotColors[0].Darkened(0.45f),
+    SlotColors[1].Darkened(0.45f),
+    SlotColors[2].Darkened(0.45f),
+    SlotColors[3].Darkened(0.45f)
+  ];
+
   private static readonly Color InactiveColor = new(0.28f, 0.29f, 0.32f, 0.85f);
 
-  // Border shown on every cell while the hero has an unspent skill point, so the "go spend it" cue is
-  // visible without hunting for which slot lit up. Slot colour still says which ones can take it.
-  private const int PointHintBorderWidth = 3;
-  private static readonly Color PointHintBorderColor = new(0.98f, 0.82f, 0.22f, 1f);
+  // Border shown on the cells that can actually take a point, so "go spend it" points at the slots that
+  // will accept it rather than at the whole bar.
+  private const int UpgradeHintBorderWidth = 3;
+  private static readonly Color UpgradeHintBorderColor = new(0.98f, 0.82f, 0.22f, 1f);
 
   private static readonly string[] HotkeyLabels = ["Q", "W", "E", "R"];
 
@@ -62,7 +71,7 @@ public class SkillBarController {
 
     // No local hero yet (pre-spawn, or spectating): show the slots inert rather than stale.
     for (var slot = 0; slot < SlotCount; slot++)
-      Paint(slot, 0, 0, false, 0, false);
+      Paint(slot, 0, 0, false, false, 0f, 0);
   }
 
   private bool TryPaintLocalHero(Frame frame, int playerId) {
@@ -80,15 +89,17 @@ public class SkillBarController {
         _predicted?.Observe(slot, skills.GetRank(slot));
 
       var pendingPoints = _predicted?.PendingPoints ?? 0;
-      var hasPoints = skills.SkillPoints - pendingPoints > 0;
 
       for (var slot = 0; slot < SlotCount; slot++) {
         var skillAssetId = skills.GetSkillAssetId(slot);
         var pendingRanks = _predicted?.OutstandingFor(slot) ?? 0;
         var rank = skills.GetRank(slot) + pendingRanks;
-        var maxRank = GetMaxRank(frame, skillAssetId);
-        var active = SkillActions.CanUpgrade(ref frame, playerId, slot, pendingPoints, pendingRanks);
-        Paint(slot, rank, maxRank, active, skillAssetId, hasPoints);
+        var asset = GetSkillAsset(frame, skillAssetId);
+        var canUpgrade = SkillActions.CanUpgrade(ref frame, playerId, slot, pendingPoints, pendingRanks);
+        var canCast = SkillActions.CanCast(ref frame, playerId, slot, pendingRanks);
+        var cooldownTicks = SkillActions.CooldownTicks(ref frame, asset);
+        var fill = CooldownFill(canCast, rank, skills.GetCooldownRemainingTicks(slot), cooldownTicks);
+        Paint(slot, rank, asset?.MaxRank ?? 0, canUpgrade, canCast, fill, skillAssetId);
       }
 
       return true;
@@ -97,29 +108,42 @@ public class SkillBarController {
     return false;
   }
 
-  private static int GetMaxRank(Frame frame, int skillAssetId) {
-    return frame.AssetRegistry.TryGet<SkillAsset>(skillAssetId, out var asset) ? asset.MaxRank : 0;
+  private static SkillAsset GetSkillAsset(Frame frame, int skillAssetId) {
+    return frame.AssetRegistry.TryGet<SkillAsset>(skillAssetId, out var asset) ? asset : null;
+  }
+
+  // How much of the cell a cooling slot has earned back: 0 the tick it is cast, 1 the tick it comes off
+  // cooldown. Only a cooldown fills - a slot that cannot be cast for any other reason (unlearned, dead
+  // hero) stays empty, so the sweep never implies a wait that finishing would not end. Kept off the
+  // Frame so its float maths stays outside the determinism analyzer's reach.
+  private static float CooldownFill(bool canCast, int rank, int remainingTicks, int cooldownTicks) {
+    if (canCast) return 1f;
+    if (rank <= 0 || remainingTicks <= 0 || cooldownTicks <= 0) return 0f;
+
+    return Mathf.Clamp(1f - remainingTicks / (float)cooldownTicks, 0f, 1f);
   }
 
   // Cheap early-out on the values that actually drive the cell, so a steady-state sync does no string
   // formatting and no Godot property writes.
-  private void Paint(int slot, int rank, int maxRank, bool active, int skillAssetId, bool hasPoints) {
+  private void Paint(int slot, int rank, int maxRank, bool canUpgrade, bool canCast, float fill,
+    int skillAssetId) {
     var cell = _cells[slot];
     if (cell == null) return;
-    if (cell.Rank == rank && cell.MaxRank == maxRank && cell.Active == active
-        && cell.SkillAssetId == skillAssetId && cell.HasPoints == hasPoints)
+    if (cell.Rank == rank && cell.MaxRank == maxRank && cell.CanUpgrade == canUpgrade
+        && cell.CanCast == canCast && cell.Fill == fill && cell.SkillAssetId == skillAssetId)
       return;
 
     cell.Rank = rank;
     cell.MaxRank = maxRank;
-    cell.Active = active;
+    cell.CanUpgrade = canUpgrade;
+    cell.CanCast = canCast;
+    cell.Fill = fill;
     cell.SkillAssetId = skillAssetId;
-    cell.HasPoints = hasPoints;
 
-    cell.Rect.Color = active ? SlotColors[slot] : InactiveColor;
-    cell.PointHint.Visible = hasPoints;
+    cell.SetFill(canCast ? SlotColors[slot] : CooldownColors[slot], fill);
+    cell.UpgradeHint.Visible = canUpgrade;
     cell.Label.Text = rank.ToString();
-    cell.Button.Disabled = !active;
+    cell.Button.Disabled = !canUpgrade;
     cell.Button.TooltipText = BuildTooltip(slot, rank, maxRank, skillAssetId);
   }
 
@@ -151,6 +175,17 @@ public class SkillBarController {
       Color = InactiveColor
     };
 
+    // Grows up from the bottom edge as a cooldown drains. Added first so the button's hover highlight and
+    // the rank label still draw over it.
+    var fill = new ColorRect {
+      Name = "Fill",
+      MouseFilter = Control.MouseFilterEnum.Ignore,
+      Color = SlotColors[slot]
+    };
+    fill.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+    fill.AnchorTop = 1f;
+    rect.AddChild(fill);
+
     // Flat and textless, so it contributes only input and the hover/pressed highlight; the rect behind it
     // and the label above it do the drawing.
     var button = new Button { Name = "Upgrade", Flat = true, Disabled = true };
@@ -159,8 +194,8 @@ public class SkillBarController {
     button.Pressed += () => _onUpgrade?.Invoke(captured);
     rect.AddChild(button);
 
-    var pointHint = CreatePointHint();
-    rect.AddChild(pointHint);
+    var upgradeHint = CreateUpgradeHint();
+    rect.AddChild(upgradeHint);
 
     var label = new Label {
       Name = "Rank",
@@ -177,17 +212,17 @@ public class SkillBarController {
 
     AddHotkeyBadge(rect, slot);
     _grid.AddChild(rect);
-    return new Cell(rect, label, button, pointHint);
+    return new Cell(fill, label, button, upgradeHint);
   }
 
   // Border-only stylebox over the cell's fill: transparent background, so the slot colour underneath
   // still reads through.
-  private static Panel CreatePointHint() {
-    var style = new StyleBoxFlat { BgColor = new Color(0f, 0f, 0f, 0f), BorderColor = PointHintBorderColor };
-    style.SetBorderWidthAll(PointHintBorderWidth);
+  private static Panel CreateUpgradeHint() {
+    var style = new StyleBoxFlat { BgColor = new Color(0f, 0f, 0f, 0f), BorderColor = UpgradeHintBorderColor };
+    style.SetBorderWidthAll(UpgradeHintBorderWidth);
 
     var panel = new Panel {
-      Name = "PointHint",
+      Name = "UpgradeHint",
       MouseFilter = Control.MouseFilterEnum.Ignore,
       Visible = false
     };
@@ -213,15 +248,22 @@ public class SkillBarController {
     rect.AddChild(badge);
   }
 
-  private sealed class Cell(ColorRect rect, Label label, Button button, Panel pointHint) {
+  private sealed class Cell(ColorRect fill, Label label, Button button, Panel upgradeHint) {
     public readonly Button Button = button;
     public readonly Label Label = label;
-    public readonly Panel PointHint = pointHint;
-    public readonly ColorRect Rect = rect;
+    public readonly Panel UpgradeHint = upgradeHint;
+    private readonly ColorRect _fill = fill;
+
+    // Anchored rather than sized, so the sweep survives a grid relayout without being repainted.
+    public void SetFill(Color color, float ratio) {
+      _fill.Color = color;
+      _fill.AnchorTop = 1f - ratio;
+    }
 
     // Last painted state. -1 so the first Paint always writes through.
-    public bool Active;
-    public bool HasPoints;
+    public bool CanCast;
+    public bool CanUpgrade;
+    public float Fill = -1f;
     public int MaxRank = -1;
     public int Rank = -1;
     public int SkillAssetId = -1;

@@ -47,7 +47,12 @@
     "AssetId": 504,
     "_Name": "Shroom - Venomous Slobber",
     "MaxRank": 4,
-    "CooldownMs": 3000
+    "CooldownMs": 3000,
+    "Damage": 50,
+    "DamagePerRank": 50,
+    "ConeRange": 6.0,
+    "ConeAngleDegrees": 60,
+    "MaxCastRange": 6.0
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",

@@ -21,6 +21,10 @@ namespace Meesles.Avalon.Client.Scripts.View;
 // ground material's next_pass to read. A telegraph node therefore has no mesh of its own, and the
 // packer finds it through a tree group, so the layer is about ownership, not rendering.
 //
+// **A map's ground material must carry con_telegraph_next_pass.tres as its next_pass or nothing here
+// draws** - the packer writes the data texture either way, and there is no error to see. World.tscn,
+// CombatPlayground.tscn and NavPlayground.tscn have it; a new map needs it too.
+//
 // SkillCastEvent is Synced, so this rides the confirmed stream. On a predicting client that costs the
 // telegraph a round trip; making it instant means flipping the event to Regular and adding
 // OnPredicted/OnCanceled here, which is a sim-side change and not one this needed yet.
@@ -90,7 +94,7 @@ public class SkillTelegraphManager {
     _packer.Call("update_surface_overlay_material");
   }
 
-  // Aim preview for a held skill key. Same lanes the cast draws, parked at zero fill so it reads as an
+  // Aim preview for a held skill key. Same shape the cast draws, parked at zero fill so it reads as an
   // outline rather than a sweep, re-aimed every frame while the key is down. Called unconditionally by
   // InputCapture: a slot with no catalog row, or one that resolves to nothing this frame, just hides.
   public void ShowAim(int slot, Vector3 aimPoint) {
@@ -184,10 +188,6 @@ public class SkillTelegraphManager {
   }
 
   private Node3D SpawnTelegraph(SkillAsset skill, TelegraphCatalog.TelegraphDef def, string familyPath) {
-    var range = skill.ProjectileRange.ToFloat();
-    var speed = skill.ProjectileSpeed.ToFloat();
-    if (skill.ProjectileCount <= 0 || range <= 0f || speed <= 0f) return null;
-
     var family = LoadFamily(familyPath);
     if (family == null) return null;
 
@@ -195,6 +195,30 @@ public class SkillTelegraphManager {
     if (_telegraphScene?.Instantiate() is not Node3D telegraph) return null;
 
     _layer.AddChild(telegraph);
+    if (Configure(telegraph, skill, def, family)) return telegraph;
+
+    telegraph.QueueFree();
+    return null;
+  }
+
+  // One shape per row: a cone row carries no projectile block and a projectile row no cone, so the
+  // row itself picks which configure runs. A row that authored neither draws nothing.
+  private static bool Configure(Node3D telegraph, SkillAsset skill, TelegraphCatalog.TelegraphDef def,
+    Resource family) {
+    if (skill.HasCone) {
+      telegraph.Call("configure_cone",
+        family,
+        skill.ConeRange.ToFloat(),
+        skill.ConeAngleDegrees.ToFloat(),
+        def.FillSeconds,
+        def.Height);
+      return true;
+    }
+
+    var range = skill.ProjectileRange.ToFloat();
+    var speed = skill.ProjectileSpeed.ToFloat();
+    if (skill.ProjectileCount <= 0 || range <= 0f || speed <= 0f) return false;
+
     telegraph.Call("configure",
       family,
       skill.ProjectileCount,
@@ -203,8 +227,8 @@ public class SkillTelegraphManager {
       range,
       skill.ProjectileSpawnOffset.ToFloat(),
       range / speed, // bars sweep at the speed the bullets travel
-      def.LaneHeight);
-    return telegraph;
+      def.Height);
+    return true;
   }
 
   // Origin follows the rendered caster when it has a view, so the lanes start at the hero the player is
