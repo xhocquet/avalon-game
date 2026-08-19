@@ -314,6 +314,12 @@ public class InputCapture : IDisposable {
     if (_camera == null || MatchEnded) return;
 
     switch (@event) {
+      case InputEventKey { Echo: false, Pressed: true, CtrlPressed: true } upgradeKey
+        when TryGetSkillHotkeySlot(upgradeKey.Keycode, out var upgradeSlot):
+        if (_camera.IsGodmode) return;
+        QueueSkillUpgrade(upgradeSlot);
+        return;
+
       case InputEventKey { Echo: false } key when TryGetSkillHotkeySlot(key.Keycode, out var slot):
         if (_camera.IsGodmode) return;
         if (key.Pressed) BeginSkillAim(slot);
@@ -410,6 +416,7 @@ public class InputCapture : IDisposable {
   }
 
   // Q/W/E/R map to the four SkillSlots in order, matching the skill cells the bar renders left to right.
+  // Ctrl held over the same key ranks the slot up instead of casting it.
   // Camera panning was moved off WASD onto the arrow keys so W is free (CameraController.NormalMoveDirection);
   // godmode's flycam still uses WASD+QE, which is why the caller drops these while it's on.
   private static bool TryGetSkillHotkeySlot(Key keycode, out int slot) {

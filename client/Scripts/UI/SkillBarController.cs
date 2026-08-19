@@ -151,7 +151,9 @@ public class SkillBarController {
     var name = _catalog != null && _catalog.TryResolve(skillAssetId, out var def)
       ? def.Name
       : ((SkillSlot)slot).ToString();
-    return maxRank > 0 ? $"{name}\nRank {rank} / {maxRank}" : name;
+    if (maxRank <= 0) return name;
+
+    return $"{name}\nRank {rank} / {maxRank}\nCtrl+{HotkeyLabels[slot]} to upgrade";
   }
 
   // The .tscn authors placeholder cells into ActionGrid; drop them all and lay down the four skill cells
