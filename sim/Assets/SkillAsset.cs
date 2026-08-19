@@ -49,6 +49,19 @@ public partial class SkillAsset : IDataAsset {
   // client reads the same flag to fire on key-down instead of holding the key to aim.
   [KlothoOrder(21)] public int SelfCast;
 
+  // Attack-burst block. BurstAttackCount is how many auto-attacks the cast is worth in total (2 is a
+  // double swing), BurstAttackDelayMs the spacing between them, and BurstDurationMs how long the
+  // queued swings wait for a target before they lapse.
+  [KlothoOrder(22)] public int BurstAttackCount;
+  [KlothoOrder(23)] public int BurstAttackCountPerRank;
+  [KlothoOrder(24)] public int BurstAttackDelayMs;
+  [KlothoOrder(25)] public int BurstDurationMs;
+
+  // 0/1. Queuing clears the caster's swing timer, so the burst opens on the cast tick instead of
+  // waiting out the auto-attack that came before it. Same field as ProcResetsAttackCooldown, for the
+  // other lifecycle.
+  [KlothoOrder(26)] public int BurstResetsAttackCooldown;
+
   public bool HasCastRange => MinCastRange > FP64.Zero || MaxCastRange > FP64.Zero;
   public bool IsSelfCast => SelfCast != 0;
 
@@ -62,6 +75,10 @@ public partial class SkillAsset : IDataAsset {
 
   public FP64 HealPercentAtRank(int rank) {
     return rank <= 0 ? FP64.Zero : HealPercent + HealPercentPerRank * FP64.FromInt(rank - 1);
+  }
+
+  public int BurstAttackCountAtRank(int rank) {
+    return rank <= 0 ? 0 : BurstAttackCount + BurstAttackCountPerRank * (rank - 1);
   }
 
   public FP64 ProcDamageMultiplierAtRank(int rank) {

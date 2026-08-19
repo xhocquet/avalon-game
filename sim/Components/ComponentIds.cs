@@ -44,6 +44,7 @@ public static class ComponentIds {
   public const int StatBuffs = 135;
   public const int AttackProc = 136;
   public const int AttackHitIdCounter = 137;
+  public const int AttackBurst = 138;
 
-  // Next free id: 138
+  // Next free id: 139
 }

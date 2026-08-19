@@ -5,8 +5,9 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon;
 
 // Every per-tick countdown in one pass: attack cooldowns, skill cooldowns, stat buffs, armed attack
-// procs. Starting any of them is command-driven and lives with the rule that owns it (DamageSystem,
-// SkillActions, StatBuffApplication, AttackProcs); burning them down is this.
+// procs, queued attack bursts. Starting any of them is command-driven and lives with the rule that
+// owns it (DamageSystem, SkillActions, StatBuffApplication, AttackProcs, AttackBursts); burning them
+// down is this.
 //
 // Registered ahead of everything that reads Stats, casts, or deals damage for the frame, so an effect
 // that ended never pays out one more tick and a cooldown that reached 0 is spendable on the same tick
@@ -42,6 +43,13 @@ public class TimedEffectSystem : ISystem {
       ref var proc = ref frame.Get<AttackProcComponent>(entity);
       if (proc.IsExpired(frame.Tick))
         proc.Clear();
+    }
+
+    var bursting = frame.Filter<AttackBurstComponent>();
+    while (bursting.Next(out var entity)) {
+      ref var burst = ref frame.Get<AttackBurstComponent>(entity);
+      if (burst.IsExpired(frame.Tick))
+        burst.Clear();
     }
   }
 }

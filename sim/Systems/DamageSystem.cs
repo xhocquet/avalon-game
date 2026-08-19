@@ -42,7 +42,9 @@ public class DamageSystem : ISystem {
       var damage = DamageApplication.ApplyDamage(ref frame, attacker, target, attackDamage,
         DamageType.Physical, canCrit: true, attackHitId: attackHitId);
 
-      combat.CooldownRemainingTicks = CombatTiming.CooldownTicks(ref frame, attacker);
+      // A queued burst swing shortens the wait to the burst's spacing instead of the full period.
+      combat.CooldownRemainingTicks = AttackBursts.NextCooldownTicks(ref frame, attacker,
+        CombatTiming.CooldownTicks(ref frame, attacker));
 
       LogDamageState(ref frame, attacker, combat.TargetUnitId,
         $"damage={damage} health={healthBefore}->{frame.GetReadOnly<Health>(target).Current} cooldown={combat.CooldownRemainingTicks}");

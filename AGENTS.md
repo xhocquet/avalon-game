@@ -24,10 +24,10 @@
 
 # Shared Simulation
 
-- `server/Server.csproj` links `sim/**/*.cs` into the server build; the server does not maintain a separate simulation copy.
-- Client and server both call `SimulationSetup.RegisterSystems(...)` and `SimulationSetup.InitializeWorld(...)` through their `ISimulationCallbacks` implementations.
-- Godot client callbacks poll local input and send commands; server callbacks do not poll local input because Klotho injects client commands into the authoritative server simulation.
-- **A gameplay rule is written once, in `sim/`, and the client calls that same predicate — it never re-implements or approximates it.** A rule the client copies drifts from the one the sim enforces, and the symptom is a UI that offers an action the sim then rejects with nothing but a log line. So a `*Actions` class that owns a rule exposes a read-only `Can*` predicate beside its `Try*`, both running the same evaluation: `SkillActions.CanCast`/`CanUpgrade` gate the cast hotkeys in `InputCapture` and grey the cells in `SkillBarController`; `ShopActions.IsHeroNearTeamShop` gates the buy buttons in `ActionBarController`. Keep the predicates read-only and allocation-free — the HUD polls them every sync. This is a UX and bandwidth optimization, never a security one: the sim re-checks on arrival regardless, because a command arrives from an untrusted peer.
+- `server/Server.csproj` compiles `sim/**/*.cs` (minus `sim/Tools/`) into the server build; there is no second copy.
+- Both sides register systems and initialize the world through `SimulationSetup`, called from their `ISimulationCallbacks`. `OnPollInput` is a no-op on the server — Klotho injects client commands instead.
+- **A gameplay rule lives once in `sim/`; the client calls it, never re-implements it.** An `*Actions` class exposes a read-only `Can*` beside its `Try*`, both running the same evaluation — `SkillActions.CanCast`/`CanUpgrade`, `ShopActions.IsHeroNearTeamShop`. The HUD polls these every sync, so keep them allocation-free.
+- Gating the UI is UX and bandwidth only. The sim re-checks every command on arrival.
 
 # Network Architecture
 
@@ -53,15 +53,7 @@ Config authority chain:
 
 # Deployment
 
-- Remote deploy tooling is `scripts/deploy/`, driven by `just` recipes and configured from a gitignored `.env` at the repo root (`.env.example` documents the keys). Read [`docs/deployment.md`](docs/deployment.md) before changing any of it.
-- Target shape: self-contained `linux-x64` publish → tarball over SSH → versioned `releases/<stamp>/` with a `current` symlink → systemd unit. Rollback is a symlink swap.
-- `just deploy-check` (preflight), `just deploy`, `just deploy-status`, `just remote-{start,stop,restart,logs}`, `just rollback`.
-- The publish is verified against the assets `Program.cs` loads at startup (`Data/*.bytes`, both config files); add to `$requiredAssets` in [`scripts/deploy/publish.ps1`](scripts/deploy/publish.ps1) when startup gains a new required file.
-- Do not enable trimming on the server publish — Klotho's generated registration and reflection roots are invisible to the trimmer.
-- `just client` exports a distributable game client pointed at the deployed server. The endpoint is baked as `client/server_endpoint.json` (gitignored, written and removed around the export); [`ServerEndpoint`](client/Scripts/ServerEndpoint.cs) resolves `--server=host:port` > that file > `127.0.0.1:7777`, which is what keeps a working copy on localhost.
-- Export size is dominated by the PCK, and the PCK is dominated by raw Tripo/PBR source art. Two levers: `process/size_limit` in a texture's `.import` (ground data maps 512, ground albedo/normal and character albedo 1024) and decimating source `.glb` meshes. Originals of decimated meshes live in `backup/mesh-originals/`. `exclude_filter` in `export_presets.cfg` drops art that ships but nothing references.
-- `just client` runs a headless `--editor` import pass that reformats some `client/Scripts/*.cs` files (spaces to tabs). `git checkout -- client/Scripts/` after exporting.
-- Editor-only scripts in `client/Scripts/Editor/` must be wrapped in `#if TOOLS`. Exports compile without `TOOLS` defined, so an unguarded `EditorInterface` reference breaks every export while leaving `just play` working.
+- Deploying the server and exporting the client: [`docs/agents/deployment.md`](docs/agents/deployment.md).
 
 # Testing
 

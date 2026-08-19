@@ -94,6 +94,7 @@ public class RespawnSystem : ISystem {
     UnitIntent.ClearAttackIntent(ref frame, entity);
     StatBuffApplication.ClearAll(ref frame, entity);
     AttackProcs.Clear(ref frame, entity);
+    AttackBursts.Clear(ref frame, entity);
 
 
     if (frame.Has<NavAgentComponent>(entity)) {
