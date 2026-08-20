@@ -22,8 +22,8 @@ namespace Meesles.Avalon.Client.Scripts.View;
 // packer finds it through a tree group, so the layer is about ownership, not rendering.
 //
 // **A map's ground material must carry con_telegraph_next_pass.tres as its next_pass or nothing here
-// draws** - the packer writes the data texture either way, and there is no error to see. World.tscn,
-// CombatPlayground.tscn and NavPlayground.tscn have it; a new map needs it too.
+// draws** - the packer writes the data texture either way, and there is no error to see. World.tscn
+// and NavPlayground.tscn have it; a new map needs it too.
 //
 // SkillCastEvent is Synced, so this rides the confirmed stream. On a predicting client that costs the
 // telegraph a round trip; making it instant means flipping the event to Regular and adding

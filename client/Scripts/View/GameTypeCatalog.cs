@@ -30,13 +30,7 @@ public static class GameTypeCatalog {
       "res://Scenes/Singleplayer.tscn",
       "res://Scenes/Playgrounds/NavPlayground.tscn",
       "res://Sim/Data/NavPlayground.NavMeshData.bytes",
-      "res://Sim/Data/MapLayout_NavPlayground.bytes"),
-    new("combat-playground", "Combat Playground", "Avalon map, hosted locally. Combat and skills.",
-      GameTypeMode.Local,
-      "res://Scenes/Singleplayer.tscn",
-      "res://Scenes/Playgrounds/CombatPlayground.tscn",
-      "res://Sim/Data/CombatPlayground.NavMeshData.bytes",
-      "res://Sim/Data/MapLayout_CombatPlayground.bytes")
+      "res://Sim/Data/MapLayout_NavPlayground.bytes")
   ];
 
   public static GameTypeDef Selected => Resolve(GameTypeSelection.SelectedGameTypeId);
