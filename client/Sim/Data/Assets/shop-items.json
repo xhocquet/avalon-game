@@ -1,36 +1,36 @@
 [
   {
-    "$type": "Meesles.Avalon.Sim.Assets.ShopItemAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.ShopItemAsset",
     "AssetId": 300,
     "Cost": 10,
     "AttackBonus": 10
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.ShopItemAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.ShopItemAsset",
     "AssetId": 301,
     "Cost": 10,
     "AttackBonus": 10
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.ShopItemAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.ShopItemAsset",
     "AssetId": 302,
     "Cost": 10,
     "AttackBonus": 10
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.ShopItemAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.ShopItemAsset",
     "AssetId": 303,
     "Cost": 10,
     "AttackBonus": 10
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.ShopItemAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.ShopItemAsset",
     "AssetId": 304,
     "Cost": 10,
     "AttackBonus": 10
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.ShopItemAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.ShopItemAsset",
     "AssetId": 305,
     "Cost": 10,
     "AttackBonus": 10

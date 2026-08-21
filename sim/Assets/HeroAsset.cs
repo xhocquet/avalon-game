@@ -7,9 +7,7 @@ namespace Meesles.Avalon.Sim.Assets;
 // Instance ids live in the AssetIds.Hero* block; look one up with Get<HeroAsset>(id).
 //
 // Every growing stat is a Base + PerLevel pair. Base is the level-1 value StatsComponent.From seeds;
-// PerLevel is the average per-level gain, spread back-loaded across the levels by StatGrowth's curve
-// rather than added flat, so a capped hero sits on Base + PerLevel * (MaxLevel - 1). Distances are
-// metres (game units / 100).
+//  Base + PerLevel * (MaxLevel - 1). Distances are metres (game units / 100).
 [KlothoDataAsset(AssetIds.TypeIds.Hero)]
 public partial class HeroAsset : IDataAsset, IUnitStatsAsset {
   [KlothoOrder(0)] public int BehaviorId;

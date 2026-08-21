@@ -1,15 +1,14 @@
 [
   {
-    "$type": "Meesles.Avalon.Sim.Assets.FactionAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.FactionAsset",
     "AssetId": 200,
     "_Name": "Hairy Wizards",
     "HeroAssetId": 400,
     "MinionStatsAssetId": 103
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.HeroAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.HeroAsset",
     "AssetId": 400,
-    "BehaviorId": 0,
     "SkillSetId": 0,
     "Skill1AssetId": 500,
     "Skill2AssetId": 501,
@@ -43,10 +42,9 @@
     "PathingRadius": 0.3
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset",
     "AssetId": 500,
     "_Name": "Hairy Wizard - Hairball",
-    "MaxRank": 4,
     "CooldownMs": 3000,
     "Damage": 80,
     "DamagePerRank": 45,
@@ -54,37 +52,29 @@
     "ProjectileRange": 9.0,
     "ProjectileRadius": 0.4,
     "ProjectileCount": 1,
-    "ProjectileSpacing": 0,
     "ProjectileSpawnOffset": 1.0,
     "MinCastRange": 1.0,
-    "MaxCastRange": 9.0,
-    "Description": ""
+    "MaxCastRange": 9.0
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset",
     "AssetId": 501,
     "_Name": "Hairy Wizard - Strangle",
-    "MaxRank": 4,
-    "CooldownMs": 3000,
-    "Description": ""
+    "CooldownMs": 3000
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset",
     "AssetId": 502,
     "_Name": "Hairy Wizard - Close Shave",
-    "MaxRank": 4,
     "CooldownMs": 3000,
     "BuffDurationMs": 5000,
     "BuffPercent": 0.05,
-    "BuffPercentPerRank": 0.05,
-    "Description": ""
+    "BuffPercentPerRank": 0.05
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset",
     "AssetId": 503,
     "_Name": "Hairy Wizard - Bad Hair Day",
-    "MaxRank": 4,
-    "CooldownMs": 3000,
-    "Description": ""
+    "CooldownMs": 3000
   }
 ]

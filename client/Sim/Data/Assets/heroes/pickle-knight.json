@@ -1,15 +1,14 @@
 [
   {
-    "$type": "Meesles.Avalon.Sim.Assets.FactionAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.FactionAsset",
     "AssetId": 204,
     "_Name": "Pickle Knights",
     "HeroAssetId": 404,
     "MinionStatsAssetId": 103
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.HeroAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.HeroAsset",
     "AssetId": 404,
-    "BehaviorId": 0,
     "SkillSetId": 4,
     "Skill1AssetId": 516,
     "Skill2AssetId": 517,
@@ -43,43 +42,35 @@
     "PathingRadius": 0.5
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset",
     "AssetId": 516,
     "_Name": "Pickle Knight - Slip 'n Slide",
-    "MaxRank": 4,
-    "CooldownMs": 3000,
-    "Description": ""
+    "CooldownMs": 3000
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset",
     "AssetId": 517,
     "_Name": "Pickle Knight - Double Dip",
-    "MaxRank": 4,
     "CooldownMs": 3000,
     "BurstAttackCount": 2,
     "BurstAttackCountPerRank": 1,
     "BurstAttackDelayMs": 150,
     "BurstDurationMs": 4000,
-    "BurstResetsAttackCooldown": 1,
-    "Description": ""
+    "BurstResetsAttackCooldown": 1
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset",
     "AssetId": 518,
     "_Name": "Pickle Knight - Refresh",
-    "MaxRank": 4,
     "CooldownMs": 45000,
     "HealPercent": 0.05,
     "HealPercentPerRank": 0.05,
-    "SelfCast": 1,
-    "Description": ""
+    "SelfCast": 1
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset",
     "AssetId": 519,
     "_Name": "Pickle Knight - Exploosion",
-    "MaxRank": 4,
-    "CooldownMs": 3000,
-    "Description": ""
+    "CooldownMs": 3000
   }
 ]

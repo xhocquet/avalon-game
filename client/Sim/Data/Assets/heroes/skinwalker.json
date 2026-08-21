@@ -1,15 +1,14 @@
 [
   {
-    "$type": "Meesles.Avalon.Sim.Assets.FactionAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.FactionAsset",
     "AssetId": 203,
     "_Name": "Skinwalker Tribe",
     "HeroAssetId": 403,
     "MinionStatsAssetId": 103
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.HeroAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.HeroAsset",
     "AssetId": 403,
-    "BehaviorId": 0,
     "SkillSetId": 3,
     "Skill1AssetId": 512,
     "Skill2AssetId": 513,
@@ -43,35 +42,27 @@
     "PathingRadius": 0.3
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset",
     "AssetId": 512,
     "_Name": "Skinwalker - Sprint",
-    "MaxRank": 4,
-    "CooldownMs": 3000,
-    "Description": ""
+    "CooldownMs": 3000
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset",
     "AssetId": 513,
     "_Name": "Skinwalker - Daily Practice",
-    "MaxRank": 4,
-    "CooldownMs": 3000,
-    "Description": ""
+    "CooldownMs": 3000
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset",
     "AssetId": 514,
     "_Name": "Skinwalker - Eat to Survive",
-    "MaxRank": 4,
-    "CooldownMs": 3000,
-    "Description": ""
+    "CooldownMs": 3000
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset",
     "AssetId": 515,
     "_Name": "Skinwalker - Desperation",
-    "MaxRank": 4,
-    "CooldownMs": 3000,
-    "Description": ""
+    "CooldownMs": 3000
   }
 ]

@@ -49,6 +49,7 @@ Removing the current entity's own component survives by accident of layout: the 
 - Klotho asset id ranges (both the AssetId and wire TypeId planes) are tracked in [`Assets/AssetIds.cs`](Assets/AssetIds.cs); allocate from the "next free" markers there.
 - Randomness is derived, never carried. Every `DeterministicRandom` stream comes from `SimRandom.WorldSeed` plus a feature key allocated in [`SimRandom`](SimRandom.cs) and an index built from frame data — `OasisSpawnSystem` uses oasis id + tick, `CriticalStrikes` attacker unit id + tick. A stream that remembered where it left off would leak the discarded prediction branch into the replay.
 - Systems hold no tuning constants. Gameplay numbers live in `client/Sim/Data/Assets/` — one `*.json` array per topic, per-hero files under `heroes/` — and are read through `frame.AssetRegistry.Get<T>()`. `AssetGen` merges every `*.json` under that directory recursively, so a new file needs no index entry; after editing run `dotnet run --project tools/AssetGen` to rebuild `Assets.bytes`. It fails on a duplicate `AssetId` or a row without one.
+- A JSON row only lists the fields it wants to set: anything omitted keeps the asset class's C# field initializer (Newtonsoft builds the object through `ctor(int assetId)` and populates only what the row names), so `SkillAsset.MaxRank = 4` is the default and a row states `MaxRank` only to differ. Give a field an initializer when the value is a game rule, not when it is an untuned placeholder. `$type` takes the type's full name with no assembly suffix.
 
 # Ownership
 

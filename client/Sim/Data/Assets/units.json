@@ -1,6 +1,6 @@
 [
   {
-    "$type": "Meesles.Avalon.Sim.Assets.MinionStatsAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.MinionStatsAsset",
     "AssetId": 103,
     "Health": 477,
     "Armor": 0,
@@ -15,7 +15,7 @@
     "PathingRadius": 0.3
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.TurretStatsAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.TurretStatsAsset",
     "AssetId": 106,
     "Health": 2000,
     "Armor": 0,
@@ -28,7 +28,7 @@
     "GameplayRadius": 0.88
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.CrystalStatsAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.CrystalStatsAsset",
     "AssetId": 107,
     "Health": 2500,
     "Armor": 0,

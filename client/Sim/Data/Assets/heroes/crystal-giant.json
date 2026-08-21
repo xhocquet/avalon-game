@@ -1,15 +1,14 @@
 [
   {
-    "$type": "Meesles.Avalon.Sim.Assets.FactionAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.FactionAsset",
     "AssetId": 202,
     "_Name": "Crystal Warriors",
     "HeroAssetId": 402,
     "MinionStatsAssetId": 103
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.HeroAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.HeroAsset",
     "AssetId": 402,
-    "BehaviorId": 0,
     "SkillSetId": 2,
     "Skill1AssetId": 508,
     "Skill2AssetId": 509,
@@ -43,10 +42,9 @@
     "PathingRadius": 0.26
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset",
     "AssetId": 508,
     "_Name": "Crystal Giant - Spiky Punch",
-    "MaxRank": 4,
     "CooldownMs": 3000,
     "ProcDurationMs": 5000,
     "ProcDamageMultiplier": 1.5,
@@ -55,10 +53,9 @@
     "Description": "Shards erupt from your fists for 5s allow you to attack immediately for 150% of attack damage (+50 per rank)."
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset",
     "AssetId": 509,
     "_Name": "Crystal Giant - Harden",
-    "MaxRank": 4,
     "CooldownMs": 30000,
     "BuffDurationMs": 10000,
     "BuffPercent": 0.05,
@@ -66,11 +63,10 @@
     "Description": "You harden yourself for 10s to increase your defense and magic defense by 5% (+5% per rank). CD: 30s"
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset",
     "AssetId": 510,
     "_Name": "Crystal Giant - Crystal Bullets",
-    "MaxRank": 4,
-    "CooldownMs": 3000,
+    "CooldownMs": 8000,
     "Damage": 60,
     "DamagePerRank": 30,
     "ProjectileSpeed": 14.0,
@@ -81,14 +77,18 @@
     "ProjectileSpawnOffset": 1.0,
     "MinCastRange": 1.0,
     "MaxCastRange": 10.0,
-    "Description": ""
+    "Description": "Fire a volley of 3 crystal bullets dealing 60 (+30 per rank) attack damage. CD: 8s"
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.SkillAsset",
     "AssetId": 511,
-    "_Name": "Crystal Giant - Carbon Compression",
-    "MaxRank": 4,
-    "CooldownMs": 3000,
-    "Description": ""
+    "_Name": "Crystal Giant - Chrysalis",
+    "CooldownMs": 120000,
+    "Damage": 300,
+    "DamagePerRank": 150,
+    "BuffDurationMs": 3000,
+    "BuffPercent": 1,
+    "BuffPercentPerRank": 0.35,
+    "Description": "Your defense increases by 100% (+35% per rank) for 3s. Once charged, your crystal veins snare enemies for 3s (+0.75s per rank) and deals 300 (+150 per rank) magic damage."
   }
 ]

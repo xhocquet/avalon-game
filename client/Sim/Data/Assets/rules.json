@@ -1,6 +1,6 @@
 [
   {
-    "$type": "Meesles.Avalon.Sim.Assets.WaveRulesAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.WaveRulesAsset",
     "AssetId": 101,
     "FirstWaveDelayTicks": 30,
     "SpawnIntervalTicks": 150,
@@ -8,12 +8,12 @@
     "MinionSpacing": 0.8
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.ShopRulesAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.ShopRulesAsset",
     "AssetId": 108,
     "InteractRange": 6.0
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.MovementRulesAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.MovementRulesAsset",
     "AssetId": 109,
     "StopDistance": 0.15,
     "MinionPackRadiusFactor": 0.4,
@@ -22,7 +22,7 @@
     "MoveTargetEdgeClearance": 0.75
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.MatchRulesAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.MatchRulesAsset",
     "AssetId": 110,
     "MatchDuration": 300.0,
     "SetupGraceTicks": 30,
@@ -38,7 +38,7 @@
     "RegenIntervalMs": 500
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.PickupRulesAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.PickupRulesAsset",
     "AssetId": 111,
     "OasisSpawnIntervalMs": 5000,
     "OasisPrepareDurationMs": 800,
@@ -49,7 +49,7 @@
     "CollectRange": 1.5
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.NavigationTuningAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.NavigationTuningAsset",
     "AssetId": 112,
     "AvoidanceGridCellSize": 5.0,
     "MinionNeighborDist": 6.0,
@@ -69,12 +69,12 @@
     "AccelerationFactor": 12.0
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.CombatRulesAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.CombatRulesAsset",
     "AssetId": 113,
     "TargetGridCellSize": 10.0
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.GoldRulesAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.GoldRulesAsset",
     "AssetId": 118,
     "GoldPerMinionKill": 15,
     "GoldPerHeroKill": 110,
@@ -83,7 +83,7 @@
     "GoldPerAssist": 50
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.XpRulesAsset, Meesles.Avalon.Client",
+    "$type": "Meesles.Avalon.Sim.Assets.XpRulesAsset",
     "AssetId": 115,
     "XpPerMinionKill": 20,
     "XpPerHeroKill": 120,

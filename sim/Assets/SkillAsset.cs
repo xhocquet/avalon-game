@@ -7,7 +7,7 @@ namespace Meesles.Avalon.Sim.Assets;
 // Instance ids live in the AssetIds.Skill* block; look one up with Get<SkillAsset>(id)
 [KlothoDataAsset(AssetIds.TypeIds.Skill)]
 public partial class SkillAsset : IDataAsset {
-  [KlothoOrder(0)] public int MaxRank;
+  [KlothoOrder(0)] public int MaxRank = 4; // Omitted in JSON means 4
   [KlothoOrder(1)] public int CooldownMs;
   [KlothoOrder(2)] public FP64 Damage;
   [KlothoOrder(3)] public FP64 DamagePerRank;
