@@ -27,6 +27,7 @@ public class VfxManager {
 
   private IDisposable _attackHitSub;
   private IDisposable _attackProcSub;
+  private IDisposable _chargeDetonatedSub;
   private IDisposable _turretDestroyedSub;
   private IDisposable _crystalDestroyedSub;
   private EntityViewUpdaterNode _view;
@@ -38,6 +39,7 @@ public class VfxManager {
     // flash is transient and harmless, which is why UI state uses confirmed events but VFX do not.
     _attackHitSub = events.OnPredicted<AttackHitEvent>(HandleAttackHit);
     _attackProcSub = events.OnPredicted<AttackProcConsumedEvent>(HandleAttackProcConsumed);
+    _chargeDetonatedSub = events.OnPredicted<SkillChargeDetonatedEvent>(HandleSkillChargeDetonated);
     // Death effects use the confirmed stream: these events are Synced, and a big one-shot
     // explosion would be jarring to spawn on a mispredicted tick and then rewind.
     _turretDestroyedSub = events.OnConfirmed<TurretDestroyedEvent>(HandleTurretDestroyed);
@@ -49,6 +51,8 @@ public class VfxManager {
     _attackHitSub = null;
     _attackProcSub?.Dispose();
     _attackProcSub = null;
+    _chargeDetonatedSub?.Dispose();
+    _chargeDetonatedSub = null;
     _turretDestroyedSub?.Dispose();
     _turretDestroyedSub = null;
     _crystalDestroyedSub?.Dispose();
@@ -89,6 +93,14 @@ public class VfxManager {
       : Vector3.Zero;
 
     _view.AddChild(DebugDamageNumber.Create(label, position, emphasized: true));
+  }
+
+  // The burst is centred on the caster wherever it ended up, so the event's own position is what the
+  // explosion goes on rather than the caster view - by the time this arrives they agree anyway, and a
+  // caster that died on the detonation tick has no view left.
+  private void HandleSkillChargeDetonated(SkillChargeDetonatedEvent evt) {
+    if (_view == null) return;
+    SpawnDeathExplosion(evt.Position.ToVector3());
   }
 
   private void HandleTurretDestroyed(TurretDestroyedEvent evt) {

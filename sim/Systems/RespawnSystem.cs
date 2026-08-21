@@ -1,6 +1,7 @@
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
+using Meesles.Avalon.Sim.Heroes;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.Deterministic.Navigation;
@@ -95,6 +96,8 @@ public class RespawnSystem : ISystem {
     StatBuffApplication.ClearAll(ref frame, entity);
     AttackProcs.Clear(ref frame, entity);
     AttackBursts.Clear(ref frame, entity);
+    Snares.Clear(ref frame, entity);
+    SkillCharges.Clear(ref frame, entity);
 
 
     if (frame.Has<NavAgentComponent>(entity)) {

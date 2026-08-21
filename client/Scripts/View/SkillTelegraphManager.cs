@@ -201,10 +201,17 @@ public class SkillTelegraphManager {
     return null;
   }
 
-  // One shape per row: a cone row carries no projectile block and a projectile row no cone, so the
-  // row itself picks which configure runs. A row that authored neither draws nothing.
+  // One shape per row: a cone row carries no projectile block, a projectile row no cone, an area row
+  // neither, so the row itself picks which configure runs. A row that authored none draws nothing.
   private static bool Configure(Node3D telegraph, SkillAsset skill, TelegraphCatalog.TelegraphDef def,
     Resource family) {
+    if (skill.HasArea) {
+      // A charged burst fills over its own wind-up, so the ring closes exactly as the sim detonates.
+      var fillSeconds = skill.ChargeDurationMs > 0 ? skill.ChargeDurationMs / 1000f : def.FillSeconds;
+      telegraph.Call("configure_circle", family, skill.AreaRadius.ToFloat(), fillSeconds, def.Height);
+      return true;
+    }
+
     if (skill.HasCone) {
       telegraph.Call("configure_cone",
         family,

@@ -84,11 +84,17 @@
     "AssetId": 511,
     "_Name": "Crystal Giant - Chrysalis",
     "CooldownMs": 120000,
+    "SelfCast": 1,
     "Damage": 300,
     "DamagePerRank": 150,
     "BuffDurationMs": 3000,
     "BuffPercent": 1,
     "BuffPercentPerRank": 0.35,
-    "Description": "Your defense increases by 100% (+35% per rank) for 3s. Once charged, your crystal veins snare enemies for 3s (+0.75s per rank) and deals 300 (+150 per rank) magic damage."
+    "ChargeDurationMs": 3000,
+    "ChargeRootsCaster": 1,
+    "AreaRadius": 4.5,
+    "SnareDurationMs": 3000,
+    "SnareDurationMsPerRank": 750,
+    "Description": "You become immobile and your defense increases by 100% (+35% per rank) for 3s. Once charged, your crystal veins snare enemies for 3s (+0.75s per rank) and deals 300 (+150 per rank) magic damage."
   }
 ]

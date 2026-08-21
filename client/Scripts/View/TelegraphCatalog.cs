@@ -17,6 +17,7 @@ public class TelegraphCatalog {
 
   public static readonly TelegraphDef[] TelegraphDefs = [
     new(AssetIds.SkillCrystalGiantTertiary, SelfFamily, HostileFamily, 4f),
+    new(AssetIds.SkillCrystalGiantUltimate, SelfFamily, HostileFamily, 4f),
     new(AssetIds.SkillHairyWizardPrimary, SelfFamily, HostileFamily, 4f),
     new(AssetIds.SkillShroomPrimary, SelfFamily, HostileFamily, 4f, 0.35f)
   ];

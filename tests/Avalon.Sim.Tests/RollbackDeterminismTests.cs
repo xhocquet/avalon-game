@@ -30,9 +30,11 @@ public class RollbackDeterminismTests {
   // Well past the cap, so the discarded branch lands every level a hero can reach at once.
   private const int LevelUpExperience = 1_000_000;
 
-  // Picked so the snapshot lands mid-volley: Crystal Bullets is off cooldown every ~188 ticks and
-  // each volley stays airborne for ~48 after that. AssertProjectilesAreInFlight holds it honest.
-  private const int ProjectileWarmupTicks = 230;
+  // The snapshot has to land mid-volley, and when that happens is Crystal Bullets' cooldown - tuning
+  // this test does not get to hold a copy of. So it warms up like the others and then runs on until a
+  // volley is actually in the air; the cap is only there to fail loudly rather than spin.
+  private const int ProjectileWarmupTicks = 300;
+  private const int MaxTicksToNextVolley = 1500;
 
   private readonly ITestOutputHelper _output;
 
@@ -112,6 +114,7 @@ public class RollbackDeterminismTests {
     rollback.Advance(1, beforeTick: sim => GrantSkillPoints(sim, SkillPointPool));
 
     rollback.Advance(ProjectileWarmupTicks, AuthoritativeBullets);
+    AdvanceUntilBulletsAreInTheAir(rollback);
     AssertProjectilesAreInFlight(rollback.Server);
     rollback.InSync.Should().BeTrue("the two sims must agree before the rollback");
 
@@ -119,7 +122,7 @@ public class RollbackDeterminismTests {
     rollback.InSync.Should().BeTrue("restoring the snapshot should put the client back on the server");
 
     var divergences = rollback.AdvanceAndCompare(ReplayTicks, AuthoritativeBullets);
-    Report(divergences, ReplayTicks, ProjectileWarmupTicks);
+    Report(divergences, ReplayTicks, rollback.Tick - ReplayTicks);
 
     divergences.Should().BeEmpty(
       "a projectile's position, remaining range, and id all live on its own entity, so a rollback " +
@@ -200,6 +203,11 @@ public class RollbackDeterminismTests {
 
   // Guards the scenario above: a rollback that lands between volleys would restore nothing
   // interesting and the test would pass while proving nothing.
+  private static void AdvanceUntilBulletsAreInTheAir(RollbackHarness rollback) {
+    for (var i = 0; i < MaxTicksToNextVolley && rollback.Server.Count<Projectile>() == 0; i++)
+      rollback.Advance(1, AuthoritativeBullets);
+  }
+
   private static void AssertProjectilesAreInFlight(SimHarness harness) {
     harness.Count<Projectile>().Should().BeGreaterThan(0,
       "the warmup stream must leave bullets in the air at the snapshot tick for the rollback to " +

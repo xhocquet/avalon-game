@@ -53,6 +53,26 @@ func configure_cone(family: ConTelegraphFamily, radius: float, angle_degrees: fl
 	instance.fill_progress = 0.0
 
 
+## Circle telegraph: one disc of the given radius centred on the node, filling outward. The shape a
+## charged burst draws while it winds up, so fill_seconds is the wind-up rather than a sweep speed.
+func configure_circle(family: ConTelegraphFamily, radius: float, fill_seconds: float,
+		height: float) -> void:
+	var instance: ConTelegraphInstance3D = get_node("ConTelegraphInstance3D")
+	instance.family = family
+	instance.fill_duration = maxf(fill_seconds, 0.01)
+
+	var area: ConTelegraphArea3D = AreaScript.new()
+	area.name = "Disc"
+	area.shape_primitive = ConTelegraphArea3D.ShapePrimitive.CYLINDER
+	area.fill_mode = ConTelegraphArea3D.FillMode.IN_TO_OUT
+	area.radius = radius
+	area.angle = 360.0
+	area.extents = Vector3(radius, height, radius)
+	instance.add_child(area)
+
+	instance.fill_progress = 0.0
+
+
 ## Held at zero fill after configure(), which draws the outline without the sweep - that is the aim
 ## preview. play() starts the sweep, after which fade_out_completed frees the node.
 func play() -> void:

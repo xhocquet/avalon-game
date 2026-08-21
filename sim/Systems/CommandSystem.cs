@@ -68,6 +68,10 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
       if (!_moveNavAgentsDirectly && frame.Has<NavAgentComponent>(entity))
         continue;
 
+      // Held in place: the order stands and resumes when the hold ends, it just makes no progress.
+      if (Snares.IsSnared(ref frame, entity))
+        continue;
+
       ref var moveTarget = ref frame.Get<UnitMoveTarget>(entity);
       ref var transform = ref frame.Get<TransformComponent>(entity);
       var step = frame.GetReadOnly<StatsComponent>(entity).MoveSpeed * dt;

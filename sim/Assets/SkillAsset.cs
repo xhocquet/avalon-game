@@ -73,9 +73,24 @@ public partial class SkillAsset : IDataAsset {
   // sim reads it; null and "" are the same to the codec, so an unauthored row costs 4 bytes.
   [KlothoOrder(29)] public string Description;
 
+  // Area block. AreaRadius is the reach of a disc centred on the caster, and SnareDurationMs how long
+  // whatever it catches is held in place; the damage comes off the shared Damage/DamagePerRank pair.
+  // Which of the two a skill uses is its own business - a hold with no damage is a legal row.
+  [KlothoOrder(30)] public FP64 AreaRadius;
+  [KlothoOrder(31)] public int SnareDurationMs;
+  [KlothoOrder(32)] public int SnareDurationMsPerRank;
+
+  // How long a charged skill spends winding up before its area pays out, and whether the caster is
+  // rooted for that wind-up. The buff block times the channel alongside it, so an authored row keeps
+  // ChargeDurationMs and BuffDurationMs the same unless the buff is meant to outlast the hold.
+  [KlothoOrder(33)] public int ChargeDurationMs;
+  [KlothoOrder(34)] public int ChargeRootsCaster;
+
   public bool HasCastRange => MinCastRange > FP64.Zero || MaxCastRange > FP64.Zero;
   public bool IsSelfCast => SelfCast != 0;
   public bool HasCone => ConeRange > FP64.Zero && ConeAngleDegrees > FP64.Zero;
+  public bool HasArea => AreaRadius > FP64.Zero;
+  public bool ChargeRootsItsCaster => ChargeRootsCaster != 0;
 
   public FP64 DamageAtRank(int rank) {
     return rank <= 0 ? FP64.Zero : Damage + DamagePerRank * FP64.FromInt(rank - 1);
@@ -91,6 +106,10 @@ public partial class SkillAsset : IDataAsset {
 
   public int BurstAttackCountAtRank(int rank) {
     return rank <= 0 ? 0 : BurstAttackCount + BurstAttackCountPerRank * (rank - 1);
+  }
+
+  public int SnareDurationMsAtRank(int rank) {
+    return rank <= 0 ? 0 : SnareDurationMs + SnareDurationMsPerRank * (rank - 1);
   }
 
   public FP64 ProcDamageMultiplierAtRank(int rank) {

@@ -69,6 +69,15 @@ public class NavigationAgentSystem : ISystem {
 
       _allEntities[_allCount++] = entity;
 
+      // Snared: parked as Idle, which every later phase already skips - steering, ORCA, and the
+      // movement integrator all bail on a non-Moving agent. It stays in _allEntities so it still
+      // occupies its avoidance cell and still writes its position back. Its UnitMoveTarget is left
+      // alone, so the order resumes and repaths on its own once the hold ends.
+      if (Snares.IsSnared(ref frame, entity)) {
+        NavAgentComponent.Stop(ref nav);
+        continue;
+      }
+
       var isMinion = frame.Has<Minion>(entity);
 
       if (isMinion && frame.Has<UnitMoveTarget>(entity)) {
