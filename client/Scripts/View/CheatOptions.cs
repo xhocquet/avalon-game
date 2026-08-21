@@ -16,6 +16,15 @@ public static class CheatOptions {
         case "--godmode":
           flags |= CheatFlags.GodMode;
           break;
+        case "--nocooldowns":
+          flags |= CheatFlags.NoCooldowns;
+          break;
+        case "--freeshop":
+          flags |= CheatFlags.FreeShop;
+          break;
+        case "--allcheats":
+          flags |= Cheats.All;
+          break;
       }
 
     return flags;

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Godot;
+using Meesles.Avalon.Client.Scripts.View;
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
@@ -24,8 +25,15 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private Label _xpBarLabel;
   private Label _goldLabel;
   private Label _resourcesLabel;
-  private Label _strengthLabel;
   private Label _levelLabel;
+  private Label _attackDamageLabel;
+  private Label _attackSpeedLabel;
+  private Label _armorLabel;
+  private Label _magicResistLabel;
+  private Label _critLabel;
+  private Label _moveSpeedLabel;
+  private Label _attackRangeLabel;
+  private Label _healthRegenLabel;
   private int? _localPlayerId;
   private Label _resultLabel;
   private Label _resultReasonLabel;
@@ -198,17 +206,19 @@ public partial class GameUI : CanvasLayer, IViewHud {
     _healthBar = GetNode<ColorRect>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/HealthBar");
     _healthBarFill = GetNode<ColorRect>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/HealthBar/HealthBarFill");
     _healthBarLabel = GetNode<Label>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/HealthBar/HealthBarLabel");
-    _goldLabel =
-      GetNodeOrNull<Label>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/GoldLabel");
-    _resourcesLabel =
-      GetNodeOrNull<Label>(
-        "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/ResourcesLabel");
-    _strengthLabel =
-      GetNodeOrNull<Label>(
-        "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/StrengthLabel");
-    _levelLabel =
-      GetNodeOrNull<Label>(
-        "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/LevelLabel");
+    var statsRoot = GetNodeOrNull<Control>(
+      "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin/Stats");
+    _levelLabel = statsRoot?.GetNodeOrNull<Label>("LevelLabel");
+    _goldLabel = statsRoot?.GetNodeOrNull<Label>("EconomyRow/GoldLabel");
+    _resourcesLabel = statsRoot?.GetNodeOrNull<Label>("EconomyRow/ResourcesLabel");
+    _attackDamageLabel = statsRoot?.GetNodeOrNull<Label>("StatGrid/AttackDamageLabel");
+    _attackSpeedLabel = statsRoot?.GetNodeOrNull<Label>("StatGrid/AttackSpeedLabel");
+    _armorLabel = statsRoot?.GetNodeOrNull<Label>("StatGrid/ArmorLabel");
+    _magicResistLabel = statsRoot?.GetNodeOrNull<Label>("StatGrid/MagicResistLabel");
+    _critLabel = statsRoot?.GetNodeOrNull<Label>("StatGrid/CritLabel");
+    _moveSpeedLabel = statsRoot?.GetNodeOrNull<Label>("StatGrid/MoveSpeedLabel");
+    _attackRangeLabel = statsRoot?.GetNodeOrNull<Label>("StatGrid/AttackRangeLabel");
+    _healthRegenLabel = statsRoot?.GetNodeOrNull<Label>("StatGrid/HealthRegenLabel");
     _xpBar = GetNodeOrNull<ColorRect>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/XpBar");
     _xpBarFill = GetNodeOrNull<ColorRect>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/XpBar/XpBarFill");
     _xpBarLabel = GetNodeOrNull<Label>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/XpBar/XpBarLabel");
@@ -303,6 +313,9 @@ public partial class GameUI : CanvasLayer, IViewHud {
   }
 
   public override void _Input(InputEvent @event) {
+    if (UiFocus.IsTypingInTextField(GetViewport()))
+      return;
+
     if (@event is InputEventKey key && key.Keycode == Key.Tab && !key.Echo) {
       if (_tabUi != null) _tabUi.Visible = key.Pressed;
       GetViewport().SetInputAsHandled();
@@ -348,12 +361,12 @@ public partial class GameUI : CanvasLayer, IViewHud {
 
   private void SetGoldText(int gold) {
     if (_goldLabel != null)
-      _goldLabel.Text = $"Gold: {(gold < 0 ? 0 : gold)}"; // a rollback can shrink gold under what's in flight
+      _goldLabel.Text = $"Gold {(gold < 0 ? 0 : gold)}"; // a rollback can shrink gold under what's in flight
   }
 
   private void SetResourcesText(int resources) {
     if (_resourcesLabel != null)
-      _resourcesLabel.Text = $"Resources: {resources}";
+      _resourcesLabel.Text = $"Resources {resources}";
   }
 
   private void UpdateLocalPlayerStats(Frame frame) {
@@ -364,15 +377,27 @@ public partial class GameUI : CanvasLayer, IViewHud {
       ref readonly var hero = ref frame.GetReadOnly<Hero>(entity);
       if (hero.PlayerId != localId) continue;
 
-      ref readonly var stats = ref frame.GetReadOnly<StatsComponent>(entity);
-      SetAttackDamageText(stats.AttackDamage.ToFloat());
+      SetHeroStats(frame.GetReadOnly<StatsComponent>(entity));
       return;
     }
   }
 
-  private void SetAttackDamageText(float attackDamage) {
-    if (_strengthLabel != null)
-      _strengthLabel.Text = $"Attack damage: {attackDamage:0.#}";
+  // Reads the live StatsComponent, which already carries item and buff contributions - timed buffs
+  // Add into it and record what they moved so the expiry can take the same amount back off.
+  private void SetHeroStats(in StatsComponent stats) {
+    SetStatText(_attackDamageLabel, "Attack dmg", $"{stats.AttackDamage.ToFloat():0.#}");
+    SetStatText(_attackSpeedLabel, "Attack spd", $"{stats.AttacksPerSecond.ToFloat():0.00}");
+    SetStatText(_armorLabel, "Armor", $"{stats.Armor.ToFloat():0.#}");
+    SetStatText(_magicResistLabel, "Magic res", $"{stats.MagicResist.ToFloat():0.#}");
+    SetStatText(_critLabel, "Crit", $"{stats.CritChance.ToFloat() * 100f:0.#}%");
+    SetStatText(_moveSpeedLabel, "Move spd", $"{stats.MoveSpeed.ToFloat():0.#}");
+    SetStatText(_attackRangeLabel, "Range", $"{stats.AttackRange.ToFloat():0.#}");
+    SetStatText(_healthRegenLabel, "HP regen", $"{stats.HealthRegen.ToFloat():0.#}/5s"); // authored per 5 seconds
+  }
+
+  private static void SetStatText(Label label, string name, string value) {
+    if (label != null)
+      label.Text = $"{name} {value}";
   }
 
   private void UpdateLocalPlayerExperience(Frame frame) {
@@ -394,7 +419,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
   // progress through the current level only: the span between this level's threshold and the next.
   public void SetPlayerExperience(int level, int experience, XpRulesAsset rules) {
     if (_levelLabel != null)
-      _levelLabel.Text = $"Level: {level}";
+      _levelLabel.Text = $"Level {level}";
 
     if (_xpBar == null || _xpBarFill == null || rules == null) return;
 

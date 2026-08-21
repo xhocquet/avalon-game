@@ -48,6 +48,10 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
       case SetCheatCommand cheat:
         Cheats.Set(ref frame, cheat.PlayerId, (CheatFlags)cheat.Flags, cheat.Enabled != 0);
         break;
+      case DebugCommand debug:
+        DebugActions.Execute(ref frame, debug.PlayerId, (DebugAction)debug.Action, debug.Param,
+          debug.FactionId, new FPVector3(debug.TargetX, FP64.Zero, debug.TargetZ));
+        break;
     }
   }
 

@@ -72,7 +72,26 @@ public enum HeroSkillSet {
 [Flags]
 public enum CheatFlags {
   None = 0,
-  GodMode = 1 << 0 // Hero takes no damage
+  GodMode = 1 << 0, // Hero takes no damage
+  NoCooldowns = 1 << 1, // Skill casts never start a cooldown
+  FreeShop = 1 << 2 // Shop buys cost no gold and ignore the shop's interact range
+}
+
+// One-shot debug operations, carried by DebugCommand. Wire values, so they must stay stable.
+// The rules behind each live in DebugActions.
+public enum DebugAction {
+  None = 0,
+  SwitchFaction = 1, // Param: FactionAsset id. Despawns the hero; HeroSpawnSystem rebuilds it.
+  AddGold = 2, // Param: amount
+  AddExperience = 3, // Param: amount
+  AddSkillPoints = 4, // Param: amount
+  MaxSkills = 5, // Ranks every slot to its SkillAsset MaxRank
+  RefreshCooldowns = 6,
+  HealFull = 7,
+  KillHero = 8, // Own hero, to exercise the respawn path
+  SpawnMinions = 9, // Param: teamId, at the target point
+  ClearMinions = 10, // Param: teamId, or 0 for every team
+  TeleportHero = 11 // To the target point
 }
 
 public enum MatchEndReason {

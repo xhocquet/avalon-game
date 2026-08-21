@@ -1,0 +1,59 @@
+[gd_scene format=3 uid="uid://b7dbgcnsl0con"]
+
+[ext_resource type="Script" path="res://Scripts/UI/DebugConsole.cs" id="1_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_console"]
+content_margin_left = 12.0
+content_margin_top = 10.0
+content_margin_right = 12.0
+content_margin_bottom = 10.0
+bg_color = Color(0.05, 0.06, 0.08, 0.92)
+border_width_bottom = 2
+border_color = Color(0.27, 0.76, 0.7, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_prompt"]
+content_margin_left = 8.0
+content_margin_top = 4.0
+content_margin_right = 8.0
+content_margin_bottom = 4.0
+bg_color = Color(0.1, 0.12, 0.15, 1)
+border_width_left = 2
+border_color = Color(0.27, 0.76, 0.7, 1)
+
+[node name="DebugConsole" type="CanvasLayer"]
+process_mode = 3
+layer = 100
+script = ExtResource("1_script")
+
+[node name="Panel" type="PanelContainer" parent="."]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 320.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_console")
+
+[node name="Layout" type="VBoxContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Output" type="RichTextLabel" parent="Panel/Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+scroll_following = true
+theme_override_colors/default_color = Color(0.82, 0.86, 0.88, 1)
+theme_override_font_sizes/normal_font_size = 14
+theme_override_font_sizes/mono_font_size = 14
+
+[node name="Actions" type="HFlowContainer" parent="Panel/Layout"]
+layout_mode = 2
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 4
+
+[node name="Input" type="LineEdit" parent="Panel/Layout"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+theme_override_styles/normal = SubResource("StyleBoxFlat_prompt")
+theme_override_styles/focus = SubResource("StyleBoxFlat_prompt")
+placeholder_text = "help"
+caret_blink = true

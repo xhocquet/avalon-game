@@ -6,6 +6,7 @@ extends SceneTree
 const MAP_SCENES := [
 	"res://Scenes/World/World.tscn",
 	"res://Scenes/Playgrounds/NavPlayground.tscn",
+	"res://Scenes/Playgrounds/CombatArena.tscn",
 ]
 
 var _index := 0

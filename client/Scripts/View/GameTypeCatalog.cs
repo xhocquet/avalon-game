@@ -30,7 +30,13 @@ public static class GameTypeCatalog {
       "res://Scenes/Singleplayer.tscn",
       "res://Scenes/Playgrounds/NavPlayground.tscn",
       "res://Sim/Data/NavPlayground.NavMeshData.bytes",
-      "res://Sim/Data/MapLayout_NavPlayground.bytes")
+      "res://Sim/Data/MapLayout_NavPlayground.bytes"),
+    new("combat-playground", "Combat Playground", "Four bases with shops and cover. Heroes, skills and combat.",
+      GameTypeMode.Local,
+      "res://Scenes/Playgrounds/CombatPlayground.tscn",
+      "res://Scenes/Playgrounds/CombatArena.tscn",
+      "res://Sim/Data/CombatArena.NavMeshData.bytes",
+      "res://Sim/Data/MapLayout_CombatArena.bytes")
   ];
 
   public static GameTypeDef Selected => Resolve(GameTypeSelection.SelectedGameTypeId);

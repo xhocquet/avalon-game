@@ -154,6 +154,7 @@ public partial class MultiplayerGameNode : GameNode {
     IKlothoEngine engine = _session.Engine; // IsResimulation is a default interface member
     SimLog.BindStage(() => engine.IsResimulation);
     Input.BindEngine(engine);
+    BindDebugConsole(engine, _camera);
     _view.Initialize(_session.Engine, CreateFactory(), _pool);
     _view.PlayerViews.OnLocalViewRegistered += OnLocalViewRegistered;
     _view.PlayerViews.OnLocalViewUnregistered += OnLocalViewUnregistered;

@@ -21,7 +21,7 @@ public static class ShopActions {
     }
 
     ref var inventory = ref frame.Get<InventoryComponent>(heroEntity);
-    inventory.Gold -= item.Cost;
+    inventory.Gold -= CostFor(ref frame, playerId, item);
     inventory.TryAddItem(itemAssetId);
     ref var stats = ref frame.Get<StatsComponent>(heroEntity);
     stats.Add(StatType.AttackDamage, item.AttackBonus);
@@ -64,7 +64,7 @@ public static class ShopActions {
       return PurchaseBlock.HeroMissingInventoryOrStats;
 
     ref readonly var inventory = ref frame.GetReadOnly<InventoryComponent>(heroEntity);
-    if (inventory.Gold - pendingGold < item.Cost)
+    if (inventory.Gold - pendingGold < CostFor(ref frame, playerId, item))
       return PurchaseBlock.InsufficientGold;
 
     if (!IsHeroNearTeamShop(ref frame, heroEntity))
@@ -113,6 +113,9 @@ public static class ShopActions {
     if (!frame.Has<TeamComponent>(heroEntity) || !frame.Has<TransformComponent>(heroEntity))
       return false;
 
+    if (HasFreeShop(ref frame, heroEntity))
+      return true;
+
     var teamId = frame.GetReadOnly<TeamComponent>(heroEntity).TeamId;
     if (!frame.AssetRegistry.TryGet<MapLayoutAsset>(out var layout))
       return false;
@@ -129,6 +132,17 @@ public static class ShopActions {
 
     var range = shopRules.InteractRange;
     return delta.sqrMagnitude <= range * range;
+  }
+
+  // FreeShop zeroes the price rather than skipping the gold write, so the buy still runs the one
+  // subtraction and the ledger the HUD paints from stays the only source of the number.
+  private static int CostFor(ref Frame frame, int playerId, ShopItemAsset item) {
+    return Cheats.IsEnabled(ref frame, playerId, CheatFlags.FreeShop) ? 0 : item.Cost;
+  }
+
+  private static bool HasFreeShop(ref Frame frame, EntityRef heroEntity) {
+    return frame.Has<Hero>(heroEntity) &&
+           Cheats.IsEnabled(ref frame, frame.GetReadOnly<Hero>(heroEntity).PlayerId, CheatFlags.FreeShop);
   }
 
   private static void Reject(ref Frame frame, int playerId, int itemAssetId, string reason) {

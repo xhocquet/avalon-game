@@ -52,27 +52,31 @@
     "DamagePerRank": 50,
     "ConeRange": 6.0,
     "ConeAngleDegrees": 60,
-    "MaxCastRange": 6.0
+    "MaxCastRange": 6.0,
+    "Description": ""
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
     "AssetId": 505,
     "_Name": "Shroom - Snail Trail",
     "MaxRank": 4,
-    "CooldownMs": 3000
+    "CooldownMs": 3000,
+    "Description": ""
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
     "AssetId": 506,
     "_Name": "Shroom - Swivel Eyes",
     "MaxRank": 4,
-    "CooldownMs": 3000
+    "CooldownMs": 3000,
+    "Description": ""
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
     "AssetId": 507,
     "_Name": "Shroom - Molt",
     "MaxRank": 4,
-    "CooldownMs": 3000
+    "CooldownMs": 3000,
+    "Description": ""
   }
 ]

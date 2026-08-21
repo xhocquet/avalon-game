@@ -4,6 +4,7 @@ using System.IO;
 using Godot;
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Navigation;
+using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Navigation;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Godot;
@@ -15,6 +16,7 @@ namespace Meesles.Avalon;
 public abstract partial class GameNode : Node {
   protected const string LobbyScenePath = "res://Scenes/Lobby.tscn";
 
+  protected DebugConsole DebugConsole;
   protected GameUI GameUi;
   protected InputCapture Input;
   protected LobbyUI LobbyUi;
@@ -31,6 +33,7 @@ public abstract partial class GameNode : Node {
 
   protected void InitializeGameUI() {
     Input = new InputCapture();
+    DebugConsole = GetNodeOrNull<DebugConsole>("DebugConsole");
     GameUi = GetNode<GameUI>("GameUI");
     GameUi.ReturnToLobbyRequested = ReturnToLobby;
     Input.BindGameUI(GameUi);
@@ -162,6 +165,12 @@ public abstract partial class GameNode : Node {
     return world;
   }
 
+  // Wired once the session exists: the console reads cheat state off the live frame and aims its
+  // spawn/teleport actions through the camera. No-op in a scene that carries no console.
+  protected void BindDebugConsole(IKlothoEngine engine, CameraController camera) {
+    DebugConsole?.Bind(Input, engine, camera);
+  }
+
   // Gives InputCapture its own read-only navmesh query so right-click move targets can be snapped
   // onto walkable ground (structures carve holes the raw click lands inside). Deserializes a fresh
   // navmesh from the baked bytes rather than reaching into the sim's private NavigationRuntime; the
@@ -184,7 +193,11 @@ public abstract partial class GameNode : Node {
     GetNodeOrNull($"World/NavigationRegion3D/Team{teamId}")?.QueueFree();
   }
 
+  // The console gets first refusal so a keystroke typed at its prompt is not also a gameplay hotkey.
   public override void _Input(InputEvent @event) {
+    if (DebugConsole != null && DebugConsole.HandleInput(@event))
+      return;
+
     Input?.HandleUnhandledInput(@event);
   }
 

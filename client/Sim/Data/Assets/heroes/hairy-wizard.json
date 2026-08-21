@@ -57,14 +57,16 @@
     "ProjectileSpacing": 0,
     "ProjectileSpawnOffset": 1.0,
     "MinCastRange": 1.0,
-    "MaxCastRange": 9.0
+    "MaxCastRange": 9.0,
+    "Description": ""
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
     "AssetId": 501,
     "_Name": "Hairy Wizard - Strangle",
     "MaxRank": 4,
-    "CooldownMs": 3000
+    "CooldownMs": 3000,
+    "Description": ""
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
@@ -74,13 +76,15 @@
     "CooldownMs": 3000,
     "BuffDurationMs": 5000,
     "BuffPercent": 0.05,
-    "BuffPercentPerRank": 0.05
+    "BuffPercentPerRank": 0.05,
+    "Description": ""
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
     "AssetId": 503,
     "_Name": "Hairy Wizard - Bad Hair Day",
     "MaxRank": 4,
-    "CooldownMs": 3000
+    "CooldownMs": 3000,
+    "Description": ""
   }
 ]

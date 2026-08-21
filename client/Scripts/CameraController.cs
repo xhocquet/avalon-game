@@ -1,4 +1,5 @@
 using Godot;
+using Meesles.Avalon.Client.Scripts.View;
 
 namespace Meesles.Avalon;
 
@@ -50,6 +51,10 @@ public partial class CameraController : Camera3D {
   }
 
   public override void _Input(InputEvent @event) {
+    // Mouse pan and zoom stay live while a field is focused; only the key bindings step aside.
+    if (@event is InputEventKey && UiFocus.IsTypingInTextField(GetViewport()))
+      return;
+
     if (@event is InputEventKey key && key.IsActionPressed("toggle_godmode") && !key.Echo) {
       ToggleGodmode();
       GetViewport().SetInputAsHandled();

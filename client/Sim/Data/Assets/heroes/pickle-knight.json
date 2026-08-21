@@ -47,7 +47,8 @@
     "AssetId": 516,
     "_Name": "Pickle Knight - Slip 'n Slide",
     "MaxRank": 4,
-    "CooldownMs": 3000
+    "CooldownMs": 3000,
+    "Description": ""
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
@@ -59,7 +60,8 @@
     "BurstAttackCountPerRank": 1,
     "BurstAttackDelayMs": 150,
     "BurstDurationMs": 4000,
-    "BurstResetsAttackCooldown": 1
+    "BurstResetsAttackCooldown": 1,
+    "Description": ""
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
@@ -69,13 +71,15 @@
     "CooldownMs": 45000,
     "HealPercent": 0.05,
     "HealPercentPerRank": 0.05,
-    "SelfCast": 1
+    "SelfCast": 1,
+    "Description": ""
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
     "AssetId": 519,
     "_Name": "Pickle Knight - Exploosion",
     "MaxRank": 4,
-    "CooldownMs": 3000
+    "CooldownMs": 3000,
+    "Description": ""
   }
 ]

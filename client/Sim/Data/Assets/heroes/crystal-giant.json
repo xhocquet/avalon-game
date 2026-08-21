@@ -49,19 +49,21 @@
     "MaxRank": 4,
     "CooldownMs": 3000,
     "ProcDurationMs": 5000,
-    "ProcDamageMultiplier": 4.0,
-    "ProcDamageMultiplierPerRank": 0,
-    "ProcResetsAttackCooldown": 1
+    "ProcDamageMultiplier": 1.5,
+    "ProcDamageMultiplierPerRank": 0.5,
+    "ProcResetsAttackCooldown": 1,
+    "Description": "Shards erupt from your fists for 5s allow you to attack immediately for 150% of attack damage (+50 per rank)."
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
     "AssetId": 509,
     "_Name": "Crystal Giant - Harden",
     "MaxRank": 4,
-    "CooldownMs": 3000,
+    "CooldownMs": 30000,
     "BuffDurationMs": 10000,
     "BuffPercent": 0.05,
-    "BuffPercentPerRank": 0.05
+    "BuffPercentPerRank": 0.05,
+    "Description": "You harden yourself for 10s to increase your defense and magic defense by 5% (+5% per rank). CD: 30s"
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
@@ -78,13 +80,15 @@
     "ProjectileSpacing": 1.0,
     "ProjectileSpawnOffset": 1.0,
     "MinCastRange": 1.0,
-    "MaxCastRange": 10.0
+    "MaxCastRange": 10.0,
+    "Description": ""
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset, Meesles.Avalon.Client",
     "AssetId": 511,
     "_Name": "Crystal Giant - Carbon Compression",
     "MaxRank": 4,
-    "CooldownMs": 3000
+    "CooldownMs": 3000,
+    "Description": ""
   }
 ]

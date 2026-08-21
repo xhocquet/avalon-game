@@ -11,6 +11,7 @@ using Meesles.Avalon.Sim.Navigation;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.Deterministic.Navigation;
 using xpTURN.Klotho.Godot;
+using ICommand = xpTURN.Klotho.Core.ICommand;
 using IKlothoEngine = xpTURN.Klotho.Core.IKlothoEngine; // Klotho.Core also defines MoveCommand
 
 namespace Meesles.Avalon;
@@ -53,6 +54,10 @@ public class InputCapture : IDisposable {
   private int _lastMoveOrderTick = int.MinValue;
   private readonly Queue<PurchaseItemCommand> _pendingPurchaseCommands = new();
   private readonly Queue<UpgradeSkillCommand> _pendingUpgradeSkillCommands = new();
+
+  // Debug console traffic - DebugCommand and SetCheatCommand share one queue because they drain at
+  // the same one-per-tick rate and nothing downstream tells them apart.
+  private readonly Queue<ICommand> _pendingDebugCommands = new();
   private CastSkillCommand _pendingCastSkillCommand;
   private ShopEntity _contextShop;
   private Node3D _singleplayerMoveTarget;
@@ -69,6 +74,7 @@ public class InputCapture : IDisposable {
     _pendingAttackCommand = null;
     _pendingPurchaseCommands.Clear();
     _pendingUpgradeSkillCommands.Clear();
+    _pendingDebugCommands.Clear();
     _pendingCastSkillCommand = null;
     _contextShop = null;
     _camera = null;
@@ -180,6 +186,16 @@ public class InputCapture : IDisposable {
 
   public bool TryConsumeUpgradeSkillCommand(out UpgradeSkillCommand command) {
     return _pendingUpgradeSkillCommands.TryDequeue(out command);
+  }
+
+  public bool TryConsumeDebugCommand(out ICommand command) {
+    return _pendingDebugCommands.TryDequeue(out command);
+  }
+
+  // Straight through with no client-side predicate: these are dev commands, and the sim's own reject
+  // log is the feedback the console reads.
+  public void QueueDebugCommand(ICommand command) {
+    if (command != null) _pendingDebugCommands.Enqueue(command);
   }
 
   public bool TryConsumeCastSkillCommand(out CastSkillCommand command) {

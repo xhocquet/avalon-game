@@ -128,6 +128,25 @@ public class SimHarness {
     };
   }
 
+  public static Commands.DebugCommand DebugCommand(
+    int playerId, int tick, DebugAction action, int param = 0) {
+    return DebugCommand(playerId, tick, action, param, FP64.Zero, FP64.Zero);
+  }
+
+  public static Commands.DebugCommand DebugCommand(
+    int playerId, int tick, DebugAction action, int param, FP64 targetX, FP64 targetZ,
+    int factionId = 0) {
+    return new Commands.DebugCommand {
+      PlayerId = playerId,
+      Tick = tick,
+      Action = (int)action,
+      Param = param,
+      FactionId = factionId,
+      TargetX = targetX,
+      TargetZ = targetZ,
+    };
+  }
+
   // ScoreSystem refuses to judge a match until the teamless prune has settled which teams hold a base,
   // which is what a real match gets from TeamPruneSystem on its first ticks.
   public void CompleteMatchSetup() {

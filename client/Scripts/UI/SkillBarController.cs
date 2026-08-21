@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using Godot;
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
@@ -47,6 +48,9 @@ public class SkillBarController {
 
   private static readonly string[] HotkeyLabels = ["Q", "W", "E", "R"];
 
+  // Tooltip text is unstyled and unwrapped by Godot; this is where BuildTooltip folds a description.
+  private const int TooltipWrapColumn = 46;
+
   private readonly SkillCatalog _catalog;
   private readonly Cell[] _cells = new Cell[SlotCount];
   private readonly GridContainer _grid;
@@ -71,7 +75,7 @@ public class SkillBarController {
 
     // No local hero yet (pre-spawn, or spectating): show the slots inert rather than stale.
     for (var slot = 0; slot < SlotCount; slot++)
-      Paint(slot, 0, 0, false, false, 0f, 0);
+      Paint(slot, 0, false, false, 0f, 0, null);
   }
 
   private bool TryPaintLocalHero(Frame frame, int playerId) {
@@ -99,7 +103,7 @@ public class SkillBarController {
         var canCast = SkillActions.CanCast(ref frame, playerId, slot, pendingRanks);
         var cooldownTicks = SkillActions.CooldownTicks(ref frame, asset);
         var fill = CooldownFill(canCast, rank, skills.GetCooldownRemainingTicks(slot), cooldownTicks);
-        Paint(slot, rank, asset?.MaxRank ?? 0, canUpgrade, canCast, fill, skillAssetId);
+        Paint(slot, rank, canUpgrade, canCast, fill, skillAssetId, asset);
       }
 
       return true;
@@ -125,10 +129,12 @@ public class SkillBarController {
 
   // Cheap early-out on the values that actually drive the cell, so a steady-state sync does no string
   // formatting and no Godot property writes.
-  private void Paint(int slot, int rank, int maxRank, bool canUpgrade, bool canCast, float fill,
-    int skillAssetId) {
+  private void Paint(int slot, int rank, bool canUpgrade, bool canCast, float fill, int skillAssetId,
+    SkillAsset asset) {
     var cell = _cells[slot];
     if (cell == null) return;
+
+    var maxRank = asset?.MaxRank ?? 0;
     if (cell.Rank == rank && cell.MaxRank == maxRank && cell.CanUpgrade == canUpgrade
         && cell.CanCast == canCast && cell.Fill == fill && cell.SkillAssetId == skillAssetId)
       return;
@@ -144,16 +150,45 @@ public class SkillBarController {
     cell.UpgradeHint.Visible = canUpgrade;
     cell.Label.Text = rank.ToString();
     cell.Button.Disabled = !canUpgrade;
-    cell.Button.TooltipText = BuildTooltip(slot, rank, maxRank, skillAssetId);
+    cell.Button.TooltipText = BuildTooltip(slot, rank, maxRank, skillAssetId, asset?.Description);
   }
 
-  private string BuildTooltip(int slot, int rank, int maxRank, int skillAssetId) {
+  // Name, ranks, the authored blurb, then the upgrade binding. A row with no description leaves the
+  // paragraph out rather than an empty line.
+  private string BuildTooltip(int slot, int rank, int maxRank, int skillAssetId, string description) {
     var name = _catalog != null && _catalog.TryResolve(skillAssetId, out var def)
       ? def.Name
       : ((SkillSlot)slot).ToString();
     if (maxRank <= 0) return name;
 
-    return $"{name}\nRank {rank} / {maxRank}\nCtrl+{HotkeyLabels[slot]} to upgrade";
+    var blurb = string.IsNullOrWhiteSpace(description) ? "" : $"\n\n{Wrap(description)}\n";
+    return $"{name}\nRank {rank} / {maxRank}{blurb}\nCtrl+{HotkeyLabels[slot]} to upgrade";
+  }
+
+  // Godot's default tooltip is a Label with autowrap off, so a paragraph would render as one line as
+  // wide as the sentence. Break it on whitespace at the column; authored newlines pass through.
+  private static string Wrap(string text) {
+    var wrapped = new StringBuilder(text.Length + 16);
+    foreach (var paragraph in text.Split('\n')) {
+      if (wrapped.Length > 0) wrapped.Append('\n');
+
+      var column = 0;
+      foreach (var word in paragraph.Split(' ', StringSplitOptions.RemoveEmptyEntries)) {
+        if (column > 0 && column + 1 + word.Length > TooltipWrapColumn) {
+          wrapped.Append('\n');
+          column = 0;
+        }
+        else if (column > 0) {
+          wrapped.Append(' ');
+          column++;
+        }
+
+        wrapped.Append(word);
+        column += word.Length;
+      }
+    }
+
+    return wrapped.ToString();
   }
 
   // The .tscn authors placeholder cells into ActionGrid; drop them all and lay down the four skill cells

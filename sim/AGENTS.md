@@ -82,9 +82,11 @@ Wire limits live in [`CommandLimits`](Commands/CommandLimits.cs), not the assets
 
 # Test Cheats
 
-`--godmode` on the client command line makes that player's hero take no damage. It is parsed by [`CheatOptions`](../client/Scripts/View/CheatOptions.cs), sent as `SetCheatCommand`, and stored per player in the `CheatState` singleton, which [`Cheats`](Cheats.cs) reads and `DamageApplication` gates on. Nothing authorizes the command beyond scoping it to the issuing player.
+`--godmode`, `--nocooldowns`, `--freeshop` and `--allcheats` on the client command line set [`CheatFlags`](Enums.cs) for that player. They are parsed by [`CheatOptions`](../client/Scripts/View/CheatOptions.cs), sent as `SetCheatCommand`, and stored per player in the `CheatState` singleton, which [`Cheats`](Cheats.cs) reads. `DamageApplication` gates on `GodMode`, `SkillActions` on `NoCooldowns`, `ShopActions` on `FreeShop`. Nothing authorizes the command beyond scoping it to the issuing player.
 
-Adding another cheat: a value in [`CheatFlags`](Enums.cs), the same bit in `Cheats.All` so validation accepts it, the arg in `CheatOptions`, and the read wherever the rule lives. The command and the storage need no change.
+Adding another cheat: a value in `CheatFlags`, the same bit in `Cheats.All` so validation accepts it, the arg in `CheatOptions`, and the read wherever the rule lives. The command and the storage need no change.
+
+One-shot operations — switch hero, grant gold/XP, spawn or clear minions, teleport — ride [`DebugCommand`](Commands/DebugCommand.cs) instead, with the rules in [`DebugActions`](DebugActions.cs). The client-side driver is the debug console (F1 or backtick in any game scene carrying `Scenes/UI/DebugConsole.tscn`). Adding one: a value in `DebugAction`, a handler in `DebugActions`, a verb in `DebugConsole.Run`.
 
 `godmode` is a justfile variable, so the assignment goes **before** the recipe name — `just godmode=true quickplay 1000 202 201`. After the recipe name it would be read as a positional argument. `play`, `quickplay`, and `smoke` all pass it to both clients.
 

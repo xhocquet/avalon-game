@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://dq2xj7v1yl3km"]
+
+[ext_resource type="Script" uid="uid://byevh55k3m8nn" path="res://Scripts/GameNode/SingleplayerGameNode.cs" id="1_game"]
+[ext_resource type="PackedScene" uid="uid://bhs1kmrnawwhu" path="res://Scenes/Camera3D.tscn" id="5_camera"]
+[ext_resource type="PackedScene" uid="uid://bu5kshfajfcmv" path="res://Scenes/UI/GameUI.tscn" id="4_gameui"]
+[ext_resource type="PackedScene" uid="uid://dy487k8tlwknf" path="res://Scenes/UI/Crosshair.tscn" id="8_crosshair"]
+[ext_resource type="PackedScene" uid="uid://b7dbgcnsl0con" path="res://Scenes/UI/DebugConsole.tscn" id="9_console"]
+
+[node name="CombatPlayground" type="Node"]
+script = ExtResource("1_game")
+
+[node name="Camera3D" parent="." instance=ExtResource("5_camera")]
+transform = Transform3D(1, 0, 0, 0, 0.52991927, 0.8480481, 0, -0.8480481, 0.52991927, -34, 18, 45)
+fov = 58.0
+
+[node name="GameUI" parent="." instance=ExtResource("4_gameui")]
+
+[node name="DebugConsole" parent="." instance=ExtResource("9_console")]
+
+[node name="Crosshair" parent="." instance=ExtResource("8_crosshair")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0.1, -25)

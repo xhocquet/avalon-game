@@ -99,6 +99,14 @@ public class SimCallbacks(
       return;
     }
 
+    // Ahead of the gameplay queues: a console command is a deliberate one-off and should not wait
+    // behind a stream of held-down orders.
+    if (_input != null && _input.TryConsumeDebugCommand(out var debugCommand)) {
+      sender.Send(debugCommand);
+      LogCommandSent(debugCommand.GetType().Name, tick, playerId, Describe(debugCommand));
+      return;
+    }
+
     if (_input != null && _input.TryConsumePurchaseCommand(out var purchaseCommand)) {
       sender.Send(purchaseCommand);
       LogCommandSent("PurchaseItemCommand", tick, playerId, $"itemAssetId={purchaseCommand.ItemAssetId}");
@@ -133,6 +141,14 @@ public class SimCallbacks(
 
   public void SetInput(InputCapture input) {
     _input = input;
+  }
+
+  private static string Describe(ICommand command) {
+    return command switch {
+      DebugCommand debug => $"action={(DebugAction)debug.Action} param={debug.Param}",
+      SetCheatCommand cheat => $"flags={(CheatFlags)cheat.Flags} enabled={cheat.Enabled}",
+      _ => ""
+    };
   }
 
   private void LogCommandSent(string commandName, int tick, int playerId, string details) {

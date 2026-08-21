@@ -68,6 +68,11 @@ public partial class SkillAsset : IDataAsset {
   [KlothoOrder(27)] public FP64 ConeRange;
   [KlothoOrder(28)] public FP64 ConeAngleDegrees;
 
+  // Tooltip text. The only non-tuning field on the row, kept here rather than in the client's
+  // SkillCatalog so the words and the numbers they describe are authored in one place. Nothing in the
+  // sim reads it; null and "" are the same to the codec, so an unauthored row costs 4 bytes.
+  [KlothoOrder(29)] public string Description;
+
   public bool HasCastRange => MinCastRange > FP64.Zero || MaxCastRange > FP64.Zero;
   public bool IsSelfCast => SelfCast != 0;
   public bool HasCone => ConeRange > FP64.Zero && ConeAngleDegrees > FP64.Zero;

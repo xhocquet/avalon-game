@@ -14,6 +14,10 @@ public class UnitViewFactory : EntityViewFactory {
   private readonly PackedScene _oasisScene;
   private readonly IReadOnlySet<PackedScene> _brokenScenes;
 
+  // Faction ids already reported by ResolvePrefab. Reconcile runs every tick and retries every entity
+  // it could not spawn, so without this one mis-factioned unit writes a stack trace per tick forever.
+  private readonly HashSet<int> _reportedFactionIds = [];
+
   public UnitViewFactory(FactionCatalog factions, PackedScene crystalScene, PackedScene turretScene,
     PackedScene pickupScene = null, PackedScene oasisScene = null,
     IReadOnlySet<PackedScene> brokenScenes = null) {
@@ -26,9 +30,30 @@ public class UnitViewFactory : EntityViewFactory {
   }
 
   protected override PackedScene ResolvePrefab(Frame frame, EntityRef entity) {
-    var scene = ResolveScene(frame, entity);
+    PackedScene scene;
+    try {
+      scene = ResolveScene(frame, entity);
+    }
+    catch (KeyNotFoundException) {
+      // Still not rendered - the unit is mis-configured and a placeholder would hide that. Reported
+      // once instead of thrown per tick, so the log stays readable and the frame rate survives.
+      ReportUnresolvedFaction(frame, entity);
+      return null;
+    }
+
     // Null is the framework's documented "skip this entity" path; the prewarm probe already logged why.
     return _brokenScenes != null && _brokenScenes.Contains(scene) ? null : scene;
+  }
+
+  private void ReportUnresolvedFaction(Frame frame, EntityRef entity) {
+    var factionId = ResolveFactionId(frame, entity);
+    if (!_reportedFactionIds.Add(factionId))
+      return;
+
+    var teamId = frame.Has<TeamComponent>(entity) ? frame.GetReadOnly<TeamComponent>(entity).TeamId : 0;
+    GD.PushError(
+      $"[View] No faction registered for id {factionId} (team {teamId}) — those units will not render. " +
+      "A unit whose team has no PlayerFaction slot needs a FactionComponent of its own.");
   }
 
   private PackedScene ResolveScene(Frame frame, EntityRef entity) {

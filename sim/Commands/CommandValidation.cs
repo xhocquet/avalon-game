@@ -1,3 +1,4 @@
+using System;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Core;
@@ -36,6 +37,8 @@ public static class CommandValidation {
         return AcceptShopItem(ref frame, purchase);
       case SetCheatCommand cheat:
         return AcceptCheatFlags(ref frame, cheat);
+      case DebugCommand debug:
+        return AcceptDebugAction(ref frame, debug);
       default:
         return true;
     }
@@ -88,6 +91,24 @@ public static class CommandValidation {
       return true;
 
     Reject(ref frame, command, $"unknown_cheat_flags flags={command.Flags}");
+    return false;
+  }
+
+  private static bool AcceptDebugAction(ref Frame frame, DebugCommand command) {
+    if (!Enum.IsDefined(typeof(DebugAction), command.Action) || command.Action == (int)DebugAction.None) {
+      Reject(ref frame, command, $"unknown_debug_action action={command.Action}");
+      return false;
+    }
+
+    if (command.FactionId != 0 && !frame.AssetRegistry.TryGet<FactionAsset>(command.FactionId, out _)) {
+      Reject(ref frame, command, $"faction_asset_missing factionId={command.FactionId}");
+      return false;
+    }
+
+    if (IsInWorldEnvelope(command.TargetX) && IsInWorldEnvelope(command.TargetZ))
+      return true;
+
+    Reject(ref frame, command, $"target_out_of_bounds x={command.TargetX} z={command.TargetZ}");
     return false;
   }
 
