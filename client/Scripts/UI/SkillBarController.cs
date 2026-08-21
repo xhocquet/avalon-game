@@ -41,6 +41,13 @@ public class SkillBarController {
 
   private static readonly Color InactiveColor = new(0.28f, 0.29f, 0.32f, 0.85f);
 
+  // A slot with an authored icon swaps the coloured sweep for a dark shroud over the part of the
+  // cooldown still to run, so the art stays readable while it drains. An unlearned slot is shrouded
+  // whole, but more lightly - it has no cooldown to communicate, only that it is not castable yet.
+  private static readonly Color ShroudColor = new(0.04f, 0.04f, 0.06f, 0.7f);
+  private static readonly Color LockedShroudColor = new(0.04f, 0.04f, 0.06f, 0.4f);
+  private static readonly Color DimmedIconColor = new(0.72f, 0.72f, 0.78f, 1f);
+
   // Border shown on the cells that can actually take a point, so "go spend it" points at the slots that
   // will accept it rather than at the whole bar.
   private const int UpgradeHintBorderWidth = 3;
@@ -144,9 +151,14 @@ public class SkillBarController {
     cell.CanUpgrade = canUpgrade;
     cell.CanCast = canCast;
     cell.Fill = fill;
-    cell.SkillAssetId = skillAssetId;
 
-    cell.SetFill(canCast ? SlotColors[slot] : CooldownColors[slot], fill);
+    if (cell.SkillAssetId != skillAssetId) {
+      cell.SkillAssetId = skillAssetId;
+      cell.SetIcon(_catalog?.ResolveIcon(skillAssetId));
+    }
+
+    cell.SetFill(canCast ? SlotColors[slot] : CooldownColors[slot], fill, rank <= 0);
+    cell.SetIconDim(canCast ? Colors.White : DimmedIconColor);
     cell.UpgradeHint.Visible = canUpgrade;
     cell.Label.Text = rank.ToString();
     cell.Button.Disabled = !canUpgrade;
@@ -212,8 +224,19 @@ public class SkillBarController {
       Color = InactiveColor
     };
 
-    // Grows up from the bottom edge as a cooldown drains. Added first so the button's hover highlight and
-    // the rank label still draw over it.
+    // Hidden until Paint hands it a texture; slots with no authored art keep the flat coloured cell.
+    var icon = new TextureRect {
+      Name = "Icon",
+      MouseFilter = Control.MouseFilterEnum.Ignore,
+      ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+      StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered,
+      Visible = false
+    };
+    icon.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+    rect.AddChild(icon);
+
+    // Grows up from the bottom edge as a cooldown drains, over the icon when there is one. Added before
+    // the button so its hover highlight and the rank label still draw over it.
     var fill = new ColorRect {
       Name = "Fill",
       MouseFilter = Control.MouseFilterEnum.Ignore,
@@ -249,7 +272,7 @@ public class SkillBarController {
 
     AddHotkeyBadge(rect, slot);
     _grid.AddChild(rect);
-    return new Cell(fill, label, button, upgradeHint);
+    return new Cell(fill, icon, label, button, upgradeHint);
   }
 
   // Border-only stylebox over the cell's fill: transparent background, so the slot colour underneath
@@ -285,16 +308,40 @@ public class SkillBarController {
     rect.AddChild(badge);
   }
 
-  private sealed class Cell(ColorRect fill, Label label, Button button, Panel upgradeHint) {
+  private sealed class Cell(ColorRect fill, TextureRect icon, Label label, Button button, Panel upgradeHint) {
     public readonly Button Button = button;
     public readonly Label Label = label;
     public readonly Panel UpgradeHint = upgradeHint;
     private readonly ColorRect _fill = fill;
+    private readonly TextureRect _icon = icon;
 
-    // Anchored rather than sized, so the sweep survives a grid relayout without being repainted.
-    public void SetFill(Color color, float ratio) {
+    // Anchored rather than sized, so the sweep survives a grid relayout without being repainted. An icon
+    // cell inverts it: the shroud shrinks off the top as the cooldown runs out, leaving the art clear.
+    public void SetFill(Color color, float ratio, bool locked) {
+      if (_icon.Visible) {
+        _fill.Color = locked ? LockedShroudColor : ShroudColor;
+        _fill.AnchorTop = 0f;
+        _fill.AnchorBottom = 1f - ratio;
+        return;
+      }
+
       _fill.Color = color;
       _fill.AnchorTop = 1f - ratio;
+      _fill.AnchorBottom = 1f;
+    }
+
+    // The rank sits centred and large on a bare cell, and shrinks into the corner once art needs the room.
+    public void SetIcon(Texture2D texture) {
+      _icon.Texture = texture;
+      _icon.Visible = texture != null;
+
+      Label.HorizontalAlignment = texture != null ? HorizontalAlignment.Right : HorizontalAlignment.Center;
+      Label.VerticalAlignment = texture != null ? VerticalAlignment.Bottom : VerticalAlignment.Center;
+      Label.AddThemeFontSizeOverride("font_size", texture != null ? 14 : 20);
+    }
+
+    public void SetIconDim(Color color) {
+      if (_icon.Visible) _icon.Modulate = color;
     }
 
     // Last painted state. -1 so the first Paint always writes through.

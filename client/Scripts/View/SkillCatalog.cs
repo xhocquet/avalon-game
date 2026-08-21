@@ -1,16 +1,20 @@
 // Client-side presentation map for hero skills.
 // Skill IDs come from the sim-side ledger in sim/Assets/AssetIds.cs and match the SkillAsset rows in
 // client/Sim/Data/Assets/heroes/*.json (500 range), four per hero in SkillSlot order.
-// Sim owns the mechanical data (MaxRank, CooldownMs); this catalog owns the display names, which are
-// presentation-only and never touch the deterministic sim.
+// Sim owns the mechanical data (MaxRank, CooldownMs); this catalog owns the display names and icons,
+// which are presentation-only and never touch the deterministic sim - the icons are not in Assets.bytes
+// because the server has no use for them.
 
 using System.Collections.Generic;
+using Godot;
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
 
 namespace Meesles.Avalon;
 
 public class SkillCatalog {
+  private const string CrystalWarriorIcons = "res://Assets/Portraits/Skills/CrystalWarrior/";
+
   public static readonly SkillDef[] SkillDefs = [
     new(AssetIds.SkillHairyWizardPrimary, AssetIds.HeroHairyWizard, SkillSlot.Primary, "Hairball"),
     new(AssetIds.SkillHairyWizardSecondary, AssetIds.HeroHairyWizard, SkillSlot.Secondary, "Strangle"),
@@ -20,9 +24,12 @@ public class SkillCatalog {
     new(AssetIds.SkillShroomSecondary, AssetIds.HeroShroom, SkillSlot.Secondary, "Snail Trail"),
     new(AssetIds.SkillShroomTertiary, AssetIds.HeroShroom, SkillSlot.Tertiary, "Swivel Eyes"),
     new(AssetIds.SkillShroomUltimate, AssetIds.HeroShroom, SkillSlot.Ultimate, "Molt"),
-    new(AssetIds.SkillCrystalGiantPrimary, AssetIds.HeroCrystalGiant, SkillSlot.Primary, "Spiky Punch"),
-    new(AssetIds.SkillCrystalGiantSecondary, AssetIds.HeroCrystalGiant, SkillSlot.Secondary, "Harden"),
-    new(AssetIds.SkillCrystalGiantTertiary, AssetIds.HeroCrystalGiant, SkillSlot.Tertiary, "Crystal Bullets"),
+    new(AssetIds.SkillCrystalGiantPrimary, AssetIds.HeroCrystalGiant, SkillSlot.Primary, "Spiky Punch",
+      CrystalWarriorIcons + "spiky-punch.webp"),
+    new(AssetIds.SkillCrystalGiantSecondary, AssetIds.HeroCrystalGiant, SkillSlot.Secondary, "Harden",
+      CrystalWarriorIcons + "harden.webp"),
+    new(AssetIds.SkillCrystalGiantTertiary, AssetIds.HeroCrystalGiant, SkillSlot.Tertiary, "Crystal Bullets",
+      CrystalWarriorIcons + "crystal-bullets.webp"),
     new(AssetIds.SkillCrystalGiantUltimate, AssetIds.HeroCrystalGiant, SkillSlot.Ultimate, "Chrysalis"),
     new(AssetIds.SkillSkinwalkerPrimary, AssetIds.HeroSkinwalker, SkillSlot.Primary, "Sprint"),
     new(AssetIds.SkillSkinwalkerSecondary, AssetIds.HeroSkinwalker, SkillSlot.Secondary, "Daily Practice"),
@@ -35,6 +42,7 @@ public class SkillCatalog {
   ];
 
   private readonly Dictionary<int, SkillDef> _byId = new();
+  private readonly Dictionary<int, Texture2D> _icons = new();
 
   private SkillCatalog(IEnumerable<SkillDef> entries) {
     foreach (var e in entries)
@@ -54,6 +62,17 @@ public class SkillCatalog {
     return _byId.TryGetValue(skillId, out entry);
   }
 
+  // Null for a skill with no authored icon, so the caller falls back to its own slot art. Loaded on
+  // first ask and cached, including the misses - most callers (VfxManager) never draw one.
+  public Texture2D ResolveIcon(int skillId) {
+    if (_icons.TryGetValue(skillId, out var cached)) return cached;
+
+    var path = TryResolve(skillId, out var def) ? def.IconTexturePath : null;
+    var texture = string.IsNullOrEmpty(path) ? null : GD.Load<Texture2D>(path);
+    _icons[skillId] = texture;
+    return texture;
+  }
+
   public static SkillCatalog CreateDefault() {
     return new SkillCatalog(SkillDefs);
   }
@@ -62,10 +81,12 @@ public class SkillCatalog {
     int skillId,
     int heroAssetId,
     SkillSlot slot,
-    string name) {
+    string name,
+    string iconTexturePath = null) {
     public readonly int SkillId = skillId;
     public readonly int HeroAssetId = heroAssetId;
     public readonly SkillSlot Slot = slot;
     public readonly string Name = name;
+    public readonly string IconTexturePath = iconTexturePath;
   }
 }
