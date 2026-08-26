@@ -113,7 +113,7 @@ public class SpikyPunchTests {
     var empowered = TickAgainst(harness, enemy, SimHarness.CastSkillCommand(CasterPlayerId, 0, Primary));
 
     empowered.Should().Be(plain * skill.ProcDamageMultiplierAtRank(1),
-      "the punch should land on the cast tick rather than waiting out the swing timer");
+      "the punch should swing on the cast tick rather than waiting out the swing timer");
     AttackCooldownRemaining(harness).Should().BeGreaterThan(0,
       "the cooldown restarts from the punch - the reset buys one swing, not a faster attack rate");
   }
@@ -157,7 +157,7 @@ public class SpikyPunchTests {
     harness.Frame.Add(enemy, StatsComponent.Create().With(StatType.Armor, FP64.FromInt(100)));
     harness.Tick(SimHarness.UpgradeSkillCommand(CasterPlayerId, 0, Primary));
 
-    // The cast resets the swing timer, so the punch is the hit that lands on the cast tick.
+    // The cast resets the swing timer, so the punch is the swing that starts on the cast tick.
     var plain = AttackOnce(harness, enemy);
     var empowered = TickAgainst(harness, enemy, SimHarness.CastSkillCommand(CasterPlayerId, 0, Primary));
 
@@ -257,7 +257,9 @@ public class SpikyPunchTests {
     UnitIntent.SetAttackTarget(ref frame, hero, frame.GetReadOnly<UnitIdComponent>(target).UnitId);
 
     var healthBefore = frame.GetReadOnly<Health>(target).Current;
+    var heroUnitId = frame.GetReadOnly<UnitIdComponent>(hero).UnitId;
     harness.Tick(commands);
+    harness.TickThroughWindup(heroUnitId); // The swing starts on this tick; the damage lands later.
     return healthBefore - harness.Frame.GetReadOnly<Health>(target).Current;
   }
 

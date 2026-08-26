@@ -290,13 +290,17 @@ public static class DebugActions {
     return best != 0 ? best : playerTeamId == 1 ? 2 : 1;
   }
 
-  // Index 0 sits on the point, the rest ring it at one minion spacing. Enough to keep a cluster from
-  // spawning inside itself without pulling in WaveSpawnSystem's occupancy search.
+  private static readonly FP64 InvSqrt2 = FP64.One / FP64.Sqrt(FP64.FromInt(2));
+
+  // Index 0 sits on the point, the rest ring it at one minion spacing per step out. Enough to keep
+  // a cluster from spawning inside itself without pulling in WaveSpawnSystem's occupancy search.
   private static FPVector3 RingOffset(int index, FP64 spacing) {
     if (index <= 0)
       return FPVector3.Zero;
 
-    var step = spacing * FP64.FromInt(index) / FP64.FromInt(2);
+    // Diagonal offsets, so the per-axis step is the ring radius over sqrt(2). Halving it instead
+    // put ring 1 at 0.71x the advertised spacing - close enough to spawn two minions inside each other.
+    var step = spacing * FP64.FromInt(index) * InvSqrt2;
     return (index % 4) switch {
       0 => new FPVector3(step, FP64.Zero, step),
       1 => new FPVector3(step, FP64.Zero, -step),

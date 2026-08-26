@@ -40,23 +40,11 @@ public class AttackIntentSystem(NavigationRuntime navigation = null) : ISystem {
       return false;
     }
 
-    if (!IsWithinAttackRange(ref frame, attacker, target, out var distSq, out var rangeSq))
+    if (!CombatRange.IsWithinReach(ref frame, attacker, target, out var distSq, out var rangeSq))
       return PursueTarget(ref frame, attacker, target);
 
     EngageTarget(ref frame, attacker, targetUnitId, distSq, rangeSq);
     return true;
-  }
-
-  private static bool IsWithinAttackRange(ref Frame frame, EntityRef attacker, EntityRef target,
-    out FP64 distSq, out FP64 rangeSq) {
-    ref readonly var attackerTransform = ref frame.GetReadOnly<TransformComponent>(attacker);
-    ref readonly var targetTransform = ref frame.GetReadOnly<TransformComponent>(target);
-
-    var toTarget = targetTransform.Position - attackerTransform.Position;
-    toTarget.y = FP64.Zero;
-    distSq = toTarget.sqrMagnitude;
-    rangeSq = CombatRange.ReachSq(ref frame, attacker, target);
-    return distSq <= rangeSq;
   }
 
   // In range: lock the target in and stop moving, logging only the out-of-range -> in-range edge.

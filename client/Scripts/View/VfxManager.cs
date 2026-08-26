@@ -25,8 +25,10 @@ public class VfxManager {
 
   private readonly SkillCatalog _skills = SkillCatalog.CreateDefault();
 
+  private IDisposable _attackCanceledSub;
   private IDisposable _attackHitSub;
   private IDisposable _attackProcSub;
+  private IDisposable _attackWindupSub;
   private IDisposable _chargeDetonatedSub;
   private IDisposable _turretDestroyedSub;
   private IDisposable _crystalDestroyedSub;
@@ -35,11 +37,14 @@ public class VfxManager {
   public void Attach(SimEventHub events, EntityViewUpdaterNode view) {
     Detach();
     _view = view;
-    // Predicted (not confirmed) so hits flash immediately on the local tick; a mispredicted
-    // flash is transient and harmless, which is why UI state uses confirmed events but VFX do not.
-    _attackHitSub = events.OnPredicted<AttackHitEvent>(HandleAttackHit);
-    _attackProcSub = events.OnPredicted<AttackProcConsumedEvent>(HandleAttackProcConsumed);
-    _chargeDetonatedSub = events.OnPredicted<SkillChargeDetonatedEvent>(HandleSkillChargeDetonated);
+    // OnFx, not OnPredicted: a local host verifies every tick, so nothing arrives on the predicted
+    // stream there and VFX subscribed to it play only in networked matches. A mispredicted flash is
+    // transient and harmless, which is why UI state uses confirmed events but VFX do not.
+    _attackWindupSub = events.OnFx<AttackWindupStartedEvent>(HandleAttackWindupStarted);
+    _attackCanceledSub = events.OnFx<AttackWindupCanceledEvent>(HandleAttackWindupCanceled);
+    _attackHitSub = events.OnFx<AttackHitEvent>(HandleAttackHit);
+    _attackProcSub = events.OnFx<AttackProcConsumedEvent>(HandleAttackProcConsumed);
+    _chargeDetonatedSub = events.OnFx<SkillChargeDetonatedEvent>(HandleSkillChargeDetonated);
     // Death effects use the confirmed stream: these events are Synced, and a big one-shot
     // explosion would be jarring to spawn on a mispredicted tick and then rewind.
     _turretDestroyedSub = events.OnConfirmed<TurretDestroyedEvent>(HandleTurretDestroyed);
@@ -47,6 +52,10 @@ public class VfxManager {
   }
 
   public void Detach() {
+    _attackWindupSub?.Dispose();
+    _attackWindupSub = null;
+    _attackCanceledSub?.Dispose();
+    _attackCanceledSub = null;
     _attackHitSub?.Dispose();
     _attackHitSub = null;
     _attackProcSub?.Dispose();
@@ -58,6 +67,34 @@ public class VfxManager {
     _crystalDestroyedSub?.Dispose();
     _crystalDestroyedSub = null;
     _view = null;
+  }
+
+  // The swing, not the hit: an attack clip started when damage lands plays its wind-up after the
+  // blow it is supposed to lead. The sim raises this AttackWindup seconds ahead of the hit and hands
+  // over the length, so the view can put the clip's contact frame on the damage tick.
+  private void HandleAttackWindupStarted(AttackWindupStartedEvent evt) {
+    if (_view == null) return;
+
+    var views = _view.ViewsByUnitId;
+    views.TryGetValue(evt.AttackerUnitId, out var attackerView);
+    views.TryGetValue(evt.TargetUnitId, out var targetView);
+
+    var attackerPos = attackerView?.GlobalPosition ?? evt.AttackerPosition.ToVector3();
+    var targetPos = targetView?.GlobalPosition ?? evt.TargetPosition.ToVector3();
+    var windupSeconds = evt.WindupSeconds.ToFloat();
+
+    // The debug line stands in for rigs that have no attack clip yet.
+    if (attackerView is not IAttackableView attacker ||
+        !attacker.OnAttackWindupVfx(targetPos, windupSeconds))
+      _view.AddChild(DebugAttackLine.Create(attackerPos, targetPos));
+  }
+
+  private void HandleAttackWindupCanceled(AttackWindupCanceledEvent evt) {
+    if (_view == null) return;
+
+    if (_view.ViewsByUnitId.TryGetValue(evt.AttackerUnitId, out var attackerView) &&
+        attackerView is IAttackableView attacker)
+      attacker.OnAttackCanceledVfx();
   }
 
   private void HandleAttackHit(AttackHitEvent evt) {
@@ -72,10 +109,6 @@ public class VfxManager {
 
     var number = DebugDamageNumber.Create(evt.Damage.ToFloat(), targetPos, evt.IsCrit != 0);
     _view.AddChild(number);
-
-    // The debug line stands in for rigs that have no attack clip yet.
-    if (attackerView is not IAttackableView attacker || !attacker.OnAttackVfx(targetPos))
-      _view.AddChild(DebugAttackLine.Create(attackerPos, targetPos));
 
     if (targetView is IAttackableView target)
       target.OnHitVfx(evt.Damage.ToFloat(), attackerPos);

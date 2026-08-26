@@ -12,18 +12,37 @@ namespace Meesles.Avalon;
 // node can subscribe once in _Ready and keep reacting across session restarts; Detach only tears
 // down the engine wiring.
 //
-// Three phases, matching the event lifecycle:
+// Four phases, matching the event lifecycle:
+//   OnFx<T>        - fired once per event, on whichever of the two Regular streams reaches it first.
+//                    The stream to use for VFX, animation and audio: see the note below.
 //   OnConfirmed<T> - the event is authoritative (verified). Routes both OnSyncedEvent (for
 //                    EventMode.Synced events) and OnEventConfirmed (for Regular events), so a
 //                    listener gets "T definitely happened" exactly once regardless of the event's
 //                    mode. Default for UI: no rollback flicker.
 //   OnPredicted<T> - fired on a predicted tick (Regular events only). Use for responsive,
 //                    transient feedback that is fine to occasionally mispredict.
-//   OnCanceled<T>  - a previously predicted event was rolled back. Use to undo OnPredicted feedback.
+//   OnCanceled<T>  - a previously predicted event was rolled back. Use to undo OnFx/OnPredicted work.
+//
+// Why OnFx exists: which of OnPredicted/OnConfirmed a Regular event arrives on is a property of the
+// session, not of the event. A networked client runs ahead of the server, so its ticks are Predicted
+// and the event fires there. A local host has every input in hand, so KlothoEngine takes the
+// non-predicting path, marks every tick Verified, and the same event fires on Confirmed instead -
+// which is why VFX subscribed to OnPredicted alone were silently dead in singleplayer and the
+// playgrounds. OnFx takes both and de-duplicates, so client-side feedback plays in either.
 public class SimEventHub {
+  // How many ticks of dispatched-event keys to remember. Only has to outlive the window in which the
+  // same event could reach both streams, which is one rollback at most.
+  private const int FxDedupeTicks = 256;
+
   private readonly Dictionary<Type, List<Action<SimulationEvent>>> _canceled = new();
   private readonly Dictionary<Type, List<Action<SimulationEvent>>> _confirmed = new();
+  private readonly Dictionary<Type, List<Action<SimulationEvent>>> _fx = new();
   private readonly Dictionary<Type, List<Action<SimulationEvent>>> _predicted = new();
+
+  // Identity of an event already handed to the fx stream, keyed the same way Klotho's own rollback
+  // comparison keys one: same tick, same type, same content is the same event.
+  private readonly HashSet<(int Tick, int TypeId, long ContentHash)> _fxDispatched = new();
+  private int _fxPrunedThroughTick;
 
   private IKlothoEngine _engine;
   private Action<int, SimulationEvent> _onCanceled;
@@ -34,9 +53,18 @@ public class SimEventHub {
   public void Attach(IKlothoEngine engine) {
     Detach();
     _engine = engine;
-    _onPredicted = (_, evt) => Dispatch(_predicted, evt);
-    _onConfirmed = (_, evt) => Dispatch(_confirmed, evt);
-    _onSynced = (_, evt) => Dispatch(_confirmed, evt);
+    _onPredicted = (_, evt) => {
+      DispatchFx(evt);
+      Dispatch(_predicted, evt);
+    };
+    _onConfirmed = (_, evt) => {
+      DispatchFx(evt);
+      Dispatch(_confirmed, evt);
+    };
+    _onSynced = (_, evt) => {
+      DispatchFx(evt);
+      Dispatch(_confirmed, evt);
+    };
     _onCanceled = (_, evt) => Dispatch(_canceled, evt);
     _engine.OnEventPredicted += _onPredicted;
     _engine.OnEventConfirmed += _onConfirmed;
@@ -54,6 +82,12 @@ public class SimEventHub {
 
     _engine = null;
     _onPredicted = _onConfirmed = _onSynced = _onCanceled = null;
+    _fxDispatched.Clear();
+    _fxPrunedThroughTick = 0;
+  }
+
+  public IDisposable OnFx<T>(Action<T> handler) where T : SimulationEvent {
+    return Add(_fx, handler);
   }
 
   public IDisposable OnConfirmed<T>(Action<T> handler) where T : SimulationEvent {
@@ -79,6 +113,27 @@ public class SimEventHub {
     Action<SimulationEvent> wrapper = evt => handler((T)evt);
     list.Add(wrapper);
     return new Subscription(list, wrapper);
+  }
+
+  // Drops the second arrival of an event that reached both streams, which is what a rollback that
+  // re-confirms an already-predicted event looks like. Cheap enough to run for every event: with no
+  // fx listeners registered for the type there is nothing to remember.
+  private void DispatchFx(SimulationEvent evt) {
+    if (!_fx.ContainsKey(evt.GetType())) return;
+
+    if (!_fxDispatched.Add((evt.Tick, evt.EventTypeId, evt.GetContentHash())))
+      return;
+
+    PruneFxKeys(evt.Tick);
+    Dispatch(_fx, evt);
+  }
+
+  private void PruneFxKeys(int tick) {
+    var cutoff = tick - FxDedupeTicks;
+    if (cutoff <= _fxPrunedThroughTick) return;
+
+    _fxDispatched.RemoveWhere(key => key.Tick <= cutoff);
+    _fxPrunedThroughTick = cutoff;
   }
 
   private static void Dispatch(Dictionary<Type, List<Action<SimulationEvent>>> map, SimulationEvent evt) {

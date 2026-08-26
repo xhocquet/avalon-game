@@ -30,8 +30,9 @@ public enum StatType {
   AttackRange = 12,
   AcquisitionRange = 13,
   GameplayRadius = 14, // Body half-width every reach and hit test measures to
+  AttackWindup = 15, // Seconds between an attack starting and its damage landing
 
-  StatCount = 15
+  StatCount = 16
 }
 
 // Which resist DamageApplication mitigates an incoming hit against.

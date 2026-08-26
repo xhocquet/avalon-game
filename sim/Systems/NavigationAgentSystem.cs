@@ -185,7 +185,6 @@ public class NavigationAgentSystem : ISystem {
 
     var arrivalDistSqr = tuning.FlowFieldArrivalDist * tuning.FlowFieldArrivalDist;
     var directSteerDistSqr = tuning.FlowFieldDirectSteerDist * tuning.FlowFieldDirectSteerDist;
-    var blockedZoneSqr = tuning.BlockedZone * tuning.BlockedZone;
     var settleZoneSqr = tuning.SettleZone * tuning.SettleZone;
 
     for (var i = 0; i < count; i++) {
@@ -198,13 +197,15 @@ public class NavigationAgentSystem : ISystem {
       var toTargetXZ = goalXZ - agentXZ;
       var distSqr = toTargetXZ.sqrMagnitude;
 
-      // Arrival: reached the target, OR inside the pile and blocked (slowed by the crowd), OR
-      // near the target but stuck with no progress. Settling blocked/stuck minions where they are
-      // — instead of insisting on the exact shared point — is what stops the crowd shuffling and
-      // lets it freeze quickly rather than compressing one minion at a time.
-      var blocked = distSqr <= blockedZoneSqr && nav.CurrentSpeed <= tuning.BlockedSpeed;
-      var stuck = UpdateSettleTracker(ref frame, entity, goalXZ, distSqr, tuning, settleZoneSqr);
-      if (distSqr <= arrivalDistSqr || blocked || stuck) {
+      // Arrival: reached the target, OR near it but stuck with no progress. Settling a stuck minion
+      // where it stands — instead of insisting on the exact shared point — is what stops the crowd
+      // shuffling. SettleStuckTicks tunes how fast a packed crowd freezes.
+      //
+      // Pursuit is exempt: AttackIntentSystem re-issues the move target every tick, so a settled
+      // chaser re-settles forever, parked short of attack range and skipped by ORCA.
+      var settle = !frame.Has<AttackTargetUnitId>(entity);
+      var stuck = settle && UpdateSettleTracker(ref frame, entity, goalXZ, distSqr, tuning, settleZoneSqr);
+      if (distSqr <= arrivalDistSqr || stuck) {
         nav.Status = (byte)FPNavAgentStatus.Arrived;
         nav.Velocity = FPVector2.Zero;
         nav.DesiredVelocity = FPVector2.Zero;

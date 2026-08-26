@@ -16,6 +16,9 @@ public partial class MinionEntity : TeamEntityViewNode, IAttackableView {
   // No default: rigs without an authored attack clip leave this empty and fall back to debug lines.
   [Export] public string AttackAnimationOverride { get; set; } = "";
 
+  // Seconds into the attack clip where the weapon actually connects; see AttackPlaybackSpeed.
+  [Export] public float AttackContactTime { get; set; }
+
   [Export] public float SelectPickRadius { get; set; } = 0.5f;
   [Export] public float SelectPickHeight { get; set; } = 1.2f;
 
@@ -42,19 +45,31 @@ public partial class MinionEntity : TeamEntityViewNode, IAttackableView {
     }
   }
 
-  public bool OnAttackVfx(Vector3 targetPosition) {
+  public bool OnAttackWindupVfx(Vector3 targetPosition, float windupSeconds) {
     if (!HasAttackAnim) return false;
 
     _isAttacking = true;
+    _anim.SpeedScale = AttackPlaybackSpeed.For(AttackContactTime, windupSeconds);
     _anim.Play(AttackAnimationOverride);
     _anim.Seek(0.0, true); // Play() on the clip already running is a no-op, so rewind to restart it.
     return true;
+  }
+
+  public void OnAttackCanceledVfx() {
+    if (!_isAttacking) return;
+    _isAttacking = false;
+    ReturnToLocomotion();
   }
 
   // The attack clip is one-shot and owns the rig until it ends; hand control back to locomotion.
   private void OnAnimationFinished(StringName animName) {
     if (!_isAttacking || (string)animName != AttackAnimationOverride) return;
     _isAttacking = false;
+    ReturnToLocomotion();
+  }
+
+  private void ReturnToLocomotion() {
+    _anim.SpeedScale = 1.0f;
     PlayOrStop(_isMoving ? RunAnim : IdleAnim);
   }
 

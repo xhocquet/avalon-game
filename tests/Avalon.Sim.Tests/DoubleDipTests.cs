@@ -48,13 +48,14 @@ public class DoubleDipTests {
       .BeGreaterThan(1, "the auto that just landed has to leave a real wait");
 
     var delayTicks = Ticks(harness, skill.BurstAttackDelayMs);
-    var perTick = DamagePerTick(harness, enemy, delayTicks + 2,
+    var expected = ExpectedHitTicks(harness, delayTicks, skill.BurstAttackCountAtRank(1));
+    var perTick = DamagePerTick(harness, enemy, expected[^1] + 2,
       SimHarness.CastSkillCommand(CasterPlayerId, 0, Secondary));
 
-    HitTicks(perTick).Should().Equal([0, delayTicks],
-      "the cast tick swings, then the queued swing lands one burst delay later");
-    perTick[0].Should().Be(plain, "a burst swing is a plain attack");
-    perTick[delayTicks].Should().Be(plain);
+    HitTicks(perTick).Should().Equal(expected,
+      "the cast tick swings and the queued swing follows one burst delay later");
+    perTick[expected[0]].Should().Be(plain, "a burst swing is a plain attack");
+    perTick[expected[1]].Should().Be(plain);
   }
 
   // Rank buys swings: one more per rank, so the maxed skill is five hits rather than two.
@@ -69,10 +70,11 @@ public class DoubleDipTests {
 
     var delayTicks = Ticks(harness, skill.BurstAttackDelayMs);
     var swings = skill.BurstAttackCountAtRank(skill.MaxRank);
-    var perTick = DamagePerTick(harness, enemy, delayTicks * swings,
+    var expected = ExpectedHitTicks(harness, delayTicks, swings);
+    var perTick = DamagePerTick(harness, enemy, expected[^1] + 2,
       SimHarness.CastSkillCommand(CasterPlayerId, 0, Secondary));
 
-    HitTicks(perTick).Should().Equal(Enumerable.Range(0, swings).Select(i => i * delayTicks),
+    HitTicks(perTick).Should().Equal(expected,
       "every swing the rank paid for lands one burst delay after the one before it");
   }
 
@@ -208,10 +210,15 @@ public class DoubleDipTests {
   }
 
   // Drives exactly one auto-attack through the real intent path by clearing the swing timer first.
+  // Runs one whole attack, swing through hit. The damage lands a wind-up after the swing, so the
+  // window has to cover both and the one hit inside it is the sum.
   private static FP64 AttackOnce(SimHarness harness, EntityRef target) {
     var frame = harness.Frame;
-    frame.Get<Combat>(harness.FindHero(CasterPlayerId)).CooldownRemainingTicks = 0;
-    return DamagePerTick(harness, target, 1)[0];
+    var hero = harness.FindHero(CasterPlayerId);
+    frame.Get<Combat>(hero).CooldownRemainingTicks = 0;
+
+    var windup = CombatTiming.WindupTicks(ref frame, hero, CombatTiming.CooldownTicks(ref frame, hero));
+    return DamagePerTick(harness, target, windup + 1).Aggregate(FP64.Zero, (total, d) => total + d);
   }
 
   // One entry per tick of what the caster took off the target, holding an attack order on it the
@@ -252,6 +259,20 @@ public class DoubleDipTests {
     return collector.Collected.OfType<AttackHitEvent>()
       .Where(hit => hit.AttackerUnitId == attackerUnitId && hit.TargetUnitId == targetUnitId)
       .Aggregate(FP64.Zero, (total, hit) => total + hit.Damage);
+  }
+
+  // Swing i goes out at i * delayTicks and lands its own wind-up later. Every swing but the last is a
+  // burst swing, which pays the burst spacing as its cooldown and so has its wind-up held under that;
+  // the last one pays the caster's own period and gets the full authored wind-up.
+  private static List<int> ExpectedHitTicks(SimHarness harness, int delayTicks, int swings) {
+    var frame = harness.Frame;
+    var hero = harness.FindHero(CasterPlayerId);
+    var burstWindup = CombatTiming.WindupTicks(ref frame, hero, delayTicks);
+    var fullWindup = CombatTiming.WindupTicks(ref frame, hero, CombatTiming.CooldownTicks(ref frame, hero));
+
+    return Enumerable.Range(0, swings)
+      .Select(i => i * delayTicks + (i < swings - 1 ? burstWindup : fullWindup))
+      .ToList();
   }
 
   private static List<int> HitTicks(List<FP64> damagePerTick) {

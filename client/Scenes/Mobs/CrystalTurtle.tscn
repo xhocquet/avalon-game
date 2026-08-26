@@ -9,6 +9,7 @@ script = ExtResource("2_minion")
 WalkAnimationOverride = "CrystalTurtle_Walk"
 IdleAnimationOverride = "CrystalTurtle_Idle"
 AttackAnimationOverride = "CrystalTurtle_Attack"
+AttackContactTime = 0.458
 
 [node name="CrystalTurtle_Rig" parent="." index="0" unique_id=82867267]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 0.29706025, 0)

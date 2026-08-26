@@ -11,7 +11,9 @@ public partial class CrystalEntity : TeamEntityViewNode, IAttackableView, INamed
   [Export] public float SelectPickRadius { get; set; } = -1.0f;
   [Export] public float SelectPickHeight { get; set; } = -1.0f;
 
-  public bool OnAttackVfx(Vector3 targetPosition) => false;
+  public bool OnAttackWindupVfx(Vector3 targetPosition, float windupSeconds) => false;
+
+  public void OnAttackCanceledVfx() { }
 
   public void OnHitVfx(float damage, Vector3 attackerPosition) { }
 

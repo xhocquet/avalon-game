@@ -12,7 +12,7 @@ namespace Meesles.Avalon.Sim.Components;
 // value cannot be forgotten in a switch and every write goes through the same clamp. FP64 has no
 // blittable fixed-buffer form, so the raw 32.32 longs are the storage and Get/Set convert; the
 // generated codec walks the buffer for serialization and hashing the same way SkillsComponent does.
-// Size: StatCount * 8 = 120B, inside the 128-byte component ceiling.
+// Size: StatCount * 8 = 128B, at the 128-byte component ceiling.
 [KlothoComponent(ComponentIds.Stats)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public unsafe partial struct StatsComponent : IComponent {
@@ -33,6 +33,7 @@ public unsafe partial struct StatsComponent : IComponent {
   public readonly FP64 AttackRange => Get(StatType.AttackRange);
   public readonly FP64 AcquisitionRange => Get(StatType.AcquisitionRange);
   public readonly FP64 GameplayRadius => Get(StatType.GameplayRadius);
+  public readonly FP64 AttackWindup => Get(StatType.AttackWindup);
 
   // Attacks per second, the form DamageSystem needs. Capped because the cooldown is its reciprocal.
   public readonly FP64 AttacksPerSecond {
@@ -89,6 +90,7 @@ public unsafe partial struct StatsComponent : IComponent {
     stats.Set(StatType.AttackRange, asset.AttackRange);
     stats.Set(StatType.AcquisitionRange, asset.AcquisitionRange);
     stats.Set(StatType.GameplayRadius, asset.GameplayRadius);
+    stats.Set(StatType.AttackWindup, asset.AttackWindup);
     return stats;
   }
 }

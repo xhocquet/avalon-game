@@ -25,10 +25,12 @@ public partial class TurretEntity : TeamEntityViewNode, IAttackableView, INamedV
   private MeshInstance3D _loadingIndicator;
   private ShaderMaterial _loadingIndicatorMaterial;
 
-  public bool OnAttackVfx(Vector3 targetPosition) {
+  public bool OnAttackWindupVfx(Vector3 targetPosition, float windupSeconds) {
     // TODO: turret fire animation / particles
     return false;
   }
+
+  public void OnAttackCanceledVfx() { }
 
   public void OnHitVfx(float damage, Vector3 attackerPosition) {
     // TODO: hit reaction / particles

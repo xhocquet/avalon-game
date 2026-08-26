@@ -9,6 +9,7 @@ script = ExtResource("2_hero")
 WalkAnimationOverride = "CrystalGiant_Walk"
 IdleAnimationOverride = "CrystalGiant_Idle"
 AttackAnimationOverride = "CrystalGiant_Attack"
+AttackContactTime = 0.583
 
 [node name="CrystalGiant_Rig" parent="." index="0" unique_id=1182412071]
 transform = Transform3D(-3.5762787e-07, 0, -4.0000005, 0, 4, 0, 4.0000005, 0, -3.5762787e-07, 0, 0, 0)

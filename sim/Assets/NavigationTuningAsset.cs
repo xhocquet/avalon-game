@@ -37,11 +37,8 @@ public partial class NavigationTuningAsset : IDataAsset {
   [KlothoOrder(7)] public FP64 SettleProgressStep;
   [KlothoOrder(8)] public int SettleStuckTicks;
 
-  // Fast-settle: once a minion is inside the destination pile and ORCA has slowed it below
-  // BlockedSpeed, it settles immediately rather than inching toward the exact shared point (which
-  // makes a crowd compress serially and take ~1.5s to freeze). A freely-approaching minion is
-  // moving faster than this until it reaches the hard-arrival radius, so this only catches minions
-  // genuinely blocked by the pile.
+  // Unused: was a speed-based fast-settle that could not tell a minion which hadn't started moving
+  // from one the crowd had wedged. Reserved slots so the KlothoOrder indices below don't shift.
   [KlothoOrder(9)] public FP64 BlockedZone;
   [KlothoOrder(10)] public FP64 BlockedSpeed;
 

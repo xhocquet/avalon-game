@@ -18,6 +18,11 @@ public partial class HeroEntity : TeamEntityViewNode, IPlayerView, IAttackableVi
   // No default: rigs without an authored attack clip leave this empty and fall back to debug lines.
   [Export] public string AttackAnimationOverride { get; set; } = "";
 
+  // Seconds into the attack clip where the weapon actually connects. Set it and the clip is played
+  // at whatever speed puts that frame on the sim's damage tick; leave it 0 and the clip runs at 1x
+  // from the start of the wind-up, which drifts as soon as the two disagree.
+  [Export] public float AttackContactTime { get; set; }
+
   [Export] public float SelectPickRadius { get; set; } = -1.0f;
   [Export] public float SelectPickHeight { get; set; } = -1.0f;
 
@@ -43,20 +48,32 @@ public partial class HeroEntity : TeamEntityViewNode, IPlayerView, IAttackableVi
     _anim.Play(animName);
   }
 
-  public bool OnAttackVfx(Vector3 targetPosition) {
+  public bool OnAttackWindupVfx(Vector3 targetPosition, float windupSeconds) {
     if (_isDead || !HasAttackAnim) return false;
 
     _isAttacking = true;
+    _anim.SpeedScale = AttackPlaybackSpeed.For(AttackContactTime, windupSeconds);
     _anim.Play(AttackAnimationOverride);
     _anim.Seek(0.0, true); // Play() on the clip already running is a no-op, so rewind to restart it.
     return true;
+  }
+
+  public void OnAttackCanceledVfx() {
+    if (!_isAttacking) return;
+    _isAttacking = false;
+    if (!_isDead) ReturnToLocomotion();
   }
 
   // The attack clip is one-shot and owns the rig until it ends; hand control back to locomotion.
   private void OnAnimationFinished(StringName animName) {
     if (!_isAttacking || (string)animName != AttackAnimationOverride) return;
     _isAttacking = false;
-    if (!_isDead) PlayOrStop(_isMoving ? WalkAnim : IdleAnim);
+    if (!_isDead) ReturnToLocomotion();
+  }
+
+  private void ReturnToLocomotion() {
+    _anim.SpeedScale = 1.0f;
+    PlayOrStop(_isMoving ? WalkAnim : IdleAnim);
   }
 
   public void OnHitVfx(float damage, Vector3 attackerPosition) {
@@ -120,6 +137,7 @@ public partial class HeroEntity : TeamEntityViewNode, IPlayerView, IAttackableVi
       _isDead = dead;
       _isMoving = false;
       _isAttacking = false;
+      _anim.SpeedScale = 1.0f;
       PlayOrStop(_isDead ? AnimDeath : IdleAnim);
     }
 
@@ -129,7 +147,14 @@ public partial class HeroEntity : TeamEntityViewNode, IPlayerView, IAttackableVi
     var moving = frame.Has<UnitMoveTarget>(EntityRef);
     if (moving == _isMoving) return;
     _isMoving = moving;
-    _isAttacking = false; // Locomotion changes cut the attack clip short.
+
+    // Only walking off cuts the swing. Coming to a stop must not, because the tick a unit stops is
+    // the tick it comes into range and starts winding up - overriding with idle there ate the attack
+    // clip on the frame it began.
+    if (!_isMoving && _isAttacking) return;
+
+    _isAttacking = false;
+    _anim.SpeedScale = 1.0f;
     PlayOrStop(_isMoving ? WalkAnim : IdleAnim);
   }
 

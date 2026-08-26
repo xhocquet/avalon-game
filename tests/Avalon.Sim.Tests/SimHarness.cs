@@ -154,6 +154,27 @@ public class SimHarness {
     new TeamPruneSystem().Update(ref frame);
   }
 
+  // An auto-attack starts a swing and lands its damage AttackWindup later, so a test that asserts on
+  // the hit has to run the wind-up out first. No-ops when the attacker has no swing in flight.
+  public void TickThroughWindup(int attackerUnitId, int maxTicks = 120) {
+    for (var i = 0; i < maxTicks; i++) {
+      if (!HasSwingInFlight(attackerUnitId))
+        return;
+
+      Tick();
+    }
+
+    throw new InvalidOperationException(
+      $"Unit {attackerUnitId} was still winding up after {maxTicks} ticks.");
+  }
+
+  public bool HasSwingInFlight(int unitId) {
+    var frame = Frame;
+    return UnitLookup.TryGetEntityByUnitId(ref frame, unitId, out var entity) &&
+           frame.Has<Components.Combat>(entity) &&
+           frame.GetReadOnly<Components.Combat>(entity).WindupReleaseTick != 0;
+  }
+
   public EntityRef FindHero(int playerId) {
     var frame = Frame;
     var filter = frame.Filter<Components.Hero>();

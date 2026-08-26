@@ -9,6 +9,7 @@ script = ExtResource("2_5kg2y")
 WalkAnimationOverride = "AllHairWizard_Walk"
 IdleAnimationOverride = "AllHairWizard_Idle"
 AttackAnimationOverride = "AllHairWizard_Attack"
+AttackContactTime = 0.583
 
 [node name="PatchworkWizard_Rig" parent="." index="0" unique_id=90880087]
 transform = Transform3D(-1.04907336e-07, 0, -2.4, 0, 2.4, 0, 2.4, 0, -1.04907336e-07, 0, 0.015, 0)

@@ -45,7 +45,7 @@
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset",
     "AssetId": 500,
     "_Name": "Hairy Wizard - Hairball",
-    "CooldownMs": 3000,
+    "CooldownMs": 5000,
     "Damage": 80,
     "DamagePerRank": 45,
     "ProjectileSpeed": 12.0,
@@ -54,7 +54,8 @@
     "ProjectileCount": 1,
     "ProjectileSpawnOffset": 1.0,
     "MinCastRange": 1.0,
-    "MaxCastRange": 9.0
+    "MaxCastRange": 9.0,
+    "Description": "You gather a wad of your loose hair and launch it for 80 magic damage (+45 per rank). CD: 5s"
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset",

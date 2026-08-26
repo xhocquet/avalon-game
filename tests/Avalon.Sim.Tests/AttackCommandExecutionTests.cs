@@ -188,6 +188,7 @@ public class AttackCommandExecutionTests {
     var hundred = FP64.FromInt(100);
 
     harness.Tick(SimHarness.AttackCommand(1, 0, targetUnitId: 2, sourceUnitIds: 3));
+    harness.TickThroughWindup(attackerUnitId: 3);
 
     GetHealth(harness.Frame, unitId: 2)
       .Should().Be(startHealth - attackDamage * (hundred / (hundred + armor)));
@@ -203,9 +204,14 @@ public class AttackCommandExecutionTests {
 
     harness.Tick(SimHarness.AttackCommand(1, 0, target.UnitId, source.UnitId));
 
-    // Minions carry no armor, so the whole hit lands. 1.25 attacks/sec over a 16ms tick is 50 ticks.
-    GetHealth(harness.Frame, target.UnitId).Should().Be(startHealth - MinionAttackDamage);
+    // The attack period is paid at the swing, not the hit, so it is already on the clock while the
+    // wind-up runs. 1.25 attacks/sec over a 16ms tick is 50 ticks.
     GetCooldown(harness.Frame, source.UnitId).Should().Be(50);
+
+    harness.TickThroughWindup(source.UnitId);
+
+    // Minions carry no armor, so the whole hit lands.
+    GetHealth(harness.Frame, target.UnitId).Should().Be(startHealth - MinionAttackDamage);
   }
 
   // Expected damage is authored as a fraction so the case table stays independent of the formula
@@ -227,6 +233,7 @@ public class AttackCommandExecutionTests {
     GetAttackDamage(harness.Frame, source.UnitId).Should().Be(MinionAttackDamage);
 
     harness.Tick(SimHarness.AttackCommand(1, 0, target.UnitId, source.UnitId));
+    harness.TickThroughWindup(source.UnitId);
 
     var expected = FP64.FromInt(expectedNumerator) / FP64.FromInt(expectedDenominator);
     var dealt = startHealth - GetHealth(harness.Frame, target.UnitId);
@@ -241,12 +248,16 @@ public class AttackCommandExecutionTests {
     SetPosition(harness, source.UnitId, target.Position + new FPVector3(FP64.One, FP64.Zero, FP64.Zero));
 
     harness.Tick(SimHarness.AttackCommand(1, 0, target.UnitId, source.UnitId));
+    var cooldownAtSwing = GetCooldown(harness.Frame, source.UnitId);
+    harness.TickThroughWindup(source.UnitId);
     var healthAfterFirstHit = GetHealth(harness.Frame, target.UnitId);
+    var cooldownAtHit = GetCooldown(harness.Frame, source.UnitId);
 
     harness.Tick();
 
     GetHealth(harness.Frame, target.UnitId).Should().Be(healthAfterFirstHit);
-    GetCooldown(harness.Frame, source.UnitId).Should().Be(49);
+    GetCooldown(harness.Frame, source.UnitId).Should().Be(cooldownAtHit - 1);
+    cooldownAtHit.Should().BeLessThan(cooldownAtSwing, "the wind-up is spent inside the attack period");
   }
 
   [Fact]
@@ -259,6 +270,7 @@ public class AttackCommandExecutionTests {
     SetHealth(harness, target.UnitId, 9);
 
     harness.Tick(SimHarness.AttackCommand(1, 0, target.UnitId, source.UnitId));
+    harness.TickThroughWindup(source.UnitId);
 
     TryGetEntityByUnitId(harness.Frame, target.UnitId, out _).Should().BeFalse();
 
@@ -348,6 +360,7 @@ public class AttackCommandExecutionTests {
     ClearAttackTargets(harness);
 
     harness.Tick();
+    harness.TickThroughWindup(turret.UnitId);
 
     GetHealth(harness.Frame, unitId: 4)
       .Should().Be(startHealth - turretDamage * (hundred / (hundred + armor)));
@@ -419,6 +432,7 @@ public class AttackCommandExecutionTests {
     ClearAttackTargets(harness);
 
     harness.Tick();
+    harness.TickThroughWindup(source.UnitId);
 
     // Crystals carry no armor, so the minion's whole hit lands.
     GetHealth(harness.Frame, crystal.UnitId).Should().Be(startHealth - MinionAttackDamage);
