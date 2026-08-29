@@ -1,7 +1,5 @@
 # Project Structure
 
-- `client/`: Godot 4.6 Mono/.NET game client.
-- `server/`: C# game server.
 - `client/` and `server/` both use Klotho for deterministic networking.
 - `vendor/Klotho/`: upstream Klotho submodule source. Use it to inspect runtime/framework behavior that is consumed here through prebuilt DLLs.
 - `klotho-docs/`: copied Klotho source docs for local reference only; treat as read-only.

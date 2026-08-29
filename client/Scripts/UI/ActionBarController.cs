@@ -24,8 +24,8 @@ namespace Meesles.Avalon;
 public class ActionBarController {
   private const float CellSize = 58f;
 
-  // The grid always holds exactly this many cells so its footprint never changes: buy buttons when a
-  // shop is in context, otherwise transparent spacers. Sized to the shop catalog, so the shown and
+  // Our cell count is fixed (this plus _leadingRowPad) so the footprint never changes: buy buttons when
+  // a shop is in context, otherwise transparent spacers. Sized to the shop catalog, so the shown and
   // hidden states occupy identical space.
   private static readonly int SlotCount = ShopItemCatalog.ItemDefs.Length;
 
@@ -38,6 +38,10 @@ public class ActionBarController {
   // Leading cells owned by another controller (SkillBarController's four skill slots). Everything from
   // this index on is ours to clear and rebuild; anything before it we never touch.
   private readonly int _reservedLeadingCells;
+
+  // Spacers laid before our first cell so the buy grid always begins on a fresh row under the skill
+  // row, whatever the reserved count and column count work out to. 0 when the skills already fill a row.
+  private readonly int _leadingRowPad;
   private bool _shown;
 
   public ActionBarController(GridContainer grid, ShopItemCatalog catalog, Action<int> onPurchase,
@@ -47,6 +51,8 @@ public class ActionBarController {
     _onPurchase = onPurchase;
     _predicted = predicted;
     _reservedLeadingCells = reservedLeadingCells;
+    var columns = _grid?.Columns ?? 0;
+    _leadingRowPad = columns > 0 ? (columns - _reservedLeadingCells % columns) % columns : 0;
     ClearGrid();
     FillEmptySlots();
   }
@@ -106,6 +112,9 @@ public class ActionBarController {
   private void Build(Frame frame) {
     ClearGrid();
     _buttons.Clear();
+
+    for (var i = 0; i < _leadingRowPad; i++)
+      _grid.AddChild(CreateEmptySlot());
 
     foreach (var def in ShopItemCatalog.ItemDefs) {
       var data = _catalog.Resolve(def.Id);
@@ -187,7 +196,7 @@ public class ActionBarController {
   // which is exactly the collapse we're preventing.
   private void FillEmptySlots() {
     if (_grid == null) return;
-    for (var i = 0; i < SlotCount; i++)
+    for (var i = 0; i < _leadingRowPad + SlotCount; i++)
       _grid.AddChild(CreateEmptySlot());
   }
 
