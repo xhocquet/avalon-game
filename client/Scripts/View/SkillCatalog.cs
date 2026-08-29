@@ -5,6 +5,7 @@
 // which are presentation-only and never touch the deterministic sim - the icons are not in Assets.bytes
 // because the server has no use for them.
 
+using System;
 using System.Collections.Generic;
 using Godot;
 using Meesles.Avalon.Sim;
@@ -30,7 +31,8 @@ public class SkillCatalog {
       CrystalWarriorIcons + "harden.webp"),
     new(AssetIds.SkillCrystalGiantTertiary, AssetIds.HeroCrystalGiant, SkillSlot.Tertiary, "Crystal Bullets",
       CrystalWarriorIcons + "crystal-bullets.webp"),
-    new(AssetIds.SkillCrystalGiantUltimate, AssetIds.HeroCrystalGiant, SkillSlot.Ultimate, "Chrysalis"),
+    new(AssetIds.SkillCrystalGiantUltimate, AssetIds.HeroCrystalGiant, SkillSlot.Ultimate, "Chrysalis",
+      CrystalWarriorIcons + "4-chrysalis.webp"),
     new(AssetIds.SkillSkinwalkerPrimary, AssetIds.HeroSkinwalker, SkillSlot.Primary, "Sprint"),
     new(AssetIds.SkillSkinwalkerSecondary, AssetIds.HeroSkinwalker, SkillSlot.Secondary, "Daily Practice"),
     new(AssetIds.SkillSkinwalkerTertiary, AssetIds.HeroSkinwalker, SkillSlot.Tertiary, "Eat to Survive"),
@@ -47,6 +49,28 @@ public class SkillCatalog {
   private SkillCatalog(IEnumerable<SkillDef> entries) {
     foreach (var e in entries)
       _byId[e.SkillId] = e;
+
+    PreloadIcons(); // fail at construction if an authored path is wrong, not silently at draw time
+  }
+
+  // Loads every authored icon up front and caches it. A path that does not resolve is a build error,
+  // not a runtime fallback, so throw with all offenders listed rather than degrade to slot art.
+  private void PreloadIcons() {
+    var failures = new List<string>();
+    foreach (var def in _byId.Values) {
+      if (string.IsNullOrEmpty(def.IconTexturePath)) continue;
+
+      var texture = ResourceLoader.Exists(def.IconTexturePath) ? GD.Load<Texture2D>(def.IconTexturePath) : null;
+      if (texture == null) {
+        failures.Add($"{def.Name} (id {def.SkillId}) -> {def.IconTexturePath}");
+        continue;
+      }
+      _icons[def.SkillId] = texture;
+    }
+
+    if (failures.Count > 0)
+      throw new InvalidOperationException(
+        "SkillCatalog icon paths that do not resolve:\n  " + string.Join("\n  ", failures));
   }
 
   public IReadOnlyCollection<SkillDef> Entries => _byId.Values;
@@ -62,15 +86,17 @@ public class SkillCatalog {
     return _byId.TryGetValue(skillId, out entry);
   }
 
-  // Null for a skill with no authored icon, so the caller falls back to its own slot art. Loaded on
-  // first ask and cached, including the misses - most callers (VfxManager) never draw one.
+  // Null only for a skill with no authored icon, so the caller falls back to its own slot art.
+  // Authored icons are all loaded in PreloadIcons, so a non-empty path that misses the cache is a bug.
   public Texture2D ResolveIcon(int skillId) {
     if (_icons.TryGetValue(skillId, out var cached)) return cached;
 
     var path = TryResolve(skillId, out var def) ? def.IconTexturePath : null;
-    var texture = string.IsNullOrEmpty(path) ? null : GD.Load<Texture2D>(path);
-    _icons[skillId] = texture;
-    return texture;
+    if (!string.IsNullOrEmpty(path))
+      throw new InvalidOperationException($"Skill icon '{path}' (id {skillId}) was not preloaded.");
+
+    _icons[skillId] = null;
+    return null;
   }
 
   public static SkillCatalog CreateDefault() {
