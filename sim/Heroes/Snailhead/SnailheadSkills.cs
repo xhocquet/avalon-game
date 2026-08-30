@@ -1,9 +1,10 @@
+using System.Collections.Generic;
 using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Heroes;
 
-public sealed class ShroomSkills : HeroSkillSetBase {
-  public ShroomSkills()
+public sealed class SnailheadSkills : HeroSkillSetBase {
+  public SnailheadSkills()
     : base(CastVenomousSlobber, CastSnailTrail, CastSwivelEyes, CastMolt) { }
 
   // Cone: one instant spray of venom down the aim line, damaging every enemy hero and minion caught
@@ -18,7 +19,15 @@ public sealed class ShroomSkills : HeroSkillSetBase {
 
   private static void CastSnailTrail(ref Frame frame, in SkillCastContext ctx) { }
 
-  private static void CastSwivelEyes(ref Frame frame, in SkillCastContext ctx) { }
+  // Self-cast area buff: the row's defensive stats go on the caster and every allied hero and minion
+  // inside AreaRadius, each keyed to this cast so a recast refreshes rather than stacks.
+  private static void CastSwivelEyes(ref Frame frame, in SkillCastContext ctx) {
+    var hits = new List<EntityRef>();
+    SkillAreas.CollectAllies(ref frame, ctx.Caster, ctx.CasterPosition, ctx.Skill.AreaRadius, hits);
+
+    foreach (var ally in hits)
+      SkillBuffs.Apply(ref frame, in ctx, ally);
+  }
 
   private static void CastMolt(ref Frame frame, in SkillCastContext ctx) { }
 }

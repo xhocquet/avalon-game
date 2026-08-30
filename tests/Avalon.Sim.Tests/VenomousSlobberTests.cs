@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Meesles.Avalon.Sim.Tests;
 
-// Shroom's Primary: the cone lifecycle. Nothing travels - the wedge resolves on the cast tick - so
+// Snailhead's Primary: the cone lifecycle. Nothing travels - the wedge resolves on the cast tick - so
 // every assertion here reads health straight after the cast command goes in.
 //
 // Targets are built by hand for the same reason CrystalBulletsTests builds its own: a real minion
@@ -23,7 +23,7 @@ public class VenomousSlobberTests {
 
   [Fact]
   public void AnEnemyInTheWedge_TakesTheRowsDamage() {
-    var harness = CreateShroomHarness();
+    var harness = CreateSnailheadHarness();
     var skill = SlobberAsset(harness);
     var origin = LearnAndPrepare(harness);
 
@@ -39,7 +39,7 @@ public class VenomousSlobberTests {
   // row's business too, so it is checked here rather than assumed by the cast path.
   [Fact]
   public void DamageIsFiftyPerRank_AndTheWedgeComesOffTheRow() {
-    var skill = SlobberAsset(CreateShroomHarness());
+    var skill = SlobberAsset(CreateSnailheadHarness());
 
     for (var rank = 1; rank <= skill.MaxRank; rank++)
       skill.DamageAtRank(rank).Should().Be(FP64.FromInt(rank * 50));
@@ -50,7 +50,7 @@ public class VenomousSlobberTests {
 
   [Fact]
   public void EveryEnemyInTheWedge_IsHitByTheOneCast() {
-    var harness = CreateShroomHarness();
+    var harness = CreateSnailheadHarness();
     var skill = SlobberAsset(harness);
     var origin = LearnAndPrepare(harness);
 
@@ -70,7 +70,7 @@ public class VenomousSlobberTests {
 
   [Fact]
   public void AnEnemyPastTheWedgesAngle_IsMissed() {
-    var harness = CreateShroomHarness();
+    var harness = CreateSnailheadHarness();
     var origin = LearnAndPrepare(harness);
 
     // 45 degrees off the aim line, outside the authored 60-degree opening.
@@ -84,7 +84,7 @@ public class VenomousSlobberTests {
 
   [Fact]
   public void AnEnemyBehindTheCaster_IsMissed() {
-    var harness = CreateShroomHarness();
+    var harness = CreateSnailheadHarness();
     var origin = LearnAndPrepare(harness);
 
     var enemy = SpawnDummy(harness, Ahead(origin, -3, 0), EnemyTeamId, isMinion: true);
@@ -99,7 +99,7 @@ public class VenomousSlobberTests {
   // rejected, so this also proves the clamp cannot drag the wedge out to meet a distant target.
   [Fact]
   public void AnEnemyPastTheConesReach_IsMissed() {
-    var harness = CreateShroomHarness();
+    var harness = CreateSnailheadHarness();
     var skill = SlobberAsset(harness);
     var origin = LearnAndPrepare(harness);
 
@@ -114,7 +114,7 @@ public class VenomousSlobberTests {
 
   [Fact]
   public void AFriendlyInTheWedge_IsUntouched() {
-    var harness = CreateShroomHarness();
+    var harness = CreateSnailheadHarness();
     var origin = LearnAndPrepare(harness);
 
     var friendly = SpawnDummy(harness, Ahead(origin, 3, 0), CasterTeamId, isMinion: true);
@@ -127,7 +127,7 @@ public class VenomousSlobberTests {
 
   [Fact]
   public void AnEnemyTurretInTheWedge_IsUntouched() {
-    var harness = CreateShroomHarness();
+    var harness = CreateSnailheadHarness();
     var origin = LearnAndPrepare(harness);
 
     // Structures are excluded from skill hits by default - see CombatTargeting.IsSkillHittable.
@@ -143,7 +143,7 @@ public class VenomousSlobberTests {
   // consecutive ticks.
   [Fact]
   public void ASecondCastInsideTheCooldown_LandsNothing() {
-    var harness = CreateShroomHarness();
+    var harness = CreateSnailheadHarness();
     var skill = SlobberAsset(harness);
     var origin = LearnAndPrepare(harness);
 
@@ -158,7 +158,7 @@ public class VenomousSlobberTests {
 
   [Fact]
   public void ALethalSpray_CreditsTheCasterSoTheKillPaysXp() {
-    var harness = CreateShroomHarness();
+    var harness = CreateSnailheadHarness();
     var xpBefore = harness.Frame
       .GetReadOnly<ExperienceComponent>(harness.FindHero(CasterPlayerId)).Experience;
     var expectedXp = harness.AssetRegistry.Get<XpRulesAsset>().XpPerMinionKill;
@@ -178,7 +178,7 @@ public class VenomousSlobberTests {
 
   [Fact]
   public void CastAimedAtTheCastersOwnFeet_SpraysAlongItsFacingRatherThanNowhere() {
-    var harness = CreateShroomHarness();
+    var harness = CreateSnailheadHarness();
     var skill = SlobberAsset(harness);
     var origin = LearnAndPrepare(harness);
 
@@ -196,12 +196,12 @@ public class VenomousSlobberTests {
   // --- setup helpers ---
 
   // The harness defaults every player to Hairy Wizards, whose Primary is empty. Venomous Slobber
-  // needs the Shroom row, so go through the real faction-select path instead.
-  private static SimHarness CreateShroomHarness() {
+  // needs the Snailhead row, so go through the real faction-select path instead.
+  private static SimHarness CreateSnailheadHarness() {
     var harness = SimHarness.CreateInitialized(spawnHeroesNow: false);
     harness.Tick(
-      SimHarness.SelectFactionCommand(1, 0, AssetIds.FactionShrooms),
-      SimHarness.SelectFactionCommand(2, 0, AssetIds.FactionShrooms));
+      SimHarness.SelectFactionCommand(1, 0, AssetIds.FactionSnailheads),
+      SimHarness.SelectFactionCommand(2, 0, AssetIds.FactionSnailheads));
 
     DisableAutoAttacks(harness);
     return harness;
@@ -261,7 +261,7 @@ public class VenomousSlobberTests {
   // --- readers ---
 
   private static SkillAsset SlobberAsset(SimHarness harness) {
-    return harness.AssetRegistry.Get<SkillAsset>(AssetIds.SkillShroomPrimary);
+    return harness.AssetRegistry.Get<SkillAsset>(AssetIds.SkillSnailheadPrimary);
   }
 
   private static FP64 HealthOf(SimHarness harness, EntityRef entity) {

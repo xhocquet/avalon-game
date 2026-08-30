@@ -208,7 +208,7 @@ public class SkillProgressionTests {
   public void EveryHeroRow_NamesFourLoadableSkillsAndARegisteredSkillSet() {
     var harness = SimHarness.CreateInitialized();
     int[] heroAssetIds = [
-      AssetIds.HeroHairyWizard, AssetIds.HeroShroom, AssetIds.HeroCrystalGiant,
+      AssetIds.HeroHairyWizard, AssetIds.HeroSnailhead, AssetIds.HeroCrystalGiant,
       AssetIds.HeroSkinwalker, AssetIds.HeroPickleKnight
     ];
 
@@ -235,7 +235,7 @@ public class SkillProgressionTests {
   public void SkillAssetIds_AreNotSharedBetweenHeroes() {
     var harness = SimHarness.CreateInitialized();
     int[] heroAssetIds = [
-      AssetIds.HeroHairyWizard, AssetIds.HeroShroom, AssetIds.HeroCrystalGiant,
+      AssetIds.HeroHairyWizard, AssetIds.HeroSnailhead, AssetIds.HeroCrystalGiant,
       AssetIds.HeroSkinwalker, AssetIds.HeroPickleKnight
     ];
 

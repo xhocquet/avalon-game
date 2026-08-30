@@ -62,7 +62,7 @@ public enum HeroBehavior {
 // Authored in the asset JSON, so the values must stay stable.
 public enum HeroSkillSet {
   HairyWizard = 0,
-  Shroom = 1,
+  Snailhead = 1,
   CrystalGiant = 2,
   Skinwalker = 3,
   PickleKnight = 4

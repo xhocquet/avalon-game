@@ -98,6 +98,7 @@ public class RespawnSystem : ISystem {
     AttackBursts.Clear(ref frame, entity);
     Snares.Clear(ref frame, entity);
     SkillCharges.Clear(ref frame, entity);
+    DamageOverTime.Clear(ref frame, entity);
 
 
     if (frame.Has<NavAgentComponent>(entity)) {

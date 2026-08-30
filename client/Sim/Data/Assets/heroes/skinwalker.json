@@ -45,24 +45,50 @@
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset",
     "AssetId": 512,
     "_Name": "Skinwalker - Sprint",
-    "CooldownMs": 3000
+    "CooldownMs": 23000,
+    "SelfCast": 1,
+    "BuffStats": "MoveSpeed pct 0.15 0.05; BonusAttackSpeed flat 0.10 0.10",
+    "BuffDurationMs": 5000,
+    "BuffDurationMsPerRank": 2000,
+    "Description": "For 5s (+2s per rank), you speed up by 15% (+5% per rank) movement speed to catch up with your opponent. Your attack speed also increases by 10% (+10% per rank). CD: 23s"
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset",
     "AssetId": 513,
     "_Name": "Skinwalker - Daily Practice",
-    "CooldownMs": 3000
+    "CooldownMs": 28000,
+    "Damage": 45,
+    "DamagePerRank": 15,
+    "DashCount": 3,
+    "DashCountPerRank": 1,
+    "DashDistance": 4.0,
+    "BuffStats": "BonusAttackSpeed flat 0.08 0.03",
+    "BuffDurationMs": 3500,
+    "Description": "Through rigorous training, you have the stamina to leap 3 (+1 per rank) times consecutively, dealing 45 (+15 per rank) attack damage to foes you pass through. Each dash refreshes a 3.5s attack speed buff of 8% (+3% per rank). CD: 28s"
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset",
     "AssetId": 514,
     "_Name": "Skinwalker - Eat to Survive",
-    "CooldownMs": 3000
+    "CooldownMs": 3000,
+    "SelfCast": 1,
+    "HealAmount": 80,
+    "HealAmountPerRank": 25,
+    "ManaRestore": 30,
+    "ManaRestorePerRank": 20,
+    "StockpileMax": 3,
+    "StockpileIntervalMs": 25000,
+    "StockpileIntervalMsPerRank": -7000,
+    "Description": "During your travels, you accumulate up to 3 charges of rations from the surroundings. Each ration heals 80HP (+25 per rank) and 30 mana (+20 per rank). Ration accumulation rate: 25s (-7s per rank)."
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset",
     "AssetId": 515,
     "_Name": "Skinwalker - Desperation",
-    "CooldownMs": 3000
+    "CooldownMs": 20000,
+    "SelfCast": 1,
+    "BuffStats": "AttackDamage pct 0.75 0.30; BonusAttackSpeed flat 0.30 0.10; MoveSpeed pct 0.20; Armor pct -0.20 -0.05; MagicResist pct -0.20 -0.05",
+    "BuffDurationMs": 30000,
+    "Description": "You leave everything on the table for your tribe and throw down your guard for 30s. Attack damage increases by 75% (+30% per rank), attack speed increases by 30% (+10% per rank), movement speed increases by 20%, armor and magic defense decrease by 20% (-5% per rank). CD: 200s"
   }
 ]

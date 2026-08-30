@@ -1,3 +1,4 @@
+using System.Linq;
 using FluentAssertions;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
@@ -159,7 +160,8 @@ public class SkillCastTests {
     var target = position + new FPVector3(FP64.FromInt(5), FP64.Zero, FP64.FromInt(-3));
     SkillActions.TryCast(ref frame, PlayerId, Secondary, target).Should().BeTrue();
 
-    var evt = collector.Collected[0].Should().BeOfType<SkillCastEvent>().Subject;
+    // Strangle also spawns a bolt, so the cast event is not necessarily first; the view keys off the type.
+    var evt = collector.Collected.OfType<SkillCastEvent>().Single();
     evt.Tick.Should().Be(12);
     evt.UnitId.Should().Be(unitId);
     evt.PlayerId.Should().Be(PlayerId);

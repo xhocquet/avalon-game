@@ -10,7 +10,7 @@ namespace Meesles.Avalon;
 
 public class FactionCatalog {
   public const int FactionHairyWizardsId = AssetIds.FactionHairyWizards;
-  public const int FactionShroomsId = AssetIds.FactionShrooms;
+  public const int FactionSnailheadsId = AssetIds.FactionSnailheads;
   public const int FactionCrystalWarriorsId = AssetIds.FactionCrystalWarriors;
   public const int FactionSkinwalkerTribeId = AssetIds.FactionSkinwalkerTribe;
   public const int FactionPickleKnightsId = AssetIds.FactionPickleKnights;
@@ -21,7 +21,7 @@ public class FactionCatalog {
       "res://Scenes/Heroes/AllHairWizard.tscn",
       "res://Scenes/Mobs/SwirlyEye.tscn",
       "res://Assets/Portraits/AllHairWizard.png"),
-    new(FactionShroomsId, "Shrooms",
+    new(FactionSnailheadsId, "Snailheads",
       "res://Scenes/Heroes/SnailHead.tscn",
       "res://Scenes/Mobs/DeathSnail.tscn",
       "res://Assets/Portraits/SnailHead.png"),

@@ -47,6 +47,7 @@ public static class ComponentIds {
   public const int AttackBurst = 138;
   public const int Snare = 139;
   public const int SkillCharge = 140;
+  public const int DamageOverTime = 141;
 
-  // Next free id: 141
+  // Next free id: 142
 }

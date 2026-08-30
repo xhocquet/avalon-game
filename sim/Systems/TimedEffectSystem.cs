@@ -7,9 +7,10 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon;
 
 // Every per-tick countdown in one pass: attack cooldowns, skill cooldowns, stat buffs, armed attack
-// procs, queued attack bursts, snares, charging skill bursts. Starting any of them is command-driven
-// and lives with the rule that owns it (DamageSystem, SkillActions, StatBuffApplication, AttackProcs,
-// AttackBursts, Snares, SkillCharges); burning them down is this.
+// procs, queued attack bursts, snares, damage-over-time burns, charging skill bursts. Starting any of
+// them is command-driven and lives with the rule that owns it (DamageSystem, SkillActions,
+// StatBuffApplication, AttackProcs, AttackBursts, Snares, DamageOverTime, SkillCharges); burning them
+// down is this.
 //
 // Registered ahead of everything that reads Stats, casts, or deals damage for the frame, so an effect
 // that ended never pays out one more tick and a cooldown that reached 0 is spendable on the same tick
@@ -21,6 +22,7 @@ namespace Meesles.Avalon;
 // only ever compared against.
 public class TimedEffectSystem : ISystem {
   private readonly List<EntityRef> _detonating = [];
+  private readonly List<EntityRef> _burning = [];
 
   public void Update(ref Frame frame) {
     var attackers = frame.Filter<Combat>();
@@ -62,6 +64,17 @@ public class TimedEffectSystem : ISystem {
       if (snare.IsExpired(frame.Tick))
         snare.Clear();
     }
+
+    // Deferred like the detonation below: DamageApplication allocates the hit-id singleton on its
+    // first call of the match, and that creates an entity while a filter is still walking storage.
+    _burning.Clear();
+    var burning = frame.Filter<DamageOverTimeComponent>();
+    while (burning.Next(out var entity))
+      if (frame.GetReadOnly<DamageOverTimeComponent>(entity).IsBurning)
+        _burning.Add(entity);
+
+    for (var i = 0; i < _burning.Count; i++)
+      DamageOverTime.Tick(ref frame, _burning[i]);
 
     // The one countdown here that pays something out rather than just ending. Deferred because the
     // detonation walks the units itself and snares what it catches, which is this filter's own type.

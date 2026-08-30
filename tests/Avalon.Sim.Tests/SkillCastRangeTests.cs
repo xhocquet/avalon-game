@@ -21,15 +21,15 @@ public class SkillCastRangeTests {
   private const int Primary = (int)SkillSlot.Primary;
   private const int Secondary = (int)SkillSlot.Secondary;
 
-  // Secondary rather than Primary: the default hero's Primary is Hairball, which authors a band.
+  // Every Hairy Wizard row now authors a band or is self-cast, so the unbounded case is set up by hand:
+  // a row with neither end keeps whatever aim point the client sent.
   [Fact]
   public void AnUnboundedRow_LeavesTheAimPointWhereTheClientPutIt() {
     var harness = SimHarness.CreateInitialized();
-    var frame = harness.Frame;
     var hero = harness.FindHero(PlayerId);
     var skill = SkillProgressionTests.SkillInSlot(harness, hero, SkillSlot.Secondary);
-    skill.MinCastRange.Should().Be(FP64.Zero);
-    skill.MaxCastRange.Should().Be(FP64.Zero);
+    skill.MinCastRange = FP64.Zero;
+    skill.MaxCastRange = FP64.Zero;
 
     var target = HeroPosition(harness) + FPVector3.Right * FP64.FromInt(400);
     var cast = CastAt(harness, target, Secondary);

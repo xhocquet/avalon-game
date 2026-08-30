@@ -1,3 +1,4 @@
+using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
@@ -22,6 +23,15 @@ public static class StatBuffApplication {
   public static bool ApplyFlat(ref Frame frame, EntityRef entity, int sourceId, StatType stat,
     FP64 delta, int durationTicks) {
     return Apply(ref frame, entity, sourceId, stat, delta, FP64.Zero, durationTicks);
+  }
+
+  // Applies one parsed BuffStats entry at the given rank, routing flat/percent to the right overload.
+  public static bool ApplySpec(ref Frame frame, EntityRef entity, int sourceId, in BuffSpec spec,
+    int rank, int durationTicks) {
+    var magnitude = spec.MagnitudeAtRank(rank);
+    return spec.Mode == BuffMode.Flat
+      ? Apply(ref frame, entity, sourceId, spec.Stat, magnitude, FP64.Zero, durationTicks)
+      : Apply(ref frame, entity, sourceId, spec.Stat, FP64.Zero, magnitude, durationTicks);
   }
 
   // Returns false when the unit carries no stats, the buff is a no-op, or the entity is already

@@ -38,6 +38,7 @@ public static class SkillProjectiles {
         Damage = damage,
         SkillAssetId = frame.GetReadOnly<SkillsComponent>(ctx.Caster).GetSkillAssetId(ctx.Slot),
         Slot = ctx.Slot,
+        Rank = ctx.Rank,
         Index = i,
         Direction = direction,
         Speed = speed,

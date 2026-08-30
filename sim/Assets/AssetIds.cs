@@ -28,7 +28,7 @@ public static class AssetIds {
 
   // FactionAsset, FactionCatalog
   public const int FactionHairyWizards = 200;
-  public const int FactionShrooms = 201;
+  public const int FactionSnailheads = 201;
   public const int FactionCrystalWarriors = 202;
   public const int FactionSkinwalkerTribe = 203;
   public const int FactionPickleKnights = 204;
@@ -45,7 +45,7 @@ public static class AssetIds {
 
   // One HeroAsset per hero -> FactionAsset
   public const int HeroHairyWizard = 400;
-  public const int HeroShroom = 401;
+  public const int HeroSnailhead = 401;
   public const int HeroCrystalGiant = 402;
   public const int HeroSkinwalker = 403;
   public const int HeroPickleKnight = 404;
@@ -58,10 +58,10 @@ public static class AssetIds {
   public const int SkillHairyWizardSecondary = 501;
   public const int SkillHairyWizardTertiary = 502;
   public const int SkillHairyWizardUltimate = 503;
-  public const int SkillShroomPrimary = 504;
-  public const int SkillShroomSecondary = 505;
-  public const int SkillShroomTertiary = 506;
-  public const int SkillShroomUltimate = 507;
+  public const int SkillSnailheadPrimary = 504;
+  public const int SkillSnailheadSecondary = 505;
+  public const int SkillSnailheadTertiary = 506;
+  public const int SkillSnailheadUltimate = 507;
   public const int SkillCrystalGiantPrimary = 508;
   public const int SkillCrystalGiantSecondary = 509;
   public const int SkillCrystalGiantTertiary = 510;

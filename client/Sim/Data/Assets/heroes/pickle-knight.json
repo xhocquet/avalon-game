@@ -45,7 +45,16 @@
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset",
     "AssetId": 516,
     "_Name": "Pickle Knight - Slip 'n Slide",
-    "CooldownMs": 3000
+    "CooldownMs": 35000,
+    "DashDistance": 5.0,
+    "HealAmount": 120,
+    "HealAmountPerRank": 60,
+    "BuffStats": "Armor,MagicResist",
+    "BuffPercent": 0.05,
+    "BuffPercentPerRank": 0.05,
+    "BuffDurationMs": 5000,
+    "BuffDurationMsPerRank": 3000,
+    "Description": "Invigorated, you dash forward and heal all allies in your path for 120 HP (+60 per rank). Your armor and magic defense are increased by 5% (+5% per rank) for 5s (+3s per rank). CD: 35s"
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset",
@@ -56,21 +65,29 @@
     "BurstAttackCountPerRank": 1,
     "BurstAttackDelayMs": 150,
     "BurstDurationMs": 4000,
-    "BurstResetsAttackCooldown": 1
+    "BurstResetsAttackCooldown": 1,
+    "Description": "You can't help yourself and attack again. Ignore current auto attack CD and auto attack 2 (+1 per rank) consecutive times. CD: 3s"
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset",
     "AssetId": 518,
     "_Name": "Pickle Knight - Refresh",
-    "CooldownMs": 45000,
+    "CooldownMs": 30000,
     "HealPercent": 0.05,
     "HealPercentPerRank": 0.05,
+    "Description": "Feeling a little shriveled up, you splash cold water on yourself and heal 5% (+5% per rank) of your total HP. CD: 30s",
     "SelfCast": 1
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset",
     "AssetId": 519,
     "_Name": "Pickle Knight - Exploosion",
-    "CooldownMs": 3000
+    "CooldownMs": 100000,
+    "SelfCast": 1,
+    "AreaRadius": 5.0,
+    "HealPercent": 0.1,
+    "HealPercentPerRank": 0.15,
+    "SilenceDurationMs": 4000,
+    "Description": "Fully saturated, you launch pickle water around you. Allies get healed for 10% (+15%) of their total HP. Foes get silenced for 4s. CD: 100s"
   }
 ]

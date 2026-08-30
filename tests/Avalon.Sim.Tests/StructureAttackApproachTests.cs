@@ -79,7 +79,7 @@ public class StructureAttackApproachTests {
   // faction has to be able to engage, not just the ranged default the other tests spawn.
   [Theory]
   [InlineData(AssetIds.FactionHairyWizards)]
-  [InlineData(AssetIds.FactionShrooms)]
+  [InlineData(AssetIds.FactionSnailheads)]
   [InlineData(AssetIds.FactionCrystalWarriors)]
   [InlineData(AssetIds.FactionSkinwalkerTribe)]
   [InlineData(AssetIds.FactionPickleKnights)]

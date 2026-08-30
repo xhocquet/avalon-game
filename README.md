@@ -9,6 +9,27 @@
 damage-participation window per victim before a payout has anything to key off — `Health.LastDamagerUnitId`
 only remembers the fatal hit, so the killer is the only actor a death can currently credit.
 
+
+## Pickle Knight Skills
+- Slip 'n Slide: no dash lifecycle exists (nothing moves a unit a fixed distance), and no ally-target path collection.
+- Exploosion: SkillAreas.Collect is hostile-only — needs an ally variant for the heal; silence has no system (same
+blocker as Refresh's cleanse — there's no negative-status pipeline yet).
+
+## Hairy Wiz Skills
+- CastBadHairDay (HairyWizardSkills.cs:38, empty) — SkillCharges.Arm covers the area snare today; the DoT lifecycle now
+exists (DamageOverTimeComponent + TimedEffectSystem + DamageOverTime.Apply, built for Strangle), but it is a
+target-attached burn on its own expiry clock. Bad Hair Day wants a channel aura that hits every hostile in AreaRadius
+each tick while charging, not a lingering per-target DoT.
+
+
+## Snailhead Skills
+
+- Snail Trail: trail is a new lifecycle — persistent segments dropped behind a moving unit, contact test,
+slow-on-touch.
+- Molt: cancel-on-move channel is new (TimedEffectSystem charges don't watch movement); cleanse still blocked on there
+being no debuff pipeline.
+
+
 ### Dead code
 - **[`FlowFieldCache.Version` and `Invalidate()`](sim/Navigation/FlowFieldCache.cs)** are never called — meaning flow fields are never invalidated. Harmless while the navmesh is static (nothing writes `isBlocked` at runtime), but the API implies otherwise.
 
@@ -38,5 +59,13 @@ InventoryComponent.GetItemAssetId index fixed int buffers with no bounds check. 
 gated for the skill path (CommandValidation.AcceptSkillSlot), but InventoryComponent.GetItemAssetId
 has no equivalent gate described anywhere, and both are reachable from the client's UI code.
 
+## Stat buffs overloaded
+- StatBuffsComponent.MaxEntries = 6 — Desperation applies 5; Desperation + Sprint overlapping = 7, and the 7th
+silently fails to apply. The struct is at the 128-byte ceiling so it can't just be bumped. Saved a memory note.
+
+
+## MP
+- ManaRestore — no current-mana pool exists in the sim (MaxMana is a stat, nothing tracks a current value). Attribute
+authored, effect pending — same as the cleanse/silence gaps.
 
 ## Replace skill damage, attack damage, etc. with curves instead of simple functions

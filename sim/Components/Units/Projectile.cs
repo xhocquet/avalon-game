@@ -13,6 +13,7 @@ public partial struct Projectile : IComponent {
   public int TeamId;
   public int SkillAssetId;
   public int Slot;
+  public int Rank; // Rank of the cast, for an on-hit effect block resolved when the bullet lands
   public int Index; // Position within its volley
   public FPVector3 Direction; // Normalized and planar (y = 0).
   public FP64 Speed;

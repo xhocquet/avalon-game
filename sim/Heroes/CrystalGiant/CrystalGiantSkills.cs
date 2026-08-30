@@ -17,17 +17,10 @@ public sealed class CrystalGiantSkills : HeroSkillSetBase {
       skill.ProcResetsAttackCooldown != 0);
   }
 
-  // Self-buff: raises both resists by the row's percentage of their current value for its duration.
-  // Recasting refreshes rather than stacks - StatBuffApplication keys entries by (skill, stat).
+  // Self-buff: every stat the row names goes on the caster for the duration. Recasting refreshes
+  // rather than stacks - StatBuffApplication keys entries by (skill, stat).
   private static void CastHarden(ref Frame frame, in SkillCastContext ctx) {
-    var skill = ctx.Skill;
-    var percent = skill.BuffPercentAtRank(ctx.Rank);
-    var durationTicks = TickMath.MsToTicksCeil(ref frame, skill.BuffDurationMs);
-
-    StatBuffApplication.ApplyPercent(ref frame, ctx.Caster, skill.AssetId, StatType.Armor, percent,
-      durationTicks);
-    StatBuffApplication.ApplyPercent(ref frame, ctx.Caster, skill.AssetId, StatType.MagicResist,
-      percent, durationTicks);
+    SkillBuffs.Apply(ref frame, in ctx, ctx.Caster);
   }
 
   // Skillshot: three parallel shards fired abreast toward the aim point,
@@ -51,8 +44,7 @@ public sealed class CrystalGiantSkills : HeroSkillSetBase {
     var skill = ctx.Skill;
     var chargeTicks = TickMath.MsToTicksCeil(ref frame, skill.ChargeDurationMs);
 
-    StatBuffApplication.ApplyPercent(ref frame, ctx.Caster, skill.AssetId, StatType.Armor,
-      skill.BuffPercentAtRank(ctx.Rank), TickMath.MsToTicksCeil(ref frame, skill.BuffDurationMs));
+    SkillBuffs.Apply(ref frame, in ctx, ctx.Caster);
 
     if (skill.ChargeRootsItsCaster)
       Snares.Apply(ref frame, ctx.Caster, skill.AssetId, chargeTicks);

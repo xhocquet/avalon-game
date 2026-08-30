@@ -47,8 +47,9 @@ public class ProjectileSystem : ISystem {
       var end = start + projectile.Direction * step;
 
       if (TryFindHit(ref frame, in projectile, start, end, step, out var target)) {
-        DamageApplication.ApplyDamage(ref frame, ResolveSource(ref frame, in projectile), target,
-          projectile.Damage, DamageType.Magical);
+        var source = ResolveSource(ref frame, in projectile);
+        DamageApplication.ApplyDamage(ref frame, source, target, projectile.Damage, DamageType.Magical);
+        ApplyOnHitEffects(ref frame, in projectile, source, target);
         SkillProjectiles.RaiseDespawned(ref frame, in projectile, end,
           UnitLookup.GetUnitId(ref frame, target), SkillProjectileEnd.Hit);
         _expired.Add(entity);
@@ -136,6 +137,28 @@ public class ProjectileSystem : ISystem {
     }
 
     return found;
+  }
+
+  // A projectile skill can author a slow and a burn that land where the bullet connects, both scaled
+  // to the rank that fired it. Separate from the impact damage, which may be zero - Strangle is all
+  // debuff. Re-read off the immutable row rather than ridden on the entity: a bullet's flight is under
+  // a second, so the rank that fired it is the rank that lands it.
+  private static void ApplyOnHitEffects(ref Frame frame, in Projectile projectile, EntityRef source,
+    EntityRef target) {
+    if (!frame.AssetRegistry.TryGet<SkillAsset>(projectile.SkillAssetId, out var skill))
+      return;
+
+    var rank = projectile.Rank;
+
+    if (skill.BuffSpecs.Length > 0) {
+      var buffTicks = TickMath.MsToTicksCeil(ref frame, skill.BuffDurationMsAtRank(rank));
+      foreach (var spec in skill.BuffSpecs)
+        StatBuffApplication.ApplySpec(ref frame, target, skill.AssetId, spec, rank, buffTicks);
+    }
+
+    if (skill.DotDurationMs > 0)
+      DamageOverTime.Apply(ref frame, target, source, skill.AssetId,
+        skill.DotDamagePerSecondAtRank(rank), TickMath.MsToTicksCeil(ref frame, skill.DotDurationMs));
   }
 
   // A bullet outlives its caster, so hostility falls back to the team stamped on it at spawn rather

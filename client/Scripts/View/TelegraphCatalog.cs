@@ -19,7 +19,8 @@ public class TelegraphCatalog {
     new(AssetIds.SkillCrystalGiantTertiary, SelfFamily, HostileFamily, 4f),
     new(AssetIds.SkillCrystalGiantUltimate, SelfFamily, HostileFamily, 4f),
     new(AssetIds.SkillHairyWizardPrimary, SelfFamily, HostileFamily, 4f),
-    new(AssetIds.SkillShroomPrimary, SelfFamily, HostileFamily, 4f, 0.35f)
+    new(AssetIds.SkillHairyWizardSecondary, SelfFamily, HostileFamily, 4f),
+    new(AssetIds.SkillSnailheadPrimary, SelfFamily, HostileFamily, 4f, 0.35f)
   ];
 
   private readonly Dictionary<int, TelegraphDef> _bySkillAssetId = new();

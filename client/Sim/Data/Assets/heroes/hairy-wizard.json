@@ -45,7 +45,7 @@
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset",
     "AssetId": 500,
     "_Name": "Hairy Wizard - Hairball",
-    "CooldownMs": 5000,
+    "CooldownMs": 3500,
     "Damage": 80,
     "DamagePerRank": 45,
     "ProjectileSpeed": 12.0,
@@ -55,27 +55,50 @@
     "ProjectileSpawnOffset": 1.0,
     "MinCastRange": 1.0,
     "MaxCastRange": 9.0,
-    "Description": "You gather a wad of your loose hair and launch it for 80 magic damage (+45 per rank). CD: 5s"
+    "Description": "You gather a wad of your loose hair and launch it for 80 magic damage (+45 per rank). CD: 3.5s"
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset",
     "AssetId": 501,
     "_Name": "Hairy Wizard - Strangle",
-    "CooldownMs": 3000
+    "CooldownMs": 6000,
+    "ProjectileSpeed": 16.0,
+    "ProjectileRange": 9.0,
+    "ProjectileRadius": 0.35,
+    "ProjectileCount": 1,
+    "ProjectileSpawnOffset": 1.0,
+    "MinCastRange": 1.0,
+    "MaxCastRange": 9.0,
+    "BuffStats": "MoveSpeed pct -0.05 -0.05",
+    "BuffDurationMs": 3000,
+    "DotDamagePerSecond": 4,
+    "DotDamagePerSecondPerRank": 2,
+    "DotDurationMs": 3000,
+    "Description": "You throw a lasso of hair at an enemy. If hit, they are slowed by 5% (+5% per rank) and damaged for 4 (+2 per rank) magic damage per second for 3s. CD: 6s"
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset",
     "AssetId": 502,
     "_Name": "Hairy Wizard - Close Shave",
-    "CooldownMs": 3000,
-    "BuffDurationMs": 5000,
+    "CooldownMs": 10000,
+    "SelfCast": 1,
+    "BuffStats": "MoveSpeed",
+    "BuffDurationMs": 2400,
     "BuffPercent": 0.05,
-    "BuffPercentPerRank": 0.05
+    "BuffPercentPerRank": 0.05,
+    "Description": "You temporarily (2.4s) boost your speed by 5% (+5% per rank) to outrun your foes. CD: 10s"
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset",
     "AssetId": 503,
     "_Name": "Hairy Wizard - Bad Hair Day",
-    "CooldownMs": 3000
+    "CooldownMs": 110000,
+    "SelfCast": 1,
+    "ChargeDurationMs": 3000,
+    "AreaRadius": 5.5,
+    "DotDamagePerSecond": 24,
+    "DotDamagePerSecondPerRank": 12,
+    "SnareDurationMs": 4000,
+    "Description": "Your frustration about frizz and knots takes over. You lash out with all of your might, dealing 24 (+12 per rank) magic damage per second. After 3s, foes within your range are snared for 4s. CD: 110s"
   }
 ]
