@@ -76,9 +76,9 @@ public class TeamPruneTests {
 
     var activeTeams = ActiveTeamIds(harness);
     var frame = harness.Frame;
-    var filter = frame.Filter<Minion, TeamComponent>();
+    var filter = frame.Filter<Minion, Team>();
     while (filter.Next(out var entity))
-      activeTeams.Should().Contain(frame.GetReadOnly<TeamComponent>(entity).TeamId,
+      activeTeams.Should().Contain(frame.GetReadOnly<Team>(entity).TeamId,
         "no minion should spawn for a team that was pruned");
   }
 
@@ -131,9 +131,9 @@ public class TeamPruneTests {
   private static HashSet<int> StructureTeamIds(SimHarness harness) {
     var teams = new HashSet<int>();
     var frame = harness.Frame;
-    var filter = frame.Filter<Crystal, TeamComponent>();
+    var filter = frame.Filter<Crystal, Team>();
     while (filter.Next(out var entity))
-      teams.Add(frame.GetReadOnly<TeamComponent>(entity).TeamId);
+      teams.Add(frame.GetReadOnly<Team>(entity).TeamId);
 
     return teams;
   }
@@ -141,9 +141,9 @@ public class TeamPruneTests {
   private static HashSet<int> ActiveTeamIds(SimHarness harness) {
     var teams = new HashSet<int>();
     var frame = harness.Frame;
-    var filter = frame.Filter<Hero, TeamComponent>();
+    var filter = frame.Filter<Hero, Team>();
     while (filter.Next(out var entity))
-      teams.Add(frame.GetReadOnly<TeamComponent>(entity).TeamId);
+      teams.Add(frame.GetReadOnly<Team>(entity).TeamId);
 
     return teams;
   }

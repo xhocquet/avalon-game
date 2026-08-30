@@ -40,13 +40,13 @@ public class InventoryPanelController {
   }
 
   private void FillCounts(Frame frame, int playerId) {
-    var filter = frame.Filter<Hero, InventoryComponent>();
+    var filter = frame.Filter<Hero, Inventory>();
     while (filter.Next(out var entity)) {
       ref readonly var hero = ref frame.GetReadOnly<Hero>(entity);
       if (hero.PlayerId != playerId)
         continue;
 
-      ref readonly var inventory = ref frame.GetReadOnly<InventoryComponent>(entity);
+      ref readonly var inventory = ref frame.GetReadOnly<Inventory>(entity);
 
       // Queued buys count as owned, so the icon lands on the same frame as the click and the sim's
       // ledger takes over when the command runs. GameUI ages the optimistic entries before this runs.

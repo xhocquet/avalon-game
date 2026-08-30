@@ -23,9 +23,9 @@ public class SkillProgressionTests {
     var hero = harness.FindHero(PlayerId);
     var heroAsset = harness.AssetRegistry.Get<HeroAsset>(frame.GetReadOnly<Hero>(hero).HeroAssetId);
 
-    ref readonly var skills = ref frame.GetReadOnly<SkillsComponent>(hero);
+    ref readonly var skills = ref frame.GetReadOnly<Skills>(hero);
     skills.SkillPoints.Should().Be(1, "level 1 counts as a level, so one pick is available at spawn");
-    for (var slot = 0; slot < SkillsComponent.MaxSlots; slot++) {
+    for (var slot = 0; slot < Skills.MaxSlots; slot++) {
       skills.GetSkillAssetId(slot).Should().Be(heroAsset.GetSkillAssetId(slot));
       skills.GetRank(slot).Should().Be(0);
       skills.GetCooldownRemainingTicks(slot).Should().Be(0);
@@ -38,13 +38,13 @@ public class SkillProgressionTests {
     var frame = harness.Frame;
     var rules = harness.AssetRegistry.Get<XpRulesAsset>();
     var hero = harness.FindHero(PlayerId);
-    frame.Get<ExperienceComponent>(hero).Experience = rules.TotalXpForLevel(4);
+    frame.Get<Experience>(hero).Xp = rules.TotalXpForLevel(4);
 
     new ExperienceSystem().Update(ref frame);
 
     // Three levels gained on top of the point the hero spawned with.
-    frame.GetReadOnly<ExperienceComponent>(hero).Level.Should().Be(4);
-    frame.GetReadOnly<SkillsComponent>(hero).SkillPoints.Should().Be(4);
+    frame.GetReadOnly<Experience>(hero).Level.Should().Be(4);
+    frame.GetReadOnly<Skills>(hero).SkillPoints.Should().Be(4);
   }
 
   [Fact]
@@ -56,9 +56,9 @@ public class SkillProgressionTests {
     var system = new ExperienceSystem();
 
     for (var level = 2; level <= 5; level++) {
-      frame.Get<ExperienceComponent>(hero).Experience = rules.TotalXpForLevel(level);
+      frame.Get<Experience>(hero).Xp = rules.TotalXpForLevel(level);
       system.Update(ref frame);
-      frame.GetReadOnly<SkillsComponent>(hero).SkillPoints.Should().Be(level);
+      frame.GetReadOnly<Skills>(hero).SkillPoints.Should().Be(level);
     }
   }
 
@@ -69,7 +69,7 @@ public class SkillProgressionTests {
     harness.Tick(SimHarness.UpgradeSkillCommand(PlayerId, 0, (int)SkillSlot.Primary));
 
     var frame = harness.Frame;
-    ref readonly var skills = ref frame.GetReadOnly<SkillsComponent>(harness.FindHero(PlayerId));
+    ref readonly var skills = ref frame.GetReadOnly<Skills>(harness.FindHero(PlayerId));
     skills.SkillPoints.Should().Be(0);
     skills.GetRank((int)SkillSlot.Primary).Should().Be(1);
     skills.GetRank((int)SkillSlot.Secondary).Should().Be(0);
@@ -83,7 +83,7 @@ public class SkillProgressionTests {
     harness.Tick(SimHarness.UpgradeSkillCommand(PlayerId, 1, (int)SkillSlot.Secondary));
 
     var frame = harness.Frame;
-    ref readonly var skills = ref frame.GetReadOnly<SkillsComponent>(harness.FindHero(PlayerId));
+    ref readonly var skills = ref frame.GetReadOnly<Skills>(harness.FindHero(PlayerId));
     skills.SkillPoints.Should().Be(0);
     skills.GetRank((int)SkillSlot.Secondary).Should().Be(0);
   }
@@ -100,7 +100,7 @@ public class SkillProgressionTests {
       harness.Tick(SimHarness.UpgradeSkillCommand(PlayerId, i, (int)SkillSlot.Primary));
 
     frame = harness.Frame;
-    ref readonly var skills = ref frame.GetReadOnly<SkillsComponent>(harness.FindHero(PlayerId));
+    ref readonly var skills = ref frame.GetReadOnly<Skills>(harness.FindHero(PlayerId));
     skills.GetRank((int)SkillSlot.Primary).Should().Be(skill.MaxRank);
     // Only MaxRank of the granted points could be spent; the surplus stays banked.
     skills.SkillPoints.Should().Be(3);
@@ -108,7 +108,7 @@ public class SkillProgressionTests {
 
   [Theory]
   [InlineData(-1)]
-  [InlineData(SkillsComponent.MaxSlots)]
+  [InlineData(Skills.MaxSlots)]
   [InlineData(9999)]
   public void Upgrade_WithAnOutOfRangeSlot_IsRejectedWithoutSpending(int slot) {
     var harness = SimHarness.CreateInitialized();
@@ -116,9 +116,9 @@ public class SkillProgressionTests {
     harness.Tick(SimHarness.UpgradeSkillCommand(PlayerId, 0, slot));
 
     var frame = harness.Frame;
-    ref readonly var skills = ref frame.GetReadOnly<SkillsComponent>(harness.FindHero(PlayerId));
+    ref readonly var skills = ref frame.GetReadOnly<Skills>(harness.FindHero(PlayerId));
     skills.SkillPoints.Should().Be(1);
-    for (var i = 0; i < SkillsComponent.MaxSlots; i++)
+    for (var i = 0; i < Skills.MaxSlots; i++)
       skills.GetRank(i).Should().Be(0);
   }
 
@@ -127,8 +127,8 @@ public class SkillProgressionTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     var hero = harness.FindHero(PlayerId);
-    var unitId = frame.GetReadOnly<UnitIdComponent>(hero).UnitId;
-    var expectedSkillId = frame.GetReadOnly<SkillsComponent>(hero).GetSkillAssetId((int)SkillSlot.Ultimate);
+    var unitId = frame.GetReadOnly<UnitIdentity>(hero).UnitId;
+    var expectedSkillId = frame.GetReadOnly<Skills>(hero).GetSkillAssetId((int)SkillSlot.Ultimate);
 
     var collector = new EventCollector();
     collector.BeginTick(7);
@@ -153,7 +153,7 @@ public class SkillProgressionTests {
     harness.Tick(SimHarness.UpgradeSkillCommand(PlayerId, 0, (int)SkillSlot.Primary));
 
     var frame = harness.Frame;
-    ref readonly var other = ref frame.GetReadOnly<SkillsComponent>(harness.FindHero(2));
+    ref readonly var other = ref frame.GetReadOnly<Skills>(harness.FindHero(2));
     other.SkillPoints.Should().Be(1);
     other.GetRank((int)SkillSlot.Primary).Should().Be(0);
   }
@@ -217,7 +217,7 @@ public class SkillProgressionTests {
       heroAsset.Should().NotBeNull($"hero {heroAssetId} must exist");
       HeroSkillSets.Get(heroAsset.SkillSetId).Should().NotBeNull();
 
-      for (var slot = 0; slot < SkillsComponent.MaxSlots; slot++) {
+      for (var slot = 0; slot < Skills.MaxSlots; slot++) {
         var skillAssetId = heroAsset.GetSkillAssetId(slot);
         skillAssetId.Should().NotBe(0, $"hero {heroAssetId} slot {slot} must name a skill");
 
@@ -242,21 +242,21 @@ public class SkillProgressionTests {
     var seen = new HashSet<int>();
     foreach (var heroAssetId in heroAssetIds) {
       var heroAsset = harness.AssetRegistry.Get<HeroAsset>(heroAssetId);
-      for (var slot = 0; slot < SkillsComponent.MaxSlots; slot++)
+      for (var slot = 0; slot < Skills.MaxSlots; slot++)
         seen.Add(heroAsset.GetSkillAssetId(slot))
           .Should().BeTrue("each hero owns its own rows so retuning one never touches another");
     }
 
-    seen.Count.Should().Be(heroAssetIds.Length * SkillsComponent.MaxSlots);
+    seen.Count.Should().Be(heroAssetIds.Length * Skills.MaxSlots);
   }
 
   internal static SkillAsset SkillInSlot(SimHarness harness, EntityRef hero, SkillSlot slot) {
     var frame = harness.Frame;
-    var skillAssetId = frame.GetReadOnly<SkillsComponent>(hero).GetSkillAssetId((int)slot);
+    var skillAssetId = frame.GetReadOnly<Skills>(hero).GetSkillAssetId((int)slot);
     return harness.AssetRegistry.Get<SkillAsset>(skillAssetId);
   }
 
   internal static void GrantPoints(ref Frame frame, EntityRef hero, int points) {
-    frame.Get<SkillsComponent>(hero).SkillPoints = points;
+    frame.Get<Skills>(hero).SkillPoints = points;
   }
 }

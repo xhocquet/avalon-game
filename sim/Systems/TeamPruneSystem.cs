@@ -28,13 +28,13 @@ public class TeamPruneSystem : ISystem {
 
     _toDestroy.Clear();
     _prunedTeams.Clear();
-    var crystals = frame.Filter<Crystal, TeamComponent>();
+    var crystals = frame.Filter<Crystal, Team>();
     while (crystals.Next(out var entity))
       AddIfTeamless(entity, ref frame);
-    var turrets = frame.Filter<Turret, TeamComponent>();
+    var turrets = frame.Filter<Turret, Team>();
     while (turrets.Next(out var entity))
       AddIfTeamless(entity, ref frame);
-    var spawns = frame.Filter<SpawnPoint, TeamComponent>();
+    var spawns = frame.Filter<SpawnPoint, Team>();
     while (spawns.Next(out var entity))
       AddIfTeamless(entity, ref frame);
 
@@ -57,12 +57,12 @@ public class TeamPruneSystem : ISystem {
 
   private int CountCrystalTeams(ref Frame frame) {
     _crystalTeams.Clear();
-    var crystals = frame.Filter<Crystal, TeamComponent>();
+    var crystals = frame.Filter<Crystal, Team>();
     while (crystals.Next(out var entity)) {
       if (_toDestroy.Contains(entity))
         continue;
 
-      TeamRegistry.AddTeam(_crystalTeams, frame.GetReadOnly<TeamComponent>(entity).TeamId);
+      TeamRegistry.AddTeam(_crystalTeams, frame.GetReadOnly<Team>(entity).TeamId);
     }
 
     return _crystalTeams.Count;
@@ -91,7 +91,7 @@ public class TeamPruneSystem : ISystem {
   }
 
   private void AddIfTeamless(EntityRef entity, ref Frame frame) {
-    var teamId = frame.GetReadOnly<TeamComponent>(entity).TeamId;
+    var teamId = frame.GetReadOnly<Team>(entity).TeamId;
     if (_activeTeams.Contains(teamId))
       return;
 

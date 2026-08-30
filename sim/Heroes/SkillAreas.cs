@@ -29,7 +29,7 @@ public static class SkillAreas {
       return;
 
     var origin = center.ToXZ();
-    var filter = frame.Filter<UnitIdComponent, TeamComponent, Health, TransformComponent>();
+    var filter = frame.Filter<UnitIdentity, Team, Health, TransformComponent>();
     while (filter.Next(out var candidate)) {
       if (!CombatTargeting.IsSkillHittable(ref frame, candidate))
         continue;

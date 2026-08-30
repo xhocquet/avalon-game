@@ -7,7 +7,7 @@ namespace Meesles.Avalon.Sim.Components;
 // Kept in numeric order (not grouped by file) so gaps and duplicate ids are visible at a glance.
 public static class ComponentIds {
   public const int Player = 100;
-  public const int Unit = 101;
+  public const int UnitIdentity = 101;
   public const int Team = 102;
   public const int Health = 103;
   public const int Hero = 104;

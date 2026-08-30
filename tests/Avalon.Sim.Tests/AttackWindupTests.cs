@@ -137,23 +137,23 @@ public class AttackWindupTests {
   }
 
   private static int UnitId(SimHarness harness, EntityRef entity) {
-    return harness.Frame.GetReadOnly<UnitIdComponent>(entity).UnitId;
+    return harness.Frame.GetReadOnly<UnitIdentity>(entity).UnitId;
   }
 
   private static void KillTarget(SimHarness harness) {
     var frame = harness.Frame;
-    var filter = frame.Filter<Minion, Health, TeamComponent>();
+    var filter = frame.Filter<Minion, Health, Team>();
     while (filter.Next(out var entity)) {
-      if (frame.GetReadOnly<TeamComponent>(entity).TeamId == 2)
+      if (frame.GetReadOnly<Team>(entity).TeamId == 2)
         frame.Get<Health>(entity).Current = FP64.Zero;
     }
   }
 
   private static void MoveTargetOutOfRange(SimHarness harness) {
     var frame = harness.Frame;
-    var filter = frame.Filter<Minion, TransformComponent, TeamComponent>();
+    var filter = frame.Filter<Minion, TransformComponent, Team>();
     while (filter.Next(out var entity)) {
-      if (frame.GetReadOnly<TeamComponent>(entity).TeamId == 2)
+      if (frame.GetReadOnly<Team>(entity).TeamId == 2)
         frame.Get<TransformComponent>(entity).Position = new FPVector3(FP64.FromInt(60), FP64.Zero, FP64.Zero);
     }
   }
@@ -164,7 +164,7 @@ public class AttackWindupTests {
     var frame = harness.Frame;
 
     var attacker = SpawnMinion(ref frame, FPVector3.Zero, teamId: 1, health: 100);
-    frame.Add(attacker, StatsComponent.Create()
+    frame.Add(attacker, Stats.Create()
       .With(StatType.AttackDamage, FP64.FromInt(AttackDamage))
       .With(StatType.BaseAttackSpeed, FP64.One)
       .With(StatType.AttackRange, FP64.FromInt(3))
@@ -174,7 +174,7 @@ public class AttackWindupTests {
 
     var target = SpawnMinion(ref frame, new FPVector3(FP64.One, FP64.Zero, FP64.Zero), teamId: 2,
       health: 10000);
-    frame.Add(target, StatsComponent.Create()
+    frame.Add(target, Stats.Create()
       .With(StatType.MaxHealth, FP64.FromInt(10000))
       .With(StatType.AttackDamage, FP64.Zero));
 
@@ -184,11 +184,11 @@ public class AttackWindupTests {
   private static EntityRef SpawnMinion(ref Frame frame, FPVector3 position, int teamId, int health) {
     var entity = frame.CreateEntity();
     frame.Add(entity, TransformFactory.At(position));
-    frame.Add(entity, new UnitIdComponent {
+    frame.Add(entity, new UnitIdentity {
       UnitId = UnitLookup.NextUnitId(ref frame),
       UnitTypeId = SimulationSetup.MinionUnitTypeId
     });
-    frame.Add(entity, new TeamComponent { TeamId = teamId });
+    frame.Add(entity, new Team { TeamId = teamId });
     frame.Add(entity, new Minion { WaveId = 99 });
     frame.Add(entity, new Health(FP64.FromInt(health)));
 

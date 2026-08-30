@@ -21,8 +21,8 @@ public class TargetAcquisitionTests {
 
     harness.Tick();
 
-    var farUnitId = frame.GetReadOnly<UnitIdComponent>(far).UnitId;
-    var nearUnitId = frame.GetReadOnly<UnitIdComponent>(near).UnitId;
+    var farUnitId = frame.GetReadOnly<UnitIdentity>(far).UnitId;
+    var nearUnitId = frame.GetReadOnly<UnitIdentity>(near).UnitId;
     nearUnitId.Should().BeGreaterThan(farUnitId); // The nearer minion is the newer one.
     harness.Frame.GetReadOnly<AttackTargetUnitId>(attacker).TargetUnitId.Should().Be(nearUnitId);
   }
@@ -40,8 +40,8 @@ public class TargetAcquisitionTests {
     harness.Tick();
 
     var targetUnitId = harness.Frame.GetReadOnly<AttackTargetUnitId>(attacker).TargetUnitId;
-    targetUnitId.Should().Be(frame.GetReadOnly<UnitIdComponent>(minion).UnitId);
-    targetUnitId.Should().NotBe(frame.GetReadOnly<UnitIdComponent>(turret).UnitId);
+    targetUnitId.Should().Be(frame.GetReadOnly<UnitIdentity>(minion).UnitId);
+    targetUnitId.Should().NotBe(frame.GetReadOnly<UnitIdentity>(turret).UnitId);
   }
 
   // Reacquisition belongs to AttackIntentSystem, so an attacker holding a target keeps it even once a
@@ -57,7 +57,7 @@ public class TargetAcquisitionTests {
     harness.Tick();
 
     frame = harness.Frame;
-    var farUnitId = frame.GetReadOnly<UnitIdComponent>(far).UnitId;
+    var farUnitId = frame.GetReadOnly<UnitIdentity>(far).UnitId;
     frame.GetReadOnly<AttackTargetUnitId>(attacker).TargetUnitId.Should().Be(farUnitId);
 
     SpawnTarget(ref frame, FP64.One);
@@ -68,7 +68,7 @@ public class TargetAcquisitionTests {
 
   private static EntityRef SpawnAttacker(ref Frame frame) {
     var attacker = SpawnUnit(ref frame, FPVector3.Zero, teamId: 1);
-    frame.Add(attacker, StatsComponent.Create()
+    frame.Add(attacker, Stats.Create()
       .With(StatType.AttackDamage, FP64.FromInt(10))
       .With(StatType.AttackRange, FP64.FromInt(3))
       .With(StatType.AcquisitionRange, FP64.FromInt(9)));
@@ -79,7 +79,7 @@ public class TargetAcquisitionTests {
 
   private static EntityRef SpawnTarget(ref Frame frame, FP64 distance, bool isTurret = false) {
     var target = SpawnUnit(ref frame, new FPVector3(distance, FP64.Zero, FP64.Zero), teamId: 2, isTurret);
-    frame.Add(target, StatsComponent.Create().With(StatType.AttackDamage, FP64.Zero));
+    frame.Add(target, Stats.Create().With(StatType.AttackDamage, FP64.Zero));
 
     return target;
   }
@@ -87,11 +87,11 @@ public class TargetAcquisitionTests {
   private static EntityRef SpawnUnit(ref Frame frame, FPVector3 position, int teamId, bool isTurret = false) {
     var entity = frame.CreateEntity();
     frame.Add(entity, TransformFactory.At(position));
-    frame.Add(entity, new UnitIdComponent {
+    frame.Add(entity, new UnitIdentity {
       UnitId = UnitLookup.NextUnitId(ref frame),
       UnitTypeId = SimulationSetup.MinionUnitTypeId
     });
-    frame.Add(entity, new TeamComponent { TeamId = teamId });
+    frame.Add(entity, new Team { TeamId = teamId });
     if (isTurret)
       frame.Add(entity, new Turret());
     else

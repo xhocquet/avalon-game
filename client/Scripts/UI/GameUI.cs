@@ -325,14 +325,14 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private void UpdateLocalPlayerHealth(Frame frame) {
     if (_localPlayerId is not int localId) return;
 
-    var filter = frame.Filter<Hero, Health, StatsComponent>();
+    var filter = frame.Filter<Hero, Health, Stats>();
     while (filter.Next(out var entity)) {
       ref readonly var hero = ref frame.GetReadOnly<Hero>(entity);
       if (hero.PlayerId != localId) continue;
 
       ref readonly var health = ref frame.GetReadOnly<Health>(entity);
       SetPlayerHealth(health.Current.ToFloat(),
-        frame.GetReadOnly<StatsComponent>(entity).MaxHealth.ToFloat());
+        frame.GetReadOnly<Stats>(entity).MaxHealth.ToFloat());
       return;
     }
   }
@@ -342,18 +342,18 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private void UpdateLocalPlayerInventory(Frame frame) {
     if (_localPlayerId is not int localId) return;
 
-    var filter = frame.Filter<Hero, InventoryComponent>();
+    var filter = frame.Filter<Hero, Inventory>();
     while (filter.Next(out var entity)) {
       ref readonly var hero = ref frame.GetReadOnly<Hero>(entity);
       if (hero.PlayerId != localId) continue;
 
-      ref readonly var inventory = ref frame.GetReadOnly<InventoryComponent>(entity);
+      ref readonly var inventory = ref frame.GetReadOnly<Inventory>(entity);
       foreach (var def in ShopItemCatalog.ItemDefs)
         PredictedPurchases.Observe(def.Id, inventory.CountOf(def.Id));
 
       SetGoldText(inventory.Gold - PredictedPurchases.PendingGold);
-      SetResourcesText(frame.Has<ResourcesComponent>(entity)
-        ? frame.GetReadOnly<ResourcesComponent>(entity).Total
+      SetResourcesText(frame.Has<Resources>(entity)
+        ? frame.GetReadOnly<Resources>(entity).Total
         : 0);
       return;
     }
@@ -372,19 +372,19 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private void UpdateLocalPlayerStats(Frame frame) {
     if (_localPlayerId is not int localId) return;
 
-    var filter = frame.Filter<Hero, StatsComponent>();
+    var filter = frame.Filter<Hero, Stats>();
     while (filter.Next(out var entity)) {
       ref readonly var hero = ref frame.GetReadOnly<Hero>(entity);
       if (hero.PlayerId != localId) continue;
 
-      SetHeroStats(frame.GetReadOnly<StatsComponent>(entity));
+      SetHeroStats(frame.GetReadOnly<Stats>(entity));
       return;
     }
   }
 
-  // Reads the live StatsComponent, which already carries item and buff contributions - timed buffs
+  // Reads the live Stats, which already carries item and buff contributions - timed buffs
   // Add into it and record what they moved so the expiry can take the same amount back off.
-  private void SetHeroStats(in StatsComponent stats) {
+  private void SetHeroStats(in Stats stats) {
     SetStatText(_attackDamageLabel, "Attack dmg", $"{stats.AttackDamage.ToFloat():0.#}");
     SetStatText(_attackSpeedLabel, "Attack spd", $"{stats.AttacksPerSecond.ToFloat():0.00}");
     SetStatText(_armorLabel, "Armor", $"{stats.Armor.ToFloat():0.#}");
@@ -404,18 +404,18 @@ public partial class GameUI : CanvasLayer, IViewHud {
     if (_localPlayerId is not int localId) return;
     if (!frame.AssetRegistry.TryGet<XpRulesAsset>(out var rules)) return;
 
-    var filter = frame.Filter<Hero, ExperienceComponent>();
+    var filter = frame.Filter<Hero, Experience>();
     while (filter.Next(out var entity)) {
       ref readonly var hero = ref frame.GetReadOnly<Hero>(entity);
       if (hero.PlayerId != localId) continue;
 
-      ref readonly var experience = ref frame.GetReadOnly<ExperienceComponent>(entity);
-      SetPlayerExperience(experience.Level, experience.Experience, rules);
+      ref readonly var experience = ref frame.GetReadOnly<Experience>(entity);
+      SetPlayerExperience(experience.Level, experience.Xp, rules);
       return;
     }
   }
 
-  // ExperienceComponent.Experience is lifetime XP against cumulative thresholds, so the bar shows
+  // Experience.Xp is lifetime XP against cumulative thresholds, so the bar shows
   // progress through the current level only: the span between this level's threshold and the next.
   public void SetPlayerExperience(int level, int experience, XpRulesAsset rules) {
     if (_levelLabel != null)

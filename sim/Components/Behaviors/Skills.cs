@@ -7,14 +7,14 @@ namespace Meesles.Avalon.Sim.Components;
 // slot, how far each is ranked up, and how long until it can be cast again. Stored as fixed buffers
 // (not lists) because components must be unmanaged, blittable structs - the whole struct is
 // snapshotted via a raw heap memcpy for rollback, and the generated codec walks the buffers for
-// hashing and serialization. See InventoryComponent for the same pattern.
+// hashing and serialization. See Inventory for the same pattern.
 // Size: 4 ints + 3 * MaxSlots * 4 = 52B, inside the 128-byte component ceiling.
 //
 // SkillAssetIds is copied off HeroAsset at spawn rather than looked up per access, so the cast path
 // never has to reach the asset registry to find out which skills a hero owns.
 [KlothoComponent(ComponentIds.Skills)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public unsafe partial struct SkillsComponent : IComponent {
+public unsafe partial struct Skills : IComponent {
   public const int MaxSlots = 4;
 
   public int SkillPoints;

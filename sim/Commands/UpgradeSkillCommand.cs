@@ -4,7 +4,7 @@ using xpTURN.Klotho.Serialization;
 namespace Meesles.Avalon.Sim.Commands;
 
 // Spend one skill point on a slot. Slot is a SkillSlot index; CommandValidation range-checks it before
-// SkillActions indexes SkillsComponent's fixed buffers with it.
+// SkillActions indexes Skills's fixed buffers with it.
 [KlothoSerializable(107)]
 public partial class UpgradeSkillCommand : CommandBase {
   public int Slot;

@@ -6,7 +6,7 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon.Sim;
 
 // The one place a timed stat modifier goes on or comes off, the buff counterpart to DamageApplication:
-// the StatsComponent write and the StatBuffsComponent bookkeeping always happen together, so nothing
+// the Stats write and the StatBuffs bookkeeping always happen together, so nothing
 // can leave a stat raised with no entry to take it back down.
 //
 // Duration is stored as the absolute tick the buff ends on, not a countdown, so TimedEffectSystem is a
@@ -39,17 +39,17 @@ public static class StatBuffApplication {
   // cares should log it.
   public static bool Apply(ref Frame frame, EntityRef entity, int sourceId, StatType stat, FP64 flat,
     FP64 percent, int durationTicks) {
-    if (sourceId == 0 || durationTicks <= 0 || !frame.Has<StatsComponent>(entity))
+    if (sourceId == 0 || durationTicks <= 0 || !frame.Has<Stats>(entity))
       return false;
 
     if (flat == FP64.Zero && percent == FP64.Zero) // A zero buff would hold a slot for nothing
       return false;
 
-    if (!frame.Has<StatBuffsComponent>(entity))
-      frame.Add(entity, new StatBuffsComponent());
+    if (!frame.Has<StatBuffs>(entity))
+      frame.Add(entity, new StatBuffs());
 
-    ref var buffs = ref frame.Get<StatBuffsComponent>(entity);
-    ref var stats = ref frame.Get<StatsComponent>(entity);
+    ref var buffs = ref frame.Get<StatBuffs>(entity);
+    ref var stats = ref frame.Get<Stats>(entity);
 
     var slot = buffs.FindSlot(sourceId, stat);
     if (slot >= 0)
@@ -70,10 +70,10 @@ public static class StatBuffApplication {
 
   // Takes off every entry whose expiry tick has arrived. Called once per tick by TimedEffectSystem.
   public static void ExpireDue(ref Frame frame, EntityRef entity) {
-    ref var buffs = ref frame.Get<StatBuffsComponent>(entity);
-    ref var stats = ref frame.Get<StatsComponent>(entity);
+    ref var buffs = ref frame.Get<StatBuffs>(entity);
+    ref var stats = ref frame.Get<Stats>(entity);
 
-    for (var i = 0; i < StatBuffsComponent.MaxEntries; i++)
+    for (var i = 0; i < StatBuffs.MaxEntries; i++)
       if (buffs.IsExpired(i, frame.Tick))
         Revert(ref stats, ref buffs, i);
   }
@@ -81,31 +81,31 @@ public static class StatBuffApplication {
   // Drops every buff early, reverting each one. Death goes through here rather than letting the timers
   // run out on a corpse.
   public static void ClearAll(ref Frame frame, EntityRef entity) {
-    if (!frame.Has<StatBuffsComponent>(entity) || !frame.Has<StatsComponent>(entity))
+    if (!frame.Has<StatBuffs>(entity) || !frame.Has<Stats>(entity))
       return;
 
-    ref var buffs = ref frame.Get<StatBuffsComponent>(entity);
-    ref var stats = ref frame.Get<StatsComponent>(entity);
+    ref var buffs = ref frame.Get<StatBuffs>(entity);
+    ref var stats = ref frame.Get<Stats>(entity);
 
-    for (var i = 0; i < StatBuffsComponent.MaxEntries; i++)
+    for (var i = 0; i < StatBuffs.MaxEntries; i++)
       if (buffs.IsActive(i))
         Revert(ref stats, ref buffs, i);
   }
 
   public static int ActiveCount(ref Frame frame, EntityRef entity) {
-    if (!frame.Has<StatBuffsComponent>(entity))
+    if (!frame.Has<StatBuffs>(entity))
       return 0;
 
-    ref readonly var buffs = ref frame.GetReadOnly<StatBuffsComponent>(entity);
+    ref readonly var buffs = ref frame.GetReadOnly<StatBuffs>(entity);
     var count = 0;
-    for (var i = 0; i < StatBuffsComponent.MaxEntries; i++)
+    for (var i = 0; i < StatBuffs.MaxEntries; i++)
       if (buffs.IsActive(i))
         count++;
 
     return count;
   }
 
-  private static void Revert(ref StatsComponent stats, ref StatBuffsComponent buffs, int slot) {
+  private static void Revert(ref Stats stats, ref StatBuffs buffs, int slot) {
     stats.Add(buffs.GetStat(slot), -buffs.GetApplied(slot));
     buffs.Clear(slot);
   }

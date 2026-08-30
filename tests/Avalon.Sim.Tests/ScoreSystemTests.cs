@@ -268,9 +268,9 @@ public class ScoreSystemTests {
   }
 
   private static EntityRef GetCrystalForTeam(ref Frame frame, int teamId) {
-    var filter = frame.Filter<Crystal, TeamComponent, Health>();
+    var filter = frame.Filter<Crystal, Team, Health>();
     while (filter.Next(out var entity)) {
-      ref readonly var team = ref frame.GetReadOnly<TeamComponent>(entity);
+      ref readonly var team = ref frame.GetReadOnly<Team>(entity);
       if (team.TeamId == teamId)
         return entity;
     }

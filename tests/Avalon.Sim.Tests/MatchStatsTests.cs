@@ -59,7 +59,7 @@ public class MatchStatsTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     var killer = harness.FindHero(playerId: 1);
-    var ownTeamId = frame.GetReadOnly<TeamComponent>(killer).TeamId;
+    var ownTeamId = frame.GetReadOnly<Team>(killer).TeamId;
 
     MatchStats.RecordKill(ref frame, killer, SimulationSetup.MinionUnitTypeId, ownTeamId);
 
@@ -100,15 +100,15 @@ public class MatchStatsTests {
   }
 
   private static EntityRef SpawnEnemyMinion(ref Frame frame, SimHarness harness) {
-    var killerTeamId = frame.GetReadOnly<TeamComponent>(harness.FindHero(playerId: 1)).TeamId;
+    var killerTeamId = frame.GetReadOnly<Team>(harness.FindHero(playerId: 1)).TeamId;
 
     var entity = frame.CreateEntity();
     frame.Add(entity, TransformFactory.At(FPVector3.Zero));
-    frame.Add(entity, new UnitIdComponent {
+    frame.Add(entity, new UnitIdentity {
       UnitId = UnitLookup.NextUnitId(ref frame),
       UnitTypeId = SimulationSetup.MinionUnitTypeId
     });
-    frame.Add(entity, new TeamComponent { TeamId = killerTeamId + 1 });
+    frame.Add(entity, new Team { TeamId = killerTeamId + 1 });
     frame.Add(entity, new Minion { WaveId = 99 });
     frame.Add(entity, new Health(10));
 

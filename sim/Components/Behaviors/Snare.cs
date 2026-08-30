@@ -12,7 +12,7 @@ namespace Meesles.Avalon.Sim.Components;
 // is free, so the component stays on once added.
 [KlothoComponent(ComponentIds.Snare)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public partial struct SnareComponent : IComponent {
+public partial struct Snare : IComponent {
   public int SourceId; // SkillAsset id holding the unit; 0 means it is free
   public int ExpiryTick;
 

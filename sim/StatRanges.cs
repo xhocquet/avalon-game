@@ -7,7 +7,7 @@ namespace Meesles.Avalon.Sim;
 // mitigation curve, or leaving a unit with no health pool, so they live in code beside CommandLimits
 // rather than in the asset JSON where a bad edit would reach the simulation.
 //
-// Rows is indexed by StatType and must stay in the enum's order - StatsComponent indexes both with
+// Rows is indexed by StatType and must stay in the enum's order - Stats indexes both with
 // the same int, and the static constructor asserts the count.
 public static class StatRanges {
   public const int Count = (int)StatType.StatCount;
@@ -15,7 +15,7 @@ public static class StatRanges {
   public readonly struct Row(FP64 min, FP64 max, FP64 initial) {
     public readonly FP64 Min = min;
     public readonly FP64 Max = max;
-    public readonly FP64 Initial = initial; // What a fresh StatsComponent holds before From() runs
+    public readonly FP64 Initial = initial; // What a fresh Stats holds before From() runs
   }
 
   private static readonly Row[] Rows = [

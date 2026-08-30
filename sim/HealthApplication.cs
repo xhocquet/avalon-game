@@ -36,10 +36,10 @@ public static class HealthApplication {
   // A negative amount shrinks the pool and pulls Current down with it, stopping at 1 rather than
   // killing - a death here would carry no killer and pay no XP.
   public static void GrantMaxHealth(ref Frame frame, EntityRef target, FP64 amount) {
-    if (amount == FP64.Zero || !frame.Has<StatsComponent>(target))
+    if (amount == FP64.Zero || !frame.Has<Stats>(target))
       return;
 
-    frame.Get<StatsComponent>(target).Add(StatType.MaxHealth, amount);
+    frame.Get<Stats>(target).Add(StatType.MaxHealth, amount);
 
     if (amount > FP64.Zero) {
       ApplyHeal(ref frame, target, amount);
@@ -55,7 +55,7 @@ public static class HealthApplication {
       health.Current = max < FP64.One ? FP64.One : max;
   }
 
-  // A unit with no StatsComponent has no pool to fill, so healing it is a no-op rather than unbounded.
+  // A unit with no Stats has no pool to fill, so healing it is a no-op rather than unbounded.
   public static FP64 GetMaxHealth(ref Frame frame, EntityRef target) =>
-    frame.Has<StatsComponent>(target) ? frame.GetReadOnly<StatsComponent>(target).MaxHealth : FP64.Zero;
+    frame.Has<Stats>(target) ? frame.GetReadOnly<Stats>(target).MaxHealth : FP64.Zero;
 }

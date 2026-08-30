@@ -23,8 +23,8 @@ public static class SkillProjectiles {
     var right = new FPVector3(direction.z, FP64.Zero, -direction.x);
     var firstOffset = -spacing * FP64.FromInt(count - 1) / FP64.FromInt(2);
     var muzzle = ctx.CasterPosition + direction * spawnOffset;
-    var teamId = frame.Has<TeamComponent>(ctx.Caster)
-      ? frame.GetReadOnly<TeamComponent>(ctx.Caster).TeamId
+    var teamId = frame.Has<Team>(ctx.Caster)
+      ? frame.GetReadOnly<Team>(ctx.Caster).TeamId
       : 0;
     var sourceUnitId = UnitLookup.GetUnitId(ref frame, ctx.Caster);
     var yaw = FP64.Atan2(direction.x, direction.z);
@@ -36,7 +36,7 @@ public static class SkillProjectiles {
         SourceUnitId = sourceUnitId,
         TeamId = teamId,
         Damage = damage,
-        SkillAssetId = frame.GetReadOnly<SkillsComponent>(ctx.Caster).GetSkillAssetId(ctx.Slot),
+        SkillAssetId = frame.GetReadOnly<Skills>(ctx.Caster).GetSkillAssetId(ctx.Slot),
         Slot = ctx.Slot,
         Rank = ctx.Rank,
         Index = i,

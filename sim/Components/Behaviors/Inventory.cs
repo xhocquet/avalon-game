@@ -5,14 +5,14 @@ namespace Meesles.Avalon.Sim.Components;
 
 // Per-hero gold wallet + owned-item ledger. Gold accrues over time (see InventorySystem); the
 // item ledger is an append-only list of purchased ShopItemAsset ids, written by the shop purchase
-// handler. Collected resources live in ResourcesComponent, tallied per pickup type. Stored as a
+// handler. Collected resources live in Resources, tallied per pickup type. Stored as a
 // fixed buffer (not a List) because components must be unmanaged, blittable structs - the whole
 // struct is snapshotted via a raw heap memcpy for rollback, and the generated codec walks the fixed
 // buffer for hashing/serialization (see HFSMState for the same pattern). Buffer size keeps the
 // struct under the 128-byte component ceiling: 4 ints + MaxItems*4 = 112B.
 [KlothoComponent(ComponentIds.Inventory)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public unsafe partial struct InventoryComponent : IComponent {
+public unsafe partial struct Inventory : IComponent {
   // Repeatable buys stack, so each purchase appends another entry - this caps how many a hero may own.
   public const int MaxItems = 24;
 

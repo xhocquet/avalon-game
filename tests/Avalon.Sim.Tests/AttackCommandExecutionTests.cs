@@ -535,14 +535,14 @@ public class AttackCommandExecutionTests {
 
   private static FP64 GetAttackDamage(Frame frame, int unitId) {
     TryGetEntityByUnitId(frame, unitId, out var entity).Should().BeTrue();
-    frame.Has<StatsComponent>(entity).Should().BeTrue();
-    return frame.GetReadOnly<StatsComponent>(entity).AttackDamage;
+    frame.Has<Stats>(entity).Should().BeTrue();
+    return frame.GetReadOnly<Stats>(entity).AttackDamage;
   }
 
   private static FP64 GetArmor(Frame frame, int unitId) {
     TryGetEntityByUnitId(frame, unitId, out var entity).Should().BeTrue();
-    frame.Has<StatsComponent>(entity).Should().BeTrue();
-    return frame.GetReadOnly<StatsComponent>(entity).Armor;
+    frame.Has<Stats>(entity).Should().BeTrue();
+    return frame.GetReadOnly<Stats>(entity).Armor;
   }
 
   private static int GetCooldown(Frame frame, int unitId) {
@@ -572,10 +572,10 @@ public class AttackCommandExecutionTests {
   private static UnitSnapshot[] GetMinions(SimHarness harness) {
     var frame = harness.Frame;
     var minions = new List<UnitSnapshot>();
-    var filter = frame.Filter<Minion, UnitIdComponent, TeamComponent, TransformComponent>();
+    var filter = frame.Filter<Minion, UnitIdentity, Team, TransformComponent>();
     while (filter.Next(out var entity)) {
-      ref readonly var unit = ref frame.GetReadOnly<UnitIdComponent>(entity);
-      ref readonly var team = ref frame.GetReadOnly<TeamComponent>(entity);
+      ref readonly var unit = ref frame.GetReadOnly<UnitIdentity>(entity);
+      ref readonly var team = ref frame.GetReadOnly<Team>(entity);
       ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
       minions.Add(new UnitSnapshot(unit.UnitId, team.TeamId, transform.Position));
     }
@@ -586,10 +586,10 @@ public class AttackCommandExecutionTests {
   private static UnitSnapshot[] GetTurrets(SimHarness harness) {
     var frame = harness.Frame;
     var turrets = new List<UnitSnapshot>();
-    var filter = frame.Filter<Turret, UnitIdComponent, TeamComponent, TransformComponent>();
+    var filter = frame.Filter<Turret, UnitIdentity, Team, TransformComponent>();
     while (filter.Next(out var entity)) {
-      ref readonly var unit = ref frame.GetReadOnly<UnitIdComponent>(entity);
-      ref readonly var team = ref frame.GetReadOnly<TeamComponent>(entity);
+      ref readonly var unit = ref frame.GetReadOnly<UnitIdentity>(entity);
+      ref readonly var team = ref frame.GetReadOnly<Team>(entity);
       ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
       turrets.Add(new UnitSnapshot(unit.UnitId, team.TeamId, transform.Position));
     }
@@ -600,10 +600,10 @@ public class AttackCommandExecutionTests {
   private static UnitSnapshot[] GetCrystals(SimHarness harness) {
     var frame = harness.Frame;
     var crystals = new List<UnitSnapshot>();
-    var filter = frame.Filter<Crystal, UnitIdComponent, TeamComponent, TransformComponent>();
+    var filter = frame.Filter<Crystal, UnitIdentity, Team, TransformComponent>();
     while (filter.Next(out var entity)) {
-      ref readonly var unit = ref frame.GetReadOnly<UnitIdComponent>(entity);
-      ref readonly var team = ref frame.GetReadOnly<TeamComponent>(entity);
+      ref readonly var unit = ref frame.GetReadOnly<UnitIdentity>(entity);
+      ref readonly var team = ref frame.GetReadOnly<Team>(entity);
       ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
       crystals.Add(new UnitSnapshot(unit.UnitId, team.TeamId, transform.Position));
     }
@@ -616,9 +616,9 @@ public class AttackCommandExecutionTests {
   private static void ScatterHostiles(SimHarness harness, int teamId) {
     var frame = harness.Frame;
     var hostiles = new List<EntityRef>();
-    var filter = frame.Filter<UnitIdComponent, TeamComponent, TransformComponent>();
+    var filter = frame.Filter<UnitIdentity, Team, TransformComponent>();
     while (filter.Next(out var entity)) {
-      if (frame.GetReadOnly<TeamComponent>(entity).TeamId != teamId)
+      if (frame.GetReadOnly<Team>(entity).TeamId != teamId)
         hostiles.Add(entity);
     }
 
@@ -673,8 +673,8 @@ public class AttackCommandExecutionTests {
   private static void SetArmor(SimHarness harness, int unitId, int armor) {
     var frame = harness.Frame;
     TryGetEntityByUnitId(frame, unitId, out var entity).Should().BeTrue();
-    frame.Has<StatsComponent>(entity).Should().BeTrue();
-    frame.Get<StatsComponent>(entity).Set(StatType.Armor, FP64.FromInt(armor));
+    frame.Has<Stats>(entity).Should().BeTrue();
+    frame.Get<Stats>(entity).Set(StatType.Armor, FP64.FromInt(armor));
   }
 
   private static void ClearAttackTargets(SimHarness harness) {
@@ -700,15 +700,15 @@ public class AttackCommandExecutionTests {
     int unitId = UnitLookup.NextUnitId(ref frame);
 
     frame.Add(entity, TransformFactory.At(position));
-    frame.Add(entity, new UnitIdComponent {
+    frame.Add(entity, new UnitIdentity {
       UnitId = unitId,
       UnitTypeId = SimulationSetup.MinionUnitTypeId,
     });
-    frame.Add(entity, new TeamComponent { TeamId = teamId });
+    frame.Add(entity, new Team { TeamId = teamId });
     frame.Add(entity, new Minion { WaveId = 99 });
     frame.Add(entity, new Controllable());
     frame.Add(entity, new Health(FP64.FromInt(100)));
-    frame.Add(entity, StatsComponent.Create()
+    frame.Add(entity, Stats.Create()
       .With(StatType.MaxHealth, FP64.FromInt(100))
       .With(StatType.AttackDamage, FP64.FromInt(10))
       .With(StatType.AttackRange, FP64.FromInt(2))
@@ -719,9 +719,9 @@ public class AttackCommandExecutionTests {
   }
 
   private static bool TryGetEntityByUnitId(Frame frame, int unitId, out EntityRef entity) {
-    var filter = frame.Filter<UnitIdComponent>();
+    var filter = frame.Filter<UnitIdentity>();
     while (filter.Next(out entity)) {
-      ref readonly var unit = ref frame.GetReadOnly<UnitIdComponent>(entity);
+      ref readonly var unit = ref frame.GetReadOnly<UnitIdentity>(entity);
       if (unit.UnitId == unitId)
         return true;
     }

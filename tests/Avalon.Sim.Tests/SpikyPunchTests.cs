@@ -75,7 +75,7 @@ public class SpikyPunchTests {
     LearnAndCast(harness);
 
     ref readonly var proc =
-      ref harness.Frame.GetReadOnly<AttackProcComponent>(harness.FindHero(CasterPlayerId));
+      ref harness.Frame.GetReadOnly<AttackProc>(harness.FindHero(CasterPlayerId));
     proc.SourceId.Should().Be(AssetIds.SkillCrystalGiantPrimary);
     proc.DamageMultiplier.Should().Be(skill.ProcDamageMultiplierAtRank(1));
   }
@@ -154,7 +154,7 @@ public class SpikyPunchTests {
   public void TheMultiplierLandsBeforeMitigation() {
     var harness = CreateCrystalGiantHarness();
     var enemy = SpawnDummy(harness);
-    harness.Frame.Add(enemy, StatsComponent.Create().With(StatType.Armor, FP64.FromInt(100)));
+    harness.Frame.Add(enemy, Stats.Create().With(StatType.Armor, FP64.FromInt(100)));
     harness.Tick(SimHarness.UpgradeSkillCommand(CasterPlayerId, 0, Primary));
 
     // The cast resets the swing timer, so the punch is the swing that starts on the cast tick.
@@ -195,8 +195,8 @@ public class SpikyPunchTests {
     procs[0].DamageMultiplier.Should().Be(skill.ProcDamageMultiplierAtRank(1));
 
     var hero = harness.FindHero(CasterPlayerId);
-    procs[0].AttackerUnitId.Should().Be(harness.Frame.GetReadOnly<UnitIdComponent>(hero).UnitId);
-    procs[0].TargetUnitId.Should().Be(harness.Frame.GetReadOnly<UnitIdComponent>(enemy).UnitId);
+    procs[0].AttackerUnitId.Should().Be(harness.Frame.GetReadOnly<UnitIdentity>(hero).UnitId);
+    procs[0].TargetUnitId.Should().Be(harness.Frame.GetReadOnly<UnitIdentity>(enemy).UnitId);
   }
 
   // Ids come off a frame-state counter, so they have to be allocated whether or not anything is
@@ -254,10 +254,10 @@ public class SpikyPunchTests {
 
     var heroPosition = frame.GetReadOnly<TransformComponent>(hero).Position;
     frame.Get<TransformComponent>(target).Position = heroPosition + FPVector3.Right;
-    UnitIntent.SetAttackTarget(ref frame, hero, frame.GetReadOnly<UnitIdComponent>(target).UnitId);
+    UnitIntent.SetAttackTarget(ref frame, hero, frame.GetReadOnly<UnitIdentity>(target).UnitId);
 
     var healthBefore = frame.GetReadOnly<Health>(target).Current;
-    var heroUnitId = frame.GetReadOnly<UnitIdComponent>(hero).UnitId;
+    var heroUnitId = frame.GetReadOnly<UnitIdentity>(hero).UnitId;
     harness.Tick(commands);
     harness.TickThroughWindup(heroUnitId); // The swing starts on this tick; the damage lands later.
     return healthBefore - harness.Frame.GetReadOnly<Health>(target).Current;
@@ -286,7 +286,7 @@ public class SpikyPunchTests {
   // authored at 0 on every hero row, so attack damage and mitigation are the only variables.
   private static FP64 ExpectedHit(SimHarness harness, EntityRef target, FP64 multiplier) {
     var frame = harness.Frame;
-    ref readonly var stats = ref frame.GetReadOnly<StatsComponent>(harness.FindHero(CasterPlayerId));
+    ref readonly var stats = ref frame.GetReadOnly<Stats>(harness.FindHero(CasterPlayerId));
     stats.CritChance.Should().Be(FP64.Zero, "these expectations assume no crit roll can land");
 
     return DamageApplication.Mitigate(ref frame, target, stats.AttackDamage * multiplier);
@@ -324,11 +324,11 @@ public class SpikyPunchTests {
     var entity = frame.CreateEntity();
 
     frame.Add(entity, TransformFactory.At(FPVector3.Zero));
-    frame.Add(entity, new UnitIdComponent {
+    frame.Add(entity, new UnitIdentity {
       UnitId = UnitLookup.NextUnitId(ref frame),
       UnitTypeId = SimulationSetup.MinionUnitTypeId
     });
-    frame.Add(entity, new TeamComponent(EnemyTeamId));
+    frame.Add(entity, new Team(EnemyTeamId));
     frame.Add(entity, new Health(100000)); // Deep enough that nothing here can kill it
     frame.Add(entity, new Minion { WaveId = 0 });
 

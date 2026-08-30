@@ -41,12 +41,12 @@ public partial class SimMarkerNode : EntityViewNode, ISelectableTeamView, INamed
 
   public override void OnActivate(FrameRef frame) {
     var live = frame.Frame;
-    if (live == null || !live.Has<UnitIdComponent>(EntityRef))
+    if (live == null || !live.Has<UnitIdentity>(EntityRef))
       return;
 
     AddToGroup(UnitsGroup);
-    if (live.Has<TeamComponent>(EntityRef))
-      _teamId = live.GetReadOnly<TeamComponent>(EntityRef).TeamId;
+    if (live.Has<Team>(EntityRef))
+      _teamId = live.GetReadOnly<Team>(EntityRef).TeamId;
 
     GetNodeOrNull<SelectionIndicator>("SelectionIndicator")?.SetTeamId(_teamId);
   }

@@ -29,7 +29,7 @@ public class DamageSystem : ISystem {
         ResolveSwing(ref frame, attacker);
     }
 
-    var engaged = frame.Filter<Combat, TeamComponent, AttackTargetUnitId>();
+    var engaged = frame.Filter<Combat, Team, AttackTargetUnitId>();
     while (engaged.Next(out var attacker)) {
       ref readonly var combat = ref frame.GetReadOnly<Combat>(attacker);
       if (combat.WindupReleaseTick == 0 && combat.CooldownRemainingTicks == 0 && combat.TargetUnitId != 0)
@@ -116,10 +116,10 @@ public class DamageSystem : ISystem {
            CombatTargeting.IsHostileAndAlive(ref frame, attacker, target);
   }
 
-  // Attackers without a StatsComponent block (nothing today, but structures/summons may skip it) deal nothing.
+  // Attackers without a Stats block (nothing today, but structures/summons may skip it) deal nothing.
   private static FP64 GetAttackDamage(ref Frame frame, EntityRef attacker) {
-    return frame.Has<StatsComponent>(attacker)
-      ? frame.GetReadOnly<StatsComponent>(attacker).AttackDamage
+    return frame.Has<Stats>(attacker)
+      ? frame.GetReadOnly<Stats>(attacker).AttackDamage
       : FP64.Zero;
   }
 

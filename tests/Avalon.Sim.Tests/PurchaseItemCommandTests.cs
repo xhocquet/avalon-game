@@ -48,14 +48,14 @@ public class PurchaseItemCommandTests {
     var hero = FindHero(ref frame, PlayerId);
     PlaceHeroAtTeamShop(ref frame, hero);
     SetGold(ref frame, hero, 10);
-    var attackDamageBefore = frame.GetReadOnly<StatsComponent>(hero).AttackDamage;
+    var attackDamageBefore = frame.GetReadOnly<Stats>(hero).AttackDamage;
 
     harness.Tick(Purchase(EyeKeyItemId));
 
     frame = harness.Frame;
     hero = FindHero(ref frame, PlayerId);
-    frame.GetReadOnly<StatsComponent>(hero).AttackDamage.Should().Be(attackDamageBefore + FP64.FromInt(10));
-    frame.GetReadOnly<InventoryComponent>(hero).Gold.Should().Be(0);
+    frame.GetReadOnly<Stats>(hero).AttackDamage.Should().Be(attackDamageBefore + FP64.FromInt(10));
+    frame.GetReadOnly<Inventory>(hero).Gold.Should().Be(0);
   }
 
   [Fact]
@@ -67,14 +67,14 @@ public class PurchaseItemCommandTests {
     PlaceHeroAtTeamShop(ref frame, hero);
     SetGold(ref frame, hero, 100);
 
-    frame.GetReadOnly<InventoryComponent>(hero).ItemCount.Should().Be(0);
+    frame.GetReadOnly<Inventory>(hero).ItemCount.Should().Be(0);
 
     harness.Tick(Purchase(EyeKeyItemId));
     harness.Tick(Purchase(EyeKeyItemId));
 
     frame = harness.Frame;
     hero = FindHero(ref frame, PlayerId);
-    ref readonly var inventory = ref frame.GetReadOnly<InventoryComponent>(hero);
+    ref readonly var inventory = ref frame.GetReadOnly<Inventory>(hero);
 
     // Repeatable buys stack: two purchases append two ledger entries of the same asset id.
     inventory.ItemCount.Should().Be(2);
@@ -96,7 +96,7 @@ public class PurchaseItemCommandTests {
 
     frame = harness.Frame;
     hero = FindHero(ref frame, PlayerId);
-    frame.GetReadOnly<InventoryComponent>(hero).ItemCount.Should().Be(0);
+    frame.GetReadOnly<Inventory>(hero).ItemCount.Should().Be(0);
   }
 
   [Fact]
@@ -108,14 +108,14 @@ public class PurchaseItemCommandTests {
     var hero = FindHero(ref frame, PlayerId);
     PlaceHeroAtTeamShop(ref frame, hero);
     SetGold(ref frame, hero, item.Cost + 5);
-    var attackDamageBefore = frame.GetReadOnly<StatsComponent>(hero).AttackDamage;
+    var attackDamageBefore = frame.GetReadOnly<Stats>(hero).AttackDamage;
 
     harness.Tick(Purchase(EyeKeyItemId));
 
     frame = harness.Frame;
     hero = FindHero(ref frame, PlayerId);
-    frame.GetReadOnly<InventoryComponent>(hero).Gold.Should().Be(5);
-    frame.GetReadOnly<StatsComponent>(hero).AttackDamage.Should().Be(attackDamageBefore + item.AttackBonus);
+    frame.GetReadOnly<Inventory>(hero).Gold.Should().Be(5);
+    frame.GetReadOnly<Stats>(hero).AttackDamage.Should().Be(attackDamageBefore + item.AttackBonus);
   }
 
   [Fact]
@@ -127,14 +127,14 @@ public class PurchaseItemCommandTests {
     var hero = FindHero(ref frame, PlayerId);
     PlaceHeroFarFromShop(ref frame, hero);
     SetGold(ref frame, hero, 100);
-    var attackDamageBefore = frame.GetReadOnly<StatsComponent>(hero).AttackDamage;
+    var attackDamageBefore = frame.GetReadOnly<Stats>(hero).AttackDamage;
 
     harness.Tick(Purchase(EyeKeyItemId));
 
     frame = harness.Frame;
     hero = FindHero(ref frame, PlayerId);
-    frame.GetReadOnly<InventoryComponent>(hero).Gold.Should().Be(100);
-    frame.GetReadOnly<StatsComponent>(hero).AttackDamage.Should().Be(attackDamageBefore);
+    frame.GetReadOnly<Inventory>(hero).Gold.Should().Be(100);
+    frame.GetReadOnly<Stats>(hero).AttackDamage.Should().Be(attackDamageBefore);
   }
 
   [Fact]
@@ -146,14 +146,14 @@ public class PurchaseItemCommandTests {
     var hero = FindHero(ref frame, PlayerId);
     PlaceHeroAtTeamShop(ref frame, hero);
     SetGold(ref frame, hero, item.Cost - 1);
-    var attackDamageBefore = frame.GetReadOnly<StatsComponent>(hero).AttackDamage;
+    var attackDamageBefore = frame.GetReadOnly<Stats>(hero).AttackDamage;
 
     harness.Tick(Purchase(EyeKeyItemId));
 
     frame = harness.Frame;
     hero = FindHero(ref frame, PlayerId);
-    frame.GetReadOnly<InventoryComponent>(hero).Gold.Should().Be(item.Cost - 1);
-    frame.GetReadOnly<StatsComponent>(hero).AttackDamage.Should().Be(attackDamageBefore);
+    frame.GetReadOnly<Inventory>(hero).Gold.Should().Be(item.Cost - 1);
+    frame.GetReadOnly<Stats>(hero).AttackDamage.Should().Be(attackDamageBefore);
   }
 
   // CommandValidation's own gate: an id the registry never heard of is dropped before ShopActions runs.
@@ -170,8 +170,8 @@ public class PurchaseItemCommandTests {
 
     frame = harness.Frame;
     hero = FindHero(ref frame, PlayerId);
-    frame.GetReadOnly<InventoryComponent>(hero).Gold.Should().Be(100);
-    frame.GetReadOnly<InventoryComponent>(hero).ItemCount.Should().Be(0);
+    frame.GetReadOnly<Inventory>(hero).Gold.Should().Be(100);
+    frame.GetReadOnly<Inventory>(hero).ItemCount.Should().Be(0);
   }
 
   // The client gates buys on CanPurchase, so it has to answer exactly what TryPurchase would decide.
@@ -203,13 +203,13 @@ public class PurchaseItemCommandTests {
     var hero = FindHero(ref frame, PlayerId);
     PlaceHeroAtTeamShop(ref frame, hero);
     SetGold(ref frame, hero, 100);
-    var attackDamageBefore = frame.GetReadOnly<StatsComponent>(hero).AttackDamage;
+    var attackDamageBefore = frame.GetReadOnly<Stats>(hero).AttackDamage;
 
     ShopActions.CanPurchase(ref frame, PlayerId, EyeKeyItemId).Should().BeTrue();
 
-    frame.GetReadOnly<InventoryComponent>(hero).Gold.Should().Be(100);
-    frame.GetReadOnly<InventoryComponent>(hero).ItemCount.Should().Be(0);
-    frame.GetReadOnly<StatsComponent>(hero).AttackDamage.Should().Be(attackDamageBefore);
+    frame.GetReadOnly<Inventory>(hero).Gold.Should().Be(100);
+    frame.GetReadOnly<Inventory>(hero).ItemCount.Should().Be(0);
+    frame.GetReadOnly<Stats>(hero).AttackDamage.Should().Be(attackDamageBefore);
   }
 
   // The client books a queued buy's gold as pending before the sim has run it, so the second click on
@@ -236,8 +236,8 @@ public class PurchaseItemCommandTests {
     PlaceHeroAtTeamShop(ref frame, hero);
     SetGold(ref frame, hero, 10_000);
 
-    ref var inventory = ref frame.Get<InventoryComponent>(hero);
-    for (var i = 0; i < InventoryComponent.MaxItems - 1; i++)
+    ref var inventory = ref frame.Get<Inventory>(hero);
+    for (var i = 0; i < Inventory.MaxItems - 1; i++)
       inventory.TryAddItem(EyeKeyItemId);
 
     ShopActions.CanPurchase(ref frame, PlayerId, EyeKeyItemId, 0, 0).Should().BeTrue();
@@ -260,19 +260,19 @@ public class PurchaseItemCommandTests {
   }
 
   private static FPVector3 TeamShopPosition(ref Frame frame, EntityRef hero) {
-    var teamId = frame.GetReadOnly<TeamComponent>(hero).TeamId;
+    var teamId = frame.GetReadOnly<Team>(hero).TeamId;
     frame.AssetRegistry.TryGet<MapLayoutAsset>(out var layout).Should().BeTrue();
     layout.TryGetByTypeAndTeam(MapMarkerType.Shop, teamId, out var shopPos).Should().BeTrue();
     return shopPos;
   }
 
   private static void SetGold(ref Frame frame, EntityRef hero, int gold) {
-    ref var inventory = ref frame.Get<InventoryComponent>(hero);
+    ref var inventory = ref frame.Get<Inventory>(hero);
     inventory.Gold = gold;
   }
 
   private static EntityRef FindHero(ref Frame frame, int playerId) {
-    var filter = frame.Filter<Hero, InventoryComponent>();
+    var filter = frame.Filter<Hero, Inventory>();
     while (filter.Next(out var entity))
       if (frame.GetReadOnly<Hero>(entity).PlayerId == playerId)
         return entity;

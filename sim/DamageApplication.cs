@@ -57,10 +57,10 @@ public static class DamageApplication {
   // mirrored - it amplifies toward 2x rather than jumping there, and never inverts the sign.
   public static FP64 Mitigate(ref Frame frame, EntityRef target, FP64 damage,
     DamageType damageType = DamageType.Physical) {
-    if (damage <= FP64.Zero || !frame.Has<StatsComponent>(target))
+    if (damage <= FP64.Zero || !frame.Has<Stats>(target))
       return damage;
 
-    var stats = frame.GetReadOnly<StatsComponent>(target);
+    var stats = frame.GetReadOnly<Stats>(target);
     var resist = damageType == DamageType.Magical ? stats.MagicResist : stats.Armor;
 
     var multiplier = resist >= FP64.Zero

@@ -160,7 +160,7 @@ public class VenomousSlobberTests {
   public void ALethalSpray_CreditsTheCasterSoTheKillPaysXp() {
     var harness = CreateSnailheadHarness();
     var xpBefore = harness.Frame
-      .GetReadOnly<ExperienceComponent>(harness.FindHero(CasterPlayerId)).Experience;
+      .GetReadOnly<Experience>(harness.FindHero(CasterPlayerId)).Xp;
     var expectedXp = harness.AssetRegistry.Get<XpRulesAsset>().XpPerMinionKill;
 
     var origin = LearnAndPrepare(harness);
@@ -172,8 +172,8 @@ public class VenomousSlobberTests {
 
     // Kill credit rides Health.LastDamagerUnitId, which ApplyDamage sets; without it DeathSystem
     // resolves no killer and the kill pays nobody.
-    harness.Frame.GetReadOnly<ExperienceComponent>(harness.FindHero(CasterPlayerId))
-      .Experience.Should().Be(xpBefore + expectedXp);
+    harness.Frame.GetReadOnly<Experience>(harness.FindHero(CasterPlayerId))
+      .Xp.Should().Be(xpBefore + expectedXp);
   }
 
   [Fact]
@@ -243,11 +243,11 @@ public class VenomousSlobberTests {
     var entity = frame.CreateEntity();
 
     frame.Add(entity, TransformFactory.At(position));
-    frame.Add(entity, new UnitIdComponent {
+    frame.Add(entity, new UnitIdentity {
       UnitId = UnitLookup.NextUnitId(ref frame),
       UnitTypeId = isMinion ? SimulationSetup.MinionUnitTypeId : SimulationSetup.TurretUnitTypeId
     });
-    frame.Add(entity, new TeamComponent(teamId));
+    frame.Add(entity, new Team(teamId));
     frame.Add(entity, new Health(500));
 
     if (isMinion)

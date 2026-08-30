@@ -5,7 +5,7 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon.Sim.Components;
 
 // A unit's consumable pools: the values that deplete and refill against a Stats max, as opposed to
-// the buffable maxes themselves (Stats.MaxHealth, Stats.MaxMana) which live on StatsComponent. Health
+// the buffable maxes themselves (Stats.MaxHealth, Stats.MaxMana) which live on Stats. Health
 // was the first; mana joined it, and further spendable pools (energy, a shield) land here the same
 // way rather than as new components.
 //
@@ -21,7 +21,7 @@ public partial struct Health(FP64 current) : IComponent {
   // effects. A unit with no mana pool (minions, structures) sits at zero and every spend fails.
   public FP64 Mana = FP64.Zero;
 
-  // UnitIdComponent.UnitId of whoever last reduced Current
+  // UnitIdentity.UnitId of whoever last reduced Current
   public int LastDamagerUnitId = 0;
 
   // A hero sits at zero while it waits on a respawn rather than being destroyed, so "not alive" and

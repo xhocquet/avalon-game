@@ -46,12 +46,12 @@ public class GoldAccrualTests {
     var gold = harness.AssetRegistry.Get<GoldRulesAsset>();
     var killer = harness.FindHero(playerId: 1);
     var enemy = harness.FindHero(playerId: 2);
-    var startingGold = frame.GetReadOnly<InventoryComponent>(killer).Gold;
+    var startingGold = frame.GetReadOnly<Inventory>(killer).Gold;
 
-    KillMinion(ref frame, frame.GetReadOnly<TeamComponent>(enemy).TeamId, killer);
+    KillMinion(ref frame, frame.GetReadOnly<Team>(enemy).TeamId, killer);
 
-    frame.GetReadOnly<InventoryComponent>(killer).Gold.Should().Be(startingGold + gold.GoldPerMinionKill);
-    frame.GetReadOnly<InventoryComponent>(enemy).Gold.Should().Be(startingGold);
+    frame.GetReadOnly<Inventory>(killer).Gold.Should().Be(startingGold + gold.GoldPerMinionKill);
+    frame.GetReadOnly<Inventory>(enemy).Gold.Should().Be(startingGold);
   }
 
   [Fact]
@@ -61,16 +61,16 @@ public class GoldAccrualTests {
     var gold = harness.AssetRegistry.Get<GoldRulesAsset>();
     var killer = harness.FindHero(playerId: 1);
     var victim = harness.FindHero(playerId: 2);
-    var startingGold = frame.GetReadOnly<InventoryComponent>(killer).Gold;
+    var startingGold = frame.GetReadOnly<Inventory>(killer).Gold;
 
     ref var victimHealth = ref frame.Get<Health>(victim);
     victimHealth.Current = FP64.Zero;
-    victimHealth.LastDamagerUnitId = frame.GetReadOnly<UnitIdComponent>(killer).UnitId;
+    victimHealth.LastDamagerUnitId = frame.GetReadOnly<UnitIdentity>(killer).UnitId;
 
     new RespawnSystem().Update(ref frame);
 
-    frame.GetReadOnly<InventoryComponent>(killer).Gold.Should().Be(startingGold + gold.GoldPerHeroKill);
-    frame.GetReadOnly<InventoryComponent>(victim).Gold.Should().Be(startingGold);
+    frame.GetReadOnly<Inventory>(killer).Gold.Should().Be(startingGold + gold.GoldPerHeroKill);
+    frame.GetReadOnly<Inventory>(victim).Gold.Should().Be(startingGold);
   }
 
   [Fact]
@@ -79,14 +79,14 @@ public class GoldAccrualTests {
     var frame = harness.Frame;
     var gold = harness.AssetRegistry.Get<GoldRulesAsset>();
     var hero = harness.FindHero(playerId: 1);
-    var victimTeamId = frame.GetReadOnly<TeamComponent>(harness.FindHero(playerId: 2)).TeamId;
-    var startingGold = frame.GetReadOnly<InventoryComponent>(hero).Gold;
+    var victimTeamId = frame.GetReadOnly<Team>(harness.FindHero(playerId: 2)).TeamId;
+    var startingGold = frame.GetReadOnly<Inventory>(hero).Gold;
 
     GoldRewards.AwardForKill(ref frame, hero, SimulationSetup.TurretUnitTypeId, victimTeamId);
-    frame.GetReadOnly<InventoryComponent>(hero).Gold.Should().Be(startingGold + gold.GoldPerTurretKill);
+    frame.GetReadOnly<Inventory>(hero).Gold.Should().Be(startingGold + gold.GoldPerTurretKill);
 
     GoldRewards.AwardForKill(ref frame, hero, SimulationSetup.CrystalUnitTypeId, victimTeamId);
-    frame.GetReadOnly<InventoryComponent>(hero).Gold
+    frame.GetReadOnly<Inventory>(hero).Gold
       .Should().Be(startingGold + gold.GoldPerTurretKill + gold.GoldPerCrystalKill);
   }
 
@@ -95,11 +95,11 @@ public class GoldAccrualTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     var hero = harness.FindHero(playerId: 1);
-    var startingGold = frame.GetReadOnly<InventoryComponent>(hero).Gold;
+    var startingGold = frame.GetReadOnly<Inventory>(hero).Gold;
 
-    KillMinion(ref frame, frame.GetReadOnly<TeamComponent>(hero).TeamId, hero);
+    KillMinion(ref frame, frame.GetReadOnly<Team>(hero).TeamId, hero);
 
-    frame.GetReadOnly<InventoryComponent>(hero).Gold.Should().Be(startingGold);
+    frame.GetReadOnly<Inventory>(hero).Gold.Should().Be(startingGold);
   }
 
   // A minion lands the fatal hit. Minions carry no wallet, so the bounty is dropped rather than
@@ -109,13 +109,13 @@ public class GoldAccrualTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     var hero = harness.FindHero(playerId: 1);
-    var victimTeamId = frame.GetReadOnly<TeamComponent>(harness.FindHero(playerId: 2)).TeamId;
-    var startingGold = frame.GetReadOnly<InventoryComponent>(hero).Gold;
+    var victimTeamId = frame.GetReadOnly<Team>(harness.FindHero(playerId: 2)).TeamId;
+    var startingGold = frame.GetReadOnly<Inventory>(hero).Gold;
 
-    var killerMinion = SpawnMinion(ref frame, frame.GetReadOnly<TeamComponent>(hero).TeamId);
+    var killerMinion = SpawnMinion(ref frame, frame.GetReadOnly<Team>(hero).TeamId);
     KillMinion(ref frame, victimTeamId, killerMinion);
 
-    frame.GetReadOnly<InventoryComponent>(hero).Gold.Should().Be(startingGold);
+    frame.GetReadOnly<Inventory>(hero).Gold.Should().Be(startingGold);
   }
 
   [Fact]
@@ -123,13 +123,13 @@ public class GoldAccrualTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     var hero = harness.FindHero(playerId: 1);
-    var startingGold = frame.GetReadOnly<InventoryComponent>(hero).Gold;
+    var startingGold = frame.GetReadOnly<Inventory>(hero).Gold;
 
-    var victim = SpawnMinion(ref frame, frame.GetReadOnly<TeamComponent>(harness.FindHero(2)).TeamId);
+    var victim = SpawnMinion(ref frame, frame.GetReadOnly<Team>(harness.FindHero(2)).TeamId);
     frame.Get<Health>(victim).Current = FP64.Zero;
     new DeathSystem().Update(ref frame);
 
-    frame.GetReadOnly<InventoryComponent>(hero).Gold.Should().Be(startingGold);
+    frame.GetReadOnly<Inventory>(hero).Gold.Should().Be(startingGold);
   }
 
   private static void KillMinion(ref Frame frame, int victimTeamId, EntityRef killer) {
@@ -137,7 +137,7 @@ public class GoldAccrualTests {
 
     ref var health = ref frame.Get<Health>(victim);
     health.Current = FP64.Zero;
-    health.LastDamagerUnitId = frame.GetReadOnly<UnitIdComponent>(killer).UnitId;
+    health.LastDamagerUnitId = frame.GetReadOnly<UnitIdentity>(killer).UnitId;
 
     new DeathSystem().Update(ref frame);
   }
@@ -146,11 +146,11 @@ public class GoldAccrualTests {
     var entity = frame.CreateEntity();
 
     frame.Add(entity, TransformFactory.At(FPVector3.Zero));
-    frame.Add(entity, new UnitIdComponent {
+    frame.Add(entity, new UnitIdentity {
       UnitId = UnitLookup.NextUnitId(ref frame),
       UnitTypeId = SimulationSetup.MinionUnitTypeId,
     });
-    frame.Add(entity, new TeamComponent { TeamId = teamId });
+    frame.Add(entity, new Team { TeamId = teamId });
     frame.Add(entity, new Minion { WaveId = 99 });
     frame.Add(entity, new Health(100));
 
@@ -159,6 +159,6 @@ public class GoldAccrualTests {
 
   private static int GoldOf(SimHarness harness) {
     var frame = harness.Frame;
-    return frame.GetReadOnly<InventoryComponent>(harness.FindHero(playerId: 1)).Gold;
+    return frame.GetReadOnly<Inventory>(harness.FindHero(playerId: 1)).Gold;
   }
 }

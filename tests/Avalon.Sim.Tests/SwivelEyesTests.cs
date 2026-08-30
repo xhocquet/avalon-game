@@ -165,14 +165,14 @@ public class SwivelEyesTests {
     var entity = frame.CreateEntity();
 
     frame.Add(entity, TransformFactory.At(position));
-    frame.Add(entity, new UnitIdComponent {
+    frame.Add(entity, new UnitIdentity {
       UnitId = UnitLookup.NextUnitId(ref frame),
       UnitTypeId = SimulationSetup.MinionUnitTypeId
     });
-    frame.Add(entity, new TeamComponent { TeamId = teamId });
+    frame.Add(entity, new Team { TeamId = teamId });
     frame.Add(entity, new Minion { WaveId = 99 });
     frame.Add(entity, new Health(FP64.FromInt(500)));
-    frame.Add(entity, StatsComponent.Create()
+    frame.Add(entity, Stats.Create()
       .With(StatType.Armor, FP64.FromInt(armor))
       .With(StatType.MagicResist, FP64.FromInt(resist)));
 
@@ -190,12 +190,12 @@ public class SwivelEyesTests {
   }
 
   private static FP64 StatOf(SimHarness harness, EntityRef entity, StatType stat) {
-    return harness.Frame.GetReadOnly<StatsComponent>(entity).Get(stat);
+    return harness.Frame.GetReadOnly<Stats>(entity).Get(stat);
   }
 
   private static bool HasBuffs(SimHarness harness, EntityRef entity) {
     var frame = harness.Frame;
-    return frame.Has<StatBuffsComponent>(entity) &&
+    return frame.Has<StatBuffs>(entity) &&
            StatBuffApplication.ActiveCount(ref frame, entity) > 0;
   }
 
@@ -204,11 +204,11 @@ public class SwivelEyesTests {
   private static List<BuffEntry> CasterEntries(SimHarness harness) {
     var entries = new List<BuffEntry>();
     var hero = harness.FindHero(CasterPlayerId);
-    if (!harness.Frame.Has<StatBuffsComponent>(hero))
+    if (!harness.Frame.Has<StatBuffs>(hero))
       return entries;
 
-    ref readonly var buffs = ref harness.Frame.GetReadOnly<StatBuffsComponent>(hero);
-    for (var i = 0; i < StatBuffsComponent.MaxEntries; i++)
+    ref readonly var buffs = ref harness.Frame.GetReadOnly<StatBuffs>(hero);
+    for (var i = 0; i < StatBuffs.MaxEntries; i++)
       if (buffs.IsActive(i))
         entries.Add(new BuffEntry(buffs.GetSourceId(i), buffs.GetStat(i), buffs.GetApplied(i),
           buffs.GetExpiryTick(i)));

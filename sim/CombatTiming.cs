@@ -10,10 +10,10 @@ namespace Meesles.Avalon.Sim;
 // ring can't disagree with the cooldown the sim is running.
 public static class CombatTiming {
   public static int CooldownTicks(ref Frame frame, EntityRef attacker) {
-    if (!frame.Has<StatsComponent>(attacker))
+    if (!frame.Has<Stats>(attacker))
       return 1;
 
-    var attacksPerSecond = frame.GetReadOnly<StatsComponent>(attacker).AttacksPerSecond;
+    var attacksPerSecond = frame.GetReadOnly<Stats>(attacker).AttacksPerSecond;
     var ticksPerSecond = FP64.FromInt(1000) / FP64.FromInt(TickMath.DeltaTimeMs(ref frame));
 
     var half = FP64.One / FP64.FromInt(2);
@@ -30,10 +30,10 @@ public static class CombatTiming {
   // unit's own period is what keeps a burst faster than the windup landing at the spacing it was
   // authored with instead of being throttled down to the wind-up.
   public static int WindupTicks(ref Frame frame, EntityRef attacker, int cooldownTicks) {
-    if (!frame.Has<StatsComponent>(attacker))
+    if (!frame.Has<Stats>(attacker))
       return 0;
 
-    var windup = frame.GetReadOnly<StatsComponent>(attacker).AttackWindup;
+    var windup = frame.GetReadOnly<Stats>(attacker).AttackWindup;
     var ticks = SecondsToTicks(ref frame, windup, minimum: 0);
     return ticks >= cooldownTicks ? cooldownTicks - 1 : ticks;
   }

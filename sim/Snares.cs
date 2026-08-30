@@ -17,10 +17,10 @@ public static class Snares {
     if (sourceId == 0 || durationTicks <= 0)
       return false;
 
-    if (!frame.Has<SnareComponent>(entity))
-      frame.Add(entity, new SnareComponent());
+    if (!frame.Has<Snare>(entity))
+      frame.Add(entity, new Snare());
 
-    ref var snare = ref frame.Get<SnareComponent>(entity);
+    ref var snare = ref frame.Get<Snare>(entity);
     var expiryTick = frame.Tick + durationTicks;
     if (snare.IsSnared && snare.ExpiryTick >= expiryTick)
       return false;
@@ -31,12 +31,12 @@ public static class Snares {
   }
 
   public static void Clear(ref Frame frame, EntityRef entity) {
-    if (frame.Has<SnareComponent>(entity))
-      frame.Get<SnareComponent>(entity).Clear();
+    if (frame.Has<Snare>(entity))
+      frame.Get<Snare>(entity).Clear();
   }
 
   public static bool IsSnared(ref Frame frame, EntityRef entity) {
-    return frame.Has<SnareComponent>(entity) &&
-           frame.GetReadOnly<SnareComponent>(entity).IsSnared;
+    return frame.Has<Snare>(entity) &&
+           frame.GetReadOnly<Snare>(entity).IsSnared;
   }
 }

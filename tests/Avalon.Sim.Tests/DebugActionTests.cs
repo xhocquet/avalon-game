@@ -17,7 +17,7 @@ public class DebugActionTests {
     harness.Tick();
 
     var before = harness.FindHero(1);
-    harness.Frame.GetReadOnly<FactionComponent>(before).FactionId.Should().Be(AssetIds.FactionHairyWizards);
+    harness.Frame.GetReadOnly<Faction>(before).FactionId.Should().Be(AssetIds.FactionHairyWizards);
 
     harness.Tick(SimHarness.DebugCommand(1, harness.Frame.Tick, DebugAction.SwitchFaction,
       AssetIds.FactionPickleKnights));
@@ -25,7 +25,7 @@ public class DebugActionTests {
 
     var after = harness.FindHero(1);
     harness.Count<Hero>().Should().Be(1); // The old hero is gone, not left standing beside the new one
-    harness.Frame.GetReadOnly<FactionComponent>(after).FactionId.Should().Be(AssetIds.FactionPickleKnights);
+    harness.Frame.GetReadOnly<Faction>(after).FactionId.Should().Be(AssetIds.FactionPickleKnights);
     harness.Frame.GetReadOnly<Hero>(after).HeroAssetId.Should()
       .NotBe(harness.Frame.AssetRegistry.Get<FactionAsset>(AssetIds.FactionHairyWizards).HeroAssetId);
   }
@@ -39,30 +39,30 @@ public class DebugActionTests {
     harness.Tick(SimHarness.DebugCommand(1, harness.Frame.Tick, DebugAction.SwitchFaction, 999999));
     harness.Tick();
 
-    harness.Frame.GetReadOnly<FactionComponent>(harness.FindHero(1)).FactionId
+    harness.Frame.GetReadOnly<Faction>(harness.FindHero(1)).FactionId
       .Should().Be(AssetIds.FactionHairyWizards);
   }
 
   [Fact]
   public void AddGold_CreditsTheIssuingPlayerOnly() {
     var harness = SimHarness.CreateInitialized();
-    var before = harness.Frame.GetReadOnly<InventoryComponent>(harness.FindHero(1)).Gold;
-    var otherBefore = harness.Frame.GetReadOnly<InventoryComponent>(harness.FindHero(2)).Gold;
+    var before = harness.Frame.GetReadOnly<Inventory>(harness.FindHero(1)).Gold;
+    var otherBefore = harness.Frame.GetReadOnly<Inventory>(harness.FindHero(2)).Gold;
 
     harness.Tick(SimHarness.DebugCommand(1, harness.Frame.Tick, DebugAction.AddGold, 750));
 
-    harness.Frame.GetReadOnly<InventoryComponent>(harness.FindHero(1)).Gold.Should().Be(before + 750);
-    harness.Frame.GetReadOnly<InventoryComponent>(harness.FindHero(2)).Gold.Should().Be(otherBefore);
+    harness.Frame.GetReadOnly<Inventory>(harness.FindHero(1)).Gold.Should().Be(before + 750);
+    harness.Frame.GetReadOnly<Inventory>(harness.FindHero(2)).Gold.Should().Be(otherBefore);
   }
 
   [Fact]
   public void AddExperience_LevelsTheHeroThroughExperienceSystem() {
     var harness = SimHarness.CreateInitialized();
-    harness.Frame.GetReadOnly<ExperienceComponent>(harness.FindHero(1)).Level.Should().Be(1);
+    harness.Frame.GetReadOnly<Experience>(harness.FindHero(1)).Level.Should().Be(1);
 
     harness.Tick(SimHarness.DebugCommand(1, harness.Frame.Tick, DebugAction.AddExperience, 100000));
 
-    harness.Frame.GetReadOnly<ExperienceComponent>(harness.FindHero(1)).Level.Should().BeGreaterThan(1);
+    harness.Frame.GetReadOnly<Experience>(harness.FindHero(1)).Level.Should().BeGreaterThan(1);
   }
 
   [Fact]
@@ -73,8 +73,8 @@ public class DebugActionTests {
 
     var frame = harness.Frame;
     var hero = harness.FindHero(1);
-    ref readonly var skills = ref frame.GetReadOnly<SkillsComponent>(hero);
-    for (var slot = 0; slot < SkillsComponent.MaxSlots; slot++) {
+    ref readonly var skills = ref frame.GetReadOnly<Skills>(hero);
+    for (var slot = 0; slot < Skills.MaxSlots; slot++) {
       if (!frame.AssetRegistry.TryGet<SkillAsset>(skills.GetSkillAssetId(slot), out var skill))
         continue;
 
@@ -87,12 +87,12 @@ public class DebugActionTests {
     var harness = SimHarness.CreateInitialized();
     harness.Tick(SimHarness.DebugCommand(1, harness.Frame.Tick, DebugAction.MaxSkills));
     harness.Tick(SimHarness.CastSkillCommand(1, harness.Frame.Tick, 0));
-    harness.Frame.GetReadOnly<SkillsComponent>(harness.FindHero(1)).GetCooldownRemainingTicks(0)
+    harness.Frame.GetReadOnly<Skills>(harness.FindHero(1)).GetCooldownRemainingTicks(0)
       .Should().BeGreaterThan(0);
 
     harness.Tick(SimHarness.DebugCommand(1, harness.Frame.Tick, DebugAction.RefreshCooldowns));
 
-    harness.Frame.GetReadOnly<SkillsComponent>(harness.FindHero(1)).GetCooldownRemainingTicks(0)
+    harness.Frame.GetReadOnly<Skills>(harness.FindHero(1)).GetCooldownRemainingTicks(0)
       .Should().Be(0);
   }
 
@@ -131,9 +131,9 @@ public class DebugActionTests {
 
     harness.Count<Minion>().Should().BeGreaterThan(before);
     var frame = harness.Frame;
-    var filter = frame.Filter<Minion, TeamComponent>();
+    var filter = frame.Filter<Minion, Team>();
     while (filter.Next(out var entity))
-      frame.GetReadOnly<TeamComponent>(entity).TeamId.Should().NotBe(1);
+      frame.GetReadOnly<Team>(entity).TeamId.Should().NotBe(1);
   }
 
   // The view resolves a minion's model through the faction, and on a playground the target team has no
@@ -148,8 +148,8 @@ public class DebugActionTests {
     var seen = 0;
     var filter = frame.Filter<Minion>();
     while (filter.Next(out var entity)) {
-      frame.Has<FactionComponent>(entity).Should().BeTrue();
-      frame.GetReadOnly<FactionComponent>(entity).FactionId.Should().BeGreaterThan(0);
+      frame.Has<Faction>(entity).Should().BeTrue();
+      frame.GetReadOnly<Faction>(entity).FactionId.Should().BeGreaterThan(0);
       seen++;
     }
 
@@ -164,9 +164,9 @@ public class DebugActionTests {
       FP64.Zero, FP64.Zero, AssetIds.FactionSkinwalkerTribe));
 
     var frame = harness.Frame;
-    var filter = frame.Filter<Minion, FactionComponent>();
+    var filter = frame.Filter<Minion, Faction>();
     while (filter.Next(out var entity))
-      frame.GetReadOnly<FactionComponent>(entity).FactionId.Should().Be(AssetIds.FactionSkinwalkerTribe);
+      frame.GetReadOnly<Faction>(entity).FactionId.Should().Be(AssetIds.FactionSkinwalkerTribe);
   }
 
   [Fact]
@@ -206,10 +206,10 @@ public class DebugActionTests {
   [Fact]
   public void UnknownAction_IsRejectedBeforeItReachesTheHandler() {
     var harness = SimHarness.CreateInitialized();
-    var before = harness.Frame.GetReadOnly<InventoryComponent>(harness.FindHero(1)).Gold;
+    var before = harness.Frame.GetReadOnly<Inventory>(harness.FindHero(1)).Gold;
 
     harness.Tick(SimHarness.DebugCommand(1, harness.Frame.Tick, (DebugAction)9999, 500));
 
-    harness.Frame.GetReadOnly<InventoryComponent>(harness.FindHero(1)).Gold.Should().Be(before);
+    harness.Frame.GetReadOnly<Inventory>(harness.FindHero(1)).Gold.Should().Be(before);
   }
 }

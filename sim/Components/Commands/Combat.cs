@@ -4,7 +4,7 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon.Sim.Components;
 
 // An in-progress attack, and nothing else. Range, acquisition range, and the base attack period all
-// live on StatsComponent now, because items and skills change them and this component is transient
+// live on Stats now, because items and skills change them and this component is transient
 // per-attack state.
 [KlothoComponent(ComponentIds.Combat)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]

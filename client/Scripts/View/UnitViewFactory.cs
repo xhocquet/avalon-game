@@ -50,10 +50,10 @@ public class UnitViewFactory : EntityViewFactory {
     if (!_reportedFactionIds.Add(factionId))
       return;
 
-    var teamId = frame.Has<TeamComponent>(entity) ? frame.GetReadOnly<TeamComponent>(entity).TeamId : 0;
+    var teamId = frame.Has<Team>(entity) ? frame.GetReadOnly<Team>(entity).TeamId : 0;
     GD.PushError(
       $"[View] No faction registered for id {factionId} (team {teamId}) — those units will not render. " +
-      "A unit whose team has no PlayerFaction slot needs a FactionComponent of its own.");
+      "A unit whose team has no PlayerFaction slot needs a Faction of its own.");
   }
 
   private PackedScene ResolveScene(Frame frame, EntityRef entity) {
@@ -66,15 +66,15 @@ public class UnitViewFactory : EntityViewFactory {
     return frame.Has<Minion>(entity) ? entry.MinionScene : entry.HeroScene;
   }
 
-  // Heroes carry FactionComponent directly; other faction-aligned units (minions) inherit it from their
+  // Heroes carry Faction directly; other faction-aligned units (minions) inherit it from their
   // team's pick. Returns 0 when neither is available — an id the catalog doesn't register, so
   // Resolve throws and surfaces the mis-configured unit rather than rendering a placeholder.
   private static int ResolveFactionId(Frame frame, EntityRef entity) {
-    if (frame.Has<FactionComponent>(entity))
-      return frame.GetReadOnly<FactionComponent>(entity).FactionId;
+    if (frame.Has<Faction>(entity))
+      return frame.GetReadOnly<Faction>(entity).FactionId;
 
-    if (frame.Has<TeamComponent>(entity)) {
-      var teamId = frame.GetReadOnly<TeamComponent>(entity).TeamId;
+    if (frame.Has<Team>(entity)) {
+      var teamId = frame.GetReadOnly<Team>(entity).TeamId;
       var filter = frame.Filter<PlayerFaction>();
       while (filter.Next(out var slot)) {
         ref readonly var pf = ref frame.GetReadOnly<PlayerFaction>(slot);
@@ -90,10 +90,10 @@ public class UnitViewFactory : EntityViewFactory {
   // slips past the prefab check. UnitId comes from the monotonic counter and separates the two. Only
   // rejects when both sides carry an id, so views that track none never churn.
   public override bool IsSameEntity(Frame frame, EntityRef entity, EntityViewNode view) {
-    if (!view.TryGetCachedUnitId(out var cachedUnitId) || !frame.Has<UnitIdComponent>(entity))
+    if (!view.TryGetCachedUnitId(out var cachedUnitId) || !frame.Has<UnitIdentity>(entity))
       return true;
 
-    return cachedUnitId == frame.GetReadOnly<UnitIdComponent>(entity).UnitId;
+    return cachedUnitId == frame.GetReadOnly<UnitIdentity>(entity).UnitId;
   }
 
   protected override bool ShouldRender(Frame frame, EntityRef entity) {

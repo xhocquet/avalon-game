@@ -21,10 +21,10 @@ public static class AttackBursts {
     if (sourceId == 0 || totalAttacks <= 1 || delayTicks <= 0 || durationTicks <= 0)
       return false;
 
-    if (!frame.Has<AttackBurstComponent>(entity))
-      frame.Add(entity, new AttackBurstComponent());
+    if (!frame.Has<AttackBurst>(entity))
+      frame.Add(entity, new AttackBurst());
 
-    ref var burst = ref frame.Get<AttackBurstComponent>(entity);
+    ref var burst = ref frame.Get<AttackBurst>(entity);
     burst.SourceId = sourceId;
     burst.Remaining = totalAttacks - 1;
     burst.DelayTicks = delayTicks;
@@ -39,10 +39,10 @@ public static class AttackBursts {
   // The swing timer to leave after an attack that just landed. Spends one queued swing, so it is
   // called once per landed attack, at the point the cooldown is set.
   public static int NextCooldownTicks(ref Frame frame, EntityRef attacker, int defaultTicks) {
-    if (!frame.Has<AttackBurstComponent>(attacker))
+    if (!frame.Has<AttackBurst>(attacker))
       return defaultTicks;
 
-    ref var burst = ref frame.Get<AttackBurstComponent>(attacker);
+    ref var burst = ref frame.Get<AttackBurst>(attacker);
     if (!burst.IsQueued)
       return defaultTicks;
 
@@ -56,13 +56,13 @@ public static class AttackBursts {
   }
 
   public static void Clear(ref Frame frame, EntityRef entity) {
-    if (frame.Has<AttackBurstComponent>(entity))
-      frame.Get<AttackBurstComponent>(entity).Clear();
+    if (frame.Has<AttackBurst>(entity))
+      frame.Get<AttackBurst>(entity).Clear();
   }
 
   public static int Remaining(ref Frame frame, EntityRef entity) {
-    return frame.Has<AttackBurstComponent>(entity)
-      ? frame.GetReadOnly<AttackBurstComponent>(entity).Remaining
+    return frame.Has<AttackBurst>(entity)
+      ? frame.GetReadOnly<AttackBurst>(entity).Remaining
       : 0;
   }
 }

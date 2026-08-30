@@ -15,8 +15,8 @@ public static class MatchStats {
     if (!killer.IsValid)
       return false;
 
-    return !frame.Has<TeamComponent>(killer) ||
-           frame.GetReadOnly<TeamComponent>(killer).TeamId != victimTeamId;
+    return !frame.Has<Team>(killer) ||
+           frame.GetReadOnly<Team>(killer).TeamId != victimTeamId;
   }
 
   public static void RecordKill(ref Frame frame, EntityRef killer, int victimUnitTypeId, int victimTeamId) {
@@ -59,8 +59,8 @@ public static class MatchStats {
     if (damage <= FP64.Zero || !frame.Has<Player>(source))
       return;
 
-    var targetTeamId = frame.Has<TeamComponent>(target)
-      ? frame.GetReadOnly<TeamComponent>(target).TeamId
+    var targetTeamId = frame.Has<Team>(target)
+      ? frame.GetReadOnly<Team>(target).TeamId
       : 0;
     if (!IsCreditableKill(ref frame, source, targetTeamId))
       return;

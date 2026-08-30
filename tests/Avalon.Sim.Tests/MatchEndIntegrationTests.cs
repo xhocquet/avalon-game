@@ -81,7 +81,7 @@ public class MatchEndIntegrationTests {
     harness.Tick();
 
     var frame = harness.Frame;
-    frame.Get<ResourcesComponent>(harness.FindHero(playerId: 2)).Add(AssetIds.PickupTypeWater, 7);
+    frame.Get<Resources>(harness.FindHero(playerId: 2)).Add(AssetIds.PickupTypeWater, 7);
     frame.Get<Health>(GetCrystalForTeam(ref frame, teamId: 1)).Current = 0;
     harness.Tick();
 
@@ -100,9 +100,9 @@ public class MatchEndIntegrationTests {
   }
 
   private static EntityRef GetCrystalForTeam(ref Frame frame, int teamId) {
-    var filter = frame.Filter<Crystal, TeamComponent, Health>();
+    var filter = frame.Filter<Crystal, Team, Health>();
     while (filter.Next(out var entity))
-      if (frame.GetReadOnly<TeamComponent>(entity).TeamId == teamId)
+      if (frame.GetReadOnly<Team>(entity).TeamId == teamId)
         return entity;
 
     throw new Xunit.Sdk.XunitException($"Expected crystal for team {teamId}.");

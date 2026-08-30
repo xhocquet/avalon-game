@@ -34,7 +34,7 @@ public class HeroAssetSpawnTests {
       var heroAssetId = frame.GetReadOnly<Hero>(entity).HeroAssetId;
       var heroAsset = harness.AssetRegistry.Get<HeroAsset>(heroAssetId);
 
-      ref readonly var stats = ref frame.GetReadOnly<StatsComponent>(entity);
+      ref readonly var stats = ref frame.GetReadOnly<Stats>(entity);
       stats.MaxHealth.Should().Be(heroAsset.BaseHealth);
       stats.AttackDamage.Should().Be(heroAsset.BaseAttackDamage);
       stats.MoveSpeed.Should().Be(heroAsset.MoveSpeed);
@@ -55,9 +55,9 @@ public class HeroAssetSpawnTests {
 
     matchRules.StartingGold.Should().BeGreaterThan(0);
 
-    var filter = frame.Filter<Hero, InventoryComponent>();
+    var filter = frame.Filter<Hero, Inventory>();
     while (filter.Next(out var entity))
-      frame.GetReadOnly<InventoryComponent>(entity).Gold.Should().Be(matchRules.StartingGold);
+      frame.GetReadOnly<Inventory>(entity).Gold.Should().Be(matchRules.StartingGold);
   }
 
   // Two players picking different factions get heroes built from different rows. Asserting each
@@ -81,7 +81,7 @@ public class HeroAssetSpawnTests {
     var frame = harness.Frame;
     var hero = harness.FindHero(playerId);
 
-    ref readonly var stats = ref frame.GetReadOnly<StatsComponent>(hero);
+    ref readonly var stats = ref frame.GetReadOnly<Stats>(hero);
     stats.MaxHealth.Should().Be(expected.BaseHealth);
     stats.AttackDamage.Should().Be(expected.BaseAttackDamage);
     stats.MoveSpeed.Should().Be(expected.MoveSpeed);

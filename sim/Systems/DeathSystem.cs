@@ -19,7 +19,7 @@ public class DeathSystem : ISystem {
     var indexBuilt = false;
 
     // Units that come back die through RespawnSystem, not here.
-    var filter = frame.FilterWithout<UnitIdComponent, Health, Respawns>();
+    var filter = frame.FilterWithout<UnitIdentity, Health, Respawns>();
     while (filter.Next(out var entity)) {
       ref readonly var health = ref frame.GetReadOnly<Health>(entity);
       if (health.IsAlive)
@@ -31,7 +31,7 @@ public class DeathSystem : ISystem {
         indexBuilt = true;
       }
 
-      ref readonly var unit = ref frame.GetReadOnly<UnitIdComponent>(entity);
+      ref readonly var unit = ref frame.GetReadOnly<UnitIdentity>(entity);
       var destroyed = ResolveUnitContext(ref frame, entity);
       var destroyer = ResolveDestroyerContext(ref frame, lastDamagerUnitId);
       var position = FPVector3.Zero;
@@ -111,7 +111,7 @@ public class DeathSystem : ISystem {
   }
 
   private static UnitContext ResolveUnitContext(ref Frame frame, EntityRef entity) {
-    var teamId = frame.Has<TeamComponent>(entity) ? frame.GetReadOnly<TeamComponent>(entity).TeamId : 0;
+    var teamId = frame.Has<Team>(entity) ? frame.GetReadOnly<Team>(entity).TeamId : 0;
     return new UnitContext(
       entity,
       UnitLookup.GetUnitId(ref frame, entity),

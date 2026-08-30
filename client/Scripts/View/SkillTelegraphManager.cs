@@ -148,9 +148,9 @@ public class SkillTelegraphManager {
     casterUnitId = 0;
 
     if (!UnitLookup.TryGetPlayerHero(ref frame, _engine.LocalPlayerId, out var hero)) return false;
-    if (!frame.Has<SkillsComponent>(hero)) return false;
+    if (!frame.Has<Skills>(hero)) return false;
 
-    var skillAssetId = frame.GetReadOnly<SkillsComponent>(hero).GetSkillAssetId(slot);
+    var skillAssetId = frame.GetReadOnly<Skills>(hero).GetSkillAssetId(slot);
     if (!_catalog.TryResolve(skillAssetId, out def)) return false;
     if (!frame.AssetRegistry.TryGet<SkillAsset>(skillAssetId, out skill)) return false;
 

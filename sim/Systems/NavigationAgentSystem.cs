@@ -64,8 +64,8 @@ public class NavigationAgentSystem : ISystem {
       EnsureCapacity(ref _allEntities, _allCount + 1);
       SyncAgentPosition(ref frame, entity, ref nav, transform.Position, snapThresholdSqr);
 
-      if (frame.Has<StatsComponent>(entity))
-        nav.Speed = frame.GetReadOnly<StatsComponent>(entity).MoveSpeed;
+      if (frame.Has<Stats>(entity))
+        nav.Speed = frame.GetReadOnly<Stats>(entity).MoveSpeed;
 
       _allEntities[_allCount++] = entity;
 

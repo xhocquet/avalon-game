@@ -88,12 +88,12 @@ public class CriticalStrikeTests {
   }
 
   private static void SetCrit(ref Frame frame, EntityRef entity, FP64 chance, FP64 damage) {
-    ref var stats = ref frame.Get<StatsComponent>(entity);
+    ref var stats = ref frame.Get<Stats>(entity);
     stats.Set(StatType.CritChance, chance);
     stats.Set(StatType.CritDamage, damage);
   }
 
   private static void SetArmor(ref Frame frame, EntityRef entity, int armor) {
-    frame.Get<StatsComponent>(entity).Set(StatType.Armor, FP64.FromInt(armor));
+    frame.Get<Stats>(entity).Set(StatType.Armor, FP64.FromInt(armor));
   }
 }

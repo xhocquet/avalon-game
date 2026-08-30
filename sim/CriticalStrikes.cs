@@ -15,16 +15,16 @@ public static class CriticalStrikes {
   public static FP64 Scale(ref Frame frame, EntityRef attacker, int attackerUnitId, FP64 damage,
     out bool isCrit) {
     isCrit = Rolls(ref frame, attacker, attackerUnitId);
-    return isCrit ? damage * frame.GetReadOnly<StatsComponent>(attacker).CritDamage : damage;
+    return isCrit ? damage * frame.GetReadOnly<Stats>(attacker).CritDamage : damage;
   }
 
   // One draw per (attacker, tick): an attacker lands at most one auto-attack in a tick, so nothing
   // shares a draw with itself.
   public static bool Rolls(ref Frame frame, EntityRef attacker, int attackerUnitId) {
-    if (!frame.Has<StatsComponent>(attacker))
+    if (!frame.Has<Stats>(attacker))
       return false;
 
-    var chance = frame.GetReadOnly<StatsComponent>(attacker).CritChance;
+    var chance = frame.GetReadOnly<Stats>(attacker).CritChance;
     if (chance <= FP64.Zero)
       return false;
 

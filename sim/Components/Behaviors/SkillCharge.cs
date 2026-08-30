@@ -5,7 +5,7 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon.Sim.Components;
 
 // A burst charging on its caster: armed by a cast, paid out on DetonateTick as one disc centred on
-// wherever the caster is standing then. The counterpart to AttackProcComponent - that one waits on an
+// wherever the caster is standing then. The counterpart to AttackProc - that one waits on an
 // attack to spend it, this one waits only on the clock, so a charge always goes off unless the caster
 // dies first.
 //
@@ -19,7 +19,7 @@ namespace Meesles.Avalon.Sim.Components;
 // means the charge is a plain burst with no aura.
 [KlothoComponent(ComponentIds.SkillCharge)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public partial struct SkillChargeComponent : IComponent {
+public partial struct SkillCharge : IComponent {
   public int SourceId; // SkillAsset id that armed it; 0 means nothing is charging
   public int DetonateTick;
   public int SnareDurationTicks; // How long the burst holds what it catches; 0 damages only

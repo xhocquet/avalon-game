@@ -60,7 +60,7 @@ public class ChrysalisTests {
     var armorBefore = Stat(harness, StatType.Armor);
     var castTick = LearnAndCast(harness);
 
-    var charge = harness.Frame.GetReadOnly<SkillChargeComponent>(Caster(harness));
+    var charge = harness.Frame.GetReadOnly<SkillCharge>(Caster(harness));
     charge.SourceId.Should().Be(AssetIds.SkillCrystalGiantUltimate);
     charge.Damage.Should().Be(skill.DamageAtRank(1));
     charge.Radius.Should().Be(skill.AreaRadius);
@@ -248,11 +248,11 @@ public class ChrysalisTests {
     var entity = frame.CreateEntity();
 
     frame.Add(entity, TransformFactory.At(position));
-    frame.Add(entity, new UnitIdComponent {
+    frame.Add(entity, new UnitIdentity {
       UnitId = UnitLookup.NextUnitId(ref frame),
       UnitTypeId = isMinion ? SimulationSetup.MinionUnitTypeId : SimulationSetup.TurretUnitTypeId
     });
-    frame.Add(entity, new TeamComponent(teamId));
+    frame.Add(entity, new Team(teamId));
     frame.Add(entity, new Health(1500));
 
     if (isMinion)
@@ -307,11 +307,11 @@ public class ChrysalisTests {
   }
 
   private static FP64 Stat(SimHarness harness, StatType stat) {
-    return harness.Frame.GetReadOnly<StatsComponent>(Caster(harness)).Get(stat);
+    return harness.Frame.GetReadOnly<Stats>(Caster(harness)).Get(stat);
   }
 
   private static int UnitId(SimHarness harness, EntityRef entity) {
-    return harness.Frame.GetReadOnly<UnitIdComponent>(entity).UnitId;
+    return harness.Frame.GetReadOnly<UnitIdentity>(entity).UnitId;
   }
 
   private static int Ticks(SimHarness harness, int milliseconds) {
@@ -332,11 +332,11 @@ public class ChrysalisTests {
   private static List<BuffEntry> BuffEntries(SimHarness harness) {
     var entries = new List<BuffEntry>();
     var hero = Caster(harness);
-    if (!harness.Frame.Has<StatBuffsComponent>(hero))
+    if (!harness.Frame.Has<StatBuffs>(hero))
       return entries;
 
-    ref readonly var buffs = ref harness.Frame.GetReadOnly<StatBuffsComponent>(hero);
-    for (var i = 0; i < StatBuffsComponent.MaxEntries; i++)
+    ref readonly var buffs = ref harness.Frame.GetReadOnly<StatBuffs>(hero);
+    for (var i = 0; i < StatBuffs.MaxEntries; i++)
       if (buffs.IsActive(i))
         entries.Add(new BuffEntry(buffs.GetSourceId(i), buffs.GetStat(i), buffs.GetApplied(i),
           buffs.GetExpiryTick(i)));

@@ -8,16 +8,16 @@ public static class UnitLookup {
   public const int FirstUnitId = IdCounter<UnitIdCounter>.FirstId;
   public const int NoPlayerId = -1;
 
-  // Single global sequence for UnitIdComponent.UnitId
+  // Single global sequence for UnitIdentity.UnitId
   public static void InitializeUnitIds(ref Frame frame, int nextUnitId = FirstUnitId) =>
     IdCounter<UnitIdCounter>.Initialize(ref frame, nextUnitId);
 
   public static int NextUnitId(ref Frame frame) => IdCounter<UnitIdCounter>.Next(ref frame);
 
   public static bool TryGetEntityByUnitId(ref Frame frame, int unitId, out EntityRef entity) {
-    var filter = frame.Filter<UnitIdComponent>();
+    var filter = frame.Filter<UnitIdentity>();
     while (filter.Next(out entity)) {
-      ref readonly var unit = ref frame.GetReadOnly<UnitIdComponent>(entity);
+      ref readonly var unit = ref frame.GetReadOnly<UnitIdentity>(entity);
       if (unit.UnitId == unitId)
         return true;
     }
@@ -41,8 +41,8 @@ public static class UnitLookup {
   }
 
   public static bool TryGetPlayerTeamId(ref Frame frame, int playerId, out int teamId) {
-    if (TryGetPlayerHero(ref frame, playerId, out var hero) && frame.Has<TeamComponent>(hero)) {
-      teamId = frame.GetReadOnly<TeamComponent>(hero).TeamId;
+    if (TryGetPlayerHero(ref frame, playerId, out var hero) && frame.Has<Team>(hero)) {
+      teamId = frame.GetReadOnly<Team>(hero).TeamId;
       return true;
     }
 
@@ -57,16 +57,16 @@ public static class UnitLookup {
       : NoPlayerId;
   }
 
-  // UnitIdComponent is optional on an entity, and every caller wants the same fallback.
+  // UnitId is optional on an entity, and every caller wants the same fallback.
   public static int GetUnitId(ref Frame frame, EntityRef entity) {
-    return entity.IsValid && frame.Has<UnitIdComponent>(entity)
-      ? frame.GetReadOnly<UnitIdComponent>(entity).UnitId
+    return entity.IsValid && frame.Has<UnitIdentity>(entity)
+      ? frame.GetReadOnly<UnitIdentity>(entity).UnitId
       : 0;
   }
 
   public static int GetUnitTypeId(ref Frame frame, EntityRef entity) {
-    return entity.IsValid && frame.Has<UnitIdComponent>(entity)
-      ? frame.GetReadOnly<UnitIdComponent>(entity).UnitTypeId
+    return entity.IsValid && frame.Has<UnitIdentity>(entity)
+      ? frame.GetReadOnly<UnitIdentity>(entity).UnitTypeId
       : 0;
   }
 
@@ -90,7 +90,7 @@ public static class UnitLookup {
   }
 
   private static bool KeepIfOnTeam(ref Frame frame, int teamId, ref EntityRef entity) {
-    if (frame.Has<TeamComponent>(entity) && frame.GetReadOnly<TeamComponent>(entity).TeamId == teamId)
+    if (frame.Has<Team>(entity) && frame.GetReadOnly<Team>(entity).TeamId == teamId)
       return true;
 
     entity = default;
@@ -112,9 +112,9 @@ public static class UnitLookup {
 
     public void Rebuild(ref Frame frame) {
       _index.Clear();
-      var filter = frame.Filter<UnitIdComponent>();
+      var filter = frame.Filter<UnitIdentity>();
       while (filter.Next(out var entity)) {
-        ref readonly var unit = ref frame.GetReadOnly<UnitIdComponent>(entity);
+        ref readonly var unit = ref frame.GetReadOnly<UnitIdentity>(entity);
         _index[unit.UnitId] = entity;
       }
     }

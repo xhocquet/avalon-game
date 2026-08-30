@@ -87,7 +87,7 @@ public class StructureAttackApproachTests {
     var harness = SimHarness.CreateInitialized(spawnHeroesNow: false);
     harness.Tick(SimHarness.SelectFactionCommand(HeroPlayerId, 0, factionId));
 
-    var heroUnitId = harness.Frame.GetReadOnly<UnitIdComponent>(harness.FindHero(HeroPlayerId)).UnitId;
+    var heroUnitId = harness.Frame.GetReadOnly<UnitIdentity>(harness.FindHero(HeroPlayerId)).UnitId;
     var (turretUnitId, turretPosition) = FindHostileTurret(harness);
 
     SetPosition(harness, heroUnitId, ApproachFrom(harness, turretPosition, FP64.FromInt(6)));
@@ -116,15 +116,15 @@ public class StructureAttackApproachTests {
 
   private static (int UnitId, FPVector3 Position) FindHostileTurret(SimHarness harness) {
     var frame = harness.Frame;
-    int heroTeamId = frame.GetReadOnly<TeamComponent>(harness.FindHero(HeroPlayerId)).TeamId;
+    int heroTeamId = frame.GetReadOnly<Team>(harness.FindHero(HeroPlayerId)).TeamId;
 
     var candidates = new List<(int UnitId, FPVector3 Position)>();
-    var filter = frame.Filter<Turret, UnitIdComponent, TeamComponent, TransformComponent>();
+    var filter = frame.Filter<Turret, UnitIdentity, Team, TransformComponent>();
     while (filter.Next(out var entity)) {
-      if (frame.GetReadOnly<TeamComponent>(entity).TeamId == heroTeamId)
+      if (frame.GetReadOnly<Team>(entity).TeamId == heroTeamId)
         continue;
 
-      candidates.Add((frame.GetReadOnly<UnitIdComponent>(entity).UnitId,
+      candidates.Add((frame.GetReadOnly<UnitIdentity>(entity).UnitId,
         frame.GetReadOnly<TransformComponent>(entity).Position));
     }
 
@@ -149,7 +149,7 @@ public class StructureAttackApproachTests {
   }
 
   private static FP64 GetAttackRange(SimHarness harness, int unitId) {
-    return harness.Frame.GetReadOnly<StatsComponent>(Entity(harness, unitId)).AttackRange;
+    return harness.Frame.GetReadOnly<Stats>(Entity(harness, unitId)).AttackRange;
   }
 
   private static FP64 GetHealth(SimHarness harness, int unitId) {

@@ -150,8 +150,8 @@ public partial class SingleplayerGameNode : GameNode {
   private void OnLocalViewRegistered(EntityViewNode view) {
     _camera?.SetFollowTarget(view);
     var frame = view.Engine?.PredictedFrame.Frame;
-    if (frame != null && frame.Has<TeamComponent>(view.EntityRef))
-      Input.SetLocalTeamId(frame.GetReadOnly<TeamComponent>(view.EntityRef).TeamId);
+    if (frame != null && frame.Has<Team>(view.EntityRef))
+      Input.SetLocalTeamId(frame.GetReadOnly<Team>(view.EntityRef).TeamId);
     Input.SelectSingleView(view);
   }
 

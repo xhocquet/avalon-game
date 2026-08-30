@@ -7,10 +7,10 @@ namespace Meesles.Avalon.Sim.Tests;
 
 // The stat block is FP64-backed and clamped, which is what makes a fractional or percentage modifier
 // expressible at all. These pin the two properties the old int block did not have.
-public class StatsComponentTests {
+public class StatsTests {
   [Fact]
   public void Add_KeepsTheFractionalPartOfADelta() {
-    var stats = StatsComponent.Create().With(StatType.AttackDamage, FP64.FromInt(68));
+    var stats = Stats.Create().With(StatType.AttackDamage, FP64.FromInt(68));
 
     stats.Add(StatType.AttackDamage, FP64.One / FP64.FromInt(2));
 
@@ -19,7 +19,7 @@ public class StatsComponentTests {
 
   [Fact]
   public void Add_OfAPercentage_ScalesRatherThanTruncating() {
-    var stats = StatsComponent.Create().With(StatType.BonusAttackSpeed, FP64.Zero);
+    var stats = Stats.Create().With(StatType.BonusAttackSpeed, FP64.Zero);
 
     // 2.9% per level, the increment Crystal Giant's row authors.
     var perLevel = FP64.FromInt(29) / FP64.FromInt(1000);
@@ -36,10 +36,10 @@ public class StatsComponentTests {
       var stat = (StatType)i;
       var row = StatRanges.Of(stat);
 
-      var high = StatsComponent.Create().With(stat, row.Max + FP64.FromInt(1000));
+      var high = Stats.Create().With(stat, row.Max + FP64.FromInt(1000));
       high.Get(stat).Should().Be(row.Max, $"{stat} must not exceed its ceiling");
 
-      var low = StatsComponent.Create().With(stat, row.Min - FP64.FromInt(1000));
+      var low = Stats.Create().With(stat, row.Min - FP64.FromInt(1000));
       low.Get(stat).Should().Be(row.Min, $"{stat} must not fall below its floor");
     }
   }
@@ -48,7 +48,7 @@ public class StatsComponentTests {
   // dead to everything that checks Health.
   [Fact]
   public void MaxHealth_CanNeverReachZero() {
-    var stats = StatsComponent.Create().With(StatType.MaxHealth, FP64.FromInt(650));
+    var stats = Stats.Create().With(StatType.MaxHealth, FP64.FromInt(650));
 
     stats.Add(StatType.MaxHealth, -FP64.FromInt(100000));
 
@@ -58,7 +58,7 @@ public class StatsComponentTests {
   // A fresh block is not all zeroes: a zero attack rate would divide by zero in the cooldown.
   [Fact]
   public void Create_SeedsEveryStatInsideItsRange() {
-    var stats = StatsComponent.Create();
+    var stats = Stats.Create();
 
     for (var i = 0; i < StatRanges.Count; i++) {
       var stat = (StatType)i;
@@ -70,7 +70,7 @@ public class StatsComponentTests {
 
   [Fact]
   public void AttacksPerSecond_AppliesTheBonusAndHoldsTheCap() {
-    var stats = StatsComponent.Create()
+    var stats = Stats.Create()
       .With(StatType.BaseAttackSpeed, FP64.FromInt(67) / FP64.FromInt(100))
       .With(StatType.BonusAttackSpeed, FP64.One / FP64.FromInt(2));
 

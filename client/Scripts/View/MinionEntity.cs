@@ -105,8 +105,8 @@ public partial class MinionEntity : TeamEntityViewNode, IAttackableView {
     if (_anim != null) PlayOrStop(IdleAnim);
 
     var live = frame.Frame;
-    if (live != null && live.Has<UnitIdComponent>(EntityRef))
-      SetCachedUnitId(live.GetReadOnly<UnitIdComponent>(EntityRef).UnitId);
+    if (live != null && live.Has<UnitIdentity>(EntityRef))
+      SetCachedUnitId(live.GetReadOnly<UnitIdentity>(EntityRef).UnitId);
     BindTeam(frame);
   }
 

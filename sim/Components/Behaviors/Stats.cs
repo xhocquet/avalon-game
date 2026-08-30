@@ -11,11 +11,11 @@ namespace Meesles.Avalon.Sim.Components;
 // Stored as one FP64-per-StatType buffer rather than named fields, so a stat that gains an enum
 // value cannot be forgotten in a switch and every write goes through the same clamp. FP64 has no
 // blittable fixed-buffer form, so the raw 32.32 longs are the storage and Get/Set convert; the
-// generated codec walks the buffer for serialization and hashing the same way SkillsComponent does.
+// generated codec walks the buffer for serialization and hashing the same way Skills does.
 // Size: StatCount * 8 = 128B, at the 128-byte component ceiling.
 [KlothoComponent(ComponentIds.Stats)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public unsafe partial struct StatsComponent : IComponent {
+public unsafe partial struct Stats : IComponent {
   private fixed long _values[StatRanges.Count];
 
   public readonly FP64 MaxHealth => Get(StatType.MaxHealth);
@@ -54,8 +54,8 @@ public unsafe partial struct StatsComponent : IComponent {
   public void Add(StatType stat, FP64 delta) => Set(stat, Get(stat) + delta);
 
   // Chainable Set on a copy, so a caller building a block by hand reads like the object initializer
-  // the buffer took away: StatsComponent.Create().With(StatType.MoveSpeed, speed).
-  public readonly StatsComponent With(StatType stat, FP64 value) {
+  // the buffer took away: Stats.Create().With(StatType.MoveSpeed, speed).
+  public readonly Stats With(StatType stat, FP64 value) {
     var copy = this;
     copy.Set(stat, value);
     return copy;
@@ -64,8 +64,8 @@ public unsafe partial struct StatsComponent : IComponent {
   // A default-constructed component is all zeroes, which is out of range for anything with a
   // non-zero floor - a BaseAttackSpeed of 0 would divide by zero in the cooldown. Every construction
   // path starts here rather than from `default`.
-  public static StatsComponent Create() {
-    var stats = new StatsComponent();
+  public static Stats Create() {
+    var stats = new Stats();
     for (var i = 0; i < StatRanges.Count; i++)
       stats._values[i] = StatRanges.Of((StatType)i).Initial.RawValue;
 
@@ -74,7 +74,7 @@ public unsafe partial struct StatsComponent : IComponent {
 
   // Seeds the level-1 values off an asset row. Growth beyond level 1 is applied by ExperienceSystem
   // through Add, so this is only ever the spawn seed.
-  public static StatsComponent From(IUnitStatsAsset asset) {
+  public static Stats From(IUnitStatsAsset asset) {
     var stats = Create();
     stats.Set(StatType.MaxHealth, asset.BaseHealth);
     stats.Set(StatType.MaxMana, asset.BaseMana);

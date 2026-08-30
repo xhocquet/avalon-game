@@ -203,7 +203,7 @@ public class CrystalBulletsTests {
     var harness = CreateCrystalGiantHarness();
     var skill = CrystalBulletsAsset(harness);
     var xpBefore = harness.Frame
-      .GetReadOnly<ExperienceComponent>(harness.FindHero(CasterPlayerId)).Experience;
+      .GetReadOnly<Experience>(harness.FindHero(CasterPlayerId)).Xp;
     var expectedXp = harness.AssetRegistry.Get<XpRulesAsset>().XpPerMinionKill;
 
     var origin = LearnAndCastAlongX(harness);
@@ -214,8 +214,8 @@ public class CrystalBulletsTests {
 
     // Kill credit rides Health.LastDamagerUnitId, which ApplyDamage sets; without it DeathSystem
     // resolves no killer and the kill pays nobody.
-    harness.Frame.GetReadOnly<ExperienceComponent>(harness.FindHero(CasterPlayerId))
-      .Experience.Should().Be(xpBefore + expectedXp);
+    harness.Frame.GetReadOnly<Experience>(harness.FindHero(CasterPlayerId))
+      .Xp.Should().Be(xpBefore + expectedXp);
   }
 
   [Fact]
@@ -294,11 +294,11 @@ public class CrystalBulletsTests {
     var entity = frame.CreateEntity();
 
     frame.Add(entity, TransformFactory.At(position));
-    frame.Add(entity, new UnitIdComponent {
+    frame.Add(entity, new UnitIdentity {
       UnitId = UnitLookup.NextUnitId(ref frame),
       UnitTypeId = isMinion ? SimulationSetup.MinionUnitTypeId : SimulationSetup.TurretUnitTypeId
     });
-    frame.Add(entity, new TeamComponent(teamId));
+    frame.Add(entity, new Team(teamId));
     frame.Add(entity, new Health(500));
 
     if (isMinion)
@@ -329,7 +329,7 @@ public class CrystalBulletsTests {
   }
 
   private static int UnitId(SimHarness harness, EntityRef entity) {
-    return harness.Frame.GetReadOnly<UnitIdComponent>(entity).UnitId;
+    return harness.Frame.GetReadOnly<UnitIdentity>(entity).UnitId;
   }
 
   private static List<(Projectile Component, FPVector3 Position)> Projectiles(SimHarness harness) {

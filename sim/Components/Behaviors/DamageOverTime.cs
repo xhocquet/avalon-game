@@ -15,7 +15,7 @@ namespace Meesles.Avalon.Sim.Components;
 // hits over the window instead of a floored point every frame.
 [KlothoComponent(ComponentIds.DamageOverTime)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public partial struct DamageOverTimeComponent : IComponent {
+public partial struct DamageOverTime : IComponent {
   public int SourceId; // SkillAsset id burning the unit; 0 means it is not burning
   public int SourceUnitId; // who the kill credits
   public int ExpiryTick;

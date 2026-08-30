@@ -5,7 +5,7 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon.Sim;
 
 // The one place a lingering burn goes on a unit or ticks down, the delayed-damage sibling of
-// DamageApplication. The DamageOverTimeComponent write and every payout run through here, so a burn
+// DamageApplication. The DamageOverTime write and every payout run through here, so a burn
 // cannot leave a rate on a unit with nothing paying it out.
 //
 // Duration is an absolute expiry tick, not a countdown, so a rollback replay ends the burn on the tick
@@ -13,7 +13,7 @@ namespace Meesles.Avalon.Sim;
 // final instalment on the expiry tick for whatever accrued since the last one - the target takes a few
 // solid hits over the window rather than a floored point every frame. The accrual stays per-tick so
 // the total is rate x duration regardless of how the interval divides the window.
-public static class DamageOverTime {
+public static class DamageOverTimes {
   // How often an accrued burn is handed to DamageApplication. The DoT block is authored per second, so
   // the payout cadence matches. Lower it for snappier feedback; the total damage is unaffected.
   public const int PayoutIntervalMs = 1000;
@@ -25,14 +25,14 @@ public static class DamageOverTime {
     if (sourceId == 0 || durationTicks <= 0 || damagePerSecond <= FP64.Zero || !frame.Has<Health>(target))
       return false;
 
-    if (!frame.Has<DamageOverTimeComponent>(target))
-      frame.Add(target, new DamageOverTimeComponent());
+    if (!frame.Has<DamageOverTime>(target))
+      frame.Add(target, new DamageOverTime());
 
     var intervalTicks = TickMath.MsToTicksCeil(ref frame, PayoutIntervalMs);
     if (intervalTicks < 1)
       intervalTicks = 1;
 
-    ref var dot = ref frame.Get<DamageOverTimeComponent>(target);
+    ref var dot = ref frame.Get<DamageOverTime>(target);
     dot.SourceId = sourceId;
     dot.SourceUnitId = UnitLookup.GetUnitId(ref frame, source);
     dot.ExpiryTick = frame.Tick + durationTicks;
@@ -46,7 +46,7 @@ public static class DamageOverTime {
   // One tick's accrual, plus a payout when one is due. TimedEffectSystem calls this each tick for every
   // burning unit, ahead of DeathSystem, so a lethal instalment still resolves the kill on the frame.
   public static void Tick(ref Frame frame, EntityRef entity) {
-    ref var dot = ref frame.Get<DamageOverTimeComponent>(entity);
+    ref var dot = ref frame.Get<DamageOverTime>(entity);
     if (!dot.IsBurning)
       return;
 
@@ -69,7 +69,7 @@ public static class DamageOverTime {
     if (expired)
       dot.Clear();
 
-    // Every DamageOverTimeComponent write is done above: ApplyDamage can allocate the hit-id singleton
+    // Every DamageOverTime write is done above: ApplyDamage can allocate the hit-id singleton
     // on its first call of the match, which invalidates the `dot` ref into component storage.
     if (payout <= FP64.Zero)
       return;
@@ -79,12 +79,12 @@ public static class DamageOverTime {
   }
 
   public static void Clear(ref Frame frame, EntityRef entity) {
-    if (frame.Has<DamageOverTimeComponent>(entity))
-      frame.Get<DamageOverTimeComponent>(entity).Clear();
+    if (frame.Has<DamageOverTime>(entity))
+      frame.Get<DamageOverTime>(entity).Clear();
   }
 
   public static bool IsBurning(ref Frame frame, EntityRef entity) {
-    return frame.Has<DamageOverTimeComponent>(entity) &&
-           frame.GetReadOnly<DamageOverTimeComponent>(entity).IsBurning;
+    return frame.Has<DamageOverTime>(entity) &&
+           frame.GetReadOnly<DamageOverTime>(entity).IsBurning;
   }
 }

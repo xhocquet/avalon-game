@@ -11,7 +11,7 @@ namespace Meesles.Avalon.Sim.Heroes;
 // these so the command layer stays a switch and the rules can be exercised without a wire round-trip.
 //
 // Both entry points assume the slot index has already cleared CommandValidation - it indexes fixed
-// buffers on SkillsComponent, so an unchecked value would read out of bounds.
+// buffers on Skills, so an unchecked value would read out of bounds.
 // TODO slot references are kinda sketch
 public static class SkillActions {
   // Spend one skill point to raise a slot's rank.
@@ -22,7 +22,7 @@ public static class SkillActions {
       return false;
     }
 
-    ref var skills = ref frame.Get<SkillsComponent>(heroEntity);
+    ref var skills = ref frame.Get<Skills>(heroEntity);
     skills.TrySpendPoint(slot, skill.MaxRank);
     var newRank = skills.GetRank(slot);
     var remainingPoints = skills.SkillPoints;
@@ -46,7 +46,7 @@ public static class SkillActions {
       return false;
     }
 
-    ref var skills = ref frame.Get<SkillsComponent>(heroEntity);
+    ref var skills = ref frame.Get<Skills>(heroEntity);
 
     // Started before the skill runs, so an effect that later kills or respawns its own caster cannot
     // leave the slot free.
@@ -118,7 +118,7 @@ public static class SkillActions {
     if (!frame.Has<Health>(heroEntity) || !frame.GetReadOnly<Health>(heroEntity).IsAlive)
       return SkillBlock.HeroDead;
 
-    ref readonly var skills = ref frame.GetReadOnly<SkillsComponent>(heroEntity);
+    ref readonly var skills = ref frame.GetReadOnly<Skills>(heroEntity);
     var rank = skills.GetRank(slot) + pendingRanks;
     if (rank <= 0)
       return SkillBlock.NotLearned;
@@ -138,7 +138,7 @@ public static class SkillActions {
     if (block != SkillBlock.None)
       return block;
 
-    ref readonly var skills = ref frame.GetReadOnly<SkillsComponent>(heroEntity);
+    ref readonly var skills = ref frame.GetReadOnly<Skills>(heroEntity);
     if (skills.SkillPoints - pendingPoints <= 0)
       return SkillBlock.NoSkillPoints;
 
@@ -154,10 +154,10 @@ public static class SkillActions {
     if (!UnitLookup.TryGetPlayerHero(ref frame, playerId, out heroEntity))
       return SkillBlock.NoHero;
 
-    if (!frame.Has<SkillsComponent>(heroEntity))
+    if (!frame.Has<Skills>(heroEntity))
       return SkillBlock.HeroMissingSkills;
 
-    var skillAssetId = frame.GetReadOnly<SkillsComponent>(heroEntity).GetSkillAssetId(slot);
+    var skillAssetId = frame.GetReadOnly<Skills>(heroEntity).GetSkillAssetId(slot);
     if (!frame.AssetRegistry.TryGet<SkillAsset>(skillAssetId, out skill))
       return SkillBlock.SkillAssetMissing;
 
@@ -181,7 +181,7 @@ public static class SkillActions {
         return $"hero_asset_missing heroId={frame.GetReadOnly<Hero>(heroEntity).HeroAssetId}";
     }
 
-    ref readonly var skills = ref frame.GetReadOnly<SkillsComponent>(heroEntity);
+    ref readonly var skills = ref frame.GetReadOnly<Skills>(heroEntity);
     return block switch {
       SkillBlock.SkillAssetMissing => $"skill_asset_missing skillId={skills.GetSkillAssetId(slot)}",
       SkillBlock.OnCooldown => $"on_cooldown remainingTicks={skills.GetCooldownRemainingTicks(slot)}",

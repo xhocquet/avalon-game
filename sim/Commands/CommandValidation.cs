@@ -112,10 +112,10 @@ public static class CommandValidation {
     return false;
   }
 
-  // The only gate between a wire slot index and the fixed buffers on SkillsComponent, which are
+  // The only gate between a wire slot index and the fixed buffers on Skills, which are
   // indexed unchecked.
   private static bool AcceptSkillSlot(ref Frame frame, ICommand command, int slot) {
-    if (SkillsComponent.IsValidSlot(slot))
+    if (Skills.IsValidSlot(slot))
       return true;
 
     Reject(ref frame, command, $"skill_slot_out_of_range slot={slot}");

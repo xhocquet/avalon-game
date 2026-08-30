@@ -16,9 +16,9 @@ public class InventorySystem : ISystem {
     if (frame.Tick < GoldStartTick(ref frame, matchRules))
       return;
 
-    var filter = frame.Filter<InventoryComponent>();
+    var filter = frame.Filter<Inventory>();
     while (filter.Next(out var entity)) {
-      ref var inventory = ref frame.Get<InventoryComponent>(entity);
+      ref var inventory = ref frame.Get<Inventory>(entity);
 
       inventory.GoldAccrualRemainderMs += frame.DeltaTimeMs;
       while (inventory.GoldAccrualRemainderMs >= matchRules.GoldTickIntervalMs) {

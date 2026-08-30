@@ -16,9 +16,9 @@ public class ExperienceSystemTests {
     var frame = harness.Frame;
     EntityRef hero = harness.FindHero(1);
 
-    ref readonly var experience = ref frame.GetReadOnly<ExperienceComponent>(hero);
+    ref readonly var experience = ref frame.GetReadOnly<Experience>(hero);
     experience.Level.Should().Be(1);
-    experience.Experience.Should().Be(0);
+    experience.Xp.Should().Be(0);
   }
 
   [Fact]
@@ -28,12 +28,12 @@ public class ExperienceSystemTests {
     var rules = harness.AssetRegistry.Get<XpRulesAsset>();
     EntityRef killerHero = harness.FindHero(1);
     EntityRef enemyHero = harness.FindHero(2);
-    int victimTeamId = frame.GetReadOnly<TeamComponent>(enemyHero).TeamId;
+    int victimTeamId = frame.GetReadOnly<Team>(enemyHero).TeamId;
 
     KillMinion(ref frame, victimTeamId, killerHero);
 
-    frame.GetReadOnly<ExperienceComponent>(killerHero).Experience.Should().Be(rules.XpPerMinionKill);
-    frame.GetReadOnly<ExperienceComponent>(enemyHero).Experience.Should().Be(0);
+    frame.GetReadOnly<Experience>(killerHero).Xp.Should().Be(rules.XpPerMinionKill);
+    frame.GetReadOnly<Experience>(enemyHero).Xp.Should().Be(0);
   }
 
   [Fact]
@@ -41,15 +41,15 @@ public class ExperienceSystemTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     EntityRef hero = harness.FindHero(1);
-    int killerTeamId = frame.GetReadOnly<TeamComponent>(hero).TeamId;
-    int victimTeamId = frame.GetReadOnly<TeamComponent>(harness.FindHero(2)).TeamId;
+    int killerTeamId = frame.GetReadOnly<Team>(hero).TeamId;
+    int victimTeamId = frame.GetReadOnly<Team>(harness.FindHero(2)).TeamId;
 
-    // The fatal hit comes from a minion. Minions carry no ExperienceComponent, so the XP is dropped
+    // The fatal hit comes from a minion. Minions carry no Experience, so the XP is dropped
     // rather than routed to the hero that owns them.
     EntityRef killerMinion = SpawnMinion(ref frame, killerTeamId);
     KillMinion(ref frame, victimTeamId, killerMinion);
 
-    frame.GetReadOnly<ExperienceComponent>(hero).Experience.Should().Be(0);
+    frame.GetReadOnly<Experience>(hero).Xp.Should().Be(0);
   }
 
   [Fact]
@@ -57,11 +57,11 @@ public class ExperienceSystemTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     EntityRef hero = harness.FindHero(1);
-    int teamId = frame.GetReadOnly<TeamComponent>(hero).TeamId;
+    int teamId = frame.GetReadOnly<Team>(hero).TeamId;
 
     KillMinion(ref frame, teamId, hero);
 
-    frame.GetReadOnly<ExperienceComponent>(hero).Experience.Should().Be(0);
+    frame.GetReadOnly<Experience>(hero).Xp.Should().Be(0);
   }
 
   [Fact]
@@ -69,13 +69,13 @@ public class ExperienceSystemTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     EntityRef hero = harness.FindHero(1);
-    int victimTeamId = frame.GetReadOnly<TeamComponent>(harness.FindHero(2)).TeamId;
+    int victimTeamId = frame.GetReadOnly<Team>(harness.FindHero(2)).TeamId;
 
     EntityRef victim = SpawnMinion(ref frame, victimTeamId);
     frame.Get<Health>(victim).Current = 0;
     new DeathSystem().Update(ref frame);
 
-    frame.GetReadOnly<ExperienceComponent>(hero).Experience.Should().Be(0);
+    frame.GetReadOnly<Experience>(hero).Xp.Should().Be(0);
   }
 
   [Fact]
@@ -84,12 +84,12 @@ public class ExperienceSystemTests {
     var frame = harness.Frame;
     var rules = harness.AssetRegistry.Get<XpRulesAsset>();
     EntityRef hero = harness.FindHero(1);
-    int victimTeamId = frame.GetReadOnly<TeamComponent>(harness.FindHero(2)).TeamId;
+    int victimTeamId = frame.GetReadOnly<Team>(harness.FindHero(2)).TeamId;
 
     EntityRef victim = SpawnMinion(ref frame, victimTeamId);
     ref var victimHealth = ref frame.Get<Health>(victim);
     victimHealth.Current = 0;
-    victimHealth.LastDamagerUnitId = frame.GetReadOnly<UnitIdComponent>(hero).UnitId;
+    victimHealth.LastDamagerUnitId = frame.GetReadOnly<UnitIdentity>(hero).UnitId;
 
     // A second corpse ahead of the victim in the pass: the award must not depend on destroy order.
     EntityRef bystander = SpawnMinion(ref frame, victimTeamId);
@@ -97,7 +97,7 @@ public class ExperienceSystemTests {
 
     new DeathSystem().Update(ref frame);
 
-    frame.GetReadOnly<ExperienceComponent>(hero).Experience.Should().Be(rules.XpPerMinionKill);
+    frame.GetReadOnly<Experience>(hero).Xp.Should().Be(rules.XpPerMinionKill);
   }
 
   [Fact]
@@ -105,11 +105,11 @@ public class ExperienceSystemTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     EntityRef hero = harness.FindHero(1);
-    int victimTeamId = frame.GetReadOnly<TeamComponent>(harness.FindHero(2)).TeamId;
+    int victimTeamId = frame.GetReadOnly<Team>(harness.FindHero(2)).TeamId;
     EntityRef victim = SpawnMinion(ref frame, victimTeamId);
     ref var victimHealth = ref frame.Get<Health>(victim);
     victimHealth.Current = 0;
-    victimHealth.LastDamagerUnitId = frame.GetReadOnly<UnitIdComponent>(hero).UnitId;
+    victimHealth.LastDamagerUnitId = frame.GetReadOnly<UnitIdentity>(hero).UnitId;
 
     var collector = new EventCollector();
     collector.BeginTick(5);
@@ -118,7 +118,7 @@ public class ExperienceSystemTests {
     new DeathSystem().Update(ref frame);
 
     var evt = collector.Collected[0].Should().BeOfType<UnitDiedEvent>().Subject;
-    evt.DestroyerUnitId.Should().Be(frame.GetReadOnly<UnitIdComponent>(hero).UnitId);
+    evt.DestroyerUnitId.Should().Be(frame.GetReadOnly<UnitIdentity>(hero).UnitId);
     evt.DestroyerUnitTypeId.Should().Be(SimulationSetup.PlayerUnitTypeId);
   }
 
@@ -146,8 +146,8 @@ public class ExperienceSystemTests {
     var frame = harness.Frame;
     var rules = harness.AssetRegistry.Get<XpRulesAsset>();
     EntityRef hero = harness.FindHero(1);
-    int unitId = frame.GetReadOnly<UnitIdComponent>(hero).UnitId;
-    frame.Get<ExperienceComponent>(hero).Experience = rules.TotalXpForLevel(2);
+    int unitId = frame.GetReadOnly<UnitIdentity>(hero).UnitId;
+    frame.Get<Experience>(hero).Xp = rules.TotalXpForLevel(2);
 
     var collector = new EventCollector();
     collector.BeginTick(11);
@@ -155,7 +155,7 @@ public class ExperienceSystemTests {
 
     new ExperienceSystem().Update(ref frame);
 
-    frame.GetReadOnly<ExperienceComponent>(hero).Level.Should().Be(2);
+    frame.GetReadOnly<Experience>(hero).Level.Should().Be(2);
     var evt = collector.Collected[0].Should().BeOfType<HeroLeveledUpEvent>().Subject;
     evt.Tick.Should().Be(11);
     evt.UnitId.Should().Be(unitId);
@@ -169,11 +169,11 @@ public class ExperienceSystemTests {
     var frame = harness.Frame;
     var rules = harness.AssetRegistry.Get<XpRulesAsset>();
     EntityRef hero = harness.FindHero(1);
-    frame.Get<ExperienceComponent>(hero).Experience = rules.TotalXpForLevel(2) - 1;
+    frame.Get<Experience>(hero).Xp = rules.TotalXpForLevel(2) - 1;
 
     new ExperienceSystem().Update(ref frame);
 
-    frame.GetReadOnly<ExperienceComponent>(hero).Level.Should().Be(1);
+    frame.GetReadOnly<Experience>(hero).Level.Should().Be(1);
   }
 
   [Fact]
@@ -183,16 +183,16 @@ public class ExperienceSystemTests {
     var rules = harness.AssetRegistry.Get<XpRulesAsset>();
     EntityRef hero = harness.FindHero(1);
     var heroAsset = HeroRow(harness, hero);
-    var baseAttackDamage = frame.GetReadOnly<StatsComponent>(hero).AttackDamage;
-    var baseMaxHealth = frame.GetReadOnly<StatsComponent>(hero).MaxHealth;
-    var baseArmor = frame.GetReadOnly<StatsComponent>(hero).Armor;
+    var baseAttackDamage = frame.GetReadOnly<Stats>(hero).AttackDamage;
+    var baseMaxHealth = frame.GetReadOnly<Stats>(hero).MaxHealth;
+    var baseArmor = frame.GetReadOnly<Stats>(hero).Armor;
     var currentHealth = frame.GetReadOnly<Health>(hero).Current;
-    frame.Get<ExperienceComponent>(hero).Experience = rules.TotalXpForLevel(2);
+    frame.Get<Experience>(hero).Xp = rules.TotalXpForLevel(2);
 
     new ExperienceSystem().Update(ref frame);
 
     var healthGain = StatGrowth.Between(rules, heroAsset.HealthPerLevel, 1, 2);
-    ref readonly var stats = ref frame.GetReadOnly<StatsComponent>(hero);
+    ref readonly var stats = ref frame.GetReadOnly<Stats>(hero);
     stats.AttackDamage.Should()
       .Be(baseAttackDamage + StatGrowth.Between(rules, heroAsset.AttackDamagePerLevel, 1, 2));
     stats.MaxHealth.Should().Be(baseMaxHealth + healthGain);
@@ -211,20 +211,20 @@ public class ExperienceSystemTests {
     var stepwiseFrame = stepwise.Frame;
     var stepwiseHero = stepwise.FindHero(1);
     for (var level = 2; level <= 6; level++) {
-      stepwiseFrame.Get<ExperienceComponent>(stepwiseHero).Experience = rules.TotalXpForLevel(level);
+      stepwiseFrame.Get<Experience>(stepwiseHero).Xp = rules.TotalXpForLevel(level);
       new ExperienceSystem().Update(ref stepwiseFrame);
     }
 
     var atOnceFrame = atOnce.Frame;
     var atOnceHero = atOnce.FindHero(1);
-    atOnceFrame.Get<ExperienceComponent>(atOnceHero).Experience = rules.TotalXpForLevel(6);
+    atOnceFrame.Get<Experience>(atOnceHero).Xp = rules.TotalXpForLevel(6);
     new ExperienceSystem().Update(ref atOnceFrame);
 
     // Within a raw fixed-point unit or two: five separate Adds each round once, one Add rounds once.
     // The residue is 2^-32 scale and identical on both peers, so it cannot desync a rollback.
     for (var stat = 0; stat < StatRanges.Count; stat++) {
-      var atOnceValue = atOnceFrame.GetReadOnly<StatsComponent>(atOnceHero).Get((StatType)stat);
-      var stepwiseValue = stepwiseFrame.GetReadOnly<StatsComponent>(stepwiseHero).Get((StatType)stat);
+      var atOnceValue = atOnceFrame.GetReadOnly<Stats>(atOnceHero).Get((StatType)stat);
+      var stepwiseValue = stepwiseFrame.GetReadOnly<Stats>(stepwiseHero).Get((StatType)stat);
       FP64.Abs(atOnceValue - stepwiseValue).Should().BeLessThanOrEqualTo(FP64.FromRaw(8),
         $"{(StatType)stat} must not depend on how the levels arrived");
     }
@@ -240,16 +240,16 @@ public class ExperienceSystemTests {
     var rules = harness.AssetRegistry.Get<XpRulesAsset>();
     EntityRef hero = harness.FindHero(1);
     var heroAsset = HeroRow(harness, hero);
-    frame.Get<ExperienceComponent>(hero).Experience = rules.TotalXpForLevel(rules.MaxLevel);
+    frame.Get<Experience>(hero).Xp = rules.TotalXpForLevel(rules.MaxLevel);
 
     new ExperienceSystem().Update(ref frame);
 
     // Within a raw unit: the curve constants are authored as decimals, so the ramp reaches 1 at the
     // cap only to fixed-point precision.
     var levels = FP64.FromInt(rules.MaxLevel - 1);
-    ShouldBeAbout(frame.GetReadOnly<StatsComponent>(hero).MaxHealth,
+    ShouldBeAbout(frame.GetReadOnly<Stats>(hero).MaxHealth,
       heroAsset.BaseHealth + heroAsset.HealthPerLevel * levels);
-    ShouldBeAbout(frame.GetReadOnly<StatsComponent>(hero).Armor,
+    ShouldBeAbout(frame.GetReadOnly<Stats>(hero).Armor,
       heroAsset.BaseArmor + heroAsset.ArmorPerLevel * levels);
   }
 
@@ -260,8 +260,8 @@ public class ExperienceSystemTests {
     var rules = harness.AssetRegistry.Get<XpRulesAsset>();
     EntityRef hero = harness.FindHero(1);
     var heroAsset = HeroRow(harness, hero);
-    var baseAttackDamage = frame.GetReadOnly<StatsComponent>(hero).AttackDamage;
-    frame.Get<ExperienceComponent>(hero).Experience = rules.TotalXpForLevel(4);
+    var baseAttackDamage = frame.GetReadOnly<Stats>(hero).AttackDamage;
+    frame.Get<Experience>(hero).Xp = rules.TotalXpForLevel(4);
 
     var collector = new EventCollector();
     collector.BeginTick(3);
@@ -269,8 +269,8 @@ public class ExperienceSystemTests {
 
     new ExperienceSystem().Update(ref frame);
 
-    frame.GetReadOnly<ExperienceComponent>(hero).Level.Should().Be(4);
-    frame.GetReadOnly<StatsComponent>(hero).AttackDamage.Should()
+    frame.GetReadOnly<Experience>(hero).Level.Should().Be(4);
+    frame.GetReadOnly<Stats>(hero).AttackDamage.Should()
       .Be(baseAttackDamage + StatGrowth.Between(rules, heroAsset.AttackDamagePerLevel, 1, 4));
     // Three levels in one tick is still one arrival, so the view gets one event carrying the level reached.
     collector.Count.Should().Be(1);
@@ -283,11 +283,11 @@ public class ExperienceSystemTests {
     var frame = harness.Frame;
     var rules = harness.AssetRegistry.Get<XpRulesAsset>();
     EntityRef hero = harness.FindHero(1);
-    frame.Get<ExperienceComponent>(hero).Experience = rules.TotalXpForLevel(rules.MaxLevel) * 10;
+    frame.Get<Experience>(hero).Xp = rules.TotalXpForLevel(rules.MaxLevel) * 10;
 
     new ExperienceSystem().Update(ref frame);
 
-    frame.GetReadOnly<ExperienceComponent>(hero).Level.Should().Be(rules.MaxLevel);
+    frame.GetReadOnly<Experience>(hero).Level.Should().Be(rules.MaxLevel);
   }
 
   [Fact]
@@ -298,11 +298,11 @@ public class ExperienceSystemTests {
     EntityRef hero = harness.FindHero(1);
     frame.Get<Health>(hero).Current = FP64.Zero;
     frame.Add(hero, new PendingRespawn { RemainingTicks = 30 });
-    frame.Get<ExperienceComponent>(hero).Experience = rules.TotalXpForLevel(2);
+    frame.Get<Experience>(hero).Xp = rules.TotalXpForLevel(2);
 
     new ExperienceSystem().Update(ref frame);
 
-    frame.GetReadOnly<ExperienceComponent>(hero).Level.Should().Be(2);
+    frame.GetReadOnly<Experience>(hero).Level.Should().Be(2);
     frame.GetReadOnly<Health>(hero).Current.Should().Be(0);
   }
 
@@ -315,12 +315,12 @@ public class ExperienceSystemTests {
     EntityRef victim = harness.FindHero(2);
     ref var victimHealth = ref frame.Get<Health>(victim);
     victimHealth.Current = 0;
-    victimHealth.LastDamagerUnitId = frame.GetReadOnly<UnitIdComponent>(killer).UnitId;
+    victimHealth.LastDamagerUnitId = frame.GetReadOnly<UnitIdentity>(killer).UnitId;
 
     new RespawnSystem().Update(ref frame);
 
-    frame.GetReadOnly<ExperienceComponent>(killer).Experience.Should().Be(rules.XpPerHeroKill);
-    frame.GetReadOnly<ExperienceComponent>(victim).Experience.Should().Be(0);
+    frame.GetReadOnly<Experience>(killer).Xp.Should().Be(rules.XpPerHeroKill);
+    frame.GetReadOnly<Experience>(victim).Xp.Should().Be(0);
   }
 
   [Fact]
@@ -328,7 +328,7 @@ public class ExperienceSystemTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     EntityRef hero = harness.FindHero(1);
-    frame.Get<ExperienceComponent>(hero).Experience = 250;
+    frame.Get<Experience>(hero).Xp = 250;
     frame.Get<Health>(hero).Current = FP64.Zero;
 
     var system = new RespawnSystem();
@@ -337,7 +337,7 @@ public class ExperienceSystemTests {
       system.Update(ref frame);
 
     frame.Has<PendingRespawn>(hero).Should().BeFalse();
-    frame.GetReadOnly<ExperienceComponent>(hero).Experience.Should().Be(250);
+    frame.GetReadOnly<Experience>(hero).Xp.Should().Be(250);
   }
 
   [Fact]
@@ -346,13 +346,13 @@ public class ExperienceSystemTests {
     var frame = harness.Frame;
     var rules = harness.AssetRegistry.Get<XpRulesAsset>();
     EntityRef hero = harness.FindHero(1);
-    int victimTeamId = frame.GetReadOnly<TeamComponent>(harness.FindHero(2)).TeamId;
+    int victimTeamId = frame.GetReadOnly<Team>(harness.FindHero(2)).TeamId;
 
     ExperienceRewards.AwardForKill(ref frame, hero, SimulationSetup.TurretUnitTypeId, victimTeamId);
-    frame.GetReadOnly<ExperienceComponent>(hero).Experience.Should().Be(rules.XpPerTurretKill);
+    frame.GetReadOnly<Experience>(hero).Xp.Should().Be(rules.XpPerTurretKill);
 
     ExperienceRewards.AwardForKill(ref frame, hero, SimulationSetup.CrystalUnitTypeId, victimTeamId);
-    frame.GetReadOnly<ExperienceComponent>(hero).Experience
+    frame.GetReadOnly<Experience>(hero).Xp
       .Should().Be(rules.XpPerTurretKill + rules.XpPerCrystalKill);
   }
 
@@ -373,7 +373,7 @@ public class ExperienceSystemTests {
 
     ref var health = ref frame.Get<Health>(victim);
     health.Current = 0;
-    health.LastDamagerUnitId = frame.GetReadOnly<UnitIdComponent>(killer).UnitId;
+    health.LastDamagerUnitId = frame.GetReadOnly<UnitIdentity>(killer).UnitId;
 
     new DeathSystem().Update(ref frame);
   }
@@ -382,11 +382,11 @@ public class ExperienceSystemTests {
     var entity = frame.CreateEntity();
 
     frame.Add(entity, TransformFactory.At(FPVector3.Zero));
-    frame.Add(entity, new UnitIdComponent {
+    frame.Add(entity, new UnitIdentity {
       UnitId = UnitLookup.NextUnitId(ref frame),
       UnitTypeId = SimulationSetup.MinionUnitTypeId,
     });
-    frame.Add(entity, new TeamComponent { TeamId = teamId });
+    frame.Add(entity, new Team { TeamId = teamId });
     frame.Add(entity, new Minion { WaveId = 99 });
     frame.Add(entity, new Health(100));
 

@@ -8,10 +8,10 @@ namespace Meesles.Avalon.Sim;
 // TrySpend, ManaRestore effects refill through Restore, level-up grows the pool through GrantMaxMana,
 // and every path clamps against Stats.MaxMana here rather than each deriving the rule.
 public static class ManaApplication {
-  // A unit with no StatsComponent, or one whose MaxMana is 0, has no pool - restores are a no-op and
+  // A unit with no Stats, or one whose MaxMana is 0, has no pool - restores are a no-op and
   // spends fail rather than going negative.
   public static FP64 GetMaxMana(ref Frame frame, EntityRef target) =>
-    frame.Has<StatsComponent>(target) ? frame.GetReadOnly<StatsComponent>(target).MaxMana : FP64.Zero;
+    frame.Has<Stats>(target) ? frame.GetReadOnly<Stats>(target).MaxMana : FP64.Zero;
 
   // Would TrySpend succeed right now? Read-only and allocation-free, for the cast gate the client
   // polls every frame. A cost of zero or less always affords.
@@ -58,10 +58,10 @@ public static class ManaApplication {
   // spend debt - mirrors HealthApplication.GrantMaxHealth. A negative amount shrinks the pool and
   // pulls current mana down with it, stopping at zero.
   public static void GrantMaxMana(ref Frame frame, EntityRef target, FP64 amount) {
-    if (amount == FP64.Zero || !frame.Has<StatsComponent>(target))
+    if (amount == FP64.Zero || !frame.Has<Stats>(target))
       return;
 
-    frame.Get<StatsComponent>(target).Add(StatType.MaxMana, amount);
+    frame.Get<Stats>(target).Add(StatType.MaxMana, amount);
 
     if (!frame.Has<Health>(target))
       return;

@@ -56,8 +56,8 @@ public partial class TurretEntity : TeamEntityViewNode, IAttackableView, INamedV
     AddToGroup(UnitsGroup);
 
     var live = frame.Frame;
-    if (live != null && live.Has<UnitIdComponent>(EntityRef))
-      SetCachedUnitId(live.GetReadOnly<UnitIdComponent>(EntityRef).UnitId);
+    if (live != null && live.Has<UnitIdentity>(EntityRef))
+      SetCachedUnitId(live.GetReadOnly<UnitIdentity>(EntityRef).UnitId);
     BindTeam(frame);
     ApplyTeamTint();
   }

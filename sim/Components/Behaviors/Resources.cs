@@ -5,12 +5,12 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon.Sim.Components;
 
 // Per-hero resource wallet: one tally per pickup type, indexed by PickupTypes.SlotOf. Lives apart
-// from InventoryComponent because that struct already sits near the 128-byte component ceiling.
-// Fixed buffer for the same reason as InventoryComponent.ItemAssetIds - components must be
+// from Inventory because that struct already sits near the 128-byte component ceiling.
+// Fixed buffer for the same reason as Inventory.ItemAssetIds - components must be
 // unmanaged and blittable.
 [KlothoComponent(ComponentIds.Resources)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public unsafe partial struct ResourcesComponent : IComponent {
+public unsafe partial struct Resources : IComponent {
   public fixed int Counts[PickupTypes.MaxTypes];
 
   public readonly int Total {

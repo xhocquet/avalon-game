@@ -165,14 +165,14 @@ public class ActionBarController {
     heroEntity = default;
     teamId = 0;
 
-    var filter = frame.Filter<Hero, TeamComponent, InventoryComponent, TransformComponent>();
+    var filter = frame.Filter<Hero, Team, Inventory, TransformComponent>();
     while (filter.Next(out var entity)) {
       ref readonly var hero = ref frame.GetReadOnly<Hero>(entity);
       if (hero.PlayerId != playerId)
         continue;
 
       heroEntity = entity;
-      teamId = frame.GetReadOnly<TeamComponent>(entity).TeamId;
+      teamId = frame.GetReadOnly<Team>(entity).TeamId;
       return true;
     }
 

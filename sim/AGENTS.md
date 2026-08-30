@@ -3,7 +3,7 @@
 Deep dives in [`docs/`](docs/):
 
 - [Heroes](docs/heroes.md) — `HeroAsset` fields, combat range/timing, `BehaviorId`, adding a hero
-- [XP & Leveling](docs/xp-and-leveling.md) — `ExperienceComponent`, level/stat-growth curves, kill awards
+- [XP & Leveling](docs/xp-and-leveling.md) — `Experience`, level/stat-growth curves, kill awards
 - [Skills & Upgrades](docs/skills-and-upgrades.md) — slots, `SkillAsset` tuning, casting/targeting, effect lifecycles
 - [Match End & Results](docs/match-end-and-results.md) — win conditions, `MatchOutcome`, per-player stats, `MatchRecord`
 - [Navigation](docs/navigation.md) — agent phases, temporal spreading, navmesh baking, move-target resolution, flow fields
@@ -14,7 +14,7 @@ In this file: [Gold](#gold) · [Stats](#stats) · [Filter Iteration](#filter-ite
 
 # Gold
 
-- [`InventoryComponent`](Components/Behaviors/InventoryComponent.cs) is the wallet — integer `Gold`, the accrual rate `GoldPerTick`, the purchased-item ledger. Only heroes carry one.
+- [`Inventory`](Components/Behaviors/Inventory.cs) is the wallet — integer `Gold`, the accrual rate `GoldPerTick`, the purchased-item ledger. Only heroes carry one.
 - Pacing is on `MatchRulesAsset` (asset 110): `StartingGold` seeds the wallet in `HeroFactory`, `GoldStartDelayMs` gates the trickle, `GoldTickIntervalMs`/`StartingGoldPerTick` are its rate.
 - [`InventorySystem`](Systems/InventorySystem.cs) gates on `frame.Tick`, so a hero spawning late gets no private delay, and `GoldAccrualRemainderMs` doesn't bank before the gate opens — the first payout lands one full interval after it.
 - Bounties are per-victim-type on [`GoldRulesAsset`](Assets/GoldRulesAsset.cs) (asset 118). [`GoldRewards.AwardForKill`](GoldRewards.cs) mirrors `ExperienceRewards`: same call sites, same `MatchStats.IsCreditableKill` gate, fatal hit only.
@@ -23,10 +23,10 @@ In this file: [Gold](#gold) · [Stats](#stats) · [Filter Iteration](#filter-ite
 
 # Stats
 
-- [`StatsComponent`](Components/Behaviors/StatsComponent.cs) is one `FP64` per [`StatType`](Enums.cs) in a `fixed long` buffer of raw 32.32 values rather than named fields — a stat can't be missed in a `switch`, every write goes through the same clamp, and fractional modifiers survive instead of truncating. `readonly` properties keep call sites reading `stats.MoveSpeed`.
+- [`Stats`](Components/Behaviors/Stats.cs) is one `FP64` per [`StatType`](Enums.cs) in a `fixed long` buffer of raw 32.32 values rather than named fields — a stat can't be missed in a `switch`, every write goes through the same clamp, and fractional modifiers survive instead of truncating. `readonly` properties keep call sites reading `stats.MoveSpeed`.
 - `StatType` values stay contiguous from 0, and [`StatRanges.Rows`](StatRanges.cs) carries one row per entry in the same order. Nothing serializes the enum, so renumbering is safe.
 - `StatRanges` holds `(Min, Max, Initial)` per stat in code rather than asset JSON: these are the bounds that stop a divide by zero or an empty health pool, the same class of thing as `CommandLimits`. Tuning goes in the asset row, inside them.
-- `StatsComponent.Create()` is the only correct starting point — a default-constructed block is all zeroes, out of range for any stat with a non-zero floor. `From(IUnitStatsAsset)` builds on it, and every factory goes through one of the two.
+- `Stats.Create()` is the only correct starting point — a default-constructed block is all zeroes, out of range for any stat with a non-zero floor. `From(IUnitStatsAsset)` builds on it, and every factory goes through one of the two.
 - [`DamageApplication.Mitigate`](DamageApplication.cs) scales a hit by `100 / (100 + resist)`, mirrored for a negative resist, floored at 1 damage.
 - [`HealthApplication`](HealthApplication.cs) is the only writer of `Health.Current` upward: `ApplyHeal` clamps to `Stats.MaxHealth` and refuses a unit at 0, `RestoreToFull` is the respawn path that skips that check, `GrantMaxHealth` moves pool and current together.
 - Damage is `FP64` end to end. Rounding is at the edges only: `MatchResult` for the scoreboard JSON, `.ToFloat()` in the view.
@@ -42,7 +42,8 @@ Removing the current entity's own component survives by accident of layout: the 
 
 # Working Rules
 
-- Prefer compact intent commands with stable `UnitIdComponent.UnitId` references. Do not put transient ECS entity ids in command payloads.
+- Prefer compact intent commands with stable `UnitIdentity.UnitId` references. Do not put transient ECS entity ids in command payloads.
+- `[KlothoComponent]` structs carry no `Component` suffix (`Team`, `Stats`, `Health`), and the [`ComponentIds`](Components/ComponentIds.cs) const matches the type name 1:1. A field may not share its type's name — `UnitIdentity.UnitId`, not `UnitId.UnitId`.
 - Movement is planar: `TransformComponent.Position.x/z`.
 - NO dynamic physics. Use deterministic transform integration, radii, proximity queries, grids, and stable iteration order.
 - Changing a gameplay rule starts in `sim/`, not a duplicate in `client/` or `server/`.
@@ -55,7 +56,7 @@ Removing the current entity's own component survives by accident of layout: the 
 
 Two id spaces, and they do not mix:
 
-- **`TeamComponent.TeamId`** answers every "may this actor do this" question — control, hostility, attack-order targeting, shop proximity, kill credit. A player reaches their units via `Hero.PlayerId` → `UnitLookup.TryGetPlayerTeamId` → team, so player-scoped rules never need a second owner field.
+- **`Team.TeamId`** answers every "may this actor do this" question — control, hostility, attack-order targeting, shop proximity, kill credit. A player reaches their units via `Hero.PlayerId` → `UnitLookup.TryGetPlayerTeamId` → team, so player-scoped rules never need a second owner field.
 - **`OwnerComponent.OwnerId` is a player id, and belongs only on the hero.** The view layer reads it as one: `EntityViewFactory.TryGetBindBehaviour`/`GetViewFlags` compare it against `Engine.LocalPlayerId` to choose predicted vs. verified render, and `EntityViewUpdaterNode` keys `PlayerViewRegistry` off it. A team id there makes team 1's units render off the predicted frame for player 1 while team 2's interpolate — both spaces number from 1, so it looks correct and silently isn't. Minions, crystals, and turrets carry no `OwnerComponent`; `OwnersMatch` short-circuits to true without one, so their views need no `OwnerMatches` override.
 
 # Command Handling

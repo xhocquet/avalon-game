@@ -1,39 +1,38 @@
 ## Tools
+
 - [`SimMarkerNode`](client/Scripts/SimMarkerNode.cs) - Markers can be placed in Godot and used in sim code (spawns, shops)
 - These are baked with Godot tool [`GodotFPMapLayoutExporter`](client/Scripts/Editor/GodotFPMapLayoutExporter.cs) and saved to [`Sim/Data/MapLayout.bytes`](client/Sim/Data/MapLayout.bytes)
 - In the same way, we generate a deterministic navmesh to [`NavigationRegion3D.NavMeshData.bytes`](client/Sim/Data/NavigationRegion3D.NavMeshData.bytes)
 - [`UnitLookup`](sim/UnitLookup.cs) provides stable identifiers for all units, and resolves them back to entities
 
 ## TODO
-- **Assist gold.** `GoldRulesAsset.GoldPerAssist` (50) is authored but nothing reads it. Assists need a
-damage-participation window per victim before a payout has anything to key off — `Health.LastDamagerUnitId`
-only remembers the fatal hit, so the killer is the only actor a death can currently credit.
 
+- **Assist gold.** `GoldRulesAsset.GoldPerAssist` (50) is authored but nothing reads it. Assists need a
+damage-participation window per victim before a payout has anything to key off — `Health.LastDamagerUnitId` only remembers the fatal hit, so the killer is the only actor a death can currently credit.
 
 ## Pickle Knight Skills
+
 - Slip 'n Slide: no dash lifecycle exists (nothing moves a unit a fixed distance), and no ally-target path collection.
-- Exploosion: SkillAreas.Collect is hostile-only — needs an ally variant for the heal; silence has no system (same
-blocker as Refresh's cleanse — there's no negative-status pipeline yet).
+- Exploosion: SkillAreas.Collect is hostile-only — needs an ally variant for the heal; silence has no system (same blocker as Refresh's cleanse — there's no negative-status pipeline yet).
 
 ## Snailhead Skills
 
-- Snail Trail: trail is a new lifecycle — persistent segments dropped behind a moving unit, contact test,
-slow-on-touch.
-- Molt: cancel-on-move channel is new (TimedEffectSystem charges don't watch movement); cleanse still blocked on there
-being no debuff pipeline.
-
+- Snail Trail: trail is a new lifecycle — persistent segments dropped behind a moving unit, contact test, slow-on-touch.
+- Molt: cancel-on-move channel is new (TimedEffectSystem charges don't watch movement); cleanse still blocked on there being no debuff pipeline.
 
 ### Dead code
+
 - **[`FlowFieldCache.Version` and `Invalidate()`](sim/Navigation/FlowFieldCache.cs)** are never called — meaning flow fields are never invalidated. Harmless while the navmesh is static (nothing writes `isBlocked` at runtime), but the API implies otherwise.
 
 ## Naming consistency
+
 - Namespace split. Everything under Systems/ declares namespace Meesles.Avalon; Components/, Assets/,
 Commands/, Heroes/, Navigation/, Factories/ all use Meesles.Avalon.Sim.*. Result: every system file
 opens with using Meesles.Avalon.Sim;. Nothing in AGENTS.md explains it.
-- Component suffixes are 50/50. Health, Hero, Minion, Combat, Crystal, Turret, Pickup, Oasis bare vs
-TeamComponent, StatsComponent, SkillsComponent, FactionComponent, InventoryComponent,
-ExperienceComponent, UnitIdComponent suffixed. ComponentIds then uses a third naming (Unit, Faction,
-Stats, Skills, Experience), so ComponentIds.Unit names UnitIdComponent.
+- ~~Component suffixes are 50/50.~~ Resolved: `Component` suffix dropped from all 14 that carried it
+(`TeamComponent`→`Team`, etc.). `UnitIdComponent`→`UnitIdentity` (bare `UnitId` collides with the
+`.UnitId` field), and `Experience.Experience`→`Experience.Xp`. The `DamageOverTime` helper class
+→`DamageOverTimes` (matches `Snares`/`AttackProcs`). `ComponentIds` consts now match the type names 1:1.
 - HeroAsset vs MinionStatsAsset/TurretStatsAsset/CrystalStatsAsset — same role, one drops Stats.
 - Logging bypasses SimLog. AGENTS.md:87 says gameplay logging goes through SimLog so replayed ticks
 stay quiet, but CommandSystem.cs:105, AttackIntentSystem.cs:90, and DamageSystem.cs:67 call
@@ -42,16 +41,15 @@ mentioned anywhere.
 
 ## Design gaps
 
-
 Fixed-buffer accessors are publicly unchecked.
-SkillsComponent.GetRank/GetSkillAssetId/GetCooldownRemainingTicks and
-InventoryComponent.GetItemAssetId index fixed int buffers with no bounds check. That's documented and
-gated for the skill path (CommandValidation.AcceptSkillSlot), but InventoryComponent.GetItemAssetId
+Skills.GetRank/GetSkillAssetId/GetCooldownRemainingTicks and
+Inventory.GetItemAssetId index fixed int buffers with no bounds check. That's documented and
+gated for the skill path (CommandValidation.AcceptSkillSlot), but Inventory.GetItemAssetId
 has no equivalent gate described anywhere, and both are reachable from the client's UI code.
 
 ## Stat buffs overloaded
-- StatBuffsComponent.MaxEntries = 6 — Desperation applies 5; Desperation + Sprint overlapping = 7, and the 7th
-silently fails to apply. The struct is at the 128-byte ceiling so it can't just be bumped. Saved a memory note.
 
+- StatBuffs.MaxEntries = 6 — Desperation applies 5; Desperation + Sprint overlapping = 7, and the 7th
+silently fails to apply. The struct is at the 128-byte ceiling so it can't just be bumped. Saved a memory note.
 
 ## Replace skill damage, attack damage, etc. with curves instead of simple functions

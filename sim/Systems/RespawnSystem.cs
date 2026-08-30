@@ -11,7 +11,7 @@ namespace Meesles.Avalon;
 
 public class RespawnSystem : ISystem {
   public void Update(ref Frame frame) {
-    var filter = frame.Filter<Respawns, TeamComponent, UnitIdComponent, TransformComponent, Health>();
+    var filter = frame.Filter<Respawns, Team, UnitIdentity, TransformComponent, Health>();
     while (filter.Next(out var entity)) {
       if (frame.Has<PendingRespawn>(entity)) {
         ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
@@ -41,8 +41,8 @@ public class RespawnSystem : ISystem {
     var delayTicks = GetRespawnDelayTicks(ref frame, rules);
     frame.Add(entity, new PendingRespawn { RemainingTicks = delayTicks });
 
-    ref readonly var team = ref frame.GetReadOnly<TeamComponent>(entity);
-    ref readonly var unit = ref frame.GetReadOnly<UnitIdComponent>(entity);
+    ref readonly var team = ref frame.GetReadOnly<Team>(entity);
+    ref readonly var unit = ref frame.GetReadOnly<UnitIdentity>(entity);
     ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
 
     ClearActiveState(ref frame, entity, transform.Position);
@@ -63,15 +63,15 @@ public class RespawnSystem : ISystem {
     if (lastDamagerUnitId == 0 || !UnitLookup.TryGetEntityByUnitId(ref frame, lastDamagerUnitId, out var killer))
       return;
 
-    var victimTeamId = frame.GetReadOnly<TeamComponent>(entity).TeamId;
+    var victimTeamId = frame.GetReadOnly<Team>(entity).TeamId;
     ExperienceRewards.AwardForKill(ref frame, killer, SimulationSetup.PlayerUnitTypeId, victimTeamId);
     GoldRewards.AwardForKill(ref frame, killer, SimulationSetup.PlayerUnitTypeId, victimTeamId);
     MatchStats.RecordKill(ref frame, killer, SimulationSetup.PlayerUnitTypeId, victimTeamId);
   }
 
   private static void CompleteRespawn(ref Frame frame, EntityRef entity) {
-    ref readonly var team = ref frame.GetReadOnly<TeamComponent>(entity);
-    ref readonly var unit = ref frame.GetReadOnly<UnitIdComponent>(entity);
+    ref readonly var team = ref frame.GetReadOnly<Team>(entity);
+    ref readonly var unit = ref frame.GetReadOnly<UnitIdentity>(entity);
     ref var transform = ref frame.Get<TransformComponent>(entity);
 
     transform.Position = SimulationSetup.GetHeroSpawnPositionForTeam(ref frame, team.TeamId);
@@ -99,7 +99,7 @@ public class RespawnSystem : ISystem {
     AttackBursts.Clear(ref frame, entity);
     Snares.Clear(ref frame, entity);
     SkillCharges.Clear(ref frame, entity);
-    DamageOverTime.Clear(ref frame, entity);
+    DamageOverTimes.Clear(ref frame, entity);
 
 
     if (frame.Has<NavAgentComponent>(entity)) {

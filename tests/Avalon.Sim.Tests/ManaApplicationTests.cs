@@ -57,7 +57,7 @@ public class ManaApplicationTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     EntityRef hero = harness.FindHero(1);
-    var maxMana = frame.GetReadOnly<StatsComponent>(hero).MaxMana;
+    var maxMana = frame.GetReadOnly<Stats>(hero).MaxMana;
     frame.Get<Health>(hero).Mana = maxMana - Fp(5);
 
     var restored = ManaApplication.Restore(ref frame, hero, Fp(500));
@@ -87,7 +87,7 @@ public class ManaApplicationTests {
     ManaApplication.RestoreToFull(ref frame, hero);
 
     frame.GetReadOnly<Health>(hero).Mana
-      .Should().Be(frame.GetReadOnly<StatsComponent>(hero).MaxMana);
+      .Should().Be(frame.GetReadOnly<Stats>(hero).MaxMana);
   }
 
   [Fact]
@@ -95,12 +95,12 @@ public class ManaApplicationTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     EntityRef hero = harness.FindHero(1);
-    var maxMana = frame.GetReadOnly<StatsComponent>(hero).MaxMana;
+    var maxMana = frame.GetReadOnly<Stats>(hero).MaxMana;
     frame.Get<Health>(hero).Mana = maxMana - Fp(40);
 
     ManaApplication.GrantMaxMana(ref frame, hero, Fp(20));
 
-    frame.GetReadOnly<StatsComponent>(hero).MaxMana.Should().Be(maxMana + Fp(20));
+    frame.GetReadOnly<Stats>(hero).MaxMana.Should().Be(maxMana + Fp(20));
     frame.GetReadOnly<Health>(hero).Mana.Should().Be(maxMana - Fp(20));
   }
 
@@ -109,11 +109,11 @@ public class ManaApplicationTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     EntityRef hero = harness.FindHero(1);
-    var maxMana = frame.GetReadOnly<StatsComponent>(hero).MaxMana;
+    var maxMana = frame.GetReadOnly<Stats>(hero).MaxMana;
 
     ManaApplication.GrantMaxMana(ref frame, hero, -Fp(30));
 
-    frame.GetReadOnly<StatsComponent>(hero).MaxMana.Should().Be(maxMana - Fp(30));
+    frame.GetReadOnly<Stats>(hero).MaxMana.Should().Be(maxMana - Fp(30));
     frame.GetReadOnly<Health>(hero).Mana.Should().Be(maxMana - Fp(30));
   }
 
@@ -122,12 +122,12 @@ public class ManaApplicationTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     EntityRef hero = harness.FindHero(1);
-    var maxMana = frame.GetReadOnly<StatsComponent>(hero).MaxMana;
+    var maxMana = frame.GetReadOnly<Stats>(hero).MaxMana;
     frame.Get<Health>(hero).Mana = Fp(10);
 
     ManaApplication.GrantMaxMana(ref frame, hero, -Fp(20));
 
-    frame.GetReadOnly<StatsComponent>(hero).MaxMana.Should().Be(maxMana - Fp(20));
+    frame.GetReadOnly<Stats>(hero).MaxMana.Should().Be(maxMana - Fp(20));
     frame.GetReadOnly<Health>(hero).Mana.Should().Be(Fp(10));
   }
 

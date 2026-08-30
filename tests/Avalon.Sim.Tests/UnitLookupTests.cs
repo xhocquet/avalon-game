@@ -15,7 +15,7 @@ public class UnitLookupTests {
 
     found.Should().BeTrue();
     entity.IsValid.Should().BeTrue();
-    frame.GetReadOnly<UnitIdComponent>(entity).UnitId.Should().Be(1);
+    frame.GetReadOnly<UnitIdentity>(entity).UnitId.Should().Be(1);
   }
 
   [Fact]
@@ -39,8 +39,8 @@ public class UnitLookupTests {
 
     found.Should().BeTrue();
     entity.IsValid.Should().BeTrue();
-    frame.GetReadOnly<UnitIdComponent>(entity).UnitId.Should().Be(playerOneUnitId);
-    frame.GetReadOnly<TeamComponent>(entity).TeamId.Should().Be(1);
+    frame.GetReadOnly<UnitIdentity>(entity).UnitId.Should().Be(playerOneUnitId);
+    frame.GetReadOnly<Team>(entity).TeamId.Should().Be(1);
   }
 
   [Fact]
@@ -82,13 +82,13 @@ public class UnitLookupTests {
 
   private static int GetPlayerUnitId(SimHarness harness, int playerId) {
     var frame = harness.Frame;
-    var filter = frame.Filter<Hero, UnitIdComponent>();
+    var filter = frame.Filter<Hero, UnitIdentity>();
     while (filter.Next(out var entity)) {
       ref readonly var hero = ref frame.GetReadOnly<Hero>(entity);
       if (hero.PlayerId != playerId)
         continue;
 
-      return frame.GetReadOnly<UnitIdComponent>(entity).UnitId;
+      return frame.GetReadOnly<UnitIdentity>(entity).UnitId;
     }
 
     throw new Xunit.Sdk.XunitException($"Player {playerId} unit was not found.");
@@ -96,13 +96,13 @@ public class UnitLookupTests {
 
   private static int GetTurretUnitId(SimHarness harness, int teamId) {
     var frame = harness.Frame;
-    var filter = frame.Filter<Turret, TeamComponent, UnitIdComponent>();
+    var filter = frame.Filter<Turret, Team, UnitIdentity>();
     while (filter.Next(out var entity)) {
-      ref readonly var team = ref frame.GetReadOnly<TeamComponent>(entity);
+      ref readonly var team = ref frame.GetReadOnly<Team>(entity);
       if (team.TeamId != teamId)
         continue;
 
-      return frame.GetReadOnly<UnitIdComponent>(entity).UnitId;
+      return frame.GetReadOnly<UnitIdentity>(entity).UnitId;
     }
 
     throw new Xunit.Sdk.XunitException($"Team {teamId} turret unit was not found.");

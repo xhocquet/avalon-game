@@ -13,7 +13,7 @@ public class HealthApplicationTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     EntityRef hero = harness.FindHero(1);
-    var maxHealth = frame.GetReadOnly<StatsComponent>(hero).MaxHealth;
+    var maxHealth = frame.GetReadOnly<Stats>(hero).MaxHealth;
     frame.Get<Health>(hero).Current = maxHealth - Fp(5);
 
     var healed = HealthApplication.ApplyHeal(ref frame, hero, Fp(500));
@@ -27,7 +27,7 @@ public class HealthApplicationTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     EntityRef hero = harness.FindHero(1);
-    var maxHealth = frame.GetReadOnly<StatsComponent>(hero).MaxHealth;
+    var maxHealth = frame.GetReadOnly<Stats>(hero).MaxHealth;
 
     HealthApplication.ApplyHeal(ref frame, hero, Fp(50)).Should().Be(FP64.Zero);
     frame.GetReadOnly<Health>(hero).Current.Should().Be(maxHealth);
@@ -66,7 +66,7 @@ public class HealthApplicationTests {
     HealthApplication.RestoreToFull(ref frame, hero);
 
     frame.GetReadOnly<Health>(hero).Current
-      .Should().Be(frame.GetReadOnly<StatsComponent>(hero).MaxHealth);
+      .Should().Be(frame.GetReadOnly<Stats>(hero).MaxHealth);
   }
 
   [Fact]
@@ -74,12 +74,12 @@ public class HealthApplicationTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     EntityRef hero = harness.FindHero(1);
-    var maxHealth = frame.GetReadOnly<StatsComponent>(hero).MaxHealth;
+    var maxHealth = frame.GetReadOnly<Stats>(hero).MaxHealth;
     frame.Get<Health>(hero).Current = maxHealth - Fp(40);
 
     HealthApplication.GrantMaxHealth(ref frame, hero, Fp(20));
 
-    frame.GetReadOnly<StatsComponent>(hero).MaxHealth.Should().Be(maxHealth + Fp(20));
+    frame.GetReadOnly<Stats>(hero).MaxHealth.Should().Be(maxHealth + Fp(20));
     frame.GetReadOnly<Health>(hero).Current.Should().Be(maxHealth - Fp(20));
   }
 
@@ -88,12 +88,12 @@ public class HealthApplicationTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     EntityRef hero = harness.FindHero(1);
-    var maxHealth = frame.GetReadOnly<StatsComponent>(hero).MaxHealth;
+    var maxHealth = frame.GetReadOnly<Stats>(hero).MaxHealth;
     frame.Get<Health>(hero).Current = FP64.Zero;
 
     HealthApplication.GrantMaxHealth(ref frame, hero, Fp(20));
 
-    frame.GetReadOnly<StatsComponent>(hero).MaxHealth.Should().Be(maxHealth + Fp(20));
+    frame.GetReadOnly<Stats>(hero).MaxHealth.Should().Be(maxHealth + Fp(20));
     frame.GetReadOnly<Health>(hero).Current.Should().Be(FP64.Zero);
   }
 
@@ -102,11 +102,11 @@ public class HealthApplicationTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     EntityRef hero = harness.FindHero(1);
-    var maxHealth = frame.GetReadOnly<StatsComponent>(hero).MaxHealth;
+    var maxHealth = frame.GetReadOnly<Stats>(hero).MaxHealth;
 
     HealthApplication.GrantMaxHealth(ref frame, hero, -maxHealth);
 
-    frame.GetReadOnly<StatsComponent>(hero).MaxHealth.Should().Be(FP64.One); // StatRanges floors the pool at 1
+    frame.GetReadOnly<Stats>(hero).MaxHealth.Should().Be(FP64.One); // StatRanges floors the pool at 1
     frame.GetReadOnly<Health>(hero).Current.Should().Be(FP64.One);
     frame.GetReadOnly<Health>(hero).IsAlive.Should().BeTrue();
   }
@@ -116,12 +116,12 @@ public class HealthApplicationTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     EntityRef hero = harness.FindHero(1);
-    var maxHealth = frame.GetReadOnly<StatsComponent>(hero).MaxHealth;
+    var maxHealth = frame.GetReadOnly<Stats>(hero).MaxHealth;
     frame.Get<Health>(hero).Current = Fp(10);
 
     HealthApplication.GrantMaxHealth(ref frame, hero, -Fp(20));
 
-    frame.GetReadOnly<StatsComponent>(hero).MaxHealth.Should().Be(maxHealth - Fp(20));
+    frame.GetReadOnly<Stats>(hero).MaxHealth.Should().Be(maxHealth - Fp(20));
     frame.GetReadOnly<Health>(hero).Current.Should().Be(Fp(10));
   }
 

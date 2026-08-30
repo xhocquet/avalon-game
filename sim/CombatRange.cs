@@ -35,14 +35,14 @@ public static class CombatRange {
   }
 
   public static FP64 GameplayRadiusOf(ref Frame frame, EntityRef entity) {
-    return frame.Has<StatsComponent>(entity)
-      ? frame.GetReadOnly<StatsComponent>(entity).GameplayRadius
+    return frame.Has<Stats>(entity)
+      ? frame.GetReadOnly<Stats>(entity).GameplayRadius
       : FP64.Zero;
   }
 
   private static FP64 AttackRangeOf(ref Frame frame, EntityRef entity) {
-    return frame.Has<StatsComponent>(entity)
-      ? frame.GetReadOnly<StatsComponent>(entity).AttackRange
+    return frame.Has<Stats>(entity)
+      ? frame.GetReadOnly<Stats>(entity).AttackRange
       : FP64.Zero;
   }
 }

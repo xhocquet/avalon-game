@@ -111,7 +111,7 @@ public class DoubleDipTests {
     LearnAndCast(harness);
 
     ref readonly var burst =
-      ref harness.Frame.GetReadOnly<AttackBurstComponent>(harness.FindHero(CasterPlayerId));
+      ref harness.Frame.GetReadOnly<AttackBurst>(harness.FindHero(CasterPlayerId));
     burst.SourceId.Should().Be(AssetIds.SkillPickleKnightSecondary);
     burst.Remaining.Should().Be(skill.BurstAttackCountAtRank(1) - 1);
     burst.DelayTicks.Should().Be(Ticks(harness, skill.BurstAttackDelayMs));
@@ -200,12 +200,12 @@ public class DoubleDipTests {
   // earn four of them is not what these are testing.
   private static void MaxOut(SimHarness harness) {
     var maxRank = DoubleDipAsset(harness).MaxRank;
-    harness.Frame.Get<SkillsComponent>(harness.FindHero(CasterPlayerId)).SkillPoints = maxRank;
+    harness.Frame.Get<Skills>(harness.FindHero(CasterPlayerId)).SkillPoints = maxRank;
 
     for (var i = 0; i < maxRank; i++)
       harness.Tick(SimHarness.UpgradeSkillCommand(CasterPlayerId, 0, Secondary));
 
-    harness.Frame.GetReadOnly<SkillsComponent>(harness.FindHero(CasterPlayerId))
+    harness.Frame.GetReadOnly<Skills>(harness.FindHero(CasterPlayerId))
       .GetRank(Secondary).Should().Be(maxRank);
   }
 
@@ -242,8 +242,8 @@ public class DoubleDipTests {
       var heroPosition = frame.GetReadOnly<TransformComponent>(hero).Position;
       frame.Get<TransformComponent>(target).Position = heroPosition + FPVector3.Right;
 
-      var attackerUnitId = frame.GetReadOnly<UnitIdComponent>(hero).UnitId;
-      var targetUnitId = frame.GetReadOnly<UnitIdComponent>(target).UnitId;
+      var attackerUnitId = frame.GetReadOnly<UnitIdentity>(hero).UnitId;
+      var targetUnitId = frame.GetReadOnly<UnitIdentity>(target).UnitId;
       UnitIntent.SetAttackTarget(ref frame, hero, targetUnitId);
 
       collector.BeginTick(frame.Tick);
@@ -324,11 +324,11 @@ public class DoubleDipTests {
     var entity = frame.CreateEntity();
 
     frame.Add(entity, TransformFactory.At(FPVector3.Zero));
-    frame.Add(entity, new UnitIdComponent {
+    frame.Add(entity, new UnitIdentity {
       UnitId = UnitLookup.NextUnitId(ref frame),
       UnitTypeId = SimulationSetup.MinionUnitTypeId
     });
-    frame.Add(entity, new TeamComponent(EnemyTeamId));
+    frame.Add(entity, new Team(EnemyTeamId));
     frame.Add(entity, new Health(100000)); // Deep enough that nothing here can kill it
     frame.Add(entity, new Minion { WaveId = 0 });
 

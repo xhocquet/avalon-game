@@ -14,13 +14,13 @@ public class ExperienceSystem : ISystem {
     if (!frame.AssetRegistry.TryGet<XpRulesAsset>(out var rules) || rules.MaxLevel <= 1)
       return;
 
-    var filter = frame.Filter<Hero, ExperienceComponent, StatsComponent, Health>();
+    var filter = frame.Filter<Hero, Experience, Stats, Health>();
     while (filter.Next(out var entity)) {
       var levelsGained = 0;
-      ref var experience = ref frame.Get<ExperienceComponent>(entity);
+      ref var experience = ref frame.Get<Experience>(entity);
       var levelBefore = experience.Level;
       while (experience.Level < rules.MaxLevel &&
-             experience.Experience >= rules.TotalXpForLevel(experience.Level + 1)) {
+             experience.Xp >= rules.TotalXpForLevel(experience.Level + 1)) {
         experience.Level++;
         levelsGained++;
       }
@@ -29,7 +29,7 @@ public class ExperienceSystem : ISystem {
         continue;
 
       ApplyLevelGains(ref frame, entity, rules, levelBefore, experience.Level);
-      RaiseLevelUpEvent(ref frame, entity, frame.GetReadOnly<ExperienceComponent>(entity).Level);
+      RaiseLevelUpEvent(ref frame, entity, frame.GetReadOnly<Experience>(entity).Level);
     }
   }
 
@@ -39,15 +39,15 @@ public class ExperienceSystem : ISystem {
     if (heroAsset != null)
       ApplyGrowth(ref frame, entity, heroAsset, rules, levelBefore, levelAfter);
 
-    if (frame.Has<SkillsComponent>(entity))
-      frame.Get<SkillsComponent>(entity).SkillPoints += levelAfter - levelBefore;
+    if (frame.Has<Skills>(entity))
+      frame.Get<Skills>(entity).SkillPoints += levelAfter - levelBefore;
   }
 
   // Per-hero growth off the hero's own row, applied as the difference between the two levels rather
   // than a flat step each - the curve is not linear, and several levels can land on one tick.
   private static void ApplyGrowth(ref Frame frame, EntityRef entity, HeroAsset heroAsset,
     XpRulesAsset rules, int levelBefore, int levelAfter) {
-    ref var stats = ref frame.Get<StatsComponent>(entity);
+    ref var stats = ref frame.Get<Stats>(entity);
     for (var i = 0; i < StatRanges.Count; i++) {
       var stat = (StatType)i;
 

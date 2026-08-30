@@ -10,19 +10,19 @@ namespace Meesles.Avalon.Sim;
 // the same tick and turns them into levels.
 public static class ExperienceRewards {
   // The XP goes to whoever landed the fatal hit, and nowhere else. Only heroes carry an
-  // ExperienceComponent today, so a kill credited to a minion or a turret simply pays out nothing.
+  // Experience today, so a kill credited to a minion or a turret simply pays out nothing.
   public static void AwardForKill(ref Frame frame, EntityRef killer, int victimUnitTypeId, int victimTeamId) {
     // Nothing was credited with the damage (map damage, a decayed corpse), the killer is gone, or it
     // killed its own - the last of which would otherwise let a team farm its own minions.
     if (!MatchStats.IsCreditableKill(ref frame, killer, victimTeamId) ||
-        !frame.Has<ExperienceComponent>(killer))
+        !frame.Has<Experience>(killer))
       return;
 
     var xp = GetKillXp(ref frame, victimUnitTypeId);
     if (xp <= 0)
       return;
 
-    frame.Get<ExperienceComponent>(killer).Experience += xp;
+    frame.Get<Experience>(killer).Xp += xp;
   }
 
   private static int GetKillXp(ref Frame frame, int victimUnitTypeId) {

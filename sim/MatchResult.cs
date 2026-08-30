@@ -152,9 +152,9 @@ public static class MatchResultReader {
       used[slot] = true;
     }
 
-    var walletFilter = frame.Filter<ResourcesComponent>();
+    var walletFilter = frame.Filter<Resources>();
     while (walletFilter.Next(out var walletEntity)) {
-      ref readonly var wallet = ref frame.GetReadOnly<ResourcesComponent>(walletEntity);
+      ref readonly var wallet = ref frame.GetReadOnly<Resources>(walletEntity);
       for (var slot = 0; slot < PickupTypes.MaxTypes; slot++)
         if (wallet.GetSlot(slot) > 0)
           used[slot] = true;
@@ -177,19 +177,19 @@ public static class MatchResultReader {
     ResourceTypeSummary[] resourceTypes, Func<int, string> nameLookup) {
     var players = new List<PlayerResult>();
 
-    var filter = frame.Filter<Hero, Player, TeamComponent>();
+    var filter = frame.Filter<Hero, Player, Team>();
     while (filter.Next(out var entity)) {
       ref readonly var hero = ref frame.GetReadOnly<Hero>(entity);
       ref readonly var record = ref frame.GetReadOnly<Player>(entity);
-      var teamId = frame.GetReadOnly<TeamComponent>(entity).TeamId;
+      var teamId = frame.GetReadOnly<Team>(entity).TeamId;
       var resources = ReadResources(ref frame, entity, resourceTypes, out var totalResources);
 
       players.Add(new PlayerResult {
         PlayerId = hero.PlayerId,
         Name = nameLookup?.Invoke(hero.PlayerId),
         TeamId = teamId,
-        FactionId = frame.Has<FactionComponent>(entity)
-          ? frame.GetReadOnly<FactionComponent>(entity).FactionId
+        FactionId = frame.Has<Faction>(entity)
+          ? frame.GetReadOnly<Faction>(entity).FactionId
           : 0,
         HeroAssetId = hero.HeroAssetId,
         IsWinner = teamId == winnerTeamId,
@@ -199,11 +199,11 @@ public static class MatchResultReader {
         MinionKills = record.MinionKills,
         StructureKills = record.StructureKills,
         DamageDealt = FP64.Round(record.DamageDealt).ToInt(), // Whole numbers on the scoreboard
-        Level = frame.Has<ExperienceComponent>(entity)
-          ? frame.GetReadOnly<ExperienceComponent>(entity).Level
+        Level = frame.Has<Experience>(entity)
+          ? frame.GetReadOnly<Experience>(entity).Level
           : 0,
-        Gold = frame.Has<InventoryComponent>(entity)
-          ? frame.GetReadOnly<InventoryComponent>(entity).Gold
+        Gold = frame.Has<Inventory>(entity)
+          ? frame.GetReadOnly<Inventory>(entity).Gold
           : 0,
         Resources = resources,
         TotalResources = totalResources
@@ -223,10 +223,10 @@ public static class MatchResultReader {
   private static ResourceTally[] ReadResources(ref Frame frame, EntityRef entity,
     ResourceTypeSummary[] resourceTypes, out int total) {
     total = 0;
-    if (resourceTypes.Length == 0 || !frame.Has<ResourcesComponent>(entity))
+    if (resourceTypes.Length == 0 || !frame.Has<Resources>(entity))
       return NoResources;
 
-    ref readonly var wallet = ref frame.GetReadOnly<ResourcesComponent>(entity);
+    ref readonly var wallet = ref frame.GetReadOnly<Resources>(entity);
     var tallies = new ResourceTally[resourceTypes.Length];
     for (var i = 0; i < resourceTypes.Length; i++) {
       var count = wallet.CountOf(resourceTypes[i].TypeAssetId);

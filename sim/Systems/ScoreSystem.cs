@@ -99,9 +99,9 @@ public class ScoreSystem : ISystem {
       return false;
 
     _aliveCrystalTeamIds.Clear();
-    var crystalFilter = frame.Filter<Crystal, TeamComponent>();
+    var crystalFilter = frame.Filter<Crystal, Team>();
     while (crystalFilter.Next(out var crystalEntity))
-      TeamRegistry.AddTeam(_aliveCrystalTeamIds, frame.GetReadOnly<TeamComponent>(crystalEntity).TeamId);
+      TeamRegistry.AddTeam(_aliveCrystalTeamIds, frame.GetReadOnly<Team>(crystalEntity).TeamId);
 
     if (_aliveCrystalTeamIds.Count != 1)
       return false;
@@ -115,9 +115,9 @@ public class ScoreSystem : ISystem {
     if (teamId == MatchOutcome.NoWinnerTeamId)
       return false;
 
-    var filter = frame.Filter<Hero, TeamComponent>();
+    var filter = frame.Filter<Hero, Team>();
     while (filter.Next(out var entity)) {
-      ref readonly var team = ref frame.GetReadOnly<TeamComponent>(entity);
+      ref readonly var team = ref frame.GetReadOnly<Team>(entity);
       if (team.TeamId != teamId)
         continue;
 

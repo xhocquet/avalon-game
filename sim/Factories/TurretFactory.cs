@@ -12,14 +12,14 @@ public static class TurretFactory {
     var entity = frame.CreateEntity();
 
     frame.Add(entity, TransformFactory.At(position));
-    frame.Add(entity, new UnitIdComponent {
+    frame.Add(entity, new UnitIdentity {
       UnitId = UnitLookup.NextUnitId(ref frame),
       UnitTypeId = SimulationSetup.TurretUnitTypeId
     });
-    frame.Add(entity, new TeamComponent(teamId));
+    frame.Add(entity, new Team(teamId));
     frame.Add(entity, new Turret { TurretId = teamId * 100 + turretIndex });
     frame.Add(entity, new Health(stats.Health));
-    frame.Add(entity, StatsComponent.From(stats));
+    frame.Add(entity, Stats.From(stats));
     frame.Add(entity, new Combat());
 
     return entity;

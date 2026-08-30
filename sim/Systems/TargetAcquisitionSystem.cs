@@ -23,12 +23,12 @@ public class TargetAcquisitionSystem : ISystem {
 
     // Attackers that already hold a target are excluded outright — reacquisition is
     // AttackIntentSystem's job, not this system's.
-    var filter = frame.FilterWithout<UnitIdComponent, TeamComponent, StatsComponent, TransformComponent, AttackTargetUnitId>();
+    var filter = frame.FilterWithout<UnitIdentity, Team, Stats, TransformComponent, AttackTargetUnitId>();
     while (filter.Next(out var attacker)) {
       if (!frame.Has<Combat>(attacker) || !CanAcquireTargets(ref frame, attacker))
         continue;
 
-      ref readonly var stats = ref frame.GetReadOnly<StatsComponent>(attacker);
+      ref readonly var stats = ref frame.GetReadOnly<Stats>(attacker);
       ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(attacker);
 
       if (!TryAcquireTarget(ref frame, attacker, transform.Position, stats.AcquisitionRange,
@@ -44,7 +44,7 @@ public class TargetAcquisitionSystem : ISystem {
   private void BuildCandidateGrid(ref Frame frame) {
     _candidateGrid.Clear();
 
-    var filter = frame.Filter<UnitIdComponent, TeamComponent, Health, TransformComponent>();
+    var filter = frame.Filter<UnitIdentity, Team, Health, TransformComponent>();
     while (filter.Next(out var candidate)) {
       ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(candidate);
       _candidateGrid.Insert(candidate, transform.Position.ToXZ());
@@ -86,7 +86,7 @@ public class TargetAcquisitionSystem : ISystem {
       if (!CombatTargeting.IsHostileAndAlive(ref frame, attacker, candidate))
         continue;
 
-      ref readonly var unit = ref frame.GetReadOnly<UnitIdComponent>(candidate);
+      ref readonly var unit = ref frame.GetReadOnly<UnitIdentity>(candidate);
       ref readonly var candidateTransform = ref frame.GetReadOnly<TransformComponent>(candidate);
       var distanceSq = (candidateTransform.Position.ToXZ() - attackerXZ).sqrMagnitude;
 

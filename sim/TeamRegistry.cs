@@ -9,9 +9,9 @@ public static class TeamRegistry {
   public static void CollectActiveTeams(ref Frame frame, List<int> teamIds) {
     teamIds.Clear();
 
-    var filter = frame.Filter<Hero, TeamComponent>();
+    var filter = frame.Filter<Hero, Team>();
     while (filter.Next(out var entity))
-      AddTeam(teamIds, frame.GetReadOnly<TeamComponent>(entity).TeamId);
+      AddTeam(teamIds, frame.GetReadOnly<Team>(entity).TeamId);
   }
 
   public static void AddTeam(List<int> teamIds, int teamId) {

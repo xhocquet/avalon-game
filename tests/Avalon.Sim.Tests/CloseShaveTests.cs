@@ -90,9 +90,9 @@ public class CloseShaveTests {
   private static int LearnAndCast(SimHarness harness, int rank = 1) {
     var frame = harness.Frame;
     var hero = harness.FindHero(CasterPlayerId);
-    frame.Get<SkillsComponent>(hero).SkillPoints += rank; // A level-1 hero only carries one
+    frame.Get<Skills>(hero).SkillPoints += rank; // A level-1 hero only carries one
     for (var i = 0; i < rank; i++)
-      frame.Get<SkillsComponent>(hero).TrySpendPoint(Tertiary, 4).Should().BeTrue();
+      frame.Get<Skills>(hero).TrySpendPoint(Tertiary, 4).Should().BeTrue();
 
     var castTick = harness.Frame.Tick;
     harness.Tick(SimHarness.CastSkillCommand(CasterPlayerId, 0, Tertiary));
@@ -109,7 +109,7 @@ public class CloseShaveTests {
   }
 
   private static FP64 Stat(SimHarness harness, StatType stat) {
-    return harness.Frame.GetReadOnly<StatsComponent>(harness.FindHero(CasterPlayerId)).Get(stat);
+    return harness.Frame.GetReadOnly<Stats>(harness.FindHero(CasterPlayerId)).Get(stat);
   }
 
   private static FP64 MoveSpeed(SimHarness harness) {
@@ -121,11 +121,11 @@ public class CloseShaveTests {
   private static List<BuffEntry> Entries(SimHarness harness) {
     var entries = new List<BuffEntry>();
     var hero = harness.FindHero(CasterPlayerId);
-    if (!harness.Frame.Has<StatBuffsComponent>(hero))
+    if (!harness.Frame.Has<StatBuffs>(hero))
       return entries;
 
-    ref readonly var buffs = ref harness.Frame.GetReadOnly<StatBuffsComponent>(hero);
-    for (var i = 0; i < StatBuffsComponent.MaxEntries; i++)
+    ref readonly var buffs = ref harness.Frame.GetReadOnly<StatBuffs>(hero);
+    for (var i = 0; i < StatBuffs.MaxEntries; i++)
       if (buffs.IsActive(i))
         entries.Add(new BuffEntry(buffs.GetSourceId(i), buffs.GetStat(i), buffs.GetApplied(i),
           buffs.GetExpiryTick(i)));

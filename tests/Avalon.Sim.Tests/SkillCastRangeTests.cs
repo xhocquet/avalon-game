@@ -118,7 +118,7 @@ public class SkillCastRangeTests {
   private static SkillCastEvent CastAt(SimHarness harness, FPVector3 target, int slot = Primary) {
     var frame = harness.Frame;
     var hero = harness.FindHero(PlayerId);
-    frame.Get<SkillsComponent>(hero).TrySpendPoint(slot, 4).Should().BeTrue();
+    frame.Get<Skills>(hero).TrySpendPoint(slot, 4).Should().BeTrue();
 
     var collector = new EventCollector();
     collector.BeginTick(frame.Tick);

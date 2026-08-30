@@ -22,10 +22,10 @@ public static class AttackProcs {
     if (sourceId == 0 || durationTicks <= 0 || damageMultiplier <= FP64.Zero)
       return false;
 
-    if (!frame.Has<AttackProcComponent>(entity))
-      frame.Add(entity, new AttackProcComponent());
+    if (!frame.Has<AttackProc>(entity))
+      frame.Add(entity, new AttackProc());
 
-    ref var proc = ref frame.Get<AttackProcComponent>(entity);
+    ref var proc = ref frame.Get<AttackProc>(entity);
     proc.SourceId = sourceId;
     proc.DamageMultiplier = damageMultiplier;
     proc.ExpiryTick = frame.Tick + durationTicks;
@@ -43,10 +43,10 @@ public static class AttackProcs {
   // than reporting itself through the hit event.
   public static FP64 Consume(ref Frame frame, EntityRef attacker, EntityRef target, int attackHitId,
     FP64 damage) {
-    if (!frame.Has<AttackProcComponent>(attacker))
+    if (!frame.Has<AttackProc>(attacker))
       return damage;
 
-    ref var proc = ref frame.Get<AttackProcComponent>(attacker);
+    ref var proc = ref frame.Get<AttackProc>(attacker);
     if (!proc.IsArmed)
       return damage;
 
@@ -59,13 +59,13 @@ public static class AttackProcs {
   }
 
   public static void Clear(ref Frame frame, EntityRef entity) {
-    if (frame.Has<AttackProcComponent>(entity))
-      frame.Get<AttackProcComponent>(entity).Clear();
+    if (frame.Has<AttackProc>(entity))
+      frame.Get<AttackProc>(entity).Clear();
   }
 
   public static bool IsArmed(ref Frame frame, EntityRef entity) {
-    return frame.Has<AttackProcComponent>(entity) &&
-           frame.GetReadOnly<AttackProcComponent>(entity).IsArmed;
+    return frame.Has<AttackProc>(entity) &&
+           frame.GetReadOnly<AttackProc>(entity).IsArmed;
   }
 
   private static void RaiseConsumedEvent(ref Frame frame, EntityRef attacker, EntityRef target,

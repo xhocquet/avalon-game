@@ -88,7 +88,7 @@ public class StrangleTests {
     var harness = CreateHarness();
     var skill = StrangleAsset(harness);
     var burnTicks = MsToTicks(harness, skill.DotDurationMs);
-    var intervalTicks = MsToTicks(harness, DamageOverTime.PayoutIntervalMs);
+    var intervalTicks = MsToTicks(harness, DamageOverTimes.PayoutIntervalMs);
     var perSecond = skill.DotDamagePerSecondAtRank(1);
 
     var origin = LearnAndCastAlongX(harness);
@@ -131,7 +131,7 @@ public class StrangleTests {
     AdvancePast(harness, hitTick + System.Math.Max(burnTicks, slowTicks));
 
     IsBurning(harness, enemy).Should().BeFalse();
-    harness.Frame.Has<DamageOverTimeComponent>(enemy)
+    harness.Frame.Has<DamageOverTime>(enemy)
       .Should().BeTrue("the burn slot is cleared in place, not removed");
     // The slow reverts exactly: the dummy is back to the speed it had before the bolt.
     StatOf(harness, enemy, StatType.MoveSpeed).Should().Be(FP64.FromInt(DummySpeed));
@@ -180,7 +180,7 @@ public class StrangleTests {
   public void ALethalBurn_CreditsTheCasterSoTheKillPaysXp() {
     var harness = CreateHarness();
     var xpBefore = harness.Frame
-      .GetReadOnly<ExperienceComponent>(harness.FindHero(CasterPlayerId)).Experience;
+      .GetReadOnly<Experience>(harness.FindHero(CasterPlayerId)).Xp;
     var expectedXp = harness.AssetRegistry.Get<XpRulesAsset>().XpPerMinionKill;
 
     var origin = LearnAndCastAlongX(harness);
@@ -191,8 +191,8 @@ public class StrangleTests {
     AdvancePast(harness, hitTick + 120);
 
     // Kill credit rides Health.LastDamagerUnitId, which the burn's ApplyDamage sets to the caster.
-    harness.Frame.GetReadOnly<ExperienceComponent>(harness.FindHero(CasterPlayerId))
-      .Experience.Should().Be(xpBefore + expectedXp);
+    harness.Frame.GetReadOnly<Experience>(harness.FindHero(CasterPlayerId))
+      .Xp.Should().Be(xpBefore + expectedXp);
   }
 
   [Fact]
@@ -202,7 +202,7 @@ public class StrangleTests {
     var target = harness.FindHero(2);
 
     var frame = harness.Frame;
-    DamageOverTime.Apply(ref frame, target, harness.FindHero(CasterPlayerId),
+    DamageOverTimes.Apply(ref frame, target, harness.FindHero(CasterPlayerId),
       AssetIds.SkillHairyWizardSecondary, skill.DotDamagePerSecondAtRank(1), 200).Should().BeTrue();
     IsBurning(harness, target).Should().BeTrue();
 
@@ -239,9 +239,9 @@ public class StrangleTests {
   private static FPVector3 LearnAndCastAlongX(SimHarness harness, int rank = 1) {
     var frame = harness.Frame;
     var hero = harness.FindHero(CasterPlayerId);
-    frame.Get<SkillsComponent>(hero).SkillPoints += rank; // A level-1 hero only carries one
+    frame.Get<Skills>(hero).SkillPoints += rank; // A level-1 hero only carries one
     for (var i = 0; i < rank; i++)
-      frame.Get<SkillsComponent>(hero).TrySpendPoint(Secondary, 4).Should().BeTrue();
+      frame.Get<Skills>(hero).TrySpendPoint(Secondary, 4).Should().BeTrue();
 
     harness.Tick(); // let NavigationAgentSystem snap the hero onto the mesh before we read its position
 
@@ -276,19 +276,19 @@ public class StrangleTests {
     var entity = frame.CreateEntity();
 
     frame.Add(entity, TransformFactory.At(position));
-    frame.Add(entity, new UnitIdComponent {
+    frame.Add(entity, new UnitIdentity {
       UnitId = UnitLookup.NextUnitId(ref frame),
       UnitTypeId = SimulationSetup.MinionUnitTypeId
     });
-    frame.Add(entity, new TeamComponent(teamId));
+    frame.Add(entity, new Team(teamId));
     frame.Add(entity, new Health(500));
     frame.Add(entity, new Minion { WaveId = 0 });
-    frame.Add(entity, StatsComponent.Create().With(StatType.MoveSpeed, FP64.FromInt(DummySpeed)));
+    frame.Add(entity, Stats.Create().With(StatType.MoveSpeed, FP64.FromInt(DummySpeed)));
 
     return entity;
   }
 
-  // The floored window total DamageOverTime pays across `activeTicks` of accrual - a per-tick amount
+  // The floored window total DamageOverTimes pays across `activeTicks` of accrual - a per-tick amount
   // fixed at attach time, summed and floored. The payout interval changes when it lands, not this sum,
   // so the fixed-point figure is bit-identical rather than an approximation.
   private static FP64 ExpectedBurnTotal(FP64 damagePerSecond, int activeTicks) {
@@ -320,7 +320,7 @@ public class StrangleTests {
 
   private static bool IsBurning(SimHarness harness, EntityRef entity) {
     var frame = harness.Frame;
-    return DamageOverTime.IsBurning(ref frame, entity);
+    return DamageOverTimes.IsBurning(ref frame, entity);
   }
 
   private static FPVector3 HeroPosition(SimHarness harness) {
@@ -328,7 +328,7 @@ public class StrangleTests {
   }
 
   private static FP64 StatOf(SimHarness harness, EntityRef entity, StatType stat) {
-    return harness.Frame.GetReadOnly<StatsComponent>(entity).Get(stat);
+    return harness.Frame.GetReadOnly<Stats>(entity).Get(stat);
   }
 
   private static List<(Projectile Component, FPVector3 Position)> Projectiles(SimHarness harness) {
@@ -346,11 +346,11 @@ public class StrangleTests {
 
   private static List<BuffEntry> Entries(SimHarness harness, EntityRef entity) {
     var entries = new List<BuffEntry>();
-    if (!harness.Frame.Has<StatBuffsComponent>(entity))
+    if (!harness.Frame.Has<StatBuffs>(entity))
       return entries;
 
-    ref readonly var buffs = ref harness.Frame.GetReadOnly<StatBuffsComponent>(entity);
-    for (var i = 0; i < StatBuffsComponent.MaxEntries; i++)
+    ref readonly var buffs = ref harness.Frame.GetReadOnly<StatBuffs>(entity);
+    for (var i = 0; i < StatBuffs.MaxEntries; i++)
       if (buffs.IsActive(i))
         entries.Add(new BuffEntry(buffs.GetSourceId(i), buffs.GetStat(i), buffs.GetApplied(i),
           buffs.GetExpiryTick(i)));

@@ -77,7 +77,7 @@ public static class AssetIds {
   // Next free skill id: 520
 
   // PickupTypeAsset, one row per collectable resource kind. Index-significant: a type's wallet slot
-  // in ResourcesComponent is its offset from PickupTypeBase (see PickupTypes), so a deleted type
+  // in Resources is its offset from PickupTypeBase (see PickupTypes), so a deleted type
   // leaves its id as a hole and the block never grows past PickupTypes.MaxTypes.
   public const int PickupTypeBase = 600;
   public const int PickupTypeWater = 600;

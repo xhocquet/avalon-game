@@ -2,7 +2,7 @@
 
 - [`HeroAsset`](../Assets/HeroAsset.cs) holds every hero number. `FactionAsset.HeroAssetId` selects the row; the spawned entity keeps it in `Hero.HeroAssetId`.
 - Distances are metres — published stat blocks are 100x, so a 350 move speed is authored 3.5. Regen is per 5s.
-- The row is a spawn seed. `StatsComponent.From` copies it once, `Stats.Add(StatType, delta)` owns it after. Never read a live value back off it.
+- The row is a spawn seed. `Stats.From` copies it once, `Stats.Add(StatType, delta)` owns it after. Never read a live value back off it.
 - `Base*` + `*PerLevel` pairs grow with level (see XP & Leveling). Flat fields don't.
 
 | Field | Lands on | Notes |

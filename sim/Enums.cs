@@ -11,7 +11,7 @@ public enum MapMarkerType {
   Pickup = 5
 }
 
-// Indexes StatsComponent's value buffer directly, so the values must stay contiguous from 0 and
+// Indexes Stats's value buffer directly, so the values must stay contiguous from 0 and
 // StatRanges.Rows must carry one row per entry in the same order. Not serialized anywhere, so
 // renumbering is safe. Keep StatCount last.
 public enum StatType {

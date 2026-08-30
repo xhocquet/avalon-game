@@ -6,7 +6,7 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Tests;
 
-// Mitigation reads Armor or MagicResist off StatsComponent depending on the damage type, and both
+// Mitigation reads Armor or MagicResist off Stats depending on the damage type, and both
 // ends of the curve matter: the int block passed damage through unchanged whenever the resist went
 // negative.
 public class DamageMitigationTests {
@@ -67,7 +67,7 @@ public class DamageMitigationTests {
   }
 
   private static void SetResists(ref Frame frame, EntityRef entity, int armor, int magicResist) {
-    ref var stats = ref frame.Get<StatsComponent>(entity);
+    ref var stats = ref frame.Get<Stats>(entity);
     stats.Set(StatType.Armor, FP64.FromInt(armor));
     stats.Set(StatType.MagicResist, FP64.FromInt(magicResist));
   }

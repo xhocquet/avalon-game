@@ -63,14 +63,14 @@ public class BadHairDayTests {
 
     var castTick = LearnAndCast(harness);
 
-    var charge = harness.Frame.GetReadOnly<SkillChargeComponent>(Caster(harness));
+    var charge = harness.Frame.GetReadOnly<SkillCharge>(Caster(harness));
     charge.SourceId.Should().Be(AssetIds.SkillHairyWizardUltimate);
     charge.Damage.Should().Be(FP64.Zero, "the burst is snare-only; damage comes from the aura");
     charge.Radius.Should().Be(skill.AreaRadius);
     charge.DetonateTick.Should().Be(castTick + ChargeTicks(harness, skill));
     charge.SnareDurationTicks.Should().Be(Ticks(harness, skill.SnareDurationMsAtRank(1)));
     charge.HasAura.Should().BeTrue();
-    charge.AuraIntervalTicks.Should().Be(Ticks(harness, DamageOverTime.PayoutIntervalMs));
+    charge.AuraIntervalTicks.Should().Be(Ticks(harness, DamageOverTimes.PayoutIntervalMs));
     charge.AuraAccrualPerTick.Should().Be(
       skill.DotDamagePerSecondAtRank(1) * FP64.FromInt(SimHarness.DefaultDeltaTimeMs) / FP64.FromInt(1000));
   }
@@ -96,7 +96,7 @@ public class BadHairDayTests {
     var harness = CreateHarness();
     var skill = BadHairDayAsset(harness);
     var chargeTicks = ChargeTicks(harness, skill);
-    var intervalTicks = Ticks(harness, DamageOverTime.PayoutIntervalMs);
+    var intervalTicks = Ticks(harness, DamageOverTimes.PayoutIntervalMs);
     var perSecond = skill.DotDamagePerSecondAtRank(1);
 
     var castTick = LearnAndCast(harness);
@@ -186,7 +186,7 @@ public class BadHairDayTests {
     var enemy = SpawnDummy(harness, HeroPosition(harness), EnemyTeamId, isMinion: true);
     var healthBefore = Health(harness, enemy);
 
-    AdvanceTo(harness, castTick + Ticks(harness, DamageOverTime.PayoutIntervalMs));
+    AdvanceTo(harness, castTick + Ticks(harness, DamageOverTimes.PayoutIntervalMs));
     var healthAtDeath = Health(harness, enemy);
     healthAtDeath.Should().BeLessThan(healthBefore, "one pulse landed before the caster died");
 
@@ -272,9 +272,9 @@ public class BadHairDayTests {
   private static int LearnAndCast(SimHarness harness, int rank = 1) {
     var frame = harness.Frame;
     var hero = harness.FindHero(CasterPlayerId);
-    frame.Get<SkillsComponent>(hero).SkillPoints += rank;
+    frame.Get<Skills>(hero).SkillPoints += rank;
     for (var i = 0; i < rank; i++)
-      frame.Get<SkillsComponent>(hero).TrySpendPoint(Ultimate, 4).Should().BeTrue();
+      frame.Get<Skills>(hero).TrySpendPoint(Ultimate, 4).Should().BeTrue();
 
     Tick(harness); // let NavigationAgentSystem snap the hero onto the mesh before its position is read
 
@@ -293,13 +293,13 @@ public class BadHairDayTests {
     var entity = frame.CreateEntity();
 
     frame.Add(entity, TransformFactory.At(position));
-    frame.Add(entity, new UnitIdComponent {
+    frame.Add(entity, new UnitIdentity {
       UnitId = UnitLookup.NextUnitId(ref frame),
       UnitTypeId = isMinion ? SimulationSetup.MinionUnitTypeId : SimulationSetup.TurretUnitTypeId
     });
-    frame.Add(entity, new TeamComponent(teamId));
+    frame.Add(entity, new Team(teamId));
     frame.Add(entity, new Health(DummyHealth));
-    frame.Add(entity, StatsComponent.Create().With(StatType.MoveSpeed, FP64.FromInt(DummySpeed)));
+    frame.Add(entity, Stats.Create().With(StatType.MoveSpeed, FP64.FromInt(DummySpeed)));
 
     if (isMinion)
       frame.Add(entity, new Minion { WaveId = 0 });
@@ -372,7 +372,7 @@ public class BadHairDayTests {
   }
 
   private static int UnitId(SimHarness harness, EntityRef entity) {
-    return harness.Frame.GetReadOnly<UnitIdComponent>(entity).UnitId;
+    return harness.Frame.GetReadOnly<UnitIdentity>(entity).UnitId;
   }
 
   private static int Ticks(SimHarness harness, int milliseconds) {

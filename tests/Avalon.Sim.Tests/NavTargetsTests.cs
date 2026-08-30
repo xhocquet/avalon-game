@@ -99,15 +99,15 @@ public class NavTargetsTests {
 
   private static FPVector3 HostileTurretPosition(SimHarness harness) {
     var frame = harness.Frame;
-    var heroTeamId = frame.GetReadOnly<TeamComponent>(harness.FindHero(1)).TeamId;
+    var heroTeamId = frame.GetReadOnly<Team>(harness.FindHero(1)).TeamId;
 
     var candidates = new List<(int UnitId, FPVector3 Position)>();
-    var filter = frame.Filter<Turret, UnitIdComponent, TeamComponent, TransformComponent>();
+    var filter = frame.Filter<Turret, UnitIdentity, Team, TransformComponent>();
     while (filter.Next(out var entity)) {
-      if (frame.GetReadOnly<TeamComponent>(entity).TeamId == heroTeamId)
+      if (frame.GetReadOnly<Team>(entity).TeamId == heroTeamId)
         continue;
 
-      candidates.Add((frame.GetReadOnly<UnitIdComponent>(entity).UnitId,
+      candidates.Add((frame.GetReadOnly<UnitIdentity>(entity).UnitId,
         frame.GetReadOnly<TransformComponent>(entity).Position));
     }
 

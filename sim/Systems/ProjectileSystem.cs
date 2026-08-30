@@ -82,7 +82,7 @@ public class ProjectileSystem : ISystem {
     _grid.Clear();
     _maxBodyRadius = FP64.Zero;
 
-    var filter = frame.Filter<UnitIdComponent, TeamComponent, Health, TransformComponent>();
+    var filter = frame.Filter<UnitIdentity, Team, Health, TransformComponent>();
     while (filter.Next(out var candidate)) {
       ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(candidate);
       _grid.Insert(candidate, transform.Position.ToXZ());
@@ -126,7 +126,7 @@ public class ProjectileSystem : ISystem {
       if ((candidateXZ - closest).sqrMagnitude > reach * reach)
         continue;
 
-      var unitId = frame.GetReadOnly<UnitIdComponent>(candidate).UnitId;
+      var unitId = frame.GetReadOnly<UnitIdentity>(candidate).UnitId;
       if (found && (travel > bestTravel || (travel == bestTravel && unitId >= bestUnitId)))
         continue;
 
@@ -157,7 +157,7 @@ public class ProjectileSystem : ISystem {
     }
 
     if (skill.DotDurationMs > 0)
-      DamageOverTime.Apply(ref frame, target, source, skill.AssetId,
+      DamageOverTimes.Apply(ref frame, target, source, skill.AssetId,
         skill.DotDamagePerSecondAtRank(rank), TickMath.MsToTicksCeil(ref frame, skill.DotDurationMs));
   }
 

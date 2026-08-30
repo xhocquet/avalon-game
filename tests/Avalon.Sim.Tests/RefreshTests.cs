@@ -123,9 +123,9 @@ public class RefreshTests {
   private static void LearnAndCast(SimHarness harness, int rank = 1) {
     var frame = harness.Frame;
     var hero = harness.FindHero(CasterPlayerId);
-    frame.Get<SkillsComponent>(hero).SkillPoints += rank; // A level-1 hero only carries one
+    frame.Get<Skills>(hero).SkillPoints += rank; // A level-1 hero only carries one
     for (var i = 0; i < rank; i++)
-      frame.Get<SkillsComponent>(hero).TrySpendPoint(Tertiary, 4).Should().BeTrue();
+      frame.Get<Skills>(hero).TrySpendPoint(Tertiary, 4).Should().BeTrue();
 
     harness.Tick(SimHarness.CastSkillCommand(CasterPlayerId, 0, Tertiary));
   }
@@ -143,11 +143,11 @@ public class RefreshTests {
   }
 
   private static FP64 MaxHealth(SimHarness harness) {
-    return harness.Frame.GetReadOnly<StatsComponent>(harness.FindHero(CasterPlayerId)).MaxHealth;
+    return harness.Frame.GetReadOnly<Stats>(harness.FindHero(CasterPlayerId)).MaxHealth;
   }
 
   private static int Cooldown(SimHarness harness) {
-    return harness.Frame.GetReadOnly<SkillsComponent>(harness.FindHero(CasterPlayerId))
+    return harness.Frame.GetReadOnly<Skills>(harness.FindHero(CasterPlayerId))
       .GetCooldownRemainingTicks(Tertiary);
   }
 

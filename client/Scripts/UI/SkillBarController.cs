@@ -21,7 +21,7 @@ namespace Meesles.Avalon;
 // when the command lands, so a cell that is briefly optimistic is harmless.
 public class SkillBarController {
   private const float CellSize = 58f;
-  public const int SlotCount = SkillsComponent.MaxSlots;
+  public const int SlotCount = Skills.MaxSlots;
 
   // Indexed by SkillSlot. Distinct hues so the four slots stay tellable apart before they have icons.
   private static readonly Color[] SlotColors = [
@@ -73,7 +73,7 @@ public class SkillBarController {
     Build();
   }
 
-  // Called every HUD sync (GameUI.SyncFromFrame). Repaints from SkillsComponent, which is the sim's own
+  // Called every HUD sync (GameUI.SyncFromFrame). Repaints from Skills, which is the sim's own
   // record of ranks and banked points, so a rollback-corrected rank simply repaints on the next sync.
   public void Update(Frame frame, int? localPlayerId) {
     if (_grid == null) return;
@@ -86,13 +86,13 @@ public class SkillBarController {
   }
 
   private bool TryPaintLocalHero(Frame frame, int playerId) {
-    var filter = frame.Filter<Hero, SkillsComponent>();
+    var filter = frame.Filter<Hero, Skills>();
     while (filter.Next(out var entity)) {
       ref readonly var hero = ref frame.GetReadOnly<Hero>(entity);
       if (hero.PlayerId != playerId)
         continue;
 
-      ref readonly var skills = ref frame.GetReadOnly<SkillsComponent>(entity);
+      ref readonly var skills = ref frame.GetReadOnly<Skills>(entity);
 
       // Retire or age every slot's optimistic entry before anything reads it, so PendingPoints below
       // is the count still genuinely in flight.

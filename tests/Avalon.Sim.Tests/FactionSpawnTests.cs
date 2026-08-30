@@ -7,7 +7,7 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon.Sim.Tests;
 
 // Exercises the networked deferred-spawn path: no hero exists until a player's faction pick
-// (SelectFactionCommand) lands, at which point the hero spawns carrying the chosen FactionComponent.
+// (SelectFactionCommand) lands, at which point the hero spawns carrying the chosen Faction.
 public class FactionSpawnTests {
   private const int FactionA = 200;
   private const int FactionB = 201;
@@ -31,7 +31,7 @@ public class FactionSpawnTests {
 
     harness.Count<Hero>().Should().Be(1, "only player 1 has picked");
     EntityRef hero = harness.FindHero(playerId: 1);
-    harness.Frame.GetReadOnly<FactionComponent>(hero).FactionId.Should().Be(FactionB);
+    harness.Frame.GetReadOnly<Faction>(hero).FactionId.Should().Be(FactionB);
   }
 
   [Fact]
@@ -44,8 +44,8 @@ public class FactionSpawnTests {
       harness.Tick();
 
     harness.Count<Hero>().Should().Be(SimHarness.DefaultMaxPlayers);
-    harness.Frame.GetReadOnly<FactionComponent>(harness.FindHero(playerId: 1)).FactionId.Should().Be(FactionA);
-    harness.Frame.GetReadOnly<FactionComponent>(harness.FindHero(playerId: 2)).FactionId
+    harness.Frame.GetReadOnly<Faction>(harness.FindHero(playerId: 1)).FactionId.Should().Be(FactionA);
+    harness.Frame.GetReadOnly<Faction>(harness.FindHero(playerId: 2)).FactionId
       .Should().Be(SimulationSetup.DefaultFactionId);
   }
 }

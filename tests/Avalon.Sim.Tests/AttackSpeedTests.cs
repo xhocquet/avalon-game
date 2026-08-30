@@ -55,7 +55,7 @@ public class AttackSpeedTests {
     var frame = harness.Frame;
 
     var attacker = SpawnMinion(ref frame, FPVector3.Zero, teamId: 1, health: 100);
-    frame.Add(attacker, StatsComponent.Create()
+    frame.Add(attacker, Stats.Create()
       .With(StatType.AttackDamage, FP64.FromInt(10))
       .With(StatType.BaseAttackSpeed, baseAttackSpeed)
       .With(StatType.BonusAttackSpeed, bonus)
@@ -65,7 +65,7 @@ public class AttackSpeedTests {
 
     var target = SpawnMinion(ref frame, new FPVector3(FP64.One, FP64.Zero, FP64.Zero), teamId: 2,
       health: 10000);
-    frame.Add(target, StatsComponent.Create()
+    frame.Add(target, Stats.Create()
       .With(StatType.MaxHealth, FP64.FromInt(10000))
       .With(StatType.AttackDamage, FP64.Zero));
 
@@ -75,11 +75,11 @@ public class AttackSpeedTests {
   private static EntityRef SpawnMinion(ref Frame frame, FPVector3 position, int teamId, int health) {
     var entity = frame.CreateEntity();
     frame.Add(entity, TransformFactory.At(position));
-    frame.Add(entity, new UnitIdComponent {
+    frame.Add(entity, new UnitIdentity {
       UnitId = UnitLookup.NextUnitId(ref frame),
       UnitTypeId = SimulationSetup.MinionUnitTypeId
     });
-    frame.Add(entity, new TeamComponent { TeamId = teamId });
+    frame.Add(entity, new Team { TeamId = teamId });
     frame.Add(entity, new Minion { WaveId = 99 });
     frame.Add(entity, new Health(FP64.FromInt(health)));
 

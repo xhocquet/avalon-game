@@ -79,7 +79,7 @@ public class HardenTests {
     var applied = Entries(harness).Should().ContainSingle(e => e.Stat == StatType.Armor).Subject.Applied;
 
     var frame = harness.Frame;
-    frame.Get<ExperienceComponent>(hero).Experience =
+    frame.Get<Experience>(hero).Xp =
       harness.AssetRegistry.Get<XpRulesAsset>().TotalXpForLevel(3);
     harness.Tick(); // ExperienceSystem grants the level and its armor growth
 
@@ -171,7 +171,7 @@ public class HardenTests {
   }
 
   private static FP64 Stat(SimHarness harness, StatType stat) {
-    return harness.Frame.GetReadOnly<StatsComponent>(harness.FindHero(CasterPlayerId)).Get(stat);
+    return harness.Frame.GetReadOnly<Stats>(harness.FindHero(CasterPlayerId)).Get(stat);
   }
 
   private readonly record struct BuffEntry(int SourceId, StatType Stat, FP64 Applied, int ExpiryTick);
@@ -179,11 +179,11 @@ public class HardenTests {
   private static List<BuffEntry> Entries(SimHarness harness) {
     var entries = new List<BuffEntry>();
     var hero = harness.FindHero(CasterPlayerId);
-    if (!harness.Frame.Has<StatBuffsComponent>(hero))
+    if (!harness.Frame.Has<StatBuffs>(hero))
       return entries;
 
-    ref readonly var buffs = ref harness.Frame.GetReadOnly<StatBuffsComponent>(hero);
-    for (var i = 0; i < StatBuffsComponent.MaxEntries; i++)
+    ref readonly var buffs = ref harness.Frame.GetReadOnly<StatBuffs>(hero);
+    for (var i = 0; i < StatBuffs.MaxEntries; i++)
       if (buffs.IsActive(i))
         entries.Add(new BuffEntry(buffs.GetSourceId(i), buffs.GetStat(i), buffs.GetApplied(i),
           buffs.GetExpiryTick(i)));

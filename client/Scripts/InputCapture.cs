@@ -414,9 +414,9 @@ public class InputCapture : IDisposable {
     var frame = _engine?.PredictedFrame.Frame;
     if (frame == null) return false;
     if (!UnitLookup.TryGetPlayerHero(ref frame, _engine.LocalPlayerId, out var hero)) return false;
-    if (!frame.Has<SkillsComponent>(hero)) return false;
+    if (!frame.Has<Skills>(hero)) return false;
 
-    var skillAssetId = frame.GetReadOnly<SkillsComponent>(hero).GetSkillAssetId(slot);
+    var skillAssetId = frame.GetReadOnly<Skills>(hero).GetSkillAssetId(slot);
     return frame.AssetRegistry.TryGet<SkillAsset>(skillAssetId, out var skill) && skill.IsSelfCast;
   }
 
@@ -944,10 +944,10 @@ public class InputCapture : IDisposable {
     if (frame == null || !frame.Has<Hero>(view.EntityRef))
       frame = view.Engine.VerifiedFrame.Frame;
 
-    if (frame == null || !frame.Has<Hero>(view.EntityRef) || !frame.Has<FactionComponent>(view.EntityRef))
+    if (frame == null || !frame.Has<Hero>(view.EntityRef) || !frame.Has<Faction>(view.EntityRef))
       return false;
 
-    factionId = frame.GetReadOnly<FactionComponent>(view.EntityRef).FactionId;
+    factionId = frame.GetReadOnly<Faction>(view.EntityRef).FactionId;
     return true;
   }
 
@@ -1010,19 +1010,19 @@ public class InputCapture : IDisposable {
     return found;
   }
 
-  private static bool TryGetUnit(EntityViewNode view, out UnitIdComponent unit) {
+  private static bool TryGetUnit(EntityViewNode view, out UnitIdentity unit) {
     unit = default;
     if (view.Engine == null || !view.EntityRef.IsValid)
       return false;
 
     var frame = view.Engine.PredictedFrame.Frame;
-    if (frame == null || !frame.Has<UnitIdComponent>(view.EntityRef))
+    if (frame == null || !frame.Has<UnitIdentity>(view.EntityRef))
       frame = view.Engine.VerifiedFrame.Frame;
 
-    if (frame == null || !frame.Has<UnitIdComponent>(view.EntityRef))
+    if (frame == null || !frame.Has<UnitIdentity>(view.EntityRef))
       return false;
 
-    unit = frame.GetReadOnly<UnitIdComponent>(view.EntityRef);
+    unit = frame.GetReadOnly<UnitIdentity>(view.EntityRef);
     return true;
   }
 
@@ -1031,11 +1031,11 @@ public class InputCapture : IDisposable {
       return false;
 
     var frame = view.Engine.PredictedFrame.Frame;
-    if (frame == null || !frame.Has<UnitIdComponent>(view.EntityRef))
+    if (frame == null || !frame.Has<UnitIdentity>(view.EntityRef))
       frame = view.Engine.VerifiedFrame.Frame;
 
     return frame != null
-           && frame.Has<UnitIdComponent>(view.EntityRef)
+           && frame.Has<UnitIdentity>(view.EntityRef)
            && frame.Has<Controllable>(view.EntityRef);
   }
 }

@@ -14,23 +14,23 @@ public static class HeroFactory {
     frame.Add(entity, TransformFactory.At(position));
     frame.Add(entity, new OwnerComponent { OwnerId = playerId }); // Required by vendor code
     frame.Add(entity, new Player());
-    frame.Add(entity, new TeamComponent(teamId));
-    frame.Add(entity, new FactionComponent(factionId));
+    frame.Add(entity, new Team(teamId));
+    frame.Add(entity, new Faction(factionId));
     frame.Add(entity, new Hero(playerId, heroAsset.AssetId));
-    frame.Add(entity, new UnitIdComponent {
+    frame.Add(entity, new UnitIdentity {
       UnitId = UnitLookup.NextUnitId(ref frame),
       UnitTypeId = SimulationSetup.PlayerUnitTypeId
     });
     frame.Add(entity, new Controllable());
     frame.Add(entity, new Respawns());
-    frame.Add(entity, new InventoryComponent {
+    frame.Add(entity, new Inventory {
       Gold = matchRules.StartingGold,
       GoldPerTick = matchRules.StartingGoldPerTick
     });
-    frame.Add(entity, new ResourcesComponent());
-    frame.Add(entity, new ExperienceComponent());
+    frame.Add(entity, new Resources());
+    frame.Add(entity, new Experience());
     frame.Add(entity, BuildSkills(heroAsset));
-    frame.Add(entity, StatsComponent.From(heroAsset));
+    frame.Add(entity, Stats.From(heroAsset));
     frame.Add(entity, new Health(heroAsset.BaseHealth) { Mana = heroAsset.BaseMana });
     frame.Add(entity, new Combat());
     frame.Add(entity,
@@ -45,9 +45,9 @@ public static class HeroFactory {
   // Loads the hero's own four SkillAsset rows onto the entity so nothing downstream has to walk back
   // through the asset to find out which skills it has. Level 1 counts as a level, so the hero spawns
   // with one point already spendable; ExperienceSystem grants one more per level after that.
-  private static SkillsComponent BuildSkills(HeroAsset heroAsset) {
-    var skills = new SkillsComponent { SkillPoints = 1 };
-    for (var slot = 0; slot < SkillsComponent.MaxSlots; slot++)
+  private static Skills BuildSkills(HeroAsset heroAsset) {
+    var skills = new Skills { SkillPoints = 1 };
+    for (var slot = 0; slot < Skills.MaxSlots; slot++)
       skills.SetSkillAssetId(slot, heroAsset.GetSkillAssetId(slot));
 
     return skills;

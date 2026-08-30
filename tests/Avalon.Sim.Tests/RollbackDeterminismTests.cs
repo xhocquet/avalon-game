@@ -92,12 +92,12 @@ public class RollbackDeterminismTests {
     Report(divergences, ReplayTicks, WarmupTicks);
 
     divergences.Should().BeEmpty(
-      "skill points, ranks, and cooldowns all live on SkillsComponent, so a rollback must restore " +
+      "skill points, ranks, and cooldowns all live on Skills, so a rollback must restore " +
       "them with the rest of the frame. A divergence here means skill state was cached on a system " +
       "or a behavior instead, and the discarded prediction branch leaked into the replay.");
   }
 
-  // Skill projectiles across a rollback boundary — the shape SkillsComponent's cooldowns are not.
+  // Skill projectiles across a rollback boundary — the shape Skills's cooldowns are not.
   // A cast creates entities that keep moving on their own for ~50 ticks afterwards, so the snapshot
   // has to restore a set of live projectiles mid-flight, at the right positions, with the right
   // distance left to run. A projectile tracked in a list on ProjectileSystem instead of on its own
@@ -131,7 +131,7 @@ public class RollbackDeterminismTests {
   }
 
   // Timed stat buffs across a rollback boundary. A buff is two writes that must stay paired - the
-  // amount added to StatsComponent and the entry on StatBuffsComponent that owes it back - so a
+  // amount added to Stats and the entry on StatBuffs that owes it back - so a
   // restore that reached one and not the other would leave a hero permanently hardened or hand back
   // an amount it was never given. The discarded branch stacks a buff of its own so the snapshot has
   // both a stat value and an entry the replay must not inherit.
@@ -161,7 +161,7 @@ public class RollbackDeterminismTests {
     Report(divergences, ReplayTicks, WarmupTicks);
 
     divergences.Should().BeEmpty(
-      "a buff's applied amount and its expiry tick live on StatBuffsComponent, so a rollback " +
+      "a buff's applied amount and its expiry tick live on StatBuffs, so a rollback " +
       "restores them with the stat they moved. A divergence here means buff state was tracked " +
       "on TimedEffectSystem instead, and the discarded prediction branch leaked into the replay.");
   }
@@ -180,7 +180,7 @@ public class RollbackDeterminismTests {
   // already holding rather than refreshing it.
   private static void ApplyBranchBuff(SimHarness harness) {
     var frame = harness.Frame;
-    var filter = frame.Filter<Hero, StatsComponent>();
+    var filter = frame.Filter<Hero, Stats>();
     while (filter.Next(out var entity))
       StatBuffApplication.ApplyPercent(ref frame, entity, Assets.AssetIds.SkillCrystalGiantUltimate,
         StatType.Armor, FP64.FromInt(1) / FP64.FromInt(2), durationTicks: 600);
@@ -189,7 +189,7 @@ public class RollbackDeterminismTests {
   private static FP64 HeroArmor(SimHarness harness) {
     var frame = harness.Frame;
     var hero = harness.FindHero(1);
-    return frame.GetReadOnly<StatsComponent>(hero).Armor;
+    return frame.GetReadOnly<Stats>(hero).Armor;
   }
 
   // Guards the scenario above: a snapshot taken with no buff running would restore nothing
@@ -242,9 +242,9 @@ public class RollbackDeterminismTests {
     var frame = harness.Frame;
     var hero = harness.FindHero(1);
     var skill = harness.AssetRegistry.Get<Assets.SkillAsset>(
-      frame.GetReadOnly<SkillsComponent>(hero).GetSkillAssetId((int)SkillSlot.Primary));
+      frame.GetReadOnly<Skills>(hero).GetSkillAssetId((int)SkillSlot.Primary));
 
-    ref readonly var skills = ref frame.GetReadOnly<SkillsComponent>(hero);
+    ref readonly var skills = ref frame.GetReadOnly<Skills>(hero);
     skills.GetRank((int)SkillSlot.Primary).Should().Be(skill.MaxRank,
       "the warmup stream should have ranked Primary all the way up");
     skills.GetCooldownRemainingTicks((int)SkillSlot.Primary).Should().BeGreaterThan(0,
@@ -253,7 +253,7 @@ public class RollbackDeterminismTests {
       "Ultimate is the slot the mispredicted branch touches, so it must be untouched here");
   }
 
-  // Stat state across a rollback boundary. StatsComponent is a fixed buffer of raw FP64 values
+  // Stat state across a rollback boundary. Stats is a fixed buffer of raw FP64 values
   // rather than named fields, so the generated codec has to walk it for both the snapshot and the
   // hash - a buffer the generator skipped would restore as zeroes and desync silently. Levelling
   // during the discarded branch is what puts a value in there that the replay must not inherit.
@@ -284,29 +284,29 @@ public class RollbackDeterminismTests {
     Report(divergences, ReplayTicks, WarmupTicks);
 
     divergences.Should().BeEmpty(
-      "every stat lives in StatsComponent's value buffer, so a rollback must restore the whole " +
+      "every stat lives in Stats's value buffer, so a rollback must restore the whole " +
       "buffer with the rest of the frame. A divergence here means the buffer is not being " +
       "snapshotted or hashed, and level-up gains from the discarded branch leaked into the replay.");
   }
 
   private static int HeroLevel(SimHarness harness) {
     var frame = harness.Frame;
-    var filter = frame.Filter<Hero, ExperienceComponent>();
-    return filter.Next(out var entity) ? frame.GetReadOnly<ExperienceComponent>(entity).Level : 0;
+    var filter = frame.Filter<Hero, Experience>();
+    return filter.Next(out var entity) ? frame.GetReadOnly<Experience>(entity).Level : 0;
   }
 
   private static void GrantExperience(SimHarness harness, int experience) {
     var frame = harness.Frame;
-    var filter = frame.Filter<Hero, ExperienceComponent>();
+    var filter = frame.Filter<Hero, Experience>();
     while (filter.Next(out var entity))
-      frame.Get<ExperienceComponent>(entity).Experience = experience;
+      frame.Get<Experience>(entity).Xp = experience;
   }
 
   private static void GrantSkillPoints(SimHarness harness, int points) {
     var frame = harness.Frame;
-    var filter = frame.Filter<Hero, SkillsComponent>();
+    var filter = frame.Filter<Hero, Skills>();
     while (filter.Next(out var entity))
-      frame.Get<SkillsComponent>(entity).SkillPoints = points;
+      frame.Get<Skills>(entity).SkillPoints = points;
   }
 
   // Regression test for NavigationAgentSystem's navmesh-snap bookkeeping.
@@ -469,9 +469,9 @@ public class RollbackDeterminismTests {
     var result = new SortedDictionary<int, NavAgentSample>();
     var frame = harness.Frame;
 
-    var filter = frame.Filter<UnitIdComponent, NavAgentComponent, TransformComponent>();
+    var filter = frame.Filter<UnitIdentity, NavAgentComponent, TransformComponent>();
     while (filter.Next(out var entity)) {
-      ref readonly var unit = ref frame.GetReadOnly<UnitIdComponent>(entity);
+      ref readonly var unit = ref frame.GetReadOnly<UnitIdentity>(entity);
       ref readonly var nav = ref frame.GetReadOnly<NavAgentComponent>(entity);
       ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
 

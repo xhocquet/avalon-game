@@ -20,10 +20,10 @@ public static class ShopActions {
       return false;
     }
 
-    ref var inventory = ref frame.Get<InventoryComponent>(heroEntity);
+    ref var inventory = ref frame.Get<Inventory>(heroEntity);
     inventory.Gold -= CostFor(ref frame, playerId, item);
     inventory.TryAddItem(itemAssetId);
-    ref var stats = ref frame.Get<StatsComponent>(heroEntity);
+    ref var stats = ref frame.Get<Stats>(heroEntity);
     stats.Add(StatType.AttackDamage, item.AttackBonus);
 
     SimLog.Info(ref frame,
@@ -60,17 +60,17 @@ public static class ShopActions {
     if (!frame.AssetRegistry.TryGet<ShopItemAsset>(itemAssetId, out item))
       return PurchaseBlock.ItemAssetMissing;
 
-    if (!frame.Has<InventoryComponent>(heroEntity) || !frame.Has<StatsComponent>(heroEntity))
+    if (!frame.Has<Inventory>(heroEntity) || !frame.Has<Stats>(heroEntity))
       return PurchaseBlock.HeroMissingInventoryOrStats;
 
-    ref readonly var inventory = ref frame.GetReadOnly<InventoryComponent>(heroEntity);
+    ref readonly var inventory = ref frame.GetReadOnly<Inventory>(heroEntity);
     if (inventory.Gold - pendingGold < CostFor(ref frame, playerId, item))
       return PurchaseBlock.InsufficientGold;
 
     if (!IsHeroNearTeamShop(ref frame, heroEntity))
       return PurchaseBlock.OutOfRange;
 
-    return inventory.ItemCount + pendingItems >= InventoryComponent.MaxItems
+    return inventory.ItemCount + pendingItems >= Inventory.MaxItems
       ? PurchaseBlock.InventoryFull
       : PurchaseBlock.None;
   }
@@ -84,11 +84,11 @@ public static class ShopActions {
       case PurchaseBlock.ItemAssetMissing: return "item_asset_missing";
       case PurchaseBlock.HeroMissingInventoryOrStats:
         return
-          $"hero_missing_inventory_or_stats hasInv={frame.Has<InventoryComponent>(heroEntity)} hasStats={frame.Has<StatsComponent>(heroEntity)}";
+          $"hero_missing_inventory_or_stats hasInv={frame.Has<Inventory>(heroEntity)} hasStats={frame.Has<Stats>(heroEntity)}";
       case PurchaseBlock.OutOfRange: return "out_of_range";
     }
 
-    ref readonly var inventory = ref frame.GetReadOnly<InventoryComponent>(heroEntity);
+    ref readonly var inventory = ref frame.GetReadOnly<Inventory>(heroEntity);
     return block switch {
       PurchaseBlock.InsufficientGold => $"insufficient_gold gold={inventory.Gold} cost={item.Cost}",
       PurchaseBlock.InventoryFull => $"inventory_full itemCount={inventory.ItemCount}",
@@ -110,13 +110,13 @@ public static class ShopActions {
 
   // Shop access is a team question: a hero buys at the Shop marker its own team owns.
   public static bool IsHeroNearTeamShop(ref Frame frame, EntityRef heroEntity) {
-    if (!frame.Has<TeamComponent>(heroEntity) || !frame.Has<TransformComponent>(heroEntity))
+    if (!frame.Has<Team>(heroEntity) || !frame.Has<TransformComponent>(heroEntity))
       return false;
 
     if (HasFreeShop(ref frame, heroEntity))
       return true;
 
-    var teamId = frame.GetReadOnly<TeamComponent>(heroEntity).TeamId;
+    var teamId = frame.GetReadOnly<Team>(heroEntity).TeamId;
     if (!frame.AssetRegistry.TryGet<MapLayoutAsset>(out var layout))
       return false;
 

@@ -16,7 +16,7 @@ public class AttackIntentSystem(NavigationRuntime navigation = null) : ISystem {
     _unitIdIndex.Rebuild(ref frame);
     _spentIntents.Clear();
 
-    var filter = frame.Filter<AttackTargetUnitId, TeamComponent, TransformComponent>();
+    var filter = frame.Filter<AttackTargetUnitId, Team, TransformComponent>();
     while (filter.Next(out var attacker))
       if (!UpdateAttacker(ref frame, attacker))
         _spentIntents.Add(attacker);

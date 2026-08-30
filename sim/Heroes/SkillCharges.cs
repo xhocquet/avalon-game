@@ -16,16 +16,16 @@ namespace Meesles.Avalon.Sim.Heroes;
 public static class SkillCharges {
   // Starts a charge, replacing whatever was on the caster. Returns false when the charge is a no-op.
   // A positive auraDamagePerSecond makes the wind-up a channel: the disc pulses that rate at every
-  // hostile inside it on DamageOverTime.PayoutIntervalMs boundaries, with the tail paid at detonation.
+  // hostile inside it on DamageOverTimes.PayoutIntervalMs boundaries, with the tail paid at detonation.
   public static bool Arm(ref Frame frame, EntityRef entity, int sourceId, int delayTicks, FP64 damage,
     FP64 radius, int snareDurationTicks, FP64 auraDamagePerSecond = default) {
     if (sourceId == 0 || delayTicks <= 0 || radius <= FP64.Zero)
       return false;
 
-    if (!frame.Has<SkillChargeComponent>(entity))
-      frame.Add(entity, new SkillChargeComponent());
+    if (!frame.Has<SkillCharge>(entity))
+      frame.Add(entity, new SkillCharge());
 
-    ref var charge = ref frame.Get<SkillChargeComponent>(entity);
+    ref var charge = ref frame.Get<SkillCharge>(entity);
     charge.SourceId = sourceId;
     charge.DetonateTick = frame.Tick + delayTicks;
     charge.SnareDurationTicks = snareDurationTicks;
@@ -34,7 +34,7 @@ public static class SkillCharges {
     charge.AuraPending = FP64.Zero;
 
     if (auraDamagePerSecond > FP64.Zero) {
-      var interval = TickMath.MsToTicksCeil(ref frame, DamageOverTime.PayoutIntervalMs);
+      var interval = TickMath.MsToTicksCeil(ref frame, DamageOverTimes.PayoutIntervalMs);
       if (interval < 1)
         interval = 1;
       charge.AuraIntervalTicks = interval;
@@ -56,10 +56,10 @@ public static class SkillCharges {
   // winding up. Membership is re-read here, so the aura follows a moving caster and a foe walking in
   // or out of the disc between pulses is caught or spared accordingly.
   public static void TickAura(ref Frame frame, EntityRef caster) {
-    if (!frame.Has<SkillChargeComponent>(caster))
+    if (!frame.Has<SkillCharge>(caster))
       return;
 
-    ref var charge = ref frame.Get<SkillChargeComponent>(caster);
+    ref var charge = ref frame.Get<SkillCharge>(caster);
     if (!charge.IsCharging || !charge.HasAura)
       return;
 
@@ -81,17 +81,17 @@ public static class SkillCharges {
   // Pays the charge out and clears it. Damages every hostile hero and minion in the disc and snares
   // each of them for the row's hold; a charge authored no hold only damages.
   public static void Detonate(ref Frame frame, EntityRef caster) {
-    if (!frame.Has<SkillChargeComponent>(caster))
+    if (!frame.Has<SkillCharge>(caster))
       return;
 
-    ref var charge = ref frame.Get<SkillChargeComponent>(caster);
+    ref var charge = ref frame.Get<SkillCharge>(caster);
     if (!charge.IsCharging)
       return;
 
     var sourceId = charge.SourceId;
     // Burst damage plus whatever the channel aura accrued since its last pulse - the tail instalment,
     // paid to the disc as it detonates rather than lost. Not accrued for the detonation tick itself,
-    // matching how DamageOverTime pays out on its expiry tick.
+    // matching how DamageOverTimes pays out on its expiry tick.
     var damage = charge.Damage + (charge.HasAura ? FP64.Floor(charge.AuraPending) : FP64.Zero);
     var radius = charge.Radius;
     var snareDurationTicks = charge.SnareDurationTicks;
@@ -129,13 +129,13 @@ public static class SkillCharges {
   }
 
   public static void Clear(ref Frame frame, EntityRef entity) {
-    if (frame.Has<SkillChargeComponent>(entity))
-      frame.Get<SkillChargeComponent>(entity).Clear();
+    if (frame.Has<SkillCharge>(entity))
+      frame.Get<SkillCharge>(entity).Clear();
   }
 
   public static bool IsCharging(ref Frame frame, EntityRef entity) {
-    return frame.Has<SkillChargeComponent>(entity) &&
-           frame.GetReadOnly<SkillChargeComponent>(entity).IsCharging;
+    return frame.Has<SkillCharge>(entity) &&
+           frame.GetReadOnly<SkillCharge>(entity).IsCharging;
   }
 
   // Raised before the hits land, so the burst FX and the damage numbers arrive in that order.

@@ -20,19 +20,19 @@ public sealed class PredictedSkillState {
 
   // Rank the frame reported when this slot's first outstanding upgrade was queued. Asked-for rank is
   // _baseRank + _asked, and the difference against the frame's current rank is what still shows.
-  private readonly int[] _baseRank = new int[SkillsComponent.MaxSlots];
-  private readonly int[] _asked = new int[SkillsComponent.MaxSlots];
-  private readonly int[] _outstanding = new int[SkillsComponent.MaxSlots];
+  private readonly int[] _baseRank = new int[Skills.MaxSlots];
+  private readonly int[] _asked = new int[Skills.MaxSlots];
+  private readonly int[] _outstanding = new int[Skills.MaxSlots];
 
   // Syncs a slot has been waiting with something outstanding. Counted rather than deadlined against
   // frame.Tick so a prediction made before the first sync cannot come out already expired.
-  private readonly int[] _waited = new int[SkillsComponent.MaxSlots];
+  private readonly int[] _waited = new int[Skills.MaxSlots];
 
   // Skill points committed to queued commands that the frame has not deducted yet.
   public int PendingPoints { get; private set; }
 
   public int OutstandingFor(int slot) {
-    return (uint)slot < SkillsComponent.MaxSlots ? _outstanding[slot] : 0;
+    return (uint)slot < Skills.MaxSlots ? _outstanding[slot] : 0;
   }
 
   // Rank to display for a slot: what the frame says, plus whatever the player asked for that it has
@@ -44,7 +44,7 @@ public sealed class PredictedSkillState {
   // Called when a command is actually queued for sending, never on the click alone - an upgrade the
   // client itself refused must not move the display.
   public void PredictUpgrade(int slot) {
-    if ((uint)slot >= SkillsComponent.MaxSlots) return;
+    if ((uint)slot >= Skills.MaxSlots) return;
 
     _asked[slot]++;
     _outstanding[slot]++;
@@ -54,7 +54,7 @@ public sealed class PredictedSkillState {
 
   // Called once per slot per HUD sync with the frame's own rank, before the slot is painted.
   public void Observe(int slot, int simRank) {
-    if ((uint)slot >= SkillsComponent.MaxSlots) return;
+    if ((uint)slot >= Skills.MaxSlots) return;
 
     if (_asked[slot] == 0) {
       // Nothing in flight: the frame is the truth, and its rank is the base the next click builds on.
@@ -78,7 +78,7 @@ public sealed class PredictedSkillState {
   }
 
   public void Clear() {
-    for (var slot = 0; slot < SkillsComponent.MaxSlots; slot++) {
+    for (var slot = 0; slot < Skills.MaxSlots; slot++) {
       _baseRank[slot] = 0;
       _asked[slot] = 0;
       _outstanding[slot] = 0;

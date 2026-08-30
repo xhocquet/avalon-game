@@ -16,7 +16,7 @@ public class PickupSystemTests {
 
     var pickup = FirstPickup(ref frame);
     var heroEntity = FindHero(ref frame, playerId: 1);
-    var resourcesBefore = frame.GetReadOnly<ResourcesComponent>(heroEntity).Total;
+    var resourcesBefore = frame.GetReadOnly<Resources>(heroEntity).Total;
 
     var command = SimHarness.MoveCommand(1, 0, pickup.Position.x, pickup.Position.z);
     harness.Tick(command);
@@ -27,7 +27,7 @@ public class PickupSystemTests {
     // so a hero walking toward one may collect several; check the resource gain rather than count.
     frame = harness.Frame;
     heroEntity = FindHero(ref frame, playerId: 1);
-    var resourcesAfter = frame.GetReadOnly<ResourcesComponent>(heroEntity).Total;
+    var resourcesAfter = frame.GetReadOnly<Resources>(heroEntity).Total;
 
     resourcesAfter.Should().BeGreaterThan(resourcesBefore);
     ((resourcesAfter - resourcesBefore) % pickup.Amount).Should().Be(0);
@@ -46,7 +46,7 @@ public class PickupSystemTests {
 
     frame = harness.Frame;
     heroEntity = FindHero(ref frame, playerId: 1);
-    ref readonly var resources = ref frame.GetReadOnly<ResourcesComponent>(heroEntity);
+    ref readonly var resources = ref frame.GetReadOnly<Resources>(heroEntity);
     resources.CountOf(AssetIds.PickupTypeWater).Should().Be(7);
     resources.Total.Should().Be(7);
   }
@@ -64,7 +64,7 @@ public class PickupSystemTests {
 
     frame = harness.Frame;
     heroEntity = FindHero(ref frame, playerId: 1);
-    frame.GetReadOnly<ResourcesComponent>(heroEntity).Total.Should().Be(0);
+    frame.GetReadOnly<Resources>(heroEntity).Total.Should().Be(0);
   }
 
   [Fact]
@@ -99,7 +99,7 @@ public class PickupSystemTests {
   }
 
   private static EntityRef FindHero(ref Frame frame, int playerId) {
-    var filter = frame.Filter<Hero, InventoryComponent>();
+    var filter = frame.Filter<Hero, Inventory>();
     while (filter.Next(out var entity)) {
       if (frame.GetReadOnly<Hero>(entity).PlayerId == playerId)
         return entity;

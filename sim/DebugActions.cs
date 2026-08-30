@@ -80,10 +80,10 @@ public static class DebugActions {
   }
 
   private static bool AddGold(ref Frame frame, int playerId, int amount) {
-    if (!TryGetHeroWith<InventoryComponent>(ref frame, playerId, DebugAction.AddGold, out var hero))
+    if (!TryGetHeroWith<Inventory>(ref frame, playerId, DebugAction.AddGold, out var hero))
       return false;
 
-    ref var inventory = ref frame.Get<InventoryComponent>(hero);
+    ref var inventory = ref frame.Get<Inventory>(hero);
     inventory.Gold += amount;
     if (inventory.Gold < 0) inventory.Gold = 0;
 
@@ -94,22 +94,22 @@ public static class DebugActions {
   // Deposited as raw XP so ExperienceSystem converts it into levels, stat growth and skill points on
   // its own pass - the same route a kill takes.
   private static bool AddExperience(ref Frame frame, int playerId, int amount) {
-    if (!TryGetHeroWith<ExperienceComponent>(ref frame, playerId, DebugAction.AddExperience, out var hero))
+    if (!TryGetHeroWith<Experience>(ref frame, playerId, DebugAction.AddExperience, out var hero))
       return false;
 
-    ref var experience = ref frame.Get<ExperienceComponent>(hero);
-    experience.Experience += amount;
-    if (experience.Experience < 0) experience.Experience = 0;
+    ref var experience = ref frame.Get<Experience>(hero);
+    experience.Xp += amount;
+    if (experience.Xp < 0) experience.Xp = 0;
 
-    Log(ref frame, playerId, DebugAction.AddExperience, $"amount={amount} xpNow={experience.Experience}");
+    Log(ref frame, playerId, DebugAction.AddExperience, $"amount={amount} xpNow={experience.Xp}");
     return true;
   }
 
   private static bool AddSkillPoints(ref Frame frame, int playerId, int amount) {
-    if (!TryGetHeroWith<SkillsComponent>(ref frame, playerId, DebugAction.AddSkillPoints, out var hero))
+    if (!TryGetHeroWith<Skills>(ref frame, playerId, DebugAction.AddSkillPoints, out var hero))
       return false;
 
-    ref var skills = ref frame.Get<SkillsComponent>(hero);
+    ref var skills = ref frame.Get<Skills>(hero);
     skills.SkillPoints += amount;
     if (skills.SkillPoints < 0) skills.SkillPoints = 0;
 
@@ -120,17 +120,17 @@ public static class DebugActions {
   // Ranks up through SkillActions.TryUpgrade rather than writing Ranks directly, so each rank still
   // runs the hero's OnRankGained and the passives a ranked slot grants actually land.
   private static bool MaxSkills(ref Frame frame, int playerId) {
-    if (!TryGetHeroWith<SkillsComponent>(ref frame, playerId, DebugAction.MaxSkills, out var hero))
+    if (!TryGetHeroWith<Skills>(ref frame, playerId, DebugAction.MaxSkills, out var hero))
       return false;
 
     var ranksGained = 0;
-    for (var slot = 0; slot < SkillsComponent.MaxSlots; slot++) {
-      var skillAssetId = frame.GetReadOnly<SkillsComponent>(hero).GetSkillAssetId(slot);
+    for (var slot = 0; slot < Skills.MaxSlots; slot++) {
+      var skillAssetId = frame.GetReadOnly<Skills>(hero).GetSkillAssetId(slot);
       if (!frame.AssetRegistry.TryGet<SkillAsset>(skillAssetId, out var skill))
         continue;
 
-      while (frame.GetReadOnly<SkillsComponent>(hero).GetRank(slot) < skill.MaxRank) {
-        frame.Get<SkillsComponent>(hero).SkillPoints++;
+      while (frame.GetReadOnly<Skills>(hero).GetRank(slot) < skill.MaxRank) {
+        frame.Get<Skills>(hero).SkillPoints++;
         if (!SkillActions.TryUpgrade(ref frame, playerId, slot))
           break;
 
@@ -143,11 +143,11 @@ public static class DebugActions {
   }
 
   private static bool RefreshCooldowns(ref Frame frame, int playerId) {
-    if (!TryGetHeroWith<SkillsComponent>(ref frame, playerId, DebugAction.RefreshCooldowns, out var hero))
+    if (!TryGetHeroWith<Skills>(ref frame, playerId, DebugAction.RefreshCooldowns, out var hero))
       return false;
 
-    ref var skills = ref frame.Get<SkillsComponent>(hero);
-    for (var slot = 0; slot < SkillsComponent.MaxSlots; slot++)
+    ref var skills = ref frame.Get<Skills>(hero);
+    for (var slot = 0; slot < Skills.MaxSlots; slot++)
       skills.StartCooldown(slot, 0);
 
     Log(ref frame, playerId, DebugAction.RefreshCooldowns, "");
@@ -197,7 +197,7 @@ public static class DebugActions {
     for (var i = 0; i < MinionsPerSpawn; i++) {
       var offset = RingOffset(i, spacing);
       var minion = MinionFactory.Spawn(ref frame, stats, target + offset, FP64.Zero, teamId, DebugWaveId);
-      frame.Add(minion, new FactionComponent(factionId));
+      frame.Add(minion, new Faction(factionId));
     }
 
     Log(ref frame, playerId, DebugAction.SpawnMinions,
@@ -218,8 +218,8 @@ public static class DebugActions {
         return pf.FactionId;
     }
 
-    if (UnitLookup.TryGetPlayerHero(ref frame, playerId, out var hero) && frame.Has<FactionComponent>(hero))
-      return frame.GetReadOnly<FactionComponent>(hero).FactionId;
+    if (UnitLookup.TryGetPlayerHero(ref frame, playerId, out var hero) && frame.Has<Faction>(hero))
+      return frame.GetReadOnly<Faction>(hero).FactionId;
 
     return SimulationSetup.DefaultFactionId;
   }
@@ -227,9 +227,9 @@ public static class DebugActions {
   // Destroyed outright rather than damaged to death, so nothing pays out XP or gold for a cleanup.
   private static bool ClearMinions(ref Frame frame, int playerId, int teamId) {
     Scratch.Clear();
-    var filter = frame.Filter<Minion, TeamComponent>();
+    var filter = frame.Filter<Minion, Team>();
     while (filter.Next(out var entity)) {
-      if (teamId > 0 && frame.GetReadOnly<TeamComponent>(entity).TeamId != teamId)
+      if (teamId > 0 && frame.GetReadOnly<Team>(entity).TeamId != teamId)
         continue;
 
       Scratch.Add(entity);
@@ -278,9 +278,9 @@ public static class DebugActions {
   // team id, not a base to belong to.
   private static int ResolveOpposingTeam(ref Frame frame, int playerTeamId) {
     var best = 0;
-    var filter = frame.Filter<Crystal, TeamComponent>();
+    var filter = frame.Filter<Crystal, Team>();
     while (filter.Next(out var entity)) {
-      var teamId = frame.GetReadOnly<TeamComponent>(entity).TeamId;
+      var teamId = frame.GetReadOnly<Team>(entity).TeamId;
       if (teamId == playerTeamId || teamId <= 0)
         continue;
 

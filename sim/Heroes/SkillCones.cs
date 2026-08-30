@@ -28,7 +28,7 @@ public static class SkillCones {
     // Collected first, damaged after: ApplyDamage allocates the hit-id singleton on its first call of
     // the match, and that creates an entity while the filter is still walking storage.
     var hits = new List<EntityRef>();
-    var filter = frame.Filter<UnitIdComponent, TeamComponent, Health, TransformComponent>();
+    var filter = frame.Filter<UnitIdentity, Team, Health, TransformComponent>();
     while (filter.Next(out var candidate)) {
       if (!CombatTargeting.IsSkillHittable(ref frame, candidate))
         continue;

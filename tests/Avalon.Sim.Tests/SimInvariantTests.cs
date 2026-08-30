@@ -185,9 +185,9 @@ public class SimInvariantTests {
 
     var frame = harness.Frame;
     EntityRef minionEntity = default;
-    var filter = frame.Filter<Minion, UnitIdComponent>();
+    var filter = frame.Filter<Minion, UnitIdentity>();
     while (filter.Next(out var entity)) {
-      ref readonly var unit = ref frame.Get<UnitIdComponent>(entity);
+      ref readonly var unit = ref frame.Get<UnitIdentity>(entity);
       if (unit.UnitId != teamOneMinion.UnitId) continue;
 
       minionEntity = entity;
@@ -252,9 +252,9 @@ public class SimInvariantTests {
 
     var frame = harness.Frame;
     var movingNavAgents = 0;
-    var filter = frame.Filter<UnitIdComponent, xpTURN.Klotho.Deterministic.Navigation.NavAgentComponent>();
+    var filter = frame.Filter<UnitIdentity, xpTURN.Klotho.Deterministic.Navigation.NavAgentComponent>();
     while (filter.Next(out var entity)) {
-      ref readonly var unit = ref frame.Get<UnitIdComponent>(entity);
+      ref readonly var unit = ref frame.Get<UnitIdentity>(entity);
       if (unit.UnitId != hero.UnitId && unit.UnitId != minion.UnitId)
         continue;
 
@@ -440,7 +440,7 @@ public class SimInvariantTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     EntityRef hero = FindHeroEntity(harness, playerId: 1);
-    int unitId = frame.GetReadOnly<UnitIdComponent>(hero).UnitId;
+    int unitId = frame.GetReadOnly<UnitIdentity>(hero).UnitId;
     int delayTicks = GetRespawnDelayTicks(frame);
     frame.Get<Health>(hero).Current = 0;
 
@@ -474,7 +474,7 @@ public class SimInvariantTests {
     system.Update(ref frame);
 
     hero = FindHeroEntity(harness, playerId: 1);
-    frame.GetReadOnly<Health>(hero).Current.Should().Be(frame.GetReadOnly<StatsComponent>(hero).MaxHealth);
+    frame.GetReadOnly<Health>(hero).Current.Should().Be(frame.GetReadOnly<Stats>(hero).MaxHealth);
     frame.Has<PendingRespawn>(hero).Should().BeFalse();
     FPVector3 spawnPosition = SimulationSetup.GetHeroSpawnPositionForTeam(ref frame, teamId: 1);
     frame.GetReadOnly<TransformComponent>(hero).Position.Should().Be(spawnPosition);
@@ -491,9 +491,9 @@ public class SimInvariantTests {
   private static UnitSnapshot[] GetUnits(SimHarness harness) {
     var frame = harness.Frame;
     var units = new List<UnitSnapshot>();
-    var filter = frame.Filter<UnitIdComponent>();
+    var filter = frame.Filter<UnitIdentity>();
     while (filter.Next(out var entity)) {
-      ref readonly var unit = ref frame.Get<UnitIdComponent>(entity);
+      ref readonly var unit = ref frame.Get<UnitIdentity>(entity);
       units.Add(new UnitSnapshot(unit.UnitId, unit.UnitTypeId));
     }
 
@@ -503,10 +503,10 @@ public class SimInvariantTests {
   private static StructureSnapshot[] GetCrystals(SimHarness harness) {
     var frame = harness.Frame;
     var crystals = new List<StructureSnapshot>();
-    var filter = frame.Filter<Crystal, TeamComponent>();
+    var filter = frame.Filter<Crystal, Team>();
     while (filter.Next(out var entity)) {
       ref readonly var crystal = ref frame.Get<Crystal>(entity);
-      ref readonly var team = ref frame.Get<TeamComponent>(entity);
+      ref readonly var team = ref frame.Get<Team>(entity);
       crystals.Add(new StructureSnapshot(crystal.CrystalId, team.TeamId));
     }
 
@@ -516,11 +516,11 @@ public class SimInvariantTests {
   private static PlayerSnapshot[] GetPlayerSnapshots(SimHarness harness) {
     var frame = harness.Frame;
     var players = new List<PlayerSnapshot>();
-    var filter = frame.Filter<Hero, Player, TeamComponent>();
+    var filter = frame.Filter<Hero, Player, Team>();
     while (filter.Next(out var entity)) {
       ref readonly var hero = ref frame.Get<Hero>(entity);
       ref readonly var player = ref frame.Get<Player>(entity);
-      ref readonly var team = ref frame.Get<TeamComponent>(entity);
+      ref readonly var team = ref frame.Get<Team>(entity);
       players.Add(new PlayerSnapshot(
           hero.PlayerId,
           team.TeamId,
@@ -554,11 +554,11 @@ public class SimInvariantTests {
   private static MinionSnapshot[] GetMinions(SimHarness harness) {
     var frame = harness.Frame;
     var minions = new List<MinionSnapshot>();
-    var filter = frame.Filter<Minion, TeamComponent, UnitIdComponent, TransformComponent>();
+    var filter = frame.Filter<Minion, Team, UnitIdentity, TransformComponent>();
     while (filter.Next(out var entity)) {
       ref readonly var minion = ref frame.Get<Minion>(entity);
-      ref readonly var team = ref frame.Get<TeamComponent>(entity);
-      ref readonly var unit = ref frame.Get<UnitIdComponent>(entity);
+      ref readonly var team = ref frame.Get<Team>(entity);
+      ref readonly var unit = ref frame.Get<UnitIdentity>(entity);
       ref readonly var transform = ref frame.Get<TransformComponent>(entity);
       minions.Add(new MinionSnapshot(minion.WaveId, team.TeamId, unit.UnitId, transform.Position));
     }
@@ -569,10 +569,10 @@ public class SimInvariantTests {
   private static UnitPositionSnapshot[] GetUnitPositions(SimHarness harness) {
     var frame = harness.Frame;
     var units = new List<UnitPositionSnapshot>();
-    var filter = frame.Filter<UnitIdComponent, TeamComponent, TransformComponent>();
+    var filter = frame.Filter<UnitIdentity, Team, TransformComponent>();
     while (filter.Next(out var entity)) {
-      ref readonly var unit = ref frame.Get<UnitIdComponent>(entity);
-      ref readonly var team = ref frame.Get<TeamComponent>(entity);
+      ref readonly var unit = ref frame.Get<UnitIdentity>(entity);
+      ref readonly var team = ref frame.Get<Team>(entity);
       ref readonly var transform = ref frame.Get<TransformComponent>(entity);
       units.Add(new UnitPositionSnapshot(unit.UnitId, unit.UnitTypeId, team.TeamId, transform.Position));
     }
@@ -596,9 +596,9 @@ public class SimInvariantTests {
 
   private static void MoveMinion(SimHarness harness, int unitId, FPVector3 position) {
     var frame = harness.Frame;
-    var filter = frame.Filter<Minion, UnitIdComponent, TransformComponent>();
+    var filter = frame.Filter<Minion, UnitIdentity, TransformComponent>();
     while (filter.Next(out var entity)) {
-      ref readonly var unit = ref frame.Get<UnitIdComponent>(entity);
+      ref readonly var unit = ref frame.Get<UnitIdentity>(entity);
       if (unit.UnitId != unitId)
         continue;
 
@@ -612,9 +612,9 @@ public class SimInvariantTests {
 
   private static EntityRef FindUnitEntity(SimHarness harness, int unitId) {
     var frame = harness.Frame;
-    var filter = frame.Filter<UnitIdComponent>();
+    var filter = frame.Filter<UnitIdentity>();
     while (filter.Next(out var entity)) {
-      ref readonly var unit = ref frame.Get<UnitIdComponent>(entity);
+      ref readonly var unit = ref frame.Get<UnitIdentity>(entity);
       if (unit.UnitId == unitId)
         return entity;
     }

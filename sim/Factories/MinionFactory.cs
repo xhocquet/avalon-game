@@ -11,15 +11,15 @@ public static class MinionFactory {
     var entity = frame.CreateEntity();
 
     frame.Add(entity, TransformFactory.At(position, facing));
-    frame.Add(entity, new UnitIdComponent {
+    frame.Add(entity, new UnitIdentity {
       UnitId = UnitLookup.NextUnitId(ref frame),
       UnitTypeId = SimulationSetup.MinionUnitTypeId
     });
-    frame.Add(entity, new TeamComponent(teamId));
+    frame.Add(entity, new Team(teamId));
     frame.Add(entity, new Minion { WaveId = waveId });
     frame.Add(entity, new Controllable());
     frame.Add(entity, new Health(stats.Health));
-    frame.Add(entity, StatsComponent.From(stats));
+    frame.Add(entity, Stats.From(stats));
     frame.Add(entity, new Combat());
     frame.Add(entity, NavAgentFactory.At(ref frame, position, stats.MoveSpeed, stats.PathingRadius));
 

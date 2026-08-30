@@ -8,13 +8,13 @@ namespace Meesles.Avalon.Sim.Components;
 // the tick it comes off, so the revert never has to recompute the modifier - a percentage buff taken
 // off after a level-up or an item purchase would otherwise refund an amount it never granted.
 //
-// Fixed parallel buffers rather than a list, the same reason SkillsComponent uses them: components are
+// Fixed parallel buffers rather than a list, the same reason Skills uses them: components are
 // blittable structs memcpy'd for rollback and the generated codec walks the buffers for hashing. A slot
 // is free when its SourceIds entry is 0, so nothing compacts and iteration stays in slot order.
 // Size: MaxEntries * (8 + 3 * 4) = 120B, inside the 128-byte component ceiling
 [KlothoComponent(ComponentIds.StatBuffs)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public unsafe partial struct StatBuffsComponent : IComponent {
+public unsafe partial struct StatBuffs : IComponent {
   public const int MaxEntries = 6;
 
   public fixed long AppliedRaw[MaxEntries]; // Raw 32.32 FP64: what Add actually moved the stat by

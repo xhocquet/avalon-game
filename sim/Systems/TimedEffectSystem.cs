@@ -9,7 +9,7 @@ namespace Meesles.Avalon;
 // Every per-tick countdown in one pass: attack cooldowns, skill cooldowns, stat buffs, armed attack
 // procs, queued attack bursts, snares, damage-over-time burns, charging skill bursts. Starting any of
 // them is command-driven and lives with the rule that owns it (DamageSystem, SkillActions,
-// StatBuffApplication, AttackProcs, AttackBursts, Snares, DamageOverTime, SkillCharges); burning them
+// StatBuffApplication, AttackProcs, AttackBursts, Snares, DamageOverTimes, SkillCharges); burning them
 // down is this.
 //
 // Registered ahead of everything that reads Stats, casts, or deals damage for the frame, so an effect
@@ -35,33 +35,33 @@ public class TimedEffectSystem : ISystem {
 
     // A cast on tick N loses one tick here on that same tick, because commands are delivered before
     // the Update phase. Identical on both peers, so it is not an off-by-one.
-    var casters = frame.Filter<SkillsComponent>();
+    var casters = frame.Filter<Skills>();
     while (casters.Next(out var entity))
-      frame.Get<SkillsComponent>(entity).TickCooldowns();
+      frame.Get<Skills>(entity).TickCooldowns();
 
-    var buffed = frame.Filter<StatBuffsComponent, StatsComponent>();
+    var buffed = frame.Filter<StatBuffs, Stats>();
     while (buffed.Next(out var entity))
       StatBuffApplication.ExpireDue(ref frame, entity);
 
     // Clears the slot in place rather than removing the component, so nothing here touches the
     // filter's own component types mid-walk.
-    var armed = frame.Filter<AttackProcComponent>();
+    var armed = frame.Filter<AttackProc>();
     while (armed.Next(out var entity)) {
-      ref var proc = ref frame.Get<AttackProcComponent>(entity);
+      ref var proc = ref frame.Get<AttackProc>(entity);
       if (proc.IsExpired(frame.Tick))
         proc.Clear();
     }
 
-    var bursting = frame.Filter<AttackBurstComponent>();
+    var bursting = frame.Filter<AttackBurst>();
     while (bursting.Next(out var entity)) {
-      ref var burst = ref frame.Get<AttackBurstComponent>(entity);
+      ref var burst = ref frame.Get<AttackBurst>(entity);
       if (burst.IsExpired(frame.Tick))
         burst.Clear();
     }
 
-    var snared = frame.Filter<SnareComponent>();
+    var snared = frame.Filter<Snare>();
     while (snared.Next(out var entity)) {
-      ref var snare = ref frame.Get<SnareComponent>(entity);
+      ref var snare = ref frame.Get<Snare>(entity);
       if (snare.IsExpired(frame.Tick))
         snare.Clear();
     }
@@ -69,13 +69,13 @@ public class TimedEffectSystem : ISystem {
     // Deferred like the detonation below: DamageApplication allocates the hit-id singleton on its
     // first call of the match, and that creates an entity while a filter is still walking storage.
     _burning.Clear();
-    var burning = frame.Filter<DamageOverTimeComponent>();
+    var burning = frame.Filter<DamageOverTime>();
     while (burning.Next(out var entity))
-      if (frame.GetReadOnly<DamageOverTimeComponent>(entity).IsBurning)
+      if (frame.GetReadOnly<DamageOverTime>(entity).IsBurning)
         _burning.Add(entity);
 
     for (var i = 0; i < _burning.Count; i++)
-      DamageOverTime.Tick(ref frame, _burning[i]);
+      DamageOverTimes.Tick(ref frame, _burning[i]);
 
     // The one countdown here that pays something out rather than just ending. Deferred because the
     // detonation - and a channel aura's per-interval pulse - walks the units itself and hits what it
@@ -84,9 +84,9 @@ public class TimedEffectSystem : ISystem {
     // with an aura pulses.
     _detonating.Clear();
     _pulsing.Clear();
-    var charging = frame.Filter<SkillChargeComponent>();
+    var charging = frame.Filter<SkillCharge>();
     while (charging.Next(out var entity)) {
-      ref readonly var charge = ref frame.GetReadOnly<SkillChargeComponent>(entity);
+      ref readonly var charge = ref frame.GetReadOnly<SkillCharge>(entity);
       if (charge.IsDue(frame.Tick))
         _detonating.Add(entity);
       else if (charge.HasAura)
