@@ -41,10 +41,7 @@ no explicit EventMode. The projectile pair is documented as deliberately Regular
 mentioned anywhere.
 
 ## Design gaps
-ProjectileSystem.IsHostile:143 has two hostility paths. It prefers the live caster's team and only
-falls back to projectile.TeamId. The stamped team is the correct answer on its own — the live path
-means a caster whose team changes retargets bullets already in flight, and it costs a dictionary
-lookup per candidate per bullet.
+
 
 Fixed-buffer accessors are publicly unchecked.
 SkillsComponent.GetRank/GetSkillAssetId/GetCooldownRemainingTicks and

@@ -97,18 +97,6 @@ public class DebugActionTests {
   }
 
   [Fact]
-  public void NoCooldowns_CastLeavesTheSlotReady() {
-    var harness = SimHarness.CreateInitialized();
-    harness.Tick(SimHarness.DebugCommand(1, harness.Frame.Tick, DebugAction.MaxSkills));
-    harness.Tick(SimHarness.SetCheatCommand(1, harness.Frame.Tick, CheatFlags.NoCooldowns));
-
-    harness.Tick(SimHarness.CastSkillCommand(1, harness.Frame.Tick, 0));
-
-    harness.Frame.GetReadOnly<SkillsComponent>(harness.FindHero(1)).GetCooldownRemainingTicks(0)
-      .Should().Be(0);
-  }
-
-  [Fact]
   public void KillHero_ZeroesHealthAndTheHeroComesBack() {
     var harness = SimHarness.CreateInitialized();
 

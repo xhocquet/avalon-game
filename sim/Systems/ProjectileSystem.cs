@@ -161,12 +161,9 @@ public class ProjectileSystem : ISystem {
         skill.DotDamagePerSecondAtRank(rank), TickMath.MsToTicksCeil(ref frame, skill.DotDurationMs));
   }
 
-  // A bullet outlives its caster, so hostility falls back to the team stamped on it at spawn rather
-  // than dropping the shot when the caster is already gone.
-  private bool IsHostile(ref Frame frame, in Projectile projectile, EntityRef candidate) {
-    if (_unitIndex.TryGet(projectile.SourceUnitId, out var source) && source != candidate)
-      return CombatTargeting.IsHostileAndAlive(ref frame, source, candidate);
-
+  // Hostility rides the team stamped at spawn: the bullet outlives its caster, and its allegiance is
+  // fixed when it is fired regardless of what the caster does afterward.
+  private static bool IsHostile(ref Frame frame, in Projectile projectile, EntityRef candidate) {
     return CombatTargeting.IsHostileAndAlive(ref frame, projectile.TeamId, candidate);
   }
 

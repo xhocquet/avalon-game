@@ -10,7 +10,7 @@ namespace Meesles.Avalon.Sim;
 // State lives in the CheatState singleton, which means it snapshots and rolls back like anything else
 // and the predicting client and the server reach the same verdict on the same tick.
 public static class Cheats {
-  public const CheatFlags All = CheatFlags.GodMode | CheatFlags.NoCooldowns | CheatFlags.FreeShop;
+  public const CheatFlags All = CheatFlags.GodMode | CheatFlags.FreeShop;
 
   public static void Set(ref Frame frame, int playerId, CheatFlags flags, bool enabled) {
     var current = (CheatFlags)GetFlags(ref frame, playerId);

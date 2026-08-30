@@ -83,7 +83,7 @@ Wire limits live in [`CommandLimits`](Commands/CommandLimits.cs), not the assets
 
 # Test Cheats
 
-`--godmode`, `--nocooldowns`, `--freeshop` and `--allcheats` on the client command line set [`CheatFlags`](Enums.cs) for that player. They are parsed by [`CheatOptions`](../client/Scripts/View/CheatOptions.cs), sent as `SetCheatCommand`, and stored per player in the `CheatState` singleton, which [`Cheats`](Cheats.cs) reads. `DamageApplication` gates on `GodMode`, `SkillActions` on `NoCooldowns`, `ShopActions` on `FreeShop`. Nothing authorizes the command beyond scoping it to the issuing player.
+`--godmode`, `--freeshop` and `--allcheats` on the client command line set [`CheatFlags`](Enums.cs) for that player. They are parsed by [`CheatOptions`](../client/Scripts/View/CheatOptions.cs), sent as `SetCheatCommand`, and stored per player in the `CheatState` singleton, which [`Cheats`](Cheats.cs) reads. `DamageApplication` gates on `GodMode`, `ShopActions` on `FreeShop`. Nothing authorizes the command beyond scoping it to the issuing player.
 
 Adding another cheat: a value in `CheatFlags`, the same bit in `Cheats.All` so validation accepts it, the arg in `CheatOptions`, and the read wherever the rule lives. The command and the storage need no change.
 

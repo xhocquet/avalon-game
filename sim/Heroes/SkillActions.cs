@@ -50,9 +50,7 @@ public static class SkillActions {
 
     // Started before the skill runs, so an effect that later kills or respawns its own caster cannot
     // leave the slot free.
-    var cooldownTicks = Cheats.IsEnabled(ref frame, playerId, CheatFlags.NoCooldowns)
-      ? 0
-      : CooldownTicks(ref frame, skill);
+    var cooldownTicks = CooldownTicks(ref frame, skill);
     skills.StartCooldown(slot, cooldownTicks);
 
     var rank = skills.GetRank(slot);

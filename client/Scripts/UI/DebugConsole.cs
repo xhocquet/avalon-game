@@ -45,7 +45,6 @@ public partial class DebugConsole : CanvasLayer {
     ("Heal", "heal"),
     ("Kill", "kill"),
     ("God", "god"),
-    ("No CDs", "nocd"),
     ("Free Shop", "freeshop")
   ];
 
@@ -228,9 +227,6 @@ public partial class DebugConsole : CanvasLayer {
       case "god":
         SetCheat(CheatFlags.GodMode, arg);
         return;
-      case "nocd":
-        SetCheat(CheatFlags.NoCooldowns, arg);
-        return;
       case "freeshop":
         SetCheat(CheatFlags.FreeShop, arg);
         return;
@@ -258,7 +254,7 @@ public partial class DebugConsole : CanvasLayer {
             tp               teleport the hero to the cursor
             spawn [team] [faction]   minions at the cursor (default: enemy team, their faction)
             clear [team]     remove minions (default: all teams)
-            god / nocd / freeshop [on|off]   toggle a cheat, no argument flips it
+            god / freeshop [on|off]   toggle a cheat, no argument flips it
             cheats           show active cheat flags
             clearlog         wipe this log
           """);

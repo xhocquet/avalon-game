@@ -74,7 +74,6 @@ public enum HeroSkillSet {
 public enum CheatFlags {
   None = 0,
   GodMode = 1 << 0, // Hero takes no damage
-  NoCooldowns = 1 << 1, // Skill casts never start a cooldown
   FreeShop = 1 << 2 // Shop buys cost no gold and ignore the shop's interact range
 }
 
