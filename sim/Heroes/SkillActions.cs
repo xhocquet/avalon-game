@@ -56,6 +56,10 @@ public static class SkillActions {
     var rank = skills.GetRank(slot);
     var skillAssetId = skills.GetSkillAssetId(slot);
 
+    // EvaluateCast already cleared the pool; spend after the cooldown so a free rank and a paid one
+    // leave the slot in the same state.
+    ManaApplication.TrySpend(ref frame, heroEntity, skill.ManaCostAtRank(rank));
+
     var casterPosition = frame.Has<TransformComponent>(heroEntity)
       ? frame.GetReadOnly<TransformComponent>(heroEntity).Position
       : FPVector3.Zero;
@@ -115,10 +119,16 @@ public static class SkillActions {
       return SkillBlock.HeroDead;
 
     ref readonly var skills = ref frame.GetReadOnly<SkillsComponent>(heroEntity);
-    if (skills.GetRank(slot) + pendingRanks <= 0)
+    var rank = skills.GetRank(slot) + pendingRanks;
+    if (rank <= 0)
       return SkillBlock.NotLearned;
 
-    return skills.GetCooldownRemainingTicks(slot) > 0 ? SkillBlock.OnCooldown : SkillBlock.None;
+    if (skills.GetCooldownRemainingTicks(slot) > 0)
+      return SkillBlock.OnCooldown;
+
+    return ManaApplication.CanAfford(ref frame, heroEntity, skill.ManaCostAtRank(rank))
+      ? SkillBlock.None
+      : SkillBlock.NotEnoughMana;
   }
 
   private static SkillBlock EvaluateUpgrade(ref Frame frame, int playerId, int slot,
@@ -176,6 +186,8 @@ public static class SkillActions {
       SkillBlock.SkillAssetMissing => $"skill_asset_missing skillId={skills.GetSkillAssetId(slot)}",
       SkillBlock.OnCooldown => $"on_cooldown remainingTicks={skills.GetCooldownRemainingTicks(slot)}",
       SkillBlock.NoSkillPoints => $"no_skill_points rank={skills.GetRank(slot)}",
+      SkillBlock.NotEnoughMana =>
+        $"not_enough_mana cost={skill.ManaCostAtRank(skills.GetRank(slot))} have={frame.GetReadOnly<Health>(heroEntity).Mana}",
       _ => block.ToString()
     };
   }
@@ -191,6 +203,7 @@ public static class SkillActions {
     HeroDead,
     NotLearned,
     OnCooldown,
+    NotEnoughMana,
     NoSkillPoints,
     AtMaxRank
   }

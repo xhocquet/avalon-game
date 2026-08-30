@@ -8,6 +8,7 @@
 | Field | Lands on | Notes |
 | --- | --- | --- |
 | `BaseHealth` | `Stats.MaxHealth` | `Health.Current` is transient, not a stat |
+| `BaseMana` | `Stats.MaxMana` | seeds `Health.Mana`; skill casts spend it, `ManaApplication` clamps it |
 | `BaseAttackDamage` | `Stats.AttackDamage` | |
 | `BaseAttackSpeed` | `Stats.AttacksPerSecond` | attacks/sec, scaled by `Stats.BonusAttackSpeed` |
 | `BaseArmor`, `BaseMagicResist` | `Stats.Armor`, `Stats.MagicResist` | `DamageApplication.Mitigate` picks by `DamageType` |
@@ -18,7 +19,7 @@
 | `PathingRadius` | nav agent | |
 | `GameplayRadius` | `Stats.GameplayRadius` | what a hit tests against |
 | `SelectionRadius` | — | view only |
-| `AttackWindup`, `AttackSpeedRatio`, mana, regens | — | unread |
+| `AttackWindup`, `AttackSpeedRatio`, regens | — | unread |
 
 - [`CombatRange.ReachSq`](../CombatRange.cs) is the only conversion from edge-to-edge range to centre distance, adding both `GameplayRadius`. Centre-to-centre puts turrets out of melee reach — their navmesh hole is ~1.6m wide against a 1.25m reach.
 - No attack period is stored. [`CombatTiming.CooldownTicks`](../CombatTiming.cs) derives it per hit, so rate bonuses stay additive and rounding never compounds.

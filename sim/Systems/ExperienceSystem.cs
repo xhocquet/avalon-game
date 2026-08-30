@@ -51,8 +51,8 @@ public class ExperienceSystem : ISystem {
     for (var i = 0; i < StatRanges.Count; i++) {
       var stat = (StatType)i;
 
-      // MaxHealth moves through HealthApplication so current HP follows the pool up.
-      if (stat == StatType.MaxHealth)
+      // The pool maxes move through their own application so current HP/mana follow the pool up.
+      if (stat is StatType.MaxHealth or StatType.MaxMana)
         continue;
 
       var growth = heroAsset.GrowthOf(stat);
@@ -62,6 +62,8 @@ public class ExperienceSystem : ISystem {
 
     HealthApplication.GrantMaxHealth(ref frame, entity,
       StatGrowth.Between(rules, heroAsset.GrowthOf(StatType.MaxHealth), levelBefore, levelAfter));
+    ManaApplication.GrantMaxMana(ref frame, entity,
+      StatGrowth.Between(rules, heroAsset.GrowthOf(StatType.MaxMana), levelBefore, levelAfter));
   }
 
   private static void RaiseLevelUpEvent(ref Frame frame, EntityRef entity, int level) {

@@ -159,6 +159,7 @@ public static class DebugActions {
       return false;
 
     HealthApplication.RestoreToFull(ref frame, hero);
+    ManaApplication.RestoreToFull(ref frame, hero);
     Log(ref frame, playerId, DebugAction.HealFull, "");
     return true;
   }

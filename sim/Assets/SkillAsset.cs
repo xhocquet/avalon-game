@@ -153,10 +153,17 @@ public partial class SkillAsset : IDataAsset {
   [KlothoOrder(53)] public int StockpileIntervalMs;
   [KlothoOrder(54)] public int StockpileIntervalMsPerRank;
 
-  // Mana restored to the target, the resource sibling of the heal block. Pending a current-mana pool
-  // in the sim - MaxMana exists as a stat but nothing tracks a current value to refill yet.
+  // Mana restored to the target, the resource sibling of the heal block. Applied through
+  // ManaApplication.Restore, clamped to the target's Stats.MaxMana headroom.
   [KlothoOrder(55)] public FP64 ManaRestore;
   [KlothoOrder(56)] public FP64 ManaRestorePerRank;
+
+  // Mana spent to cast, the resource sibling of CooldownMs. ManaCost is rank 1, ManaCostPerRank the
+  // step each rank after (authored positive even where a deeper rank costs more). 0 means the cast is
+  // free. SkillActions checks the pool in EvaluateCast and spends on a successful TryCast, after the
+  // cooldown starts, so a rejected cast never pays.
+  [KlothoOrder(57)] public FP64 ManaCost;
+  [KlothoOrder(58)] public FP64 ManaCostPerRank;
 
   private BuffSpec[] _buffSpecs;
 
@@ -268,6 +275,10 @@ public partial class SkillAsset : IDataAsset {
 
   public FP64 ManaRestoreAtRank(int rank) {
     return rank <= 0 ? FP64.Zero : ManaRestore + ManaRestorePerRank * FP64.FromInt(rank - 1);
+  }
+
+  public FP64 ManaCostAtRank(int rank) {
+    return rank <= 0 ? FP64.Zero : ManaCost + ManaCostPerRank * FP64.FromInt(rank - 1);
   }
 
   // Floored at one tick's worth so a deep rank can't drive the accrual interval to zero or negative.

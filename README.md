@@ -54,8 +54,4 @@ has no equivalent gate described anywhere, and both are reachable from the clien
 silently fails to apply. The struct is at the 128-byte ceiling so it can't just be bumped. Saved a memory note.
 
 
-## MP
-- ManaRestore — no current-mana pool exists in the sim (MaxMana is a stat, nothing tracks a current value). Attribute
-authored, effect pending — same as the cleanse/silence gaps.
-
 ## Replace skill damage, attack damage, etc. with curves instead of simple functions

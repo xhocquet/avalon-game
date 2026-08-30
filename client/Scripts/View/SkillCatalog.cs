@@ -16,6 +16,7 @@ namespace Meesles.Avalon;
 public class SkillCatalog {
   private const string CrystalWarriorIcons = "res://Assets/Portraits/Skills/CrystalWarrior/";
   private const string HairyWizardIcons = "res://Assets/Portraits/Skills/AllHairWizard/";
+  private const string SnailheadIcons = "res://Assets/Portraits/Skills/SnailHeads/";
 
   public static readonly SkillDef[] SkillDefs = [
     new(AssetIds.SkillHairyWizardPrimary, AssetIds.HeroHairyWizard, SkillSlot.Primary, "Hairball",
@@ -26,10 +27,14 @@ public class SkillCatalog {
       HairyWizardIcons + "skill-close-shave.webp"),
     new(AssetIds.SkillHairyWizardUltimate, AssetIds.HeroHairyWizard, SkillSlot.Ultimate, "Bad Hair Day",
       HairyWizardIcons + "skill-bad-hair-day.webp"),
-    new(AssetIds.SkillSnailheadPrimary, AssetIds.HeroSnailhead, SkillSlot.Primary, "Venomous Slobber"),
-    new(AssetIds.SkillSnailheadSecondary, AssetIds.HeroSnailhead, SkillSlot.Secondary, "Snail Trail"),
-    new(AssetIds.SkillSnailheadTertiary, AssetIds.HeroSnailhead, SkillSlot.Tertiary, "Swivel Eyes"),
-    new(AssetIds.SkillSnailheadUltimate, AssetIds.HeroSnailhead, SkillSlot.Ultimate, "Molt"),
+    new(AssetIds.SkillSnailheadPrimary, AssetIds.HeroSnailhead, SkillSlot.Primary, "Venomous Slobber",
+      SnailheadIcons + "skill-venomous-slobber.webp"),
+    new(AssetIds.SkillSnailheadSecondary, AssetIds.HeroSnailhead, SkillSlot.Secondary, "Snail Trail",
+      SnailheadIcons + "skill-snail-trail.webp"),
+    new(AssetIds.SkillSnailheadTertiary, AssetIds.HeroSnailhead, SkillSlot.Tertiary, "Swivel Eyes",
+      SnailheadIcons + "skill-swivel-eyes.webp"),
+    new(AssetIds.SkillSnailheadUltimate, AssetIds.HeroSnailhead, SkillSlot.Ultimate, "Molt",
+      SnailheadIcons + "skill-molt.webp"),
     new(AssetIds.SkillCrystalGiantPrimary, AssetIds.HeroCrystalGiant, SkillSlot.Primary, "Spiky Punch",
       CrystalWarriorIcons + "spiky-punch.webp"),
     new(AssetIds.SkillCrystalGiantSecondary, AssetIds.HeroCrystalGiant, SkillSlot.Secondary, "Harden",

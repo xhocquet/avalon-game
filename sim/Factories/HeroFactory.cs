@@ -31,7 +31,7 @@ public static class HeroFactory {
     frame.Add(entity, new ExperienceComponent());
     frame.Add(entity, BuildSkills(heroAsset));
     frame.Add(entity, StatsComponent.From(heroAsset));
-    frame.Add(entity, new Health(heroAsset.BaseHealth));
+    frame.Add(entity, new Health(heroAsset.BaseHealth) { Mana = heroAsset.BaseMana });
     frame.Add(entity, new Combat());
     frame.Add(entity,
       NavAgentFactory.At(ref frame, position, heroAsset.MoveSpeed, heroAsset.PathingRadius));

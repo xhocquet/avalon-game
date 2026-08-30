@@ -205,6 +205,48 @@ public class SkillCastTests {
       skills.GetCooldownRemainingTicks(i).Should().Be(0);
   }
 
+  [Fact]
+  public void Cast_SpendsTheAuthoredManaCost() {
+    var harness = SimHarness.CreateInitialized();
+    var frame = harness.Frame;
+    var hero = harness.FindHero(PlayerId);
+    SkillProgressionTests.SkillInSlot(harness, hero, SkillSlot.Primary).ManaCost = FP64.FromInt(100);
+    var manaBefore = frame.GetReadOnly<Health>(hero).Mana;
+
+    LearnAndCast(harness);
+
+    frame = harness.Frame;
+    frame.GetReadOnly<Health>(harness.FindHero(PlayerId)).Mana.Should().Be(manaBefore - FP64.FromInt(100));
+  }
+
+  [Fact]
+  public void Cast_WithoutEnoughMana_IsRejected() {
+    var harness = SimHarness.CreateInitialized();
+    var frame = harness.Frame;
+    var hero = harness.FindHero(PlayerId);
+    SkillProgressionTests.SkillInSlot(harness, hero, SkillSlot.Primary).ManaCost = FP64.FromInt(100);
+    frame.Get<SkillsComponent>(hero).TrySpendPoint(Primary, 4).Should().BeTrue();
+    frame.Get<Health>(hero).Mana = FP64.FromInt(40);
+
+    SkillActions.TryCast(ref frame, PlayerId, Primary, FPVector3.Zero).Should().BeFalse();
+
+    frame.GetReadOnly<SkillsComponent>(hero).GetCooldownRemainingTicks(Primary).Should().Be(0);
+    frame.GetReadOnly<Health>(hero).Mana.Should().Be(FP64.FromInt(40)); // nothing spent on a rejected cast
+  }
+
+  [Fact]
+  public void CanCast_IsFalseWhenThePoolCannotCoverTheCost() {
+    var harness = SimHarness.CreateInitialized();
+    var frame = harness.Frame;
+    var hero = harness.FindHero(PlayerId);
+    SkillProgressionTests.SkillInSlot(harness, hero, SkillSlot.Primary).ManaCost = FP64.FromInt(100);
+    frame.Get<SkillsComponent>(hero).TrySpendPoint(Primary, 4).Should().BeTrue();
+
+    SkillActions.CanCast(ref frame, PlayerId, Primary).Should().BeTrue();
+    frame.Get<Health>(hero).Mana = FP64.FromInt(40);
+    SkillActions.CanCast(ref frame, PlayerId, Primary).Should().BeFalse();
+  }
+
   // Rank up Primary and cast it, leaving the sim one tick past the cast.
   private static void LearnAndCast(SimHarness harness) {
     harness.Tick(SimHarness.UpgradeSkillCommand(PlayerId, 0, Primary));
