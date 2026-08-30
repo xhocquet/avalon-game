@@ -35,5 +35,18 @@ public sealed class HairyWizardSkills : HeroSkillSetBase {
     SkillBuffs.Apply(ref frame, in ctx, ctx.Caster);
   }
 
-  private static void CastBadHairDay(ref Frame frame, in SkillCastContext ctx) { }
+  // Channel: for the wind-up the wizard trails a storm that pulses DotDamagePerSecond magical damage
+  // each second at every hostile in AreaRadius, re-reading the disc each pulse so it tracks whoever
+  // stands in it and follows him as he walks - the row roots nothing. When the wind-up ends the same
+  // disc snares what it caught for SnareDurationMs. No impact damage of its own; the burst is the
+  // snare plus the aura's tail instalment.
+  private static void CastBadHairDay(ref Frame frame, in SkillCastContext ctx) {
+    var skill = ctx.Skill;
+    var chargeTicks = TickMath.MsToTicksCeil(ref frame, skill.ChargeDurationMs);
+
+    SkillCharges.Arm(ref frame, ctx.Caster, skill.AssetId, chargeTicks,
+      damage: FP64.Zero, skill.AreaRadius,
+      TickMath.MsToTicksCeil(ref frame, skill.SnareDurationMsAtRank(ctx.Rank)),
+      skill.DotDamagePerSecondAtRank(ctx.Rank));
+  }
 }

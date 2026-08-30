@@ -15,13 +15,6 @@ only remembers the fatal hit, so the killer is the only actor a death can curren
 - Exploosion: SkillAreas.Collect is hostile-only — needs an ally variant for the heal; silence has no system (same
 blocker as Refresh's cleanse — there's no negative-status pipeline yet).
 
-## Hairy Wiz Skills
-- CastBadHairDay (HairyWizardSkills.cs:38, empty) — SkillCharges.Arm covers the area snare today; the DoT lifecycle now
-exists (DamageOverTimeComponent + TimedEffectSystem + DamageOverTime.Apply, built for Strangle), but it is a
-target-attached burn on its own expiry clock. Bad Hair Day wants a channel aura that hits every hostile in AreaRadius
-each tick while charging, not a lingering per-target DoT.
-
-
 ## Snailhead Skills
 
 - Snail Trail: trail is a new lifecycle — persistent segments dropped behind a moving unit, contact test,

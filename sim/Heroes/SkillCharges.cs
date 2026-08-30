@@ -15,8 +15,10 @@ namespace Meesles.Avalon.Sim.Heroes;
 // the rank that armed it authored.
 public static class SkillCharges {
   // Starts a charge, replacing whatever was on the caster. Returns false when the charge is a no-op.
+  // A positive auraDamagePerSecond makes the wind-up a channel: the disc pulses that rate at every
+  // hostile inside it on DamageOverTime.PayoutIntervalMs boundaries, with the tail paid at detonation.
   public static bool Arm(ref Frame frame, EntityRef entity, int sourceId, int delayTicks, FP64 damage,
-    FP64 radius, int snareDurationTicks) {
+    FP64 radius, int snareDurationTicks, FP64 auraDamagePerSecond = default) {
     if (sourceId == 0 || delayTicks <= 0 || radius <= FP64.Zero)
       return false;
 
@@ -29,7 +31,51 @@ public static class SkillCharges {
     charge.SnareDurationTicks = snareDurationTicks;
     charge.Damage = damage;
     charge.Radius = radius;
+    charge.AuraPending = FP64.Zero;
+
+    if (auraDamagePerSecond > FP64.Zero) {
+      var interval = TickMath.MsToTicksCeil(ref frame, DamageOverTime.PayoutIntervalMs);
+      if (interval < 1)
+        interval = 1;
+      charge.AuraIntervalTicks = interval;
+      charge.AuraNextPulseTick = frame.Tick + interval;
+      charge.AuraAccrualPerTick =
+        auraDamagePerSecond * FP64.FromInt(TickMath.DeltaTimeMs(ref frame)) / FP64.FromInt(1000);
+    }
+    else {
+      charge.AuraIntervalTicks = 0;
+      charge.AuraNextPulseTick = 0;
+      charge.AuraAccrualPerTick = FP64.Zero;
+    }
+
     return true;
+  }
+
+  // One tick of the channel aura: accrue, and on a payout boundary re-collect the disc and deal the
+  // accrued whole to every hostile in it. TimedEffectSystem calls this each tick a charge is still
+  // winding up. Membership is re-read here, so the aura follows a moving caster and a foe walking in
+  // or out of the disc between pulses is caught or spared accordingly.
+  public static void TickAura(ref Frame frame, EntityRef caster) {
+    if (!frame.Has<SkillChargeComponent>(caster))
+      return;
+
+    ref var charge = ref frame.Get<SkillChargeComponent>(caster);
+    if (!charge.IsCharging || !charge.HasAura)
+      return;
+
+    charge.AuraPending += charge.AuraAccrualPerTick;
+    if (frame.Tick < charge.AuraNextPulseTick)
+      return;
+
+    charge.AuraNextPulseTick += charge.AuraIntervalTicks;
+    var whole = FP64.Floor(charge.AuraPending);
+    if (whole < FP64.One)
+      return;
+    charge.AuraPending -= whole;
+
+    var radius = charge.Radius;
+    // charge ref released past here: ApplyDamage can allocate the hit-id singleton on its first call.
+    PayAuraPulse(ref frame, caster, radius, whole);
   }
 
   // Pays the charge out and clears it. Damages every hostile hero and minion in the disc and snares
@@ -43,7 +89,10 @@ public static class SkillCharges {
       return;
 
     var sourceId = charge.SourceId;
-    var damage = charge.Damage;
+    // Burst damage plus whatever the channel aura accrued since its last pulse - the tail instalment,
+    // paid to the disc as it detonates rather than lost. Not accrued for the detonation tick itself,
+    // matching how DamageOverTime pays out on its expiry tick.
+    var damage = charge.Damage + (charge.HasAura ? FP64.Floor(charge.AuraPending) : FP64.Zero);
     var radius = charge.Radius;
     var snareDurationTicks = charge.SnareDurationTicks;
     charge.Clear();
@@ -64,6 +113,19 @@ public static class SkillCharges {
         DamageApplication.ApplyDamage(ref frame, caster, target, damage, DamageType.Magical);
       Snares.Apply(ref frame, target, sourceId, snareDurationTicks);
     }
+  }
+
+  // Deals one accrued aura instalment to every hostile in the disc centred on the caster now.
+  private static void PayAuraPulse(ref Frame frame, EntityRef caster, FP64 radius, FP64 damage) {
+    var center = frame.Has<TransformComponent>(caster)
+      ? frame.GetReadOnly<TransformComponent>(caster).Position
+      : FPVector3.Zero;
+
+    var hits = new List<EntityRef>();
+    SkillAreas.Collect(ref frame, caster, center, radius, hits);
+
+    foreach (var target in hits)
+      DamageApplication.ApplyDamage(ref frame, caster, target, damage, DamageType.Magical);
   }
 
   public static void Clear(ref Frame frame, EntityRef entity) {

@@ -22,6 +22,7 @@ namespace Meesles.Avalon;
 // only ever compared against.
 public class TimedEffectSystem : ISystem {
   private readonly List<EntityRef> _detonating = [];
+  private readonly List<EntityRef> _pulsing = [];
   private readonly List<EntityRef> _burning = [];
 
   public void Update(ref Frame frame) {
@@ -77,13 +78,23 @@ public class TimedEffectSystem : ISystem {
       DamageOverTime.Tick(ref frame, _burning[i]);
 
     // The one countdown here that pays something out rather than just ending. Deferred because the
-    // detonation walks the units itself and snares what it catches, which is this filter's own type.
-    // Damage landing this early in the frame still reaches DeathSystem on the same tick.
+    // detonation - and a channel aura's per-interval pulse - walks the units itself and hits what it
+    // catches, which is this filter's own type. Damage landing this early in the frame still reaches
+    // DeathSystem on the same tick. A charge whose wind-up is done detonates; one still winding up
+    // with an aura pulses.
     _detonating.Clear();
+    _pulsing.Clear();
     var charging = frame.Filter<SkillChargeComponent>();
-    while (charging.Next(out var entity))
-      if (frame.GetReadOnly<SkillChargeComponent>(entity).IsDue(frame.Tick))
+    while (charging.Next(out var entity)) {
+      ref readonly var charge = ref frame.GetReadOnly<SkillChargeComponent>(entity);
+      if (charge.IsDue(frame.Tick))
         _detonating.Add(entity);
+      else if (charge.HasAura)
+        _pulsing.Add(entity);
+    }
+
+    for (var i = 0; i < _pulsing.Count; i++)
+      SkillCharges.TickAura(ref frame, _pulsing[i]);
 
     for (var i = 0; i < _detonating.Count; i++)
       SkillCharges.Detonate(ref frame, _detonating[i]);

@@ -15,12 +15,17 @@ namespace Meesles.Avalon;
 
 public class SkillCatalog {
   private const string CrystalWarriorIcons = "res://Assets/Portraits/Skills/CrystalWarrior/";
+  private const string HairyWizardIcons = "res://Assets/Portraits/Skills/AllHairWizard/";
 
   public static readonly SkillDef[] SkillDefs = [
-    new(AssetIds.SkillHairyWizardPrimary, AssetIds.HeroHairyWizard, SkillSlot.Primary, "Hairball"),
-    new(AssetIds.SkillHairyWizardSecondary, AssetIds.HeroHairyWizard, SkillSlot.Secondary, "Strangle"),
-    new(AssetIds.SkillHairyWizardTertiary, AssetIds.HeroHairyWizard, SkillSlot.Tertiary, "Close Shave"),
-    new(AssetIds.SkillHairyWizardUltimate, AssetIds.HeroHairyWizard, SkillSlot.Ultimate, "Bad Hair Day"),
+    new(AssetIds.SkillHairyWizardPrimary, AssetIds.HeroHairyWizard, SkillSlot.Primary, "Hairball",
+      HairyWizardIcons + "skill-hairball.webp"),
+    new(AssetIds.SkillHairyWizardSecondary, AssetIds.HeroHairyWizard, SkillSlot.Secondary, "Strangle",
+      HairyWizardIcons + "skill-strangle.webp"),
+    new(AssetIds.SkillHairyWizardTertiary, AssetIds.HeroHairyWizard, SkillSlot.Tertiary, "Close Shave",
+      HairyWizardIcons + "skill-close-shave.webp"),
+    new(AssetIds.SkillHairyWizardUltimate, AssetIds.HeroHairyWizard, SkillSlot.Ultimate, "Bad Hair Day",
+      HairyWizardIcons + "skill-bad-hair-day.webp"),
     new(AssetIds.SkillSnailheadPrimary, AssetIds.HeroSnailhead, SkillSlot.Primary, "Venomous Slobber"),
     new(AssetIds.SkillSnailheadSecondary, AssetIds.HeroSnailhead, SkillSlot.Secondary, "Snail Trail"),
     new(AssetIds.SkillSnailheadTertiary, AssetIds.HeroSnailhead, SkillSlot.Tertiary, "Swivel Eyes"),
