@@ -64,7 +64,7 @@
     "TrailWidth": 1.0,
     "TrailSegmentCount": 8,
     "TrailSegmentIntervalMs": 400,
-    "BuffStats": "MoveSpeed pct -0.2",
+    "BuffStats": "MoveSpeed pct -0.3",
     "BuffDurationMs": 2500,
     "Description": "You leave a trail of slime behind you for 4.5s (+2s per rank). Enemies that touch the slime are slowed by 20% for 2.5s. CD: 35s"
   },

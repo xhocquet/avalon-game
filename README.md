@@ -17,7 +17,6 @@ damage-participation window per victim before a payout has anything to key off â
 
 ## Snailhead Skills
 
-- Snail Trail: trail is a new lifecycle â€” persistent segments dropped behind a moving unit, contact test, slow-on-touch.
 - Molt: cancel-on-move channel is new (TimedEffectSystem charges don't watch movement); cleanse still blocked on there being no debuff pipeline.
 
 ### Dead code
