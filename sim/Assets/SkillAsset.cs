@@ -165,6 +165,12 @@ public partial class SkillAsset : IDataAsset {
   [KlothoOrder(57)] public FP64 ManaCost;
   [KlothoOrder(58)] public FP64 ManaCostPerRank;
 
+  // Trail-emission block, paired with the TrailDurationMs/TrailWidth block above. A cast lays
+  // TrailSegmentCount circles, one every TrailSegmentIntervalMs at the caster's position as it moves.
+  // 0 count means the row lays no trail.
+  [KlothoOrder(59)] public int TrailSegmentCount;
+  [KlothoOrder(60)] public int TrailSegmentIntervalMs;
+
   private BuffSpec[] _buffSpecs;
 
   public bool HasCastRange => MinCastRange > FP64.Zero || MaxCastRange > FP64.Zero;
@@ -173,7 +179,7 @@ public partial class SkillAsset : IDataAsset {
   public bool HasArea => AreaRadius > FP64.Zero;
   public bool HasDash => DashDistance > FP64.Zero;
   public bool HasStockpile => StockpileMax > 0;
-  public bool HasTrail => TrailDurationMs > 0;
+  public bool HasTrail => TrailDurationMs > 0 && TrailSegmentCount > 0;
   public bool ChargeRootsItsCaster => ChargeRootsCaster != 0;
   public bool ChannelBreaksOnMove => ChargeCancelsOnMove != 0;
   public bool ClearsItsTargetsDebuffs => ClearsDebuffs != 0;

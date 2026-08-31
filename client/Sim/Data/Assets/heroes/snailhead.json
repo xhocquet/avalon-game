@@ -58,13 +58,15 @@
     "AssetId": 505,
     "_Name": "Snailhead - Snail Trail",
     "CooldownMs": 35000,
+    "SelfCast": 1,
     "TrailDurationMs": 4500,
     "TrailDurationMsPerRank": 2000,
     "TrailWidth": 1.0,
-    "BuffStats": "MoveSpeed",
-    "BuffPercent": 0.2,
+    "TrailSegmentCount": 8,
+    "TrailSegmentIntervalMs": 400,
+    "BuffStats": "MoveSpeed pct -0.2",
     "BuffDurationMs": 2500,
-    "Description": "You leave a trail of slime behind you for 4.5 (+2s per rank). Enemies that touch the slime are slowed by 20% for 2.5s. CD: 35s"
+    "Description": "You leave a trail of slime behind you for 4.5s (+2s per rank). Enemies that touch the slime are slowed by 20% for 2.5s. CD: 35s"
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset",

@@ -17,7 +17,12 @@ public sealed class SnailheadSkills : HeroSkillSetBase {
       skill.DamageAtRank(ctx.Rank));
   }
 
-  private static void CastSnailTrail(ref Frame frame, in SkillCastContext ctx) { }
+  // Lays a trail of slime behind the caster: TrailSystem drops a set number of circles, one per
+  // interval at the caster's position, and each slows hostiles that touch it for the row's buff
+  // window. The aim point is ignored - the trail follows wherever the caster walks.
+  private static void CastSnailTrail(ref Frame frame, in SkillCastContext ctx) {
+    SkillTrails.Arm(ref frame, ctx.Caster, ctx.Skill, ctx.Rank);
+  }
 
   // Self-cast area buff: the row's defensive stats go on the caster and every allied hero and minion
   // inside AreaRadius, each keyed to this cast so a recast refreshes rather than stacks.

@@ -99,6 +99,7 @@ public class RespawnSystem : ISystem {
     AttackBursts.Clear(ref frame, entity);
     Snares.Clear(ref frame, entity);
     SkillCharges.Clear(ref frame, entity);
+    SkillTrails.Clear(ref frame, entity);
     DamageOverTimes.Clear(ref frame, entity);
 
 

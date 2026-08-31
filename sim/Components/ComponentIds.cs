@@ -48,6 +48,9 @@ public static class ComponentIds {
   public const int Snare = 139;
   public const int SkillCharge = 140;
   public const int DamageOverTime = 141;
+  public const int TrailEmitter = 142;
+  public const int TrailSegment = 143;
+  public const int TrailSegmentIdCounter = 144;
 
-  // Next free id: 142
+  // Next free id: 145
 }

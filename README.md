@@ -26,26 +26,13 @@ damage-participation window per victim before a payout has anything to key off �
 
 ## Naming consistency
 
-- Namespace split. Everything under Systems/ declares namespace Meesles.Avalon; Components/, Assets/,
-Commands/, Heroes/, Navigation/, Factories/ all use Meesles.Avalon.Sim.*. Result: every system file
-opens with using Meesles.Avalon.Sim;. Nothing in AGENTS.md explains it.
-- ~~Component suffixes are 50/50.~~ Resolved: `Component` suffix dropped from all 14 that carried it
-(`TeamComponent`→`Team`, etc.). `UnitIdComponent`→`UnitIdentity` (bare `UnitId` collides with the
-`.UnitId` field), and `Experience.Experience`→`Experience.Xp`. The `DamageOverTime` helper class
-→`DamageOverTimes` (matches `Snares`/`AttackProcs`). `ComponentIds` consts now match the type names 1:1.
+- Namespace split. Everything under Systems/ declares namespace Meesles.Avalon; Components/, Assets/, Commands/, Heroes/, Navigation/, Factories/ all use Meesles.Avalon.Sim.*. Result: every system file opens with using Meesles.Avalon.Sim;. Nothing in AGENTS.md explains it.
 - HeroAsset vs MinionStatsAsset/TurretStatsAsset/CrystalStatsAsset — same role, one drops Stats.
-- Logging bypasses SimLog. AGENTS.md:87 says gameplay logging goes through SimLog so replayed ticks
-stay quiet, but CommandSystem.cs:105, AttackIntentSystem.cs:90, and DamageSystem.cs:67 call
-no explicit EventMode. The projectile pair is documented as deliberately Regular; AttackHitEvent isn't
-mentioned anywhere.
+- Logging bypasses SimLog. AGENTS.md:87 says gameplay logging goes through SimLog so replayed ticks stay quiet, but CommandSystem.cs:105, AttackIntentSystem.cs:90, and DamageSystem.cs:67 call no explicit EventMode. The projectile pair is documented as deliberately Regular; AttackHitEvent isn't mentioned anywhere.
 
 ## Design gaps
 
-Fixed-buffer accessors are publicly unchecked.
-Skills.GetRank/GetSkillAssetId/GetCooldownRemainingTicks and
-Inventory.GetItemAssetId index fixed int buffers with no bounds check. That's documented and
-gated for the skill path (CommandValidation.AcceptSkillSlot), but Inventory.GetItemAssetId
-has no equivalent gate described anywhere, and both are reachable from the client's UI code.
+Fixed-buffer accessors are publicly unchecked. Skills.GetRank/GetSkillAssetId/GetCooldownRemainingTicks and Inventory.GetItemAssetId index fixed int buffers with no bounds check. That's documented and gated for the skill path (CommandValidation.AcceptSkillSlot), but Inventory.GetItemAssetId has no equivalent gate described anywhere, and both are reachable from the client's UI code.
 
 ## Stat buffs overloaded
 
