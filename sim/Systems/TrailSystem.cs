@@ -165,6 +165,7 @@ public class TrailSystem : ISystem {
     evt.Position = position;
     evt.Width = segment.Width;
     evt.LifetimeTicks = lifetimeTicks;
+    evt.TeamId = segment.TeamId;
     frame.EventRaiser.RaiseEvent(evt);
   }
 }

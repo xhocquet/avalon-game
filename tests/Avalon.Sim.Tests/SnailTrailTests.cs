@@ -200,6 +200,7 @@ public class SnailTrailTests {
     spawns.Should().OnlyContain(s => s.SkillAssetId == AssetIds.SkillSnailheadSecondary);
     spawns.Should().OnlyContain(s => s.LifetimeTicks == Ticks(harness, skill.TrailDurationMsAtRank(1)));
     spawns.Should().OnlyContain(s => s.Width == skill.TrailWidth);
+    spawns.Should().OnlyContain(s => s.TeamId == CasterTeamId);
   }
 
   [Fact]

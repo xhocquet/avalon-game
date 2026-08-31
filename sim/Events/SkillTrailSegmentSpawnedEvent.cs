@@ -14,4 +14,5 @@ public partial class SkillTrailSegmentSpawnedEvent : SimulationEvent {
   [KlothoOrder(3)] public FPVector3 Position;
   [KlothoOrder(4)] public FP64 Width;
   [KlothoOrder(5)] public int LifetimeTicks;
+  [KlothoOrder(6)] public int TeamId; // Laying team, stamped at drop; the view tints the decal own vs hostile off it
 }

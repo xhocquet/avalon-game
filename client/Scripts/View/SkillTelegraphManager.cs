@@ -28,6 +28,11 @@ namespace Meesles.Avalon.Client.Scripts.View;
 // SkillCastEvent is Synced, so this rides the confirmed stream. On a predicting client that costs the
 // telegraph a round trip; making it instant means flipping the event to Regular and adding
 // OnPredicted/OnCanceled here, which is a sim-side change and not one this needed yet.
+//
+// It also draws the persistent trail telegraphs (Snail Trail): one circle per laid segment, its fill
+// sweeping in over the segment's lifetime the way a charged burst's ring closes over its wind-up, so
+// a full circle reads as "about to expire". SkillTrailSegmentSpawnedEvent is Regular, so those ride
+// OnFx (+ OnCanceled to drop a mispredicted segment), keyed on SegmentId against a resim re-raise.
 public class SkillTelegraphManager {
   private const string TelegraphScenePath = "res://Scenes/FX/Telegraphs/SkillTelegraph.tscn";
   private const string PackerScriptPath = "res://addons/constructive_telegraphs/src/con_telegraph_manager.gd";
@@ -37,12 +42,16 @@ public class SkillTelegraphManager {
 
   private readonly TelegraphCatalog _catalog = TelegraphCatalog.CreateDefault();
 
+  private readonly Dictionary<int, Node3D> _trailSegments = new();
+
   private Node3D _aimNode;
   private int _aimSlot = -1;
   private IKlothoEngine _engine;
   private Node3D _layer;
   private Node _packer;
   private IDisposable _skillCastSub;
+  private IDisposable _trailSpawnSub;
+  private IDisposable _trailCanceledSub;
   private EntityViewUpdaterNode _view;
 
   // Registry and local player id come off the engine per event rather than being captured here:
@@ -54,12 +63,19 @@ public class SkillTelegraphManager {
     _engine = engine;
     CreateLayer(layerParent);
     _skillCastSub = events.OnConfirmed<SkillCastEvent>(HandleSkillCast);
+    _trailSpawnSub = events.OnFx<SkillTrailSegmentSpawnedEvent>(HandleTrailSegmentSpawned);
+    _trailCanceledSub = events.OnCanceled<SkillTrailSegmentSpawnedEvent>(HandleTrailSegmentCanceled);
   }
 
   public void Detach() {
     HideAim();
     _skillCastSub?.Dispose();
     _skillCastSub = null;
+    _trailSpawnSub?.Dispose();
+    _trailSpawnSub = null;
+    _trailCanceledSub?.Dispose();
+    _trailCanceledSub = null;
+    _trailSegments.Clear(); // the _layer.QueueFree() below frees the telegraph nodes themselves
     ClearGroundOverlay();
     if (_layer != null && GodotObject.IsInstanceValid(_layer))
       _layer.QueueFree();
@@ -185,6 +201,41 @@ public class SkillTelegraphManager {
     telegraph.GlobalPosition = origin;
     telegraph.LookAt(origin + direction, Vector3.Up); // -Z is the lanes' forward, matching FillMode.FORWARD
     telegraph.Call("play");
+  }
+
+  // One circle per laid segment. configure_circle sets the instance's fill_duration to the segment
+  // lifetime and play() sweeps the fill in over it, then the scene fades out and frees itself off
+  // fade_out_completed - there is no despawn event to wait on. The event is pooled, so read its
+  // fields into locals before the TreeExiting closure captures anything.
+  private void HandleTrailSegmentSpawned(SkillTrailSegmentSpawnedEvent evt) {
+    var segmentId = evt.SegmentId;
+    if (_layer == null || _engine == null || _trailSegments.ContainsKey(segmentId)) return;
+    if (!_catalog.TryResolve(evt.SkillAssetId, out var def)) return;
+
+    var frame = _engine.PredictedFrame.Frame;
+    var own = frame != null
+              && UnitLookup.TryGetPlayerTeamId(ref frame, _engine.LocalPlayerId, out var localTeam)
+              && evt.TeamId == localTeam;
+
+    var family = LoadFamily(own ? def.OwnFamilyPath : def.HostileFamilyPath);
+    if (family == null) return;
+
+    _telegraphScene ??= GD.Load<PackedScene>(TelegraphScenePath);
+    if (_telegraphScene?.Instantiate() is not Node3D telegraph) return;
+
+    _layer.AddChild(telegraph);
+    var lifetimeSeconds = evt.LifetimeTicks * _engine.TickInterval / 1000f;
+    telegraph.Call("configure_circle", family, evt.Width.ToFloat(), lifetimeSeconds, def.Height);
+    telegraph.GlobalPosition = evt.Position.ToVector3();
+    telegraph.Call("play");
+
+    _trailSegments[segmentId] = telegraph;
+    telegraph.TreeExiting += () => _trailSegments.Remove(segmentId);
+  }
+
+  private void HandleTrailSegmentCanceled(SkillTrailSegmentSpawnedEvent evt) {
+    if (_trailSegments.Remove(evt.SegmentId, out var telegraph) && GodotObject.IsInstanceValid(telegraph))
+      telegraph.QueueFree();
   }
 
   private Node3D SpawnTelegraph(SkillAsset skill, TelegraphCatalog.TelegraphDef def, string familyPath) {
