@@ -12,9 +12,13 @@ public sealed class SnailheadSkills : HeroSkillSetBase {
   // still resolves where the telegraph drew it.
   private static void CastVenomousSlobber(ref Frame frame, in SkillCastContext ctx) {
     var skill = ctx.Skill;
-    var direction = SkillAim.Direction(ref frame, ctx.Caster, ctx.CasterPosition, ctx.TargetPosition);
-    SkillCones.ApplyDamage(ref frame, in ctx, direction, skill.ConeRange, skill.ConeAngleDegrees,
-      skill.DamageAtRank(ctx.Rank));
+    var direction = SkillAim.Direction(
+      ref frame, ctx.Caster, ctx.CasterPosition, ctx.TargetPosition
+    );
+    SkillCones.ApplyDamage(
+      ref frame, in ctx, direction, skill.ConeRange,
+      skill.ConeAngleDegrees, skill.DamageAtRank(ctx.Rank)
+    );
   }
 
   // Lays a trail of slime behind the caster: TrailSystem drops a set number of circles, one per

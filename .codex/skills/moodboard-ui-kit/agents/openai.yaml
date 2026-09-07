@@ -1,0 +1,4 @@
+interface:
+  display_name: "Moodboard UI Kit"
+  short_description: "Extract boards from moodboards"
+  default_prompt: "Use $moodboard-ui-kit to extract a palette and build a compact MDX style board from a mood board image and its source prompt."

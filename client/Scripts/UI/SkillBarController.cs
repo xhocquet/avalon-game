@@ -17,8 +17,10 @@ namespace Meesles.Avalon;
 // on top that spends a point. Two independent cues: the fill is the slot colour while the skill can be
 // cast right now (learned, off cooldown, hero alive) and grey otherwise, and the border lights while the
 // slot can be ranked up. A cooling slot fills back up from the bottom in a dimmed slot colour as its
-// cooldown runs out, so the wait reads as a bar rather than a flat grey. The sim re-checks both gates
-// when the command lands, so a cell that is briefly optimistic is harmless.
+// cooldown runs out, so the wait reads as a bar rather than a flat grey. A slot the local hero cannot
+// cast for a reason the fill does not carry - silenced, out of mana - names it in a strip along the
+// bottom edge. The sim re-checks both gates when the command lands, so a cell that is briefly optimistic
+// is harmless.
 public class SkillBarController {
   private const float CellSize = 58f;
   public const int SlotCount = Skills.MaxSlots;
@@ -53,6 +55,12 @@ public class SkillBarController {
   private const int UpgradeHintBorderWidth = 3;
   private static readonly Color UpgradeHintBorderColor = new(0.98f, 0.82f, 0.22f, 1f);
 
+  // Strip pinned to the bottom edge of a slot the local hero cannot cast, naming the reason the fill
+  // does not already show. Its own dim background so the text stays legible over any slot colour or icon.
+  private const float BlockStripHeight = 15f;
+  private static readonly Color BlockStripColor = new(0.11f, 0.11f, 0.14f, 0.9f);
+  private static readonly Color BlockStripTextColor = new(0.9f, 0.9f, 0.95f, 1f);
+
   private static readonly string[] HotkeyLabels = ["Q", "W", "E", "R"];
 
   // Tooltip text is unstyled and unwrapped by Godot; this is where BuildTooltip folds a description.
@@ -82,7 +90,7 @@ public class SkillBarController {
 
     // No local hero yet (pre-spawn, or spectating): show the slots inert rather than stale.
     for (var slot = 0; slot < SlotCount; slot++)
-      Paint(slot, 0, false, false, 0f, 0, null);
+      Paint(slot, 0, false, false, SkillActions.SkillBlock.NoHero, 0f, 0, null);
   }
 
   private bool TryPaintLocalHero(Frame frame, int playerId) {
@@ -107,10 +115,11 @@ public class SkillBarController {
         var rank = skills.GetRank(slot) + pendingRanks;
         var asset = GetSkillAsset(frame, skillAssetId);
         var canUpgrade = SkillActions.CanUpgrade(ref frame, playerId, slot, pendingPoints, pendingRanks);
-        var canCast = SkillActions.CanCast(ref frame, playerId, slot, pendingRanks);
+        var block = SkillActions.CastBlock(ref frame, playerId, slot, pendingRanks);
+        var canCast = block == SkillActions.SkillBlock.None;
         var cooldownTicks = SkillActions.CooldownTicks(ref frame, asset);
         var fill = CooldownFill(canCast, rank, skills.GetCooldownRemainingTicks(slot), cooldownTicks);
-        Paint(slot, rank, canUpgrade, canCast, fill, skillAssetId, asset);
+        Paint(slot, rank, canUpgrade, canCast, block, fill, skillAssetId, asset);
       }
 
       return true;
@@ -134,22 +143,36 @@ public class SkillBarController {
     return Mathf.Clamp(1f - remainingTicks / (float)cooldownTicks, 0f, 1f);
   }
 
+  // The words shown along the bottom of a slot the hero cannot cast. Unlearned and the pre-hero states
+  // stay blank - the shroud and an inert bar already say enough.
+  private static string BlockText(SkillActions.SkillBlock block) {
+    return block switch {
+      SkillActions.SkillBlock.Silenced => "Silenced",
+      SkillActions.SkillBlock.OnCooldown => "On cooldown",
+      SkillActions.SkillBlock.NotEnoughMana => "No mana",
+      SkillActions.SkillBlock.HeroDead => "Dead",
+      _ => null
+    };
+  }
+
   // Cheap early-out on the values that actually drive the cell, so a steady-state sync does no string
   // formatting and no Godot property writes.
-  private void Paint(int slot, int rank, bool canUpgrade, bool canCast, float fill, int skillAssetId,
-    SkillAsset asset) {
+  private void Paint(int slot, int rank, bool canUpgrade, bool canCast, SkillActions.SkillBlock block,
+    float fill, int skillAssetId, SkillAsset asset) {
     var cell = _cells[slot];
     if (cell == null) return;
 
     var maxRank = asset?.MaxRank ?? 0;
     if (cell.Rank == rank && cell.MaxRank == maxRank && cell.CanUpgrade == canUpgrade
-        && cell.CanCast == canCast && cell.Fill == fill && cell.SkillAssetId == skillAssetId)
+        && cell.CanCast == canCast && cell.Block == block && cell.Fill == fill
+        && cell.SkillAssetId == skillAssetId)
       return;
 
     cell.Rank = rank;
     cell.MaxRank = maxRank;
     cell.CanUpgrade = canUpgrade;
     cell.CanCast = canCast;
+    cell.Block = block;
     cell.Fill = fill;
 
     if (cell.SkillAssetId != skillAssetId) {
@@ -159,6 +182,7 @@ public class SkillBarController {
 
     cell.SetFill(canCast ? SlotColors[slot] : CooldownColors[slot], fill, rank <= 0);
     cell.SetIconDim(canCast ? Colors.White : DimmedIconColor);
+    cell.SetBlockText(canCast ? null : BlockText(block));
     cell.UpgradeHint.Visible = canUpgrade;
     cell.Label.Text = rank.ToString();
     cell.Button.Disabled = !canUpgrade;
@@ -254,6 +278,10 @@ public class SkillBarController {
     button.Pressed += () => _onUpgrade?.Invoke(captured);
     rect.AddChild(button);
 
+    // Above the fill and button so its background reads, below the rank label and upgrade border.
+    var blockStrip = CreateBlockStrip();
+    rect.AddChild(blockStrip);
+
     var upgradeHint = CreateUpgradeHint();
     rect.AddChild(upgradeHint);
 
@@ -272,7 +300,33 @@ public class SkillBarController {
 
     AddHotkeyBadge(rect, slot);
     _grid.AddChild(rect);
-    return new Cell(fill, icon, label, button, upgradeHint);
+    return new Cell(fill, icon, label, button, upgradeHint, blockStrip);
+  }
+
+  // Full-width strip along the cell's bottom edge, its own dim stylebox behind the text. Hidden until
+  // Paint hands it a reason.
+  private static Label CreateBlockStrip() {
+    var style = new StyleBoxFlat { BgColor = BlockStripColor };
+
+    var label = new Label {
+      Name = "BlockStrip",
+      MouseFilter = Control.MouseFilterEnum.Ignore,
+      HorizontalAlignment = HorizontalAlignment.Center,
+      VerticalAlignment = VerticalAlignment.Center,
+      ClipText = true,
+      Visible = false
+    };
+    label.AnchorLeft = 0f;
+    label.AnchorRight = 1f;
+    label.AnchorTop = 1f;
+    label.AnchorBottom = 1f;
+    label.OffsetTop = -BlockStripHeight;
+    label.AddThemeStyleboxOverride("normal", style);
+    label.AddThemeFontSizeOverride("font_size", 10);
+    label.AddThemeColorOverride("font_color", BlockStripTextColor);
+    label.AddThemeColorOverride("font_outline_color", new Color(0f, 0f, 0f));
+    label.AddThemeConstantOverride("outline_size", 3);
+    return label;
   }
 
   // Border-only stylebox over the cell's fill: transparent background, so the slot colour underneath
@@ -308,12 +362,14 @@ public class SkillBarController {
     rect.AddChild(badge);
   }
 
-  private sealed class Cell(ColorRect fill, TextureRect icon, Label label, Button button, Panel upgradeHint) {
+  private sealed class Cell(ColorRect fill, TextureRect icon, Label label, Button button, Panel upgradeHint,
+    Label blockStrip) {
     public readonly Button Button = button;
     public readonly Label Label = label;
     public readonly Panel UpgradeHint = upgradeHint;
     private readonly ColorRect _fill = fill;
     private readonly TextureRect _icon = icon;
+    private readonly Label _blockStrip = blockStrip;
 
     // Anchored rather than sized, so the sweep survives a grid relayout without being repainted. An icon
     // cell inverts it: the shroud shrinks off the top as the cooldown runs out, leaving the art clear.
@@ -344,7 +400,14 @@ public class SkillBarController {
       if (_icon.Visible) _icon.Modulate = color;
     }
 
+    public void SetBlockText(string text) {
+      var show = !string.IsNullOrEmpty(text);
+      _blockStrip.Visible = show;
+      if (show) _blockStrip.Text = text;
+    }
+
     // Last painted state. -1 so the first Paint always writes through.
+    public SkillActions.SkillBlock Block = (SkillActions.SkillBlock)(-1);
     public bool CanCast;
     public bool CanUpgrade;
     public float Fill = -1f;

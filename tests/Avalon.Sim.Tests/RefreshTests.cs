@@ -14,11 +14,13 @@ namespace Meesles.Avalon.Sim.Tests;
 // caster's own MaxHealth so it keeps its meaning as the pool grows with level, and the SelfCast flag is
 // what makes the aim point the client sent irrelevant on both ends.
 //
-// The cleanse half of the skill is not written yet - nothing in the sim applies a negative status to
-// clear. See the TODO on CastRefresh.
+// It is also the first cleanse: the row's ClearsDebuffs flag routes through StatusEffects.ClearNegative,
+// which strips every negative status the caster carries - an adverse StatBuffs entry, a snare, a
+// silence, a burn - and leaves the beneficial ones running.
 public class RefreshTests {
   private const int CasterPlayerId = 1;
   private const int Tertiary = (int)SkillSlot.Tertiary;
+  private const int SomeDebuffSource = 4242; // A source id that is not a real skill row
 
   [Fact]
   public void Cast_RestoresTheRowsPercentageOfTheCastersMaxHealth() {
@@ -107,6 +109,74 @@ public class RefreshTests {
     Health(harness).Should().Be(FP64.Zero);
   }
 
+  [Fact]
+  public void TheCleanseIsAuthoredOnTheRow() {
+    RefreshAsset(CreatePickleKnightHarness()).ClearsItsTargetsDebuffs.Should().BeTrue();
+  }
+
+  // One cast takes off every kind of negative status at once: the signed MoveSpeed slow reverts, and
+  // the snare and burn clear. Silence is the one it cannot answer - see the catch-22 test below.
+  [Fact]
+  public void Cast_StripsEveryNegativeStatusTheCasterCarries() {
+    var harness = CreatePickleKnightHarness();
+    var hero = harness.FindHero(CasterPlayerId);
+    var baseSpeed = CasterStat(harness, StatType.MoveSpeed);
+
+    var frame = harness.Frame;
+    StatBuffApplication.ApplyPercent(ref frame, hero, SomeDebuffSource, StatType.MoveSpeed,
+      -FP64.Half, 600).Should().BeTrue();
+    Snares.Apply(ref frame, hero, SomeDebuffSource, 600).Should().BeTrue();
+    DamageOverTimes.Apply(ref frame, hero, hero, SomeDebuffSource, FP64.FromInt(10), 600).Should().BeTrue();
+
+    LearnAndCast(harness);
+
+    var after = harness.Frame;
+    Snares.IsSnared(ref after, hero).Should().BeFalse();
+    DamageOverTimes.IsBurning(ref after, hero).Should().BeFalse();
+    CasterStat(harness, StatType.MoveSpeed).Should().Be(baseSpeed);
+    ActiveBuffCount(harness).Should().Be(0);
+  }
+
+  // Refresh is self-cast, and a silenced hero cannot cast: the one cleanse it can never deliver to
+  // itself is the one against a silence. StatusEffects.ClearNegative still strips it - so an ally-cast
+  // cleanse would - but the hero pressing its own button will not.
+  [Fact]
+  public void ASilencedCaster_CannotCastRefreshToCleanseItself() {
+    var harness = CreatePickleKnightHarness();
+    var hero = harness.FindHero(CasterPlayerId);
+    harness.Tick(SimHarness.UpgradeSkillCommand(CasterPlayerId, 0, Tertiary));
+
+    var frame = harness.Frame;
+    Silences.Apply(ref frame, hero, SomeDebuffSource, 600).Should().BeTrue();
+
+    SkillActions.CanCast(ref frame, CasterPlayerId, Tertiary).Should().BeFalse();
+    SkillActions.TryCast(ref frame, CasterPlayerId, Tertiary, HeroPosition(harness)).Should().BeFalse();
+
+    StatusEffects.ClearNegative(ref frame, hero);
+    Silences.IsSilenced(ref frame, hero).Should().BeFalse();
+  }
+
+  // The cleanse tells a slow from a haste by which way the stat moved, so a running buff survives it.
+  [Fact]
+  public void Cast_LeavesABeneficialBuffRunning() {
+    var harness = CreatePickleKnightHarness();
+    var hero = harness.FindHero(CasterPlayerId);
+    var baseArmor = CasterStat(harness, StatType.Armor);
+    var baseSpeed = CasterStat(harness, StatType.MoveSpeed);
+
+    var frame = harness.Frame;
+    StatBuffApplication.ApplyPercent(ref frame, hero, SomeDebuffSource, StatType.Armor,
+      FP64.Half, 600).Should().BeTrue();
+    StatBuffApplication.ApplyPercent(ref frame, hero, SomeDebuffSource, StatType.MoveSpeed,
+      -FP64.Half, 600).Should().BeTrue();
+
+    LearnAndCast(harness);
+
+    CasterStat(harness, StatType.MoveSpeed).Should().Be(baseSpeed, "the slow is gone");
+    CasterStat(harness, StatType.Armor).Should().Be(baseArmor + baseArmor * FP64.Half, "the buff stays");
+    ActiveBuffCount(harness).Should().Be(1);
+  }
+
   // --- helpers ---
 
   // The harness defaults every player to Hairy Wizards, so go through the real faction-select path to
@@ -144,6 +214,15 @@ public class RefreshTests {
 
   private static FP64 MaxHealth(SimHarness harness) {
     return harness.Frame.GetReadOnly<Stats>(harness.FindHero(CasterPlayerId)).MaxHealth;
+  }
+
+  private static FP64 CasterStat(SimHarness harness, StatType stat) {
+    return harness.Frame.GetReadOnly<Stats>(harness.FindHero(CasterPlayerId)).Get(stat);
+  }
+
+  private static int ActiveBuffCount(SimHarness harness) {
+    var frame = harness.Frame;
+    return StatBuffApplication.ActiveCount(ref frame, harness.FindHero(CasterPlayerId));
   }
 
   private static int Cooldown(SimHarness harness) {

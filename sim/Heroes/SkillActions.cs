@@ -78,33 +78,40 @@ public static class SkillActions {
     return true;
   }
 
-  // Would TryCast/TryUpgrade accept this slot right now? The client asks these before it queues a
-  // command, so an unlearned or cooling slot never reaches the wire and the sim never has to reject it.
-  // Read-only and allocation-free: safe to call every frame off the predicted frame.
-  public static bool CanCast(ref Frame frame, int playerId, int slot) {
-    return EvaluateCast(ref frame, playerId, slot, out _, out _, out _) == SkillBlock.None;
+  // Why TryCast would reject this slot right now, or None if it would run. The one verdict the client
+  // and the sim share: the client mirrors it every frame off the predicted frame (greying a silenced
+  // slot differently from a cooling one) so the command never reaches the wire, and TryCast re-checks
+  // it on arrival. Read-only and allocation-free. pendingRanks folds in an upgrade the client has
+  // queued but the predicted frame has not run yet - commands drain one per tick in queue order, so
+  // the upgrade always lands on an earlier tick than a cast queued behind it.
+  public static SkillBlock CastBlock(ref Frame frame, int playerId, int slot, int pendingRanks = 0) {
+    return EvaluateCast(ref frame, playerId, slot, out _, out _, out _, pendingRanks);
   }
 
-  // CanCast asked as if the slot had already gained pendingRanks ranks - an upgrade the client has
-  // queued but the predicted frame has not run yet. Safe for the client to act on: commands drain one
-  // per tick in queue order, so the upgrade always executes on an earlier tick than a cast queued
-  // after it, and the sim's own re-check at arrival sees the rank.
+  // Upgrade's counterpart. pendingPoints/pendingRanks fold in a queued upgrade the same way, so the
+  // client does not re-approve a slot it has already spent its last point on.
+  public static SkillBlock UpgradeBlock(ref Frame frame, int playerId, int slot, int pendingPoints = 0,
+    int pendingRanks = 0) {
+    return EvaluateUpgrade(ref frame, playerId, slot, out _, out _, out _, pendingPoints, pendingRanks);
+  }
+
+  // Would TryCast/TryUpgrade accept this slot right now? The bool the input and HUD paths fold the
+  // block down to when they only need yes/no.
+  public static bool CanCast(ref Frame frame, int playerId, int slot) {
+    return CastBlock(ref frame, playerId, slot) == SkillBlock.None;
+  }
+
   public static bool CanCast(ref Frame frame, int playerId, int slot, int pendingRanks) {
-    return EvaluateCast(ref frame, playerId, slot, out _, out _, out _, pendingRanks) == SkillBlock.None;
+    return CastBlock(ref frame, playerId, slot, pendingRanks) == SkillBlock.None;
   }
 
   public static bool CanUpgrade(ref Frame frame, int playerId, int slot) {
-    return EvaluateUpgrade(ref frame, playerId, slot, out _, out _, out _) == SkillBlock.None;
+    return UpgradeBlock(ref frame, playerId, slot) == SkillBlock.None;
   }
 
-  // CanUpgrade asked as if pendingPoints points were already spent and the slot had already gained
-  // pendingRanks ranks. Klotho schedules local input InputDelayTicks ahead, so a command the client
-  // has queued is not in the predicted frame yet; without this the client would re-approve a slot it
-  // has already spent its last point on and the sim would reject the second command on arrival.
   public static bool CanUpgrade(ref Frame frame, int playerId, int slot, int pendingPoints,
     int pendingRanks) {
-    return EvaluateUpgrade(ref frame, playerId, slot, out _, out _, out _, pendingPoints, pendingRanks)
-           == SkillBlock.None;
+    return UpgradeBlock(ref frame, playerId, slot, pendingPoints, pendingRanks) == SkillBlock.None;
   }
 
   // The cast rules, in one place. TryCast turns a block into a reject log; the client turns it into a
@@ -117,6 +124,9 @@ public static class SkillActions {
 
     if (!frame.Has<Health>(heroEntity) || !frame.GetReadOnly<Health>(heroEntity).IsAlive)
       return SkillBlock.HeroDead;
+
+    if (Silences.IsSilenced(ref frame, heroEntity))
+      return SkillBlock.Silenced;
 
     ref readonly var skills = ref frame.GetReadOnly<Skills>(heroEntity);
     var rank = skills.GetRank(slot) + pendingRanks;
@@ -175,6 +185,7 @@ public static class SkillActions {
       case SkillBlock.NoHero: return "no_hero_for_player";
       case SkillBlock.HeroMissingSkills: return "hero_missing_skills";
       case SkillBlock.HeroDead: return "hero_dead";
+      case SkillBlock.Silenced: return "silenced";
       case SkillBlock.NotLearned: return "skill_not_learned";
       case SkillBlock.AtMaxRank: return $"skill_at_max_rank maxRank={skill.MaxRank}";
       case SkillBlock.HeroAssetMissing:
@@ -193,14 +204,16 @@ public static class SkillActions {
   }
 
   // Why a slot cannot be cast or upgraded. A code rather than a string so the client can ask every
-  // frame without allocating; Describe renders it only when the sim logs a rejection.
-  private enum SkillBlock {
+  // frame without allocating and switch on the reason; Describe renders it only when the sim logs a
+  // rejection. Order is not wire-visible - it never leaves the process - so cases can be reordered.
+  public enum SkillBlock {
     None,
     NoHero,
     HeroMissingSkills,
     SkillAssetMissing,
     HeroAssetMissing,
     HeroDead,
+    Silenced,
     NotLearned,
     OnCooldown,
     NotEnoughMana,

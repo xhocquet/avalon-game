@@ -12,12 +12,16 @@ damage-participation window per victim before a payout has anything to key off �
 
 ## Pickle Knight Skills
 
-- Slip 'n Slide: no dash lifecycle exists (nothing moves a unit a fixed distance), and no ally-target path collection.
-- Exploosion: SkillAreas.Collect is hostile-only — needs an ally variant for the heal; silence has no system (same blocker as Refresh's cleanse — there's no negative-status pipeline yet).
+- Slip 'n Slide: no dash lifecycle exists — nothing moves a unit a fixed distance along its aim line. `DashDistance`/`DashCount` sit on the row; `CastSlipNSlide` is an empty stub.
+- Exploosion: implemented — heals allies in the disc (`SkillAreas.CollectAllies`) and silences the hostiles it catches (`Silences`, gated on `SkillAsset.HasSilence`).
 
 ## Snailhead Skills
 
-- Molt: cancel-on-move channel is new (TimedEffectSystem charges don't watch movement); cleanse still blocked on there being no debuff pipeline.
+- Molt: empty stub. The cleanse half is unblocked — `StatusEffects.ClearNegative` behind `ClearsItsTargetsDebuffs`, the one line Refresh already uses. Still needs a cancel-on-move channel: `ChargeCancelsOnMove`/`ChannelBreaksOnMove` is authored but nothing reads it, and a heal-over-channel isn't a charged burst, so it wants its own countdown in `TimedEffectSystem`.
+
+## Negative-status pipeline
+
+Buffs and debuffs share one mechanism now. A signed `StatBuffs` entry is a slow or a shred, `Snare` roots, `Silence` gags, `DamageOverTime` burns — each with its own helper, all expiring in `TimedEffectSystem`, all cleared on death by `RespawnSystem.ClearActiveState`. Cleanse is [`StatusEffects.ClearNegative`](sim/StatusEffects.cs); [`StatSemantics.IsAdverse`](sim/StatSemantics.cs) classifies a signed stat entry. See [`sim/docs/skills-and-upgrades.md`](sim/docs/skills-and-upgrades.md).
 
 ### Dead code
 

@@ -247,6 +247,36 @@ public class SkillCastTests {
     SkillActions.CanCast(ref frame, PlayerId, Primary).Should().BeFalse();
   }
 
+  // The reason surface the client and the sim share. CommandSystem re-checks the same block on
+  // arrival, so a slot the client greyed never has to be rejected on the wire.
+  [Fact]
+  public void CastBlock_NamesWhyACastIsRefused() {
+    var harness = SimHarness.CreateInitialized();
+    var hero = harness.FindHero(PlayerId);
+    var frame = harness.Frame;
+
+    SkillActions.CastBlock(ref frame, PlayerId, Primary).Should().Be(SkillActions.SkillBlock.NotLearned);
+
+    frame.Get<Skills>(hero).TrySpendPoint(Primary, 4).Should().BeTrue();
+    SkillActions.CastBlock(ref frame, PlayerId, Primary).Should().Be(SkillActions.SkillBlock.None);
+
+    Silences.Apply(ref frame, hero, 999, 120).Should().BeTrue();
+    SkillActions.CastBlock(ref frame, PlayerId, Primary).Should().Be(SkillActions.SkillBlock.Silenced);
+    Silences.Clear(ref frame, hero);
+
+    frame.Get<Health>(hero).Current = FP64.Zero;
+    SkillActions.CastBlock(ref frame, PlayerId, Primary).Should().Be(SkillActions.SkillBlock.HeroDead);
+  }
+
+  [Fact]
+  public void CastBlock_ReportsOnCooldownAfterACast() {
+    var harness = SimHarness.CreateInitialized();
+    LearnAndCast(harness);
+
+    var frame = harness.Frame;
+    SkillActions.CastBlock(ref frame, PlayerId, Primary).Should().Be(SkillActions.SkillBlock.OnCooldown);
+  }
+
   // Rank up Primary and cast it, leaving the sim one tick past the cast.
   private static void LearnAndCast(SimHarness harness) {
     harness.Tick(SimHarness.UpgradeSkillCommand(PlayerId, 0, Primary));

@@ -51,6 +51,7 @@ public static class ComponentIds {
   public const int TrailEmitter = 142;
   public const int TrailSegment = 143;
   public const int TrailSegmentIdCounter = 144;
+  public const int Silence = 145;
 
-  // Next free id: 145
+  // Next free id: 146
 }

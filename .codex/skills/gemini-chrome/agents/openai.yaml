@@ -1,0 +1,4 @@
+interface:
+  display_name: "Gemini Chrome"
+  short_description: "Drive Gemini in debug Chrome, including images"
+  default_prompt: "Use $gemini-chrome to connect to my debug-enabled Chrome session, open or reuse Gemini, submit a prompt, and clean up any extra tabs when finished."

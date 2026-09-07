@@ -117,8 +117,9 @@ public partial class SkillAsset : IDataAsset {
   // tooltip on purpose. 0 means the row does not dash.
   [KlothoOrder(42)] public FP64 DashDistance;
 
-  // How long whatever an effect catches is silenced - no casts for the window. Authored like
-  // SnareDurationMs and independent of it; a row can do both, one, or neither.
+  // How long whatever an effect catches is silenced - no skill casts for the window, enforced in
+  // SkillActions.EvaluateCast. A flat duration, independent of SnareDurationMs; a row can do both,
+  // one, or neither.
   [KlothoOrder(43)] public int SilenceDurationMs;
 
   // Ground-trail block. A trail laid behind the moving caster lingers for TrailDurationMs (+PerRank)
@@ -179,6 +180,7 @@ public partial class SkillAsset : IDataAsset {
   public bool HasArea => AreaRadius > FP64.Zero;
   public bool HasDash => DashDistance > FP64.Zero;
   public bool HasStockpile => StockpileMax > 0;
+  public bool HasSilence => SilenceDurationMs > 0;
   public bool HasTrail => TrailDurationMs > 0 && TrailSegmentCount > 0;
   public bool ChargeRootsItsCaster => ChargeRootsCaster != 0;
   public bool ChannelBreaksOnMove => ChargeCancelsOnMove != 0;
@@ -309,6 +311,11 @@ public partial class SkillAsset : IDataAsset {
 
   public int SnareDurationMsAtRank(int rank) {
     return rank <= 0 ? 0 : SnareDurationMs + SnareDurationMsPerRank * (rank - 1);
+  }
+
+  // Flat, rank-gated so an unlearned slot silences for nothing. No per-rank ramp today.
+  public int SilenceDurationMsAtRank(int rank) {
+    return rank <= 0 ? 0 : SilenceDurationMs;
   }
 
   public FP64 ProcDamageMultiplierAtRank(int rank) {

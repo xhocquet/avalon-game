@@ -75,7 +75,8 @@
     "CooldownMs": 30000,
     "HealPercent": 0.05,
     "HealPercentPerRank": 0.05,
-    "Description": "Feeling a little shriveled up, you splash cold water on yourself and heal 5% (+5% per rank) of your total HP. CD: 30s",
+    "ClearsDebuffs": 1,
+    "Description": "Feeling a little shriveled up, you splash cold water on yourself and heal 5% (+5% per rank) of your total HP and shed all negative effects. CD: 30s",
     "SelfCast": 1
   },
   {

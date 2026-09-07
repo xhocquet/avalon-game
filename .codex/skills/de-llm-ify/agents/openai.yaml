@@ -1,0 +1,4 @@
+interface:
+  display_name: "De-LLM-ify"
+  short_description: "Cut AI-sounding prose without losing detail"
+  default_prompt: "Use $de-llm-ify to critique this draft for synthetic phrasing and rewrite it to sound more human without thinning the detail."

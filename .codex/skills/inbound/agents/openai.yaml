@@ -1,0 +1,4 @@
+interface:
+  display_name: "Inbound"
+  short_description: "Process assets from inbound/"
+  default_prompt: "Use $inbound to compress files in inbound/, place them in the right docs asset folder, and add them to docs/game-design-doc.mdx based on my context."

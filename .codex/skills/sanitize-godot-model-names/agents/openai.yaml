@@ -1,0 +1,4 @@
+interface:
+  display_name: "Sanitize Godot Model Names"
+  short_description: "Clean imported Godot scene node names"
+  default_prompt: "Use $sanitize-godot-model-names to clean node names in this Godot model or scene."

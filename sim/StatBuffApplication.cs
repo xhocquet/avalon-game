@@ -78,6 +78,40 @@ public static class StatBuffApplication {
         Revert(ref stats, ref buffs, i);
   }
 
+  // Reverts every entry that moved a stat the adverse way for its owner - a slow, an armor shred - and
+  // leaves the beneficial ones running. The cleanse counterpart to ClearAll; StatusEffects.ClearNegative
+  // is the whole-unit version that also drops snares, burns, and silences. Returns how many came off.
+  public static int ClearHarmful(ref Frame frame, EntityRef entity) {
+    if (!frame.Has<StatBuffs>(entity) || !frame.Has<Stats>(entity))
+      return 0;
+
+    ref var buffs = ref frame.Get<StatBuffs>(entity);
+    ref var stats = ref frame.Get<Stats>(entity);
+
+    var cleared = 0;
+    for (var i = 0; i < StatBuffs.MaxEntries; i++) {
+      if (!buffs.IsActive(i) || !StatSemantics.IsAdverse(buffs.GetStat(i), buffs.GetApplied(i)))
+        continue;
+
+      Revert(ref stats, ref buffs, i);
+      cleared++;
+    }
+
+    return cleared;
+  }
+
+  public static bool HasHarmful(ref Frame frame, EntityRef entity) {
+    if (!frame.Has<StatBuffs>(entity))
+      return false;
+
+    ref readonly var buffs = ref frame.GetReadOnly<StatBuffs>(entity);
+    for (var i = 0; i < StatBuffs.MaxEntries; i++)
+      if (buffs.IsActive(i) && StatSemantics.IsAdverse(buffs.GetStat(i), buffs.GetApplied(i)))
+        return true;
+
+    return false;
+  }
+
   // Drops every buff early, reverting each one. Death goes through here rather than letting the timers
   // run out on a corpse.
   public static void ClearAll(ref Frame frame, EntityRef entity) {
