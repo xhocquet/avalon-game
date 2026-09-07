@@ -36,11 +36,11 @@ public partial class LobbyUI : Control, IViewHud {
   private Button _readyButton;
   private Label _resultLabel;
   private PanelContainer _resultPanel;
-  private Label _room;
   private Texture2D _placeholderPortrait;
-  private Label _state;
   private Label _status;
-  private Label _timer;
+  private SessionPhase _phase = SessionPhase.None;
+  private double? _countdownSeconds;
+  private int? _roomId;
 
   public string Host => _ipField?.Text?.Trim();
   public int Port => int.TryParse(_portField?.Text, out var p) ? p : ServerEndpoint.Port;
@@ -62,9 +62,6 @@ public partial class LobbyUI : Control, IViewHud {
     _nameField = GetNode<LineEdit>($"{left}/NameField");
     _ipField = GetNode<LineEdit>($"{left}/HostRow/IpField");
     _portField = GetNode<LineEdit>($"{left}/HostRow/PortField");
-    _room = GetNode<Label>($"{left}/InfoGrid/RoomLabel");
-    _state = GetNode<Label>($"{left}/InfoGrid/StateLabel");
-    _timer = GetNode<Label>($"{left}/InfoGrid/TimerLabel");
     _status = GetNode<Label>($"{left}/StatusLabel");
     _startButton = GetNode<Button>($"{left}/Buttons/StartButton");
     _joinButton = GetNode<Button>($"{left}/JoinRow/JoinButton");
@@ -322,11 +319,11 @@ public partial class LobbyUI : Control, IViewHud {
 
   public void SetLobbyMode() {
     _nameField.Editable = true;
-    _state.Text = "—";
-    _room.Text = "Not joined";
+    _phase = SessionPhase.None;
+    _roomId = null;
+    _countdownSeconds = null;
     SetLocalReady(false);
-    _status.Text = "Not connected";
-    _timer.Text = "—";
+    UpdateStatus();
     _joinButton.Disabled = false;
     _disconnectButton.Disabled = true;
     ClearSlots();
@@ -338,14 +335,15 @@ public partial class LobbyUI : Control, IViewHud {
     _isConnected = connected;
     _joinButton.Disabled = connected;
     _disconnectButton.Disabled = !connected;
-    _room.Text = connected ? $"#{roomId}" : "Not joined";
+    _roomId = connected ? roomId : null;
+    if (!connected) _countdownSeconds = null;
     // The name is claimed in the join handshake, so edits after joining would never reach the roster.
     // Lock the field rather than letting it drift out of sync with what other players see.
     _nameField.Editable = !connected;
+    UpdateStatus();
     if (connected) return;
 
     SetLocalReady(false);
-    _status.Text = "Not connected";
     // Player ids are reassigned on the next join, so stale faction rows would mislabel new slots.
     _playerFactions.Clear();
     ClearSlots();
@@ -357,20 +355,30 @@ public partial class LobbyUI : Control, IViewHud {
   }
 
   public void SetPhase(SessionPhase phase) {
-    _state.Text = phase.ToString();
-    _status.Text = phase switch {
+    _phase = phase;
+    if (phase != SessionPhase.Countdown) _countdownSeconds = null;
+    UpdateStatus();
+  }
+
+  public void SetCountdownRemaining(double seconds) {
+    if (seconds < 0) seconds = 0;
+    _countdownSeconds = seconds;
+    UpdateStatus();
+  }
+
+  private void UpdateStatus() {
+    var text = _phase switch {
       SessionPhase.None => "Not connected",
       SessionPhase.Synchronized => "Waiting for players to ready up",
       SessionPhase.Countdown => "Match starting",
       SessionPhase.Playing => "In game",
       SessionPhase.Disconnected => "Disconnected",
-      _ => phase.ToString()
+      _ => _phase.ToString()
     };
-  }
-
-  public void SetCountdownRemaining(double seconds) {
-    if (seconds < 0) seconds = 0;
-    _timer.Text = $"{seconds:0.0}s";
+    if (_roomId is int roomId) text = $"#{roomId} · {text}";
+    if (_phase == SessionPhase.Countdown && _countdownSeconds is double seconds)
+      text = $"{text} · {seconds:0.0}s";
+    _status.Text = text;
   }
 
   public void SetLocalPlayerId(int? playerId) {

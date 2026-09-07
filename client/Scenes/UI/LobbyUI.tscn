@@ -168,43 +168,6 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
 text = "4. Ready up"
 
-[node name="InfoGrid" type="GridContainer" parent="Root/Columns/LeftColumn/Margin/VBox" unique_id=82297129]
-layout_mode = 2
-theme_override_constants/h_separation = 10
-theme_override_constants/v_separation = 4
-columns = 2
-
-[node name="RoomPrefixLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid" unique_id=530835831]
-custom_minimum_size = Vector2(64, 0)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
-text = "Room"
-
-[node name="RoomLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid" unique_id=1278949986]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Not joined"
-
-[node name="PhasePrefixLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid" unique_id=1241167680]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
-text = "Phase"
-
-[node name="StateLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid" unique_id=763320557]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "—"
-
-[node name="TimerPrefixLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid" unique_id=1748406826]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
-text = "Timer"
-
-[node name="TimerLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid" unique_id=1330000826]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "—"
-
 [node name="StatusLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox" unique_id=576487050]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.75, 0.75, 0.75, 1)
