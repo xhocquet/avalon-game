@@ -88,13 +88,15 @@ public partial class HeroEntity : TeamEntityViewNode, IPlayerView, IAttackableVi
 
     _anim = GetNodeOrNull<AnimationPlayer>("AnimationPlayer");
     if (_anim != null) {
-      var walkAnim = _anim.GetAnimation(WalkAnim);
-      if (walkAnim != null)
+      if (_anim.HasAnimation(WalkAnim)) {
+        var walkAnim = _anim.GetAnimation(WalkAnim);
         walkAnim.LoopMode = Animation.LoopModeEnum.Linear;
+      }
 
-      var deathAnim = _anim.GetAnimation(AnimDeath);
-      if (deathAnim != null)
+      if (_anim.HasAnimation(AnimDeath)) {
+        var deathAnim = _anim.GetAnimation(AnimDeath);
         deathAnim.LoopMode = Animation.LoopModeEnum.None;
+      }
 
       if (HasAttackAnim) {
         // Must not loop, or AnimationFinished never fires and the hero is stuck swinging.

@@ -18,14 +18,14 @@ play:
 
 # `just play` + autostart
 [group('play')]
-quickplay ticks="0" faction1="200" faction2="201":
+quickplay-multiplayer ticks="0" faction1="200" faction2="201":
     & .\scripts\quickplay.ps1 -Ticks {{ ticks }} -Faction1 {{ faction1 }} \
       -Faction2 {{ faction2 }} -Godmode:${{ godmode }}
 
-# Local playground straight into a match. `just playground nav-playground`, or add cheat args:
-# `just playground combat-playground --allcheats`
+# Local playground straight into a match. `just quickplay nav-playground`, or add cheat args:
+# `just quickplay combat-playground --allcheats`
 [group('play')]
-playground id="combat-playground" *args:
+quickplay id="combat-playground" *args:
     dotnet build .\client\Meesles.Avalon.Client.csproj
     & "{{ godot_console }}" --path ".\client" -- --quickplay --gametype={{ id }} {{ args }}
 

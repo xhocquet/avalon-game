@@ -83,12 +83,14 @@ public partial class MinionEntity : TeamEntityViewNode, IAttackableView {
 
     _anim = GetNodeOrNull<AnimationPlayer>("AnimationPlayer");
     if (_anim != null) {
-      var runAnim = _anim.GetAnimation(RunAnim);
-      if (runAnim != null)
+      if (_anim.HasAnimation(RunAnim)) {
+        var runAnim = _anim.GetAnimation(RunAnim);
         runAnim.LoopMode = Animation.LoopModeEnum.Linear;
-      var idleAnim = _anim.GetAnimation(IdleAnim);
-      if (idleAnim != null)
+      }
+      if (_anim.HasAnimation(IdleAnim)) {
+        var idleAnim = _anim.GetAnimation(IdleAnim);
         idleAnim.LoopMode = Animation.LoopModeEnum.Linear;
+      }
 
       if (HasAttackAnim) {
         // Must not loop, or AnimationFinished never fires and the minion is stuck swinging.
