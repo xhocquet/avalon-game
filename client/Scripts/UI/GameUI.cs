@@ -470,9 +470,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
   }
 
   // Driven by InputCapture's selection system - shows the portrait of the currently selected
-  // hero. All heroes of a faction currently share one portrait, so this resolves per-faction
-  // rather than per-hero; revisit once each hero gets its own art. When nothing is mapped we
-  // fall back to a TODO placeholder so the portrait slot never renders blank.
+  // InputCapture resolves the selected hero or minion faction portrait before this paints it.
   public void SetFocusPortrait(Texture2D texture, string label) {
     if (_portraitTexture != null) {
       var resolved = texture ?? PortraitPlaceholder;

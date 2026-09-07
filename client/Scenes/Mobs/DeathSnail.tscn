@@ -39,3 +39,4 @@ libraries/ = SubResource("AnimationLibrary_qj1l1")
 
 [node name="SelectionIndicator" parent="." index="2" unique_id=192859155 instance=ExtResource("3_ind")]
 transform = Transform3D(0.6, 0, 0, 0, 0.6, 0, 0, 0, 0.6, 0, 0.04, 0)
+visible = false

@@ -10,6 +10,7 @@ using Meesles.Avalon.Sim.Heroes;
 using Meesles.Avalon.Sim.Navigation;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.Deterministic.Navigation;
+using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Godot;
 using ICommand = xpTURN.Klotho.Core.ICommand;
 using IKlothoEngine = xpTURN.Klotho.Core.IKlothoEngine; // Klotho.Core also defines MoveCommand
@@ -868,16 +869,16 @@ public class InputCapture : IDisposable {
     var view = heroView ?? (_selectedViews.Count > 0 ? _selectedViews[0] : null);
 
     // Named props/structures (turret, crystal, shop, fountain, pickup) show their own label.
-    // Factions show theirs. Fallback to 'todo' image
+    // Factions show theirs. Fallback to 'todo' image.
     if (view is INamedView named) {
       Texture2D portrait = null;
-      if (_factions != null && TryResolveHeroFactionId(view, out var namedFactionId))
-        portrait = _factions.Resolve(namedFactionId).PortraitTexture;
+      if (_factions != null && TryResolveFactionId(view, out var namedFactionId))
+        portrait = _factions.Resolve(namedFactionId).HeroPortraitTexture;
       _gameUI.SetFocusPortrait(portrait, named.DisplayName);
       return;
     }
 
-    if (_factions != null && view != null && TryResolveHeroFactionId(view, out var factionId)) {
+    if (_factions != null && view != null && TryResolveFactionId(view, out var factionId)) {
       var entry = _factions.Resolve(factionId);
       var label = entry.DisplayName;
 
@@ -889,7 +890,7 @@ public class InputCapture : IDisposable {
           label = $"{label} +{minionCount}";
       }
 
-      _gameUI.SetFocusPortrait(entry.PortraitTexture, label);
+      _gameUI.SetFocusPortrait(IsHeroView(view) ? entry.HeroPortraitTexture : entry.MinionPortraitTexture, label);
       return;
     }
 
@@ -936,19 +937,34 @@ public class InputCapture : IDisposable {
     return frame != null && frame.Has<Hero>(view.EntityRef);
   }
 
-  private static bool TryResolveHeroFactionId(EntityViewNode view, out int factionId) {
+  private static bool TryResolveFactionId(EntityViewNode view, out int factionId) {
     factionId = 0;
     if (view.Engine == null || !view.EntityRef.IsValid) return false;
 
-    var frame = view.Engine.PredictedFrame.Frame;
-    if (frame == null || !frame.Has<Hero>(view.EntityRef))
-      frame = view.Engine.VerifiedFrame.Frame;
+    return TryResolveFactionId(view.Engine.PredictedFrame.Frame, view.EntityRef, out factionId)
+      || TryResolveFactionId(view.Engine.VerifiedFrame.Frame, view.EntityRef, out factionId);
+  }
 
-    if (frame == null || !frame.Has<Hero>(view.EntityRef) || !frame.Has<Faction>(view.EntityRef))
-      return false;
+  private static bool TryResolveFactionId(Frame frame, EntityRef entity, out int factionId) {
+    factionId = 0;
+    if (frame == null) return false;
 
-    factionId = frame.GetReadOnly<Faction>(view.EntityRef).FactionId;
-    return true;
+    if (frame.Has<Faction>(entity)) {
+      factionId = frame.GetReadOnly<Faction>(entity).FactionId;
+      return true;
+    }
+
+    if (!frame.Has<Team>(entity)) return false;
+
+    var teamId = frame.GetReadOnly<Team>(entity).TeamId;
+    var factions = frame.Filter<PlayerFaction>();
+    while (factions.Next(out var slot)) {
+      if (frame.GetReadOnly<PlayerFaction>(slot).TeamId != teamId) continue;
+      factionId = frame.GetReadOnly<PlayerFaction>(slot).FactionId;
+      return true;
+    }
+
+    return false;
   }
 
   private EntityViewNode GetFallbackFocusView() {

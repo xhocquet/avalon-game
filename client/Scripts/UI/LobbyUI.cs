@@ -10,7 +10,8 @@ namespace Meesles.Avalon;
 
 public partial class LobbyUI : Control, IViewHud {
   private const int MaxSlots = 4;
-  private const float FactionPortraitSize = 112;
+  private const int FactionGridColumns = 3;
+  private static readonly Vector2 FactionPortraitSize = new(200, 300);
 
   private readonly List<Button> _factionCards = [];
   private readonly List<Button> _gameTypeCards = [];
@@ -174,18 +175,18 @@ public partial class LobbyUI : Control, IViewHud {
     }
 
     var defs = FactionCatalog.FactionDefs;
-    _factionGrid.Columns = Math.Max(1, defs.Length);
+    _factionGrid.Columns = FactionGridColumns;
 
     var group = new ButtonGroup();
     foreach (var def in defs) {
-      var portrait = GD.Load<Texture2D>(def.PortraitTexturePath);
+      var portrait = GD.Load<Texture2D>(def.HeroPortraitTexturePath);
       if (portrait != null) _factionPortraits[def.Id] = portrait;
 
       var card = new Button {
         Name = $"FactionCard{def.Id}",
         ToggleMode = true,
         ButtonGroup = group,
-        CustomMinimumSize = new Vector2(0, 160),
+        CustomMinimumSize = new Vector2(220, 356),
         SizeFlagsHorizontal = SizeFlags.ExpandFill,
         TooltipText = def.Name
       };
@@ -203,7 +204,7 @@ public partial class LobbyUI : Control, IViewHud {
       margin.AddChild(vbox);
 
       var portraitFrame = new Control {
-        CustomMinimumSize = new Vector2(FactionPortraitSize, FactionPortraitSize),
+        CustomMinimumSize = FactionPortraitSize,
         SizeFlagsHorizontal = SizeFlags.ShrinkCenter,
         SizeFlagsVertical = SizeFlags.ShrinkCenter,
         ClipContents = true,

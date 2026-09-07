@@ -20,23 +20,28 @@ public class FactionCatalog {
     new(FactionHairyWizardsId, "Hairy Wizards",
       "res://Scenes/Heroes/AllHairWizard.tscn",
       "res://Scenes/Mobs/SwirlyEye.tscn",
-      "res://Assets/Portraits/AllHairWizard.png"),
+      "res://Assets/Portraits/Factions/AllHairWizards/hero.webp",
+      "res://Assets/Portraits/Factions/AllHairWizards/minion.webp"),
     new(FactionSnailheadsId, "Snailheads",
       "res://Scenes/Heroes/SnailHead.tscn",
       "res://Scenes/Mobs/DeathSnail.tscn",
-      "res://Assets/Portraits/SnailHead.png"),
+      "res://Assets/Portraits/Factions/Snailheads/hero.webp",
+      "res://Assets/Portraits/Factions/Snailheads/minion.webp"),
     new(FactionCrystalWarriorsId, "Crystal Warriors",
       "res://Scenes/Heroes/CrystalGiant.tscn",
       "res://Scenes/Mobs/CrystalTurtle.tscn",
-      "res://Assets/Portraits/CrystalWarrior.png"),
+      "res://Assets/Portraits/Factions/CrystalWarriors/hero.webp",
+      "res://Assets/Portraits/Factions/CrystalWarriors/minion.webp"),
     new(FactionSkinwalkerTribeId, "Skinwalker Tribe",
       "res://Scenes/Heroes/Skinwalker.tscn",
       "res://Scenes/Mobs/PatchRat.tscn",
-      "res://Assets/Portraits/Skinwalker.png"),
+      "res://Assets/Portraits/Factions/Skinwalkers/hero.webp",
+      "res://Assets/Portraits/Factions/Skinwalkers/minion.webp"),
     new(FactionPickleKnightsId, "Pickle Knights",
       "res://Scenes/Heroes/PickleKnight.tscn",
       "res://Scenes/Mobs/CaperCreep.tscn",
-      "res://Assets/Portraits/PickleKnight.png")
+      "res://Assets/Portraits/Factions/PickleKnights/hero.webp",
+      "res://Assets/Portraits/Factions/PickleKnights/minion.webp")
   ];
 
   private readonly Dictionary<int, FactionData> _byId = new();
@@ -62,7 +67,8 @@ public class FactionCatalog {
         DisplayName = def.Name,
         HeroScene = GD.Load<PackedScene>(def.HeroScenePath),
         MinionScene = GD.Load<PackedScene>(def.MinionScenePath),
-        PortraitTexture = GD.Load<Texture2D>(def.PortraitTexturePath)
+        HeroPortraitTexture = GD.Load<Texture2D>(def.HeroPortraitTexturePath),
+        MinionPortraitTexture = GD.Load<Texture2D>(def.MinionPortraitTexturePath)
       });
 
     return new FactionCatalog(entries);
@@ -73,12 +79,14 @@ public class FactionCatalog {
     string name,
     string heroScenePath,
     string minionScenePath,
-    string portraitTexturePath) {
+    string heroPortraitTexturePath,
+    string minionPortraitTexturePath) {
     public readonly int Id = id;
     public readonly string Name = name;
     public readonly string HeroScenePath = heroScenePath;
     public readonly string MinionScenePath = minionScenePath;
-    public readonly string PortraitTexturePath = portraitTexturePath;
+    public readonly string HeroPortraitTexturePath = heroPortraitTexturePath;
+    public readonly string MinionPortraitTexturePath = minionPortraitTexturePath;
   }
 
   public class FactionData {
@@ -86,6 +94,7 @@ public class FactionCatalog {
     public int FactionId;
     public PackedScene HeroScene;
     public PackedScene MinionScene;
-    public Texture2D PortraitTexture;
+    public Texture2D HeroPortraitTexture;
+    public Texture2D MinionPortraitTexture;
   }
 }

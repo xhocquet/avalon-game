@@ -204,10 +204,11 @@ layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="PlayerSlots" type="VBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll" unique_id=846397212]
+[node name="PlayerSlots" type="GridContainer" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll" unique_id=846397212]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 8
+columns = 4
 
 [node name="Slot0" type="PanelContainer" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots" unique_id=1840864963]
 layout_mode = 2
@@ -220,13 +221,14 @@ theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 8
 
-[node name="Row" type="HBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot0/Margin" unique_id=1612663007]
+[node name="Row" type="VBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot0/Margin" unique_id=1612663007]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 6
 
 [node name="PortraitFrame" type="Control" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot0/Margin/Row" unique_id=2082228008]
-custom_minimum_size = Vector2(56, 56)
+custom_minimum_size = Vector2(100, 150)
 layout_mode = 2
+size_flags_horizontal = 4
 clip_contents = true
 
 [node name="Portrait" type="TextureRect" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot0/Margin/Row/PortraitFrame"]
@@ -249,12 +251,14 @@ theme_override_constants/separation = 2
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
 text = "Empty slot"
+horizontal_alignment = 1
 
 [node name="StatusLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot0/Margin/Row/Info" unique_id=1127047678]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
 theme_override_font_sizes/font_size = 13
 text = "—"
+horizontal_alignment = 1
 
 [node name="Slot1" type="PanelContainer" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots" unique_id=1183343729]
 layout_mode = 2
@@ -267,13 +271,14 @@ theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 8
 
-[node name="Row" type="HBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot1/Margin" unique_id=1519166505]
+[node name="Row" type="VBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot1/Margin" unique_id=1519166505]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 6
 
 [node name="PortraitFrame" type="Control" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot1/Margin/Row" unique_id=1083243673]
-custom_minimum_size = Vector2(56, 56)
+custom_minimum_size = Vector2(100, 150)
 layout_mode = 2
+size_flags_horizontal = 4
 clip_contents = true
 
 [node name="Portrait" type="TextureRect" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot1/Margin/Row/PortraitFrame"]
@@ -296,12 +301,14 @@ theme_override_constants/separation = 2
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
 text = "Empty slot"
+horizontal_alignment = 1
 
 [node name="StatusLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot1/Margin/Row/Info" unique_id=2116150003]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
 theme_override_font_sizes/font_size = 13
 text = "—"
+horizontal_alignment = 1
 
 [node name="Slot2" type="PanelContainer" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots" unique_id=1259779330]
 layout_mode = 2
@@ -314,13 +321,14 @@ theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 8
 
-[node name="Row" type="HBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot2/Margin" unique_id=826063105]
+[node name="Row" type="VBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot2/Margin" unique_id=826063105]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 6
 
 [node name="PortraitFrame" type="Control" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot2/Margin/Row" unique_id=576125799]
-custom_minimum_size = Vector2(56, 56)
+custom_minimum_size = Vector2(100, 150)
 layout_mode = 2
+size_flags_horizontal = 4
 clip_contents = true
 
 [node name="Portrait" type="TextureRect" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot2/Margin/Row/PortraitFrame"]
@@ -343,12 +351,14 @@ theme_override_constants/separation = 2
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
 text = "Empty slot"
+horizontal_alignment = 1
 
 [node name="StatusLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot2/Margin/Row/Info" unique_id=519515046]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
 theme_override_font_sizes/font_size = 13
 text = "—"
+horizontal_alignment = 1
 
 [node name="Slot3" type="PanelContainer" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots" unique_id=1324418221]
 layout_mode = 2
@@ -361,13 +371,14 @@ theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 8
 
-[node name="Row" type="HBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot3/Margin" unique_id=2095047636]
+[node name="Row" type="VBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot3/Margin" unique_id=2095047636]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 6
 
 [node name="PortraitFrame" type="Control" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot3/Margin/Row" unique_id=1091643867]
-custom_minimum_size = Vector2(56, 56)
+custom_minimum_size = Vector2(100, 150)
 layout_mode = 2
+size_flags_horizontal = 4
 clip_contents = true
 
 [node name="Portrait" type="TextureRect" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot3/Margin/Row/PortraitFrame"]
@@ -390,12 +401,14 @@ theme_override_constants/separation = 2
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
 text = "Empty slot"
+horizontal_alignment = 1
 
 [node name="StatusLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot3/Margin/Row/Info" unique_id=381521644]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
 theme_override_font_sizes/font_size = 13
 text = "—"
+horizontal_alignment = 1
 
 [node name="MiddleColumn" type="VBoxContainer" parent="Root/Columns" unique_id=707597872]
 layout_mode = 2
