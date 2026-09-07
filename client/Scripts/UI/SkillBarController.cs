@@ -23,6 +23,7 @@ namespace Meesles.Avalon;
 // is harmless.
 public class SkillBarController {
   private const float CellSize = 58f;
+  private static readonly Texture2D EmptySlotTexture = GD.Load<Texture2D>("res://Assets/Placeholders/red-swirl.webp");
   public const int SlotCount = Skills.MaxSlots;
 
   // Indexed by SkillSlot. Distinct hues so the four slots stay tellable apart before they have icons.
@@ -248,13 +249,12 @@ public class SkillBarController {
       Color = InactiveColor
     };
 
-    // Hidden until Paint hands it a texture; slots with no authored art keep the flat coloured cell.
     var icon = new TextureRect {
       Name = "Icon",
       MouseFilter = Control.MouseFilterEnum.Ignore,
+      Texture = EmptySlotTexture,
       ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-      StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered,
-      Visible = false
+      StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered
     };
     icon.SetAnchorsPreset(Control.LayoutPreset.FullRect);
     rect.AddChild(icon);
@@ -386,14 +386,14 @@ public class SkillBarController {
       _fill.AnchorBottom = 1f;
     }
 
-    // The rank sits centred and large on a bare cell, and shrinks into the corner once art needs the room.
+    // The rank stays in the bottom-right over either authored art or the fallback.
     public void SetIcon(Texture2D texture) {
-      _icon.Texture = texture;
-      _icon.Visible = texture != null;
+      _icon.Texture = texture ?? EmptySlotTexture;
+      _icon.Visible = true;
 
-      Label.HorizontalAlignment = texture != null ? HorizontalAlignment.Right : HorizontalAlignment.Center;
-      Label.VerticalAlignment = texture != null ? VerticalAlignment.Bottom : VerticalAlignment.Center;
-      Label.AddThemeFontSizeOverride("font_size", texture != null ? 14 : 20);
+      Label.HorizontalAlignment = HorizontalAlignment.Right;
+      Label.VerticalAlignment = VerticalAlignment.Bottom;
+      Label.AddThemeFontSizeOverride("font_size", 14);
     }
 
     public void SetIconDim(Color color) {

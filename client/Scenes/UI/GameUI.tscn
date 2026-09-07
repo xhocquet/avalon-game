@@ -3,6 +3,9 @@
 [ext_resource type="Script" uid="uid://cye43qws5a5eo" path="res://Scripts/UI/GameUI.cs" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://7rejd1vlpq5" path="res://Scenes/UI/HealthBars.tscn" id="3_healthbars"]
 [ext_resource type="Texture2D" uid="uid://cwknw6nvw5ukx" path="res://Assets/Portraits/Factions/AllHairWizards/hero.webp" id="3_xkiwj"]
+[ext_resource type="Texture2D" path="res://Assets/Placeholders/brown-swirl.webp" id="4_brown"]
+[ext_resource type="Texture2D" path="res://Assets/Placeholders/red-swirl.webp" id="5_purple"]
+[ext_resource type="Texture2D" path="res://Assets/Placeholders/purple-swirl.webp" id="6_red"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_ie3ut"]
 font_size = 32
@@ -235,7 +238,7 @@ theme_override_constants/separation = 6
 [node name="HeroMarginPanel" type="MarginContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection" unique_id=1007305730]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 1.5
+size_flags_stretch_ratio = 1.8
 theme_override_constants/margin_left = 6
 theme_override_constants/margin_top = 2
 theme_override_constants/margin_right = 6
@@ -249,11 +252,7 @@ layout_mode = 2
 size_flags_vertical = 3
 texture = ExtResource("3_xkiwj")
 expand_mode = 3
-
-[node name="PortraitLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/HeroMarginPanel/VBox" unique_id=1508887714]
-layout_mode = 2
-text = "Snailhead"
-horizontal_alignment = 1
+stretch_mode = 5
 
 [node name="MinionAndStatsPanel" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection"]
 layout_mode = 2
@@ -367,35 +366,47 @@ theme_override_constants/h_separation = 6
 theme_override_constants/v_separation = 6
 columns = 2
 
-[node name="ColorRect" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MarginContainer/ItemPanel" unique_id=237132654]
+[node name="ColorRect" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MarginContainer/ItemPanel" unique_id=237132654]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
-color = Color(1, 1, 0.6901961, 0.7137255)
+texture = ExtResource("4_brown")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="ColorRect2" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MarginContainer/ItemPanel" unique_id=2126021869]
+[node name="ColorRect2" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MarginContainer/ItemPanel" unique_id=2126021869]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
-color = Color(1, 0.5803922, 0.6901961, 0.7137255)
+texture = ExtResource("4_brown")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="ColorRect3" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MarginContainer/ItemPanel" unique_id=1733614632]
+[node name="ColorRect3" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MarginContainer/ItemPanel" unique_id=1733614632]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
-color = Color(1, 1, 0.6901961, 0.7137255)
+texture = ExtResource("4_brown")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="ColorRect4" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MarginContainer/ItemPanel" unique_id=1803609899]
+[node name="ColorRect4" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MarginContainer/ItemPanel" unique_id=1803609899]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
-color = Color(1, 0.5803922, 0.6901961, 0.7137255)
+texture = ExtResource("4_brown")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="ColorRect5" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MarginContainer/ItemPanel" unique_id=212047987]
+[node name="ColorRect5" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MarginContainer/ItemPanel" unique_id=212047987]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
-color = Color(1, 1, 0.6901961, 0.7137255)
+texture = ExtResource("4_brown")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="ColorRect6" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MarginContainer/ItemPanel" unique_id=371002932]
+[node name="ColorRect6" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MarginContainer/ItemPanel" unique_id=371002932]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
-color = Color(1, 0.5803922, 0.6901961, 0.7137255)
+texture = ExtResource("4_brown")
+expand_mode = 1
+stretch_mode = 6
 
 [node name="ActionMContainer" type="MarginContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels" unique_id=468670308]
 layout_mode = 2
@@ -410,105 +421,145 @@ theme_override_constants/h_separation = 6
 theme_override_constants/v_separation = 6
 columns = 4
 
-[node name="ColorRect" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=1222214380]
+[node name="ColorRect" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=1222214380]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
-color = Color(1, 1, 0.6901961, 0.7137255)
+texture = ExtResource("5_purple")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="ColorRect2" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=694550106]
+[node name="ColorRect2" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=694550106]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
-color = Color(1, 0.5803922, 0.6901961, 0.7137255)
+texture = ExtResource("5_purple")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="ColorRect3" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=351577467]
+[node name="ColorRect3" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=351577467]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
-color = Color(1, 1, 0.6901961, 0.7137255)
+texture = ExtResource("5_purple")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="ColorRect4" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=1886554080]
+[node name="ColorRect4" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=1886554080]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
-color = Color(1, 0.5803922, 0.6901961, 0.7137255)
+texture = ExtResource("5_purple")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="ColorRect5" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=247330112]
+[node name="ColorRect5" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=247330112]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
-color = Color(1, 1, 0.6901961, 0.7137255)
+texture = ExtResource("6_red")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="ColorRect6" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=2128561064]
+[node name="ColorRect6" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=2128561064]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
-color = Color(1, 0.5803922, 0.6901961, 0.7137255)
+texture = ExtResource("6_red")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="ColorRect7" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=757895957]
+[node name="ColorRect7" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=757895957]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
-color = Color(1, 1, 0.6901961, 0.7137255)
+texture = ExtResource("6_red")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="ColorRect8" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=1052040432]
+[node name="ColorRect8" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=1052040432]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
-color = Color(1, 0.5803922, 0.6901961, 0.7137255)
+texture = ExtResource("6_red")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="ColorRect9" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=1317634379]
+[node name="ColorRect9" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=1317634379]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
-color = Color(1, 1, 0.6901961, 0.7137255)
+texture = ExtResource("6_red")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="ColorRect10" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=1230175847]
+[node name="ColorRect10" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=1230175847]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
-color = Color(1, 0.5803922, 0.6901961, 0.7137255)
+texture = ExtResource("6_red")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="ColorRect11" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=1329078521]
+[node name="ColorRect11" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=1329078521]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
-color = Color(1, 1, 0.6901961, 0.7137255)
+texture = ExtResource("6_red")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="ColorRect12" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=762819458]
+[node name="ColorRect12" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=762819458]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
-color = Color(1, 0.5803922, 0.6901961, 0.7137255)
+texture = ExtResource("6_red")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="ColorRect13" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=551952867]
+[node name="ColorRect13" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=551952867]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
-color = Color(1, 1, 0.6901961, 0.7137255)
+texture = ExtResource("6_red")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="ColorRect14" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=1408463387]
+[node name="ColorRect14" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=1408463387]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
-color = Color(1, 0.5803922, 0.6901961, 0.7137255)
+texture = ExtResource("6_red")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="ColorRect15" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=376219139]
+[node name="ColorRect15" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=376219139]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
-color = Color(1, 1, 0.6901961, 0.7137255)
+texture = ExtResource("6_red")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="ColorRect16" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=80963509]
+[node name="ColorRect16" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=80963509]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
-color = Color(1, 0.5803922, 0.6901961, 0.7137255)
+texture = ExtResource("6_red")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="ColorRect17" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=30896668]
+[node name="ColorRect17" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=30896668]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
-color = Color(1, 1, 0.6901961, 0.7137255)
+texture = ExtResource("6_red")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="ColorRect18" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=1153684415]
+[node name="ColorRect18" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=1153684415]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
-color = Color(1, 0.5803922, 0.6901961, 0.7137255)
+texture = ExtResource("6_red")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="ColorRect19" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=1716411683]
+[node name="ColorRect19" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=1716411683]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
-color = Color(1, 1, 0.6901961, 0.7137255)
+texture = ExtResource("6_red")
+expand_mode = 1
+stretch_mode = 6
 
-[node name="ColorRect20" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=351635988]
+[node name="ColorRect20" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid" unique_id=351635988]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
-color = Color(1, 0.5803922, 0.6901961, 0.7137255)
+texture = ExtResource("6_red")
+expand_mode = 1
+stretch_mode = 6
 
 [node name="TabUI" type="Control" parent="." unique_id=313774460]
 visible = false

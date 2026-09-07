@@ -23,9 +23,10 @@ namespace Meesles.Avalon;
 // disagree.
 public class ActionBarController {
   private const float CellSize = 58f;
+  private static readonly Texture2D EmptySlotTexture = GD.Load<Texture2D>("res://Assets/Placeholders/purple-swirl.webp");
 
   // Our cell count is fixed (this plus _leadingRowPad) so the footprint never changes: buy buttons when
-  // a shop is in context, otherwise transparent spacers. Sized to the shop catalog, so the shown and
+  // a shop is in context, otherwise placeholders. Sized to the shop catalog, so the shown and
   // hidden states occupy identical space.
   private static readonly int SlotCount = ShopItemCatalog.ItemDefs.Length;
 
@@ -191,20 +192,22 @@ public class ActionBarController {
     }
   }
 
-  // Fill the grid with transparent, non-interactive spacers so it reserves its full footprint while
-  // no shop is in context. Visible (not hidden) - a hidden Control is skipped by container layout,
-  // which is exactly the collapse we're preventing.
+  // Fill the grid with non-interactive placeholders so it reserves its full footprint while no shop is
+  // in context.
   private void FillEmptySlots() {
     if (_grid == null) return;
     for (var i = 0; i < _leadingRowPad + SlotCount; i++)
       _grid.AddChild(CreateEmptySlot());
   }
 
-  private static Control CreateEmptySlot() {
-    return new Control {
+  private static TextureRect CreateEmptySlot() {
+    return new TextureRect {
       Name = "Empty",
       CustomMinimumSize = new Vector2(CellSize, CellSize),
-      MouseFilter = Control.MouseFilterEnum.Ignore
+      MouseFilter = Control.MouseFilterEnum.Ignore,
+      Texture = EmptySlotTexture,
+      ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+      StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered
     };
   }
 

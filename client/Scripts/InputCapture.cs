@@ -868,33 +868,22 @@ public class InputCapture : IDisposable {
     var heroView = GetSelectedHeroView();
     var view = heroView ?? (_selectedViews.Count > 0 ? _selectedViews[0] : null);
 
-    // Named props/structures (turret, crystal, shop, fountain, pickup) show their own label.
-    // Factions show theirs. Fallback to 'todo' image.
-    if (view is INamedView named) {
+    // Fallback to the placeholder image when no faction portrait is available.
+    if (view is INamedView) {
       Texture2D portrait = null;
       if (_factions != null && TryResolveFactionId(view, out var namedFactionId))
         portrait = _factions.Resolve(namedFactionId).HeroPortraitTexture;
-      _gameUI.SetFocusPortrait(portrait, named.DisplayName);
+      _gameUI.SetFocusPortrait(portrait);
       return;
     }
 
     if (_factions != null && view != null && TryResolveFactionId(view, out var factionId)) {
       var entry = _factions.Resolve(factionId);
-      var label = entry.DisplayName;
-
-      // When the hero is the rendered portrait and minions are selected alongside it, surface
-      // the extra unit count next to the name (e.g. "Merlin +20").
-      if (heroView != null) {
-        var minionCount = CountSelectedMinions();
-        if (minionCount > 0)
-          label = $"{label} +{minionCount}";
-      }
-
-      _gameUI.SetFocusPortrait(IsHeroView(view) ? entry.HeroPortraitTexture : entry.MinionPortraitTexture, label);
+      _gameUI.SetFocusPortrait(IsHeroView(view) ? entry.HeroPortraitTexture : entry.MinionPortraitTexture);
       return;
     }
 
-    _gameUI.SetFocusPortrait(null, null);
+    _gameUI.SetFocusPortrait(null);
   }
 
   // Only applied when the shop is sole selected
@@ -913,17 +902,6 @@ public class InputCapture : IDisposable {
         return view;
 
     return null;
-  }
-
-  // Count of selected controllable units that aren't the hero, i.e. the minion tail of a
-  // mixed selection. Structures/props (no unit id) don't count.
-  private int CountSelectedMinions() {
-    var count = 0;
-    foreach (var view in _selectedViews)
-      if (!IsHeroView(view) && TryGetUnitId(view, out _))
-        count++;
-
-    return count;
   }
 
   private static bool IsHeroView(EntityViewNode view) {

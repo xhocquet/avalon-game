@@ -226,7 +226,7 @@ layout_mode = 2
 theme_override_constants/separation = 6
 
 [node name="PortraitFrame" type="Control" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot0/Margin/Row" unique_id=2082228008]
-custom_minimum_size = Vector2(100, 150)
+custom_minimum_size = Vector2(100, 125)
 layout_mode = 2
 size_flags_horizontal = 4
 clip_contents = true
@@ -276,7 +276,7 @@ layout_mode = 2
 theme_override_constants/separation = 6
 
 [node name="PortraitFrame" type="Control" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot1/Margin/Row" unique_id=1083243673]
-custom_minimum_size = Vector2(100, 150)
+custom_minimum_size = Vector2(100, 125)
 layout_mode = 2
 size_flags_horizontal = 4
 clip_contents = true
@@ -326,7 +326,7 @@ layout_mode = 2
 theme_override_constants/separation = 6
 
 [node name="PortraitFrame" type="Control" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot2/Margin/Row" unique_id=576125799]
-custom_minimum_size = Vector2(100, 150)
+custom_minimum_size = Vector2(100, 125)
 layout_mode = 2
 size_flags_horizontal = 4
 clip_contents = true
@@ -376,7 +376,7 @@ layout_mode = 2
 theme_override_constants/separation = 6
 
 [node name="PortraitFrame" type="Control" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot3/Margin/Row" unique_id=1091643867]
-custom_minimum_size = Vector2(100, 150)
+custom_minimum_size = Vector2(100, 125)
 layout_mode = 2
 size_flags_horizontal = 4
 clip_contents = true

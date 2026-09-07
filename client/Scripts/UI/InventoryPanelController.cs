@@ -13,6 +13,7 @@ namespace Meesles.Avalon;
 // allocation-free (just an int[] compare) and survive rollback: a corrected count simply repaints.
 public class InventoryPanelController {
   private const float CellSize = 58f;
+  private static readonly Texture2D EmptySlotTexture = GD.Load<Texture2D>("res://Assets/Placeholders/brown-swirl.webp");
 
   private readonly ShopItemCatalog _catalog;
   private readonly int[] _counts = new int[ShopItemCatalog.ItemDefs.Length];
@@ -76,7 +77,7 @@ public class InventoryPanelController {
   }
 
   // Always emit one cell per catalog slot, in the catalog's declared order: an icon where the hero
-  // owns that item, otherwise a transparent spacer. Keeping the cell count fixed means the panel's
+  // owns that item, otherwise a placeholder. Keeping the cell count fixed means the panel's
   // footprint never changes as items come and go. Icons/names come from the client catalog; the
   // ledger only carries asset ids.
   private void Rebuild() {
@@ -137,8 +138,8 @@ public class InventoryPanelController {
     }
   }
 
-  // Fill the grid with transparent, non-interactive spacers so it reserves its full footprint before
-  // any item is owned. Visible (not hidden) - a hidden Control is skipped by container layout.
+  // Fill the grid with non-interactive placeholders so it reserves its full footprint before any item
+  // is owned.
   private void FillEmptySlots() {
     if (_grid == null)
       return;
@@ -147,11 +148,14 @@ public class InventoryPanelController {
       _grid.AddChild(CreateEmptySlot());
   }
 
-  private static Control CreateEmptySlot() {
-    return new Control {
+  private static TextureRect CreateEmptySlot() {
+    return new TextureRect {
       Name = "Empty",
       CustomMinimumSize = new Vector2(CellSize, CellSize),
-      MouseFilter = Control.MouseFilterEnum.Ignore
+      MouseFilter = Control.MouseFilterEnum.Ignore,
+      Texture = EmptySlotTexture,
+      ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+      StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered
     };
   }
 }

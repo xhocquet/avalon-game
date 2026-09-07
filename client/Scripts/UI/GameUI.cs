@@ -76,7 +76,6 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private SubViewport _minimapViewport;
   private Camera3D _minimapCamera;
   private TextureRect _portraitTexture;
-  private Label _portraitLabel;
   private Texture2D _portraitPlaceholder;
   [Export] public float FocusRingRadiusPx { get; set; } = 52.0f;
   [Export] public float FocusRingWidthPx { get; set; } = 2.5f;
@@ -234,8 +233,6 @@ public partial class GameUI : CanvasLayer, IViewHud {
       GetNodeOrNull<SubViewport>("DefaultUI/BottomBar/MarginContainer/Panels/MinimapContainer/MinimapViewport");
     _portraitTexture = GetNodeOrNull<TextureRect>(
       "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/HeroMarginPanel/VBox/PortraitTexture");
-    _portraitLabel = GetNodeOrNull<Label>(
-      "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/HeroMarginPanel/VBox/PortraitLabel");
 
     var actionGrid = GetNodeOrNull<GridContainer>(
       "DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid");
@@ -258,7 +255,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
     SetupTabUi();
     SetupAnnouncement();
     SetupMinimap();
-    SetFocusPortrait(null, null);
+    SetFocusPortrait(null);
   }
 
   public override void _ExitTree() {
@@ -471,15 +468,12 @@ public partial class GameUI : CanvasLayer, IViewHud {
 
   // Driven by InputCapture's selection system - shows the portrait of the currently selected
   // InputCapture resolves the selected hero or minion faction portrait before this paints it.
-  public void SetFocusPortrait(Texture2D texture, string label) {
+  public void SetFocusPortrait(Texture2D texture) {
     if (_portraitTexture != null) {
       var resolved = texture ?? PortraitPlaceholder;
       _portraitTexture.Texture = resolved;
       _portraitTexture.Visible = resolved != null;
     }
-
-    if (_portraitLabel != null)
-      _portraitLabel.Text = label ?? string.Empty;
   }
 
   private Texture2D PortraitPlaceholder =>
