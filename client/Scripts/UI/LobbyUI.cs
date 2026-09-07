@@ -10,6 +10,7 @@ namespace Meesles.Avalon;
 
 public partial class LobbyUI : Control, IViewHud {
   private const int MaxSlots = 4;
+  private const float FactionPortraitSize = 112;
 
   private readonly List<Button> _factionCards = [];
   private readonly List<Button> _gameTypeCards = [];
@@ -22,37 +23,32 @@ public partial class LobbyUI : Control, IViewHud {
 
   private GridContainer _factionGrid;
   private GridContainer _gameTypeGrid;
-  private Label _gameTypeLabel;
   private Button _startButton;
+  private Button _disconnectButton;
   private LineEdit _ipField;
   private bool _isConnected;
   private bool _isReady;
   private Button _joinButton;
   private bool _localReady;
   private int? _localPlayerId;
-  private Label _playerId;
   private LineEdit _nameField;
   private LineEdit _portField;
   private Button _readyButton;
-  private Label _readyStatus;
   private Label _resultLabel;
   private PanelContainer _resultPanel;
   private Label _room;
   private Texture2D _placeholderPortrait;
-  private Label _selectedFactionLabel;
-  private TextureRect _selectedFactionPortrait;
   private Label _state;
   private Label _status;
-  private Button _stopButton;
   private Label _timer;
 
   public string Host => _ipField?.Text?.Trim();
   public int Port => int.TryParse(_portField?.Text, out var p) ? p : ServerEndpoint.Port;
 
   public event Action OnJoinClicked;
+  public event Action OnDisconnectClicked;
   public event Action OnReadyClicked;
   public event Action OnUnreadyClicked;
-  public event Action OnStopClicked;
 
   // Local pick changed. LobbyGameNode listens so it can re-broadcast the LobbyPlayerConfig.
   public event Action<int> OnFactionSelected;
@@ -62,32 +58,26 @@ public partial class LobbyUI : Control, IViewHud {
 
   public override void _Ready() {
     const string left = "Root/Columns/LeftColumn/Margin/VBox";
-    const string right = "Root/Columns/RightColumn/Margin/VBox";
 
     _nameField = GetNode<LineEdit>($"{left}/NameField");
-    _selectedFactionPortrait = GetNode<TextureRect>($"{left}/SelectionRow/SelectedFactionPortrait");
-    _selectedFactionLabel = GetNode<Label>($"{left}/SelectionRow/SelectedFactionLabel");
     _ipField = GetNode<LineEdit>($"{left}/HostRow/IpField");
-    _portField = GetNode<LineEdit>($"{left}/PortRow/PortField");
-    _gameTypeLabel = GetNode<Label>($"{left}/InfoGrid/GameTypeLabel");
+    _portField = GetNode<LineEdit>($"{left}/HostRow/PortField");
     _room = GetNode<Label>($"{left}/InfoGrid/RoomLabel");
     _state = GetNode<Label>($"{left}/InfoGrid/StateLabel");
-    _playerId = GetNode<Label>($"{left}/InfoGrid/PlayerIdLabel");
-    _readyStatus = GetNode<Label>($"{left}/InfoGrid/ReadyStatusLabel");
     _timer = GetNode<Label>($"{left}/InfoGrid/TimerLabel");
     _status = GetNode<Label>($"{left}/StatusLabel");
     _startButton = GetNode<Button>($"{left}/Buttons/StartButton");
-    _joinButton = GetNode<Button>($"{left}/Buttons/JoinButton");
+    _joinButton = GetNode<Button>($"{left}/JoinRow/JoinButton");
+    _disconnectButton = GetNode<Button>($"{left}/JoinRow/DisconnectButton");
     _readyButton = GetNode<Button>($"{left}/Buttons/ReadyButton");
-    _stopButton = GetNode<Button>($"{left}/Buttons/StopButton");
 
     _factionGrid = GetNode<GridContainer>("Root/Columns/MiddleColumn/FactionPanel/Margin/VBox/FactionGrid");
-    _gameTypeGrid = GetNode<GridContainer>("Root/Columns/MiddleColumn/MapPanel/Margin/VBox/GameTypeGrid");
+    _gameTypeGrid = GetNode<GridContainer>($"{left}/GameTypeGrid");
 
     for (var i = 0; i < MaxSlots; i++) {
-      var row = $"{right}/PlayerSlots/Slot{i}/Margin/Row";
+      var row = $"{left}/PlayerScroll/PlayerSlots/Slot{i}/Margin/Row";
       _slots[i] = new PlayerSlot {
-        Portrait = GetNode<TextureRect>($"{row}/Portrait"),
+        Portrait = GetNode<TextureRect>($"{row}/PortraitFrame/Portrait"),
         Name = GetNode<Label>($"{row}/Info/NameLabel"),
         Status = GetNode<Label>($"{row}/Info/StatusLabel")
       };
@@ -103,8 +93,8 @@ public partial class LobbyUI : Control, IViewHud {
     _nameField.MaxLength = 24;
     _nameField.TextChanged += HandleNameChanged;
     _joinButton.Pressed += () => OnJoinClicked?.Invoke();
+    _disconnectButton.Pressed += () => OnDisconnectClicked?.Invoke();
     _readyButton.Pressed += HandleReadyPressed;
-    _stopButton.Pressed += () => OnStopClicked?.Invoke();
     _startButton.Pressed += () => OnStartLocalClicked?.Invoke();
 
     BuildFactionCards();
@@ -114,8 +104,7 @@ public partial class LobbyUI : Control, IViewHud {
 
   // -------------------------------------------------------------------- game type selection
 
-  // Same toggle-group card treatment as the faction grid, one per GameTypeCatalog entry. The pick
-  // decides which scene the lobby hands off to and which map data that scene's sim loads.
+  // One compact toggle button per GameTypeCatalog entry.
   private void BuildGameTypeCards() {
     var defs = GameTypeCatalog.GameTypes;
     _gameTypeGrid.Columns = Math.Max(1, defs.Length);
@@ -124,42 +113,13 @@ public partial class LobbyUI : Control, IViewHud {
     foreach (var def in defs) {
       var card = new Button {
         Name = $"GameTypeCard{def.Id}",
+        Text = def.Name,
         ToggleMode = true,
         ButtonGroup = group,
-        CustomMinimumSize = new Vector2(0, 120),
-        SizeFlagsHorizontal = SizeFlags.ExpandFill,
-        SizeFlagsVertical = SizeFlags.ExpandFill,
-        TooltipText = def.Description
+        CustomMinimumSize = new Vector2(0, 36),
+        SizeFlagsHorizontal = SizeFlags.ExpandFill
       };
       StyleFactionCard(card);
-
-      var margin = new MarginContainer { MouseFilter = MouseFilterEnum.Ignore };
-      margin.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-      foreach (var side in new[] { "left", "top", "right", "bottom" })
-        margin.AddThemeConstantOverride($"margin_{side}", 10);
-      card.AddChild(margin);
-
-      var vbox = new VBoxContainer { MouseFilter = MouseFilterEnum.Ignore, Alignment = BoxContainer.AlignmentMode.Center };
-      vbox.AddThemeConstantOverride("separation", 6);
-      margin.AddChild(vbox);
-
-      var title = new Label {
-        Text = def.Name,
-        HorizontalAlignment = HorizontalAlignment.Center,
-        MouseFilter = MouseFilterEnum.Ignore
-      };
-      title.AddThemeFontSizeOverride("font_size", 16);
-      vbox.AddChild(title);
-
-      var description = new Label {
-        Text = def.Description,
-        HorizontalAlignment = HorizontalAlignment.Center,
-        AutowrapMode = TextServer.AutowrapMode.WordSmart,
-        MouseFilter = MouseFilterEnum.Ignore
-      };
-      description.AddThemeFontSizeOverride("font_size", 12);
-      description.AddThemeColorOverride("font_color", new Color(0.62f, 0.62f, 0.62f));
-      vbox.AddChild(description);
 
       var id = def.Id;
       card.Pressed += () => SelectGameType(id);
@@ -188,13 +148,11 @@ public partial class LobbyUI : Control, IViewHud {
       _gameTypeCards[i].SetPressedNoSignal(defs[i].Id == id);
 
     var selected = GameTypeCatalog.Resolve(id);
-    _gameTypeLabel.Text = selected.Name;
-
     var local = selected.IsLocal;
     _startButton.Visible = local;
     _joinButton.Visible = !local;
+    _disconnectButton.Visible = !local;
     _readyButton.Visible = !local;
-    _stopButton.Visible = !local;
     if (local) _status.Text = "Local session — press Start";
     else if (!_isConnected) _status.Text = "Not connected";
   }
@@ -212,6 +170,12 @@ public partial class LobbyUI : Control, IViewHud {
   // a shared ButtonGroup so exactly one stays lit; the pick mirrors into FactionSelection, which
   // SimCallbacks reads to send the SelectFactionCommand at match start.
   private void BuildFactionCards() {
+    while (_factionGrid.GetChildCount() > 0) {
+      var child = _factionGrid.GetChild(0);
+      _factionGrid.RemoveChild(child);
+      child.QueueFree();
+    }
+
     var defs = FactionCatalog.FactionDefs;
     _factionGrid.Columns = Math.Max(1, defs.Length);
 
@@ -224,9 +188,8 @@ public partial class LobbyUI : Control, IViewHud {
         Name = $"FactionCard{def.Id}",
         ToggleMode = true,
         ButtonGroup = group,
-        CustomMinimumSize = new Vector2(0, 180),
+        CustomMinimumSize = new Vector2(0, 160),
         SizeFlagsHorizontal = SizeFlags.ExpandFill,
-        SizeFlagsVertical = SizeFlags.ExpandFill,
         TooltipText = def.Name
       };
       StyleFactionCard(card);
@@ -242,14 +205,23 @@ public partial class LobbyUI : Control, IViewHud {
       vbox.AddThemeConstantOverride("separation", 6);
       margin.AddChild(vbox);
 
+      var portraitFrame = new Control {
+        CustomMinimumSize = new Vector2(FactionPortraitSize, FactionPortraitSize),
+        SizeFlagsHorizontal = SizeFlags.ShrinkCenter,
+        SizeFlagsVertical = SizeFlags.ShrinkCenter,
+        ClipContents = true,
+        MouseFilter = MouseFilterEnum.Ignore
+      };
+      vbox.AddChild(portraitFrame);
+
       var texture = new TextureRect {
         Texture = portrait ?? PlaceholderPortrait,
         ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-        StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
-        SizeFlagsVertical = SizeFlags.ExpandFill,
+        StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered,
         MouseFilter = MouseFilterEnum.Ignore
       };
-      vbox.AddChild(texture);
+      texture.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+      portraitFrame.AddChild(texture);
 
       var label = new Label {
         Text = def.Name,
@@ -298,29 +270,20 @@ public partial class LobbyUI : Control, IViewHud {
     if (playerId > 0) _playerFactions[playerId] = factionId;
   }
 
-  // Keeps the card toggles, the left-column summary and the local slot in sync with one pick.
+  // Keeps the card toggles in sync with one pick.
   private void ApplySelectedFaction(int factionId) {
     var defs = FactionCatalog.FactionDefs;
     for (var i = 0; i < _factionCards.Count && i < defs.Length; i++)
       _factionCards[i].SetPressedNoSignal(defs[i].Id == factionId);
 
-    _selectedFactionPortrait.Texture = ResolvePortrait(factionId);
-    _selectedFactionLabel.Text = ResolveFactionName(factionId);
   }
 
   private Texture2D ResolvePortrait(int factionId) {
     return _factionPortraits.TryGetValue(factionId, out var tex) ? tex : PlaceholderPortrait;
   }
 
-  private static string ResolveFactionName(int factionId) {
-    foreach (var def in FactionCatalog.FactionDefs)
-      if (def.Id == factionId)
-        return def.Name;
-    return "—";
-  }
-
   private Texture2D PlaceholderPortrait =>
-    _placeholderPortrait ??= GD.Load<Texture2D>("res://Assets/Portraits/TODO.png");
+    _placeholderPortrait ??= GD.Load<Texture2D>("res://Assets/Placeholders/brown-swirl.webp");
 
   private void HandleNameChanged(string text) {
     var trimmed = text?.Trim();
@@ -345,19 +308,14 @@ public partial class LobbyUI : Control, IViewHud {
     if (_portField != null) _portField.Text = port.ToString();
   }
 
-  public void SetReadyState(bool ready) {
+  private void SetReadyState(bool ready) {
     _isReady = ready;
     if (_readyButton == null) return;
     _readyButton.Text = ready ? "Unready" : "Ready";
-    _readyButton.Disabled = false;
   }
 
   public void SetReadyEnabled(bool enabled) {
     if (_readyButton != null) _readyButton.Disabled = !enabled;
-  }
-
-  public void SetStopEnabled(bool enabled) {
-    if (_stopButton != null) _stopButton.Disabled = !enabled;
   }
 
   // ------------------------------------------------------------------------- lobby state
@@ -366,10 +324,11 @@ public partial class LobbyUI : Control, IViewHud {
     _nameField.Editable = true;
     _state.Text = "—";
     _room.Text = "Not joined";
-    _playerId.Text = "—";
-    _readyStatus.Text = "No";
+    SetLocalReady(false);
     _status.Text = "Not connected";
     _timer.Text = "—";
+    _joinButton.Disabled = false;
+    _disconnectButton.Disabled = true;
     ClearSlots();
     HideResult();
     ApplySelectedGameType(GameTypeSelection.SelectedGameTypeId);
@@ -377,14 +336,15 @@ public partial class LobbyUI : Control, IViewHud {
 
   public void SetConnected(bool connected, int roomId = 0) {
     _isConnected = connected;
+    _joinButton.Disabled = connected;
+    _disconnectButton.Disabled = !connected;
     _room.Text = connected ? $"#{roomId}" : "Not joined";
     // The name is claimed in the join handshake, so edits after joining would never reach the roster.
     // Lock the field rather than letting it drift out of sync with what other players see.
     _nameField.Editable = !connected;
     if (connected) return;
 
-    _localReady = false;
-    _readyStatus.Text = "No";
+    SetLocalReady(false);
     _status.Text = "Not connected";
     // Player ids are reassigned on the next join, so stale faction rows would mislabel new slots.
     _playerFactions.Clear();
@@ -393,7 +353,7 @@ public partial class LobbyUI : Control, IViewHud {
 
   public void SetLocalReady(bool ready) {
     _localReady = ready;
-    _readyStatus.Text = ready ? "Yes" : "No";
+    SetReadyState(ready);
   }
 
   public void SetPhase(SessionPhase phase) {
@@ -415,16 +375,9 @@ public partial class LobbyUI : Control, IViewHud {
 
   public void SetLocalPlayerId(int? playerId) {
     _localPlayerId = playerId is int id && id >= 0 ? id : null;
-    if (_localPlayerId is int local) {
-      var displayId = local <= 0 ? 1 : local;
-      _playerId.Text = $"P{displayId}";
-    }
-    else {
-      _playerId.Text = "—";
-    }
   }
 
-  // Right column: one row per match slot. Connected players fill from the top, the local player
+  // Player list: one row per match slot. Connected players fill from the top, the local player
   // carries their own name and faction portrait, and unused slots stay greyed out.
   public void SyncPlayers(IReadOnlyList<IPlayerInfo> players, int localPlayerId) {
     SetLocalPlayerId(localPlayerId > 0 ? localPlayerId : null);
@@ -436,7 +389,10 @@ public partial class LobbyUI : Control, IViewHud {
 
     foreach (var p in players) {
       if (i >= MaxSlots) break;
-      if (p.PlayerId == localPlayerId) localShown = true;
+      if (p.PlayerId == localPlayerId) {
+        localShown = true;
+        SetLocalReady(p.IsReady);
+      }
       FillSlot(i++, p.PlayerId, p.DisplayName, p.IsReady, p.PlayerId == localPlayerId);
     }
 

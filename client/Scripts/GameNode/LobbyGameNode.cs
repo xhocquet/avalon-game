@@ -82,14 +82,13 @@ public partial class LobbyGameNode : GameNode {
     _driver.BindTransport(_transport);
 
     LobbyUi.OnJoinClicked += OnJoin;
+    LobbyUi.OnDisconnectClicked += OnStop;
     LobbyUi.OnReadyClicked += OnReady;
     LobbyUi.OnUnreadyClicked += OnUnready;
-    LobbyUi.OnStopClicked += OnStop;
     LobbyUi.OnFactionSelected += OnFactionSelected;
     LobbyUi.OnStartLocalClicked += OnStartLocal;
     LobbyUi.SetInitialHost(ServerEndpoint.Host, ServerEndpoint.Port);
     LobbyUi.SetReadyEnabled(false);
-    LobbyUi.SetStopEnabled(false);
 
     _quickplay = QuickplayLaunch.Consume();
     ApplyFactionArg();
@@ -166,14 +165,12 @@ public partial class LobbyGameNode : GameNode {
     if (_session == null) return;
     LobbyUi.SetLocalReady(true);
     _session.SetReady(true);
-    LobbyUi.SetReadyState(true);
   }
 
   private void OnUnready() {
     if (_session == null) return;
     LobbyUi.SetLocalReady(false);
     _session.SetReady(false);
-    LobbyUi.SetReadyState(false);
   }
 
   private void OnStop() {
@@ -186,8 +183,6 @@ public partial class LobbyGameNode : GameNode {
     }
 
     LobbyUi.SetReadyEnabled(false);
-    LobbyUi.SetReadyState(false);
-    LobbyUi.SetStopEnabled(false);
     LobbyUi.SetLocalReady(false);
     LobbyUi.SetPhase(SessionPhase.Disconnected);
     LobbyUi.SetConnected(false);
@@ -215,7 +210,6 @@ public partial class LobbyGameNode : GameNode {
     LobbyUi.SetPhase(_session.Phase);
     LobbyUi.SetConnected(true);
     LobbyUi.SetReadyEnabled(true);
-    LobbyUi.SetStopEnabled(true);
   }
 
   // ---------------------------------------------------------------- faction pick propagation

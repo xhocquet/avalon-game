@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://ds0laytwwjog8"]
 
 [ext_resource type="Script" uid="uid://dmre4bujrf1ng" path="res://Scripts/UI/LobbyUI.cs" id="1_lobbyui"]
-[ext_resource type="Texture2D" path="res://Assets/Portraits/TODO.png" id="2_placeholder"]
+[ext_resource type="Texture2D" path="res://Assets/Placeholders/brown-swirl.webp" id="2_placeholder"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_column"]
 bg_color = Color(0.13, 0.13, 0.13, 1)
@@ -10,6 +10,14 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.35, 0.35, 0.35, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_disconnect"]
+bg_color = Color(0.32, 0.08, 0.08, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.65, 0.2, 0.2, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot"]
 bg_color = Color(0.17, 0.17, 0.17, 1)
@@ -31,7 +39,7 @@ border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.35, 0.35, 0.35, 1)
 
-[node name="LobbyUI" type="Control"]
+[node name="LobbyUI" type="Control" unique_id=203196519]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -40,7 +48,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_lobbyui")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Background" type="ColorRect" parent="." unique_id=2000637459]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -50,7 +58,7 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0.09, 0.09, 0.09, 1)
 
-[node name="Root" type="MarginContainer" parent="."]
+[node name="Root" type="MarginContainer" parent="." unique_id=1500894610]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -62,477 +70,408 @@ theme_override_constants/margin_top = 24
 theme_override_constants/margin_right = 24
 theme_override_constants/margin_bottom = 24
 
-[node name="Columns" type="HBoxContainer" parent="Root"]
+[node name="Columns" type="HBoxContainer" parent="Root" unique_id=533614109]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-
-[node name="LeftColumn" type="PanelContainer" parent="Root/Columns"]
+[node name="LeftColumn" type="PanelContainer" parent="Root/Columns" unique_id=934601903]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 1.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_column")
 
-[node name="Margin" type="MarginContainer" parent="Root/Columns/LeftColumn"]
+[node name="Margin" type="MarginContainer" parent="Root/Columns/LeftColumn" unique_id=696351002]
 layout_mode = 2
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 16
 theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 16
 
-[node name="VBox" type="VBoxContainer" parent="Root/Columns/LeftColumn/Margin"]
+[node name="VBox" type="VBoxContainer" parent="Root/Columns/LeftColumn/Margin" unique_id=1662136899]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="TitleLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.85, 0.85, 0.85, 1)
-theme_override_font_sizes/font_size = 18
-text = "YOUR PLAYER"
-
-[node name="TitleSeparator" type="HSeparator" parent="Root/Columns/LeftColumn/Margin/VBox"]
-layout_mode = 2
-
-[node name="NameHeaderLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox"]
+[node name="NameHeaderLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox" unique_id=535509393]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
-text = "Name"
+text = "1. Enter Name"
 
-[node name="NameField" type="LineEdit" parent="Root/Columns/LeftColumn/Margin/VBox"]
+[node name="NameField" type="LineEdit" parent="Root/Columns/LeftColumn/Margin/VBox" unique_id=846127593]
 layout_mode = 2
 text = "Player"
 placeholder_text = "Player name"
 max_length = 20
 
-[node name="SelectionHeaderLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox"]
+[node name="InfoSeparator2" type="HSeparator" parent="Root/Columns/LeftColumn/Margin/VBox" unique_id=185595541]
+layout_mode = 2
+
+[node name="ServerHeaderLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox" unique_id=2039072502]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
-text = "Selection"
+text = "2. Join Server"
 
-[node name="SelectionRow" type="HBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox"]
+[node name="GameTypeGrid" type="GridContainer" parent="Root/Columns/LeftColumn/Margin/VBox" unique_id=881027863]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
+columns = 3
 
-[node name="SelectedFactionPortrait" type="TextureRect" parent="Root/Columns/LeftColumn/Margin/VBox/SelectionRow"]
-custom_minimum_size = Vector2(72, 72)
-layout_mode = 2
-texture = ExtResource("2_placeholder")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="SelectedFactionLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/SelectionRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 1
-theme_override_font_sizes/font_size = 16
-text = "—"
-autowrap_mode = 2
-
-[node name="ServerHeaderLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
-text = "Server"
-
-[node name="HostRow" type="HBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox"]
+[node name="HostRow" type="HBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox" unique_id=1940628405]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="HostPrefixLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/HostRow"]
+[node name="HostPrefixLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/HostRow" unique_id=2058291885]
 custom_minimum_size = Vector2(44, 0)
 layout_mode = 2
 text = "IP"
 
-[node name="IpField" type="LineEdit" parent="Root/Columns/LeftColumn/Margin/VBox/HostRow"]
+[node name="IpField" type="LineEdit" parent="Root/Columns/LeftColumn/Margin/VBox/HostRow" unique_id=1480079704]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "127.0.0.1"
 placeholder_text = "IP"
 
-[node name="PortRow" type="HBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="PortPrefixLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/PortRow"]
-custom_minimum_size = Vector2(44, 0)
+[node name="PortPrefixLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/HostRow" unique_id=1875419319]
 layout_mode = 2
 text = "Port"
 
-[node name="PortField" type="LineEdit" parent="Root/Columns/LeftColumn/Margin/VBox/PortRow"]
+[node name="PortField" type="LineEdit" parent="Root/Columns/LeftColumn/Margin/VBox/HostRow" unique_id=1583891168]
+custom_minimum_size = Vector2(56, 0)
 layout_mode = 2
-size_flags_horizontal = 3
 text = "7777"
 placeholder_text = "Port"
 
-[node name="InfoSeparator" type="HSeparator" parent="Root/Columns/LeftColumn/Margin/VBox"]
+[node name="JoinRow" type="HBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox" unique_id=541631024]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="JoinButton" type="Button" parent="Root/Columns/LeftColumn/Margin/VBox/JoinRow" unique_id=291804523]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 4.0
+text = "Join"
+
+[node name="DisconnectButton" type="Button" parent="Root/Columns/LeftColumn/Margin/VBox/JoinRow" unique_id=1029939699]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.65, 0.65, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_disconnect")
+disabled = true
+text = "Disconnect"
+
+[node name="InfoSeparator" type="HSeparator" parent="Root/Columns/LeftColumn/Margin/VBox" unique_id=1195460149]
 layout_mode = 2
 
-[node name="InfoGrid" type="GridContainer" parent="Root/Columns/LeftColumn/Margin/VBox"]
+[node name="ServerHeaderLabel2" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox" unique_id=492229837]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
+text = "4. Ready up"
+
+[node name="InfoGrid" type="GridContainer" parent="Root/Columns/LeftColumn/Margin/VBox" unique_id=82297129]
 layout_mode = 2
 theme_override_constants/h_separation = 10
 theme_override_constants/v_separation = 4
 columns = 2
 
-[node name="GameTypePrefixLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid"]
-custom_minimum_size = Vector2(64, 0)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
-text = "Game"
-
-[node name="GameTypeLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "—"
-
-[node name="RoomPrefixLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid"]
+[node name="RoomPrefixLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid" unique_id=530835831]
 custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
 text = "Room"
 
-[node name="RoomLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid"]
+[node name="RoomLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid" unique_id=1278949986]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Not joined"
 
-[node name="PhasePrefixLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid"]
+[node name="PhasePrefixLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid" unique_id=1241167680]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
 text = "Phase"
 
-[node name="StateLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid"]
+[node name="StateLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid" unique_id=763320557]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "—"
 
-[node name="YouPrefixLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
-text = "You"
-
-[node name="PlayerIdLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "—"
-
-[node name="ReadyPrefixLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
-text = "Ready"
-
-[node name="ReadyStatusLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "—"
-
-[node name="TimerPrefixLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid"]
+[node name="TimerPrefixLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid" unique_id=1748406826]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
 text = "Timer"
 
-[node name="TimerLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid"]
+[node name="TimerLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/InfoGrid" unique_id=1330000826]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "—"
 
-[node name="StatusLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox"]
+[node name="StatusLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox" unique_id=576487050]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.75, 0.75, 0.75, 1)
 text = "—"
 autowrap_mode = 2
 
-[node name="Spacer" type="Control" parent="Root/Columns/LeftColumn/Margin/VBox"]
-layout_mode = 2
-size_flags_vertical = 3
-mouse_filter = 2
-
-[node name="Buttons" type="VBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox"]
+[node name="Buttons" type="VBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox" unique_id=1660873916]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="StartButton" type="Button" parent="Root/Columns/LeftColumn/Margin/VBox/Buttons"]
+[node name="StartButton" type="Button" parent="Root/Columns/LeftColumn/Margin/VBox/Buttons" unique_id=175739572]
 visible = false
 custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 text = "Start"
 
-[node name="JoinButton" type="Button" parent="Root/Columns/LeftColumn/Margin/VBox/Buttons"]
-custom_minimum_size = Vector2(0, 36)
-layout_mode = 2
-text = "Join"
-
-[node name="ReadyButton" type="Button" parent="Root/Columns/LeftColumn/Margin/VBox/Buttons"]
+[node name="ReadyButton" type="Button" parent="Root/Columns/LeftColumn/Margin/VBox/Buttons" unique_id=605603485]
 custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 text = "Ready"
 
-[node name="StopButton" type="Button" parent="Root/Columns/LeftColumn/Margin/VBox/Buttons"]
-layout_mode = 2
-text = "Stop"
-
-
-[node name="MiddleColumn" type="VBoxContainer" parent="Root/Columns"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 2.0
-theme_override_constants/separation = 16
-
-[node name="FactionPanel" type="PanelContainer" parent="Root/Columns/MiddleColumn"]
-layout_mode = 2
-size_flags_vertical = 3
-size_flags_stretch_ratio = 1.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_column")
-
-[node name="Margin" type="MarginContainer" parent="Root/Columns/MiddleColumn/FactionPanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 16
-
-[node name="VBox" type="VBoxContainer" parent="Root/Columns/MiddleColumn/FactionPanel/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="TitleLabel" type="Label" parent="Root/Columns/MiddleColumn/FactionPanel/Margin/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.85, 0.85, 0.85, 1)
-theme_override_font_sizes/font_size = 18
-text = "CHOOSE YOUR FACTION"
-horizontal_alignment = 1
-
-[node name="TitleSeparator" type="HSeparator" parent="Root/Columns/MiddleColumn/FactionPanel/Margin/VBox"]
-layout_mode = 2
-
-[node name="FactionGrid" type="GridContainer" parent="Root/Columns/MiddleColumn/FactionPanel/Margin/VBox"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/h_separation = 16
-theme_override_constants/v_separation = 16
-columns = 2
-
-[node name="MapPanel" type="PanelContainer" parent="Root/Columns/MiddleColumn"]
-layout_mode = 2
-size_flags_vertical = 3
-size_flags_stretch_ratio = 1.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_column")
-
-[node name="Margin" type="MarginContainer" parent="Root/Columns/MiddleColumn/MapPanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 16
-
-[node name="VBox" type="VBoxContainer" parent="Root/Columns/MiddleColumn/MapPanel/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="TitleLabel" type="Label" parent="Root/Columns/MiddleColumn/MapPanel/Margin/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.85, 0.85, 0.85, 1)
-theme_override_font_sizes/font_size = 18
-text = "GAME TYPE"
-horizontal_alignment = 1
-
-[node name="TitleSeparator" type="HSeparator" parent="Root/Columns/MiddleColumn/MapPanel/Margin/VBox"]
-layout_mode = 2
-
-[node name="GameTypeGrid" type="GridContainer" parent="Root/Columns/MiddleColumn/MapPanel/Margin/VBox"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/h_separation = 12
-theme_override_constants/v_separation = 12
-columns = 3
-
-
-[node name="RightColumn" type="PanelContainer" parent="Root/Columns"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 1.0
-theme_override_styles/panel = SubResource("StyleBoxFlat_column")
-
-[node name="Margin" type="MarginContainer" parent="Root/Columns/RightColumn"]
-layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 16
-
-[node name="VBox" type="VBoxContainer" parent="Root/Columns/RightColumn/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="PlayersHeaderLabel" type="Label" parent="Root/Columns/RightColumn/Margin/VBox"]
+[node name="PlayersHeaderLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox" unique_id=1343568714]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.85, 0.85, 0.85, 1)
 theme_override_font_sizes/font_size = 18
 text = "PLAYERS"
 
-[node name="TitleSeparator" type="HSeparator" parent="Root/Columns/RightColumn/Margin/VBox"]
+[node name="TitleSeparator" type="HSeparator" parent="Root/Columns/LeftColumn/Margin/VBox" unique_id=2036687624]
 layout_mode = 2
 
-[node name="PlayerSlots" type="VBoxContainer" parent="Root/Columns/RightColumn/Margin/VBox"]
+[node name="PlayerScroll" type="ScrollContainer" parent="Root/Columns/LeftColumn/Margin/VBox" unique_id=1063456185]
+custom_minimum_size = Vector2(0, 120)
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="PlayerSlots" type="VBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll" unique_id=846397212]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="Slot0" type="PanelContainer" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots" unique_id=1840864963]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
+
+[node name="Margin" type="MarginContainer" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot0" unique_id=381688304]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="Row" type="HBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot0/Margin" unique_id=1612663007]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="PortraitFrame" type="Control" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot0/Margin/Row" unique_id=2082228008]
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+clip_contents = true
+
+[node name="Portrait" type="TextureRect" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot0/Margin/Row/PortraitFrame"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_placeholder")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Info" type="VBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot0/Margin/Row" unique_id=1584102698]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="NameLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot0/Margin/Row/Info" unique_id=1640927392]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Empty slot"
+
+[node name="StatusLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot0/Margin/Row/Info" unique_id=1127047678]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
+theme_override_font_sizes/font_size = 13
+text = "—"
+
+[node name="Slot1" type="PanelContainer" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots" unique_id=1183343729]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
+
+[node name="Margin" type="MarginContainer" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot1" unique_id=254279519]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="Row" type="HBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot1/Margin" unique_id=1519166505]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="PortraitFrame" type="Control" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot1/Margin/Row" unique_id=1083243673]
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+clip_contents = true
+
+[node name="Portrait" type="TextureRect" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot1/Margin/Row/PortraitFrame"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_placeholder")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Info" type="VBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot1/Margin/Row" unique_id=703336635]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="NameLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot1/Margin/Row/Info" unique_id=1181220592]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Empty slot"
+
+[node name="StatusLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot1/Margin/Row/Info" unique_id=2116150003]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
+theme_override_font_sizes/font_size = 13
+text = "—"
+
+[node name="Slot2" type="PanelContainer" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots" unique_id=1259779330]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
+
+[node name="Margin" type="MarginContainer" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot2" unique_id=433880379]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="Row" type="HBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot2/Margin" unique_id=826063105]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="PortraitFrame" type="Control" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot2/Margin/Row" unique_id=576125799]
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+clip_contents = true
+
+[node name="Portrait" type="TextureRect" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot2/Margin/Row/PortraitFrame"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_placeholder")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Info" type="VBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot2/Margin/Row" unique_id=1699193540]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="NameLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot2/Margin/Row/Info" unique_id=1760130938]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Empty slot"
+
+[node name="StatusLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot2/Margin/Row/Info" unique_id=519515046]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
+theme_override_font_sizes/font_size = 13
+text = "—"
+
+[node name="Slot3" type="PanelContainer" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots" unique_id=1324418221]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
+
+[node name="Margin" type="MarginContainer" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot3" unique_id=513329656]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="Row" type="HBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot3/Margin" unique_id=2095047636]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="PortraitFrame" type="Control" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot3/Margin/Row" unique_id=1091643867]
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+clip_contents = true
+
+[node name="Portrait" type="TextureRect" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot3/Margin/Row/PortraitFrame"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_placeholder")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Info" type="VBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot3/Margin/Row" unique_id=567425276]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="NameLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot3/Margin/Row/Info" unique_id=256800447]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Empty slot"
+
+[node name="StatusLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/PlayerScroll/PlayerSlots/Slot3/Margin/Row/Info" unique_id=381521644]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
+theme_override_font_sizes/font_size = 13
+text = "—"
+
+[node name="MiddleColumn" type="VBoxContainer" parent="Root/Columns" unique_id=707597872]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+theme_override_constants/separation = 16
+
+[node name="FactionPanel" type="PanelContainer" parent="Root/Columns/MiddleColumn" unique_id=1456781351]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_column")
+
+[node name="Margin" type="MarginContainer" parent="Root/Columns/MiddleColumn/FactionPanel" unique_id=800178875]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="Root/Columns/MiddleColumn/FactionPanel/Margin" unique_id=1156287423]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Slot0" type="PanelContainer" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots"]
+[node name="TitleLabel" type="Label" parent="Root/Columns/MiddleColumn/FactionPanel/Margin/VBox" unique_id=632786795]
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
+theme_override_colors/font_color = Color(0.85, 0.85, 0.85, 1)
+theme_override_font_sizes/font_size = 18
+text = "3. CHOOSE YOUR FACTION"
+horizontal_alignment = 1
 
-[node name="Margin" type="MarginContainer" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot0"]
+[node name="TitleSeparator" type="HSeparator" parent="Root/Columns/MiddleColumn/FactionPanel/Margin/VBox" unique_id=174633468]
 layout_mode = 2
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 8
 
-[node name="Row" type="HBoxContainer" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot0/Margin"]
+[node name="FactionGrid" type="GridContainer" parent="Root/Columns/MiddleColumn/FactionPanel/Margin/VBox" unique_id=956182226]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 16
+columns = 2
 
-[node name="Portrait" type="TextureRect" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot0/Margin/Row"]
-custom_minimum_size = Vector2(56, 56)
-layout_mode = 2
-texture = ExtResource("2_placeholder")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="Info" type="VBoxContainer" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot0/Margin/Row"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 1
-theme_override_constants/separation = 2
-
-[node name="NameLabel" type="Label" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot0/Margin/Row/Info"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "Empty slot"
-
-[node name="StatusLabel" type="Label" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot0/Margin/Row/Info"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
-theme_override_font_sizes/font_size = 13
-text = "—"
-
-[node name="Slot1" type="PanelContainer" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots"]
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
-
-[node name="Margin" type="MarginContainer" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot1"]
-layout_mode = 2
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 8
-
-[node name="Row" type="HBoxContainer" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot1/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="Portrait" type="TextureRect" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot1/Margin/Row"]
-custom_minimum_size = Vector2(56, 56)
-layout_mode = 2
-texture = ExtResource("2_placeholder")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="Info" type="VBoxContainer" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot1/Margin/Row"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 1
-theme_override_constants/separation = 2
-
-[node name="NameLabel" type="Label" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot1/Margin/Row/Info"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "Empty slot"
-
-[node name="StatusLabel" type="Label" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot1/Margin/Row/Info"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
-theme_override_font_sizes/font_size = 13
-text = "—"
-
-[node name="Slot2" type="PanelContainer" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots"]
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
-
-[node name="Margin" type="MarginContainer" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot2"]
-layout_mode = 2
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 8
-
-[node name="Row" type="HBoxContainer" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot2/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="Portrait" type="TextureRect" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot2/Margin/Row"]
-custom_minimum_size = Vector2(56, 56)
-layout_mode = 2
-texture = ExtResource("2_placeholder")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="Info" type="VBoxContainer" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot2/Margin/Row"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 1
-theme_override_constants/separation = 2
-
-[node name="NameLabel" type="Label" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot2/Margin/Row/Info"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "Empty slot"
-
-[node name="StatusLabel" type="Label" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot2/Margin/Row/Info"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
-theme_override_font_sizes/font_size = 13
-text = "—"
-
-[node name="Slot3" type="PanelContainer" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots"]
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
-
-[node name="Margin" type="MarginContainer" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot3"]
-layout_mode = 2
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 8
-
-[node name="Row" type="HBoxContainer" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot3/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="Portrait" type="TextureRect" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot3/Margin/Row"]
-custom_minimum_size = Vector2(56, 56)
-layout_mode = 2
-texture = ExtResource("2_placeholder")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="Info" type="VBoxContainer" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot3/Margin/Row"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 1
-theme_override_constants/separation = 2
-
-[node name="NameLabel" type="Label" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot3/Margin/Row/Info"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "Empty slot"
-
-[node name="StatusLabel" type="Label" parent="Root/Columns/RightColumn/Margin/VBox/PlayerSlots/Slot3/Margin/Row/Info"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
-theme_override_font_sizes/font_size = 13
-text = "—"
-
-
-[node name="ResultPanel" type="PanelContainer" parent="."]
+[node name="ResultPanel" type="PanelContainer" parent="." unique_id=1661520740]
 visible = false
 layout_mode = 1
 anchors_preset = 8
@@ -544,7 +483,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_result")
 
-[node name="ResultLabel" type="Label" parent="ResultPanel"]
+[node name="ResultLabel" type="Label" parent="ResultPanel" unique_id=1490950426]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "RESULT"
