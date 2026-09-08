@@ -22,7 +22,6 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private Label _healthBarLabel;
   private ColorRect _xpBar;
   private ColorRect _xpBarFill;
-  private Label _xpBarLabel;
   private Label _goldLabel;
   private Label _resourcesLabel;
   private Label _levelLabel;
@@ -218,9 +217,10 @@ public partial class GameUI : CanvasLayer, IViewHud {
     _moveSpeedLabel = statsRoot?.GetNodeOrNull<Label>("StatGrid/MoveSpeedLabel");
     _attackRangeLabel = statsRoot?.GetNodeOrNull<Label>("StatGrid/AttackRangeLabel");
     _healthRegenLabel = statsRoot?.GetNodeOrNull<Label>("StatGrid/HealthRegenLabel");
-    _xpBar = GetNodeOrNull<ColorRect>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/XpBar");
-    _xpBarFill = GetNodeOrNull<ColorRect>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/XpBar/XpBarFill");
-    _xpBarLabel = GetNodeOrNull<Label>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/XpBar/XpBarLabel");
+    _xpBar = GetNodeOrNull<ColorRect>(
+      "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/HeroMarginPanel/PortraitAndXp/XpBar");
+    _xpBarFill = GetNodeOrNull<ColorRect>(
+      "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/HeroMarginPanel/PortraitAndXp/XpBar/XpBarFill");
     _selectionRectangle = GetNode<Control>("DefaultUI/SelectionRectangle");
     _resultPanel = GetNodeOrNull<Panel>("DefaultUI/ResultPanel");
     _resultLabel = GetNodeOrNull<Label>("DefaultUI/ResultPanel/Content/ResultLabel");
@@ -230,9 +230,9 @@ public partial class GameUI : CanvasLayer, IViewHud {
     if (_resultReturnButton != null)
       _resultReturnButton.Pressed += OnReturnToLobbyPressed;
     _minimapViewport =
-      GetNodeOrNull<SubViewport>("DefaultUI/BottomBar/MarginContainer/Panels/MinimapContainer/MinimapViewport");
+      GetNodeOrNull<SubViewport>("DefaultUI/BottomBar/MarginContainer/Panels/MinimapFrame/MinimapContainer/MinimapViewport");
     _portraitTexture = GetNodeOrNull<TextureRect>(
-      "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/HeroMarginPanel/VBox/PortraitTexture");
+      "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/HeroMarginPanel/PortraitAndXp/PortraitTexture");
 
     var actionGrid = GetNodeOrNull<GridContainer>(
       "DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid");
@@ -427,12 +427,9 @@ public partial class GameUI : CanvasLayer, IViewHud {
     var into = experience - levelStart;
 
     var ratio = atMaxLevel || needed <= 0 ? 1f : Mathf.Clamp(into / (float)needed, 0f, 1f);
-    _xpBarFill.Size = new Vector2(_xpBar.Size.X * ratio, _xpBar.Size.Y);
-
-    if (_xpBarLabel != null)
-      _xpBarLabel.Text = atMaxLevel
-        ? $"MAX ({experience} XP)"
-        : $"{(int)(ratio * 100f)}% ({into} / {needed})";
+    var fillHeight = _xpBar.Size.Y * ratio;
+    _xpBarFill.Position = new Vector2(0, _xpBar.Size.Y - fillHeight);
+    _xpBarFill.Size = new Vector2(_xpBar.Size.X, fillHeight);
   }
 
   public void SetPhase(SessionPhase phase) {
