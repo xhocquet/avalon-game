@@ -20,6 +20,9 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private ColorRect _healthBar;
   private ColorRect _healthBarFill;
   private Label _healthBarLabel;
+  private ColorRect _manaBar;
+  private ColorRect _manaBarFill;
+  private Label _manaBarLabel;
   private ColorRect _xpBar;
   private ColorRect _xpBarFill;
   private Label _goldLabel;
@@ -204,6 +207,9 @@ public partial class GameUI : CanvasLayer, IViewHud {
     _healthBar = GetNode<ColorRect>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/HealthBar");
     _healthBarFill = GetNode<ColorRect>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/HealthBar/HealthBarFill");
     _healthBarLabel = GetNode<Label>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/HealthBar/HealthBarLabel");
+    _manaBar = GetNode<ColorRect>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/ManaBar");
+    _manaBarFill = GetNode<ColorRect>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/ManaBar/ManaBarFill");
+    _manaBarLabel = GetNode<Label>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/ManaBar/ManaBarLabel");
     var statsRoot = GetNodeOrNull<Control>(
       "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin/Stats");
     _levelLabel = statsRoot?.GetNodeOrNull<Label>("LevelLabel");
@@ -328,8 +334,9 @@ public partial class GameUI : CanvasLayer, IViewHud {
       if (hero.PlayerId != localId) continue;
 
       ref readonly var health = ref frame.GetReadOnly<Health>(entity);
-      SetPlayerHealth(health.Current.ToFloat(),
-        frame.GetReadOnly<Stats>(entity).MaxHealth.ToFloat());
+      ref readonly var stats = ref frame.GetReadOnly<Stats>(entity);
+      SetPlayerHealth(health.Current.ToFloat(), stats.MaxHealth.ToFloat());
+      SetPlayerMana(health.Mana.ToFloat(), stats.MaxMana.ToFloat());
       return;
     }
   }
@@ -461,6 +468,14 @@ public partial class GameUI : CanvasLayer, IViewHud {
     _healthBarFill.Size = new Vector2(_healthBar.Size.X * ratio, _healthBar.Size.Y);
     if (_healthBarLabel != null)
       _healthBarLabel.Text = $"HP {(int)current} / {(int)maximum}";
+  }
+
+  private void SetPlayerMana(float current, float maximum) {
+    if (_manaBar == null || _manaBarFill == null) return;
+    var ratio = maximum <= 0f ? 0f : Mathf.Clamp(current / maximum, 0f, 1f);
+    _manaBarFill.Size = new Vector2(_manaBar.Size.X * ratio, _manaBar.Size.Y);
+    if (_manaBarLabel != null)
+      _manaBarLabel.Text = $"MP {(int)current} / {(int)maximum}";
   }
 
   // Driven by InputCapture's selection system - shows the portrait of the currently selected
