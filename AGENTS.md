@@ -51,7 +51,7 @@ Config authority chain:
 
 # Deployment
 
-- Deploying the server and exporting the client: [`docs/agents/deployment.md`](docs/agents/deployment.md).
+- Deploying the server and exporting the client: [`docs/deployment.md`](docs/deployment.md).
 
 # Testing
 
