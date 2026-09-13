@@ -39,14 +39,14 @@ server:
 godot:
     & "{{ godot_exe }}" -e ".\client\project.godot"
 
-# Headless smoke test: server + two headless clients, self-check
+# Headless integration test: server + two headless clients, self-check
 [group('test')]
-smoke:
-    & .\scripts\smoke.ps1 -Godmode:${{ godmode }}
+integration:
+    & .\scripts\integration.ps1 -Godmode:${{ godmode }}
 
 [group('test')]
-test:
-    dotnet test .\tests\Avalon.Sim.Tests\Avalon.Sim.Tests.csproj
+test section="all":
+    & .\scripts\test.ps1 -Section {{ section }}
 
 # Load test: run N ticks (default 1000) and report per-system timings
 [group('test')]

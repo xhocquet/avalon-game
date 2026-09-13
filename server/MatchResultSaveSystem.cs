@@ -61,7 +61,10 @@ namespace Meesles.Avalon.Server {
     // Names ride the join handshake and never enter the sim, so they are resolved off the live room
     // roster at the moment the match ends. Null when there is no roster (offline / headless harness).
     private string ResolveName(int playerId) {
-      var roster = _rosterProvider?.Invoke();
+      return ResolveName(_rosterProvider?.Invoke(), playerId);
+    }
+
+    internal static string ResolveName(IReadOnlyList<IPlayerInfo> roster, int playerId) {
       if (roster == null)
         return null;
 
@@ -72,7 +75,7 @@ namespace Meesles.Avalon.Server {
       return null;
     }
 
-    private void Save(MatchResult result) {
+    internal string Save(MatchResult result) {
       Directory.CreateDirectory(_resultsDirectory);
 
       var savedAt = DateTimeOffset.UtcNow;
@@ -93,6 +96,7 @@ namespace Meesles.Avalon.Server {
       _logger.KInformation(
         $"[MatchResult] saved path={path} winnerTeamId={result.WinnerTeamId} winnerPlayerId={result.WinnerPlayerId} " +
         $"reason={result.Reason} endTick={result.EndTick} players={result.Players.Length}");
+      return path;
     }
 
     private static JsonSerializerOptions CreateSerializerOptions() {

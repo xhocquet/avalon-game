@@ -1,4 +1,4 @@
-# Headless smoke test: boots the dedicated server + two headless Godot clients and
+# Headless integration test: boots the dedicated server + two headless Godot clients and
 # asserts the in-engine self-check (`=== CLIENT OK ===`, emitted by MultiplayerGameNode's
 # #if DEBUG AutoTestStep at tick 120) passes, with no server-side simulation exceptions.
 #
@@ -14,7 +14,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
-$logDir = Join-Path ([System.IO.Path]::GetTempPath()) ("avalon-smoke-" + (Get-Date -Format "yyyyMMdd-HHmmss"))
+$logDir = Join-Path ([System.IO.Path]::GetTempPath()) ("avalon-integration-" + (Get-Date -Format "yyyyMMdd-HHmmss"))
 New-Item -ItemType Directory -Path $logDir -Force | Out-Null
 
 $srvOut = Join-Path $logDir "server.out.log"
@@ -40,17 +40,17 @@ function Stop-Tree {
 try {
   if (-not (Test-Path $Godot)) { throw "Godot binary not found: $Godot (set `$env:GODOT to override)" }
 
-  Write-Host "[smoke] logs: $logDir"
+  Write-Host "[integration] logs: $logDir"
 
   # Clear any stale Godot clients that would hold the 2 player slots (RoomFull).
   Get-Process "Godot_v4.6.3-stable_mono_win64" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
 
-  Write-Host "[smoke] building server + client..."
+  Write-Host "[integration] building server + client..."
   & dotnet build (Join-Path $repoRoot "server/Server.csproj") -c Debug | Out-Null
   if ($LASTEXITCODE -ne 0) { throw "server build failed" }
 
   # Sync Klotho runtime DLL built from vendor source into the client addon.
-  Write-Host "[smoke] building Klotho runtime from source..."
+  Write-Host "[integration] building Klotho runtime from source..."
   & dotnet build (Join-Path $repoRoot "vendor/Klotho/com.xpturn.klotho/Godot~/xpTURN.Klotho.Runtime.csproj") -c Debug | Out-Null
   if ($LASTEXITCODE -ne 0) { throw "Klotho runtime build failed" }
   Copy-Item -Force (Join-Path $repoRoot "vendor/Klotho/com.xpturn.klotho/Godot~/bin/Debug/net8.0/xpTURN.Klotho.Runtime.dll") `
@@ -59,7 +59,7 @@ try {
   & dotnet build (Join-Path $repoRoot "client/Meesles.Avalon.Client.csproj") -c Debug | Out-Null
   if ($LASTEXITCODE -ne 0) { throw "client build failed" }
 
-  Write-Host "[smoke] starting server on port $Port..."
+  Write-Host "[integration] starting server on port $Port..."
   $server = Start-Process -FilePath "dotnet" `
     -ArgumentList @("run", "--project", (Join-Path $repoRoot "server/Server.csproj"), "--", "$Port") `
     -WorkingDirectory $repoRoot -RedirectStandardOutput $srvOut -RedirectStandardError $srvErr `
@@ -69,15 +69,15 @@ try {
   $clientArgs = @("--headless", "--path", (Join-Path $repoRoot "client"), "--", "--quickplay")
   if ($Godmode) { $clientArgs += "--godmode" }
 
-  Write-Host "[smoke] launching client 1..."
+  Write-Host "[integration] launching client 1..."
   $c1 = Start-Process -FilePath $Godot -ArgumentList $clientArgs `
     -RedirectStandardOutput $c1Out -RedirectStandardError $c1Err -PassThru
   Start-Sleep -Seconds 3
-  Write-Host "[smoke] launching client 2..."
+  Write-Host "[integration] launching client 2..."
   $c2 = Start-Process -FilePath $Godot -ArgumentList $clientArgs `
     -RedirectStandardOutput $c2Out -RedirectStandardError $c2Err -PassThru
 
-  Write-Host "[smoke] waiting up to ${TimeoutSeconds}s for clients to finish (auto-quit at tick 120)..."
+  Write-Host "[integration] waiting up to ${TimeoutSeconds}s for clients to finish (auto-quit at tick 120)..."
   $c1 | Wait-Process -Timeout $TimeoutSeconds -ErrorAction SilentlyContinue
   $c2 | Wait-Process -Timeout $TimeoutSeconds -ErrorAction SilentlyContinue
 
@@ -91,14 +91,14 @@ try {
   $viewNodes = if ($c1Text -match "viewNodes=(\d+)") { $matches[1] } else { "?" }
 
   Write-Host ""
-  Write-Host "[smoke] client1 self-check : $(if ($clientOk) { 'OK' } else { 'FAIL' }) (viewNodes=$viewNodes)"
-  Write-Host "[smoke] server exceptions  : $(if ($srvCrashed) { 'FOUND (regression!)' } else { 'none' })"
+  Write-Host "[integration] client1 self-check : $(if ($clientOk) { 'OK' } else { 'FAIL' }) (viewNodes=$viewNodes)"
+  Write-Host "[integration] server exceptions  : $(if ($srvCrashed) { 'FOUND (regression!)' } else { 'none' })"
 
   if ($clientOk -and -not $clientFail -and -not $srvCrashed) {
-    Write-Host "[smoke] PASS" -ForegroundColor Green
+    Write-Host "[integration] PASS" -ForegroundColor Green
     $exit = 0
   } else {
-    Write-Host "[smoke] FAIL - see logs in $logDir" -ForegroundColor Red
+    Write-Host "[integration] FAIL - see logs in $logDir" -ForegroundColor Red
     $exit = 1
   }
 
