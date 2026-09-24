@@ -18,10 +18,16 @@ config/name="Avalon"
 run/main_scene="res://Scenes/Lobby.tscn"
 config/features=PackedStringArray("4.6", "C#", "Forward Plus")
 
+[autoload]
+
+CursorManager="*res://Scripts/CursorManager.cs"
+
 [display]
 
 window/size/viewport_width=1600
 window/size/viewport_height=900
+mouse_cursor/custom_image="res://Assets/UI/default-cursor.png"
+mouse_cursor/custom_image_hotspot=Vector2(4, 4)
 
 [dotnet]
 

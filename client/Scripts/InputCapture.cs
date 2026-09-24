@@ -68,6 +68,7 @@ public class InputCapture : IDisposable {
   public bool HasSingleplayerTarget { get; private set; }
 
   public void Dispose() {
+    CursorManager.Instance?.SetWorldCursor(WorldCursor.Default);
     ClearSelectedViews();
     CancelSkillAim();
     _telegraphs = null;
@@ -156,6 +157,7 @@ public class InputCapture : IDisposable {
   // Per-frame while a skill key is held, so the preview tracks the cursor and the moving caster, and
   // appears the moment a slot that was cooling becomes castable mid-hold.
   public void CaptureInput() {
+    UpdateWorldCursor();
     if (_aimingSlot < 0) return;
 
     if (_camera == null || _camera.IsGodmode) {
@@ -496,7 +498,7 @@ public class InputCapture : IDisposable {
   private void HandleRightClick(InputEventMouseButton mouseButton) {
     if (!mouseButton.Pressed) return;
 
-    if (TryGetEnemyUnitIdAt(mouseButton.Position, out var targetUnitId)) {
+    if (TryGetAttackableUnitIdAt(mouseButton.Position, out var targetUnitId)) {
       QueueAttack(targetUnitId);
       return;
     }
@@ -958,14 +960,44 @@ public class InputCapture : IDisposable {
     indicator?.SetSelected(selected);
   }
 
-  private bool TryGetEnemyUnitIdAt(Vector2 screenPosition, out int unitId) {
+  private void UpdateWorldCursor() {
+    if (_camera == null || MatchEnded || _camera.IsGodmode) {
+      CursorManager.Instance?.SetWorldCursor(WorldCursor.Default);
+      return;
+    }
+
+    var viewport = _camera.GetViewport();
+    if (viewport.GuiGetHoveredControl() is BaseButton or LineEdit or TextEdit) return;
+
+    var mousePosition = viewport.GetMousePosition();
+    var cursor = TryGetAttackableUnitIdAt(mousePosition, out _)
+      ? WorldCursor.Attack
+      : TryGetInteractableViewAt(mousePosition, out _)
+        ? WorldCursor.Interact
+        : WorldCursor.Default;
+    CursorManager.Instance?.SetWorldCursor(cursor);
+  }
+
+  private bool TryGetAttackableUnitIdAt(Vector2 screenPosition, out int unitId) {
     unitId = 0;
-    var target = PickView(screenPosition, IsEnemyUnitView);
+    var target = PickView(screenPosition, IsAttackableUnitView);
     return target != null && TryGetUnitId(target, out unitId);
   }
 
-  private bool IsEnemyUnitView(EntityViewNode view) {
-    return !ViewTeamMatches(view) && TryGetUnitId(view, out _);
+  private bool IsAttackableUnitView(EntityViewNode view) {
+    var frame = _engine?.PredictedFrame.Frame;
+    return frame != null &&
+           CombatTargeting.IsHostileAndAlive(ref frame, _localTeamId, view.EntityRef) &&
+           TryGetUnitId(view, out _);
+  }
+
+  private bool TryGetInteractableViewAt(Vector2 screenPosition, out EntityViewNode view) {
+    view = PickView(screenPosition, IsInteractableView);
+    return view != null;
+  }
+
+  private static bool IsInteractableView(EntityViewNode view) {
+    return view is ShopEntity;
   }
 
   private bool ViewTeamMatches(EntityViewNode view) {
