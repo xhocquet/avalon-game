@@ -84,7 +84,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
   [Export] public Color FocusRingColor { get; set; } = new(0.88f, 0.72f, 0.22f, 0.92f);
 
   // Covers the World.tscn ground plane (100x100, centered at origin).
-  [Export] public float MinimapOrthoSize { get; set; } = 110.0f;
+  [Export] public float MinimapOrthoSize { get; set; } = 100.0f;
   [Export] public float MinimapHeight { get; set; } = 60.0f;
 
   public void SyncFromFrame(Frame frame) {
@@ -236,7 +236,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
     if (_resultReturnButton != null)
       _resultReturnButton.Pressed += OnReturnToLobbyPressed;
     _minimapViewport =
-      GetNodeOrNull<SubViewport>("DefaultUI/BottomBar/MarginContainer/Panels/MinimapFrame/MinimapContainer/MinimapViewport");
+      GetNodeOrNull<SubViewport>("DefaultUI/BottomBar/MarginContainer/Panels/MinimapSlot/MinimapContainer/MinimapViewport");
     _portraitTexture = GetNodeOrNull<TextureRect>(
       "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/HeroMarginPanel/PortraitAndXp/PortraitTexture");
 

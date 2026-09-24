@@ -3,23 +3,25 @@
 [ext_resource type="Script" uid="uid://cye43qws5a5eo" path="res://Scripts/UI/GameUI.cs" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://7rejd1vlpq5" path="res://Scenes/UI/HealthBars.tscn" id="3_healthbars"]
 [ext_resource type="Texture2D" uid="uid://cwknw6nvw5ukx" path="res://Assets/Portraits/Factions/AllHairWizards/hero.webp" id="3_xkiwj"]
-[ext_resource type="Texture2D" path="res://Assets/Placeholders/brown-swirl.webp" id="4_brown"]
-[ext_resource type="Texture2D" path="res://Assets/Placeholders/red-swirl.webp" id="5_skill"]
-[ext_resource type="Texture2D" path="res://Assets/Placeholders/purple-swirl.webp" id="6_action"]
-[ext_resource type="Texture2D" path="res://Assets/UI/hud-frame.svg" id="7_frame"]
+[ext_resource type="Texture2D" uid="uid://d1qivwnkvrbob" path="res://Assets/Placeholders/brown-swirl.webp" id="4_brown"]
+[ext_resource type="Texture2D" uid="uid://55n0fc0fgtoa" path="res://Assets/UI/panel_border_brown.png" id="4_sinwf"]
+[ext_resource type="Texture2D" uid="uid://ccdswr4rnqhwo" path="res://Assets/Placeholders/red-swirl.webp" id="5_skill"]
+[ext_resource type="Texture2D" uid="uid://dtwrx5vouadx3" path="res://Assets/Placeholders/purple-swirl.webp" id="6_action"]
+[ext_resource type="Texture2D" uid="uid://lexychobruuv" path="res://Assets/UI/hud-frame.svg" id="7_frame"]
+[ext_resource type="Texture2D" uid="uid://ceovv176pphu8" path="res://Assets/UI/panel-border-grey-detail.png" id="8_selection_border"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_ie3ut"]
 font_size = 32
 outline_size = 2
 outline_color = Color(0, 0, 0, 1)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_selection_rectangle"]
-bg_color = Color(0.22, 0.56, 0.52, 0.8)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.27, 0.76, 0.7, 1)
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_selection_rectangle"]
+texture = ExtResource("8_selection_border")
+texture_margin_left = 8.0
+texture_margin_top = 8.0
+texture_margin_right = 8.0
+texture_margin_bottom = 8.0
+draw_center = false
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_result"]
 content_margin_left = 28.0
@@ -89,7 +91,7 @@ offset_top = 80.0
 offset_right = 260.0
 offset_bottom = 180.0
 mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_selection_rectangle")
+theme_override_styles/panel = SubResource("StyleBoxTexture_selection_rectangle")
 
 [node name="ResultPanel" type="Panel" parent="DefaultUI" unique_id=1868577759]
 visible = false
@@ -107,7 +109,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_result")
 
-[node name="Content" type="VBoxContainer" parent="DefaultUI/ResultPanel"]
+[node name="Content" type="VBoxContainer" parent="DefaultUI/ResultPanel" unique_id=165017334]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -126,24 +128,24 @@ theme_override_font_sizes/font_size = 34
 text = "Game Over"
 horizontal_alignment = 1
 
-[node name="ReasonLabel" type="Label" parent="DefaultUI/ResultPanel/Content"]
+[node name="ReasonLabel" type="Label" parent="DefaultUI/ResultPanel/Content" unique_id=1491511166]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
 theme_override_colors/font_color = Color(0.72, 0.73, 0.76, 1)
+theme_override_font_sizes/font_size = 16
 horizontal_alignment = 1
 
-[node name="Scoreboard" type="GridContainer" parent="DefaultUI/ResultPanel/Content"]
+[node name="Scoreboard" type="GridContainer" parent="DefaultUI/ResultPanel/Content" unique_id=1221855290]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/h_separation = 18
 theme_override_constants/v_separation = 6
 columns = 8
 
-[node name="Footer" type="HBoxContainer" parent="DefaultUI/ResultPanel/Content"]
+[node name="Footer" type="HBoxContainer" parent="DefaultUI/ResultPanel/Content" unique_id=927001777]
 layout_mode = 2
 alignment = 1
 
-[node name="ReturnButton" type="Button" parent="DefaultUI/ResultPanel/Content/Footer"]
+[node name="ReturnButton" type="Button" parent="DefaultUI/ResultPanel/Content/Footer" unique_id=740524483]
 custom_minimum_size = Vector2(200, 38)
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
@@ -172,44 +174,41 @@ custom_minimum_size = Vector2(0, 220)
 layout_mode = 2
 theme_override_constants/separation = 0
 
-[node name="MinimapFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/MarginContainer/Panels" unique_id=483298295]
+[node name="MinimapSlot" type="Control" parent="DefaultUI/BottomBar/MarginContainer/Panels" unique_id=172806272]
+custom_minimum_size = Vector2(314, 314)
 layout_mode = 2
-texture = ExtResource("7_frame")
-self_modulate = Color(0.15, 0.15, 0.15, 1)
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 0.9
-patch_margin_left = 4
-patch_margin_top = 4
-patch_margin_right = 4
-patch_margin_bottom = 4
-draw_center = false
 
-[node name="FrameColor" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/MinimapFrame"]
+[node name="MinimapFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/MinimapSlot" unique_id=483298295]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
-color = Color(0.16, 0.13, 0.1, 1)
+texture = ExtResource("4_sinwf")
+draw_center = false
+region_rect = Rect2(0, 0, 128, 128)
+patch_margin_left = 32
+patch_margin_top = 32
+patch_margin_right = 32
+patch_margin_bottom = 32
 
-[node name="MinimapContainer" type="SubViewportContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels/MinimapFrame"]
+[node name="MinimapContainer" type="SubViewportContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels/MinimapSlot" unique_id=2135502074]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 2.0
-offset_top = 2.0
-offset_right = -2.0
-offset_bottom = -2.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = -20.0
 grow_horizontal = 2
 grow_vertical = 2
 stretch = true
 
-[node name="MinimapViewport" type="SubViewport" parent="DefaultUI/BottomBar/MarginContainer/Panels/MinimapFrame/MinimapContainer" unique_id=1352555608]
+[node name="MinimapViewport" type="SubViewport" parent="DefaultUI/BottomBar/MarginContainer/Panels/MinimapSlot/MinimapContainer" unique_id=1352555608]
 handle_input_locally = false
-size = Vector2i(271, 250)
+size = Vector2i(274, 274)
 render_target_update_mode = 4
 
 [node name="Vbox" type="VBoxContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels" unique_id=1085130530]
@@ -239,34 +238,33 @@ text = "HP 80 / 100"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="HealthBarFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/HealthBar"]
+[node name="HealthBarFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/HealthBar" unique_id=668345426]
+self_modulate = Color(0.9, 0.9, 0.9, 1)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
 texture = ExtResource("7_frame")
-self_modulate = Color(0.9, 0.9, 0.9, 1)
+draw_center = false
 patch_margin_left = 4
 patch_margin_top = 4
 patch_margin_right = 4
 patch_margin_bottom = 4
-draw_center = false
 
-[node name="ManaBar" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox"]
+[node name="ManaBar" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox" unique_id=247257436]
 custom_minimum_size = Vector2(0, 22)
 layout_mode = 2
 color = Color(0.16, 0.29, 0.52, 0.9)
 
-[node name="ManaBarFill" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/ManaBar"]
+[node name="ManaBarFill" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/ManaBar" unique_id=1499543141]
 layout_mode = 0
 offset_right = 480.0
 offset_bottom = 22.0
 color = Color(0.28, 0.55, 0.9, 0.95)
 
-[node name="ManaBarLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/ManaBar"]
+[node name="ManaBarLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/ManaBar" unique_id=1990341478]
 layout_mode = 0
 offset_left = 4.0
 offset_right = 611.0
@@ -276,21 +274,20 @@ text = "MP 0 / 0"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ManaBarFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/ManaBar"]
+[node name="ManaBarFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/ManaBar" unique_id=977492768]
+self_modulate = Color(0.66, 0.66, 0.66, 1)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
 texture = ExtResource("7_frame")
-self_modulate = Color(0.66, 0.66, 0.66, 1)
+draw_center = false
 patch_margin_left = 4
 patch_margin_top = 4
 patch_margin_right = 4
 patch_margin_bottom = 4
-draw_center = false
 
 [node name="MainSection" type="HBoxContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox" unique_id=983779099]
 layout_mode = 2
@@ -316,21 +313,20 @@ texture = ExtResource("3_xkiwj")
 expand_mode = 3
 stretch_mode = 5
 
-[node name="PortraitFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/HeroMarginPanel/PortraitAndXp/PortraitTexture"]
+[node name="PortraitFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/HeroMarginPanel/PortraitAndXp/PortraitTexture" unique_id=1028571949]
+self_modulate = Color(0.42, 0.42, 0.42, 1)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
 texture = ExtResource("7_frame")
-self_modulate = Color(0.42, 0.42, 0.42, 1)
+draw_center = false
 patch_margin_left = 4
 patch_margin_top = 4
 patch_margin_right = 4
 patch_margin_bottom = 4
-draw_center = false
 
 [node name="XpBar" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/HeroMarginPanel/PortraitAndXp" unique_id=790217363]
 custom_minimum_size = Vector2(20, 0)
@@ -347,29 +343,28 @@ grow_horizontal = 2
 grow_vertical = 0
 color = Color(0.7921569, 0.7490196, 0.3019608, 0.9490196)
 
-[node name="XpBarFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/HeroMarginPanel/PortraitAndXp/XpBar"]
+[node name="XpBarFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/HeroMarginPanel/PortraitAndXp/XpBar" unique_id=340838657]
+self_modulate = Color(0.58, 0.58, 0.58, 1)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
 texture = ExtResource("7_frame")
-self_modulate = Color(0.58, 0.58, 0.58, 1)
+draw_center = false
 patch_margin_left = 4
 patch_margin_top = 4
 patch_margin_right = 4
 patch_margin_bottom = 4
-draw_center = false
 
-[node name="MinionAndStatsPanel" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection"]
+[node name="MinionAndStatsPanel" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection" unique_id=1199058283]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 3.0
 color = Color(0.37254903, 0.38039216, 1, 0.33333334)
 
-[node name="Margin" type="MarginContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel"]
+[node name="Margin" type="MarginContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel" unique_id=616368212]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -381,104 +376,103 @@ theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 6
 theme_override_constants/margin_bottom = 4
 
-[node name="Stats" type="VBoxContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin"]
+[node name="Stats" type="VBoxContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin" unique_id=378172912]
 layout_mode = 2
 theme_override_constants/separation = 2
 
-[node name="LevelLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin/Stats"]
+[node name="LevelLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin/Stats" unique_id=115914617]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "Level 1"
 
-[node name="EconomyRow" type="HBoxContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin/Stats"]
+[node name="EconomyRow" type="HBoxContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin/Stats" unique_id=1719498764]
 layout_mode = 2
 theme_override_constants/separation = 14
 
-[node name="GoldLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin/Stats/EconomyRow"]
+[node name="GoldLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin/Stats/EconomyRow" unique_id=524849014]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
 theme_override_colors/font_color = Color(0.95, 0.84, 0.44, 1)
+theme_override_font_sizes/font_size = 16
 text = "Gold 0"
 
-[node name="ResourcesLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin/Stats/EconomyRow"]
+[node name="ResourcesLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin/Stats/EconomyRow" unique_id=624266928]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
 theme_override_colors/font_color = Color(0.62, 0.85, 0.95, 1)
+theme_override_font_sizes/font_size = 16
 text = "Resources 0"
 
-[node name="Separator" type="HSeparator" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin/Stats"]
+[node name="Separator" type="HSeparator" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin/Stats" unique_id=689981185]
 layout_mode = 2
 
-[node name="StatGrid" type="GridContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin/Stats"]
+[node name="StatGrid" type="GridContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin/Stats" unique_id=1845512187]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/h_separation = 16
 theme_override_constants/v_separation = 1
 columns = 2
 
-[node name="AttackDamageLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin/Stats/StatGrid"]
+[node name="AttackDamageLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin/Stats/StatGrid" unique_id=1258306735]
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
 theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
+theme_override_font_sizes/font_size = 14
 text = "Attack dmg 0"
 
-[node name="ArmorLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin/Stats/StatGrid"]
+[node name="ArmorLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin/Stats/StatGrid" unique_id=395450711]
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
 theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
+theme_override_font_sizes/font_size = 14
 text = "Armor 0"
 
-[node name="AttackSpeedLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin/Stats/StatGrid"]
+[node name="AttackSpeedLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin/Stats/StatGrid" unique_id=1863231120]
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
 theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
+theme_override_font_sizes/font_size = 14
 text = "Attack spd 0.00"
 
-[node name="MagicResistLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin/Stats/StatGrid"]
+[node name="MagicResistLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin/Stats/StatGrid" unique_id=1292983968]
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
 theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
+theme_override_font_sizes/font_size = 14
 text = "Magic res 0"
 
-[node name="CritLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin/Stats/StatGrid"]
+[node name="CritLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin/Stats/StatGrid" unique_id=1877355314]
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
 theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
+theme_override_font_sizes/font_size = 14
 text = "Crit 0%"
 
-[node name="MoveSpeedLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin/Stats/StatGrid"]
+[node name="MoveSpeedLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin/Stats/StatGrid" unique_id=1993652811]
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
 theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
+theme_override_font_sizes/font_size = 14
 text = "Move spd 0"
 
-[node name="AttackRangeLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin/Stats/StatGrid"]
+[node name="AttackRangeLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin/Stats/StatGrid" unique_id=931899604]
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
 theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
+theme_override_font_sizes/font_size = 14
 text = "Range 0"
 
-[node name="HealthRegenLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin/Stats/StatGrid"]
+[node name="HealthRegenLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin/Stats/StatGrid" unique_id=855349498]
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
 theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
+theme_override_font_sizes/font_size = 14
 text = "HP regen 0.0"
 
-[node name="StatsFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel"]
+[node name="StatsFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel" unique_id=1166668721]
+self_modulate = Color(0.72, 0.72, 0.72, 1)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
 texture = ExtResource("7_frame")
-self_modulate = Color(0.72, 0.72, 0.72, 1)
+draw_center = false
 patch_margin_left = 4
 patch_margin_top = 4
 patch_margin_right = 4
 patch_margin_bottom = 4
-draw_center = false
 
 [node name="MarginContainer" type="MarginContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection" unique_id=562705946]
 layout_mode = 2
@@ -533,16 +527,15 @@ texture = ExtResource("4_brown")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="ItemFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MarginContainer"]
-layout_mode = 2
-mouse_filter = 2
-texture = ExtResource("7_frame")
+[node name="ItemFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MarginContainer" unique_id=1320626103]
 self_modulate = Color(0.86, 0.86, 0.86, 1)
+layout_mode = 2
+texture = ExtResource("7_frame")
+draw_center = false
 patch_margin_left = 4
 patch_margin_top = 4
 patch_margin_right = 4
 patch_margin_bottom = 4
-draw_center = false
 
 [node name="ActionMContainer" type="MarginContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels" unique_id=468670308]
 layout_mode = 2
@@ -696,16 +689,14 @@ texture = ExtResource("6_action")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="ActionFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer"]
+[node name="ActionFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer" unique_id=1975585763]
 layout_mode = 2
-mouse_filter = 2
 texture = ExtResource("7_frame")
-self_modulate = Color(1, 1, 1, 1)
+draw_center = false
 patch_margin_left = 4
 patch_margin_top = 4
 patch_margin_right = 4
 patch_margin_bottom = 4
-draw_center = false
 
 [node name="TabUI" type="Control" parent="." unique_id=313774460]
 visible = false
