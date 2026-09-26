@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://chwarpn7psi60"
-path="res://.godot/imported/panel-transparent-center-001.png-a043aaf059205ce61d8694cec180cbaf.ctex"
+uid="uid://gveviminisok"
+path="res://.godot/imported/panel-grey-bolts-compact.png-fdf11585078c9e61f126e30c44e65ef6.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/UI/panel-transparent-center-001.png"
-dest_files=["res://.godot/imported/panel-transparent-center-001.png-a043aaf059205ce61d8694cec180cbaf.ctex"]
+source_file="res://Assets/UI/panel-grey-bolts-compact.png"
+dest_files=["res://.godot/imported/panel-grey-bolts-compact.png-fdf11585078c9e61f126e30c44e65ef6.ctex"]
 
 [params]
 

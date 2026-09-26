@@ -23,12 +23,8 @@ namespace Meesles.Avalon;
 // disagree.
 public class ActionBarController {
   private const float CellSize = 58f;
+  private const int RowCount = 4;
   private static readonly Texture2D EmptySlotTexture = GD.Load<Texture2D>("res://Assets/Placeholders/purple-swirl.webp");
-
-  // Our cell count is fixed (this plus _leadingRowPad) so the footprint never changes: buy buttons when
-  // a shop is in context, otherwise placeholders. Sized to the shop catalog, so the shown and
-  // hidden states occupy identical space.
-  private static readonly int SlotCount = ShopItemCatalog.ItemDefs.Length;
 
   private readonly List<ItemButton> _buttons = new();
   private readonly ShopItemCatalog _catalog;
@@ -43,6 +39,7 @@ public class ActionBarController {
   // Spacers laid before our first cell so the buy grid always begins on a fresh row under the skill
   // row, whatever the reserved count and column count work out to. 0 when the skills already fill a row.
   private readonly int _leadingRowPad;
+  private readonly int _slotCapacity;
   private bool _shown;
 
   public ActionBarController(GridContainer grid, ShopItemCatalog catalog, Action<int> onPurchase,
@@ -54,6 +51,7 @@ public class ActionBarController {
     _reservedLeadingCells = reservedLeadingCells;
     var columns = _grid?.Columns ?? 0;
     _leadingRowPad = columns > 0 ? (columns - _reservedLeadingCells % columns) % columns : 0;
+    _slotCapacity = Math.Max(0, columns * RowCount - _reservedLeadingCells - _leadingRowPad);
     ClearGrid();
     FillEmptySlots();
   }
@@ -108,8 +106,7 @@ public class ActionBarController {
     _shown = false;
   }
 
-  // One buy button per catalog item, in the catalog's declared order so the grid is stable. Cost
-  // comes from the ShopItemAsset (sim data); the icon and display name come from the client catalog.
+  // Catalog order is stable. A full four-row grid reserves twelve action cells after the skill row.
   private void Build(Frame frame) {
     ClearGrid();
     _buttons.Clear();
@@ -117,7 +114,9 @@ public class ActionBarController {
     for (var i = 0; i < _leadingRowPad; i++)
       _grid.AddChild(CreateEmptySlot());
 
-    foreach (var def in ShopItemCatalog.ItemDefs) {
+    var count = Math.Min(ShopItemCatalog.ItemDefs.Length, _slotCapacity);
+    for (var i = 0; i < count; i++) {
+      var def = ShopItemCatalog.ItemDefs[i];
       var data = _catalog.Resolve(def.Id);
       var cost = GetCost(frame, def.Id);
 
@@ -137,6 +136,9 @@ public class ActionBarController {
       _grid.AddChild(button);
       _buttons.Add(new ItemButton(itemId, button));
     }
+
+    for (var i = count; i < _slotCapacity; i++)
+      _grid.AddChild(CreateEmptySlot());
   }
 
   // Small cost number pinned to the button's bottom edge, with an outline so it reads over any icon.
@@ -192,11 +194,10 @@ public class ActionBarController {
     }
   }
 
-  // Fill the grid with non-interactive placeholders so it reserves its full footprint while no shop is
-  // in context.
+  // Fill the four-row grid with non-interactive placeholders while no shop is in context.
   private void FillEmptySlots() {
     if (_grid == null) return;
-    for (var i = 0; i < _leadingRowPad + SlotCount; i++)
+    for (var i = 0; i < _leadingRowPad + _slotCapacity; i++)
       _grid.AddChild(CreateEmptySlot());
   }
 

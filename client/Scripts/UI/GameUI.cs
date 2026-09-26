@@ -211,18 +211,18 @@ public partial class GameUI : CanvasLayer, IViewHud {
     _manaBarFill = GetNode<ColorRect>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/ManaBar/ManaBarFill");
     _manaBarLabel = GetNode<Label>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/ManaBar/ManaBarLabel");
     var statsRoot = GetNodeOrNull<Control>(
-      "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MinionAndStatsPanel/Margin/Stats");
+      "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/StatsPanel/StatsContent/StatsMargin/StatsList");
     _levelLabel = statsRoot?.GetNodeOrNull<Label>("LevelLabel");
     _goldLabel = statsRoot?.GetNodeOrNull<Label>("EconomyRow/GoldLabel");
     _resourcesLabel = statsRoot?.GetNodeOrNull<Label>("EconomyRow/ResourcesLabel");
-    _attackDamageLabel = statsRoot?.GetNodeOrNull<Label>("StatGrid/AttackDamageLabel");
-    _attackSpeedLabel = statsRoot?.GetNodeOrNull<Label>("StatGrid/AttackSpeedLabel");
-    _armorLabel = statsRoot?.GetNodeOrNull<Label>("StatGrid/ArmorLabel");
-    _magicResistLabel = statsRoot?.GetNodeOrNull<Label>("StatGrid/MagicResistLabel");
-    _critLabel = statsRoot?.GetNodeOrNull<Label>("StatGrid/CritLabel");
-    _moveSpeedLabel = statsRoot?.GetNodeOrNull<Label>("StatGrid/MoveSpeedLabel");
-    _attackRangeLabel = statsRoot?.GetNodeOrNull<Label>("StatGrid/AttackRangeLabel");
-    _healthRegenLabel = statsRoot?.GetNodeOrNull<Label>("StatGrid/HealthRegenLabel");
+    _attackDamageLabel = statsRoot?.GetNodeOrNull<Label>("CombatStatList/AttackDamageValue");
+    _attackSpeedLabel = statsRoot?.GetNodeOrNull<Label>("CombatStatList/AttackSpeedValue");
+    _armorLabel = statsRoot?.GetNodeOrNull<Label>("CombatStatList/ArmorValue");
+    _magicResistLabel = statsRoot?.GetNodeOrNull<Label>("CombatStatList/MagicResistanceValue");
+    _critLabel = statsRoot?.GetNodeOrNull<Label>("CombatStatList/CriticalChanceValue");
+    _moveSpeedLabel = statsRoot?.GetNodeOrNull<Label>("CombatStatList/MoveSpeedValue");
+    _attackRangeLabel = statsRoot?.GetNodeOrNull<Label>("CombatStatList/AttackRangeValue");
+    _healthRegenLabel = statsRoot?.GetNodeOrNull<Label>("CombatStatList/HealthRegenerationValue");
     _xpBar = GetNodeOrNull<ColorRect>(
       "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/HeroMarginPanel/PortraitAndXp/XpBar");
     _xpBarFill = GetNodeOrNull<ColorRect>(
@@ -253,7 +253,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
       SkillBarController.SlotCount, PredictedPurchases);
 
     var itemPanel = GetNodeOrNull<GridContainer>(
-      "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/MarginContainer/ItemPanel");
+      "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/InventoryPanel/ItemFrame/ItemPanel");
     _inventoryPanel = new InventoryPanelController(itemPanel, _shopCatalog, PredictedPurchases);
 
     SetSelectionRectangle(null);
@@ -389,19 +389,19 @@ public partial class GameUI : CanvasLayer, IViewHud {
   // Reads the live Stats, which already carries item and buff contributions - timed buffs
   // Add into it and record what they moved so the expiry can take the same amount back off.
   private void SetHeroStats(in Stats stats) {
-    SetStatText(_attackDamageLabel, "Attack dmg", $"{stats.AttackDamage.ToFloat():0.#}");
-    SetStatText(_attackSpeedLabel, "Attack spd", $"{stats.AttacksPerSecond.ToFloat():0.00}");
-    SetStatText(_armorLabel, "Armor", $"{stats.Armor.ToFloat():0.#}");
-    SetStatText(_magicResistLabel, "Magic res", $"{stats.MagicResist.ToFloat():0.#}");
-    SetStatText(_critLabel, "Crit", $"{stats.CritChance.ToFloat() * 100f:0.#}%");
-    SetStatText(_moveSpeedLabel, "Move spd", $"{stats.MoveSpeed.ToFloat():0.#}");
-    SetStatText(_attackRangeLabel, "Range", $"{stats.AttackRange.ToFloat():0.#}");
-    SetStatText(_healthRegenLabel, "HP regen", $"{stats.HealthRegen.ToFloat():0.#}/5s"); // authored per 5 seconds
+    SetStatValue(_attackDamageLabel, $"{stats.AttackDamage.ToFloat():0.#}");
+    SetStatValue(_attackSpeedLabel, $"{stats.AttacksPerSecond.ToFloat():0.00}");
+    SetStatValue(_armorLabel, $"{stats.Armor.ToFloat():0.#}");
+    SetStatValue(_magicResistLabel, $"{stats.MagicResist.ToFloat():0.#}");
+    SetStatValue(_critLabel, $"{stats.CritChance.ToFloat() * 100f:0.#}%");
+    SetStatValue(_moveSpeedLabel, $"{stats.MoveSpeed.ToFloat():0.#}");
+    SetStatValue(_attackRangeLabel, $"{stats.AttackRange.ToFloat():0.#}");
+    SetStatValue(_healthRegenLabel, $"{stats.HealthRegen.ToFloat():0.#}/5s"); // authored per 5 seconds
   }
 
-  private static void SetStatText(Label label, string name, string value) {
+  private static void SetStatValue(Label label, string value) {
     if (label != null)
-      label.Text = $"{name} {value}";
+      label.Text = value;
   }
 
   private void UpdateLocalPlayerExperience(Frame frame) {
