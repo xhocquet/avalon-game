@@ -214,8 +214,8 @@ public partial class GameUI : CanvasLayer, IViewHud {
     var statsRoot = GetNodeOrNull<Control>(
       "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/StatsPanel/StatsContent/StatsMargin/StatsList");
     _levelLabel = statsRoot?.GetNodeOrNull<Label>("LevelLabel");
-    _goldLabel = statsRoot?.GetNodeOrNull<Label>("EconomyRow/GoldLabel");
-    _resourcesLabel = statsRoot?.GetNodeOrNull<Label>("EconomyRow/ResourcesLabel");
+    _goldLabel = statsRoot?.GetNodeOrNull<Label>("GoldLabel");
+    _resourcesLabel = statsRoot?.GetNodeOrNull<Label>("ResourcesLabel");
     _attackDamageLabel = statsRoot?.GetNodeOrNull<Label>("CombatStatList/AttackDamageValue");
     _attackSpeedLabel = statsRoot?.GetNodeOrNull<Label>("CombatStatList/AttackSpeedValue");
     _armorLabel = statsRoot?.GetNodeOrNull<Label>("CombatStatList/ArmorValue");
@@ -237,12 +237,12 @@ public partial class GameUI : CanvasLayer, IViewHud {
     if (_resultReturnButton != null)
       _resultReturnButton.Pressed += OnReturnToLobbyPressed;
     _minimapViewport =
-      GetNodeOrNull<SubViewport>("DefaultUI/BottomBar/MarginContainer/Panels/MinimapSlot/MinimapContainer/MinimapViewport");
+      GetNodeOrNull<SubViewport>("DefaultUI/BottomBar/MarginContainer/Panels/MinimapSlot/MinimapFrame/MinimapContainer/MinimapViewport");
     _portraitTexture = GetNodeOrNull<TextureRect>(
       "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/HeroMarginPanel/PortraitAndXp/PortraitTexture");
 
     var actionGrid = GetNodeOrNull<GridContainer>(
-      "DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionGrid");
+      "DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionPanel/ActionGrid");
     _shopCatalog = ShopItemCatalog.CreateDefault();
     _skillCatalog = SkillCatalog.CreateDefault();
 
