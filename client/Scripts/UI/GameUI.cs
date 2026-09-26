@@ -11,6 +11,7 @@ using xpTURN.Klotho.Network;
 namespace Meesles.Avalon;
 
 public partial class GameUI : CanvasLayer, IViewHud {
+  private const uint WorldAndMinimapLayers = (1u << 0) | (1u << 1);
   private readonly List<IDisposable> _eventSubscriptions = new();
   private Label _announceLabel;
   private Tween _announceTween;
@@ -573,7 +574,8 @@ public partial class GameUI : CanvasLayer, IViewHud {
       Near = 1.0f,
       Far = MinimapHeight + 50.0f,
       Position = new Vector3(0f, MinimapHeight, 0f),
-      RotationDegrees = new Vector3(-90f, 0f, 0f)
+      RotationDegrees = new Vector3(-90f, 0f, 0f),
+      CullMask = WorldAndMinimapLayers
     };
     _minimapViewport.AddChild(_minimapCamera);
   }
