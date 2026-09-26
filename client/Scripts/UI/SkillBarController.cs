@@ -22,7 +22,7 @@ namespace Meesles.Avalon;
 // bottom edge. The sim re-checks both gates when the command lands, so a cell that is briefly optimistic
 // is harmless.
 public class SkillBarController {
-  private const float CellSize = 58f;
+  private const float CellSize = 54f;
   private static readonly Texture2D EmptySlotTexture = GD.Load<Texture2D>("res://Assets/Placeholders/red-swirl.webp");
   public const int SlotCount = Skills.MaxSlots;
 
@@ -190,16 +190,15 @@ public class SkillBarController {
     cell.Button.TooltipText = BuildTooltip(slot, rank, maxRank, skillAssetId, asset?.Description);
   }
 
-  // Name, ranks, the authored blurb, then the upgrade binding. A row with no description leaves the
-  // paragraph out rather than an empty line.
+  // Name, ranks, and the authored blurb. A row with no description leaves the paragraph out.
   private string BuildTooltip(int slot, int rank, int maxRank, int skillAssetId, string description) {
     var name = _catalog != null && _catalog.TryResolve(skillAssetId, out var def)
       ? def.Name
       : ((SkillSlot)slot).ToString();
     if (maxRank <= 0) return name;
 
-    var blurb = string.IsNullOrWhiteSpace(description) ? "" : $"\n\n{Wrap(description)}\n";
-    return $"{name}\nRank {rank} / {maxRank}{blurb}\nCtrl+{HotkeyLabels[slot]} to upgrade";
+    var blurb = string.IsNullOrWhiteSpace(description) ? "" : $"\n\n{Wrap(description)}";
+    return $"{name}\nRank {rank} / {maxRank}{blurb}";
   }
 
   // Godot's default tooltip is a Label with autowrap off, so a paragraph would render as one line as

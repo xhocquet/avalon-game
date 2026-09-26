@@ -6,7 +6,6 @@
 [ext_resource type="Texture2D" uid="uid://d1qivwnkvrbob" path="res://Assets/Placeholders/brown-swirl.webp" id="4_brown"]
 [ext_resource type="Texture2D" uid="uid://ccdswr4rnqhwo" path="res://Assets/Placeholders/red-swirl.webp" id="5_skill"]
 [ext_resource type="Texture2D" uid="uid://dtwrx5vouadx3" path="res://Assets/Placeholders/purple-swirl.webp" id="6_action"]
-[ext_resource type="Texture2D" uid="uid://lexychobruuv" path="res://Assets/UI/hud-frame.svg" id="7_frame"]
 [ext_resource type="Texture2D" uid="uid://ceovv176pphu8" path="res://Assets/UI/panel-border-grey-detail.png" id="8_selection_border"]
 [ext_resource type="Texture2D" uid="uid://b6ghwu1go2tju" path="res://Assets/UI/panel-border-brown-compact.png" id="9_minimap_frame"]
 [ext_resource type="Texture2D" uid="uid://4m0ncay541cq" path="res://Assets/UI/panel-grey-bolts-dark-compact.png" id="10_stats_frame"]
@@ -156,39 +155,29 @@ theme_override_font_sizes/font_size = 16
 text = "Return to Lobby"
 
 [node name="BottomBar" type="PanelContainer" parent="DefaultUI" unique_id=829745707]
-custom_minimum_size = Vector2(0, 250)
 layout_mode = 1
-anchors_preset = 12
+anchors_preset = 7
+anchor_left = 0.5
 anchor_top = 1.0
-anchor_right = 1.0
+anchor_right = 0.5
 anchor_bottom = 1.0
-offset_top = -220.0
+offset_left = -206.0
+offset_top = -262.0
+offset_right = 206.0
 grow_horizontal = 2
 grow_vertical = 0
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxEmpty_71wt1")
 
-[node name="MarginContainer" type="MarginContainer" parent="DefaultUI/BottomBar" unique_id=2091225935]
-layout_mode = 2
-theme_override_constants/margin_left = 200
-theme_override_constants/margin_right = 200
-
-[node name="Panels" type="HBoxContainer" parent="DefaultUI/BottomBar/MarginContainer" unique_id=819904861]
-custom_minimum_size = Vector2(0, 220)
+[node name="Panels" type="HBoxContainer" parent="DefaultUI/BottomBar" unique_id=819904861]
 layout_mode = 2
 theme_override_constants/separation = 0
+alignment = 1
 
-[node name="MinimapSlot" type="Control" parent="DefaultUI/BottomBar/MarginContainer/Panels" unique_id=172806272]
-custom_minimum_size = Vector2(314, 314)
+[node name="MinimapFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/Panels" unique_id=483298295]
+custom_minimum_size = Vector2(250, 250)
 layout_mode = 2
-
-[node name="MinimapFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/MinimapSlot" unique_id=483298295]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+size_flags_vertical = 8
 texture = ExtResource("9_minimap_frame")
 region_rect = Rect2(0, 0, 96, 96)
 patch_margin_left = 16
@@ -196,119 +185,79 @@ patch_margin_top = 16
 patch_margin_right = 16
 patch_margin_bottom = 16
 
-[node name="MinimapContainer" type="SubViewportContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels/MinimapSlot/MinimapFrame" unique_id=2135502074]
+[node name="MinimapContainer" type="SubViewportContainer" parent="DefaultUI/BottomBar/Panels/MinimapFrame" unique_id=2135502074]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 228.0
+offset_bottom = 228.0
+
+[node name="MinimapViewport" type="SubViewport" parent="DefaultUI/BottomBar/Panels/MinimapFrame/MinimapContainer" unique_id=1352555608]
+handle_input_locally = false
+size = Vector2i(234, 234)
+render_target_update_mode = 4
+
+[node name="Vbox" type="VBoxContainer" parent="DefaultUI/BottomBar/Panels" unique_id=1085130530]
+layout_mode = 2
+size_flags_vertical = 8
+theme_override_constants/separation = 0
+
+[node name="HealthBar" type="ColorRect" parent="DefaultUI/BottomBar/Panels/Vbox" unique_id=1590907484]
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+color = Color(0.35, 0.55, 0.25, 0.9)
+
+[node name="HealthBarFill" type="ColorRect" parent="DefaultUI/BottomBar/Panels/Vbox/HealthBar" unique_id=442099186]
+layout_mode = 0
+offset_right = 480.0
+offset_bottom = 12.0
+color = Color(0.45, 0.75, 0.3, 0.95)
+
+[node name="HealthBarLabel" type="Label" parent="DefaultUI/BottomBar/Panels/Vbox/HealthBar" unique_id=2012157574]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 16.0
-offset_top = 16.0
-offset_right = -16.0
-offset_bottom = -16.0
 grow_horizontal = 2
 grow_vertical = 2
-stretch = true
-
-[node name="MinimapViewport" type="SubViewport" parent="DefaultUI/BottomBar/MarginContainer/Panels/MinimapSlot/MinimapFrame/MinimapContainer" unique_id=1352555608]
-handle_input_locally = false
-size = Vector2i(282, 282)
-render_target_update_mode = 4
-
-[node name="Vbox" type="VBoxContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels" unique_id=1085130530]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 2.0
-theme_override_constants/separation = 0
-
-[node name="HealthBar" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox" unique_id=1590907484]
-custom_minimum_size = Vector2(0, 22)
-layout_mode = 2
-color = Color(0.35, 0.55, 0.25, 0.9)
-
-[node name="HealthBarFill" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/HealthBar" unique_id=442099186]
-layout_mode = 0
-offset_right = 480.0
-offset_bottom = 22.0
-color = Color(0.45, 0.75, 0.3, 0.95)
-
-[node name="HealthBarLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/HealthBar" unique_id=2012157574]
-layout_mode = 0
-offset_left = 4.0
-offset_right = 611.0
-offset_bottom = 22.0
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 10
 text = "HP 80 / 100"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="HealthBarFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/HealthBar" unique_id=668345426]
-self_modulate = Color(0.9, 0.9, 0.9, 1)
+[node name="ManaBar" type="ColorRect" parent="DefaultUI/BottomBar/Panels/Vbox" unique_id=247257436]
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+color = Color(0.16, 0.29, 0.52, 0.9)
+
+[node name="ManaBarFill" type="ColorRect" parent="DefaultUI/BottomBar/Panels/Vbox/ManaBar" unique_id=1499543141]
+layout_mode = 0
+offset_right = 480.0
+offset_bottom = 12.0
+color = Color(0.28, 0.55, 0.9, 0.95)
+
+[node name="ManaBarLabel" type="Label" parent="DefaultUI/BottomBar/Panels/Vbox/ManaBar" unique_id=1990341478]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("7_frame")
-draw_center = false
-patch_margin_left = 4
-patch_margin_top = 4
-patch_margin_right = 4
-patch_margin_bottom = 4
-
-[node name="ManaBar" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox" unique_id=247257436]
-custom_minimum_size = Vector2(0, 22)
-layout_mode = 2
-color = Color(0.16, 0.29, 0.52, 0.9)
-
-[node name="ManaBarFill" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/ManaBar" unique_id=1499543141]
-layout_mode = 0
-offset_right = 480.0
-offset_bottom = 22.0
-color = Color(0.28, 0.55, 0.9, 0.95)
-
-[node name="ManaBarLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/ManaBar" unique_id=1990341478]
-layout_mode = 0
-offset_left = 4.0
-offset_right = 611.0
-offset_bottom = 22.0
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 10
 text = "MP 0 / 0"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ManaBarFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/ManaBar" unique_id=977492768]
-self_modulate = Color(0.66, 0.66, 0.66, 1)
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("7_frame")
-draw_center = false
-patch_margin_left = 4
-patch_margin_top = 4
-patch_margin_right = 4
-patch_margin_bottom = 4
-
-[node name="MainSection" type="HBoxContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox" unique_id=983779099]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 0
-
-[node name="HeroMarginPanel" type="MarginContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection" unique_id=1007305730]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 1.8
-theme_override_constants/margin_right = 0
-
-[node name="PortraitAndXp" type="HBoxContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/HeroMarginPanel" unique_id=997004585]
+[node name="MainSection" type="HBoxContainer" parent="DefaultUI/BottomBar/Panels/Vbox" unique_id=983779099]
 layout_mode = 2
 theme_override_constants/separation = 0
 
-[node name="PortraitTexture" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/HeroMarginPanel/PortraitAndXp" unique_id=510151728]
+[node name="PortraitAndXp" type="HBoxContainer" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection" unique_id=997004585]
+custom_minimum_size = Vector2(0, 226)
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="PortraitTexture" type="TextureRect" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/PortraitAndXp" unique_id=510151728]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -316,7 +265,7 @@ texture = ExtResource("3_xkiwj")
 expand_mode = 3
 stretch_mode = 5
 
-[node name="PortraitFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/HeroMarginPanel/PortraitAndXp/PortraitTexture" unique_id=1028571949]
+[node name="PortraitFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/PortraitAndXp/PortraitTexture" unique_id=1028571949]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -330,13 +279,13 @@ patch_margin_top = 16
 patch_margin_right = 16
 patch_margin_bottom = 16
 
-[node name="XpBar" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/HeroMarginPanel/PortraitAndXp" unique_id=790217363]
-custom_minimum_size = Vector2(20, 0)
+[node name="XpBar" type="ColorRect" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/PortraitAndXp" unique_id=790217363]
+custom_minimum_size = Vector2(12, 0)
 layout_mode = 2
 size_flags_vertical = 3
 color = Color(0.6, 0.54901963, 0.2509804, 0.9019608)
 
-[node name="XpBarFill" type="ColorRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/HeroMarginPanel/PortraitAndXp/XpBar" unique_id=1432411203]
+[node name="XpBarFill" type="ColorRect" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/PortraitAndXp/XpBar" unique_id=1432411203]
 layout_mode = 0
 anchor_top = 1.0
 anchor_right = 1.0
@@ -345,210 +294,165 @@ grow_horizontal = 2
 grow_vertical = 0
 color = Color(0.7921569, 0.7490196, 0.3019608, 0.9490196)
 
-[node name="XpBarFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/HeroMarginPanel/PortraitAndXp/XpBar" unique_id=340838657]
-self_modulate = Color(0.58, 0.58, 0.58, 1)
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("7_frame")
-draw_center = false
-patch_margin_left = 4
-patch_margin_top = 4
-patch_margin_right = 4
-patch_margin_bottom = 4
-
-[node name="StatsPanel" type="Control" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection" unique_id=1199058283]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 3.0
-
-[node name="StatsPanelFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/StatsPanel" unique_id=1166668721]
+[node name="StatsPanelFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection" unique_id=1166668721]
 show_behind_parent = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+custom_minimum_size = Vector2(180, 226)
+layout_mode = 2
 texture = ExtResource("10_stats_frame")
 patch_margin_left = 16
 patch_margin_top = 16
 patch_margin_right = 16
 patch_margin_bottom = 16
 
-[node name="StatsContent" type="BoxContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/StatsPanel" unique_id=1357965002]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="StatsList" type="VBoxContainer" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/StatsPanelFrame" unique_id=378172912]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 10.0
+offset_right = 162.0
+offset_bottom = 213.0
+size_flags_vertical = 0
+theme_override_constants/separation = 2
 
-[node name="StatsMargin" type="MarginContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/StatsPanel/StatsContent" unique_id=1104920115]
+[node name="LevelLabel" type="Label" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/StatsPanelFrame/StatsList" unique_id=115914617]
 layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 10
-
-[node name="StatsList" type="VBoxContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/StatsPanel/StatsContent/StatsMargin" unique_id=378172912]
-layout_mode = 2
-
-[node name="LevelLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/StatsPanel/StatsContent/StatsMargin/StatsList" unique_id=115914617]
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
+size_flags_horizontal = 0
+theme_override_font_sizes/font_size = 14
 text = "Level 1"
 horizontal_alignment = 1
 
-[node name="GoldLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/StatsPanel/StatsContent/StatsMargin/StatsList" unique_id=524849014]
+[node name="GoldLabel" type="Label" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/StatsPanelFrame/StatsList" unique_id=524849014]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.84, 0.44, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 12
 text = "Gold 0"
 
-[node name="ResourcesLabel" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/StatsPanel/StatsContent/StatsMargin/StatsList" unique_id=624266928]
+[node name="ResourcesLabel" type="Label" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/StatsPanelFrame/StatsList" unique_id=624266928]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.62, 0.85, 0.95, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 12
 text = "Resources 0"
 
-[node name="EconomySeparator" type="HSeparator" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/StatsPanel/StatsContent/StatsMargin/StatsList" unique_id=689981185]
-layout_mode = 2
-
-[node name="CombatStatList" type="GridContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/StatsPanel/StatsContent/StatsMargin/StatsList" unique_id=1845512187]
+[node name="CombatStatList" type="GridContainer" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/StatsPanelFrame/StatsList" unique_id=1845512187]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/h_separation = 12
 theme_override_constants/v_separation = 1
 columns = 2
 
-[node name="AttackDamageName" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/StatsPanel/StatsContent/StatsMargin/StatsList/CombatStatList" unique_id=533840266]
+[node name="AttackDamageName" type="Label" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/StatsPanelFrame/StatsList/CombatStatList" unique_id=533840266]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 12
 text = "Attack Damage"
 
-[node name="AttackDamageValue" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/StatsPanel/StatsContent/StatsMargin/StatsList/CombatStatList" unique_id=1258306735]
+[node name="AttackDamageValue" type="Label" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/StatsPanelFrame/StatsList/CombatStatList" unique_id=1258306735]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 12
 text = "0"
 horizontal_alignment = 2
 
-[node name="ArmorName" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/StatsPanel/StatsContent/StatsMargin/StatsList/CombatStatList" unique_id=953846660]
+[node name="ArmorName" type="Label" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/StatsPanelFrame/StatsList/CombatStatList" unique_id=953846660]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 12
 text = "Armor"
 
-[node name="ArmorValue" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/StatsPanel/StatsContent/StatsMargin/StatsList/CombatStatList" unique_id=395450711]
+[node name="ArmorValue" type="Label" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/StatsPanelFrame/StatsList/CombatStatList" unique_id=395450711]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 12
 text = "0"
 horizontal_alignment = 2
 
-[node name="AttackSpeedName" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/StatsPanel/StatsContent/StatsMargin/StatsList/CombatStatList" unique_id=1275669662]
+[node name="AttackSpeedName" type="Label" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/StatsPanelFrame/StatsList/CombatStatList" unique_id=1275669662]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 12
 text = "Attack Speed"
 
-[node name="AttackSpeedValue" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/StatsPanel/StatsContent/StatsMargin/StatsList/CombatStatList" unique_id=1863231120]
+[node name="AttackSpeedValue" type="Label" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/StatsPanelFrame/StatsList/CombatStatList" unique_id=1863231120]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 12
 text = "0.00"
 horizontal_alignment = 2
 
-[node name="MagicResistanceName" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/StatsPanel/StatsContent/StatsMargin/StatsList/CombatStatList" unique_id=828195054]
+[node name="MagicResistanceName" type="Label" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/StatsPanelFrame/StatsList/CombatStatList" unique_id=828195054]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 12
 text = "Magic Resistance"
 
-[node name="MagicResistanceValue" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/StatsPanel/StatsContent/StatsMargin/StatsList/CombatStatList" unique_id=1292983968]
+[node name="MagicResistanceValue" type="Label" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/StatsPanelFrame/StatsList/CombatStatList" unique_id=1292983968]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 12
 text = "0"
 horizontal_alignment = 2
 
-[node name="CriticalChanceName" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/StatsPanel/StatsContent/StatsMargin/StatsList/CombatStatList" unique_id=321595306]
+[node name="CriticalChanceName" type="Label" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/StatsPanelFrame/StatsList/CombatStatList" unique_id=321595306]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 12
 text = "Critical Chance"
 
-[node name="CriticalChanceValue" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/StatsPanel/StatsContent/StatsMargin/StatsList/CombatStatList" unique_id=1877355314]
+[node name="CriticalChanceValue" type="Label" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/StatsPanelFrame/StatsList/CombatStatList" unique_id=1877355314]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 12
 text = "0%"
 horizontal_alignment = 2
 
-[node name="MoveSpeedName" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/StatsPanel/StatsContent/StatsMargin/StatsList/CombatStatList" unique_id=1312186121]
+[node name="MoveSpeedName" type="Label" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/StatsPanelFrame/StatsList/CombatStatList" unique_id=1312186121]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 12
 text = "Move Speed"
 
-[node name="MoveSpeedValue" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/StatsPanel/StatsContent/StatsMargin/StatsList/CombatStatList" unique_id=1993652811]
+[node name="MoveSpeedValue" type="Label" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/StatsPanelFrame/StatsList/CombatStatList" unique_id=1993652811]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 12
 text = "0"
 horizontal_alignment = 2
 
-[node name="AttackRangeName" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/StatsPanel/StatsContent/StatsMargin/StatsList/CombatStatList" unique_id=1566453333]
+[node name="AttackRangeName" type="Label" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/StatsPanelFrame/StatsList/CombatStatList" unique_id=1566453333]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 12
 text = "Attack Range"
 
-[node name="AttackRangeValue" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/StatsPanel/StatsContent/StatsMargin/StatsList/CombatStatList" unique_id=931899604]
+[node name="AttackRangeValue" type="Label" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/StatsPanelFrame/StatsList/CombatStatList" unique_id=931899604]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 12
 text = "0"
 horizontal_alignment = 2
 
-[node name="HealthRegenerationName" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/StatsPanel/StatsContent/StatsMargin/StatsList/CombatStatList" unique_id=366414974]
+[node name="HealthRegenerationName" type="Label" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/StatsPanelFrame/StatsList/CombatStatList" unique_id=366414974]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 12
 text = "Health Regen"
 
-[node name="HealthRegenerationValue" type="Label" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/StatsPanel/StatsContent/StatsMargin/StatsList/CombatStatList" unique_id=855349498]
+[node name="HealthRegenerationValue" type="Label" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/StatsPanelFrame/StatsList/CombatStatList" unique_id=855349498]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 12
 text = "0.0/5s"
 horizontal_alignment = 2
 
-[node name="InventoryPanel" type="Control" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection" unique_id=562705946]
-custom_minimum_size = Vector2(154, 218)
+[node name="ItemFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection" unique_id=1320626103]
+custom_minimum_size = Vector2(158, 226)
 layout_mode = 2
-size_flags_vertical = 0
-
-[node name="ItemFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/InventoryPanel" unique_id=1320626103]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
 texture = ExtResource("12_item_frame")
 patch_margin_left = 16
 patch_margin_top = 16
 patch_margin_right = 16
 patch_margin_bottom = 16
 
-[node name="ItemPanel" type="GridContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/InventoryPanel/ItemFrame" unique_id=1803907707]
+[node name="ItemPanel" type="GridContainer" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemFrame" unique_id=1803907707]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -559,191 +463,180 @@ offset_right = -16.0
 offset_bottom = -16.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/h_separation = 6
-theme_override_constants/v_separation = 6
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
 columns = 2
 
-[node name="ColorRect" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/InventoryPanel/ItemFrame/ItemPanel" unique_id=237132654]
+[node name="ColorRect" type="TextureRect" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemFrame/ItemPanel" unique_id=237132654]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
 texture = ExtResource("4_brown")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="ColorRect2" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/InventoryPanel/ItemFrame/ItemPanel" unique_id=2126021869]
+[node name="ColorRect2" type="TextureRect" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemFrame/ItemPanel" unique_id=2126021869]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
 texture = ExtResource("4_brown")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="ColorRect3" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/InventoryPanel/ItemFrame/ItemPanel" unique_id=1733614632]
+[node name="ColorRect3" type="TextureRect" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemFrame/ItemPanel" unique_id=1733614632]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
 texture = ExtResource("4_brown")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="ColorRect4" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/InventoryPanel/ItemFrame/ItemPanel" unique_id=1803609899]
+[node name="ColorRect4" type="TextureRect" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemFrame/ItemPanel" unique_id=1803609899]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
 texture = ExtResource("4_brown")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="ColorRect5" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/InventoryPanel/ItemFrame/ItemPanel" unique_id=212047987]
+[node name="ColorRect5" type="TextureRect" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemFrame/ItemPanel" unique_id=212047987]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
 texture = ExtResource("4_brown")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="ColorRect6" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/InventoryPanel/ItemFrame/ItemPanel" unique_id=371002932]
+[node name="ColorRect6" type="TextureRect" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemFrame/ItemPanel" unique_id=371002932]
 custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
 texture = ExtResource("4_brown")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="ActionMContainer" type="Control" parent="DefaultUI/BottomBar/MarginContainer/Panels" unique_id=468670308]
+[node name="ActionPanel" type="NinePatchRect" parent="DefaultUI/BottomBar/Panels" unique_id=1975585763]
+custom_minimum_size = Vector2(270, 270)
 layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="ActionPanel" type="NinePatchRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer" unique_id=1975585763]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+size_flags_vertical = 8
 texture = ExtResource("13_action_frame")
+region_rect = Rect2(0, 0, 140, 140)
 patch_margin_left = 16
 patch_margin_top = 16
 patch_margin_right = 16
 patch_margin_bottom = 16
 
-[node name="ActionGrid" type="GridContainer" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionPanel" unique_id=1069250280]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+[node name="ActionGrid" type="GridContainer" parent="DefaultUI/BottomBar/Panels/ActionPanel" unique_id=1069250280]
+layout_mode = 0
 offset_left = 16.0
 offset_top = 16.0
-offset_right = -15.0
-offset_bottom = -19.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/h_separation = 10
-theme_override_constants/v_separation = 15
+offset_right = 253.0
+offset_bottom = 253.0
+theme_override_constants/h_separation = 7
+theme_override_constants/v_separation = 7
 columns = 4
 
-[node name="ColorRect" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionPanel/ActionGrid" unique_id=1222214380]
-custom_minimum_size = Vector2(58, 58)
+[node name="ColorRect" type="TextureRect" parent="DefaultUI/BottomBar/Panels/ActionPanel/ActionGrid" unique_id=1222214380]
+custom_minimum_size = Vector2(54, 54)
 layout_mode = 2
 texture = ExtResource("5_skill")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="ColorRect2" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionPanel/ActionGrid" unique_id=694550106]
-custom_minimum_size = Vector2(58, 58)
+[node name="ColorRect2" type="TextureRect" parent="DefaultUI/BottomBar/Panels/ActionPanel/ActionGrid" unique_id=694550106]
+custom_minimum_size = Vector2(54, 54)
 layout_mode = 2
 texture = ExtResource("5_skill")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="ColorRect3" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionPanel/ActionGrid" unique_id=351577467]
-custom_minimum_size = Vector2(58, 58)
+[node name="ColorRect3" type="TextureRect" parent="DefaultUI/BottomBar/Panels/ActionPanel/ActionGrid" unique_id=351577467]
+custom_minimum_size = Vector2(54, 54)
 layout_mode = 2
 texture = ExtResource("5_skill")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="ColorRect4" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionPanel/ActionGrid" unique_id=1886554080]
-custom_minimum_size = Vector2(58, 58)
+[node name="ColorRect4" type="TextureRect" parent="DefaultUI/BottomBar/Panels/ActionPanel/ActionGrid" unique_id=1886554080]
+custom_minimum_size = Vector2(54, 54)
 layout_mode = 2
 texture = ExtResource("5_skill")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="ColorRect5" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionPanel/ActionGrid" unique_id=247330112]
-custom_minimum_size = Vector2(58, 58)
+[node name="ColorRect5" type="TextureRect" parent="DefaultUI/BottomBar/Panels/ActionPanel/ActionGrid" unique_id=247330112]
+custom_minimum_size = Vector2(54, 54)
 layout_mode = 2
 texture = ExtResource("6_action")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="ColorRect6" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionPanel/ActionGrid" unique_id=2128561064]
-custom_minimum_size = Vector2(58, 58)
+[node name="ColorRect6" type="TextureRect" parent="DefaultUI/BottomBar/Panels/ActionPanel/ActionGrid" unique_id=2128561064]
+custom_minimum_size = Vector2(54, 54)
 layout_mode = 2
 texture = ExtResource("6_action")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="ColorRect7" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionPanel/ActionGrid" unique_id=757895957]
-custom_minimum_size = Vector2(58, 58)
+[node name="ColorRect7" type="TextureRect" parent="DefaultUI/BottomBar/Panels/ActionPanel/ActionGrid" unique_id=757895957]
+custom_minimum_size = Vector2(54, 54)
 layout_mode = 2
 texture = ExtResource("6_action")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="ColorRect8" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionPanel/ActionGrid" unique_id=1052040432]
-custom_minimum_size = Vector2(58, 58)
+[node name="ColorRect8" type="TextureRect" parent="DefaultUI/BottomBar/Panels/ActionPanel/ActionGrid" unique_id=1052040432]
+custom_minimum_size = Vector2(54, 54)
 layout_mode = 2
 texture = ExtResource("6_action")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="ColorRect9" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionPanel/ActionGrid" unique_id=1317634379]
-custom_minimum_size = Vector2(58, 58)
+[node name="ColorRect9" type="TextureRect" parent="DefaultUI/BottomBar/Panels/ActionPanel/ActionGrid" unique_id=1317634379]
+custom_minimum_size = Vector2(54, 54)
 layout_mode = 2
 texture = ExtResource("6_action")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="ColorRect10" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionPanel/ActionGrid" unique_id=1230175847]
-custom_minimum_size = Vector2(58, 58)
+[node name="ColorRect10" type="TextureRect" parent="DefaultUI/BottomBar/Panels/ActionPanel/ActionGrid" unique_id=1230175847]
+custom_minimum_size = Vector2(54, 54)
 layout_mode = 2
 texture = ExtResource("6_action")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="ColorRect11" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionPanel/ActionGrid" unique_id=1329078521]
-custom_minimum_size = Vector2(58, 58)
+[node name="ColorRect11" type="TextureRect" parent="DefaultUI/BottomBar/Panels/ActionPanel/ActionGrid" unique_id=1329078521]
+custom_minimum_size = Vector2(54, 54)
 layout_mode = 2
 texture = ExtResource("6_action")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="ColorRect12" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionPanel/ActionGrid" unique_id=762819458]
-custom_minimum_size = Vector2(58, 58)
+[node name="ColorRect12" type="TextureRect" parent="DefaultUI/BottomBar/Panels/ActionPanel/ActionGrid" unique_id=762819458]
+custom_minimum_size = Vector2(54, 54)
 layout_mode = 2
 texture = ExtResource("6_action")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="ColorRect13" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionPanel/ActionGrid" unique_id=551952867]
-custom_minimum_size = Vector2(58, 58)
+[node name="ColorRect13" type="TextureRect" parent="DefaultUI/BottomBar/Panels/ActionPanel/ActionGrid" unique_id=551952867]
+custom_minimum_size = Vector2(54, 54)
 layout_mode = 2
 texture = ExtResource("6_action")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="ColorRect14" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionPanel/ActionGrid" unique_id=1408463387]
-custom_minimum_size = Vector2(58, 58)
+[node name="ColorRect14" type="TextureRect" parent="DefaultUI/BottomBar/Panels/ActionPanel/ActionGrid" unique_id=1408463387]
+custom_minimum_size = Vector2(54, 54)
 layout_mode = 2
 texture = ExtResource("6_action")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="ColorRect15" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionPanel/ActionGrid" unique_id=376219139]
-custom_minimum_size = Vector2(58, 58)
+[node name="ColorRect15" type="TextureRect" parent="DefaultUI/BottomBar/Panels/ActionPanel/ActionGrid" unique_id=376219139]
+custom_minimum_size = Vector2(54, 54)
 layout_mode = 2
 texture = ExtResource("6_action")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="ColorRect16" type="TextureRect" parent="DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionPanel/ActionGrid" unique_id=80963509]
-custom_minimum_size = Vector2(60, 60)
+[node name="ColorRect16" type="TextureRect" parent="DefaultUI/BottomBar/Panels/ActionPanel/ActionGrid" unique_id=80963509]
+custom_minimum_size = Vector2(54, 54)
 layout_mode = 2
 texture = ExtResource("6_action")
 expand_mode = 1

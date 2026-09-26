@@ -22,7 +22,7 @@ namespace Meesles.Avalon;
 // so measuring against the node would enable a button the sim then silently rejects wherever the two
 // disagree.
 public class ActionBarController {
-  private const float CellSize = 58f;
+  private const float CellSize = 54f;
   private const int RowCount = 4;
   private static readonly Texture2D EmptySlotTexture = GD.Load<Texture2D>("res://Assets/Placeholders/purple-swirl.webp");
 

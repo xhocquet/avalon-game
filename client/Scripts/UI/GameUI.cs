@@ -205,14 +205,15 @@ public partial class GameUI : CanvasLayer, IViewHud {
     _focusTargetLabel = GetNodeOrNull<Label>("DefaultUI/Focus");
     _tabUi = GetNode<Control>("TabUI");
     _scoreboardScoreLabel = GetNode<Label>("TabUI/ScoreboardPanel/Header/ScoreLabel");
-    _healthBar = GetNode<ColorRect>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/HealthBar");
-    _healthBarFill = GetNode<ColorRect>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/HealthBar/HealthBarFill");
-    _healthBarLabel = GetNode<Label>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/HealthBar/HealthBarLabel");
-    _manaBar = GetNode<ColorRect>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/ManaBar");
-    _manaBarFill = GetNode<ColorRect>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/ManaBar/ManaBarFill");
-    _manaBarLabel = GetNode<Label>("DefaultUI/BottomBar/MarginContainer/Panels/Vbox/ManaBar/ManaBarLabel");
+    const string bottomBar = "DefaultUI/BottomBar/Panels";
+    _healthBar = GetNode<ColorRect>($"{bottomBar}/Vbox/HealthBar");
+    _healthBarFill = GetNode<ColorRect>($"{bottomBar}/Vbox/HealthBar/HealthBarFill");
+    _healthBarLabel = GetNode<Label>($"{bottomBar}/Vbox/HealthBar/HealthBarLabel");
+    _manaBar = GetNode<ColorRect>($"{bottomBar}/Vbox/ManaBar");
+    _manaBarFill = GetNode<ColorRect>($"{bottomBar}/Vbox/ManaBar/ManaBarFill");
+    _manaBarLabel = GetNode<Label>($"{bottomBar}/Vbox/ManaBar/ManaBarLabel");
     var statsRoot = GetNodeOrNull<Control>(
-      "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/StatsPanel/StatsContent/StatsMargin/StatsList");
+      $"{bottomBar}/Vbox/MainSection/StatsPanelFrame/StatsList");
     _levelLabel = statsRoot?.GetNodeOrNull<Label>("LevelLabel");
     _goldLabel = statsRoot?.GetNodeOrNull<Label>("GoldLabel");
     _resourcesLabel = statsRoot?.GetNodeOrNull<Label>("ResourcesLabel");
@@ -225,9 +226,9 @@ public partial class GameUI : CanvasLayer, IViewHud {
     _attackRangeLabel = statsRoot?.GetNodeOrNull<Label>("CombatStatList/AttackRangeValue");
     _healthRegenLabel = statsRoot?.GetNodeOrNull<Label>("CombatStatList/HealthRegenerationValue");
     _xpBar = GetNodeOrNull<ColorRect>(
-      "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/HeroMarginPanel/PortraitAndXp/XpBar");
+      $"{bottomBar}/Vbox/MainSection/PortraitAndXp/XpBar");
     _xpBarFill = GetNodeOrNull<ColorRect>(
-      "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/HeroMarginPanel/PortraitAndXp/XpBar/XpBarFill");
+      $"{bottomBar}/Vbox/MainSection/PortraitAndXp/XpBar/XpBarFill");
     _selectionRectangle = GetNode<Control>("DefaultUI/SelectionRectangle");
     _resultPanel = GetNodeOrNull<Panel>("DefaultUI/ResultPanel");
     _resultLabel = GetNodeOrNull<Label>("DefaultUI/ResultPanel/Content/ResultLabel");
@@ -237,12 +238,12 @@ public partial class GameUI : CanvasLayer, IViewHud {
     if (_resultReturnButton != null)
       _resultReturnButton.Pressed += OnReturnToLobbyPressed;
     _minimapViewport =
-      GetNodeOrNull<SubViewport>("DefaultUI/BottomBar/MarginContainer/Panels/MinimapSlot/MinimapFrame/MinimapContainer/MinimapViewport");
+      GetNodeOrNull<SubViewport>($"{bottomBar}/MinimapFrame/MinimapContainer/MinimapViewport");
     _portraitTexture = GetNodeOrNull<TextureRect>(
-      "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/HeroMarginPanel/PortraitAndXp/PortraitTexture");
+      $"{bottomBar}/Vbox/MainSection/PortraitAndXp/PortraitTexture");
 
     var actionGrid = GetNodeOrNull<GridContainer>(
-      "DefaultUI/BottomBar/MarginContainer/Panels/ActionMContainer/ActionPanel/ActionGrid");
+      $"{bottomBar}/ActionPanel/ActionGrid");
     _shopCatalog = ShopItemCatalog.CreateDefault();
     _skillCatalog = SkillCatalog.CreateDefault();
 
@@ -254,7 +255,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
       SkillBarController.SlotCount, PredictedPurchases);
 
     var itemPanel = GetNodeOrNull<GridContainer>(
-      "DefaultUI/BottomBar/MarginContainer/Panels/Vbox/MainSection/InventoryPanel/ItemFrame/ItemPanel");
+      $"{bottomBar}/Vbox/MainSection/ItemFrame/ItemPanel");
     _inventoryPanel = new InventoryPanelController(itemPanel, _shopCatalog, PredictedPurchases);
 
     SetSelectionRectangle(null);
