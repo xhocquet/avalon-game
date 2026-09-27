@@ -40,18 +40,23 @@ public sealed class SnailheadSkills : HeroSkillSetBase {
     SkillChannels.Arm(ref frame, ctx.Caster, ctx.Skill, ctx.Rank, ctx.CasterPosition);
   }
 
-  public override void OnChannelComplete(ref Frame frame, EntityRef caster, int skillAssetId,
-    int rank) {
+  // Todo why are there checks against specific skills here? I would expect this callback to already
+  // be in scope of the right skill, or not
+  public override void OnChannelComplete(
+    ref Frame frame, EntityRef caster, int skillAssetId, int rank) {
     if (skillAssetId != AssetIds.SkillSnailheadUltimate || rank <= 0 ||
         !frame.AssetRegistry.TryGet<SkillAsset>(skillAssetId, out var skill))
       return;
 
     var position = frame.GetReadOnly<TransformComponent>(caster).Position;
     var playerId = frame.GetReadOnly<Hero>(caster).PlayerId;
-    var ctx = new SkillCastContext(caster, playerId, (int)SkillSlot.Ultimate, skill, rank,
-      position, position);
+    var ctx = new SkillCastContext(
+      caster, playerId, (int)SkillSlot.Ultimate, skill, rank, position, position
+    );
+
     HealthApplication.ApplyHeal(ref frame, caster,
-      HealthApplication.GetMaxHealth(ref frame, caster) * skill.HealPercentAtRank(rank));
+      HealthApplication.GetMaxHealth(ref frame, caster) *
+      SkillAsset.AtRank(skill.HealPercent, skill.HealPercentPerRank, rank));
 
     if (skill.ClearsDebuffs)
       StatusEffects.ClearNegative(ref frame, caster);

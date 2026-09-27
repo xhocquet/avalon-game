@@ -32,7 +32,7 @@ public class SlipNSlideTests {
       harness.Tick();
 
     Position(harness, hero).Should().Be(origin + FPVector3.Right * skill.DashDistance);
-    Health(harness, alongPath).Should().Be(FP64.One + skill.HealAmountAtRank(1));
+    Health(harness, alongPath).Should().Be(FP64.One + SkillAsset.AtRank(skill.HealAmount, skill.HealAmountPerRank, 1));
     Health(harness, offPath).Should().Be(FP64.One);
   }
 
@@ -46,8 +46,8 @@ public class SlipNSlideTests {
 
     LearnAndCast(harness, Position(harness, hero) + FPVector3.Right);
 
-    harness.Frame.GetReadOnly<Stats>(hero).Armor.Should().Be(armor + armor * skill.BuffPercentAtRank(1));
-    harness.Frame.GetReadOnly<Stats>(hero).MagicResist.Should().Be(magicResist + magicResist * skill.BuffPercentAtRank(1));
+    harness.Frame.GetReadOnly<Stats>(hero).Armor.Should().Be(armor + armor * SkillAsset.AtRank(skill.BuffPercent, skill.BuffPercentPerRank, 1));
+    harness.Frame.GetReadOnly<Stats>(hero).MagicResist.Should().Be(magicResist + magicResist * SkillAsset.AtRank(skill.BuffPercent, skill.BuffPercentPerRank, 1));
   }
 
   private static SimHarness CreatePickleKnightHarness() {

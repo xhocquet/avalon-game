@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Meesles.Avalon.Sim.Assets;
 using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Heroes;
@@ -11,8 +12,10 @@ public sealed class PickleKnightSkills : HeroSkillSetBase {
   private static void CastSlipNSlide(ref Frame frame, in SkillCastContext ctx) {
     var skill = ctx.Skill;
     var direction = SkillAim.Direction(ref frame, ctx.Caster, ctx.CasterPosition, ctx.TargetPosition);
-    SkillDashes.Start(ref frame, ctx.Caster, ctx.CasterPosition, direction, skill.DashDistance,
-      skill.DashSpeed, skill.AssetId, ctx.Rank, skill.HealAmountAtRank(ctx.Rank));
+    var healAmount = SkillAsset.AtRank(skill.HealAmount, skill.HealAmountPerRank, ctx.Rank);
+
+    SkillDashes.Start(ref frame, ctx.Caster, ctx.CasterPosition, direction,
+      skill.DashDistance, skill.DashSpeed, skill.AssetId, ctx.Rank, healAmount);
 
     SkillBuffs.Apply(ref frame, in ctx, ctx.Caster);
   }
@@ -29,9 +32,9 @@ public sealed class PickleKnightSkills : HeroSkillSetBase {
 
   // (pickle-knight.json)[../../../client/Sim/Data/Assets/heroes/pickle-knight.json:79]
   private static void CastRefresh(ref Frame frame, in SkillCastContext ctx) {
+    var healPercent = SkillAsset.AtRank(ctx.Skill.HealPercent, ctx.Skill.HealPercentPerRank, ctx.Rank);
     var maxHealth = HealthApplication.GetMaxHealth(ref frame, ctx.Caster);
-    HealthApplication.ApplyHeal(ref frame, ctx.Caster,
-      maxHealth * ctx.Skill.HealPercentAtRank(ctx.Rank));
+    HealthApplication.ApplyHeal(ref frame, ctx.Caster, maxHealth * healPercent);
 
     if (ctx.Skill.ClearsDebuffs)
       StatusEffects.ClearNegative(ref frame, ctx.Caster);
@@ -43,7 +46,7 @@ public sealed class PickleKnightSkills : HeroSkillSetBase {
     var hits = new List<EntityRef>();
 
     SkillAreas.CollectAllies(ref frame, ctx.Caster, ctx.CasterPosition, skill.AreaRadius, hits);
-    var healFraction = skill.HealPercentAtRank(ctx.Rank);
+    var healFraction = SkillAsset.AtRank(skill.HealPercent, skill.HealPercentPerRank, ctx.Rank);
     foreach (var ally in hits)
       HealthApplication.ApplyHeal(ref frame, ally,
         HealthApplication.GetMaxHealth(ref frame, ally) * healFraction);

@@ -70,7 +70,7 @@ public class SpikyPunchTests {
     skill.ProcDamageMultiplier.Should().BeGreaterThan(FP64.One, "a multiplier of 1 empowers nothing");
     skill.ProcDamageMultiplierAtRank(2)
       .Should().Be(skill.ProcDamageMultiplier + skill.ProcDamageMultiplierPerRank);
-    skill.ProcResetsAttackCooldown.Should().Be(1, "Spiky Punch is authored to reset the swing timer");
+    skill.ProcResetsAttackCooldown.Should().BeTrue("Spiky Punch is authored to reset the swing timer");
 
     LearnAndCast(harness);
 

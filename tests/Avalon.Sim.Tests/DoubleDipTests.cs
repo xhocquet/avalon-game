@@ -105,7 +105,7 @@ public class DoubleDipTests {
     skill.BurstAttackCount.Should().BeGreaterThan(1, "a burst of one swing is not a burst");
     skill.BurstAttackDelayMs.Should().BePositive();
     skill.BurstDurationMs.Should().BePositive();
-    skill.BurstResetsAttackCooldown.Should().Be(1, "Double Dip is authored to reset the swing timer");
+    skill.BurstResetsAttackCooldown.Should().BeTrue("Double Dip is authored to reset the swing timer");
     skill.BurstAttackCountAtRank(2).Should().Be(skill.BurstAttackCount + skill.BurstAttackCountPerRank);
 
     LearnAndCast(harness);

@@ -23,7 +23,7 @@ public class HardenTests {
 
     LearnAndCast(harness);
 
-    var percent = skill.BuffPercentAtRank(1);
+    var percent = SkillAsset.AtRank(skill.BuffPercent, skill.BuffPercentPerRank, 1);
     Stat(harness, StatType.Armor).Should().Be(armorBefore + armorBefore * percent);
     Stat(harness, StatType.MagicResist).Should().Be(resistBefore + resistBefore * percent);
   }
@@ -37,14 +37,14 @@ public class HardenTests {
 
     skill.BuffDurationMs.Should().BePositive();
     skill.BuffPercent.Should().BeGreaterThan(FP64.Zero);
-    skill.BuffPercentAtRank(2).Should().Be(skill.BuffPercent + skill.BuffPercentPerRank);
+    SkillAsset.AtRank(skill.BuffPercent, skill.BuffPercentPerRank, 2).Should().Be(skill.BuffPercent + skill.BuffPercentPerRank);
 
     var armorBefore = Stat(harness, StatType.Armor);
     LearnAndCast(harness);
 
     var entry = Entries(harness).Should().ContainSingle(e => e.Stat == StatType.Armor).Subject;
     entry.SourceId.Should().Be(AssetIds.SkillCrystalGiantSecondary);
-    entry.Applied.Should().Be(armorBefore * skill.BuffPercentAtRank(1));
+    entry.Applied.Should().Be(armorBefore * SkillAsset.AtRank(skill.BuffPercent, skill.BuffPercentPerRank, 1));
   }
 
   [Fact]

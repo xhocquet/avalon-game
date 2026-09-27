@@ -1,17 +1,19 @@
-# Project Structure
+# Agents.md
+
+## Project Structure
 
 - `client/` and `server/` both use Klotho for deterministic networking.
 - `vendor/Klotho/`: upstream Klotho submodule source. Use it to inspect runtime/framework behavior that is consumed here through prebuilt DLLs.
 - `klotho-docs/`: copied Klotho source docs for local reference only; treat as read-only.
 
-# Comments
+## Comments
 
 - Prefer inline comments at the end of code if it fits: `var x = 123; // var x is ...`
 - Keep comments concise. Do not explain the 'why?' for code you add. Do not list consumers or other details.
 - Comments should just be about non-obvious implementation details. Do not re-describe what the code is already clear about.
 - De-fluff comments of LLM language and keep the dry and consistent with surrounding style
 
-# Agent Routing
+## Agent Routing
 
 - If working in `client/`, follow [`client/AGENTS.md`](client/AGENTS.md) for Godot/editor/runtime context.
 - If working in `server/`, follow [`server/AGENTS.md`](server/AGENTS.md) for backend/build/runtime context.
@@ -21,14 +23,14 @@
 - The client project file is `client/Meesles.Avalon.Client.csproj`; older `client/Client.csproj` references are stale.
 - **If you edit any file under `vendor/Klotho/`**, you must rebuild the client-side DLL and copy it before the client picks up your changes. Run `just sync-klotho` (or `just rebuild`). `just play` does this automatically. The Godot-flavored build project is `vendor/Klotho/com.xpturn.klotho/Godot~/xpTURN.Klotho.Runtime.csproj`; its output goes to `client/addons/klotho/lib/xpTURN.Klotho.Runtime.dll`. Server-side vendor changes compile automatically via `server/Server.csproj` and do not need this step.
 
-# Shared Simulation
+## Shared Simulation
 
 - `server/Server.csproj` compiles `sim/**/*.cs` (minus `sim/Tools/`) into the server build; there is no second copy.
 - Both sides register systems and initialize the world through `SimulationSetup`, called from their `ISimulationCallbacks`. `OnPollInput` is a no-op on the server — Klotho injects client commands instead.
 - **A gameplay rule lives once in `sim/`; the client calls it, never re-implements it.** An `*Actions` class exposes a read-only `Can*` beside its `Try*`, both running the same evaluation — `SkillActions.CanCast`/`CanUpgrade`, `ShopActions.IsHeroNearTeamShop`. The HUD polls these every sync, so keep them allocation-free.
 - Gating the UI is UX and bandwidth only. The sim re-checks every command on arrival.
 
-# Network Architecture
+## Network Architecture
 
 - **Mode**: ServerDriven (authoritative dedicated server, clients predict ahead and reconcile).
 - **Tuning values** (tick rate, input delay, rollback depth, interpolation delay) live in `server/simulationconfig.json` — read that file rather than trusting a copy here.
@@ -45,17 +47,17 @@ Config authority chain:
 3. Client uses received config to initialize its engine (overrides client-side defaults).
 4. Singleplayer bypasses this — uses hardcoded `SimulationConfig` in `SingleplayerGameNode.cs`.
 
-# Common Commands
+## Common Commands
 
 - Client build: `dotnet build .\client\Meesles.Avalon.Client.csproj`
 - Server build: `dotnet build .\server\Server.csproj`
 - Server build if normal output is locked by a running server: `dotnet build .\server\Server.csproj -o C:\tmp\avalon-server-build`
 
-# Deployment
+## Deployment
 
 - Deploying the server and exporting the client: [`docs/deployment.md`](docs/deployment.md).
 
-# Testing
+## Testing
 
 - `just test [section]` — runs all test suites by default, or one of `sim`, `server`, or `client`. The sim suite ([`tests/Avalon.Sim.Tests/`](tests/Avalon.Sim.Tests)) covers invariants, determinism baseline, rollback determinism, combat, death, nav, scoring, and spatial grid. [`SimHarness`](tests/Avalon.Sim.Tests/SimHarness.cs) boots a full sim with no Godot dependency.
 - **Rollback determinism**: the determinism baseline re-runs from tick 0, so it cannot catch a system cache that fails to roll back — both of its runs rebuild the cache identically. [`RollbackHarness`](tests/Avalon.Sim.Tests/RollbackHarness.cs) drives the shape prediction actually produces (server sim + client sim that mispredicts, rolls back, and resimulates) and is what to reach for when adding cross-tick state to a system. Any per-tick state a system remembers must live in frame state or an `ISnapshotParticipant`, or the discarded prediction branch leaks into the replay.

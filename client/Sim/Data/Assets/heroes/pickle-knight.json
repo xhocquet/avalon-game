@@ -91,6 +91,7 @@
     "HealPercent": 0.1,
     "HealPercentPerRank": 0.15,
     "SilenceDurationMs": 4000,
+    "SilenceDurationMsPerRank": 750,
     "Description": "Fully saturated, you launch pickle water around you. Allies get healed for 10% (+15%) of their total HP. Foes get silenced for 4s. CD: 100s"
   }
 ]

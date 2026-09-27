@@ -25,7 +25,7 @@ public class CloseShaveTests {
     LearnAndCast(harness);
 
     Stat(harness, StatType.MoveSpeed)
-      .Should().Be(speedBefore + speedBefore * skill.BuffPercentAtRank(1));
+      .Should().Be(speedBefore + speedBefore * SkillAsset.AtRank(skill.BuffPercent, skill.BuffPercentPerRank, 1));
   }
 
   // 5% per skill level: rank 1 is 5%, and every rank after is another 5% of the unbuffed speed.
@@ -34,8 +34,8 @@ public class CloseShaveTests {
     var harness = SimHarness.CreateInitialized();
     var skill = CloseShaveAsset(harness);
     skill.BuffDurationMs.Should().BePositive();
-    skill.BuffPercentAtRank(1).Should().Be(skill.BuffPercent);
-    skill.BuffPercentAtRank(4).Should().Be(skill.BuffPercent + skill.BuffPercentPerRank * FP64.FromInt(3));
+    SkillAsset.AtRank(skill.BuffPercent, skill.BuffPercentPerRank, 1).Should().Be(skill.BuffPercent);
+    SkillAsset.AtRank(skill.BuffPercent, skill.BuffPercentPerRank, 4).Should().Be(skill.BuffPercent + skill.BuffPercentPerRank * FP64.FromInt(3));
 
     var speedBefore = MoveSpeed(harness);
     LearnAndCast(harness, rank: 3);
@@ -43,7 +43,7 @@ public class CloseShaveTests {
     var entry = Entries(harness).Should().ContainSingle().Subject;
     entry.SourceId.Should().Be(AssetIds.SkillHairyWizardTertiary);
     entry.Stat.Should().Be(StatType.MoveSpeed);
-    entry.Applied.Should().Be(speedBefore * skill.BuffPercentAtRank(3));
+    entry.Applied.Should().Be(speedBefore * SkillAsset.AtRank(skill.BuffPercent, skill.BuffPercentPerRank, 3));
   }
 
   [Fact]

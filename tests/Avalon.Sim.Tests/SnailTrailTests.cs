@@ -30,7 +30,7 @@ public class SnailTrailTests {
     var harness = CreateSnailheadHarness();
     var skill = TrailAsset(harness);
 
-    skill.IsSelfCast.Should().BeTrue();
+    skill.SelfCast.Should().BeTrue();
     skill.HasTrail.Should().BeTrue();
     skill.TrailSegmentCount.Should().BePositive();
     skill.TrailSegmentIntervalMs.Should().BePositive();

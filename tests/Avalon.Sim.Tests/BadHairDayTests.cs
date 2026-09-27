@@ -54,9 +54,9 @@ public class BadHairDayTests {
     var harness = CreateHarness();
     var skill = BadHairDayAsset(harness);
 
-    skill.IsSelfCast.Should().BeTrue();
+    skill.SelfCast.Should().BeTrue();
     skill.ChargeDurationMs.Should().BePositive();
-    skill.ChargeRootsItsCaster.Should().BeFalse("the wizard walks the storm around");
+    skill.ChargeRootsCaster.Should().BeFalse("the wizard walks the storm around");
     skill.HasArea.Should().BeTrue();
     skill.DotDamagePerSecond.Should().BeGreaterThan(FP64.Zero);
     skill.SnareDurationMs.Should().BePositive();

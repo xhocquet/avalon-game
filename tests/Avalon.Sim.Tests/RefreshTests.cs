@@ -31,7 +31,7 @@ public class RefreshTests {
 
     LearnAndCast(harness);
 
-    Health(harness).Should().Be(maxHealth / FP64.FromInt(2) + maxHealth * skill.HealPercentAtRank(1));
+    Health(harness).Should().Be(maxHealth / FP64.FromInt(2) + maxHealth * SkillAsset.AtRank(skill.HealPercent, skill.HealPercentPerRank, 1));
   }
 
   // 5% per skill level, off the row: rank 1 is 5% and every rank after is another step of the same.
@@ -39,15 +39,15 @@ public class RefreshTests {
   public void EachRank_IsWorthAnotherStepOfTheRowsPercentage() {
     var harness = CreatePickleKnightHarness();
     var skill = RefreshAsset(harness);
-    skill.HealPercentAtRank(1).Should().Be(skill.HealPercent);
-    skill.HealPercentAtRank(4).Should().Be(skill.HealPercent + skill.HealPercentPerRank * FP64.FromInt(3));
+    SkillAsset.AtRank(skill.HealPercent, skill.HealPercentPerRank, 1).Should().Be(skill.HealPercent);
+    SkillAsset.AtRank(skill.HealPercent, skill.HealPercentPerRank, 4).Should().Be(skill.HealPercent + skill.HealPercentPerRank * FP64.FromInt(3));
 
     var maxHealth = MaxHealth(harness);
     SetHealth(harness, FP64.One);
 
     LearnAndCast(harness, rank: 3);
 
-    Health(harness).Should().Be(FP64.One + maxHealth * skill.HealPercentAtRank(3));
+    Health(harness).Should().Be(FP64.One + maxHealth * SkillAsset.AtRank(skill.HealPercent, skill.HealPercentPerRank, 3));
   }
 
   [Fact]
@@ -81,7 +81,7 @@ public class RefreshTests {
   [Fact]
   public void ACastAimedAcrossTheMap_StillResolvesOnTheCaster() {
     var harness = CreatePickleKnightHarness();
-    RefreshAsset(harness).IsSelfCast.Should().BeTrue("otherwise this proves nothing");
+    RefreshAsset(harness).SelfCast.Should().BeTrue("otherwise this proves nothing");
     var origin = HeroPosition(harness);
     SetHealth(harness, FP64.One);
 
@@ -111,7 +111,7 @@ public class RefreshTests {
 
   [Fact]
   public void TheCleanseIsAuthoredOnTheRow() {
-    RefreshAsset(CreatePickleKnightHarness()).ClearsItsTargetsDebuffs.Should().BeTrue();
+    RefreshAsset(CreatePickleKnightHarness()).ClearsDebuffs.Should().BeTrue();
   }
 
   // One cast takes off every kind of negative status at once: the signed MoveSpeed slow reverts, and

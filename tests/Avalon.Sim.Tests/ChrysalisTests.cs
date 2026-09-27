@@ -52,9 +52,9 @@ public class ChrysalisTests {
     var skill = ChrysalisAsset(harness);
 
     skill.ChargeDurationMs.Should().BePositive();
-    skill.ChargeRootsItsCaster.Should().BeTrue();
+    skill.ChargeRootsCaster.Should().BeTrue();
     skill.HasArea.Should().BeTrue();
-    skill.IsSelfCast.Should().BeTrue();
+    skill.SelfCast.Should().BeTrue();
     skill.SnareDurationMsAtRank(2).Should().Be(skill.SnareDurationMs + skill.SnareDurationMsPerRank);
 
     var armorBefore = Stat(harness, StatType.Armor);
@@ -69,7 +69,7 @@ public class ChrysalisTests {
 
     var entry = BuffEntries(harness).Should().ContainSingle().Subject;
     entry.Stat.Should().Be(StatType.Armor);
-    entry.Applied.Should().Be(armorBefore * skill.BuffPercentAtRank(1));
+    entry.Applied.Should().Be(armorBefore * SkillAsset.AtRank(skill.BuffPercent, skill.BuffPercentPerRank, 1));
     entry.ExpiryTick.Should().Be(castTick + Ticks(harness, skill.BuffDurationMs));
   }
 

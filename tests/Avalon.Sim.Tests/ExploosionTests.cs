@@ -34,13 +34,13 @@ public class ExploosionTests {
     var harness = CreatePickleKnightHarness();
     var skill = ExploosionAsset(harness);
 
-    skill.IsSelfCast.Should().BeTrue();
+    skill.SelfCast.Should().BeTrue();
     skill.HasArea.Should().BeTrue();
     skill.HasSilence.Should().BeTrue();
     skill.SilenceDurationMs.Should().BePositive();
     skill.SilenceDurationMsAtRank(1).Should().Be(skill.SilenceDurationMs);
-    skill.SilenceDurationMsAtRank(3).Should().Be(skill.SilenceDurationMs, "no per-rank ramp today");
-    skill.HealPercentAtRank(2).Should().Be(skill.HealPercent + skill.HealPercentPerRank);
+    skill.SilenceDurationMsAtRank(3).Should().Be(skill.SilenceDurationMs + skill.SilenceDurationMsPerRank * 2);
+    SkillAsset.AtRank(skill.HealPercent, skill.HealPercentPerRank, 2).Should().Be(skill.HealPercent + skill.HealPercentPerRank);
   }
 
   [Fact]
@@ -55,7 +55,7 @@ public class ExploosionTests {
 
     Cast(harness);
 
-    var fraction = skill.HealPercentAtRank(1);
+    var fraction = SkillAsset.AtRank(skill.HealPercent, skill.HealPercentPerRank, 1);
     Health(harness, near).Should().Be(FP64.FromInt(100) + FP64.FromInt(400) * fraction);
     Health(harness, far).Should().Be(FP64.FromInt(100), "past the disc");
     CasterHealth(harness).Should().Be(FP64.One + MaxHealth(harness, Caster(harness)) * fraction);
@@ -92,7 +92,7 @@ public class ExploosionTests {
     var skill = ExploosionAsset(harness);
 
     Tick(harness, SimHarness.UpgradeSkillCommand(EnemyPlayerId, 0, Tertiary));
-    var silenceTicks = Ticks(harness, skill.SilenceDurationMs);
+    var silenceTicks = Ticks(harness, skill.SilenceDurationMsAtRank(1));
     var appliedTick = harness.Frame.Tick;
     ApplySilence(harness, harness.FindHero(EnemyPlayerId), silenceTicks);
 

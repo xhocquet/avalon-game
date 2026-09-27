@@ -27,7 +27,7 @@ public class SwivelEyesTests {
 
     LearnAndCast(harness);
 
-    var percent = skill.BuffPercentAtRank(1);
+    var percent = SkillAsset.AtRank(skill.BuffPercent, skill.BuffPercentPerRank, 1);
     CasterStat(harness, StatType.Armor).Should().Be(armorBefore + armorBefore * percent);
     CasterStat(harness, StatType.MagicResist).Should().Be(resistBefore + resistBefore * percent);
   }
@@ -39,18 +39,18 @@ public class SwivelEyesTests {
     var harness = CreateSnailheadHarness();
     var skill = SwivelEyesAsset(harness);
 
-    skill.IsSelfCast.Should().BeTrue();
+    skill.SelfCast.Should().BeTrue();
     skill.HasArea.Should().BeTrue();
     skill.BuffDurationMs.Should().BePositive();
     skill.BuffPercent.Should().BeGreaterThan(FP64.Zero);
-    skill.BuffPercentAtRank(2).Should().Be(skill.BuffPercent + skill.BuffPercentPerRank);
+    SkillAsset.AtRank(skill.BuffPercent, skill.BuffPercentPerRank, 2).Should().Be(skill.BuffPercent + skill.BuffPercentPerRank);
 
     var armorBefore = CasterStat(harness, StatType.Armor);
     LearnAndCast(harness);
 
     var armor = CasterEntries(harness).Should().ContainSingle(e => e.Stat == StatType.Armor).Subject;
     armor.SourceId.Should().Be(AssetIds.SkillSnailheadTertiary);
-    armor.Applied.Should().Be(armorBefore * skill.BuffPercentAtRank(1));
+    armor.Applied.Should().Be(armorBefore * SkillAsset.AtRank(skill.BuffPercent, skill.BuffPercentPerRank, 1));
     CasterEntries(harness).Should().Contain(e => e.Stat == StatType.MagicResist);
   }
 
@@ -66,7 +66,7 @@ public class SwivelEyesTests {
 
     Cast(harness);
 
-    var percent = skill.BuffPercentAtRank(1);
+    var percent = SkillAsset.AtRank(skill.BuffPercent, skill.BuffPercentPerRank, 1);
     StatOf(harness, ally, StatType.Armor).Should().Be(armorBefore + armorBefore * percent);
     StatOf(harness, ally, StatType.MagicResist).Should().Be(resistBefore + resistBefore * percent);
   }

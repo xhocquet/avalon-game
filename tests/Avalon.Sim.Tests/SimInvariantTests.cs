@@ -120,11 +120,14 @@ public class SimInvariantTests {
   public void WaveSpawn_FillsOccupiedSlotsOutward() {
     var harness = SimHarness.CreateInitialized();
     var rules = harness.AssetRegistry.Get<WaveRulesAsset>();
+    var spawner = new WaveSpawnSystem();
+    var frame = harness.Frame;
 
     int waveCount = 4;
-    int finalSpawnTick = rules.FirstWaveDelayTicks + rules.SpawnIntervalTicks * (waveCount - 1);
-    for (int tick = 0; tick <= finalSpawnTick; tick++)
-      harness.Tick();
+    for (int waveId = 0; waveId < waveCount; waveId++) {
+      frame.Tick = rules.FirstWaveDelayTicks + rules.SpawnIntervalTicks * waveId;
+      spawner.Update(ref frame);
+    }
 
     MinionSnapshot[] minions = GetMinions(harness);
     minions.Count(minion => minion.TeamId == 1).Should().Be(waveCount);

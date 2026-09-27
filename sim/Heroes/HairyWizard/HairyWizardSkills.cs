@@ -11,6 +11,8 @@ public sealed class HairyWizardSkills : HeroSkillSetBase {
   private static void CastHairball(ref Frame frame, in SkillCastContext ctx) {
     var skill = ctx.Skill;
     var direction = SkillAim.Direction(ref frame, ctx.Caster, ctx.CasterPosition, ctx.TargetPosition);
+
+    // Todo since it uses SO many attrs from skill, just pass skill in and let the method find the right stuff
     SkillProjectiles.SpawnVolley(ref frame, in ctx, direction,
       skill.ProjectileCount, skill.ProjectileSpacing, skill.ProjectileSpeed, skill.ProjectileRange,
       skill.ProjectileRadius, skill.ProjectileSpawnOffset, skill.DamageAtRank(ctx.Rank));
@@ -20,6 +22,7 @@ public sealed class HairyWizardSkills : HeroSkillSetBase {
   private static void CastStrangle(ref Frame frame, in SkillCastContext ctx) {
     var skill = ctx.Skill;
     var direction = SkillAim.Direction(ref frame, ctx.Caster, ctx.CasterPosition, ctx.TargetPosition);
+    // todo: count/spacing hardcoded? is this implemented fully?
     SkillProjectiles.SpawnVolley(ref frame, in ctx, direction,
       count: 1, spacing: FP64.Zero, skill.ProjectileSpeed, skill.ProjectileRange,
       skill.ProjectileRadius, skill.ProjectileSpawnOffset, damage: FP64.Zero);
