@@ -24,7 +24,8 @@ public class TelegraphCatalog {
     new(AssetIds.SkillSnailheadPrimary, SelfFamily, HostileFamily, 4f, 0.35f),
     // Snail Trail: one circle per laid segment, filling over the segment's own lifetime (see
     // SkillTelegraphManager.HandleTrailSegmentSpawned). FillSeconds is set per-segment from the event.
-    new(AssetIds.SkillSnailheadSecondary, SelfFamily, HostileFamily, 4f)
+    new(AssetIds.SkillSnailheadSecondary, SelfFamily, HostileFamily, 4f),
+    new(AssetIds.SkillSnailheadUltimate, SelfFamily, HostileFamily, 4f)
   ];
 
   private readonly Dictionary<int, TelegraphDef> _bySkillAssetId = new();

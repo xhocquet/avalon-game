@@ -91,6 +91,7 @@
     "ChargeDurationMs": 5000,
     "ChargeDurationMsPerRank": -1000,
     "ChargeCancelsOnMove": 1,
+    "AreaRadius": 5.5,
     "HealPercent": 1.0,
     "ClearsDebuffs": 1,
     "BuffStats": "Armor,MagicResist",

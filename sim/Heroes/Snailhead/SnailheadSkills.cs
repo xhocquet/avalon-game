@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using Meesles.Avalon.Sim.Assets;
+using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Heroes;
@@ -38,5 +40,26 @@ public sealed class SnailheadSkills : HeroSkillSetBase {
       SkillBuffs.Apply(ref frame, in ctx, ally);
   }
 
-  private static void CastMolt(ref Frame frame, in SkillCastContext ctx) { }
+  private static void CastMolt(ref Frame frame, in SkillCastContext ctx) {
+    SkillChannels.Arm(ref frame, ctx.Caster, ctx.Skill, ctx.Rank, ctx.CasterPosition);
+  }
+
+  public override void OnChannelComplete(ref Frame frame, EntityRef caster, int skillAssetId,
+    int rank) {
+    if (skillAssetId != AssetIds.SkillSnailheadUltimate || rank <= 0 ||
+        !frame.AssetRegistry.TryGet<SkillAsset>(skillAssetId, out var skill))
+      return;
+
+    var position = frame.GetReadOnly<TransformComponent>(caster).Position;
+    var playerId = frame.GetReadOnly<Hero>(caster).PlayerId;
+    var ctx = new SkillCastContext(caster, playerId, (int)SkillSlot.Ultimate, skill, rank,
+      position, position);
+    HealthApplication.ApplyHeal(ref frame, caster,
+      HealthApplication.GetMaxHealth(ref frame, caster) * skill.HealPercentAtRank(rank));
+
+    if (skill.ClearsItsTargetsDebuffs)
+      StatusEffects.ClearNegative(ref frame, caster);
+
+    SkillBuffs.Apply(ref frame, in ctx, caster);
+  }
 }

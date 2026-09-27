@@ -23,6 +23,8 @@ namespace Meesles.Avalon;
 public class TimedEffectSystem : ISystem {
   private readonly List<EntityRef> _detonating = [];
   private readonly List<EntityRef> _pulsing = [];
+  private readonly List<EntityRef> _completingChannels = [];
+  private readonly List<EntityRef> _cancellingChannels = [];
   private readonly List<EntityRef> _burning = [];
 
   public void Update(ref Frame frame) {
@@ -105,5 +107,24 @@ public class TimedEffectSystem : ISystem {
 
     for (var i = 0; i < _detonating.Count; i++)
       SkillCharges.Detonate(ref frame, _detonating[i]);
+
+    _completingChannels.Clear();
+    _cancellingChannels.Clear();
+    var channels = frame.Filter<SkillChannel>();
+    while (channels.Next(out var entity)) {
+      ref readonly var channel = ref frame.GetReadOnly<SkillChannel>(entity);
+      if (!channel.IsActive)
+        continue;
+      if (SkillChannels.HasMoved(ref frame, entity))
+        _cancellingChannels.Add(entity);
+      else if (channel.IsDue(frame.Tick))
+        _completingChannels.Add(entity);
+    }
+
+    for (var i = 0; i < _cancellingChannels.Count; i++)
+      SkillChannels.Clear(ref frame, _cancellingChannels[i]);
+
+    for (var i = 0; i < _completingChannels.Count; i++)
+      SkillChannels.Complete(ref frame, _completingChannels[i]);
   }
 }

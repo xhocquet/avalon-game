@@ -122,7 +122,7 @@ public class SkillTelegraphManager {
     var frame = _engine.PredictedFrame.Frame;
     var aim = new FPVector3(FP64.FromFloat(aimPoint.X), FP64.Zero, FP64.FromFloat(aimPoint.Z));
     if (frame == null || !TryResolveAim(ref frame, slot, aim, out var skill, out var def,
-          out var casterPosition, out var facing, out var casterUnitId)) {
+          out var casterPosition, out var facing, out var casterUnitId, out var rank)) {
       HideAim();
       return;
     }
@@ -131,7 +131,7 @@ public class SkillTelegraphManager {
       HideAim();
 
     if (_aimNode == null) {
-      _aimNode = SpawnTelegraph(skill, def, def.OwnFamilyPath);
+      _aimNode = SpawnTelegraph(skill, def, def.OwnFamilyPath, rank);
       if (_aimNode == null) return;
       _aimSlot = slot;
     }
@@ -156,12 +156,13 @@ public class SkillTelegraphManager {
   // the conversion to render space.
   private bool TryResolveAim(ref Frame frame, int slot, FPVector3 aim, out SkillAsset skill,
     out TelegraphCatalog.TelegraphDef def, out FPVector3 casterPosition, out FPVector3 facing,
-    out int casterUnitId) {
+    out int casterUnitId, out int rank) {
     skill = null;
     def = default;
     casterPosition = FPVector3.Zero;
     facing = FPVector3.Zero;
     casterUnitId = 0;
+    rank = 0;
 
     if (!UnitLookup.TryGetPlayerHero(ref frame, _engine.LocalPlayerId, out var hero)) return false;
     if (!frame.Has<Skills>(hero)) return false;
@@ -169,6 +170,7 @@ public class SkillTelegraphManager {
     var skillAssetId = frame.GetReadOnly<Skills>(hero).GetSkillAssetId(slot);
     if (!_catalog.TryResolve(skillAssetId, out def)) return false;
     if (!frame.AssetRegistry.TryGet<SkillAsset>(skillAssetId, out skill)) return false;
+    rank = frame.GetReadOnly<Skills>(hero).GetRank(slot);
 
     casterPosition = frame.Has<TransformComponent>(hero)
       ? frame.GetReadOnly<TransformComponent>(hero).Position
@@ -192,7 +194,8 @@ public class SkillTelegraphManager {
     if (!TryResolveCastAim(evt, casterView, out var origin, out var direction)) return;
 
     var own = evt.PlayerId == _engine.LocalPlayerId;
-    var telegraph = SpawnTelegraph(skill, def, own ? def.OwnFamilyPath : def.HostileFamilyPath);
+    var telegraph = SpawnTelegraph(skill, def, own ? def.OwnFamilyPath : def.HostileFamilyPath,
+      evt.Rank);
     if (telegraph == null) return;
 
     // The caster's own preview is still up under the finished cast; drop it so only the sweep shows.
@@ -238,7 +241,8 @@ public class SkillTelegraphManager {
       telegraph.QueueFree();
   }
 
-  private Node3D SpawnTelegraph(SkillAsset skill, TelegraphCatalog.TelegraphDef def, string familyPath) {
+  private Node3D SpawnTelegraph(SkillAsset skill, TelegraphCatalog.TelegraphDef def, string familyPath,
+    int rank) {
     var family = LoadFamily(familyPath);
     if (family == null) return null;
 
@@ -246,7 +250,7 @@ public class SkillTelegraphManager {
     if (_telegraphScene?.Instantiate() is not Node3D telegraph) return null;
 
     _layer.AddChild(telegraph);
-    if (Configure(telegraph, skill, def, family)) return telegraph;
+    if (Configure(telegraph, skill, def, family, rank)) return telegraph;
 
     telegraph.QueueFree();
     return null;
@@ -255,10 +259,11 @@ public class SkillTelegraphManager {
   // One shape per row: a cone row carries no projectile block, a projectile row no cone, an area row
   // neither, so the row itself picks which configure runs. A row that authored none draws nothing.
   private static bool Configure(Node3D telegraph, SkillAsset skill, TelegraphCatalog.TelegraphDef def,
-    Resource family) {
+    Resource family, int rank) {
     if (skill.HasArea) {
-      // A charged burst fills over its own wind-up, so the ring closes exactly as the sim detonates.
-      var fillSeconds = skill.ChargeDurationMs > 0 ? skill.ChargeDurationMs / 1000f : def.FillSeconds;
+      // A channelled circle fills over its rank-adjusted wind-up, matching the sim completion tick.
+      var chargeMs = skill.ChargeDurationMsAtRank(rank);
+      var fillSeconds = chargeMs > 0 ? chargeMs / 1000f : def.FillSeconds;
       telegraph.Call("configure_circle", family, skill.AreaRadius.ToFloat(), fillSeconds, def.Height);
       return true;
     }

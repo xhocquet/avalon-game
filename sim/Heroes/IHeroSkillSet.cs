@@ -37,6 +37,7 @@ public readonly struct SkillCastContext {
 public interface IHeroSkillSet {
   void OnRankGained(ref Frame frame, EntityRef entity, int slot, SkillAsset skill, int newRank);
   void OnCast(ref Frame frame, in SkillCastContext ctx);
+  void OnChannelComplete(ref Frame frame, EntityRef caster, int skillAssetId, int rank);
 }
 
 public delegate void SkillCastHandler(ref Frame frame, in SkillCastContext ctx);
@@ -59,6 +60,9 @@ public abstract class HeroSkillSetBase : IHeroSkillSet {
       return;
     _casts[ctx.Slot]?.Invoke(ref frame, in ctx);
   }
+
+  public virtual void OnChannelComplete(ref Frame frame, EntityRef caster, int skillAssetId,
+    int rank) { }
 }
 
 public static class HeroSkillSets {
