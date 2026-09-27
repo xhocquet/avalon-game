@@ -67,7 +67,7 @@
     "BurstAttackCountPerRank": 1,
     "BurstAttackDelayMs": 150,
     "BurstDurationMs": 4000,
-    "BurstResetsAttackCooldown": 1,
+    "BurstResetsAttackCooldown": true,
     "Description": "You can't help yourself and attack again. Ignore current auto attack CD and auto attack 2 (+1 per rank) consecutive times. CD: 3s"
   },
   {
@@ -77,16 +77,16 @@
     "CooldownMs": 30000,
     "HealPercent": 0.05,
     "HealPercentPerRank": 0.05,
-    "ClearsDebuffs": 1,
+    "ClearsDebuffs": true,
     "Description": "Feeling a little shriveled up, you splash cold water on yourself and heal 5% (+5% per rank) of your total HP and shed all negative effects. CD: 30s",
-    "SelfCast": 1
+    "SelfCast": true
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.SkillAsset",
     "AssetId": 519,
     "_Name": "Pickle Knight - Exploosion",
     "CooldownMs": 100000,
-    "SelfCast": 1,
+    "SelfCast": true,
     "AreaRadius": 5.0,
     "HealPercent": 0.1,
     "HealPercentPerRank": 0.15,

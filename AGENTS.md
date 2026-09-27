@@ -5,6 +5,7 @@
 - `klotho-docs/`: copied Klotho source docs for local reference only; treat as read-only.
 
 # Comments
+
 - Prefer inline comments at the end of code if it fits: `var x = 123; // var x is ...`
 - Keep comments concise. Do not explain the 'why?' for code you add. Do not list consumers or other details.
 - Comments should just be about non-obvious implementation details. Do not re-describe what the code is already clear about.
@@ -38,6 +39,7 @@
 - **Singleplayer**: uses P2P mode locally with reduced delays (InputDelay=1, InterpolationDelay=1) for near-instant response.
 
 Config authority chain:
+
 1. Server loads `server/simulationconfig.json` at startup.
 2. Server sends `SimulationConfigMessage` to client after handshake.
 3. Client uses received config to initialize its engine (overrides client-side defaults).

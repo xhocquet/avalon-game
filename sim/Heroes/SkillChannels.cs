@@ -22,7 +22,7 @@ public static class SkillChannels {
     channel.SourceId = skill.AssetId;
     channel.CompleteTick = frame.Tick + durationTicks;
     channel.Rank = rank;
-    channel.CancelsOnMove = skill.ChannelBreaksOnMove ? 1 : 0;
+    channel.CancelsOnMove = skill.ChargeCancelsOnMove ? 1 : 0;
     channel.StartPosition = startPosition;
     return true;
   }

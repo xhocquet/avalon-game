@@ -7,187 +7,140 @@ namespace Meesles.Avalon.Sim.Assets;
 // Instance ids live in the AssetIds.Skill* block; look one up with Get<SkillAsset>(id)
 [KlothoDataAsset(AssetIds.TypeIds.Skill)]
 public partial class SkillAsset : IDataAsset {
-  [KlothoOrder(0)] public int MaxRank = 4; // Omitted in JSON means 4
-  [KlothoOrder(1)] public int CooldownMs;
-  [KlothoOrder(2)] public FP64 Damage;
-  [KlothoOrder(3)] public FP64 DamagePerRank;
-  [KlothoOrder(4)] public FP64 ProjectileSpeed; // Units/second
-  [KlothoOrder(5)] public FP64 ProjectileRange;
-  [KlothoOrder(6)] public FP64 ProjectileRadius;
-  [KlothoOrder(7)] public int ProjectileCount;
-  [KlothoOrder(8)] public FP64 ProjectileSpacing;
-  [KlothoOrder(9)] public FP64 ProjectileSpawnOffset; // Range is measured from the offset position
-
-  // Cast band around the caster, both optional: omitted in JSON (0) means unbounded on that end.
-  // SkillAim.ClampToCastRange pulls the aim point onto the band before the effect runs.
-  [KlothoOrder(10)] public FP64 MinCastRange;
-  [KlothoOrder(11)] public FP64 MaxCastRange;
-
-  // Timed stat buff block. BuffPercent is the fraction of the stat added at rank 1 and
-  // BuffPercentPerRank the step each rank after; which stats it lands on is the skill's own business.
-  [KlothoOrder(12)] public int BuffDurationMs;
-  [KlothoOrder(13)] public FP64 BuffPercent;
-  [KlothoOrder(14)] public FP64 BuffPercentPerRank;
-
-  // Empowered-attack block. ProcDamageMultiplier is the total multiplier the armed attack lands with
-  // (4 is 400% of a normal hit) and ProcDurationMs how long the charge waits to be spent.
-  [KlothoOrder(15)] public int ProcDurationMs;
-  [KlothoOrder(16)] public FP64 ProcDamageMultiplier;
-  [KlothoOrder(17)] public FP64 ProcDamageMultiplierPerRank;
-
-  // 0/1. Arming clears the caster's attack cooldown, so the empowered swing lands at once instead of
-  // waiting out the auto-attack that came before it. Per-row because not every proc wants it.
-  [KlothoOrder(18)] public int ProcResetsAttackCooldown;
-
-  // Heal block, authored as a fraction of the target's MaxHealth rather than a flat number so it keeps
-  // its meaning as the pool grows with level. HealPercent is rank 1, HealPercentPerRank the step after.
-  [KlothoOrder(19)] public FP64 HealPercent;
-  [KlothoOrder(20)] public FP64 HealPercentPerRank;
-
-  // 0/1. The skill has no aim: it resolves on the caster and the aim point is replaced with the
-  // caster's own position, so nothing downstream has to decide whether the target means anything. The
-  // client reads the same flag to fire on key-down instead of holding the key to aim.
-  [KlothoOrder(21)] public int SelfCast;
-
-  // Attack-burst block. BurstAttackCount is how many auto-attacks the cast is worth in total (2 is a
-  // double swing), BurstAttackDelayMs the spacing between them, and BurstDurationMs how long the
-  // queued swings wait for a target before they lapse.
-  [KlothoOrder(22)] public int BurstAttackCount;
-  [KlothoOrder(23)] public int BurstAttackCountPerRank;
-  [KlothoOrder(24)] public int BurstAttackDelayMs;
-  [KlothoOrder(25)] public int BurstDurationMs;
-
-  // 0/1. Queuing clears the caster's swing timer, so the burst opens on the cast tick instead of
-  // waiting out the auto-attack that came before it. Same field as ProcResetsAttackCooldown, for the
-  // other lifecycle.
-  [KlothoOrder(26)] public int BurstResetsAttackCooldown;
-
-  // Cone block. ConeRange is how far the wedge reaches from the caster's centre and ConeAngleDegrees
-  // its full opening angle; what it does to what it catches is the skill's own business, and its
-  // damage comes off the shared Damage/DamagePerRank pair.
-  [KlothoOrder(27)] public FP64 ConeRange;
-  [KlothoOrder(28)] public FP64 ConeAngleDegrees;
-
-  // Tooltip text. The only non-tuning field on the row, kept here rather than in the client's
-  // SkillCatalog so the words and the numbers they describe are authored in one place. Nothing in the
-  // sim reads it; null and "" are the same to the codec, so an unauthored row costs 4 bytes.
   [KlothoOrder(29)] public string Description;
+  [KlothoOrder(0)] public int MaxRank = 4;
+  [KlothoOrder(1)] public int CooldownMs;
 
-  // Area block. AreaRadius is the reach of a disc centred on the caster, and SnareDurationMs how long
-  // whatever it catches is held in place; the damage comes off the shared Damage/DamagePerRank pair.
-  // Which of the two a skill uses is its own business - a hold with no damage is a legal row.
-  [KlothoOrder(30)] public FP64 AreaRadius;
-  [KlothoOrder(31)] public int SnareDurationMs;
-  [KlothoOrder(32)] public int SnareDurationMsPerRank;
+  [KlothoOrder(21)] public bool SelfCast; // Self-cast affects button press timing
 
-  // How long a charged skill spends winding up before its area pays out, and whether the caster is
-  // rooted for that wind-up. The buff block times the channel alongside it, so an authored row keeps
-  // ChargeDurationMs and BuffDurationMs the same unless the buff is meant to outlast the hold.
-  [KlothoOrder(33)] public int ChargeDurationMs;
-  [KlothoOrder(34)] public int ChargeRootsCaster;
+  [KlothoOrder(57)] public FP64 ManaCost; // Mana cost
+  [KlothoOrder(58)] public FP64 ManaCostPerRank; // Increase in mana cost per rank
 
-  // Damage-over-time block. A lingering effect burns its target for DotDamagePerSecond (+PerRank)
-  // magical damage, paid tick by tick at the per-second rate scaled to the tick length. DotDurationMs
-  // is the window for an effect that owns its own clock (a debuff left by a projectile hit); a channel
-  // takes only the rate and runs it for ChargeDurationMs.
-  [KlothoOrder(35)] public FP64 DotDamagePerSecond;
-  [KlothoOrder(36)] public FP64 DotDamagePerSecondPerRank;
-  [KlothoOrder(37)] public int DotDurationMs;
-
-  // Which stats a timed stat buff lands on, one ';'-separated entry per stat, resolved through
-  // BuffSpecs. Two forms, mixable in one row:
-  //   "Armor,MagicResist"                 - bare name(s), each on the scalar BuffPercent pair, pct mode
-  //   "MoveSpeed pct 0.15 0.05"           - <StatName> <pct|flat> <base> [perRank]
-  //   "MoveSpeed pct 0.15 0.05; BonusAttackSpeed flat 0.10 0.10; Armor pct -0.20 -0.05"
-  // pct adds a fraction of the stat's current value, flat adds the number as-is. The effect code owns
-  // whether it hits the caster or the target; the sign is authored here.
-  [KlothoOrder(38)] public string BuffStats;
-
-  // Flat heal block, the sibling of the percent pair: a fixed amount rather than a fraction of the
-  // target's pool. HealAmount is rank 1, HealAmountPerRank the step after. A row authors one form or
-  // the other.
-  [KlothoOrder(39)] public FP64 HealAmount;
-  [KlothoOrder(40)] public FP64 HealAmountPerRank;
-
-  // Per-rank step on the stat-buff window, for a row whose buff outlasts its rank-1 duration by more
-  // each level. BuffDurationMs stays the rank-1 value; omitted (0) means the window does not grow.
-  [KlothoOrder(41)] public int BuffDurationMsPerRank;
-
-  // How far a dash carries its caster along the aim direction, from the cast position. Kept off the
-  // tooltip on purpose. 0 means the row does not dash.
-  [KlothoOrder(42)] public FP64 DashDistance;
-
-  // How long whatever an effect catches is silenced - no skill casts for the window, enforced in
-  // SkillActions.EvaluateCast. A flat duration, independent of SnareDurationMs; a row can do both,
-  // one, or neither.
+  [KlothoOrder(49)] public bool ClearsDebuffs; // 'Cleanse'
   [KlothoOrder(43)] public int SilenceDurationMs;
 
-  // Ground-trail block. A trail laid behind the moving caster lingers for TrailDurationMs (+PerRank)
-  // and catches anything within TrailWidth of it; what it does to a hit comes off the buff block (a
-  // MoveSpeed slow, say). TrailWidth is not in the tooltip. 0 duration means the row lays no trail.
-  [KlothoOrder(44)] public int TrailDurationMs;
-  [KlothoOrder(45)] public int TrailDurationMsPerRank;
-  [KlothoOrder(46)] public FP64 TrailWidth;
+  // ==========================================================================
+  // Cast range
+  // ==========================================================================
+  [KlothoOrder(30)] public FP64 AreaRadius; // circle cast shape
+  [KlothoOrder(10)] public FP64 MinCastRange;
+  [KlothoOrder(11)] public FP64 MaxCastRange;
+  [KlothoOrder(27)] public FP64 ConeRange; // cone cast shape
+  [KlothoOrder(28)] public FP64 ConeAngleDegrees;
 
-  // Per-rank step on the channel wind-up, negative for a row that charges faster each rank. Floored at
-  // 0 by ChargeDurationMsAtRank. ChargeDurationMs stays the rank-1 value.
-  [KlothoOrder(47)] public int ChargeDurationMsPerRank;
+  // ==========================================================================
+  // Damage
+  // ==========================================================================
+  [KlothoOrder(2)] public FP64 Damage;
+  [KlothoOrder(3)] public FP64 DamagePerRank;
 
-  // 0/1. The channel breaks if its caster moves, rather than rooting them for the wind-up. Mutually
-  // exclusive with ChargeRootsCaster in practice - a rooted caster cannot move to break it.
-  [KlothoOrder(48)] public int ChargeCancelsOnMove;
+  // ==========================================================================
+  // Projectile
+  // ==========================================================================
+  [KlothoOrder(7)] public int ProjectileCount = 0;
+  [KlothoOrder(4)] public FP64 ProjectileSpeed; // Units/second
+  [KlothoOrder(5)] public FP64 ProjectileRange; // Units. Starts from offset
+  [KlothoOrder(9)] public FP64 ProjectileSpawnOffset; // Units from caster
+  [KlothoOrder(6)] public FP64 ProjectileRadius;
+  [KlothoOrder(8)] public FP64 ProjectileSpacing;
 
-  // 0/1. The cast strips negative statuses off its target. Authored where the design calls for a
-  // cleanse; the effect that reads it is pending a debuff pipeline to clear.
-  [KlothoOrder(49)] public int ClearsDebuffs;
+  // ==========================================================================
+  // Buff
+  // ==========================================================================
+  [KlothoOrder(12)] public int BuffDurationMs;
+  [KlothoOrder(41)] public int BuffDurationMsPerRank; // Length increase per rank
+  [KlothoOrder(13)] public FP64 BuffPercent;
+  [KlothoOrder(14)] public FP64 BuffPercentPerRank; // Buff % increase per rank
 
-  // Multi-dash block. DashCount (+PerRank) is how many leaps the cast is worth, each carrying the
-  // caster DashDistance along its aim line and dealing the shared Damage/DamagePerRank to what it
-  // passes through. 0 means a single dash (or none, if DashDistance is also 0).
-  [KlothoOrder(50)] public int DashCount;
-  [KlothoOrder(51)] public int DashCountPerRank;
+  [KlothoOrder(38)] public string BuffStats;
+  // BuffSpecs implements:
+  //   "Armor,MagicResist" - bare name(s), uses BuffPercent
+  //   "MoveSpeed pct 0.15 0.05"- <StatName> <pct|flat> <base> [perRank]
+  //   "BonusAttackSpeed flat 0.10 0.10; Armor pct -0.20 -0.05"
 
-  // Stockpile block. The skill banks up to StockpileMax uses, gaining one every StockpileIntervalMs
-  // (+PerRank, negative to accrue faster each rank); a cast spends one from the bank. Independent of
-  // CooldownMs, which still gates how fast banked uses can be spent.
-  [KlothoOrder(52)] public int StockpileMax;
-  [KlothoOrder(53)] public int StockpileIntervalMs;
-  [KlothoOrder(54)] public int StockpileIntervalMsPerRank;
+  // ==========================================================================
+  // Charged/procced attack
+  // ==========================================================================
+  [KlothoOrder(15)] public int ProcDurationMs; // How long the charge stays available
+  [KlothoOrder(16)] public FP64 ProcDamageMultiplier; // 4.0 = 400%
+  [KlothoOrder(17)] public FP64 ProcDamageMultiplierPerRank; // Increase in % per rank
+  [KlothoOrder(18)] public bool ProcResetsAttackCooldown; // Whether auto-attack CD is cleared
 
-  // Mana restored to the target, the resource sibling of the heal block. Applied through
-  // ManaApplication.Restore, clamped to the target's Stats.MaxMana headroom.
+  // ==========================================================================
+  // Heal . Percent and flat amounts/increases cannot be mixed
+  // ==========================================================================
+  [KlothoOrder(19)] public FP64 HealPercent; // % of total health to heal
+  [KlothoOrder(20)] public FP64 HealPercentPerRank; // Increase in % per rank
+  [KlothoOrder(39)] public FP64 HealAmount; // Flat heal amount
+  [KlothoOrder(40)] public FP64 HealAmountPerRank; // Flat increase per rank
   [KlothoOrder(55)] public FP64 ManaRestore;
   [KlothoOrder(56)] public FP64 ManaRestorePerRank;
 
-  // Mana spent to cast, the resource sibling of CooldownMs. ManaCost is rank 1, ManaCostPerRank the
-  // step each rank after (authored positive even where a deeper rank costs more). 0 means the cast is
-  // free. SkillActions checks the pool in EvaluateCast and spends on a successful TryCast, after the
-  // cooldown starts, so a rejected cast never pays.
-  [KlothoOrder(57)] public FP64 ManaCost;
-  [KlothoOrder(58)] public FP64 ManaCostPerRank;
+  // ==========================================================================
+  // Burstable auto-attack
+  // ==========================================================================
+  [KlothoOrder(22)] public int BurstAttackCount; // # of auto-attacks
+  [KlothoOrder(23)] public int BurstAttackCountPerRank; // increase in auto-attacks per rank
+  [KlothoOrder(24)] public int BurstAttackDelayMs; // Ms between bursted auto-attacks
+  [KlothoOrder(25)] public int BurstDurationMs; // How long this burst stays available
+  [KlothoOrder(26)] public bool BurstResetsAttackCooldown; // Whether this skill reset auto-attacks
 
-  // Trail-emission block, paired with the TrailDurationMs/TrailWidth block above. A cast lays
-  // TrailSegmentCount circles, one every TrailSegmentIntervalMs at the caster's position as it moves.
-  // 0 count means the row lays no trail.
-  [KlothoOrder(59)] public int TrailSegmentCount;
-  [KlothoOrder(60)] public int TrailSegmentIntervalMs;
+  // ==========================================================================
+  // Snare
+  // ==========================================================================
+  [KlothoOrder(31)] public int SnareDurationMs;
+  [KlothoOrder(32)] public int SnareDurationMsPerRank;
 
+  // ==========================================================================
+  // Charge/Wind-up
+  // ==========================================================================
+  [KlothoOrder(33)] public int ChargeDurationMs;
+  [KlothoOrder(47)] public int ChargeDurationMsPerRank; // Increase in charge time per rank
+  [KlothoOrder(34)] public bool ChargeRootsCaster; // Can caster move during charge
+  [KlothoOrder(48)] public bool ChargeCancelsOnMove; // Caster move cancels charge
+
+  // ==========================================================================
+  // Damage-over-time (DOT)
+  // ==========================================================================
+  [KlothoOrder(35)] public FP64 DotDamagePerSecond;
+  [KlothoOrder(36)] public FP64 DotDamagePerSecondPerRank; // Increase in dmg/s per rank
+  [KlothoOrder(37)] public int DotDurationMs;
+
+  // ==========================================================================
+  // Trail left behind the caster
+  // ==========================================================================
+  [KlothoOrder(44)] public int TrailDurationMs; // How long the trail emission takes
+  [KlothoOrder(45)] public int TrailDurationMsPerRank;
+  [KlothoOrder(46)] public FP64 TrailWidth; // Diameter of the trail segment
+  [KlothoOrder(59)] public int TrailSegmentCount; // Total # of segments
+  [KlothoOrder(60)] public int TrailSegmentIntervalMs; // Ms between each segment
+
+  // ==========================================================================
+  // Stockpile . These skills accumulate to StockpileMax over time
+  // Regular cooldown Ms affects how quickly you can cast stockpiled skills
+  // ==========================================================================
+  [KlothoOrder(52)] public int StockpileMax;
+  [KlothoOrder(53)] public int StockpileIntervalMs; // Time it takes to generate 1
+  [KlothoOrder(54)] public int StockpileIntervalMsPerRank;
+
+  // ==========================================================================
+  // Dash
+  // ==========================================================================
+  [KlothoOrder(42)] public FP64 DashDistance; // in units
+  [KlothoOrder(50)] public int DashCount; // # of dashes allowed per cast
+  [KlothoOrder(51)] public int DashCountPerRank; // increase in dashes per cast per rank
   [KlothoOrder(61)] public FP64 DashSpeed; // Units/second
-  [KlothoOrder(62)] public FP64 DashWidth; // Full telegraph width in units
+  [KlothoOrder(62)] public FP64 DashWidth; // Width in units
 
   private BuffSpec[] _buffSpecs;
 
   public bool HasCastRange => MinCastRange > FP64.Zero || MaxCastRange > FP64.Zero;
-  public bool IsSelfCast => SelfCast != 0;
   public bool HasCone => ConeRange > FP64.Zero && ConeAngleDegrees > FP64.Zero;
   public bool HasArea => AreaRadius > FP64.Zero;
   public bool HasDash => DashDistance > FP64.Zero;
   public bool HasStockpile => StockpileMax > 0;
   public bool HasSilence => SilenceDurationMs > 0;
   public bool HasTrail => TrailDurationMs > 0 && TrailSegmentCount > 0;
-  public bool ChargeRootsItsCaster => ChargeRootsCaster != 0;
-  public bool ChannelBreaksOnMove => ChargeCancelsOnMove != 0;
-  public bool ClearsItsTargetsDebuffs => ClearsDebuffs != 0;
 
   public FP64 DamageAtRank(int rank) {
     return rank <= 0 ? FP64.Zero : Damage + DamagePerRank * FP64.FromInt(rank - 1);
@@ -209,7 +162,8 @@ public partial class SkillAsset : IDataAsset {
         continue;
 
       var tokens = entry.Split((char[])null, System.StringSplitOptions.RemoveEmptyEntries);
-      if (tokens.Length == 1) { // bare name, or a comma list of them, on the scalar BuffPercent pair
+      if (tokens.Length == 1) {
+        // bare name, or a comma list of them, on the scalar BuffPercent pair
         foreach (var name in tokens[0].Split(','))
           specs.Add(new BuffSpec(System.Enum.Parse<StatType>(name.Trim()), BuffMode.Percent,
             BuffPercent, BuffPercentPerRank));

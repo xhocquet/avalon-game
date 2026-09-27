@@ -12,7 +12,7 @@ public sealed class CrystalGiantSkills : HeroSkillSetBase {
     AttackProcs.Arm(ref frame, ctx.Caster, skill.AssetId,
       skill.ProcDamageMultiplierAtRank(ctx.Rank),
       TickMath.MsToTicksCeil(ref frame, skill.ProcDurationMs),
-      skill.ProcResetsAttackCooldown != 0);
+      skill.ProcResetsAttackCooldown);
   }
 
   // (crystal-giant.json)[../../../client/Sim/Data/Assets/heroes/crystal-giant.json:65]
@@ -36,7 +36,7 @@ public sealed class CrystalGiantSkills : HeroSkillSetBase {
 
     SkillBuffs.Apply(ref frame, in ctx, ctx.Caster);
 
-    if (skill.ChargeRootsItsCaster)
+    if (skill.ChargeRootsCaster)
       Snares.Apply(ref frame, ctx.Caster, skill.AssetId, chargeTicks);
 
     SkillCharges.Arm(ref frame, ctx.Caster, skill.AssetId, chargeTicks,

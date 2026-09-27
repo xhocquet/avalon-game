@@ -24,7 +24,7 @@ public sealed class PickleKnightSkills : HeroSkillSetBase {
       skill.BurstAttackCountAtRank(ctx.Rank),
       TickMath.MsToTicksCeil(ref frame, skill.BurstAttackDelayMs),
       TickMath.MsToTicksCeil(ref frame, skill.BurstDurationMs),
-      skill.BurstResetsAttackCooldown != 0);
+      skill.BurstResetsAttackCooldown);
   }
 
   // (pickle-knight.json)[../../../client/Sim/Data/Assets/heroes/pickle-knight.json:79]
@@ -33,7 +33,7 @@ public sealed class PickleKnightSkills : HeroSkillSetBase {
     HealthApplication.ApplyHeal(ref frame, ctx.Caster,
       maxHealth * ctx.Skill.HealPercentAtRank(ctx.Rank));
 
-    if (ctx.Skill.ClearsItsTargetsDebuffs)
+    if (ctx.Skill.ClearsDebuffs)
       StatusEffects.ClearNegative(ref frame, ctx.Caster);
   }
 

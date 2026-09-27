@@ -420,7 +420,7 @@ public class InputCapture : IDisposable {
     if (!frame.Has<Skills>(hero)) return false;
 
     var skillAssetId = frame.GetReadOnly<Skills>(hero).GetSkillAssetId(slot);
-    return frame.AssetRegistry.TryGet<SkillAsset>(skillAssetId, out var skill) && skill.IsSelfCast;
+    return frame.AssetRegistry.TryGet<SkillAsset>(skillAssetId, out var skill) && skill.SelfCast;
   }
 
   private void ReleaseSkillAim(int slot) {

@@ -65,7 +65,7 @@ public static class SkillActions {
       : FPVector3.Zero;
     // A self-cast row carries no aim, so whatever point the client sent is discarded rather than
     // clamped - the cast, its event, and any telegraph all resolve on the caster.
-    target = skill.IsSelfCast
+    target = skill.SelfCast
       ? casterPosition
       : SkillAim.ClampToCastRange(ref frame, heroEntity, skill, casterPosition, target);
 

@@ -10,14 +10,6 @@
 - **Assist gold.** `GoldRulesAsset.GoldPerAssist` (50) is authored but nothing reads it. Assists need a
 damage-participation window per victim before a payout has anything to key off — `Health.LastDamagerUnitId` only remembers the fatal hit, so the killer is the only actor a death can currently credit.
 
-## Negative-status pipeline
-
-Buffs and debuffs share one mechanism now. A signed `StatBuffs` entry is a slow or a shred, `Snare` roots, `Silence` gags, `DamageOverTime` burns — each with its own helper, all expiring in `TimedEffectSystem`, all cleared on death by `RespawnSystem.ClearActiveState`. Cleanse is [`StatusEffects.ClearNegative`](sim/StatusEffects.cs); [`StatSemantics.IsAdverse`](sim/StatSemantics.cs) classifies a signed stat entry. See [`sim/docs/skills-and-upgrades.md`](sim/docs/skills-and-upgrades.md).
-
-### Dead code
-
-- **[`FlowFieldCache.Version` and `Invalidate()`](sim/Navigation/FlowFieldCache.cs)** are never called — meaning flow fields are never invalidated. Harmless while the navmesh is static (nothing writes `isBlocked` at runtime), but the API implies otherwise.
-
 ## Naming consistency
 
 - Namespace split. Everything under Systems/ declares namespace Meesles.Avalon; Components/, Assets/, Commands/, Heroes/, Navigation/, Factories/ all use Meesles.Avalon.Sim.*. Result: every system file opens with using Meesles.Avalon.Sim;. Nothing in AGENTS.md explains it.
@@ -32,5 +24,3 @@ Fixed-buffer accessors are publicly unchecked. Skills.GetRank/GetSkillAssetId/Ge
 
 - StatBuffs.MaxEntries = 6 — Desperation applies 5; Desperation + Sprint overlapping = 7, and the 7th
 silently fails to apply. The struct is at the 128-byte ceiling so it can't just be bumped. Saved a memory note.
-
-## Replace skill damage, attack damage, etc. with curves instead of simple functions
