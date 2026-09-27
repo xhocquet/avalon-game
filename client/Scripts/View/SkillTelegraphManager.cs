@@ -278,6 +278,22 @@ public class SkillTelegraphManager {
       return true;
     }
 
+    var dashDistance = skill.DashDistance.ToFloat();
+    var dashSpeed = skill.DashSpeed.ToFloat();
+    var dashWidth = skill.DashWidth.ToFloat();
+    if (skill.HasDash && dashDistance > 0f && dashSpeed > 0f && dashWidth > 0f) {
+      telegraph.Call("configure",
+        family,
+        1,
+        0f,
+        dashWidth * 0.5f,
+        dashDistance,
+        0f,
+        dashDistance / dashSpeed,
+        def.Height);
+      return true;
+    }
+
     var range = skill.ProjectileRange.ToFloat();
     var speed = skill.ProjectileSpeed.ToFloat();
     if (skill.ProjectileCount <= 0 || range <= 0f || speed <= 0f) return false;

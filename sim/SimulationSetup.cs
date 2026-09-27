@@ -53,6 +53,7 @@ public static class SimulationSetup {
     if (navigation != null) // Movement
       simulation.AddSystem(new NavigationAgentSystem(navigation), SystemPhase.Update);
 
+    simulation.AddSystem(new SkillDashSystem(), SystemPhase.Update);
     simulation.AddSystem(new PickupSystem(), SystemPhase.Update); // Depends on movement
 
     // Begin offensive concepts

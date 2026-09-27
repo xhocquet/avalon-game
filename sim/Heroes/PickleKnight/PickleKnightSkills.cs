@@ -7,11 +7,17 @@ public sealed class PickleKnightSkills : HeroSkillSetBase {
   public PickleKnightSkills()
     : base(CastSlipNSlide, CastDoubleDip, CastRefresh, CastExploosion) { }
 
-  private static void CastSlipNSlide(ref Frame frame, in SkillCastContext ctx) { }
+  // (pickle-knight.json)[../../../client/Sim/Data/Assets/heroes/pickle-knight.json:57]
+  private static void CastSlipNSlide(ref Frame frame, in SkillCastContext ctx) {
+    var skill = ctx.Skill;
+    var direction = SkillAim.Direction(ref frame, ctx.Caster, ctx.CasterPosition, ctx.TargetPosition);
+    SkillDashes.Start(ref frame, ctx.Caster, ctx.CasterPosition, direction, skill.DashDistance,
+      skill.DashSpeed, skill.AssetId, ctx.Rank, skill.HealAmountAtRank(ctx.Rank));
 
-  // Queues the row's burst of auto-attacks and resets the swing timer, so the swings go out back to
-  // back at the burst's spacing rather than at the caster's attack rate. Each one is a plain attack;
-  // the burst lapses unspent if nothing is in reach before its duration is up.
+    SkillBuffs.Apply(ref frame, in ctx, ctx.Caster);
+  }
+
+  // (pickle-knight.json)[../../../client/Sim/Data/Assets/heroes/pickle-knight.json:69]
   private static void CastDoubleDip(ref Frame frame, in SkillCastContext ctx) {
     var skill = ctx.Skill;
     AttackBursts.Queue(ref frame, ctx.Caster, skill.AssetId,
@@ -21,9 +27,7 @@ public sealed class PickleKnightSkills : HeroSkillSetBase {
       skill.BurstResetsAttackCooldown != 0);
   }
 
-  // Self-cast: restores the row's percentage of the caster's own max health, then cleanses - if the
-  // row sets ClearsDebuffs, every negative status the caster is carrying comes off through
-  // StatusEffects.ClearNegative.
+  // (pickle-knight.json)[../../../client/Sim/Data/Assets/heroes/pickle-knight.json:79]
   private static void CastRefresh(ref Frame frame, in SkillCastContext ctx) {
     var maxHealth = HealthApplication.GetMaxHealth(ref frame, ctx.Caster);
     HealthApplication.ApplyHeal(ref frame, ctx.Caster,
@@ -33,8 +37,7 @@ public sealed class PickleKnightSkills : HeroSkillSetBase {
       StatusEffects.ClearNegative(ref frame, ctx.Caster);
   }
 
-  // Self-cast burst: heals the row's percentage of max health onto the caster and every ally inside
-  // AreaRadius, and silences every hostile the same disc catches for SilenceDurationMs.
+  // (pickle-knight.json)[../../../client/Sim/Data/Assets/heroes/pickle-knight.json:92]
   private static void CastExploosion(ref Frame frame, in SkillCastContext ctx) {
     var skill = ctx.Skill;
     var hits = new List<EntityRef>();

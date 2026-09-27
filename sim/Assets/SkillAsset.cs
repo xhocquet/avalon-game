@@ -172,6 +172,9 @@ public partial class SkillAsset : IDataAsset {
   [KlothoOrder(59)] public int TrailSegmentCount;
   [KlothoOrder(60)] public int TrailSegmentIntervalMs;
 
+  [KlothoOrder(61)] public FP64 DashSpeed; // Units/second
+  [KlothoOrder(62)] public FP64 DashWidth; // Full telegraph width in units
+
   private BuffSpec[] _buffSpecs;
 
   public bool HasCastRange => MinCastRange > FP64.Zero || MaxCastRange > FP64.Zero;

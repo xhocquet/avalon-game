@@ -53,6 +53,7 @@ public static class ComponentIds {
   public const int TrailSegmentIdCounter = 144;
   public const int Silence = 145;
   public const int SkillChannel = 146;
+  public const int SkillDash = 147;
 
-  // Next free id: 147
+  // Next free id: 148
 }

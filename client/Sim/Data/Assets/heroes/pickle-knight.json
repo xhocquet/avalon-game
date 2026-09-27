@@ -47,6 +47,8 @@
     "_Name": "Pickle Knight - Slip 'n Slide",
     "CooldownMs": 35000,
     "DashDistance": 5.0,
+    "DashSpeed": 7.0,
+    "DashWidth": 1.0,
     "HealAmount": 120,
     "HealAmountPerRank": 60,
     "BuffStats": "Armor,MagicResist",

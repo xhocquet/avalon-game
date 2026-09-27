@@ -54,7 +54,7 @@ public class MoltTests {
     harness.Frame.Get<TransformComponent>(hero).Position += FPVector3.Right;
     harness.Tick();
 
-    var frame = harness.Frame;
+    frame = harness.Frame;
     frame.GetReadOnly<SkillChannel>(hero).IsActive.Should().BeFalse();
     AdvanceTo(harness, castTick + Ticks(harness, skill.ChargeDurationMsAtRank(1)));
     Health(harness).Should().Be(maxHealth / FP64.FromInt(2));

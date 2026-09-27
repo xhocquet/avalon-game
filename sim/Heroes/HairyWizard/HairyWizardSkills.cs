@@ -7,8 +7,7 @@ public sealed class HairyWizardSkills : HeroSkillSetBase {
   public HairyWizardSkills()
     : base(CastHairball, CastStrangle, CastCloseShave, CastBadHairDay) { }
 
-  // Skillshot: one fat hairball rolled toward the aim point, dying on the first enemy hero or minion
-  // it touches. Same volley path Crystal Bullets uses, authored down to a single wider bullet.
+  // (hairy-wizard.json)[../../../client/Sim/Data/Assets/heroes/hairy-wizard.json:58]
   private static void CastHairball(ref Frame frame, in SkillCastContext ctx) {
     var skill = ctx.Skill;
     var direction = SkillAim.Direction(ref frame, ctx.Caster, ctx.CasterPosition, ctx.TargetPosition);
@@ -17,9 +16,7 @@ public sealed class HairyWizardSkills : HeroSkillSetBase {
       skill.ProjectileRadius, skill.ProjectileSpawnOffset, skill.DamageAtRank(ctx.Rank));
   }
 
-  // Skillshot with no impact damage: a lasso that lands a MoveSpeed slow and a magic-damage burn on
-  // the first enemy it touches. Both come off the row's buff and DoT blocks and are applied by
-  // ProjectileSystem when the bullet connects, scaled to the rank it was fired at.
+  // (hairy-wizard.json)[../../../client/Sim/Data/Assets/heroes/hairy-wizard.json:77]
   private static void CastStrangle(ref Frame frame, in SkillCastContext ctx) {
     var skill = ctx.Skill;
     var direction = SkillAim.Direction(ref frame, ctx.Caster, ctx.CasterPosition, ctx.TargetPosition);
@@ -28,18 +25,12 @@ public sealed class HairyWizardSkills : HeroSkillSetBase {
       skill.ProjectileRadius, skill.ProjectileSpawnOffset, damage: FP64.Zero);
   }
 
-  // Self-buff: raises move speed by the row's percentage of its current value for its duration.
-  // Recasting refreshes rather than stacks, and NavigationAgentSystem picks the new speed up the tick
-  // it lands - nothing has to re-issue the move order.
+  // (hairy-wizard.json)[../../../client/Sim/Data/Assets/heroes/hairy-wizard.json:89]
   private static void CastCloseShave(ref Frame frame, in SkillCastContext ctx) {
     SkillBuffs.Apply(ref frame, in ctx, ctx.Caster);
   }
 
-  // Channel: for the wind-up the wizard trails a storm that pulses DotDamagePerSecond magical damage
-  // each second at every hostile in AreaRadius, re-reading the disc each pulse so it tracks whoever
-  // stands in it and follows him as he walks - the row roots nothing. When the wind-up ends the same
-  // disc snares what it caught for SnareDurationMs. No impact damage of its own; the burst is the
-  // snare plus the aura's tail instalment.
+  // (hairy-wizard.json)[../../../client/Sim/Data/Assets/heroes/hairy-wizard.json:102]
   private static void CastBadHairDay(ref Frame frame, in SkillCastContext ctx) {
     var skill = ctx.Skill;
     var chargeTicks = TickMath.MsToTicksCeil(ref frame, skill.ChargeDurationMs);
