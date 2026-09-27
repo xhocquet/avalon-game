@@ -26,8 +26,8 @@ public class DebugActionTests {
     var after = harness.FindHero(1);
     harness.Count<Hero>().Should().Be(1); // The old hero is gone, not left standing beside the new one
     harness.Frame.GetReadOnly<Faction>(after).FactionId.Should().Be(AssetIds.FactionPickleKnights);
-    harness.Frame.GetReadOnly<Hero>(after).HeroAssetId.Should()
-      .NotBe(harness.Frame.AssetRegistry.Get<FactionAsset>(AssetIds.FactionHairyWizards).HeroAssetId);
+    harness.Frame.GetReadOnly<Hero>(after).HeroStatsAssetId.Should()
+      .NotBe(harness.Frame.AssetRegistry.Get<FactionAsset>(AssetIds.FactionHairyWizards).HeroStatsAssetId);
   }
 
   [Fact]

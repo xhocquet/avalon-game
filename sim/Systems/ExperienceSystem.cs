@@ -1,11 +1,10 @@
-using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
-namespace Meesles.Avalon;
+namespace Meesles.Avalon.Sim;
 
 // Converts the XP that ExperienceRewards deposited into levels
 // Runs after DeathSystem = same tick processing of hero kill experience
@@ -35,7 +34,7 @@ public class ExperienceSystem : ISystem {
 
   private static void ApplyLevelGains(ref Frame frame, EntityRef entity, XpRulesAsset rules,
     int levelBefore, int levelAfter) {
-    var heroAsset = frame.AssetRegistry.Get<HeroAsset>(frame.GetReadOnly<Hero>(entity).HeroAssetId);
+    var heroAsset = frame.AssetRegistry.Get<HeroStatsAsset>(frame.GetReadOnly<Hero>(entity).HeroStatsAssetId);
     if (heroAsset != null)
       ApplyGrowth(ref frame, entity, heroAsset, rules, levelBefore, levelAfter);
 
@@ -45,7 +44,7 @@ public class ExperienceSystem : ISystem {
 
   // Per-hero growth off the hero's own row, applied as the difference between the two levels rather
   // than a flat step each - the curve is not linear, and several levels can land on one tick.
-  private static void ApplyGrowth(ref Frame frame, EntityRef entity, HeroAsset heroAsset,
+  private static void ApplyGrowth(ref Frame frame, EntityRef entity, HeroStatsAsset heroAsset,
     XpRulesAsset rules, int levelBefore, int levelAfter) {
     ref var stats = ref frame.Get<Stats>(entity);
     for (var i = 0; i < StatRanges.Count; i++) {

@@ -9,8 +9,6 @@ namespace Meesles.Avalon.Sim;
 // rule lives here rather than in either of them. ExperienceSystem picks the deposits up later in
 // the same tick and turns them into levels.
 public static class ExperienceRewards {
-  // The XP goes to whoever landed the fatal hit, and nowhere else. Only heroes carry an
-  // Experience today, so a kill credited to a minion or a turret simply pays out nothing.
   public static void AwardForKill(ref Frame frame, EntityRef killer, int victimUnitTypeId, int victimTeamId) {
     // Nothing was credited with the damage (map damage, a decayed corpse), the killer is gone, or it
     // killed its own - the last of which would otherwise let a team farm its own minions.

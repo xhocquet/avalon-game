@@ -401,8 +401,8 @@ public class ExperienceSystemTests {
       $"expected about {expected} but found {actual}");
   }
 
-  private static HeroAsset HeroRow(SimHarness harness, EntityRef hero) {
+  private static HeroStatsAsset HeroRow(SimHarness harness, EntityRef hero) {
     var frame = harness.Frame;
-    return harness.AssetRegistry.Get<HeroAsset>(frame.GetReadOnly<Hero>(hero).HeroAssetId);
+    return harness.AssetRegistry.Get<HeroStatsAsset>(frame.GetReadOnly<Hero>(hero).HeroStatsAssetId);
   }
 }

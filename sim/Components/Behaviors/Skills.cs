@@ -10,7 +10,7 @@ namespace Meesles.Avalon.Sim.Components;
 // hashing and serialization. See Inventory for the same pattern.
 // Size: 4 ints + 3 * MaxSlots * 4 = 52B, inside the 128-byte component ceiling.
 //
-// SkillAssetIds is copied off HeroAsset at spawn rather than looked up per access, so the cast path
+// SkillAssetIds is copied off HeroStatsAsset at spawn rather than looked up per access, so the cast path
 // never has to reach the asset registry to find out which skills a hero owns.
 [KlothoComponent(ComponentIds.Skills)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]

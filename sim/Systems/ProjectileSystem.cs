@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using Meesles.Avalon.Sim.Heroes;
@@ -8,7 +7,7 @@ using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.Deterministic.Navigation;
 using xpTURN.Klotho.ECS;
 
-namespace Meesles.Avalon;
+namespace Meesles.Avalon.Sim;
 
 // Advances every skill projectile and resolves collisions
 //

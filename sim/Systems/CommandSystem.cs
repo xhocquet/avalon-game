@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Commands;
 using Meesles.Avalon.Sim.Components;
@@ -12,7 +11,7 @@ using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Logging;
 using MoveCommand = Meesles.Avalon.Sim.Commands.MoveCommand;
 
-namespace Meesles.Avalon;
+namespace Meesles.Avalon.Sim;
 
 public class CommandSystem(NavigationRuntime navigation = null) : ISystem, ICommandSystem {
   private readonly List<EntityRef> _arrived = [];

@@ -255,17 +255,17 @@ public class SkillCastTests {
     var hero = harness.FindHero(PlayerId);
     var frame = harness.Frame;
 
-    SkillActions.CastBlock(ref frame, PlayerId, Primary).Should().Be(SkillActions.SkillBlock.NotLearned);
+    SkillActions.CastBlock(ref frame, PlayerId, Primary).Should().Be(SkillRejectReason.NotLearned);
 
     frame.Get<Skills>(hero).TrySpendPoint(Primary, 4).Should().BeTrue();
-    SkillActions.CastBlock(ref frame, PlayerId, Primary).Should().Be(SkillActions.SkillBlock.None);
+    SkillActions.CastBlock(ref frame, PlayerId, Primary).Should().Be(SkillRejectReason.None);
 
     Silences.Apply(ref frame, hero, 999, 120).Should().BeTrue();
-    SkillActions.CastBlock(ref frame, PlayerId, Primary).Should().Be(SkillActions.SkillBlock.Silenced);
+    SkillActions.CastBlock(ref frame, PlayerId, Primary).Should().Be(SkillRejectReason.Silenced);
     Silences.Clear(ref frame, hero);
 
     frame.Get<Health>(hero).Current = FP64.Zero;
-    SkillActions.CastBlock(ref frame, PlayerId, Primary).Should().Be(SkillActions.SkillBlock.HeroDead);
+    SkillActions.CastBlock(ref frame, PlayerId, Primary).Should().Be(SkillRejectReason.HeroDead);
   }
 
   [Fact]
@@ -274,7 +274,7 @@ public class SkillCastTests {
     LearnAndCast(harness);
 
     var frame = harness.Frame;
-    SkillActions.CastBlock(ref frame, PlayerId, Primary).Should().Be(SkillActions.SkillBlock.OnCooldown);
+    SkillActions.CastBlock(ref frame, PlayerId, Primary).Should().Be(SkillRejectReason.OnCooldown);
   }
 
   // Rank up Primary and cast it, leaving the sim one tick past the cast.

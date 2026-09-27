@@ -1,9 +1,8 @@
-using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.ECS;
 
-namespace Meesles.Avalon;
+namespace Meesles.Avalon.Sim;
 
 public class InventorySystem : ISystem {
   public void Update(ref Frame frame) {

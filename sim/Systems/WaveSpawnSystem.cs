@@ -6,7 +6,7 @@ using Meesles.Avalon.Sim.Navigation;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
-namespace Meesles.Avalon;
+namespace Meesles.Avalon.Sim;
 
 public class WaveSpawnSystem : ISystem {
   // Outermost ring the cluster is allowed to grow to: 217 slots, ~8 spacings across. Reached only if

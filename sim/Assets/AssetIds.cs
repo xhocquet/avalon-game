@@ -43,7 +43,7 @@ public static class AssetIds {
   public const int ShopItemSquirtGun = 305;
   // Next free shop item id: 306
 
-  // One HeroAsset per hero -> FactionAsset
+  // One HeroStatsAsset per hero -> FactionAsset
   public const int HeroHairyWizard = 400;
   public const int HeroSnailhead = 401;
   public const int HeroCrystalGiant = 402;

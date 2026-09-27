@@ -1,13 +1,11 @@
-using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
 
-// The two phase events DamageSystem raises around a swing. The third, AttackHitEvent, is raised by
-// DamageApplication instead, because skills land hits too and every hit has to report itself the
-// same way.
+// Raises AttackWindupStartedEvent and AttackWindupCanceledEvent
+// AttackHitEvent, is raised by DamageApplication to support skills
 public static class AttackPhases {
   public static void RaiseWindupStarted(ref Frame frame, EntityRef attacker, EntityRef target,
     int targetUnitId, int attackHitId, int windupTicks) {

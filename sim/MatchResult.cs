@@ -52,7 +52,7 @@ public readonly struct PlayerResult {
 
   public int TeamId { get; init; }
   public int FactionId { get; init; }
-  public int HeroAssetId { get; init; }
+  public int HeroStatsAssetId { get; init; }
   public bool IsWinner { get; init; }
   public int Score { get; init; }
   public int HeroKills { get; init; }
@@ -191,7 +191,7 @@ public static class MatchResultReader {
         FactionId = frame.Has<Faction>(entity)
           ? frame.GetReadOnly<Faction>(entity).FactionId
           : 0,
-        HeroAssetId = hero.HeroAssetId,
+        HeroStatsAssetId = hero.HeroStatsAssetId,
         IsWinner = teamId == winnerTeamId,
         Score = record.Score,
         HeroKills = record.HeroKills,

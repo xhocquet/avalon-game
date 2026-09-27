@@ -3,11 +3,11 @@
     "$type": "Meesles.Avalon.Sim.Assets.FactionAsset",
     "AssetId": 204,
     "_Name": "Pickle Knights",
-    "HeroAssetId": 404,
+    "HeroStatsAssetId": 404,
     "MinionStatsAssetId": 103
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.HeroAsset",
+    "$type": "Meesles.Avalon.Sim.Assets.HeroStatsAsset",
     "AssetId": 404,
     "SkillSetId": 4,
     "Skill1AssetId": 516,

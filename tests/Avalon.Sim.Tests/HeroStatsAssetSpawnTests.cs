@@ -6,20 +6,20 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Tests;
 
-// A hero's numbers come from the HeroAsset its faction names, not from the global player/minion
+// A hero's numbers come from the HeroStatsAsset its faction names, not from the global player/minion
 // stat rows. These assertions are what stops the two drifting back together.
-public class HeroAssetSpawnTests {
+public class HeroStatsAssetSpawnTests {
   private const int FactionA = 200;
   private const int FactionB = 201;
 
   [Fact]
-  public void SpawnedHero_CarriesTheHeroAssetItsFactionNames() {
+  public void SpawnedHero_CarriesTheHeroStatsAssetItsFactionNames() {
     var harness = SimHarness.CreateInitialized(spawnHeroesNow: false);
 
     harness.Tick(SimHarness.SelectFactionCommand(playerId: 1, tick: 0, factionId: FactionB));
 
-    var expected = harness.AssetRegistry.Get<FactionAsset>(FactionB).HeroAssetId;
-    harness.Frame.GetReadOnly<Hero>(harness.FindHero(playerId: 1)).HeroAssetId.Should().Be(expected);
+    var expected = harness.AssetRegistry.Get<FactionAsset>(FactionB).HeroStatsAssetId;
+    harness.Frame.GetReadOnly<Hero>(harness.FindHero(playerId: 1)).HeroStatsAssetId.Should().Be(expected);
   }
 
   [Fact]
@@ -31,8 +31,8 @@ public class HeroAssetSpawnTests {
     filter.Count.Should().Be(SimHarness.DefaultMaxPlayers);
 
     while (filter.Next(out var entity)) {
-      var heroAssetId = frame.GetReadOnly<Hero>(entity).HeroAssetId;
-      var heroAsset = harness.AssetRegistry.Get<HeroAsset>(heroAssetId);
+      var heroAssetId = frame.GetReadOnly<Hero>(entity).HeroStatsAssetId;
+      var heroAsset = harness.AssetRegistry.Get<HeroStatsAsset>(heroAssetId);
 
       ref readonly var stats = ref frame.GetReadOnly<Stats>(entity);
       stats.MaxHealth.Should().Be(heroAsset.BaseHealth);
@@ -75,8 +75,8 @@ public class HeroAssetSpawnTests {
   }
 
   private static void AssertHeroMatchesFaction(SimHarness harness, int playerId, int factionId) {
-    var expected = harness.AssetRegistry.Get<HeroAsset>(
-      harness.AssetRegistry.Get<FactionAsset>(factionId).HeroAssetId);
+    var expected = harness.AssetRegistry.Get<HeroStatsAsset>(
+      harness.AssetRegistry.Get<FactionAsset>(factionId).HeroStatsAssetId);
 
     var frame = harness.Frame;
     var hero = harness.FindHero(playerId);

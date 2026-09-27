@@ -7,7 +7,7 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon.Sim.Factories;
 
 public static class HeroFactory {
-  public static EntityRef Spawn(ref Frame frame, HeroAsset heroAsset, MatchRulesAsset matchRules,
+  public static EntityRef Spawn(ref Frame frame, HeroStatsAsset heroAsset, MatchRulesAsset matchRules,
     FPVector3 position, int playerId, int teamId, int factionId) {
     var entity = frame.CreateEntity();
 
@@ -45,7 +45,7 @@ public static class HeroFactory {
   // Loads the hero's own four SkillAsset rows onto the entity so nothing downstream has to walk back
   // through the asset to find out which skills it has. Level 1 counts as a level, so the hero spawns
   // with one point already spendable; ExperienceSystem grants one more per level after that.
-  private static Skills BuildSkills(HeroAsset heroAsset) {
+  private static Skills BuildSkills(HeroStatsAsset heroAsset) {
     var skills = new Skills { SkillPoints = 1 };
     for (var slot = 0; slot < Skills.MaxSlots; slot++)
       skills.SetSkillAssetId(slot, heroAsset.GetSkillAssetId(slot));

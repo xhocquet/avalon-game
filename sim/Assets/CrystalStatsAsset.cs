@@ -5,9 +5,7 @@ using xpTURN.Klotho.Serialization;
 namespace Meesles.Avalon.Sim.Assets;
 
 // Instance id is AssetIds.CrystalStats; look it up with Get<CrystalStatsAsset>().
-// A crystal only takes damage, so everything on the attacking half reads as zero - it implements
-// IUnitStatsAsset anyway so CrystalFactory builds its stats through the same seeded path as
-// everything else, rather than hand-writing fields and inheriting whatever the defaults happen to be.
+// A crystal only takes damage, so everything on the attacking half reads as zero
 [KlothoDataAsset(AssetIds.TypeIds.CrystalStats, AssetId = AssetIds.CrystalStats, Key = "CrystalStats")]
 public partial class CrystalStatsAsset : IDataAsset, IUnitStatsAsset {
   [KlothoOrder(0)] public FP64 Health;

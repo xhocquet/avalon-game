@@ -48,7 +48,7 @@ public static class SkillChannels {
     channel.Clear();
 
     ref readonly var hero = ref frame.GetReadOnly<Hero>(caster);
-    if (!frame.AssetRegistry.TryGet<HeroAsset>(hero.HeroAssetId, out var heroAsset))
+    if (!frame.AssetRegistry.TryGet<HeroStatsAsset>(hero.HeroStatsAssetId, out var heroAsset))
       return;
 
     HeroSkillSets.Get(heroAsset.SkillSetId).OnChannelComplete(ref frame, caster, sourceId, rank);

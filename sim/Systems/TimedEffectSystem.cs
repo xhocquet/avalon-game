@@ -1,10 +1,9 @@
 using System.Collections.Generic;
-using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Components;
 using Meesles.Avalon.Sim.Heroes;
 using xpTURN.Klotho.ECS;
 
-namespace Meesles.Avalon;
+namespace Meesles.Avalon.Sim;
 
 // Every per-tick countdown in one pass: attack cooldowns, skill cooldowns, stat buffs, armed attack
 // procs, queued attack bursts, snares, silences, damage-over-time burns, charging skill bursts.

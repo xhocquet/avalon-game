@@ -97,7 +97,7 @@ public class ExploosionTests {
     ApplySilence(harness, harness.FindHero(EnemyPlayerId), silenceTicks);
 
     var frame = harness.Frame;
-    SkillActions.CastBlock(ref frame, EnemyPlayerId, Tertiary).Should().Be(SkillActions.SkillBlock.Silenced);
+    SkillActions.CastBlock(ref frame, EnemyPlayerId, Tertiary).Should().Be(SkillRejectReason.Silenced);
     SkillActions.CanCast(ref frame, EnemyPlayerId, Tertiary).Should().BeFalse();
     SkillActions.TryCast(ref frame, EnemyPlayerId, Tertiary, EnemyPosition(harness)).Should().BeFalse();
     EnemyCooldown(harness, Tertiary).Should().Be(0, "a refused cast never starts the cooldown");

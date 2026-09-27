@@ -3,7 +3,6 @@ using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
-using xpTURN.Klotho.Logging;
 
 namespace Meesles.Avalon.Sim.Heroes;
 
@@ -17,7 +16,7 @@ public static class SkillActions {
   // Spend one skill point to raise a slot's rank.
   public static bool TryUpgrade(ref Frame frame, int playerId, int slot) {
     var block = EvaluateUpgrade(ref frame, playerId, slot, out var heroEntity, out var heroAsset, out var skill);
-    if (block != SkillBlock.None) {
+    if (block != SkillRejectReason.None) {
       Reject(ref frame, "Upgrade", playerId, slot, Describe(ref frame, block, heroEntity, slot, skill));
       return false;
     }
@@ -41,7 +40,7 @@ public static class SkillActions {
   // rather than being rejected. Self-cast skills pass their own position and ignore it.
   public static bool TryCast(ref Frame frame, int playerId, int slot, FPVector3 target) {
     var block = EvaluateCast(ref frame, playerId, slot, out var heroEntity, out var heroAsset, out var skill);
-    if (block != SkillBlock.None) {
+    if (block != SkillRejectReason.None) {
       Reject(ref frame, "Cast", playerId, slot, Describe(ref frame, block, heroEntity, slot, skill));
       return false;
     }
@@ -84,13 +83,13 @@ public static class SkillActions {
   // it on arrival. Read-only and allocation-free. pendingRanks folds in an upgrade the client has
   // queued but the predicted frame has not run yet - commands drain one per tick in queue order, so
   // the upgrade always lands on an earlier tick than a cast queued behind it.
-  public static SkillBlock CastBlock(ref Frame frame, int playerId, int slot, int pendingRanks = 0) {
+  public static SkillRejectReason CastBlock(ref Frame frame, int playerId, int slot, int pendingRanks = 0) {
     return EvaluateCast(ref frame, playerId, slot, out _, out _, out _, pendingRanks);
   }
 
   // Upgrade's counterpart. pendingPoints/pendingRanks fold in a queued upgrade the same way, so the
   // client does not re-approve a slot it has already spent its last point on.
-  public static SkillBlock UpgradeBlock(ref Frame frame, int playerId, int slot, int pendingPoints = 0,
+  public static SkillRejectReason UpgradeBlock(ref Frame frame, int playerId, int slot, int pendingPoints = 0,
     int pendingRanks = 0) {
     return EvaluateUpgrade(ref frame, playerId, slot, out _, out _, out _, pendingPoints, pendingRanks);
   }
@@ -98,127 +97,109 @@ public static class SkillActions {
   // Would TryCast/TryUpgrade accept this slot right now? The bool the input and HUD paths fold the
   // block down to when they only need yes/no.
   public static bool CanCast(ref Frame frame, int playerId, int slot) {
-    return CastBlock(ref frame, playerId, slot) == SkillBlock.None;
+    return CastBlock(ref frame, playerId, slot) == SkillRejectReason.None;
   }
 
   public static bool CanCast(ref Frame frame, int playerId, int slot, int pendingRanks) {
-    return CastBlock(ref frame, playerId, slot, pendingRanks) == SkillBlock.None;
+    return CastBlock(ref frame, playerId, slot, pendingRanks) == SkillRejectReason.None;
   }
 
   public static bool CanUpgrade(ref Frame frame, int playerId, int slot) {
-    return UpgradeBlock(ref frame, playerId, slot) == SkillBlock.None;
+    return UpgradeBlock(ref frame, playerId, slot) == SkillRejectReason.None;
   }
 
   public static bool CanUpgrade(ref Frame frame, int playerId, int slot, int pendingPoints,
     int pendingRanks) {
-    return UpgradeBlock(ref frame, playerId, slot, pendingPoints, pendingRanks) == SkillBlock.None;
+    return UpgradeBlock(ref frame, playerId, slot, pendingPoints, pendingRanks) == SkillRejectReason.None;
   }
 
   // The cast rules, in one place. TryCast turns a block into a reject log; the client turns it into a
   // swallowed keypress. Nothing here mutates the frame.
-  private static SkillBlock EvaluateCast(ref Frame frame, int playerId, int slot,
-    out EntityRef heroEntity, out HeroAsset heroAsset, out SkillAsset skill, int pendingRanks = 0) {
+  private static SkillRejectReason EvaluateCast(ref Frame frame, int playerId, int slot,
+    out EntityRef heroEntity, out HeroStatsAsset heroAsset, out SkillAsset skill, int pendingRanks = 0) {
     var block = Resolve(ref frame, playerId, slot, out heroEntity, out heroAsset, out skill);
-    if (block != SkillBlock.None)
+    if (block != SkillRejectReason.None)
       return block;
 
     if (!frame.Has<Health>(heroEntity) || !frame.GetReadOnly<Health>(heroEntity).IsAlive)
-      return SkillBlock.HeroDead;
+      return SkillRejectReason.HeroDead;
 
     if (Silences.IsSilenced(ref frame, heroEntity))
-      return SkillBlock.Silenced;
+      return SkillRejectReason.Silenced;
 
     ref readonly var skills = ref frame.GetReadOnly<Skills>(heroEntity);
     var rank = skills.GetRank(slot) + pendingRanks;
     if (rank <= 0)
-      return SkillBlock.NotLearned;
+      return SkillRejectReason.NotLearned;
 
     if (skills.GetCooldownRemainingTicks(slot) > 0)
-      return SkillBlock.OnCooldown;
+      return SkillRejectReason.OnCooldown;
 
     return ManaApplication.CanAfford(ref frame, heroEntity, skill.ManaCostAtRank(rank))
-      ? SkillBlock.None
-      : SkillBlock.NotEnoughMana;
+      ? SkillRejectReason.None
+      : SkillRejectReason.NotEnoughMana;
   }
 
-  private static SkillBlock EvaluateUpgrade(ref Frame frame, int playerId, int slot,
-    out EntityRef heroEntity, out HeroAsset heroAsset, out SkillAsset skill,
+  private static SkillRejectReason EvaluateUpgrade(ref Frame frame, int playerId, int slot,
+    out EntityRef heroEntity, out HeroStatsAsset heroAsset, out SkillAsset skill,
     int pendingPoints = 0, int pendingRanks = 0) {
     var block = Resolve(ref frame, playerId, slot, out heroEntity, out heroAsset, out skill);
-    if (block != SkillBlock.None)
+    if (block != SkillRejectReason.None)
       return block;
 
     ref readonly var skills = ref frame.GetReadOnly<Skills>(heroEntity);
     if (skills.SkillPoints - pendingPoints <= 0)
-      return SkillBlock.NoSkillPoints;
+      return SkillRejectReason.NoSkillPoints;
 
-    return skills.GetRank(slot) + pendingRanks >= skill.MaxRank ? SkillBlock.AtMaxRank : SkillBlock.None;
+    return skills.GetRank(slot) + pendingRanks >= skill.MaxRank ? SkillRejectReason.AtMaxRank : SkillRejectReason.None;
   }
 
   // Shared front half: the player's hero, its asset row, and the SkillAsset sitting in the slot.
-  private static SkillBlock Resolve(ref Frame frame, int playerId, int slot,
-    out EntityRef heroEntity, out HeroAsset heroAsset, out SkillAsset skill) {
+  private static SkillRejectReason Resolve(ref Frame frame, int playerId, int slot,
+    out EntityRef heroEntity, out HeroStatsAsset heroAsset, out SkillAsset skill) {
     heroAsset = null;
     skill = null;
 
     if (!UnitLookup.TryGetPlayerHero(ref frame, playerId, out heroEntity))
-      return SkillBlock.NoHero;
+      return SkillRejectReason.NoHero;
 
     if (!frame.Has<Skills>(heroEntity))
-      return SkillBlock.HeroMissingSkills;
+      return SkillRejectReason.HeroMissingSkills;
 
     var skillAssetId = frame.GetReadOnly<Skills>(heroEntity).GetSkillAssetId(slot);
     if (!frame.AssetRegistry.TryGet<SkillAsset>(skillAssetId, out skill))
-      return SkillBlock.SkillAssetMissing;
+      return SkillRejectReason.SkillAssetMissing;
 
-    var heroAssetId = frame.GetReadOnly<Hero>(heroEntity).HeroAssetId;
-    return frame.AssetRegistry.TryGet<HeroAsset>(heroAssetId, out heroAsset)
-      ? SkillBlock.None
-      : SkillBlock.HeroAssetMissing;
+    var heroAssetId = frame.GetReadOnly<Hero>(heroEntity).HeroStatsAssetId;
+    return frame.AssetRegistry.TryGet<HeroStatsAsset>(heroAssetId, out heroAsset)
+      ? SkillRejectReason.None
+      : SkillRejectReason.HeroStatsAssetMissing;
   }
 
   // Block code -> the reason= text. Only walked on the reject path, so the diagnostic detail costs
   // nothing on the predicate path the client polls.
-  private static string Describe(ref Frame frame, SkillBlock block, EntityRef heroEntity, int slot,
+  private static string Describe(ref Frame frame, SkillRejectReason block, EntityRef heroEntity, int slot,
     SkillAsset skill) {
     switch (block) {
-      case SkillBlock.NoHero: return "no_hero_for_player";
-      case SkillBlock.HeroMissingSkills: return "hero_missing_skills";
-      case SkillBlock.HeroDead: return "hero_dead";
-      case SkillBlock.Silenced: return "silenced";
-      case SkillBlock.NotLearned: return "skill_not_learned";
-      case SkillBlock.AtMaxRank: return $"skill_at_max_rank maxRank={skill.MaxRank}";
-      case SkillBlock.HeroAssetMissing:
-        return $"hero_asset_missing heroId={frame.GetReadOnly<Hero>(heroEntity).HeroAssetId}";
+      case SkillRejectReason.NoHero: return "no_hero_for_player";
+      case SkillRejectReason.HeroMissingSkills: return "hero_missing_skills";
+      case SkillRejectReason.HeroDead: return "hero_dead";
+      case SkillRejectReason.Silenced: return "silenced";
+      case SkillRejectReason.NotLearned: return "skill_not_learned";
+      case SkillRejectReason.AtMaxRank: return $"skill_at_max_rank maxRank={skill.MaxRank}";
+      case SkillRejectReason.HeroStatsAssetMissing:
+        return $"hero_stats_asset_missing heroId={frame.GetReadOnly<Hero>(heroEntity).HeroStatsAssetId}";
     }
 
     ref readonly var skills = ref frame.GetReadOnly<Skills>(heroEntity);
     return block switch {
-      SkillBlock.SkillAssetMissing => $"skill_asset_missing skillId={skills.GetSkillAssetId(slot)}",
-      SkillBlock.OnCooldown => $"on_cooldown remainingTicks={skills.GetCooldownRemainingTicks(slot)}",
-      SkillBlock.NoSkillPoints => $"no_skill_points rank={skills.GetRank(slot)}",
-      SkillBlock.NotEnoughMana =>
+      SkillRejectReason.SkillAssetMissing => $"skill_asset_missing skillId={skills.GetSkillAssetId(slot)}",
+      SkillRejectReason.OnCooldown => $"on_cooldown remainingTicks={skills.GetCooldownRemainingTicks(slot)}",
+      SkillRejectReason.NoSkillPoints => $"no_skill_points rank={skills.GetRank(slot)}",
+      SkillRejectReason.NotEnoughMana =>
         $"not_enough_mana cost={skill.ManaCostAtRank(skills.GetRank(slot))} have={frame.GetReadOnly<Health>(heroEntity).Mana}",
       _ => block.ToString()
     };
-  }
-
-  // Why a slot cannot be cast or upgraded. A code rather than a string so the client can ask every
-  // frame without allocating and switch on the reason; Describe renders it only when the sim logs a
-  // rejection. Order is not wire-visible - it never leaves the process - so cases can be reordered.
-  public enum SkillBlock {
-    None,
-    NoHero,
-    HeroMissingSkills,
-    SkillAssetMissing,
-    HeroAssetMissing,
-    HeroDead,
-    Silenced,
-    NotLearned,
-    OnCooldown,
-    NotEnoughMana,
-    NoSkillPoints,
-    AtMaxRank
   }
 
   public static int CooldownTicks(ref Frame frame, SkillAsset skill) {

@@ -6,7 +6,7 @@ namespace Meesles.Avalon.Sim.Assets;
 
 // Instance id is AssetIds.XpRules; look it up with Get<XpRulesAsset>().
 // Kill rates and the level curve are flat across players. Per-level stat gains are not here: they
-// are per-hero, on HeroAsset, so two heroes can scale differently off the same curve.
+// are per-hero, on HeroStatsAsset, so two heroes can scale differently off the same curve.
 [KlothoDataAsset(AssetIds.TypeIds.XpRules, AssetId = AssetIds.XpRules, Key = "XpRules")]
 public partial class XpRulesAsset : IDataAsset {
   [KlothoOrder(0)] public int XpPerMinionKill;

@@ -72,7 +72,7 @@ public static class HeroSkillSets {
   public static IHeroSkillSet Get(int skillSetId) {
     if ((uint)skillSetId >= (uint)Loaded.Length)
       throw new KeyNotFoundException(
-        $"HeroAsset names SkillSetId {skillSetId}, which is not a HeroSkillSet value.");
+        $"HeroStatsAsset names SkillSetId {skillSetId}, which is not a HeroSkillSet value.");
 
     return Loaded[skillSetId] ??= Create((HeroSkillSet)skillSetId);
   }

@@ -26,7 +26,9 @@ public static class SimulationSetup {
 
   // Order notes -
   // Systems process in order they are defined. This means certain ordering is intentional:
-  // DeathSystem processes after all damage for the frame, so you get immediate feedback (and rewards)
+  // 1. (Re)spawns first, so movement/behaviors can run on new units
+  // 2.
+  // 3. DeathSystem processes after all damage for the frame, so you get immediate feedback (and rewards)
   public static void RegisterSystems(EcsSimulation simulation, NavigationRuntime navigation = null) {
     // Bookkeeping
     simulation.AddSystem(new TeamPruneSystem(), SystemPhase.Update);
@@ -132,13 +134,13 @@ public static class SimulationSetup {
     HeroFactory.Spawn(ref frame, heroAsset, matchRules, initialPos, playerId, teamId, factionId);
   }
 
-  private static HeroAsset GetHeroAssetForFaction(ref Frame frame, int factionId) {
+  private static HeroStatsAsset GetHeroAssetForFaction(ref Frame frame, int factionId) {
     var faction = frame.AssetRegistry.Get<FactionAsset>(factionId);
-    if (frame.AssetRegistry.TryGet<HeroAsset>(faction.HeroAssetId, out var heroAsset))
+    if (frame.AssetRegistry.TryGet<HeroStatsAsset>(faction.HeroStatsAssetId, out var heroAsset))
       return heroAsset;
 
     throw new InvalidOperationException(
-      $"FactionAsset {factionId} names HeroAssetId {faction.HeroAssetId}, which is not in Assets.bytes.");
+      $"FactionAsset {factionId} names HeroStatsAssetId {faction.HeroStatsAssetId}, which is not in Assets.bytes.");
   }
 
   private static void SpawnTeamTurrets(ref Frame frame, List<int> teamIds, MapLayoutAsset layout) {

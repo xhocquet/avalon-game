@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using Meesles.Avalon.Sim.Factories;
@@ -8,7 +7,7 @@ using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
-namespace Meesles.Avalon;
+namespace Meesles.Avalon.Sim;
 
 // Runs the trail lifecycle: emitters drop one segment per interval at the caster's current position,
 // segments linger and slow (or buff) whatever their width catches, then expire. Registered beside

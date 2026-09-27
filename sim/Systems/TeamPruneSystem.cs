@@ -1,11 +1,10 @@
 using System.Collections.Generic;
-using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Logging;
 
-namespace Meesles.Avalon;
+namespace Meesles.Avalon.Sim;
 
 // Culls units (Crystal, Turret, SpawnPoint) for inactive teams. Recorded in the sim as an event
 public class TeamPruneSystem : ISystem {

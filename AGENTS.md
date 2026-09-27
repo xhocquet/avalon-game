@@ -23,12 +23,18 @@
 - The client project file is `client/Meesles.Avalon.Client.csproj`; older `client/Client.csproj` references are stale.
 - **If you edit any file under `vendor/Klotho/`**, you must rebuild the client-side DLL and copy it before the client picks up your changes. Run `just sync-klotho` (or `just rebuild`). `just play` does this automatically. The Godot-flavored build project is `vendor/Klotho/com.xpturn.klotho/Godot~/xpTURN.Klotho.Runtime.csproj`; its output goes to `client/addons/klotho/lib/xpTURN.Klotho.Runtime.dll`. Server-side vendor changes compile automatically via `server/Server.csproj` and do not need this step.
 
+## Namespaces
+
+- Repo-root code uses `Meesles.Avalon`; `sim/` uses `Meesles.Avalon.Sim`, with subdomains such as `Components` and `Assets` appended.
+- `client/` and `server/` use `Meesles.Avalon.Client` and `Meesles.Avalon.Server` respectively.
+
 ## Shared Simulation
 
 - `server/Server.csproj` compiles `sim/**/*.cs` (minus `sim/Tools/`) into the server build; there is no second copy.
 - Both sides register systems and initialize the world through `SimulationSetup`, called from their `ISimulationCallbacks`. `OnPollInput` is a no-op on the server — Klotho injects client commands instead.
 - **A gameplay rule lives once in `sim/`; the client calls it, never re-implements it.** An `*Actions` class exposes a read-only `Can*` beside its `Try*`, both running the same evaluation — `SkillActions.CanCast`/`CanUpgrade`, `ShopActions.IsHeroNearTeamShop`. The HUD polls these every sync, so keep them allocation-free.
 - Gating the UI is UX and bandwidth only. The sim re-checks every command on arrival.
+- [`UnitLookup`](sim/UnitLookup.cs) provides stable identifiers for all units, and resolves them back to entities
 
 ## Network Architecture
 

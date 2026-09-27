@@ -3,11 +3,11 @@
     "$type": "Meesles.Avalon.Sim.Assets.FactionAsset",
     "AssetId": 201,
     "_Name": "Snailheads",
-    "HeroAssetId": 401,
+    "HeroStatsAssetId": 401,
     "MinionStatsAssetId": 103
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.HeroAsset",
+    "$type": "Meesles.Avalon.Sim.Assets.HeroStatsAsset",
     "AssetId": 401,
     "SkillSetId": 1,
     "Skill1AssetId": 504,

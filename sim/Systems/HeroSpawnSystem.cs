@@ -1,9 +1,8 @@
 using System.Collections.Generic;
-using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.ECS;
 
-namespace Meesles.Avalon;
+namespace Meesles.Avalon.Sim;
 
 // Spawn, delayed until factions are chosen
 public class HeroSpawnSystem : ISystem {

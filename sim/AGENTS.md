@@ -2,7 +2,7 @@
 
 Deep dives in [`docs/`](docs/):
 
-- [Heroes](docs/heroes.md) — `HeroAsset` fields, combat range/timing, `BehaviorId`, adding a hero
+- [Heroes](docs/heroes.md) — `HeroStatsAsset` fields, combat range/timing, `BehaviorId`, adding a hero
 - [XP & Leveling](docs/xp-and-leveling.md) — `Experience`, level/stat-growth curves, kill awards
 - [Skills & Upgrades](docs/skills-and-upgrades.md) — slots, `SkillAsset` tuning, casting/targeting, effect lifecycles
 - [Match End & Results](docs/match-end-and-results.md) — win conditions, `MatchOutcome`, per-player stats, `MatchRecord`
@@ -10,14 +10,24 @@ Deep dives in [`docs/`](docs/):
 
 In this file: [Gold](#gold) · [Stats](#stats) · [Filter Iteration](#filter-iteration) · [Working Rules](#working-rules) · [Ownership](#ownership) · [Command Handling](#command-handling) · [Command Validation](#command-validation) · [Test Cheats](#test-cheats) · [Repo Commands](#repo-commands)
 
+- [`UnitLookup`](sim/UnitLookup.cs) provides stable identifiers for all units, and resolves them back to entities
+
 `sim/` is authoritative deterministic gameplay compiled into both client and server — read [Shared Simulation](../AGENTS.md#shared-simulation) in the root doc before editing here.
+
+`client/Sim/Data/MapLayout.bytes` (Godot [`SimMarkerNode`](../client/Scripts/SimMarkerNode.cs) locations) and `client/Sim/Data/NavigationRegion3D.NavMeshData.bytes` are deterministic sim inputs baked by the client editor export.
+
+## Namespaces
+
+- Files directly under `sim/`, including `Systems/`, use `Meesles.Avalon.Sim`.
+- Simulation subdomains use `Meesles.Avalon.Sim.<Subdomain>` (for example, `Components`, `Assets`, and `Navigation`).
+- Repo-root code uses `Meesles.Avalon`; `client/` and `server/` use `Meesles.Avalon.Client` and `Meesles.Avalon.Server` respectively.
 
 # Gold
 
 - [`Inventory`](Components/Behaviors/Inventory.cs) is the wallet — integer `Gold`, the accrual rate `GoldPerTick`, the purchased-item ledger. Only heroes carry one.
 - Pacing is on `MatchRulesAsset` (asset 110): `StartingGold` seeds the wallet in `HeroFactory`, `GoldStartDelayMs` gates the trickle, `GoldTickIntervalMs`/`StartingGoldPerTick` are its rate.
 - [`InventorySystem`](Systems/InventorySystem.cs) gates on `frame.Tick`, so a hero spawning late gets no private delay, and `GoldAccrualRemainderMs` doesn't bank before the gate opens — the first payout lands one full interval after it.
-- Bounties are per-victim-type on [`GoldRulesAsset`](Assets/GoldRulesAsset.cs) (asset 118). [`GoldRewards.AwardForKill`](GoldRewards.cs) mirrors `ExperienceRewards`: same call sites, same `MatchStats.IsCreditableKill` gate, fatal hit only.
+- Bounties are per-victim-type on [`GoldRulesAsset`](Assets/GoldRulesAsset.cs) (asset 118). [`GoldRewards.AwardForKill`](Controllers/GoldRewards.cs) mirrors `ExperienceRewards`: same call sites, same `MatchStats.IsCreditableKill` gate, fatal hit only.
 - `StartingGold` is granted once at spawn; the wallet survives death because the hero entity is never destroyed.
 - `GoldPerAssist` is unread.
 
@@ -27,8 +37,8 @@ In this file: [Gold](#gold) · [Stats](#stats) · [Filter Iteration](#filter-ite
 - `StatType` values stay contiguous from 0, and [`StatRanges.Rows`](StatRanges.cs) carries one row per entry in the same order. Nothing serializes the enum, so renumbering is safe.
 - `StatRanges` holds `(Min, Max, Initial)` per stat in code rather than asset JSON: these are the bounds that stop a divide by zero or an empty health pool, the same class of thing as `CommandLimits`. Tuning goes in the asset row, inside them.
 - `Stats.Create()` is the only correct starting point — a default-constructed block is all zeroes, out of range for any stat with a non-zero floor. `From(IUnitStatsAsset)` builds on it, and every factory goes through one of the two.
-- [`DamageApplication.Mitigate`](DamageApplication.cs) scales a hit by `100 / (100 + resist)`, mirrored for a negative resist, floored at 1 damage.
-- [`HealthApplication`](HealthApplication.cs) is the only writer of `Health.Current` upward: `ApplyHeal` clamps to `Stats.MaxHealth` and refuses a unit at 0, `RestoreToFull` is the respawn path that skips that check, `GrantMaxHealth` moves pool and current together.
+- [`DamageApplication.Mitigate`](Controllers/DamageApplication.cs) scales a hit by `100 / (100 + resist)`, mirrored for a negative resist, floored at 1 damage.
+- [`HealthApplication`](Controllers/HealthApplication.cs) is the only writer of `Health.Current` upward: `ApplyHeal` clamps to `Stats.MaxHealth` and refuses a unit at 0, `RestoreToFull` is the respawn path that skips that check, `GrantMaxHealth` moves pool and current together.
 - Damage is `FP64` end to end. Rounding is at the edges only: `MatchResult` for the scoreboard JSON, `.ToFloat()` in the view.
 - Gold accrual is not a stat — see [Gold](#gold).
 
@@ -61,11 +71,11 @@ Two id spaces, and they do not mix:
 
 # Command Handling
 
-- [`CommandSystem.OnCommand`](Systems/CommandSystem.cs) runs [`CommandValidation.Accept`](Commands/CommandValidation.cs), then delegates to a static `*Actions` class — [`SkillActions`](Heroes/SkillActions.cs), [`ShopActions`](ShopActions.cs), [`FactionActions`](FactionActions.cs). Each exposes a `Try*` returning `bool` and funnels every bailout through one private `Reject` logger, so a rejection is one line with a `reason=`. Move and attack orders stay inline because they own the selection/formation plumbing.
+- `Controllers/` holds the effects dispatched after [`CommandValidation.Accept`](Commands/CommandValidation.cs) — [`SkillActions`](Controllers/Skill.cs), [`ShopActions`](Controllers/Shop.cs), [`FactionActions`](Controllers/Faction.cs), and [`DebugActions`](Controllers/Debug.cs). Each exposes a `Try*` returning `bool` and funnels every bailout through one private `Reject` logger, so a rejection is one line with a `reason=`. Move and attack orders stay inline because they own the selection/formation plumbing.
 - **Where `CommandSystem` sits in `RegisterSystems` has nothing to do with command intake.** `EcsSimulation.Tick` drains every `OnCommand` before it calls `RunUpdateSystems`. That slot governs only `CommandSystem.Update`, the transform integrator for whatever `NavigationAgentSystem` will not carry: every unit when `navigation` is null, otherwise just move targets held by non-nav agents.
-- [`UnitIntent`](UnitIntent.cs) is the only writer of `UnitMoveTarget` and `AttackTargetUnitId`. `SetMoveTarget` flattens `y` itself — a structure's target comes off a map marker that carries a height. `SetAttackTarget` writes the order alone; `AttackIntentSystem` resolves it into `Combat.TargetUnitId`. `ClearAttackIntent` drops both.
+- [`UnitIntent`](Controllers/UnitIntent.cs) is the only writer of `UnitMoveTarget` and `AttackTargetUnitId`. `SetMoveTarget` flattens `y` itself — a structure's target comes off a map marker that carries a height. `SetAttackTarget` writes the order alone; `AttackIntentSystem` resolves it into `Combat.TargetUnitId`. `ClearAttackIntent` drops both.
 - A `UnitLookup.Index` field on a system is storage, not state. Rebuild it at the entry point and pass it as a parameter; an index left on the field for a later method to find outlives its command, survives a rollback, and resolves ids against a frame that no longer exists.
-- The client-facing `Can*` predicate the root doc's [shared-simulation rule](../AGENTS.md#shared-simulation) requires is worked out in [`SkillActions`](Heroes/SkillActions.cs): `EvaluateCast`/`EvaluateUpgrade` return a `SkillBlock` code, `TryCast`/`TryUpgrade` turn a block into the `reason=` log, `CanCast`/`CanUpgrade` compare against `None`. Render the reason text only on the reject path.
+- The client-facing `Can*` predicate the root doc's [shared-simulation rule](../AGENTS.md#shared-simulation) requires is worked out in [`SkillActions`](Controllers/Skill.cs): `EvaluateCast`/`EvaluateUpgrade` return a `SkillRejectReason` code, `TryCast`/`TryUpgrade` turn a rejection into the `reason=` log, `CanCast`/`CanUpgrade` compare against `None`. Render the reason text only on the reject path.
 - `ShopActions.IsHeroNearTeamShop` is the single range rule for shops, and the client calls it rather than measuring against the selected `ShopEntity` node. The node's transform comes from `World.tscn` and the sim's from the `MapLayoutAsset` Shop marker; wherever those drift, measuring against the node enables a button the sim then rejects with nothing but a log line.
 - Gameplay logging goes through [`SimLog`](SimLog.cs), never a raw `frame.Logger` call. A server-driven client replays its whole predicted window on each verified batch, so an unguarded line reappears a dozen times per event; `SimLog` binds to the engine stage and stays quiet on replayed ticks.
 
@@ -84,7 +94,7 @@ Wire limits live in [`CommandLimits`](Commands/CommandLimits.cs), not the assets
 
 # Test Cheats
 
-`--godmode`, `--freeshop` and `--allcheats` on the client command line set [`CheatFlags`](Enums.cs) for that player. They are parsed by [`CheatOptions`](../client/Scripts/View/CheatOptions.cs), sent as `SetCheatCommand`, and stored per player in the `CheatState` singleton, which [`Cheats`](Cheats.cs) reads. `DamageApplication` gates on `GodMode`, `ShopActions` on `FreeShop`. Nothing authorizes the command beyond scoping it to the issuing player.
+`--godmode`, `--freeshop` and `--allcheats` on the client command line set [`CheatFlags`](Enums.cs) for that player. They are parsed by [`CheatOptions`](../client/Scripts/View/CheatOptions.cs), sent as `SetCheatCommand`, and stored per player in the `CheatState` singleton, which [`Cheats`](Controllers/Cheats.cs) reads. `DamageApplication` gates on `GodMode`, `ShopActions` on `FreeShop`. Nothing authorizes the command beyond scoping it to the issuing player.
 
 Adding another cheat: a value in `CheatFlags`, the same bit in `Cheats.All` so validation accepts it, the arg in `CheatOptions`, and the read wherever the rule lives. The command and the storage need no change.
 

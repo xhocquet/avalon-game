@@ -3,11 +3,11 @@
     "$type": "Meesles.Avalon.Sim.Assets.FactionAsset",
     "AssetId": 200,
     "_Name": "Hairy Wizards",
-    "HeroAssetId": 400,
+    "HeroStatsAssetId": 400,
     "MinionStatsAssetId": 103
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.HeroAsset",
+    "$type": "Meesles.Avalon.Sim.Assets.HeroStatsAsset",
     "AssetId": 400,
     "SkillSetId": 0,
     "Skill1AssetId": 500,

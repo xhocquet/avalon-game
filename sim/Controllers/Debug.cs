@@ -46,7 +46,7 @@ public static class DebugActions {
   }
 
   // Destroys the hero outright rather than re-skinning it: the skill set, stats and behavior state all
-  // come off the HeroAsset at spawn. HeroSpawnSystem sees the empty slot on the next tick and rebuilds
+  // come off the HeroStatsAsset at spawn. HeroSpawnSystem sees the empty slot on the next tick and rebuilds
   // from the faction written here, which is the same path a fresh match takes.
   private static bool SwitchFaction(ref Frame frame, int playerId, int factionId) {
     if (!frame.AssetRegistry.TryGet<FactionAsset>(factionId, out _)) {

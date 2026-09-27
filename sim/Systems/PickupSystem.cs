@@ -4,7 +4,7 @@ using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
-namespace Meesles.Avalon;
+namespace Meesles.Avalon.Sim;
 
 // No spatial broad-phase here, unlike the other proximity systems: pickups are capped at the map's
 // hand-placed Pickup markers plus PickupRulesAsset.MaxGroundPickups, and collectors are heroes, so

@@ -1,12 +1,11 @@
 using System.Collections.Generic;
-using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using Meesles.Avalon.Sim.Navigation;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
-namespace Meesles.Avalon;
+namespace Meesles.Avalon.Sim;
 
 public class TargetAcquisitionSystem : ISystem {
   private readonly List<EntityRef> _nearbyCandidates = new();

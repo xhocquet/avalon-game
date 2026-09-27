@@ -19,7 +19,7 @@ public class NavAgentInitializationTests {
       ref readonly var hero = ref frame.GetReadOnly<Hero>(entity);
       ref readonly var transform = ref frame.Get<TransformComponent>(entity);
       ref readonly var nav = ref frame.Get<NavAgentComponent>(entity);
-      var heroAsset = harness.AssetRegistry.Get<HeroAsset>(hero.HeroAssetId);
+      var heroAsset = harness.AssetRegistry.Get<HeroStatsAsset>(hero.HeroStatsAssetId);
 
       nav.Position.Should().Be(transform.Position);
       nav.Speed.Should().Be(heroAsset.MoveSpeed);

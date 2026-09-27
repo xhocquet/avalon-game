@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using FluentAssertions;
-using Meesles.Avalon;
+using Meesles.Avalon.Sim;
 using Xunit;
 using xpTURN.Klotho.Deterministic.Math;
 

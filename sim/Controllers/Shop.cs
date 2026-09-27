@@ -2,20 +2,13 @@ using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
-using xpTURN.Klotho.Logging;
 
 namespace Meesles.Avalon.Sim;
 
-// The rules behind PurchaseItemCommand. CommandSystem dispatches straight into these so the command
-// layer stays a switch and the rules can be exercised without a wire round-trip.
-//
-// CommandValidation has already checked the payload's shape; everything here is game state — the
-// hero exists, the gold is there, the hero is standing at its own shop.
 public static class ShopActions {
-  // Buy one item for the player's hero: gold out, item into the inventory, its bonus onto Stats.
   public static bool TryPurchase(ref Frame frame, int playerId, int itemAssetId) {
     var block = EvaluatePurchase(ref frame, playerId, itemAssetId, out var heroEntity, out var item);
-    if (block != PurchaseBlock.None) {
+    if (block != PurchaseRejectedReasons.None) {
       Reject(ref frame, playerId, itemAssetId, Describe(ref frame, block, heroEntity, item));
       return false;
     }
@@ -35,7 +28,7 @@ public static class ShopActions {
   // already known to fail never reaches the wire and the sim never has to reject it.
   // Read-only and allocation-free: safe to call every frame off the predicted frame.
   public static bool CanPurchase(ref Frame frame, int playerId, int itemAssetId) {
-    return EvaluatePurchase(ref frame, playerId, itemAssetId, out _, out _) == PurchaseBlock.None;
+    return EvaluatePurchase(ref frame, playerId, itemAssetId, out _, out _) == PurchaseRejectedReasons.None;
   }
 
   // CanPurchase asked as if pendingGold were already spent and pendingItems already in the ledger -
@@ -45,67 +38,55 @@ public static class ShopActions {
   public static bool CanPurchase(ref Frame frame, int playerId, int itemAssetId, int pendingGold,
     int pendingItems) {
     return EvaluatePurchase(ref frame, playerId, itemAssetId, out _, out _, pendingGold, pendingItems)
-           == PurchaseBlock.None;
+           == PurchaseRejectedReasons.None;
   }
 
   // The purchase rules, in one place. TryPurchase turns a block into a reject log; the client turns it
   // into a greyed button. Nothing here mutates the frame.
-  private static PurchaseBlock EvaluatePurchase(ref Frame frame, int playerId, int itemAssetId,
+  private static PurchaseRejectedReasons EvaluatePurchase(ref Frame frame, int playerId, int itemAssetId,
     out EntityRef heroEntity, out ShopItemAsset item, int pendingGold = 0, int pendingItems = 0) {
     item = null;
 
     if (!UnitLookup.TryGetPlayerHero(ref frame, playerId, out heroEntity))
-      return PurchaseBlock.NoHero;
+      return PurchaseRejectedReasons.NoHero;
 
     if (!frame.AssetRegistry.TryGet<ShopItemAsset>(itemAssetId, out item))
-      return PurchaseBlock.ItemAssetMissing;
+      return PurchaseRejectedReasons.ItemAssetMissing;
 
     if (!frame.Has<Inventory>(heroEntity) || !frame.Has<Stats>(heroEntity))
-      return PurchaseBlock.HeroMissingInventoryOrStats;
+      return PurchaseRejectedReasons.HeroMissingInventoryOrStats;
 
     ref readonly var inventory = ref frame.GetReadOnly<Inventory>(heroEntity);
     if (inventory.Gold - pendingGold < CostFor(ref frame, playerId, item))
-      return PurchaseBlock.InsufficientGold;
+      return PurchaseRejectedReasons.InsufficientGold;
 
     if (!IsHeroNearTeamShop(ref frame, heroEntity))
-      return PurchaseBlock.OutOfRange;
+      return PurchaseRejectedReasons.OutOfRange;
 
     return inventory.ItemCount + pendingItems >= Inventory.MaxItems
-      ? PurchaseBlock.InventoryFull
-      : PurchaseBlock.None;
+      ? PurchaseRejectedReasons.InventoryFull
+      : PurchaseRejectedReasons.None;
   }
 
   // Block code -> the reason= text. Only walked on the reject path, so the diagnostic detail costs
   // nothing on the predicate path the client polls.
-  private static string Describe(ref Frame frame, PurchaseBlock block, EntityRef heroEntity,
+  private static string Describe(ref Frame frame, PurchaseRejectedReasons block, EntityRef heroEntity,
     ShopItemAsset item) {
     switch (block) {
-      case PurchaseBlock.NoHero: return "no_hero_for_player";
-      case PurchaseBlock.ItemAssetMissing: return "item_asset_missing";
-      case PurchaseBlock.HeroMissingInventoryOrStats:
+      case PurchaseRejectedReasons.NoHero: return "no_hero_for_player";
+      case PurchaseRejectedReasons.ItemAssetMissing: return "item_asset_missing";
+      case PurchaseRejectedReasons.HeroMissingInventoryOrStats:
         return
           $"hero_missing_inventory_or_stats hasInv={frame.Has<Inventory>(heroEntity)} hasStats={frame.Has<Stats>(heroEntity)}";
-      case PurchaseBlock.OutOfRange: return "out_of_range";
+      case PurchaseRejectedReasons.OutOfRange: return "out_of_range";
     }
 
     ref readonly var inventory = ref frame.GetReadOnly<Inventory>(heroEntity);
     return block switch {
-      PurchaseBlock.InsufficientGold => $"insufficient_gold gold={inventory.Gold} cost={item.Cost}",
-      PurchaseBlock.InventoryFull => $"inventory_full itemCount={inventory.ItemCount}",
+      PurchaseRejectedReasons.InsufficientGold => $"insufficient_gold gold={inventory.Gold} cost={item.Cost}",
+      PurchaseRejectedReasons.InventoryFull => $"inventory_full itemCount={inventory.ItemCount}",
       _ => block.ToString()
     };
-  }
-
-  // Why a buy cannot go through. A code rather than a string so the client can ask every frame without
-  // allocating; Describe renders it only when the sim logs a rejection.
-  private enum PurchaseBlock {
-    None,
-    NoHero,
-    ItemAssetMissing,
-    HeroMissingInventoryOrStats,
-    InsufficientGold,
-    OutOfRange,
-    InventoryFull
   }
 
   // Shop access is a team question: a hero buys at the Shop marker its own team owns.

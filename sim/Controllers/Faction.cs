@@ -1,14 +1,8 @@
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.ECS;
-using xpTURN.Klotho.Logging;
 
 namespace Meesles.Avalon.Sim;
 
-// The rules behind SelectFactionCommand. CommandSystem dispatches straight into these so the command
-// layer stays a switch and the rules can be exercised without a wire round-trip.
-//
-// CommandValidation has already checked that the id names a FactionAsset the registry knows; what is
-// left is whether this player still has a pick to make.
 public static class FactionActions {
   // Confirm a player's pick onto their PlayerFaction slot. The slot is all this writes — HeroSpawnSystem
   // turns it into a hero once every slot is confirmed or the setup grace period expires, and

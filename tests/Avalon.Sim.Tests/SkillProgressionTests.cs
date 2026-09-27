@@ -21,7 +21,7 @@ public class SkillProgressionTests {
     var harness = SimHarness.CreateInitialized();
     var frame = harness.Frame;
     var hero = harness.FindHero(PlayerId);
-    var heroAsset = harness.AssetRegistry.Get<HeroAsset>(frame.GetReadOnly<Hero>(hero).HeroAssetId);
+    var heroAsset = harness.AssetRegistry.Get<HeroStatsAsset>(frame.GetReadOnly<Hero>(hero).HeroStatsAssetId);
 
     ref readonly var skills = ref frame.GetReadOnly<Skills>(hero);
     skills.SkillPoints.Should().Be(1, "level 1 counts as a level, so one pick is available at spawn");
@@ -213,7 +213,7 @@ public class SkillProgressionTests {
     ];
 
     foreach (var heroAssetId in heroAssetIds) {
-      var heroAsset = harness.AssetRegistry.Get<HeroAsset>(heroAssetId);
+      var heroAsset = harness.AssetRegistry.Get<HeroStatsAsset>(heroAssetId);
       heroAsset.Should().NotBeNull($"hero {heroAssetId} must exist");
       HeroSkillSets.Get(heroAsset.SkillSetId).Should().NotBeNull();
 
@@ -241,7 +241,7 @@ public class SkillProgressionTests {
 
     var seen = new HashSet<int>();
     foreach (var heroAssetId in heroAssetIds) {
-      var heroAsset = harness.AssetRegistry.Get<HeroAsset>(heroAssetId);
+      var heroAsset = harness.AssetRegistry.Get<HeroStatsAsset>(heroAssetId);
       for (var slot = 0; slot < Skills.MaxSlots; slot++)
         seen.Add(heroAsset.GetSkillAssetId(slot))
           .Should().BeTrue("each hero owns its own rows so retuning one never touches another");

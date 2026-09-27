@@ -4,21 +4,20 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
 
-// Attack range is authored edge-to-edge: the reach a unit has past its own body, to the target's
-// body. Measuring centre-to-centre instead makes a melee unit unable to touch anything wider than
-// its reach - a turret sits in a hole in the navmesh 1.6m across, so a 1.25m reach never lands.
+// Range helpers. Attack range calculated edge-to-edge
 public static class CombatRange {
   // Centre distance the attacker has to close to, squared for the caller's squared distance.
   public static FP64 ReachSq(ref Frame frame, EntityRef attacker, EntityRef target) {
-    var reach = AttackRangeOf(ref frame, attacker) + GameplayRadiusOf(ref frame, attacker) +
+    var reach = AttackRangeOf(ref frame, attacker) +
+                GameplayRadiusOf(ref frame, attacker) +
                 GameplayRadiusOf(ref frame, target);
     return reach * reach;
   }
 
   // Range measured on the XZ plane, the way every order and swing does. False when either side has
   // no transform to measure from, so a caller never treats a missing position as point-blank.
-  public static bool IsWithinReach(ref Frame frame, EntityRef attacker, EntityRef target,
-    out FP64 distSq, out FP64 rangeSq) {
+  public static bool IsWithinReach(
+    ref Frame frame, EntityRef attacker, EntityRef target, out FP64 distSq, out FP64 rangeSq) {
     distSq = FP64.Zero;
     rangeSq = FP64.Zero;
     if (!frame.Has<TransformComponent>(attacker) || !frame.Has<TransformComponent>(target))

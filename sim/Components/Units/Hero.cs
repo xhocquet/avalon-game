@@ -5,7 +5,7 @@ namespace Meesles.Avalon.Sim.Components;
 
 [KlothoComponent(ComponentIds.Hero)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public partial struct Hero(int playerId, int heroAssetId) : IComponent {
+public partial struct Hero(int playerId, int heroStatsAssetId) : IComponent {
   public int PlayerId = playerId;
-  public int HeroAssetId = heroAssetId; // Get<HeroAsset>(id)
+  public int HeroStatsAssetId = heroStatsAssetId; // Get<HeroStatsAsset>(id)
 }

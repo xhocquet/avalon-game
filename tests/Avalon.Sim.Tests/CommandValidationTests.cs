@@ -1,6 +1,6 @@
 using System;
 using FluentAssertions;
-using Meesles.Avalon;
+using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Commands;
 using Meesles.Avalon.Sim.Components;
 using Xunit;

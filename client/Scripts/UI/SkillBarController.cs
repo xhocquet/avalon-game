@@ -91,7 +91,7 @@ public class SkillBarController {
 
     // No local hero yet (pre-spawn, or spectating): show the slots inert rather than stale.
     for (var slot = 0; slot < SlotCount; slot++)
-      Paint(slot, 0, false, false, SkillActions.SkillBlock.NoHero, 0f, 0, null);
+      Paint(slot, 0, false, false, SkillRejectReason.NoHero, 0f, 0, null);
   }
 
   private bool TryPaintLocalHero(Frame frame, int playerId) {
@@ -117,7 +117,7 @@ public class SkillBarController {
         var asset = GetSkillAsset(frame, skillAssetId);
         var canUpgrade = SkillActions.CanUpgrade(ref frame, playerId, slot, pendingPoints, pendingRanks);
         var block = SkillActions.CastBlock(ref frame, playerId, slot, pendingRanks);
-        var canCast = block == SkillActions.SkillBlock.None;
+        var canCast = block == SkillRejectReason.None;
         var cooldownTicks = SkillActions.CooldownTicks(ref frame, asset);
         var fill = CooldownFill(canCast, rank, skills.GetCooldownRemainingTicks(slot), cooldownTicks);
         Paint(slot, rank, canUpgrade, canCast, block, fill, skillAssetId, asset);
@@ -146,19 +146,19 @@ public class SkillBarController {
 
   // The words shown along the bottom of a slot the hero cannot cast. Unlearned and the pre-hero states
   // stay blank - the shroud and an inert bar already say enough.
-  private static string BlockText(SkillActions.SkillBlock block) {
+  private static string BlockText(SkillRejectReason block) {
     return block switch {
-      SkillActions.SkillBlock.Silenced => "Silenced",
-      SkillActions.SkillBlock.OnCooldown => "On cooldown",
-      SkillActions.SkillBlock.NotEnoughMana => "No mana",
-      SkillActions.SkillBlock.HeroDead => "Dead",
+      SkillRejectReason.Silenced => "Silenced",
+      SkillRejectReason.OnCooldown => "On cooldown",
+      SkillRejectReason.NotEnoughMana => "No mana",
+      SkillRejectReason.HeroDead => "Dead",
       _ => null
     };
   }
 
   // Cheap early-out on the values that actually drive the cell, so a steady-state sync does no string
   // formatting and no Godot property writes.
-  private void Paint(int slot, int rank, bool canUpgrade, bool canCast, SkillActions.SkillBlock block,
+  private void Paint(int slot, int rank, bool canUpgrade, bool canCast, SkillRejectReason block,
     float fill, int skillAssetId, SkillAsset asset) {
     var cell = _cells[slot];
     if (cell == null) return;
@@ -406,7 +406,7 @@ public class SkillBarController {
     }
 
     // Last painted state. -1 so the first Paint always writes through.
-    public SkillActions.SkillBlock Block = (SkillActions.SkillBlock)(-1);
+    public SkillRejectReason Block = (SkillRejectReason)(-1);
     public bool CanCast;
     public bool CanUpgrade;
     public float Fill = -1f;

@@ -115,12 +115,12 @@ public class SkillCatalog {
 
   public readonly struct SkillDef(
     int skillId,
-    int heroAssetId,
+    int heroStatsAssetId,
     SkillSlot slot,
     string name,
     string iconTexturePath = null) {
     public readonly int SkillId = skillId;
-    public readonly int HeroAssetId = heroAssetId;
+    public readonly int HeroStatsAssetId = heroStatsAssetId;
     public readonly SkillSlot Slot = slot;
     public readonly string Name = name;
     public readonly string IconTexturePath = iconTexturePath;

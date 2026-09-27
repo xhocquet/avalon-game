@@ -3,11 +3,11 @@
     "$type": "Meesles.Avalon.Sim.Assets.FactionAsset",
     "AssetId": 202,
     "_Name": "Crystal Warriors",
-    "HeroAssetId": 402,
+    "HeroStatsAssetId": 402,
     "MinionStatsAssetId": 103
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.HeroAsset",
+    "$type": "Meesles.Avalon.Sim.Assets.HeroStatsAsset",
     "AssetId": 402,
     "SkillSetId": 2,
     "Skill1AssetId": 508,

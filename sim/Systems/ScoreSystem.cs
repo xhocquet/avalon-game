@@ -1,12 +1,11 @@
 using System.Collections.Generic;
-using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
-namespace Meesles.Avalon;
+namespace Meesles.Avalon.Sim;
 
 // Decides when the match is over and records the outcome. The outcome is team-shaped: MatchOutcome
 // holds the winning team, and the single player id Klotho's MatchEndStateComponent wants is derived

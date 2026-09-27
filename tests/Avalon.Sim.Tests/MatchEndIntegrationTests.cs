@@ -71,7 +71,7 @@ public class MatchEndIntegrationTests {
     json.Should().Contain("\"HeroKills\": 3");
     json.Should().Contain("\"IsWinner\": true");
     json.Should().Contain("\"Name\": \"Player2\"");
-    json.Should().Contain("\"HeroAssetId\":");
+    json.Should().Contain("\"HeroStatsAssetId\":");
     json.Should().Contain("\"TickIntervalMs\":");
   }
 

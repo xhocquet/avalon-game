@@ -68,6 +68,11 @@ public enum HeroSkillSet {
   PickleKnight = 4
 }
 
+public enum BuffMode {
+  Percent = 0, // Adds a fraction of the stat's current value
+  Flat = 1 // Adds the number as-is; for stats like BonusAttackSpeed where a fraction of ~0 is nothing
+}
+
 // Test-only toggles a player can turn on for itself. Bitmask, carried on the wire by SetCheatCommand,
 // so the values must stay stable. Keep in sync with Cheats.All.
 [Flags]
@@ -92,6 +97,33 @@ public enum DebugAction {
   SpawnMinions = 9, // Param: teamId, at the target point
   ClearMinions = 10, // Param: teamId, or 0 for every team
   TeleportHero = 11 // To the target point
+}
+
+// Why a purchase is rejected. A code rather than a string lets the client poll without allocating.
+public enum PurchaseRejectedReasons {
+  None,
+  NoHero,
+  ItemAssetMissing,
+  HeroMissingInventoryOrStats,
+  InsufficientGold,
+  OutOfRange,
+  InventoryFull
+}
+
+// Why a skill cast or upgrade is rejected. The client polls this without allocating.
+public enum SkillRejectReason {
+  None,
+  NoHero,
+  HeroMissingSkills,
+  SkillAssetMissing,
+  HeroStatsAssetMissing,
+  HeroDead,
+  Silenced,
+  NotLearned,
+  OnCooldown,
+  NotEnoughMana,
+  NoSkillPoints,
+  AtMaxRank
 }
 
 public enum MatchEndReason {

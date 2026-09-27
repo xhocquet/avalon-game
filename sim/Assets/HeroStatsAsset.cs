@@ -4,12 +4,12 @@ using xpTURN.Klotho.Serialization;
 
 namespace Meesles.Avalon.Sim.Assets;
 
-// Instance ids live in the AssetIds.Hero* block; look one up with Get<HeroAsset>(id).
+// Instance ids live in the AssetIds.Hero* block; look one up with Get<HeroStatsAsset>(id).
 //
 // Every growing stat is a Base + PerLevel pair. Base is the level-1 value Stats.From seeds;
 //  Base + PerLevel * (MaxLevel - 1). Distances are metres (game units / 100).
 [KlothoDataAsset(AssetIds.TypeIds.Hero)]
-public partial class HeroAsset : IDataAsset, IUnitStatsAsset {
+public partial class HeroStatsAsset : IDataAsset, IUnitStatsAsset {
   [KlothoOrder(0)] public int BehaviorId;
   [KlothoOrder(1)] public int SkillSetId; // Maps to IHeroSkillSet
   [KlothoOrder(2)] public int Skill1AssetId; // Maps to SkillAsset

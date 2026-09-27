@@ -1,11 +1,10 @@
-using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Logging;
 
-namespace Meesles.Avalon;
+namespace Meesles.Avalon.Sim;
 
 // Auto-attacks, in two phases. A swing starts when the attacker is engaged and off cooldown
 // (AttackWindupStartedEvent), and lands AttackWindup seconds later (AttackHitEvent) - or is dropped

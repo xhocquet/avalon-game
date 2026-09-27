@@ -3,11 +3,11 @@
     "$type": "Meesles.Avalon.Sim.Assets.FactionAsset",
     "AssetId": 203,
     "_Name": "Skinwalker Tribe",
-    "HeroAssetId": 403,
+    "HeroStatsAssetId": 403,
     "MinionStatsAssetId": 103
   },
   {
-    "$type": "Meesles.Avalon.Sim.Assets.HeroAsset",
+    "$type": "Meesles.Avalon.Sim.Assets.HeroStatsAsset",
     "AssetId": 403,
     "SkillSetId": 3,
     "Skill1AssetId": 512,
