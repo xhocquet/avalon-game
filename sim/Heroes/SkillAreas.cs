@@ -5,7 +5,7 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Heroes;
 
-// Shared disc search, the round sibling of SkillCones: every hero and minion standing inside a circle
+// Shared disc search, the round sibling of DamageController.ApplyConeDamage: every hero and minion standing inside a circle
 // on the ground, in filter order. Kept separate from what is done to the hits, because an area effect
 // resolving on a later tick than the cast that armed it has no SkillCastContext left to pass around.
 public static class SkillAreas {

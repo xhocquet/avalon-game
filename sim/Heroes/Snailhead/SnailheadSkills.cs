@@ -15,8 +15,8 @@ public sealed class SnailheadSkills : HeroSkillSetBase {
     var direction = SkillAim.Direction(
       ref frame, ctx.Caster, ctx.CasterPosition, ctx.TargetPosition
     );
-    SkillCones.ApplyDamage(
-      ref frame, in ctx, direction, skill.ConeRange,
+    DamageController.ApplyConeDamage(
+      ref frame, ctx.Caster, ctx.CasterPosition, direction, skill.ConeRange,
       skill.ConeAngleDegrees, skill.DamageAtRank(ctx.Rank)
     );
   }
@@ -32,7 +32,7 @@ public sealed class SnailheadSkills : HeroSkillSetBase {
     SkillAreas.CollectAllies(ref frame, ctx.Caster, ctx.CasterPosition, ctx.Skill.AreaRadius, hits);
 
     foreach (var ally in hits)
-      SkillBuffs.Apply(ref frame, in ctx, ally);
+      BuffsController.ApplySkill(ref frame, ally, ctx.Skill, ctx.Rank);
   }
 
   // (snailhead.json)[../../../client/Sim/Data/Assets/heroes/snailhead.json:101]
@@ -61,6 +61,6 @@ public sealed class SnailheadSkills : HeroSkillSetBase {
     if (skill.ClearsDebuffs)
       BuffsController.ClearNegative(ref frame, caster);
 
-    SkillBuffs.Apply(ref frame, in ctx, caster);
+    BuffsController.ApplySkill(ref frame, caster, ctx.Skill, ctx.Rank);
   }
 }

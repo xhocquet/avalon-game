@@ -17,7 +17,7 @@ public sealed class CrystalGiantSkills : HeroSkillSetBase {
 
   // (crystal-giant.json)[../../../client/Sim/Data/Assets/heroes/crystal-giant.json:65]
   private static void CastHarden(ref Frame frame, in SkillCastContext ctx) {
-    SkillBuffs.Apply(ref frame, in ctx, ctx.Caster);
+    BuffsController.ApplySkill(ref frame, ctx.Caster, ctx.Skill, ctx.Rank);
   }
 
   // (crystal-giant.json)[../../../client/Sim/Data/Assets/heroes/crystal-giant.json:82]
@@ -34,7 +34,7 @@ public sealed class CrystalGiantSkills : HeroSkillSetBase {
     var skill = ctx.Skill;
     var chargeTicks = TickMath.MsToTicksCeil(ref frame, skill.ChargeDurationMs);
 
-    SkillBuffs.Apply(ref frame, in ctx, ctx.Caster);
+    BuffsController.ApplySkill(ref frame, ctx.Caster, ctx.Skill, ctx.Rank);
 
     if (skill.ChargeRootsCaster)
       SnareController.Apply(ref frame, ctx.Caster, skill.AssetId, chargeTicks);

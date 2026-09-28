@@ -17,7 +17,7 @@ public sealed class PickleKnightSkills : HeroSkillSetBase {
     SkillDashes.Start(ref frame, ctx.Caster, ctx.CasterPosition, direction,
       skill.DashDistance, skill.DashSpeed, skill.AssetId, ctx.Rank, healAmount);
 
-    SkillBuffs.Apply(ref frame, in ctx, ctx.Caster);
+    BuffsController.ApplySkill(ref frame, ctx.Caster, ctx.Skill, ctx.Rank);
   }
 
   // (pickle-knight.json)[../../../client/Sim/Data/Assets/heroes/pickle-knight.json:69]

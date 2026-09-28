@@ -7,6 +7,12 @@ namespace Meesles.Avalon.Sim;
 
 // Applies timed stat buffs and reverts them at expiry
 public static class BuffsController {
+  public static void ApplySkill(ref Frame frame, EntityRef target, SkillAsset skill, int rank) {
+    var durationTicks = TickMath.MsToTicksCeil(ref frame, skill.BuffDurationMsAtRank(rank));
+    foreach (var spec in skill.BuffSpecs)
+      ApplySpec(ref frame, target, skill.AssetId, spec, rank, durationTicks);
+  }
+
   // Applies a ranked buff spec
   public static bool ApplySpec(ref Frame frame, EntityRef entity, int sourceId, in BuffSpec spec,
     int rank, int durationTicks) {

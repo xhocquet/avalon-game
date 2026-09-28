@@ -8,7 +8,7 @@ public sealed class SkinwalkerSkills : HeroSkillSetBase {
 
   // (skinwalker.json)[../../../client/Sim/Data/Assets/heroes/skinwalker.json:53]
   private static void CastSprint(ref Frame frame, in SkillCastContext ctx) {
-    SkillBuffs.Apply(ref frame, in ctx, ctx.Caster);
+    BuffsController.ApplySkill(ref frame, ctx.Caster, ctx.Skill, ctx.Rank);
   }
 
   // (skinwalker.json)[../../../client/Sim/Data/Assets/heroes/skinwalker.json:67]
@@ -19,6 +19,6 @@ public sealed class SkinwalkerSkills : HeroSkillSetBase {
 
   // (skinwalker.json)[../../../client/Sim/Data/Assets/heroes/skinwalker.json:92]
   private static void CastDesperation(ref Frame frame, in SkillCastContext ctx) {
-    SkillBuffs.Apply(ref frame, in ctx, ctx.Caster);
+    BuffsController.ApplySkill(ref frame, ctx.Caster, ctx.Skill, ctx.Rank);
   }
 }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
@@ -38,6 +39,32 @@ public static class DamageController {
     MatchStatsController.RecordDamage(ref frame, source, target, damage);
     RaiseHitEvent(ref frame, source, target, sourceUnitId, damage, isCrit, attackHitId);
     return damage;
+  }
+
+  public static void ApplyConeDamage(ref Frame frame, EntityRef source, FPVector3 origin,
+    FPVector3 direction, FP64 range, FP64 angleDegrees, FP64 damage,
+    DamageType damageType = DamageType.Magical) {
+    if (range <= FP64.Zero || angleDegrees <= FP64.Zero || damage <= FP64.Zero)
+      return;
+
+    var facing = new FPVector2(direction.x, direction.z);
+    if (facing.sqrMagnitude <= FP64.Zero)
+      return;
+    facing = facing.normalized;
+
+    var cosHalfAngle = FP64.Cos(angleDegrees * FP64.Deg2Rad / FP64.FromInt(2));
+    var hits = new List<EntityRef>();
+    var filter = frame.Filter<UnitIdentity, Team, Health, TransformComponent>();
+    while (filter.Next(out var candidate)) {
+      if (!CombatTargeting.IsSkillHittable(ref frame, candidate) ||
+          !CombatTargeting.IsHostileAndAlive(ref frame, source, candidate) ||
+          !CombatRange.IsWithinCone(ref frame, candidate, origin.ToXZ(), facing, range, cosHalfAngle))
+        continue;
+      hits.Add(candidate);
+    }
+
+    foreach (var target in hits)
+      ApplyDamage(ref frame, source, target, damage, damageType);
   }
 
   public static FP64 Mitigate(ref Frame frame, EntityRef target, FP64 damage,

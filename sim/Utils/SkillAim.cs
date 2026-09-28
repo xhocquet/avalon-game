@@ -2,14 +2,11 @@ using Meesles.Avalon.Sim.Assets;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
-namespace Meesles.Avalon.Sim.Heroes;
+namespace Meesles.Avalon.Sim;
 
-// The planar geometry between a caster and the aim point that came off CastSkillCommand. Sits at the
-// root of Heroes/ so both SkillsController and any hero's skill set read the aim the same way.
+// Skill targeting and aim direction.
 public static class SkillAim {
-  // Pulls the aim point onto the skill's cast band along the line the client aimed. An unbounded end
-  // (0 on the row) leaves that side alone, so a skill authoring neither keeps the raw point and only
-  // the world envelope applies. Always returns a flattened point.
+  // Clamps aim to the skill's cast range and flattens it to XZ.
   public static FPVector3 ClampToCastRange(ref Frame frame, EntityRef caster, SkillAsset skill,
     FPVector3 casterPosition, FPVector3 target) {
     target.y = FP64.Zero;
@@ -31,8 +28,7 @@ public static class SkillAim {
     return target;
   }
 
-  // Planar direction from the caster to the aim point. Aiming at your own feet fires straight ahead
-  // rather than firing nowhere - Rotation is the Atan2(x, z) yaw every mover writes.
+  // Uses caster facing when aimed at the caster's feet.
   public static FPVector3 Direction(ref Frame frame, EntityRef caster, FPVector3 from, FPVector3 to) {
     var toTarget = to - from;
     toTarget.y = FP64.Zero;

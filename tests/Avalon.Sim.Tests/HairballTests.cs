@@ -113,7 +113,7 @@ public class HairballTests {
   }
 
   // The row authors a cast band, so an aim past its edge fires along the same line at the edge -
-  // SkillAim clamps before the effect sees the point, and the ball dies at range from there.
+  // Aim clamping happens before the effect sees the point.
   [Fact]
   public void AimingPastTheBand_FiresAtItsEdgeRatherThanFurther() {
     var harness = CreateHarness();

@@ -39,6 +39,25 @@ public static class CombatRange {
       : FP64.Zero;
   }
 
+  public static bool IsWithinCone(ref Frame frame, EntityRef target, FPVector2 origin, FPVector2 facing,
+    FP64 range, FP64 cosHalfAngle) {
+    var offset = frame.GetReadOnly<TransformComponent>(target).Position.ToXZ() - origin;
+    var body = GameplayRadiusOf(ref frame, target);
+    var distanceSq = offset.sqrMagnitude;
+    var reach = range + body;
+    if (distanceSq > reach * reach)
+      return false;
+
+    if (distanceSq <= body * body)
+      return true;
+
+    var dot = FPVector2.Dot(offset, facing);
+    var threshold = cosHalfAngle * cosHalfAngle * distanceSq;
+    return cosHalfAngle >= FP64.Zero
+      ? dot > FP64.Zero && dot * dot >= threshold
+      : dot >= FP64.Zero || dot * dot <= threshold;
+  }
+
   private static FP64 AttackRangeOf(ref Frame frame, EntityRef entity) {
     return frame.Has<Stats>(entity)
       ? frame.GetReadOnly<Stats>(entity).AttackRange

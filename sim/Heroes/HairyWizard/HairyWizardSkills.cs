@@ -30,7 +30,7 @@ public sealed class HairyWizardSkills : HeroSkillSetBase {
 
   // (hairy-wizard.json)[../../../client/Sim/Data/Assets/heroes/hairy-wizard.json:89]
   private static void CastCloseShave(ref Frame frame, in SkillCastContext ctx) {
-    SkillBuffs.Apply(ref frame, in ctx, ctx.Caster);
+    BuffsController.ApplySkill(ref frame, ctx.Caster, ctx.Skill, ctx.Rank);
   }
 
   // (hairy-wizard.json)[../../../client/Sim/Data/Assets/heroes/hairy-wizard.json:102]
