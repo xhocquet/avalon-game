@@ -1,9 +1,10 @@
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
+using Meesles.Avalon.Sim.Heroes;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
-namespace Meesles.Avalon.Sim.Heroes;
+namespace Meesles.Avalon.Sim;
 
 public static class SkillChannels {
   public static bool Arm(ref Frame frame, EntityRef caster, SkillAsset skill, int rank,

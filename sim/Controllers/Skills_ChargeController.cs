@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 using Meesles.Avalon.Sim.Components;
+using Meesles.Avalon.Sim.Heroes;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
-namespace Meesles.Avalon.Sim.Heroes;
+namespace Meesles.Avalon.Sim;
 
 // Delayed burst lifecycle: a cast arms a charge on its caster, the clock runs it down, and it pays
 // out as one disc centred on the caster. The third way a skill can reach a unit, after a projectile
@@ -104,7 +105,7 @@ public static class SkillCharges {
     // Collected first, damaged after: ApplyDamage allocates the hit-id singleton on its first call of
     // the match, and that creates an entity while the filter is still walking storage.
     var hits = new List<EntityRef>();
-    SkillAreas.Collect(ref frame, caster, center, radius, hits);
+    CombatRange.CollectHostilesInRadius(ref frame, caster, center, radius, hits);
 
     RaiseDetonatedEvent(ref frame, caster, sourceId, center, radius, hits.Count);
 
@@ -122,7 +123,7 @@ public static class SkillCharges {
       : FPVector3.Zero;
 
     var hits = new List<EntityRef>();
-    SkillAreas.Collect(ref frame, caster, center, radius, hits);
+    CombatRange.CollectHostilesInRadius(ref frame, caster, center, radius, hits);
 
     foreach (var target in hits)
       DamageController.ApplyDamage(ref frame, caster, target, damage, DamageType.Magical);

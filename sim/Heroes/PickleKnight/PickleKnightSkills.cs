@@ -45,7 +45,7 @@ public sealed class PickleKnightSkills : HeroSkillSetBase {
     var skill = ctx.Skill;
     var hits = new List<EntityRef>();
 
-    SkillAreas.CollectAllies(ref frame, ctx.Caster, ctx.CasterPosition, skill.AreaRadius, hits);
+    CombatRange.CollectAlliesInRadius(ref frame, ctx.Caster, ctx.CasterPosition, skill.AreaRadius, hits);
     var healFraction = SkillAsset.AtRank(skill.HealPercent, skill.HealPercentPerRank, ctx.Rank);
     foreach (var ally in hits)
       HealthController.ApplyHeal(ref frame, ally,
@@ -55,7 +55,7 @@ public sealed class PickleKnightSkills : HeroSkillSetBase {
       return;
 
     var silenceTicks = TickMath.MsToTicksCeil(ref frame, skill.SilenceDurationMsAtRank(ctx.Rank));
-    SkillAreas.Collect(ref frame, ctx.Caster, ctx.CasterPosition, skill.AreaRadius, hits);
+    CombatRange.CollectHostilesInRadius(ref frame, ctx.Caster, ctx.CasterPosition, skill.AreaRadius, hits);
     foreach (var foe in hits)
       SilenceController.Apply(ref frame, foe, skill.AssetId, silenceTicks);
   }

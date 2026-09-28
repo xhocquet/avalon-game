@@ -2,7 +2,7 @@ using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.ECS;
 
-namespace Meesles.Avalon.Sim.Heroes;
+namespace Meesles.Avalon.Sim;
 
 // The one place a trail emitter goes on a caster or comes off. Arming is the cast-side entry;
 // TrailSystem owns the drop cadence, the segment entities, and the per-tick contact test. Kept beside

@@ -3,7 +3,7 @@ using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
-namespace Meesles.Avalon.Sim.Heroes;
+namespace Meesles.Avalon.Sim;
 
 public static class SkillDashes {
   public static bool Start(ref Frame frame, EntityRef caster, FPVector3 start, FPVector3 direction,

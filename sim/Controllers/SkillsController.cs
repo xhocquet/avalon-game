@@ -79,19 +79,15 @@ public static class SkillsController {
     return EvaluateUpgrade(ref frame, playerId, slot, out _, out _, out _, pendingPoints, pendingRanks);
   }
 
-  // Boolean forms for HUD and input checks
-  public static bool CanCast(ref Frame frame, int playerId, int slot) {
-    return CastBlock(ref frame, playerId, slot) == SkillRejectReason.None;
-  }
+  public static bool CanCast(ref Frame f, int playerId, int slot) =>
+    CastBlock(ref f, playerId, slot) == SkillRejectReason.None;
 
-  public static bool CanCast(ref Frame frame, int playerId, int slot, int pendingRanks) {
-    return CastBlock(ref frame, playerId, slot, pendingRanks) == SkillRejectReason.None;
-  }
+  public static bool CanCast(ref Frame f, int playerId, int slot, int pendingRanks) =>
+    CastBlock(ref f, playerId, slot, pendingRanks) == SkillRejectReason.None;
 
-  public static bool CanUpgrade(ref Frame frame, int playerId, int slot, int pendingPoints,
-    int pendingRanks) {
-    return UpgradeBlock(ref frame, playerId, slot, pendingPoints, pendingRanks) == SkillRejectReason.None;
-  }
+  public static bool CanUpgrade(ref Frame f, int playerId, int slot, int pointsPend, int ranksPend) =>
+    UpgradeBlock(ref f, playerId, slot, pointsPend, ranksPend) == SkillRejectReason.None;
+
 
   // Read-only cast validation
   private static SkillRejectReason EvaluateCast(ref Frame frame, int playerId, int slot,

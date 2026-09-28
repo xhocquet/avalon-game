@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
@@ -56,6 +57,41 @@ public static class CombatRange {
     return cosHalfAngle >= FP64.Zero
       ? dot > FP64.Zero && dot * dot >= threshold
       : dot >= FP64.Zero || dot * dot <= threshold;
+  }
+
+  public static void CollectHostilesInRadius(ref Frame frame, EntityRef caster, FPVector3 center,
+    FP64 radius, List<EntityRef> hits) {
+    CollectInRadius(ref frame, caster, center, radius, hits, allied: false);
+  }
+
+  public static void CollectAlliesInRadius(ref Frame frame, EntityRef caster, FPVector3 center,
+    FP64 radius, List<EntityRef> hits) {
+    CollectInRadius(ref frame, caster, center, radius, hits, allied: true);
+  }
+
+  private static void CollectInRadius(ref Frame frame, EntityRef caster, FPVector3 center,
+    FP64 radius, List<EntityRef> hits, bool allied) {
+    hits.Clear();
+    if (radius <= FP64.Zero)
+      return;
+
+    var origin = center.ToXZ();
+    var filter = frame.Filter<UnitIdentity, Team, Health, TransformComponent>();
+    while (filter.Next(out var candidate)) {
+      if (!CombatTargeting.IsSkillHittable(ref frame, candidate))
+        continue;
+
+      var onSide = allied
+        ? CombatTargeting.IsAlliedAndAlive(ref frame, caster, candidate)
+        : CombatTargeting.IsHostileAndAlive(ref frame, caster, candidate);
+      if (!onSide)
+        continue;
+
+      var offset = frame.GetReadOnly<TransformComponent>(candidate).Position.ToXZ() - origin;
+      var reach = radius + GameplayRadiusOf(ref frame, candidate);
+      if (offset.sqrMagnitude <= reach * reach)
+        hits.Add(candidate);
+    }
   }
 
   private static FP64 AttackRangeOf(ref Frame frame, EntityRef entity) {

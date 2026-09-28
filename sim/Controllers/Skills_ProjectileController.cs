@@ -1,10 +1,11 @@
 using Meesles.Avalon.Sim.Components;
 using Meesles.Avalon.Sim.Factories;
+using Meesles.Avalon.Sim.Heroes;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
-namespace Meesles.Avalon.Sim.Heroes;
+namespace Meesles.Avalon.Sim;
 
 // Shared spawn side of the projectile lifecycle: skills put bullets in the air through here,
 // ProjectileSystem advances and resolves them. Kept at the root of Heroes/ with the rest of the

@@ -29,7 +29,7 @@ public sealed class SnailheadSkills : HeroSkillSetBase {
   // (snailhead.json)[../../../client/Sim/Data/Assets/heroes/snailhead.json:83]
   private static void CastSwivelEyes(ref Frame frame, in SkillCastContext ctx) {
     var hits = new List<EntityRef>();
-    SkillAreas.CollectAllies(ref frame, ctx.Caster, ctx.CasterPosition, ctx.Skill.AreaRadius, hits);
+    CombatRange.CollectAlliesInRadius(ref frame, ctx.Caster, ctx.CasterPosition, ctx.Skill.AreaRadius, hits);
 
     foreach (var ally in hits)
       BuffsController.ApplySkill(ref frame, ally, ctx.Skill, ctx.Rank);
