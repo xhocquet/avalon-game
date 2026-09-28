@@ -23,7 +23,7 @@ public sealed class PickleKnightSkills : HeroSkillSetBase {
   // (pickle-knight.json)[../../../client/Sim/Data/Assets/heroes/pickle-knight.json:69]
   private static void CastDoubleDip(ref Frame frame, in SkillCastContext ctx) {
     var skill = ctx.Skill;
-    AttackBursts.Queue(ref frame, ctx.Caster, skill.AssetId,
+    BurstAttacksController.Queue(ref frame, ctx.Caster, skill.AssetId,
       skill.BurstAttackCountAtRank(ctx.Rank),
       TickMath.MsToTicksCeil(ref frame, skill.BurstAttackDelayMs),
       TickMath.MsToTicksCeil(ref frame, skill.BurstDurationMs),
@@ -33,11 +33,11 @@ public sealed class PickleKnightSkills : HeroSkillSetBase {
   // (pickle-knight.json)[../../../client/Sim/Data/Assets/heroes/pickle-knight.json:79]
   private static void CastRefresh(ref Frame frame, in SkillCastContext ctx) {
     var healPercent = SkillAsset.AtRank(ctx.Skill.HealPercent, ctx.Skill.HealPercentPerRank, ctx.Rank);
-    var maxHealth = HealthApplication.GetMaxHealth(ref frame, ctx.Caster);
-    HealthApplication.ApplyHeal(ref frame, ctx.Caster, maxHealth * healPercent);
+    var maxHealth = HealthController.GetMaxHealth(ref frame, ctx.Caster);
+    HealthController.ApplyHeal(ref frame, ctx.Caster, maxHealth * healPercent);
 
     if (ctx.Skill.ClearsDebuffs)
-      StatusEffects.ClearNegative(ref frame, ctx.Caster);
+      BuffsController.ClearNegative(ref frame, ctx.Caster);
   }
 
   // (pickle-knight.json)[../../../client/Sim/Data/Assets/heroes/pickle-knight.json:92]
@@ -48,8 +48,8 @@ public sealed class PickleKnightSkills : HeroSkillSetBase {
     SkillAreas.CollectAllies(ref frame, ctx.Caster, ctx.CasterPosition, skill.AreaRadius, hits);
     var healFraction = SkillAsset.AtRank(skill.HealPercent, skill.HealPercentPerRank, ctx.Rank);
     foreach (var ally in hits)
-      HealthApplication.ApplyHeal(ref frame, ally,
-        HealthApplication.GetMaxHealth(ref frame, ally) * healFraction);
+      HealthController.ApplyHeal(ref frame, ally,
+        HealthController.GetMaxHealth(ref frame, ally) * healFraction);
 
     if (!skill.HasSilence)
       return;
@@ -57,6 +57,6 @@ public sealed class PickleKnightSkills : HeroSkillSetBase {
     var silenceTicks = TickMath.MsToTicksCeil(ref frame, skill.SilenceDurationMsAtRank(ctx.Rank));
     SkillAreas.Collect(ref frame, ctx.Caster, ctx.CasterPosition, skill.AreaRadius, hits);
     foreach (var foe in hits)
-      Silences.Apply(ref frame, foe, skill.AssetId, silenceTicks);
+      SilenceController.Apply(ref frame, foe, skill.AssetId, silenceTicks);
   }
 }

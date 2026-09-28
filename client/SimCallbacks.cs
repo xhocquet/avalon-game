@@ -76,7 +76,7 @@ public class SimCallbacks(
       return false;
 
     var frame = _engine?.PredictedFrame.Frame;
-    return frame == null || !Cheats.AreAllEnabled(ref frame, playerId, CheatOptions.Flags);
+    return frame == null || !CheatsController.AreAllEnabled(ref frame, playerId, CheatOptions.Flags);
   }
 
   public void OnPollInput(int playerId, int tick, ICommandSender sender) {

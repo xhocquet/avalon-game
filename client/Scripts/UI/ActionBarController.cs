@@ -16,7 +16,7 @@ namespace Meesles.Avalon;
 // hidden<->shown transition — while shown it just refreshes each item's buyability (enabled/greyed)
 // every frame.
 //
-// Both the visibility test and the per-button state run through ShopActions — the same rules
+// Both the visibility test and the per-button state run through ShopController — the same rules
 // PurchaseItemCommand is judged by — rather than re-deriving them here. Range in particular: the
 // ShopEntity node's transform comes from World.tscn and the sim's from the MapLayoutAsset Shop marker,
 // so measuring against the node would enable a button the sim then silently rejects wherever the two
@@ -70,7 +70,7 @@ public class ActionBarController {
     }
 
     // Only your own team's shop, and only while the hero is close enough to it.
-    if (contextShop.Team != teamId || !ShopActions.IsHeroNearTeamShop(ref frame, hero)) {
+    if (contextShop.Team != teamId || !ShopController.IsHeroNearTeamShop(ref frame, hero)) {
       Hide();
       return;
     }
@@ -84,14 +84,14 @@ public class ActionBarController {
       _shown = true;
     }
 
-    // ShopActions.CanPurchase is the same predicate the sim judges the command by, so a greyed button
+    // ShopController.CanPurchase is the same predicate the sim judges the command by, so a greyed button
     // and a rejected buy can never disagree. Asked against the buys already queued too, so gold the
     // predicted frame has not deducted yet cannot be spent twice.
     var pendingGold = _predicted?.PendingGold ?? 0;
     var pendingItems = _predicted?.PendingItems ?? 0;
 
     foreach (var item in _buttons) {
-      var buyable = ShopActions.CanPurchase(ref frame, playerId, item.ItemId, pendingGold, pendingItems);
+      var buyable = ShopController.CanPurchase(ref frame, playerId, item.ItemId, pendingGold, pendingItems);
       item.Button.Disabled = !buyable;
       item.Button.Modulate = buyable ? Colors.White : new Color(1f, 1f, 1f, 0.4f);
     }

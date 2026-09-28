@@ -54,12 +54,12 @@ public sealed class SnailheadSkills : HeroSkillSetBase {
       caster, playerId, (int)SkillSlot.Ultimate, skill, rank, position, position
     );
 
-    HealthApplication.ApplyHeal(ref frame, caster,
-      HealthApplication.GetMaxHealth(ref frame, caster) *
+    HealthController.ApplyHeal(ref frame, caster,
+      HealthController.GetMaxHealth(ref frame, caster) *
       SkillAsset.AtRank(skill.HealPercent, skill.HealPercentPerRank, rank));
 
     if (skill.ClearsDebuffs)
-      StatusEffects.ClearNegative(ref frame, caster);
+      BuffsController.ClearNegative(ref frame, caster);
 
     SkillBuffs.Apply(ref frame, in ctx, caster);
   }

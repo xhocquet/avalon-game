@@ -5,28 +5,18 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
 
-// The one place health goes down. Auto-attacks (DamageSystem) and skills both route through here so
-// mitigation, the zero floor, kill credit, and the hit event can never drift apart between them.
-public static class DamageApplication {
+public static class DamageController {
   private static readonly FP64 Hundred = FP64.FromInt(100);
   private static readonly FP64 Two = FP64.FromInt(2);
 
-  // Returns the damage actually dealt after mitigation. `canCrit` is opt-in per source: auto-attacks
-  // roll against Stats.CritChance, skill damage does not.
-  //
-  // `attackHitId` is the id this hit reports itself under. A caller that raises events about the hit
-  // before it lands - anything that modifies the damage on the way in, like an attack proc - takes an
-  // id from NextHitId first and passes it here so both sides of the story carry the same one.
-  // Everything else leaves it 0 and gets an id allocated here.
+  // attackHitId links pre-hit effect events
   public static FP64 ApplyDamage(ref Frame frame, EntityRef source, EntityRef target, FP64 amount,
     DamageType damageType = DamageType.Physical, bool canCrit = false, int attackHitId = 0) {
     var sourceUnitId = UnitLookup.GetUnitId(ref frame, source);
     if (attackHitId == 0)
       attackHitId = NextHitId(ref frame);
 
-    // Godmode still raises the hit so attack VFX and feedback play; only the health write is skipped,
-    // which also leaves LastDamagerUnitId alone and keeps kill credit off an attacker who dealt nothing.
-    if (Cheats.BlocksDamage(ref frame, target)) {
+    if (CheatsController.BlocksDamage(ref frame, target)) {
       RaiseHitEvent(ref frame, source, target, sourceUnitId, FP64.Zero, false, attackHitId);
       return FP64.Zero;
     }
@@ -43,18 +33,13 @@ public static class DamageApplication {
     if (health.Current < FP64.Zero)
       health.Current = FP64.Zero;
 
-    // Load-bearing, not bookkeeping: DeathSystem and RespawnSystem read this to resolve the killer,
-    // and ExperienceRewards.AwardForKill pays out against it. A kill that skips it awards nobody.
     health.LastDamagerUnitId = sourceUnitId;
 
-    MatchStats.RecordDamage(ref frame, source, target, damage);
+    MatchStatsController.RecordDamage(ref frame, source, target, damage);
     RaiseHitEvent(ref frame, source, target, sourceUnitId, damage, isCrit, attackHitId);
     return damage;
   }
 
-  // Resists scale by a fraction rather than subtracting flat, so stacking approaches but never
-  // reaches immunity and low-damage attackers stay relevant. Negative resist is the same curve
-  // mirrored - it amplifies toward 2x rather than jumping there, and never inverts the sign.
   public static FP64 Mitigate(ref Frame frame, EntityRef target, FP64 damage,
     DamageType damageType = DamageType.Physical) {
     if (damage <= FP64.Zero || !frame.Has<Stats>(target))
@@ -71,8 +56,7 @@ public static class DamageApplication {
     return mitigated < FP64.One ? FP64.One : mitigated; // Floor at 1 damage
   }
 
-  // Allocated whether or not anything is listening: the counter is frame state, so a peer that raises
-  // no events has to burn the same ids as one that does or the two frames stop hashing the same.
+  // Always allocate; the counter is frame state
   public static int NextHitId(ref Frame frame) {
     return IdCounter<AttackHitIdCounter>.Next(ref frame);
   }

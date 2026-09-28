@@ -6,7 +6,7 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Heroes;
 
-// Everything a skill effect needs about the cast that produced it, resolved once by SkillActions.
+// Everything a skill effect needs about the cast that produced it, resolved once by SkillsController.
 // Grows as the cast pipeline does (cast time, resource costs) without re-churning every skill set.
 public readonly struct SkillCastContext {
   public readonly EntityRef Caster;

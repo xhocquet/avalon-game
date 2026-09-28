@@ -18,20 +18,8 @@
     <ProjectReference Include="../vendor/Klotho/com.xpturn.klotho/Server~/KlothoServer/KlothoServer.csproj" />
   </ItemGroup>
 
-  <PropertyGroup>
-    <!-- Shared deterministic sim at repo root sim/ — same .cs the Godot client compiles,
-         built into this exe so server and client share an identical world. -->
-    <SimRoot>../sim</SimRoot>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <!-- The generator emits cross-assembly registration for these types
-         ([ModuleInitializer] + CommandRegistry/MessageRegistry), since CommandFactory
-         lives in the referenced Klotho runtime assembly. Klotho generated code is supplied
-         by the analyzer under obj/, so exclude generated/tooling code from sim/. -->
-    <Compile Include="$(SimRoot)\**\*.cs" Link="Game\%(RecursiveDir)%(Filename)%(Extension)" />
-    <Compile Remove="$(SimRoot)\Tools\**\*.cs" />
-  </ItemGroup>
+  <!-- Shared deterministic sim at repo root sim/ — compiled into this exe with this project's Klotho setup. -->
+  <Import Project="..\sim\Meesles.Avalon.Sim.projitems" Label="Shared" />
 
   <ItemGroup>
     <!-- DataAsset (.bytes) — the copy owned by client/Sim/Data, placed next to the executable

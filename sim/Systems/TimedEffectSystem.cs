@@ -8,7 +8,7 @@ namespace Meesles.Avalon.Sim;
 // Every per-tick countdown in one pass: attack cooldowns, skill cooldowns, stat buffs, armed attack
 // procs, queued attack bursts, snares, silences, damage-over-time burns, charging skill bursts.
 // Starting any of them is command-driven and lives with the rule that owns it (DamageSystem,
-// SkillActions, StatBuffApplication, AttackProcs, AttackBursts, Snares, Silences, DamageOverTimes,
+// SkillsController, BuffsController, EmpoweredAttackController, BurstAttacksController, SnareController, SilenceController, DamageOverTimeController,
 // SkillCharges); burning them down is this.
 //
 // Registered ahead of everything that reads Stats, casts, or deals damage for the frame, so an effect
@@ -42,7 +42,7 @@ public class TimedEffectSystem : ISystem {
 
     var buffed = frame.Filter<StatBuffs, Stats>();
     while (buffed.Next(out var entity))
-      StatBuffApplication.ExpireDue(ref frame, entity);
+      BuffsController.ExpireDue(ref frame, entity);
 
     // Clears the slot in place rather than removing the component, so nothing here touches the
     // filter's own component types mid-walk.
@@ -74,7 +74,7 @@ public class TimedEffectSystem : ISystem {
         silence.Clear();
     }
 
-    // Deferred like the detonation below: DamageApplication allocates the hit-id singleton on its
+    // Deferred like the detonation below: DamageController allocates the hit-id singleton on its
     // first call of the match, and that creates an entity while a filter is still walking storage.
     _burning.Clear();
     var burning = frame.Filter<DamageOverTime>();
@@ -83,7 +83,7 @@ public class TimedEffectSystem : ISystem {
         _burning.Add(entity);
 
     for (var i = 0; i < _burning.Count; i++)
-      DamageOverTimes.Tick(ref frame, _burning[i]);
+      DamageOverTimeController.Tick(ref frame, _burning[i]);
 
     // The one countdown here that pays something out rather than just ending. Deferred because the
     // detonation - and a channel aura's per-interval pulse - walks the units itself and hits what it

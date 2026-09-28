@@ -134,7 +134,7 @@ public class SkillProgressionTests {
     collector.BeginTick(7);
     frame.EventRaiser = collector;
 
-    SkillActions.TryUpgrade(ref frame, PlayerId, (int)SkillSlot.Ultimate).Should().BeTrue();
+    SkillsController.TryUpgrade(ref frame, PlayerId, (int)SkillSlot.Ultimate).Should().BeTrue();
 
     var evt = collector.Collected[0].Should().BeOfType<SkillUpgradedEvent>().Subject;
     evt.Tick.Should().Be(7);

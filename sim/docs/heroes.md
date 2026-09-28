@@ -8,10 +8,10 @@
 | Field | Lands on | Notes |
 | --- | --- | --- |
 | `BaseHealth` | `Stats.MaxHealth` | `Health.Current` is transient, not a stat |
-| `BaseMana` | `Stats.MaxMana` | seeds `Health.Mana`; skill casts spend it, `ManaApplication` clamps it |
+| `BaseMana` | `Stats.MaxMana` | seeds `Health.Mana`; skill casts spend it, `ManaController` clamps it |
 | `BaseAttackDamage` | `Stats.AttackDamage` | |
 | `BaseAttackSpeed` | `Stats.AttacksPerSecond` | attacks/sec, scaled by `Stats.BonusAttackSpeed` |
-| `BaseArmor`, `BaseMagicResist` | `Stats.Armor`, `Stats.MagicResist` | `DamageApplication.Mitigate` picks by `DamageType` |
+| `BaseArmor`, `BaseMagicResist` | `Stats.Armor`, `Stats.MagicResist` | `DamageController.Mitigate` picks by `DamageType` |
 | `MoveSpeed` | `Stats.MoveSpeed` | pushed onto the nav agent each tick |
 | `AttackRange` | `Stats.AttackRange` | edge-to-edge |
 | `AcquisitionRange` | `Stats.AcquisitionRange` | absolute, not a multiple of attack range |

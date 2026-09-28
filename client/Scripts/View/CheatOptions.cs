@@ -20,7 +20,7 @@ public static class CheatOptions {
           flags |= CheatFlags.FreeShop;
           break;
         case "--allcheats":
-          flags |= Cheats.All;
+          flags |= CheatsController.All;
           break;
       }
 

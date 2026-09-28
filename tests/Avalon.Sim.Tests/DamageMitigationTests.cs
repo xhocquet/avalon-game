@@ -18,9 +18,9 @@ public class DamageMitigationTests {
     SetResists(ref frame, target, armor: 100, magicResist: 0);
 
     var damage = FP64.FromInt(100);
-    DamageApplication.Mitigate(ref frame, target, damage, DamageType.Physical)
+    DamageController.Mitigate(ref frame, target, damage, DamageType.Physical)
       .Should().Be(FP64.FromInt(50));
-    DamageApplication.Mitigate(ref frame, target, damage, DamageType.Magical)
+    DamageController.Mitigate(ref frame, target, damage, DamageType.Magical)
       .Should().Be(damage);
   }
 
@@ -36,7 +36,7 @@ public class DamageMitigationTests {
     var target = harness.FindHero(1);
     SetResists(ref frame, target, armor, magicResist: 0);
 
-    var mitigated = DamageApplication.Mitigate(ref frame, target, FP64.FromInt(1000));
+    var mitigated = DamageController.Mitigate(ref frame, target, FP64.FromInt(1000));
 
     var expected = FP64.FromInt(expectedDamage);
     FP64.Abs(mitigated - expected).Should().BeLessThanOrEqualTo(FP64.One,
@@ -51,7 +51,7 @@ public class DamageMitigationTests {
     var target = harness.FindHero(1);
     SetResists(ref frame, target, armor: 900, magicResist: 0);
 
-    DamageApplication.Mitigate(ref frame, target, FP64.One / FP64.FromInt(2))
+    DamageController.Mitigate(ref frame, target, FP64.One / FP64.FromInt(2))
       .Should().Be(FP64.One);
   }
 
@@ -63,7 +63,7 @@ public class DamageMitigationTests {
     SetResists(ref frame, target, armor: 0, magicResist: 0);
 
     var damage = FP64.FromInt(137) / FP64.FromInt(2);
-    DamageApplication.Mitigate(ref frame, target, damage).Should().Be(damage);
+    DamageController.Mitigate(ref frame, target, damage).Should().Be(damage);
   }
 
   private static void SetResists(ref Frame frame, EntityRef entity, int armor, int magicResist) {

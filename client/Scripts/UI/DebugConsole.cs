@@ -346,7 +346,7 @@ public partial class DebugConsole : CanvasLayer {
 
   private bool IsCheatOn(CheatFlags flag) {
     var frame = _engine?.PredictedFrame.Frame;
-    return frame != null && Cheats.IsEnabled(ref frame, _engine.LocalPlayerId, flag);
+    return frame != null && CheatsController.IsEnabled(ref frame, _engine.LocalPlayerId, flag);
   }
 
   private static int ParseInt(string arg, int fallback) {

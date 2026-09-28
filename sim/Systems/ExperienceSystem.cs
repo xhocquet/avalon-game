@@ -6,7 +6,7 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
 
-// Converts the XP that ExperienceRewards deposited into levels
+// Converts kill XP into levels
 // Runs after DeathSystem = same tick processing of hero kill experience
 public class ExperienceSystem : ISystem {
   public void Update(ref Frame frame) {
@@ -59,9 +59,9 @@ public class ExperienceSystem : ISystem {
         stats.Add(stat, StatGrowth.Between(rules, growth, levelBefore, levelAfter));
     }
 
-    HealthApplication.GrantMaxHealth(ref frame, entity,
+    HealthController.GrantMaxHealth(ref frame, entity,
       StatGrowth.Between(rules, heroAsset.GrowthOf(StatType.MaxHealth), levelBefore, levelAfter));
-    ManaApplication.GrantMaxMana(ref frame, entity,
+    ManaController.GrantMaxMana(ref frame, entity,
       StatGrowth.Between(rules, heroAsset.GrowthOf(StatType.MaxMana), levelBefore, levelAfter));
   }
 

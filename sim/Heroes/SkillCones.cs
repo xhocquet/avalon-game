@@ -39,7 +39,7 @@ public static class SkillCones {
     }
 
     foreach (var target in hits)
-      DamageApplication.ApplyDamage(ref frame, ctx.Caster, target, damage, damageType);
+      DamageController.ApplyDamage(ref frame, ctx.Caster, target, damage, damageType);
   }
 
   private static bool IsInside(ref Frame frame, EntityRef target, FPVector2 origin, FPVector2 facing,

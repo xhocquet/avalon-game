@@ -348,10 +348,10 @@ public class ExperienceSystemTests {
     EntityRef hero = harness.FindHero(1);
     int victimTeamId = frame.GetReadOnly<Team>(harness.FindHero(2)).TeamId;
 
-    ExperienceRewards.AwardForKill(ref frame, hero, SimulationSetup.TurretUnitTypeId, victimTeamId);
+    ExperienceController.AwardForKill(ref frame, hero, SimulationSetup.TurretUnitTypeId, victimTeamId);
     frame.GetReadOnly<Experience>(hero).Xp.Should().Be(rules.XpPerTurretKill);
 
-    ExperienceRewards.AwardForKill(ref frame, hero, SimulationSetup.CrystalUnitTypeId, victimTeamId);
+    ExperienceController.AwardForKill(ref frame, hero, SimulationSetup.CrystalUnitTypeId, victimTeamId);
     frame.GetReadOnly<Experience>(hero).Xp
       .Should().Be(rules.XpPerTurretKill + rules.XpPerCrystalKill);
   }

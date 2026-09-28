@@ -70,7 +70,7 @@ public class BadHairDayTests {
     charge.DetonateTick.Should().Be(castTick + ChargeTicks(harness, skill));
     charge.SnareDurationTicks.Should().Be(Ticks(harness, skill.SnareDurationMsAtRank(1)));
     charge.HasAura.Should().BeTrue();
-    charge.AuraIntervalTicks.Should().Be(Ticks(harness, DamageOverTimes.PayoutIntervalMs));
+    charge.AuraIntervalTicks.Should().Be(Ticks(harness, DamageOverTimeController.PayoutIntervalMs));
     charge.AuraAccrualPerTick.Should().Be(
       skill.DotDamagePerSecondAtRank(1) * FP64.FromInt(SimHarness.DefaultDeltaTimeMs) / FP64.FromInt(1000));
   }
@@ -96,7 +96,7 @@ public class BadHairDayTests {
     var harness = CreateHarness();
     var skill = BadHairDayAsset(harness);
     var chargeTicks = ChargeTicks(harness, skill);
-    var intervalTicks = Ticks(harness, DamageOverTimes.PayoutIntervalMs);
+    var intervalTicks = Ticks(harness, DamageOverTimeController.PayoutIntervalMs);
     var perSecond = skill.DotDamagePerSecondAtRank(1);
 
     var castTick = LearnAndCast(harness);
@@ -186,7 +186,7 @@ public class BadHairDayTests {
     var enemy = SpawnDummy(harness, HeroPosition(harness), EnemyTeamId, isMinion: true);
     var healthBefore = Health(harness, enemy);
 
-    AdvanceTo(harness, castTick + Ticks(harness, DamageOverTimes.PayoutIntervalMs));
+    AdvanceTo(harness, castTick + Ticks(harness, DamageOverTimeController.PayoutIntervalMs));
     var healthAtDeath = Health(harness, enemy);
     healthAtDeath.Should().BeLessThan(healthBefore, "one pulse landed before the caster died");
 
@@ -348,7 +348,7 @@ public class BadHairDayTests {
 
   private static bool IsSnared(SimHarness harness, EntityRef entity) {
     var frame = harness.Frame;
-    return Snares.IsSnared(ref frame, entity);
+    return SnareController.IsSnared(ref frame, entity);
   }
 
   private static EntityRef Caster(SimHarness harness) {

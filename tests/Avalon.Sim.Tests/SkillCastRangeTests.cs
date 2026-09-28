@@ -124,7 +124,7 @@ public class SkillCastRangeTests {
     collector.BeginTick(frame.Tick);
     frame.EventRaiser = collector;
 
-    SkillActions.TryCast(ref frame, PlayerId, slot, target).Should().BeTrue();
+    SkillsController.TryCast(ref frame, PlayerId, slot, target).Should().BeTrue();
 
     return collector.Collected.OfType<SkillCastEvent>().Single();
   }

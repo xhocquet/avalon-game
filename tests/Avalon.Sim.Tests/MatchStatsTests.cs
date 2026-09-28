@@ -16,7 +16,7 @@ public class MatchStatsTests {
     var attacker = harness.FindHero(playerId: 1);
     var victim = harness.FindHero(playerId: 2);
 
-    var dealt = DamageApplication.ApplyDamage(ref frame, attacker, victim, 50);
+    var dealt = DamageController.ApplyDamage(ref frame, attacker, victim, 50);
 
     dealt.Should().BeGreaterThan(0);
     frame.GetReadOnly<Player>(attacker).DamageDealt.Should().Be(dealt);
@@ -28,7 +28,7 @@ public class MatchStatsTests {
     var frame = harness.Frame;
     var attacker = harness.FindHero(playerId: 1);
 
-    DamageApplication.ApplyDamage(ref frame, attacker, attacker, 50);
+    DamageController.ApplyDamage(ref frame, attacker, attacker, 50);
 
     frame.GetReadOnly<Player>(attacker).DamageDealt.Should().Be(0);
   }
@@ -41,10 +41,10 @@ public class MatchStatsTests {
     var killer = harness.FindHero(playerId: 1);
     const int enemyTeamId = 2;
 
-    MatchStats.RecordKill(ref frame, killer, SimulationSetup.PlayerUnitTypeId, enemyTeamId);
-    MatchStats.RecordKill(ref frame, killer, SimulationSetup.MinionUnitTypeId, enemyTeamId);
-    MatchStats.RecordKill(ref frame, killer, SimulationSetup.TurretUnitTypeId, enemyTeamId);
-    MatchStats.RecordKill(ref frame, killer, SimulationSetup.CrystalUnitTypeId, enemyTeamId);
+    MatchStatsController.RecordKill(ref frame, killer, SimulationSetup.PlayerUnitTypeId, enemyTeamId);
+    MatchStatsController.RecordKill(ref frame, killer, SimulationSetup.MinionUnitTypeId, enemyTeamId);
+    MatchStatsController.RecordKill(ref frame, killer, SimulationSetup.TurretUnitTypeId, enemyTeamId);
+    MatchStatsController.RecordKill(ref frame, killer, SimulationSetup.CrystalUnitTypeId, enemyTeamId);
 
     ref readonly var record = ref frame.GetReadOnly<Player>(killer);
     record.HeroKills.Should().Be(1);
@@ -61,7 +61,7 @@ public class MatchStatsTests {
     var killer = harness.FindHero(playerId: 1);
     var ownTeamId = frame.GetReadOnly<Team>(killer).TeamId;
 
-    MatchStats.RecordKill(ref frame, killer, SimulationSetup.MinionUnitTypeId, ownTeamId);
+    MatchStatsController.RecordKill(ref frame, killer, SimulationSetup.MinionUnitTypeId, ownTeamId);
 
     frame.GetReadOnly<Player>(killer).MinionKills.Should().Be(0);
     frame.GetReadOnly<Player>(killer).Score.Should().Be(0);
@@ -77,7 +77,7 @@ public class MatchStatsTests {
 
     // Route the kill through the damage path so the credit rides LastDamagerUnitId the way it does live.
     frame.Get<Health>(victim).Current = 1;
-    DamageApplication.ApplyDamage(ref frame, killer, victim, 9999);
+    DamageController.ApplyDamage(ref frame, killer, victim, 9999);
     new RespawnSystem().Update(ref frame);
 
     frame.GetReadOnly<Player>(killer).HeroKills.Should().Be(1);
@@ -93,7 +93,7 @@ public class MatchStatsTests {
     var killer = harness.FindHero(playerId: 1);
     var minion = SpawnEnemyMinion(ref frame, harness);
 
-    DamageApplication.ApplyDamage(ref frame, killer, minion, 9999);
+    DamageController.ApplyDamage(ref frame, killer, minion, 9999);
     new DeathSystem().Update(ref frame);
 
     frame.GetReadOnly<Player>(killer).MinionKills.Should().Be(1);

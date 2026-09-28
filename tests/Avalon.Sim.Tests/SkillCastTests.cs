@@ -21,7 +21,7 @@ public class SkillCastTests {
     var frame = harness.Frame;
     var hero = harness.FindHero(PlayerId);
     var skill = SkillProgressionTests.SkillInSlot(harness, hero, SkillSlot.Primary);
-    var expectedTicks = SkillActions.CooldownTicks(ref frame, skill);
+    var expectedTicks = SkillsController.CooldownTicks(ref frame, skill);
 
     LearnAndCast(harness);
 
@@ -39,7 +39,7 @@ public class SkillCastTests {
     var hero = harness.FindHero(PlayerId);
     var skill = SkillProgressionTests.SkillInSlot(harness, hero, SkillSlot.Primary);
 
-    var ticks = SkillActions.CooldownTicks(ref frame, skill);
+    var ticks = SkillsController.CooldownTicks(ref frame, skill);
 
     var deltaTimeMs = frame.DeltaTimeMs > 0 ? frame.DeltaTimeMs : 16;
     ticks.Should().Be((skill.CooldownMs + deltaTimeMs - 1) / deltaTimeMs);
@@ -70,7 +70,7 @@ public class SkillCastTests {
     var frame = harness.Frame;
     var hero = harness.FindHero(PlayerId);
     var skill = SkillProgressionTests.SkillInSlot(harness, hero, SkillSlot.Primary);
-    var cooldownTicks = SkillActions.CooldownTicks(ref frame, skill);
+    var cooldownTicks = SkillsController.CooldownTicks(ref frame, skill);
 
     LearnAndCast(harness);
     for (var i = 0; i < cooldownTicks; i++)
@@ -106,7 +106,7 @@ public class SkillCastTests {
     frame.Get<Skills>(hero).TrySpendPoint(Primary, 4).Should().BeTrue();
     frame.Get<Health>(hero).Current = 0;
 
-    SkillActions.TryCast(ref frame, PlayerId, Primary, FPVector3.Zero).Should().BeFalse();
+    SkillsController.TryCast(ref frame, PlayerId, Primary, FPVector3.Zero).Should().BeFalse();
 
     frame.GetReadOnly<Skills>(hero).GetCooldownRemainingTicks(Primary).Should().Be(0);
   }
@@ -158,7 +158,7 @@ public class SkillCastTests {
     frame.EventRaiser = collector;
 
     var target = position + new FPVector3(FP64.FromInt(5), FP64.Zero, FP64.FromInt(-3));
-    SkillActions.TryCast(ref frame, PlayerId, Secondary, target).Should().BeTrue();
+    SkillsController.TryCast(ref frame, PlayerId, Secondary, target).Should().BeTrue();
 
     // Strangle also spawns a bolt, so the cast event is not necessarily first; the view keys off the type.
     var evt = collector.Collected.OfType<SkillCastEvent>().Single();
@@ -228,7 +228,7 @@ public class SkillCastTests {
     frame.Get<Skills>(hero).TrySpendPoint(Primary, 4).Should().BeTrue();
     frame.Get<Health>(hero).Mana = FP64.FromInt(40);
 
-    SkillActions.TryCast(ref frame, PlayerId, Primary, FPVector3.Zero).Should().BeFalse();
+    SkillsController.TryCast(ref frame, PlayerId, Primary, FPVector3.Zero).Should().BeFalse();
 
     frame.GetReadOnly<Skills>(hero).GetCooldownRemainingTicks(Primary).Should().Be(0);
     frame.GetReadOnly<Health>(hero).Mana.Should().Be(FP64.FromInt(40)); // nothing spent on a rejected cast
@@ -242,9 +242,9 @@ public class SkillCastTests {
     SkillProgressionTests.SkillInSlot(harness, hero, SkillSlot.Primary).ManaCost = FP64.FromInt(100);
     frame.Get<Skills>(hero).TrySpendPoint(Primary, 4).Should().BeTrue();
 
-    SkillActions.CanCast(ref frame, PlayerId, Primary).Should().BeTrue();
+    SkillsController.CanCast(ref frame, PlayerId, Primary).Should().BeTrue();
     frame.Get<Health>(hero).Mana = FP64.FromInt(40);
-    SkillActions.CanCast(ref frame, PlayerId, Primary).Should().BeFalse();
+    SkillsController.CanCast(ref frame, PlayerId, Primary).Should().BeFalse();
   }
 
   // The reason surface the client and the sim share. CommandSystem re-checks the same block on
@@ -255,17 +255,17 @@ public class SkillCastTests {
     var hero = harness.FindHero(PlayerId);
     var frame = harness.Frame;
 
-    SkillActions.CastBlock(ref frame, PlayerId, Primary).Should().Be(SkillRejectReason.NotLearned);
+    SkillsController.CastBlock(ref frame, PlayerId, Primary).Should().Be(SkillRejectReason.NotLearned);
 
     frame.Get<Skills>(hero).TrySpendPoint(Primary, 4).Should().BeTrue();
-    SkillActions.CastBlock(ref frame, PlayerId, Primary).Should().Be(SkillRejectReason.None);
+    SkillsController.CastBlock(ref frame, PlayerId, Primary).Should().Be(SkillRejectReason.None);
 
-    Silences.Apply(ref frame, hero, 999, 120).Should().BeTrue();
-    SkillActions.CastBlock(ref frame, PlayerId, Primary).Should().Be(SkillRejectReason.Silenced);
-    Silences.Clear(ref frame, hero);
+    SilenceController.Apply(ref frame, hero, 999, 120).Should().BeTrue();
+    SkillsController.CastBlock(ref frame, PlayerId, Primary).Should().Be(SkillRejectReason.Silenced);
+    SilenceController.Clear(ref frame, hero);
 
     frame.Get<Health>(hero).Current = FP64.Zero;
-    SkillActions.CastBlock(ref frame, PlayerId, Primary).Should().Be(SkillRejectReason.HeroDead);
+    SkillsController.CastBlock(ref frame, PlayerId, Primary).Should().Be(SkillRejectReason.HeroDead);
   }
 
   [Fact]
@@ -274,7 +274,7 @@ public class SkillCastTests {
     LearnAndCast(harness);
 
     var frame = harness.Frame;
-    SkillActions.CastBlock(ref frame, PlayerId, Primary).Should().Be(SkillRejectReason.OnCooldown);
+    SkillsController.CastBlock(ref frame, PlayerId, Primary).Should().Be(SkillRejectReason.OnCooldown);
   }
 
   // Rank up Primary and cast it, leaving the sim one tick past the cast.

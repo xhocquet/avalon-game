@@ -29,7 +29,7 @@ public sealed class PredictedPurchaseState {
   private readonly int[] _waited = new int[SlotCount];
 
   // Gold committed to queued commands the frame has not deducted yet, and items the frame has not
-  // added yet. Both gate the next buy through ShopActions.CanPurchase.
+  // added yet. Both gate the next buy through ShopController.CanPurchase.
   public int PendingGold { get; private set; }
   public int PendingItems { get; private set; }
 

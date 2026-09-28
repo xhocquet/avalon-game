@@ -32,23 +32,23 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
         HandleAttackCommand(ref frame, attack);
         break;
       case SelectFactionCommand faction:
-        FactionActions.TrySelect(ref frame, faction.PlayerId, faction.FactionId);
+        FactionController.TrySelect(ref frame, faction.PlayerId, faction.FactionId);
         break;
       case PurchaseItemCommand purchase:
-        ShopActions.TryPurchase(ref frame, purchase.PlayerId, purchase.ItemAssetId);
+        ShopController.TryPurchase(ref frame, purchase.PlayerId, purchase.ItemAssetId);
         break;
       case UpgradeSkillCommand upgrade:
-        SkillActions.TryUpgrade(ref frame, upgrade.PlayerId, upgrade.Slot);
+        SkillsController.TryUpgrade(ref frame, upgrade.PlayerId, upgrade.Slot);
         break;
       case CastSkillCommand cast:
-        SkillActions.TryCast(ref frame, cast.PlayerId, cast.Slot,
+        SkillsController.TryCast(ref frame, cast.PlayerId, cast.Slot,
           new FPVector3(cast.TargetX, FP64.Zero, cast.TargetZ));
         break;
       case SetCheatCommand cheat:
-        Cheats.Set(ref frame, cheat.PlayerId, (CheatFlags)cheat.Flags, cheat.Enabled != 0);
+        CheatsController.Set(ref frame, cheat.PlayerId, (CheatFlags)cheat.Flags, cheat.Enabled != 0);
         break;
       case DebugCommand debug:
-        DebugActions.Execute(ref frame, debug.PlayerId, (DebugAction)debug.Action, debug.Param,
+        DebugController.Execute(ref frame, debug.PlayerId, (DebugAction)debug.Action, debug.Param,
           debug.FactionId, new FPVector3(debug.TargetX, FP64.Zero, debug.TargetZ));
         break;
     }
@@ -68,7 +68,7 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
         continue;
 
       // Held in place: the order stands and resumes when the hold ends, it just makes no progress.
-      if (Snares.IsSnared(ref frame, entity))
+      if (SnareController.IsSnared(ref frame, entity))
         continue;
 
       ref var moveTarget = ref frame.Get<UnitMoveTarget>(entity);
@@ -117,9 +117,9 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
     var approach = NavTargets.SnapToWalkable(navigation?.Query, targetTransform.Position);
     for (var i = 0; i < _formationUnits.Count; i++) {
       var source = _formationUnits[i];
-      UnitIntent.SetMoveTarget(ref frame, source.Entity, approach);
-      UnitIntent.AllowImmediateRepath(ref frame, source.Entity);
-      UnitIntent.SetAttackTarget(ref frame, source.Entity, command.TargetUnitId);
+      UnitIntentController.SetMoveTarget(ref frame, source.Entity, approach);
+      UnitIntentController.AllowImmediateRepath(ref frame, source.Entity);
+      UnitIntentController.SetAttackTarget(ref frame, source.Entity, command.TargetUnitId);
       frame.Logger.KDebug(
         $"[Combat] AttackCommand accepted tick={frame.Tick} playerId={command.PlayerId} sourceUnitId={source.UnitId} targetUnitId={command.TargetUnitId} moveTarget=({approach.x}, {approach.z})");
     }
@@ -199,8 +199,8 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
 
   // A move order cancels any standing attack order.
   private static void SetTarget(ref Frame frame, EntityRef entity, FPVector3 target) {
-    UnitIntent.ClearAttackIntent(ref frame, entity);
-    UnitIntent.SetMoveTarget(ref frame, entity, target);
-    UnitIntent.AllowImmediateRepath(ref frame, entity);
+    UnitIntentController.ClearAttackIntent(ref frame, entity);
+    UnitIntentController.SetMoveTarget(ref frame, entity, target);
+    UnitIntentController.AllowImmediateRepath(ref frame, entity);
   }
 }

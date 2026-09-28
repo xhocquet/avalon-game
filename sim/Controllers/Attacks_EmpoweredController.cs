@@ -5,18 +5,7 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
 
-// Empowered auto-attacks: a cast arms one, the next attack that lands spends it. The multiplier lands
-// on the raw attack damage before mitigation, the same place CriticalStrikes puts its own, so the
-// proc is worth the same fraction against any armor value and the two stack multiplicatively.
-//
-// Only DamageSystem consumes, so a skill can never eat the charge the player is holding for an attack.
-public static class AttackProcs {
-  // Arms the next attack, replacing whatever was waiting. Returns false when the unit cannot hold a
-  // proc or the arming is a no-op.
-  //
-  // resetAttackCooldown clears the swing timer the caster is sitting on, so the empowered attack goes
-  // out on the cast tick rather than after the leftover of the auto that came before it. The cooldown
-  // restarts normally from that hit, so this buys one swing, not a faster attack rate.
+public static class EmpoweredAttackController {
   public static bool Arm(ref Frame frame, EntityRef entity, int sourceId, FP64 damageMultiplier,
     int durationTicks, bool resetAttackCooldown = false) {
     if (sourceId == 0 || durationTicks <= 0 || damageMultiplier <= FP64.Zero)
@@ -30,17 +19,12 @@ public static class AttackProcs {
     proc.DamageMultiplier = damageMultiplier;
     proc.ExpiryTick = frame.Tick + durationTicks;
 
-    // Casts run before the Update phase, so a cooldown cleared here is already 0 when DamageSystem
-    // reaches this attacker on the same tick.
     if (resetAttackCooldown && frame.Has<Combat>(entity))
       frame.Get<Combat>(entity).CooldownRemainingTicks = 0;
 
     return true;
   }
 
-  // Damage after the proc. Spends the charge, so it is called once per landed attack, at the point
-  // the attack is committed to, and raises its own AttackProcConsumedEvent under the hit's id rather
-  // than reporting itself through the hit event.
   public static FP64 Consume(ref Frame frame, EntityRef attacker, EntityRef target, int attackHitId,
     FP64 damage) {
     if (!frame.Has<AttackProc>(attacker))
@@ -61,11 +45,6 @@ public static class AttackProcs {
   public static void Clear(ref Frame frame, EntityRef entity) {
     if (frame.Has<AttackProc>(entity))
       frame.Get<AttackProc>(entity).Clear();
-  }
-
-  public static bool IsArmed(ref Frame frame, EntityRef entity) {
-    return frame.Has<AttackProc>(entity) &&
-           frame.GetReadOnly<AttackProc>(entity).IsArmed;
   }
 
   private static void RaiseConsumedEvent(ref Frame frame, EntityRef attacker, EntityRef target,

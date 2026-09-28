@@ -18,7 +18,7 @@ public class CriticalStrikeTests {
     SetCrit(ref frame, attacker, chance: FP64.One, damage: FP64.FromInt(2));
     SetArmor(ref frame, target, 100); // Halves whatever arrives
 
-    var dealt = DamageApplication.ApplyDamage(ref frame, attacker, target, FP64.FromInt(100),
+    var dealt = DamageController.ApplyDamage(ref frame, attacker, target, FP64.FromInt(100),
       DamageType.Physical, canCrit: true);
 
     dealt.Should().Be(FP64.FromInt(100)); // 100 * 2 crit, then * 0.5 mitigation
@@ -33,7 +33,7 @@ public class CriticalStrikeTests {
     SetCrit(ref frame, attacker, chance: FP64.One, damage: FP64.FromInt(2));
     SetArmor(ref frame, target, 0);
 
-    DamageApplication.ApplyDamage(ref frame, attacker, target, FP64.FromInt(100))
+    DamageController.ApplyDamage(ref frame, attacker, target, FP64.FromInt(100))
       .Should().Be(FP64.FromInt(100));
   }
 
@@ -46,7 +46,7 @@ public class CriticalStrikeTests {
     SetCrit(ref frame, attacker, chance: FP64.Zero, damage: FP64.FromInt(2));
     SetArmor(ref frame, target, 0);
 
-    DamageApplication.ApplyDamage(ref frame, attacker, target, FP64.FromInt(100),
+    DamageController.ApplyDamage(ref frame, attacker, target, FP64.FromInt(100),
       DamageType.Physical, canCrit: true).Should().Be(FP64.FromInt(100));
   }
 

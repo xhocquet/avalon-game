@@ -182,8 +182,8 @@ public class RollbackDeterminismTests {
     var frame = harness.Frame;
     var filter = frame.Filter<Hero, Stats>();
     while (filter.Next(out var entity))
-      StatBuffApplication.ApplyPercent(ref frame, entity, Assets.AssetIds.SkillCrystalGiantUltimate,
-        StatType.Armor, FP64.FromInt(1) / FP64.FromInt(2), durationTicks: 600);
+      BuffsController.Apply(ref frame, entity, Assets.AssetIds.SkillCrystalGiantUltimate,
+        StatType.Armor, FP64.Zero, FP64.FromInt(1) / FP64.FromInt(2), durationTicks: 600);
   }
 
   private static FP64 HeroArmor(SimHarness harness) {
@@ -196,7 +196,18 @@ public class RollbackDeterminismTests {
   // interesting.
   private static void AssertBuffsAreActive(SimHarness harness) {
     var frame = harness.Frame;
-    StatBuffApplication.ActiveCount(ref frame, harness.FindHero(1)).Should().BeGreaterThan(0,
+    var hero = harness.FindHero(1);
+    var hasActiveBuff = false;
+    if (frame.Has<StatBuffs>(hero)) {
+      ref readonly var buffs = ref frame.GetReadOnly<StatBuffs>(hero);
+      for (var i = 0; i < StatBuffs.MaxEntries; i++)
+        if (buffs.IsActive(i)) {
+          hasActiveBuff = true;
+          break;
+        }
+    }
+
+    hasActiveBuff.Should().BeTrue(
       "the warmup stream must leave a buff running at the snapshot tick for the rollback to have " +
       "any buff state to restore");
   }

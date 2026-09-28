@@ -22,11 +22,11 @@ public class MoltTests {
     var skill = MoltAsset(harness);
     var hero = Caster(harness);
     var frame = harness.Frame;
-    var maxHealth = HealthApplication.GetMaxHealth(ref frame, hero);
+    var maxHealth = HealthController.GetMaxHealth(ref frame, hero);
     frame.Get<Health>(hero).Current = maxHealth / FP64.FromInt(2);
-    StatBuffApplication.ApplyPercent(ref frame, hero, DebuffSource, StatType.MoveSpeed,
-      -FP64.Half, 600).Should().BeTrue();
-    Snares.Apply(ref frame, hero, DebuffSource, 600).Should().BeTrue();
+    BuffsController.Apply(ref frame, hero, DebuffSource, StatType.MoveSpeed,
+      FP64.Zero, -FP64.Half, 600).Should().BeTrue();
+    SnareController.Apply(ref frame, hero, DebuffSource, 600).Should().BeTrue();
 
     var castTick = LearnAndCast(harness);
     AdvanceTo(harness, castTick + Ticks(harness, skill.ChargeDurationMsAtRank(1)) - 1);
@@ -36,7 +36,7 @@ public class MoltTests {
     AdvanceTo(harness, castTick + Ticks(harness, skill.ChargeDurationMsAtRank(1)));
     Health(harness).Should().Be(maxHealth);
     frame = harness.Frame;
-    Snares.IsSnared(ref frame, hero).Should().BeFalse();
+    SnareController.IsSnared(ref frame, hero).Should().BeFalse();
     ActiveBuffs(harness).Should().OnlyContain(e => e.SourceId == AssetIds.SkillSnailheadUltimate);
     ActiveBuffs(harness).Select(e => e.Stat).Should().BeEquivalentTo([StatType.Armor, StatType.MagicResist]);
   }
@@ -47,7 +47,7 @@ public class MoltTests {
     var skill = MoltAsset(harness);
     var hero = Caster(harness);
     var frame = harness.Frame;
-    var maxHealth = HealthApplication.GetMaxHealth(ref frame, hero);
+    var maxHealth = HealthController.GetMaxHealth(ref frame, hero);
     frame.Get<Health>(hero).Current = maxHealth / FP64.FromInt(2);
 
     var castTick = LearnAndCast(harness);

@@ -6,7 +6,7 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Tests;
 
-public class ManaApplicationTests {
+public class ManaControllerTests {
   [Fact]
   public void Spend_DeductsWhenThePoolCoversIt() {
     var harness = SimHarness.CreateInitialized();
@@ -14,7 +14,7 @@ public class ManaApplicationTests {
     EntityRef hero = harness.FindHero(1);
     frame.Get<Health>(hero).Mana = Fp(200);
 
-    ManaApplication.TrySpend(ref frame, hero, Fp(75)).Should().BeTrue();
+    ManaController.TrySpend(ref frame, hero, Fp(75)).Should().BeTrue();
     frame.GetReadOnly<Health>(hero).Mana.Should().Be(Fp(125));
   }
 
@@ -25,7 +25,7 @@ public class ManaApplicationTests {
     EntityRef hero = harness.FindHero(1);
     frame.Get<Health>(hero).Mana = Fp(50);
 
-    ManaApplication.TrySpend(ref frame, hero, Fp(75)).Should().BeFalse();
+    ManaController.TrySpend(ref frame, hero, Fp(75)).Should().BeFalse();
     frame.GetReadOnly<Health>(hero).Mana.Should().Be(Fp(50));
   }
 
@@ -36,8 +36,8 @@ public class ManaApplicationTests {
     EntityRef hero = harness.FindHero(1);
     frame.Get<Health>(hero).Mana = Fp(10);
 
-    ManaApplication.TrySpend(ref frame, hero, FP64.Zero).Should().BeTrue();
-    ManaApplication.TrySpend(ref frame, hero, Fp(-5)).Should().BeTrue();
+    ManaController.TrySpend(ref frame, hero, FP64.Zero).Should().BeTrue();
+    ManaController.TrySpend(ref frame, hero, Fp(-5)).Should().BeTrue();
     frame.GetReadOnly<Health>(hero).Mana.Should().Be(Fp(10));
   }
 
@@ -48,8 +48,8 @@ public class ManaApplicationTests {
     EntityRef hero = harness.FindHero(1);
     frame.Get<Health>(hero).Mana = Fp(60);
 
-    ManaApplication.CanAfford(ref frame, hero, Fp(60)).Should().BeTrue();
-    ManaApplication.CanAfford(ref frame, hero, Fp(61)).Should().BeFalse();
+    ManaController.CanAfford(ref frame, hero, Fp(60)).Should().BeTrue();
+    ManaController.CanAfford(ref frame, hero, Fp(61)).Should().BeFalse();
   }
 
   [Fact]
@@ -60,7 +60,7 @@ public class ManaApplicationTests {
     var maxMana = frame.GetReadOnly<Stats>(hero).MaxMana;
     frame.Get<Health>(hero).Mana = maxMana - Fp(5);
 
-    var restored = ManaApplication.Restore(ref frame, hero, Fp(500));
+    var restored = ManaController.Restore(ref frame, hero, Fp(500));
 
     restored.Should().Be(Fp(5));
     frame.GetReadOnly<Health>(hero).Mana.Should().Be(maxMana);
@@ -73,7 +73,7 @@ public class ManaApplicationTests {
     EntityRef hero = harness.FindHero(1);
     frame.Get<Health>(hero).Mana = Fp(10);
 
-    ManaApplication.Restore(ref frame, hero, Fp(25)).Should().Be(Fp(25));
+    ManaController.Restore(ref frame, hero, Fp(25)).Should().Be(Fp(25));
     frame.GetReadOnly<Health>(hero).Mana.Should().Be(Fp(35));
   }
 
@@ -84,7 +84,7 @@ public class ManaApplicationTests {
     EntityRef hero = harness.FindHero(1);
     frame.Get<Health>(hero).Mana = FP64.Zero;
 
-    ManaApplication.RestoreToFull(ref frame, hero);
+    ManaController.RestoreToFull(ref frame, hero);
 
     frame.GetReadOnly<Health>(hero).Mana
       .Should().Be(frame.GetReadOnly<Stats>(hero).MaxMana);
@@ -98,7 +98,7 @@ public class ManaApplicationTests {
     var maxMana = frame.GetReadOnly<Stats>(hero).MaxMana;
     frame.Get<Health>(hero).Mana = maxMana - Fp(40);
 
-    ManaApplication.GrantMaxMana(ref frame, hero, Fp(20));
+    ManaController.GrantMaxMana(ref frame, hero, Fp(20));
 
     frame.GetReadOnly<Stats>(hero).MaxMana.Should().Be(maxMana + Fp(20));
     frame.GetReadOnly<Health>(hero).Mana.Should().Be(maxMana - Fp(20));
@@ -111,7 +111,7 @@ public class ManaApplicationTests {
     EntityRef hero = harness.FindHero(1);
     var maxMana = frame.GetReadOnly<Stats>(hero).MaxMana;
 
-    ManaApplication.GrantMaxMana(ref frame, hero, -Fp(30));
+    ManaController.GrantMaxMana(ref frame, hero, -Fp(30));
 
     frame.GetReadOnly<Stats>(hero).MaxMana.Should().Be(maxMana - Fp(30));
     frame.GetReadOnly<Health>(hero).Mana.Should().Be(maxMana - Fp(30));
@@ -125,7 +125,7 @@ public class ManaApplicationTests {
     var maxMana = frame.GetReadOnly<Stats>(hero).MaxMana;
     frame.Get<Health>(hero).Mana = Fp(10);
 
-    ManaApplication.GrantMaxMana(ref frame, hero, -Fp(20));
+    ManaController.GrantMaxMana(ref frame, hero, -Fp(20));
 
     frame.GetReadOnly<Stats>(hero).MaxMana.Should().Be(maxMana - Fp(20));
     frame.GetReadOnly<Health>(hero).Mana.Should().Be(Fp(10));

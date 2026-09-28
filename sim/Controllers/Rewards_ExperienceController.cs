@@ -4,15 +4,10 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
 
-// Deposits kill XP at the kill site. Two systems own deaths - DeathSystem for everything on the
-// board, RespawnSystem for heroes, which never reach DeathSystem - so the "what is a kill worth"
-// rule lives here rather than in either of them. ExperienceSystem picks the deposits up later in
-// the same tick and turns them into levels.
-public static class ExperienceRewards {
+public static class ExperienceController {
   public static void AwardForKill(ref Frame frame, EntityRef killer, int victimUnitTypeId, int victimTeamId) {
-    // Nothing was credited with the damage (map damage, a decayed corpse), the killer is gone, or it
-    // killed its own - the last of which would otherwise let a team farm its own minions.
-    if (!MatchStats.IsCreditableKill(ref frame, killer, victimTeamId) ||
+    // Invalid, friendly, or non-XP-capable killers earn nothing
+    if (!MatchStatsController.IsCreditableKill(ref frame, killer, victimTeamId) ||
         !frame.Has<Experience>(killer))
       return;
 

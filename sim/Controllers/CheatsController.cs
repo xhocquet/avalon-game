@@ -3,13 +3,8 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
 
-// The rules behind SetCheatCommand: test-only toggles a player turns on for its own hero, launched
-// from the client with `--godmode` and friends. Nothing gates these beyond the per-player scope, so
-// they are a development aid, not a mode a shipped server should accept.
-//
-// State lives in the CheatState singleton, which means it snapshots and rolls back like anything else
-// and the predicting client and the server reach the same verdict on the same tick.
-public static class Cheats {
+// Stores per-player development cheat flags in CheatState
+public static class CheatsController {
   public const CheatFlags All = CheatFlags.GodMode | CheatFlags.FreeShop;
 
   public static void Set(ref Frame frame, int playerId, CheatFlags flags, bool enabled) {
@@ -37,13 +32,12 @@ public static class Cheats {
     return ((CheatFlags)GetFlags(ref frame, playerId) & flag) != 0;
   }
 
-  // Every bit set, not any - the client resends its launch flags until the sim agrees it has them all.
+  // Requires every requested flag
   public static bool AreAllEnabled(ref Frame frame, int playerId, CheatFlags flags) {
     return ((CheatFlags)GetFlags(ref frame, playerId) & flags) == flags;
   }
 
-  // Asked by DamageApplication for every hit, so it early-outs on the table being absent - the common
-  // case is a match where nobody cheated and the singleton was never created.
+  // GodMode check for damage
   public static bool BlocksDamage(ref Frame frame, EntityRef target) {
     if (!frame.Has<Hero>(target))
       return false;

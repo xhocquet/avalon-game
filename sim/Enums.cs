@@ -35,7 +35,7 @@ public enum StatType {
   StatCount = 16
 }
 
-// Which resist DamageApplication mitigates an incoming hit against.
+// Which resist DamageController mitigates an incoming hit against.
 public enum DamageType {
   Physical = 0,
   Magical = 1
@@ -74,7 +74,7 @@ public enum BuffMode {
 }
 
 // Test-only toggles a player can turn on for itself. Bitmask, carried on the wire by SetCheatCommand,
-// so the values must stay stable. Keep in sync with Cheats.All.
+// so the values must stay stable. Keep in sync with CheatsController.All.
 [Flags]
 public enum CheatFlags {
   None = 0,
@@ -82,8 +82,6 @@ public enum CheatFlags {
   FreeShop = 1 << 2 // Shop buys cost no gold and ignore the shop's interact range
 }
 
-// One-shot debug operations, carried by DebugCommand. Wire values, so they must stay stable.
-// The rules behind each live in DebugActions.
 public enum DebugAction {
   None = 0,
   SwitchFaction = 1, // Param: FactionAsset id. Despawns the hero; HeroSpawnSystem rebuilds it.
@@ -99,7 +97,6 @@ public enum DebugAction {
   TeleportHero = 11 // To the target point
 }
 
-// Why a purchase is rejected. A code rather than a string lets the client poll without allocating.
 public enum PurchaseRejectedReasons {
   None,
   NoHero,
@@ -110,7 +107,6 @@ public enum PurchaseRejectedReasons {
   InventoryFull
 }
 
-// Why a skill cast or upgrade is rejected. The client polls this without allocating.
 public enum SkillRejectReason {
   None,
   NoHero,

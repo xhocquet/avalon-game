@@ -149,7 +149,7 @@ public class HairballTests {
   }
 
   // Returns the caster position the shot actually fired from - read after the upgrade tick, which is
-  // what SkillActions sees, and after NavigationAgentSystem has snapped the hero onto the mesh.
+  // what SkillsController sees, and after NavigationAgentSystem has snapped the hero onto the mesh.
   private static FPVector3 LearnAndCastAlongX(SimHarness harness, int aimDistance = 20) {
     harness.Tick(SimHarness.UpgradeSkillCommand(CasterPlayerId, 0, Primary));
 

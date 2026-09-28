@@ -263,7 +263,7 @@ public class CrystalBulletsTests {
 
   // Returns the caster position the volley actually fired from. Read after the upgrade tick and
   // before the cast tick, because commands run ahead of the Update phase: this is exactly what
-  // SkillActions sees. Reading it any earlier catches the hero before NavigationAgentSystem snaps it
+  // SkillsController sees. Reading it any earlier catches the hero before NavigationAgentSystem snaps it
   // onto the mesh, and the aim would be off by that snap.
   private static FPVector3 LearnAndCastAlongX(SimHarness harness) {
     harness.Tick(SimHarness.UpgradeSkillCommand(CasterPlayerId, 0, Tertiary));

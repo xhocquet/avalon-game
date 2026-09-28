@@ -4,23 +4,18 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
 
-// The resource sibling of HealthApplication: the one place mana moves. Skill costs spend through
-// TrySpend, ManaRestore effects refill through Restore, level-up grows the pool through GrantMaxMana,
-// and every path clamps against Stats.MaxMana here rather than each deriving the rule.
-public static class ManaApplication {
-  // A unit with no Stats, or one whose MaxMana is 0, has no pool - restores are a no-op and
-  // spends fail rather than going negative.
-  public static FP64 GetMaxMana(ref Frame frame, EntityRef target) =>
+// Mana changes go through this controller
+public static class ManaController {
+  private static FP64 GetMaxMana(ref Frame frame, EntityRef target) =>
     frame.Has<Stats>(target) ? frame.GetReadOnly<Stats>(target).MaxMana : FP64.Zero;
 
-  // Would TrySpend succeed right now? Read-only and allocation-free, for the cast gate the client
-  // polls every frame. A cost of zero or less always affords.
+  // Units without Stats have no mana pool
+  // Read-only affordability check; non-positive costs are free
   public static bool CanAfford(ref Frame frame, EntityRef caster, FP64 amount) =>
     amount <= FP64.Zero ||
     (frame.Has<Health>(caster) && frame.GetReadOnly<Health>(caster).Mana >= amount);
 
-  // Deducts `amount` and returns true when the pool covers it; returns false and moves nothing
-  // otherwise. A cost of zero or less spends nothing and always succeeds.
+  // Spends mana when available; non-positive costs are free
   public static bool TrySpend(ref Frame frame, EntityRef caster, FP64 amount) {
     if (amount <= FP64.Zero)
       return true;
@@ -35,7 +30,7 @@ public static class ManaApplication {
     return true;
   }
 
-  // Returns mana actually restored, clamped to the headroom under Stats.MaxMana.
+  // Returns restored mana
   public static FP64 Restore(ref Frame frame, EntityRef target, FP64 amount) {
     if (amount <= FP64.Zero || !frame.Has<Health>(target))
       return FP64.Zero;
@@ -54,9 +49,7 @@ public static class ManaApplication {
       frame.Get<Health>(target).Mana = GetMaxMana(ref frame, target);
   }
 
-  // Grows the pool and hands the same amount over as current mana, so a bigger max never reads as a
-  // spend debt - mirrors HealthApplication.GrantMaxHealth. A negative amount shrinks the pool and
-  // pulls current mana down with it, stopping at zero.
+  // Max-mana changes shift current mana by the same amount; reductions clamp at zero
   public static void GrantMaxMana(ref Frame frame, EntityRef target, FP64 amount) {
     if (amount == FP64.Zero || !frame.Has<Stats>(target))
       return;

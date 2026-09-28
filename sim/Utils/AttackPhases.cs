@@ -5,7 +5,7 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon.Sim;
 
 // Raises AttackWindupStartedEvent and AttackWindupCanceledEvent
-// AttackHitEvent, is raised by DamageApplication to support skills
+// AttackHitEvent, is raised by DamageController to support skills
 public static class AttackPhases {
   public static void RaiseWindupStarted(ref Frame frame, EntityRef attacker, EntityRef target,
     int targetUnitId, int attackHitId, int windupTicks) {

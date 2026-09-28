@@ -2,25 +2,16 @@ using System.Collections.Generic;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using Meesles.Avalon.Sim.Factories;
-using Meesles.Avalon.Sim.Heroes;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.Deterministic.Navigation;
 using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
 
-// The rules behind DebugCommand: playground operations a player runs on its own hero and on the
-// arena around it. Scoped per player like Cheats, and equally ungated - a shipped server should not
-// accept these either.
-//
-// Everything here mutates the frame through the same helpers the real systems use, so a predicting
-// client and the server reach the same state on the same tick and rollback carries it.
-public static class DebugActions {
-  // Cluster spawned per SpawnMinions, laid out in a ring around the target point.
+public static class DebugController {
   private const int MinionsPerSpawn = 5;
 
-  // Wave id for debug-spawned minions. Negative so nothing that groups by wave confuses them with a
-  // wave WaveSpawnSystem produced.
+  // Keeps debug minions outside normal waves
   private const int DebugWaveId = -1;
 
   private static readonly List<EntityRef> Scratch = [];
@@ -45,9 +36,6 @@ public static class DebugActions {
     }
   }
 
-  // Destroys the hero outright rather than re-skinning it: the skill set, stats and behavior state all
-  // come off the HeroStatsAsset at spawn. HeroSpawnSystem sees the empty slot on the next tick and rebuilds
-  // from the faction written here, which is the same path a fresh match takes.
   private static bool SwitchFaction(ref Frame frame, int playerId, int factionId) {
     if (!frame.AssetRegistry.TryGet<FactionAsset>(factionId, out _)) {
       Reject(ref frame, playerId, DebugAction.SwitchFaction, $"faction_asset_missing factionId={factionId}");
@@ -91,8 +79,6 @@ public static class DebugActions {
     return true;
   }
 
-  // Deposited as raw XP so ExperienceSystem converts it into levels, stat growth and skill points on
-  // its own pass - the same route a kill takes.
   private static bool AddExperience(ref Frame frame, int playerId, int amount) {
     if (!TryGetHeroWith<Experience>(ref frame, playerId, DebugAction.AddExperience, out var hero))
       return false;
@@ -117,8 +103,7 @@ public static class DebugActions {
     return true;
   }
 
-  // Ranks up through SkillActions.TryUpgrade rather than writing Ranks directly, so each rank still
-  // runs the hero's OnRankGained and the passives a ranked slot grants actually land.
+  // Upgrade through the normal rank path
   private static bool MaxSkills(ref Frame frame, int playerId) {
     if (!TryGetHeroWith<Skills>(ref frame, playerId, DebugAction.MaxSkills, out var hero))
       return false;
@@ -131,7 +116,7 @@ public static class DebugActions {
 
       while (frame.GetReadOnly<Skills>(hero).GetRank(slot) < skill.MaxRank) {
         frame.Get<Skills>(hero).SkillPoints++;
-        if (!SkillActions.TryUpgrade(ref frame, playerId, slot))
+        if (!SkillsController.TryUpgrade(ref frame, playerId, slot))
           break;
 
         ranksGained++;
@@ -158,14 +143,12 @@ public static class DebugActions {
     if (!TryGetHeroWith<Health>(ref frame, playerId, DebugAction.HealFull, out var hero))
       return false;
 
-    HealthApplication.RestoreToFull(ref frame, hero);
-    ManaApplication.RestoreToFull(ref frame, hero);
+    HealthController.RestoreToFull(ref frame, hero);
+    ManaController.RestoreToFull(ref frame, hero);
     Log(ref frame, playerId, DebugAction.HealFull, "");
     return true;
   }
 
-  // Zeroed rather than destroyed: a hero carries Respawns, so RespawnSystem picks it up next tick and
-  // the whole death -> timer -> respawn path runs.
   private static bool KillHero(ref Frame frame, int playerId) {
     if (!TryGetHeroWith<Health>(ref frame, playerId, DebugAction.KillHero, out var hero))
       return false;
@@ -175,13 +158,6 @@ public static class DebugActions {
     return true;
   }
 
-  // teamId 0 means "the other side": the first team id that isn't the caller's, so the common case of
-  // wanting something to hit is one command with no argument.
-  //
-  // The faction is stamped onto each minion rather than left to the view's team lookup. That lookup
-  // reads the team's PlayerFaction slot, and a playground has a slot only for the team the one player
-  // is on - minions spawned on any other team would resolve to faction 0 and the view would throw for
-  // every one of them, every tick.
   private static bool SpawnMinions(ref Frame frame, int playerId, int teamId, int factionId, FPVector3 target) {
     if (!UnitLookup.TryGetPlayerTeamId(ref frame, playerId, out var playerTeamId)) {
       Reject(ref frame, playerId, DebugAction.SpawnMinions, "no_team_for_player");
@@ -205,8 +181,6 @@ public static class DebugActions {
     return true;
   }
 
-  // Explicit pick first, then whatever the target team actually plays, then the caller's own faction so
-  // the models at least exist. Only reaches the default on a frame with no factions decided at all.
   private static int ResolveSpawnFaction(ref Frame frame, int playerId, int teamId, int factionId) {
     if (factionId > 0)
       return factionId;
@@ -224,7 +198,7 @@ public static class DebugActions {
     return SimulationSetup.DefaultFactionId;
   }
 
-  // Destroyed outright rather than damaged to death, so nothing pays out XP or gold for a cleanup.
+  // Cleanup does not award XP or gold
   private static bool ClearMinions(ref Frame frame, int playerId, int teamId) {
     Scratch.Clear();
     var filter = frame.Filter<Minion, Team>();
@@ -248,16 +222,15 @@ public static class DebugActions {
       return false;
 
     frame.Get<TransformComponent>(hero).Position = target;
-    UnitIntent.ClearMoveTarget(ref frame, hero);
-    UnitIntent.ClearAttackIntent(ref frame, hero);
+    UnitIntentController.ClearMoveTarget(ref frame, hero);
+    UnitIntentController.ClearAttackIntent(ref frame, hero);
     ResetNavAgent(ref frame, hero, target);
 
     Log(ref frame, playerId, DebugAction.TeleportHero, $"at=({target.x}, {target.z})");
     return true;
   }
 
-  // NavAgentComponent.Init resets the tuned Radius/Speed/Acceleration to component defaults, so they
-  // are carried across by hand - same dance RespawnSystem does when it moves a hero.
+  // Init resets nav tuning; preserve it
   private static void ResetNavAgent(ref Frame frame, EntityRef entity, FPVector3 position) {
     if (!frame.Has<NavAgentComponent>(entity))
       return;
@@ -273,9 +246,6 @@ public static class DebugActions {
     nav.Acceleration = acceleration;
   }
 
-  // Lowest team id with a crystal that isn't the caller's. On a playground TeamPruneSystem has usually
-  // already deleted every base but the player's, so the fallback is just "not mine" - minions need a
-  // team id, not a base to belong to.
   private static int ResolveOpposingTeam(ref Frame frame, int playerTeamId) {
     var best = 0;
     var filter = frame.Filter<Crystal, Team>();
@@ -293,14 +263,10 @@ public static class DebugActions {
 
   private static readonly FP64 InvSqrt2 = FP64.One / FP64.Sqrt(FP64.FromInt(2));
 
-  // Index 0 sits on the point, the rest ring it at one minion spacing per step out. Enough to keep
-  // a cluster from spawning inside itself without pulling in WaveSpawnSystem's occupancy search.
   private static FPVector3 RingOffset(int index, FP64 spacing) {
     if (index <= 0)
       return FPVector3.Zero;
 
-    // Diagonal offsets, so the per-axis step is the ring radius over sqrt(2). Halving it instead
-    // put ring 1 at 0.71x the advertised spacing - close enough to spawn two minions inside each other.
     var step = spacing * FP64.FromInt(index) * InvSqrt2;
     return (index % 4) switch {
       0 => new FPVector3(step, FP64.Zero, step),

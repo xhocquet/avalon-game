@@ -283,7 +283,7 @@ public class ChrysalisTests {
 
   private static bool IsSnared(SimHarness harness, EntityRef entity) {
     var frame = harness.Frame;
-    return Snares.IsSnared(ref frame, entity);
+    return SnareController.IsSnared(ref frame, entity);
   }
 
   private static EntityRef Caster(SimHarness harness) {

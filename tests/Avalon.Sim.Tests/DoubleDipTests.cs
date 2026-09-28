@@ -151,10 +151,10 @@ public class DoubleDipTests {
     var frame = harness.Frame;
     var hero = harness.FindHero(CasterPlayerId);
 
-    AttackBursts.Queue(ref frame, hero, AssetIds.SkillPickleKnightSecondary, totalAttacks: 2,
+    BurstAttacksController.Queue(ref frame, hero, AssetIds.SkillPickleKnightSecondary, totalAttacks: 2,
       delayTicks: 999, durationTicks: 60);
 
-    AttackBursts.NextCooldownTicks(ref frame, hero, defaultTicks: 40).Should().Be(40);
+    BurstAttacksController.NextCooldownTicks(ref frame, hero, defaultTicks: 40).Should().Be(40);
   }
 
   // The reset is authored, not assumed: a burst that should not skip the wait leaves the field 0.
@@ -168,7 +168,7 @@ public class DoubleDipTests {
     var cooldownBefore = AttackCooldownRemaining(harness);
 
     var frame = harness.Frame;
-    AttackBursts.Queue(ref frame, hero, AssetIds.SkillPickleKnightSecondary, totalAttacks: 2,
+    BurstAttacksController.Queue(ref frame, hero, AssetIds.SkillPickleKnightSecondary, totalAttacks: 2,
       delayTicks: 5, durationTicks: 60);
 
     AttackCooldownRemaining(harness).Should().Be(cooldownBefore);
@@ -244,7 +244,7 @@ public class DoubleDipTests {
 
       var attackerUnitId = frame.GetReadOnly<UnitIdentity>(hero).UnitId;
       var targetUnitId = frame.GetReadOnly<UnitIdentity>(target).UnitId;
-      UnitIntent.SetAttackTarget(ref frame, hero, targetUnitId);
+      UnitIntentController.SetAttackTarget(ref frame, hero, targetUnitId);
 
       collector.BeginTick(frame.Tick);
       frame.EventRaiser = collector;
@@ -302,7 +302,10 @@ public class DoubleDipTests {
 
   private static int Remaining(SimHarness harness) {
     var frame = harness.Frame;
-    return AttackBursts.Remaining(ref frame, harness.FindHero(CasterPlayerId));
+    var hero = harness.FindHero(CasterPlayerId);
+    return frame.Has<AttackBurst>(hero)
+      ? frame.GetReadOnly<AttackBurst>(hero).Remaining
+      : 0;
   }
 
   private static void AdvanceTo(SimHarness harness, int tick) {

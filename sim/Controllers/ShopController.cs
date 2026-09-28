@@ -5,7 +5,7 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
 
-public static class ShopActions {
+public static class ShopController {
   public static bool TryPurchase(ref Frame frame, int playerId, int itemAssetId) {
     var block = EvaluatePurchase(ref frame, playerId, itemAssetId, out var heroEntity, out var item);
     if (block != PurchaseRejectedReasons.None) {
@@ -24,25 +24,17 @@ public static class ShopActions {
     return true;
   }
 
-  // Would TryPurchase accept this buy right now? The client asks before it queues a command, so a buy
-  // already known to fail never reaches the wire and the sim never has to reject it.
-  // Read-only and allocation-free: safe to call every frame off the predicted frame.
   public static bool CanPurchase(ref Frame frame, int playerId, int itemAssetId) {
     return EvaluatePurchase(ref frame, playerId, itemAssetId, out _, out _) == PurchaseRejectedReasons.None;
   }
 
-  // CanPurchase asked as if pendingGold were already spent and pendingItems already in the ledger -
-  // buys the client has queued but the predicted frame has not run yet. Klotho schedules local input
-  // InputDelayTicks ahead, so without this the client would re-approve a buy it has already spent the
-  // gold on and the sim would reject the second command on arrival.
+  // Accounts for queued purchases
   public static bool CanPurchase(ref Frame frame, int playerId, int itemAssetId, int pendingGold,
     int pendingItems) {
     return EvaluatePurchase(ref frame, playerId, itemAssetId, out _, out _, pendingGold, pendingItems)
            == PurchaseRejectedReasons.None;
   }
 
-  // The purchase rules, in one place. TryPurchase turns a block into a reject log; the client turns it
-  // into a greyed button. Nothing here mutates the frame.
   private static PurchaseRejectedReasons EvaluatePurchase(ref Frame frame, int playerId, int itemAssetId,
     out EntityRef heroEntity, out ShopItemAsset item, int pendingGold = 0, int pendingItems = 0) {
     item = null;
@@ -68,8 +60,6 @@ public static class ShopActions {
       : PurchaseRejectedReasons.None;
   }
 
-  // Block code -> the reason= text. Only walked on the reject path, so the diagnostic detail costs
-  // nothing on the predicate path the client polls.
   private static string Describe(ref Frame frame, PurchaseRejectedReasons block, EntityRef heroEntity,
     ShopItemAsset item) {
     switch (block) {
@@ -89,7 +79,6 @@ public static class ShopActions {
     };
   }
 
-  // Shop access is a team question: a hero buys at the Shop marker its own team owns.
   public static bool IsHeroNearTeamShop(ref Frame frame, EntityRef heroEntity) {
     if (!frame.Has<Team>(heroEntity) || !frame.Has<TransformComponent>(heroEntity))
       return false;
@@ -115,15 +104,13 @@ public static class ShopActions {
     return delta.sqrMagnitude <= range * range;
   }
 
-  // FreeShop zeroes the price rather than skipping the gold write, so the buy still runs the one
-  // subtraction and the ledger the HUD paints from stays the only source of the number.
   private static int CostFor(ref Frame frame, int playerId, ShopItemAsset item) {
-    return Cheats.IsEnabled(ref frame, playerId, CheatFlags.FreeShop) ? 0 : item.Cost;
+    return CheatsController.IsEnabled(ref frame, playerId, CheatFlags.FreeShop) ? 0 : item.Cost;
   }
 
   private static bool HasFreeShop(ref Frame frame, EntityRef heroEntity) {
     return frame.Has<Hero>(heroEntity) &&
-           Cheats.IsEnabled(ref frame, frame.GetReadOnly<Hero>(heroEntity).PlayerId, CheatFlags.FreeShop);
+           CheatsController.IsEnabled(ref frame, frame.GetReadOnly<Hero>(heroEntity).PlayerId, CheatFlags.FreeShop);
   }
 
   private static void Reject(ref Frame frame, int playerId, int itemAssetId, string reason) {

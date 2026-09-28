@@ -113,7 +113,7 @@ public class DebugActionTests {
     var frame = harness.Frame;
     var hero = harness.FindHero(1);
     var full = frame.GetReadOnly<Health>(hero).Current;
-    DamageApplication.ApplyDamage(ref frame, harness.FindHero(2), hero, FP64.FromInt(20));
+    DamageController.ApplyDamage(ref frame, harness.FindHero(2), hero, FP64.FromInt(20));
     harness.Frame.GetReadOnly<Health>(hero).Current.Should().BeLessThan(full);
 
     harness.Tick(SimHarness.DebugCommand(1, harness.Frame.Tick, DebugAction.HealFull));

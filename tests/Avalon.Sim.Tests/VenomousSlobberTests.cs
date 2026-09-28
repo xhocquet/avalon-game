@@ -223,7 +223,7 @@ public class VenomousSlobberTests {
 
   // Learns the slot and returns the position the cast fires from. Read after the upgrade tick and
   // before the cast, because commands run ahead of the Update phase: this is exactly what
-  // SkillActions sees, and it is past the tick NavigationAgentSystem snaps the hero onto the mesh.
+  // SkillsController sees, and it is past the tick NavigationAgentSystem snaps the hero onto the mesh.
   private static FPVector3 LearnAndPrepare(SimHarness harness) {
     harness.Tick(SimHarness.UpgradeSkillCommand(CasterPlayerId, 0, Primary));
     return harness.Frame.GetReadOnly<TransformComponent>(harness.FindHero(CasterPlayerId)).Position;

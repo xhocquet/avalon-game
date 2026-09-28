@@ -47,7 +47,7 @@ public class ProjectileSystem : ISystem {
 
       if (TryFindHit(ref frame, in projectile, start, end, step, out var target)) {
         var source = ResolveSource(ref frame, in projectile);
-        DamageApplication.ApplyDamage(ref frame, source, target, projectile.Damage, DamageType.Magical);
+        DamageController.ApplyDamage(ref frame, source, target, projectile.Damage, DamageType.Magical);
         ApplyOnHitEffects(ref frame, in projectile, source, target);
         SkillProjectiles.RaiseDespawned(ref frame, in projectile, end,
           UnitLookup.GetUnitId(ref frame, target), SkillProjectileEnd.Hit);
@@ -152,11 +152,11 @@ public class ProjectileSystem : ISystem {
     if (skill.BuffSpecs.Length > 0) {
       var buffTicks = TickMath.MsToTicksCeil(ref frame, skill.BuffDurationMsAtRank(rank));
       foreach (var spec in skill.BuffSpecs)
-        StatBuffApplication.ApplySpec(ref frame, target, skill.AssetId, spec, rank, buffTicks);
+        BuffsController.ApplySpec(ref frame, target, skill.AssetId, spec, rank, buffTicks);
     }
 
     if (skill.DotDurationMs > 0)
-      DamageOverTimes.Apply(ref frame, target, source, skill.AssetId,
+      DamageOverTimeController.Apply(ref frame, target, source, skill.AssetId,
         skill.DotDamagePerSecondAtRank(rank), TickMath.MsToTicksCeil(ref frame, skill.DotDurationMs));
   }
 

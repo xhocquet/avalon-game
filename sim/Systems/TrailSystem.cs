@@ -143,7 +143,7 @@ public class TrailSystem : ISystem {
         continue;
 
       foreach (var spec in skill.BuffSpecs)
-        StatBuffApplication.ApplySpec(ref frame, unit, skill.AssetId, spec, segment.Rank, buffTicks);
+        BuffsController.ApplySpec(ref frame, unit, skill.AssetId, spec, segment.Rank, buffTicks);
     }
   }
 

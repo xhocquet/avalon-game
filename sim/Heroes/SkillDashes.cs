@@ -13,7 +13,7 @@ public static class SkillDashes {
 
     var end = start + direction * distance;
     end.y = start.y;
-    UnitIntent.ClearMoveTarget(ref frame, caster);
+    UnitIntentController.ClearMoveTarget(ref frame, caster);
 
     if (!frame.Has<SkillDash>(caster))
       frame.Add(caster, new SkillDash());
@@ -32,7 +32,7 @@ public static class SkillDashes {
     List<EntityRef> allies) {
     CollectAllies(ref frame, caster, dash.StartPosition, dash.Destination, allies);
     foreach (var ally in allies)
-      HealthApplication.ApplyHeal(ref frame, ally, dash.HealAmount);
+      HealthController.ApplyHeal(ref frame, ally, dash.HealAmount);
   }
 
   public static void Clear(ref Frame frame, EntityRef caster) {

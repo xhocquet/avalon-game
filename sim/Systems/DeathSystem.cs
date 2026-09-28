@@ -55,9 +55,9 @@ public class DeathSystem : ISystem {
     // Paid out before anything is destroyed: a killer may itself be on the dead list this tick, and
     // it still earns what it killed.
     foreach (var dead in _deadUnits) {
-      ExperienceRewards.AwardForKill(ref frame, dead.DestroyerEntity, dead.UnitTypeId, dead.TeamId);
-      GoldRewards.AwardForKill(ref frame, dead.DestroyerEntity, dead.UnitTypeId, dead.TeamId);
-      MatchStats.RecordKill(ref frame, dead.DestroyerEntity, dead.UnitTypeId, dead.TeamId);
+      ExperienceController.AwardForKill(ref frame, dead.DestroyerEntity, dead.UnitTypeId, dead.TeamId);
+      GoldController.AwardForKill(ref frame, dead.DestroyerEntity, dead.UnitTypeId, dead.TeamId);
+      MatchStatsController.RecordKill(ref frame, dead.DestroyerEntity, dead.UnitTypeId, dead.TeamId);
     }
 
     foreach (var dead in _deadUnits) {

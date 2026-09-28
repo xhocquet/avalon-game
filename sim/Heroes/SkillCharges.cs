@@ -16,7 +16,7 @@ namespace Meesles.Avalon.Sim.Heroes;
 public static class SkillCharges {
   // Starts a charge, replacing whatever was on the caster. Returns false when the charge is a no-op.
   // A positive auraDamagePerSecond makes the wind-up a channel: the disc pulses that rate at every
-  // hostile inside it on DamageOverTimes.PayoutIntervalMs boundaries, with the tail paid at detonation.
+  // hostile inside it on DamageOverTimeController.PayoutIntervalMs boundaries, with the tail paid at detonation.
   public static bool Arm(ref Frame frame, EntityRef entity, int sourceId, int delayTicks, FP64 damage,
     FP64 radius, int snareDurationTicks, FP64 auraDamagePerSecond = default) {
     if (sourceId == 0 || delayTicks <= 0 || radius <= FP64.Zero)
@@ -34,7 +34,7 @@ public static class SkillCharges {
     charge.AuraPending = FP64.Zero;
 
     if (auraDamagePerSecond > FP64.Zero) {
-      var interval = TickMath.MsToTicksCeil(ref frame, DamageOverTimes.PayoutIntervalMs);
+      var interval = TickMath.MsToTicksCeil(ref frame, DamageOverTimeController.PayoutIntervalMs);
       if (interval < 1)
         interval = 1;
       charge.AuraIntervalTicks = interval;
@@ -91,7 +91,7 @@ public static class SkillCharges {
     var sourceId = charge.SourceId;
     // Burst damage plus whatever the channel aura accrued since its last pulse - the tail instalment,
     // paid to the disc as it detonates rather than lost. Not accrued for the detonation tick itself,
-    // matching how DamageOverTimes pays out on its expiry tick.
+    // matching how DamageOverTimeController pays out on its expiry tick.
     var damage = charge.Damage + (charge.HasAura ? FP64.Floor(charge.AuraPending) : FP64.Zero);
     var radius = charge.Radius;
     var snareDurationTicks = charge.SnareDurationTicks;
@@ -110,8 +110,8 @@ public static class SkillCharges {
 
     foreach (var target in hits) {
       if (damage > FP64.Zero)
-        DamageApplication.ApplyDamage(ref frame, caster, target, damage, DamageType.Magical);
-      Snares.Apply(ref frame, target, sourceId, snareDurationTicks);
+        DamageController.ApplyDamage(ref frame, caster, target, damage, DamageType.Magical);
+      SnareController.Apply(ref frame, target, sourceId, snareDurationTicks);
     }
   }
 
@@ -125,7 +125,7 @@ public static class SkillCharges {
     SkillAreas.Collect(ref frame, caster, center, radius, hits);
 
     foreach (var target in hits)
-      DamageApplication.ApplyDamage(ref frame, caster, target, damage, DamageType.Magical);
+      DamageController.ApplyDamage(ref frame, caster, target, damage, DamageType.Magical);
   }
 
   public static void Clear(ref Frame frame, EntityRef entity) {

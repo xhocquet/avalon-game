@@ -11,7 +11,7 @@ namespace Meesles.Avalon.Sim.Tests;
 //
 // NavAgentComponent.SetDestination drops the current path, and the agent's PathRepathCooldown then
 // refuses to build the replacement for up to 10 ticks - so the unit stood still, with no path and no
-// way to get one, until the window closed. UnitIntent.AllowImmediateRepath exempts player orders.
+// way to get one, until the window closed. UnitIntentController.AllowImmediateRepath exempts player orders.
 public class MoveOrderRepathTests {
   private const int FirstTarget = 20;
   private const int SecondTargetX = -20;

@@ -2,6 +2,9 @@
   <Folder Name="/client/">
     <Project Path="client/Meesles.Avalon.Client.csproj" />
   </Folder>
+  <Folder Name="/sim/">
+    <Project Path="sim/Meesles.Avalon.Sim.shproj" />
+  </Folder>
   <Folder Name="/server/">
     <Project Path="server/Server.csproj" />
   </Folder>

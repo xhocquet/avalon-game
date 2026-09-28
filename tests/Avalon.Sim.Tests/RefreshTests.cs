@@ -14,7 +14,7 @@ namespace Meesles.Avalon.Sim.Tests;
 // caster's own MaxHealth so it keeps its meaning as the pool grows with level, and the SelfCast flag is
 // what makes the aim point the client sent irrelevant on both ends.
 //
-// It is also the first cleanse: the row's ClearsDebuffs flag routes through StatusEffects.ClearNegative,
+// It is also the first cleanse: the row's ClearsDebuffs flag routes through BuffsController.ClearNegative,
 // which strips every negative status the caster carries - an adverse StatBuffs entry, a snare, a
 // silence, a burn - and leaves the beneficial ones running.
 public class RefreshTests {
@@ -105,7 +105,7 @@ public class RefreshTests {
     SetHealth(harness, FP64.Zero);
 
     var frame = harness.Frame;
-    SkillActions.TryCast(ref frame, CasterPlayerId, Tertiary, HeroPosition(harness)).Should().BeFalse();
+    SkillsController.TryCast(ref frame, CasterPlayerId, Tertiary, HeroPosition(harness)).Should().BeFalse();
     Health(harness).Should().Be(FP64.Zero);
   }
 
@@ -123,22 +123,22 @@ public class RefreshTests {
     var baseSpeed = CasterStat(harness, StatType.MoveSpeed);
 
     var frame = harness.Frame;
-    StatBuffApplication.ApplyPercent(ref frame, hero, SomeDebuffSource, StatType.MoveSpeed,
-      -FP64.Half, 600).Should().BeTrue();
-    Snares.Apply(ref frame, hero, SomeDebuffSource, 600).Should().BeTrue();
-    DamageOverTimes.Apply(ref frame, hero, hero, SomeDebuffSource, FP64.FromInt(10), 600).Should().BeTrue();
+    BuffsController.Apply(ref frame, hero, SomeDebuffSource, StatType.MoveSpeed,
+      FP64.Zero, -FP64.Half, 600).Should().BeTrue();
+    SnareController.Apply(ref frame, hero, SomeDebuffSource, 600).Should().BeTrue();
+    DamageOverTimeController.Apply(ref frame, hero, hero, SomeDebuffSource, FP64.FromInt(10), 600).Should().BeTrue();
 
     LearnAndCast(harness);
 
     var after = harness.Frame;
-    Snares.IsSnared(ref after, hero).Should().BeFalse();
-    DamageOverTimes.IsBurning(ref after, hero).Should().BeFalse();
+    SnareController.IsSnared(ref after, hero).Should().BeFalse();
+    DamageOverTimeController.IsBurning(ref after, hero).Should().BeFalse();
     CasterStat(harness, StatType.MoveSpeed).Should().Be(baseSpeed);
     ActiveBuffCount(harness).Should().Be(0);
   }
 
   // Refresh is self-cast, and a silenced hero cannot cast: the one cleanse it can never deliver to
-  // itself is the one against a silence. StatusEffects.ClearNegative still strips it - so an ally-cast
+  // itself is the one against a silence. BuffsController.ClearNegative still strips it - so an ally-cast
   // cleanse would - but the hero pressing its own button will not.
   [Fact]
   public void ASilencedCaster_CannotCastRefreshToCleanseItself() {
@@ -147,13 +147,13 @@ public class RefreshTests {
     harness.Tick(SimHarness.UpgradeSkillCommand(CasterPlayerId, 0, Tertiary));
 
     var frame = harness.Frame;
-    Silences.Apply(ref frame, hero, SomeDebuffSource, 600).Should().BeTrue();
+    SilenceController.Apply(ref frame, hero, SomeDebuffSource, 600).Should().BeTrue();
 
-    SkillActions.CanCast(ref frame, CasterPlayerId, Tertiary).Should().BeFalse();
-    SkillActions.TryCast(ref frame, CasterPlayerId, Tertiary, HeroPosition(harness)).Should().BeFalse();
+    SkillsController.CanCast(ref frame, CasterPlayerId, Tertiary).Should().BeFalse();
+    SkillsController.TryCast(ref frame, CasterPlayerId, Tertiary, HeroPosition(harness)).Should().BeFalse();
 
-    StatusEffects.ClearNegative(ref frame, hero);
-    Silences.IsSilenced(ref frame, hero).Should().BeFalse();
+    BuffsController.ClearNegative(ref frame, hero);
+    SilenceController.IsSilenced(ref frame, hero).Should().BeFalse();
   }
 
   // The cleanse tells a slow from a haste by which way the stat moved, so a running buff survives it.
@@ -165,10 +165,10 @@ public class RefreshTests {
     var baseSpeed = CasterStat(harness, StatType.MoveSpeed);
 
     var frame = harness.Frame;
-    StatBuffApplication.ApplyPercent(ref frame, hero, SomeDebuffSource, StatType.Armor,
-      FP64.Half, 600).Should().BeTrue();
-    StatBuffApplication.ApplyPercent(ref frame, hero, SomeDebuffSource, StatType.MoveSpeed,
-      -FP64.Half, 600).Should().BeTrue();
+    BuffsController.Apply(ref frame, hero, SomeDebuffSource, StatType.Armor,
+      FP64.Zero, FP64.Half, 600).Should().BeTrue();
+    BuffsController.Apply(ref frame, hero, SomeDebuffSource, StatType.MoveSpeed,
+      FP64.Zero, -FP64.Half, 600).Should().BeTrue();
 
     LearnAndCast(harness);
 
@@ -222,7 +222,16 @@ public class RefreshTests {
 
   private static int ActiveBuffCount(SimHarness harness) {
     var frame = harness.Frame;
-    return StatBuffApplication.ActiveCount(ref frame, harness.FindHero(CasterPlayerId));
+    var hero = harness.FindHero(CasterPlayerId);
+    if (!frame.Has<StatBuffs>(hero))
+      return 0;
+
+    ref readonly var buffs = ref frame.GetReadOnly<StatBuffs>(hero);
+    var count = 0;
+    for (var i = 0; i < StatBuffs.MaxEntries; i++)
+      if (buffs.IsActive(i))
+        count++;
+    return count;
   }
 
   private static int Cooldown(SimHarness harness) {

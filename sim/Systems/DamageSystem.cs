@@ -46,8 +46,8 @@ public class DamageSystem : ISystem {
 
     // Taken up front so the whole swing - the windup event, anything that modifies the damage on the
     // way in, and the hit - reports itself under one id.
-    var attackHitId = DamageApplication.NextHitId(ref frame);
-    var cooldownTicks = AttackBursts.NextCooldownTicks(ref frame, attacker,
+    var attackHitId = DamageController.NextHitId(ref frame);
+    var cooldownTicks = BurstAttacksController.NextCooldownTicks(ref frame, attacker,
       CombatTiming.CooldownTicks(ref frame, attacker));
     var windupTicks = CombatTiming.WindupTicks(ref frame, attacker, cooldownTicks);
 
@@ -88,10 +88,10 @@ public class DamageSystem : ISystem {
 
     // Spent at the hit, not the swing: the multiplier applies to damage, and a swing that whiffs
     // must not eat the charge the player is holding.
-    var attackDamage = AttackProcs.Consume(ref frame, attacker, target, attackHitId,
+    var attackDamage = EmpoweredAttackController.Consume(ref frame, attacker, target, attackHitId,
       GetAttackDamage(ref frame, attacker));
 
-    var damage = DamageApplication.ApplyDamage(ref frame, attacker, target, attackDamage,
+    var damage = DamageController.ApplyDamage(ref frame, attacker, target, attackDamage,
       DamageType.Physical, canCrit: true, attackHitId: attackHitId);
 
     ClearSwing(ref frame, attacker);

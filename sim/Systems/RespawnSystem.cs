@@ -34,7 +34,7 @@ public class RespawnSystem : ISystem {
   private static void BeginRespawn(ref Frame frame, EntityRef entity) {
     // Respawning units never reach DeathSystem, so the kill credit for one is settled here.
     AwardKillCredit(ref frame, entity);
-    MatchStats.RecordDeath(ref frame, entity);
+    MatchStatsController.RecordDeath(ref frame, entity);
 
     var rules = frame.AssetRegistry.Get<MatchRulesAsset>();
     var delayTicks = GetRespawnDelayTicks(ref frame, rules);
@@ -63,9 +63,9 @@ public class RespawnSystem : ISystem {
       return;
 
     var victimTeamId = frame.GetReadOnly<Team>(entity).TeamId;
-    ExperienceRewards.AwardForKill(ref frame, killer, SimulationSetup.PlayerUnitTypeId, victimTeamId);
-    GoldRewards.AwardForKill(ref frame, killer, SimulationSetup.PlayerUnitTypeId, victimTeamId);
-    MatchStats.RecordKill(ref frame, killer, SimulationSetup.PlayerUnitTypeId, victimTeamId);
+    ExperienceController.AwardForKill(ref frame, killer, SimulationSetup.PlayerUnitTypeId, victimTeamId);
+    GoldController.AwardForKill(ref frame, killer, SimulationSetup.PlayerUnitTypeId, victimTeamId);
+    MatchStatsController.RecordKill(ref frame, killer, SimulationSetup.PlayerUnitTypeId, victimTeamId);
   }
 
   private static void CompleteRespawn(ref Frame frame, EntityRef entity) {
@@ -74,8 +74,8 @@ public class RespawnSystem : ISystem {
     ref var transform = ref frame.Get<TransformComponent>(entity);
 
     transform.Position = SimulationSetup.GetHeroSpawnPositionForTeam(ref frame, team.TeamId);
-    HealthApplication.RestoreToFull(ref frame, entity);
-    ManaApplication.RestoreToFull(ref frame, entity);
+    HealthController.RestoreToFull(ref frame, entity);
+    ManaController.RestoreToFull(ref frame, entity);
     frame.Get<Health>(entity).LastDamagerUnitId = 0;
     frame.Remove<PendingRespawn>(entity);
     ClearActiveState(ref frame, entity, transform.Position);
@@ -91,18 +91,18 @@ public class RespawnSystem : ISystem {
   }
 
   private static void ClearActiveState(ref Frame frame, EntityRef entity, FPVector3 navPosition) {
-    UnitIntent.ClearMoveTarget(ref frame, entity);
-    UnitIntent.ClearAttackIntent(ref frame, entity);
-    StatBuffApplication.ClearAll(ref frame, entity);
-    AttackProcs.Clear(ref frame, entity);
-    AttackBursts.Clear(ref frame, entity);
-    Snares.Clear(ref frame, entity);
-    Silences.Clear(ref frame, entity);
+    UnitIntentController.ClearMoveTarget(ref frame, entity);
+    UnitIntentController.ClearAttackIntent(ref frame, entity);
+    BuffsController.ClearAll(ref frame, entity);
+    EmpoweredAttackController.Clear(ref frame, entity);
+    BurstAttacksController.Clear(ref frame, entity);
+    SnareController.Clear(ref frame, entity);
+    SilenceController.Clear(ref frame, entity);
     SkillCharges.Clear(ref frame, entity);
     SkillChannels.Clear(ref frame, entity);
     SkillDashes.Clear(ref frame, entity);
     SkillTrails.Clear(ref frame, entity);
-    DamageOverTimes.Clear(ref frame, entity);
+    DamageOverTimeController.Clear(ref frame, entity);
 
 
     if (frame.Has<NavAgentComponent>(entity)) {

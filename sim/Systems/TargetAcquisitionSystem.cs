@@ -34,7 +34,7 @@ public class TargetAcquisitionSystem : ISystem {
             out var targetUnitId))
         continue;
 
-      UnitIntent.SetAttackTarget(ref frame, attacker, targetUnitId);
+      UnitIntentController.SetAttackTarget(ref frame, attacker, targetUnitId);
     }
   }
 

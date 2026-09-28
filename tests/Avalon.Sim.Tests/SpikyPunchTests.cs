@@ -129,7 +129,7 @@ public class SpikyPunchTests {
     var cooldownBefore = AttackCooldownRemaining(harness);
 
     var frame = harness.Frame;
-    AttackProcs.Arm(ref frame, hero, AssetIds.SkillCrystalGiantPrimary, FP64.FromInt(4),
+    EmpoweredAttackController.Arm(ref frame, hero, AssetIds.SkillCrystalGiantPrimary, FP64.FromInt(4),
       durationTicks: 60);
 
     AttackCooldownRemaining(harness).Should().Be(cooldownBefore);
@@ -254,7 +254,7 @@ public class SpikyPunchTests {
 
     var heroPosition = frame.GetReadOnly<TransformComponent>(hero).Position;
     frame.Get<TransformComponent>(target).Position = heroPosition + FPVector3.Right;
-    UnitIntent.SetAttackTarget(ref frame, hero, frame.GetReadOnly<UnitIdentity>(target).UnitId);
+    UnitIntentController.SetAttackTarget(ref frame, hero, frame.GetReadOnly<UnitIdentity>(target).UnitId);
 
     var healthBefore = frame.GetReadOnly<Health>(target).Current;
     var heroUnitId = frame.GetReadOnly<UnitIdentity>(hero).UnitId;
@@ -289,7 +289,7 @@ public class SpikyPunchTests {
     ref readonly var stats = ref frame.GetReadOnly<Stats>(harness.FindHero(CasterPlayerId));
     stats.CritChance.Should().Be(FP64.Zero, "these expectations assume no crit roll can land");
 
-    return DamageApplication.Mitigate(ref frame, target, stats.AttackDamage * multiplier);
+    return DamageController.Mitigate(ref frame, target, stats.AttackDamage * multiplier);
   }
 
   // The counter is created on the first allocation, so before any hit there is no singleton to read.
@@ -302,7 +302,8 @@ public class SpikyPunchTests {
 
   private static bool IsArmed(SimHarness harness) {
     var frame = harness.Frame;
-    return AttackProcs.IsArmed(ref frame, harness.FindHero(CasterPlayerId));
+    var hero = harness.FindHero(CasterPlayerId);
+    return frame.Has<AttackProc>(hero) && frame.GetReadOnly<AttackProc>(hero).IsArmed;
   }
 
   private static void AdvanceTo(SimHarness harness, int tick) {

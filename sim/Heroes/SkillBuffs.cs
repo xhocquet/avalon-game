@@ -11,6 +11,6 @@ public static class SkillBuffs {
     var durationTicks = TickMath.MsToTicksCeil(ref frame, skill.BuffDurationMsAtRank(ctx.Rank));
 
     foreach (var spec in skill.BuffSpecs)
-      StatBuffApplication.ApplySpec(ref frame, target, skill.AssetId, spec, ctx.Rank, durationTicks);
+      BuffsController.ApplySpec(ref frame, target, skill.AssetId, spec, ctx.Rank, durationTicks);
   }
 }

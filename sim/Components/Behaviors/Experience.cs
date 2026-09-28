@@ -4,7 +4,7 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon.Sim.Components;
 
 // Per-hero progression ledger, the XP counterpart to Inventory's wallet. Kill sites deposit
-// into Experience (see ExperienceRewards); ExperienceSystem is the only writer of Level, converting
+// into Experience (see ExperienceController); ExperienceSystem is the only writer of Level, converting
 // the running total into levels and the stat gains each one grants.
 // Experience is lifetime XP earned, never spent and never reset by death, so the level thresholds in
 // XpRulesAsset are cumulative rather than per-level.

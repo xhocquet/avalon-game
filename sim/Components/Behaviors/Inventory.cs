@@ -23,8 +23,6 @@ public unsafe partial struct Inventory : IComponent {
   public int ItemCount;
   public fixed int ItemAssetIds[MaxItems];
 
-  public readonly bool IsItemsFull => ItemCount >= MaxItems;
-
   // Append a purchased item's asset id to the ledger. Returns false (no-op) when the ledger is full,
   // letting the caller reject the purchase before spending gold.
   public bool TryAddItem(int itemAssetId) {

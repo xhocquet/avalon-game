@@ -9,7 +9,7 @@ public sealed class CrystalGiantSkills : HeroSkillSetBase {
   // (crystal-giant.json)[../../../client/Sim/Data/Assets/heroes/crystal-giant.json:53]
   private static void CastSpikyPunch(ref Frame frame, in SkillCastContext ctx) {
     var skill = ctx.Skill;
-    AttackProcs.Arm(ref frame, ctx.Caster, skill.AssetId,
+    EmpoweredAttackController.Arm(ref frame, ctx.Caster, skill.AssetId,
       skill.ProcDamageMultiplierAtRank(ctx.Rank),
       TickMath.MsToTicksCeil(ref frame, skill.ProcDurationMs),
       skill.ProcResetsAttackCooldown);
@@ -37,7 +37,7 @@ public sealed class CrystalGiantSkills : HeroSkillSetBase {
     SkillBuffs.Apply(ref frame, in ctx, ctx.Caster);
 
     if (skill.ChargeRootsCaster)
-      Snares.Apply(ref frame, ctx.Caster, skill.AssetId, chargeTicks);
+      SnareController.Apply(ref frame, ctx.Caster, skill.AssetId, chargeTicks);
 
     SkillCharges.Arm(ref frame, ctx.Caster, skill.AssetId, chargeTicks,
       skill.DamageAtRank(ctx.Rank), skill.AreaRadius,

@@ -82,10 +82,10 @@ public class GoldAccrualTests {
     var victimTeamId = frame.GetReadOnly<Team>(harness.FindHero(playerId: 2)).TeamId;
     var startingGold = frame.GetReadOnly<Inventory>(hero).Gold;
 
-    GoldRewards.AwardForKill(ref frame, hero, SimulationSetup.TurretUnitTypeId, victimTeamId);
+    GoldController.AwardForKill(ref frame, hero, SimulationSetup.TurretUnitTypeId, victimTeamId);
     frame.GetReadOnly<Inventory>(hero).Gold.Should().Be(startingGold + gold.GoldPerTurretKill);
 
-    GoldRewards.AwardForKill(ref frame, hero, SimulationSetup.CrystalUnitTypeId, victimTeamId);
+    GoldController.AwardForKill(ref frame, hero, SimulationSetup.CrystalUnitTypeId, victimTeamId);
     frame.GetReadOnly<Inventory>(hero).Gold
       .Should().Be(startingGold + gold.GoldPerTurretKill + gold.GoldPerCrystalKill);
   }

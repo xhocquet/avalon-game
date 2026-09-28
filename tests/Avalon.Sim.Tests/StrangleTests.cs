@@ -88,7 +88,7 @@ public class StrangleTests {
     var harness = CreateHarness();
     var skill = StrangleAsset(harness);
     var burnTicks = MsToTicks(harness, skill.DotDurationMs);
-    var intervalTicks = MsToTicks(harness, DamageOverTimes.PayoutIntervalMs);
+    var intervalTicks = MsToTicks(harness, DamageOverTimeController.PayoutIntervalMs);
     var perSecond = skill.DotDamagePerSecondAtRank(1);
 
     var origin = LearnAndCastAlongX(harness);
@@ -202,7 +202,7 @@ public class StrangleTests {
     var target = harness.FindHero(2);
 
     var frame = harness.Frame;
-    DamageOverTimes.Apply(ref frame, target, harness.FindHero(CasterPlayerId),
+    DamageOverTimeController.Apply(ref frame, target, harness.FindHero(CasterPlayerId),
       AssetIds.SkillHairyWizardSecondary, skill.DotDamagePerSecondAtRank(1), 200).Should().BeTrue();
     IsBurning(harness, target).Should().BeTrue();
 
@@ -288,7 +288,7 @@ public class StrangleTests {
     return entity;
   }
 
-  // The floored window total DamageOverTimes pays across `activeTicks` of accrual - a per-tick amount
+  // The floored window total DamageOverTimeController pays across `activeTicks` of accrual - a per-tick amount
   // fixed at attach time, summed and floored. The payout interval changes when it lands, not this sum,
   // so the fixed-point figure is bit-identical rather than an approximation.
   private static FP64 ExpectedBurnTotal(FP64 damagePerSecond, int activeTicks) {
@@ -320,7 +320,7 @@ public class StrangleTests {
 
   private static bool IsBurning(SimHarness harness, EntityRef entity) {
     var frame = harness.Frame;
-    return DamageOverTimes.IsBurning(ref frame, entity);
+    return DamageOverTimeController.IsBurning(ref frame, entity);
   }
 
   private static FPVector3 HeroPosition(SimHarness harness) {

@@ -87,7 +87,7 @@ public static class CommandValidation {
   // Unknown bits are rejected whole rather than masked off, so a client built against a newer
   // CheatFlags gets a log line instead of a silently half-applied cheat.
   private static bool AcceptCheatFlags(ref Frame frame, SetCheatCommand command) {
-    if (command.Flags != 0 && (command.Flags & ~(int)Cheats.All) == 0)
+    if (command.Flags != 0 && (command.Flags & ~(int)CheatsController.All) == 0)
       return true;
 
     Reject(ref frame, command, $"unknown_cheat_flags flags={command.Flags}");

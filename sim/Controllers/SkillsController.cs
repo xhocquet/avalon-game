@@ -1,19 +1,15 @@
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
+using Meesles.Avalon.Sim.Heroes;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
-namespace Meesles.Avalon.Sim.Heroes;
+namespace Meesles.Avalon.Sim;
 
-// The rules behind UpgradeSkillCommand and CastSkillCommand. CommandSystem dispatches straight into
-// these so the command layer stays a switch and the rules can be exercised without a wire round-trip.
-//
-// Both entry points assume the slot index has already cleared CommandValidation - it indexes fixed
-// buffers on Skills, so an unchecked value would read out of bounds.
-// TODO slot references are kinda sketch
-public static class SkillActions {
-  // Spend one skill point to raise a slot's rank.
+// Handles skill casts and upgrades after command validation
+public static class SkillsController {
+  // Spends one skill point to raise a slot's rank
   public static bool TryUpgrade(ref Frame frame, int playerId, int slot) {
     var block = EvaluateUpgrade(ref frame, playerId, slot, out var heroEntity, out var heroAsset, out var skill);
     if (block != SkillRejectReason.None) {
@@ -35,9 +31,7 @@ public static class SkillActions {
     return true;
   }
 
-  // Cast a learned slot that is off cooldown at a planar ground point. The point is clamped to the
-  // row's cast band before any effect sees it, so a client aiming past its range casts at the edge
-  // rather than being rejected. Self-cast skills pass their own position and ignore it.
+  // Clamps ground targets to cast range; self-casts use the caster position
   public static bool TryCast(ref Frame frame, int playerId, int slot, FPVector3 target) {
     var block = EvaluateCast(ref frame, playerId, slot, out var heroEntity, out var heroAsset, out var skill);
     if (block != SkillRejectReason.None) {
@@ -47,23 +41,20 @@ public static class SkillActions {
 
     ref var skills = ref frame.Get<Skills>(heroEntity);
 
-    // Started before the skill runs, so an effect that later kills or respawns its own caster cannot
-    // leave the slot free.
+    // Start cooldown before the skill effect
     var cooldownTicks = CooldownTicks(ref frame, skill);
     skills.StartCooldown(slot, cooldownTicks);
 
     var rank = skills.GetRank(slot);
     var skillAssetId = skills.GetSkillAssetId(slot);
 
-    // EvaluateCast already cleared the pool; spend after the cooldown so a free rank and a paid one
-    // leave the slot in the same state.
-    ManaApplication.TrySpend(ref frame, heroEntity, skill.ManaCostAtRank(rank));
+    // EvaluateCast already checked the mana pool
+    ManaController.TrySpend(ref frame, heroEntity, skill.ManaCostAtRank(rank));
 
     var casterPosition = frame.Has<TransformComponent>(heroEntity)
       ? frame.GetReadOnly<TransformComponent>(heroEntity).Position
       : FPVector3.Zero;
-    // A self-cast row carries no aim, so whatever point the client sent is discarded rather than
-    // clamped - the cast, its event, and any telegraph all resolve on the caster.
+    // Self-casts ignore the requested target
     target = skill.SelfCast
       ? casterPosition
       : SkillAim.ClampToCastRange(ref frame, heroEntity, skill, casterPosition, target);
@@ -77,25 +68,18 @@ public static class SkillActions {
     return true;
   }
 
-  // Why TryCast would reject this slot right now, or None if it would run. The one verdict the client
-  // and the sim share: the client mirrors it every frame off the predicted frame (greying a silenced
-  // slot differently from a cooling one) so the command never reaches the wire, and TryCast re-checks
-  // it on arrival. Read-only and allocation-free. pendingRanks folds in an upgrade the client has
-  // queued but the predicted frame has not run yet - commands drain one per tick in queue order, so
-  // the upgrade always lands on an earlier tick than a cast queued behind it.
+  // Read-only cast verdict; pending ranks include queued upgrades
   public static SkillRejectReason CastBlock(ref Frame frame, int playerId, int slot, int pendingRanks = 0) {
     return EvaluateCast(ref frame, playerId, slot, out _, out _, out _, pendingRanks);
   }
 
-  // Upgrade's counterpart. pendingPoints/pendingRanks fold in a queued upgrade the same way, so the
-  // client does not re-approve a slot it has already spent its last point on.
+  // Read-only upgrade verdict; pending values include queued upgrades
   public static SkillRejectReason UpgradeBlock(ref Frame frame, int playerId, int slot, int pendingPoints = 0,
     int pendingRanks = 0) {
     return EvaluateUpgrade(ref frame, playerId, slot, out _, out _, out _, pendingPoints, pendingRanks);
   }
 
-  // Would TryCast/TryUpgrade accept this slot right now? The bool the input and HUD paths fold the
-  // block down to when they only need yes/no.
+  // Boolean forms for HUD and input checks
   public static bool CanCast(ref Frame frame, int playerId, int slot) {
     return CastBlock(ref frame, playerId, slot) == SkillRejectReason.None;
   }
@@ -104,17 +88,12 @@ public static class SkillActions {
     return CastBlock(ref frame, playerId, slot, pendingRanks) == SkillRejectReason.None;
   }
 
-  public static bool CanUpgrade(ref Frame frame, int playerId, int slot) {
-    return UpgradeBlock(ref frame, playerId, slot) == SkillRejectReason.None;
-  }
-
   public static bool CanUpgrade(ref Frame frame, int playerId, int slot, int pendingPoints,
     int pendingRanks) {
     return UpgradeBlock(ref frame, playerId, slot, pendingPoints, pendingRanks) == SkillRejectReason.None;
   }
 
-  // The cast rules, in one place. TryCast turns a block into a reject log; the client turns it into a
-  // swallowed keypress. Nothing here mutates the frame.
+  // Read-only cast validation
   private static SkillRejectReason EvaluateCast(ref Frame frame, int playerId, int slot,
     out EntityRef heroEntity, out HeroStatsAsset heroAsset, out SkillAsset skill, int pendingRanks = 0) {
     var block = Resolve(ref frame, playerId, slot, out heroEntity, out heroAsset, out skill);
@@ -124,7 +103,7 @@ public static class SkillActions {
     if (!frame.Has<Health>(heroEntity) || !frame.GetReadOnly<Health>(heroEntity).IsAlive)
       return SkillRejectReason.HeroDead;
 
-    if (Silences.IsSilenced(ref frame, heroEntity))
+    if (SilenceController.IsSilenced(ref frame, heroEntity))
       return SkillRejectReason.Silenced;
 
     ref readonly var skills = ref frame.GetReadOnly<Skills>(heroEntity);
@@ -135,7 +114,7 @@ public static class SkillActions {
     if (skills.GetCooldownRemainingTicks(slot) > 0)
       return SkillRejectReason.OnCooldown;
 
-    return ManaApplication.CanAfford(ref frame, heroEntity, skill.ManaCostAtRank(rank))
+    return ManaController.CanAfford(ref frame, heroEntity, skill.ManaCostAtRank(rank))
       ? SkillRejectReason.None
       : SkillRejectReason.NotEnoughMana;
   }
@@ -154,7 +133,7 @@ public static class SkillActions {
     return skills.GetRank(slot) + pendingRanks >= skill.MaxRank ? SkillRejectReason.AtMaxRank : SkillRejectReason.None;
   }
 
-  // Shared front half: the player's hero, its asset row, and the SkillAsset sitting in the slot.
+  // Resolves the player's hero, asset row, and slotted skill
   private static SkillRejectReason Resolve(ref Frame frame, int playerId, int slot,
     out EntityRef heroEntity, out HeroStatsAsset heroAsset, out SkillAsset skill) {
     heroAsset = null;
@@ -176,8 +155,7 @@ public static class SkillActions {
       : SkillRejectReason.HeroStatsAssetMissing;
   }
 
-  // Block code -> the reason= text. Only walked on the reject path, so the diagnostic detail costs
-  // nothing on the predicate path the client polls.
+  // Formats rejection reasons
   private static string Describe(ref Frame frame, SkillRejectReason block, EntityRef heroEntity, int slot,
     SkillAsset skill) {
     switch (block) {

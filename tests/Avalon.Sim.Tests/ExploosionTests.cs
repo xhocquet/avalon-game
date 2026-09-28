@@ -13,7 +13,7 @@ using Xunit;
 namespace Meesles.Avalon.Sim.Tests;
 
 // Pickle Knight's Ultimate, and with it the silence lifecycle nothing else uses: a hold that takes
-// skill casts away and nothing else, checked in SkillActions.EvaluateCast rather than by zeroing a
+// skill casts away and nothing else, checked in SkillsController.EvaluateCast rather than by zeroing a
 // stat. The cast is a self-cast disc that heals the caster and allies it catches and silences the
 // hostiles in the same reach.
 //
@@ -97,9 +97,9 @@ public class ExploosionTests {
     ApplySilence(harness, harness.FindHero(EnemyPlayerId), silenceTicks);
 
     var frame = harness.Frame;
-    SkillActions.CastBlock(ref frame, EnemyPlayerId, Tertiary).Should().Be(SkillRejectReason.Silenced);
-    SkillActions.CanCast(ref frame, EnemyPlayerId, Tertiary).Should().BeFalse();
-    SkillActions.TryCast(ref frame, EnemyPlayerId, Tertiary, EnemyPosition(harness)).Should().BeFalse();
+    SkillsController.CastBlock(ref frame, EnemyPlayerId, Tertiary).Should().Be(SkillRejectReason.Silenced);
+    SkillsController.CanCast(ref frame, EnemyPlayerId, Tertiary).Should().BeFalse();
+    SkillsController.TryCast(ref frame, EnemyPlayerId, Tertiary, EnemyPosition(harness)).Should().BeFalse();
     EnemyCooldown(harness, Tertiary).Should().Be(0, "a refused cast never starts the cooldown");
 
     AdvanceTo(harness, appliedTick + silenceTicks - 1);
@@ -204,7 +204,7 @@ public class ExploosionTests {
 
   private static void ApplySilence(SimHarness harness, EntityRef entity, int durationTicks) {
     var frame = harness.Frame;
-    Silences.Apply(ref frame, entity, AssetIds.SkillPickleKnightUltimate, durationTicks).Should().BeTrue();
+    SilenceController.Apply(ref frame, entity, AssetIds.SkillPickleKnightUltimate, durationTicks).Should().BeTrue();
   }
 
   private static void AdvanceTo(SimHarness harness, int tick) {
@@ -258,12 +258,12 @@ public class ExploosionTests {
 
   private static bool IsSilenced(SimHarness harness, EntityRef entity) {
     var frame = harness.Frame;
-    return Silences.IsSilenced(ref frame, entity);
+    return SilenceController.IsSilenced(ref frame, entity);
   }
 
   private static bool CanEnemyCast(SimHarness harness, int slot) {
     var frame = harness.Frame;
-    return SkillActions.CanCast(ref frame, EnemyPlayerId, slot);
+    return SkillsController.CanCast(ref frame, EnemyPlayerId, slot);
   }
 
   private static int EnemyCooldown(SimHarness harness, int slot) {

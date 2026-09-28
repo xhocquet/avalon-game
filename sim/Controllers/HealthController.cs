@@ -4,11 +4,9 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
 
-// The one place health goes up, mirroring DamageApplication on the way down. Heals, regen, respawns,
-// and level-up top-ups all clamp against Stats.MaxHealth here rather than each deriving the rule.
-public static class HealthApplication {
-  // Returns HP actually restored. A unit at 0 stays there: it is either awaiting a respawn or about
-  // to be destroyed, and topping it up would read as alive to everything that checks Current.
+// Health increases go through this controller; damage uses DamageController
+public static class HealthController {
+  // Returns restored HP; does not revive dead units
   public static FP64 ApplyHeal(ref Frame frame, EntityRef target, FP64 amount) {
     if (amount <= FP64.Zero || !frame.Has<Health>(target))
       return FP64.Zero;
@@ -26,15 +24,13 @@ public static class HealthApplication {
     return healed;
   }
 
-  // Skips the alive check on purpose: a respawn is what brings a unit back from zero.
+  // Respawn path; restores health from zero
   public static void RestoreToFull(ref Frame frame, EntityRef target) {
     if (frame.Has<Health>(target))
       frame.Get<Health>(target).Current = GetMaxHealth(ref frame, target);
   }
 
-  // Grows the pool and hands the same amount over as HP, so a bigger max never reads as a heal debt.
-  // A negative amount shrinks the pool and pulls Current down with it, stopping at 1 rather than
-  // killing - a death here would carry no killer and pay no XP.
+  // Max-health changes shift current HP by the same amount; reductions clamp at 1
   public static void GrantMaxHealth(ref Frame frame, EntityRef target, FP64 amount) {
     if (amount == FP64.Zero || !frame.Has<Stats>(target))
       return;
@@ -55,7 +51,7 @@ public static class HealthApplication {
       health.Current = max < FP64.One ? FP64.One : max;
   }
 
-  // A unit with no Stats has no pool to fill, so healing it is a no-op rather than unbounded.
+  // Units without Stats have no health pool
   public static FP64 GetMaxHealth(ref Frame frame, EntityRef target) =>
     frame.Has<Stats>(target) ? frame.GetReadOnly<Stats>(target).MaxHealth : FP64.Zero;
 }

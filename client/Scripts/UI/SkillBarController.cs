@@ -4,7 +4,6 @@ using Godot;
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
-using Meesles.Avalon.Sim.Heroes;
 using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon;
@@ -115,10 +114,10 @@ public class SkillBarController {
         var pendingRanks = _predicted?.OutstandingFor(slot) ?? 0;
         var rank = skills.GetRank(slot) + pendingRanks;
         var asset = GetSkillAsset(frame, skillAssetId);
-        var canUpgrade = SkillActions.CanUpgrade(ref frame, playerId, slot, pendingPoints, pendingRanks);
-        var block = SkillActions.CastBlock(ref frame, playerId, slot, pendingRanks);
+        var canUpgrade = SkillsController.CanUpgrade(ref frame, playerId, slot, pendingPoints, pendingRanks);
+        var block = SkillsController.CastBlock(ref frame, playerId, slot, pendingRanks);
         var canCast = block == SkillRejectReason.None;
-        var cooldownTicks = SkillActions.CooldownTicks(ref frame, asset);
+        var cooldownTicks = SkillsController.CooldownTicks(ref frame, asset);
         var fill = CooldownFill(canCast, rank, skills.GetCooldownRemainingTicks(slot), cooldownTicks);
         Paint(slot, rank, canUpgrade, canCast, block, fill, skillAssetId, asset);
       }

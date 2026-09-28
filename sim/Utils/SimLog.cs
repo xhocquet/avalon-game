@@ -4,13 +4,7 @@ using xpTURN.Klotho.Logging;
 
 namespace Meesles.Avalon.Sim;
 
-// Gameplay logging that fires once per tick instead of once per execution of that tick. A server-driven
-// client resimulates its whole predicted window on every verified batch, so a raw frame.Logger call in a
-// system or *Actions class reappears each time the tick is replayed — a dozen identical lines per event
-// is normal, and interleaved tick numbers show up once two ticks are in the window.
-//
-// The client binds the engine's stage at session start; the server and tests leave it unbound and log
-// every call. Gates output only, never sim state, so it cannot affect determinism.
+// Gameplay logging that fires once per tick, preventing duplicate logs during rollback/replay code
 public static class SimLog {
   private static Func<bool> _isResimulating;
 

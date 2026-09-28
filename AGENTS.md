@@ -32,9 +32,9 @@
 
 - `server/Server.csproj` compiles `sim/**/*.cs` (minus `sim/Tools/`) into the server build; there is no second copy.
 - Both sides register systems and initialize the world through `SimulationSetup`, called from their `ISimulationCallbacks`. `OnPollInput` is a no-op on the server — Klotho injects client commands instead.
-- **A gameplay rule lives once in `sim/`; the client calls it, never re-implements it.** An `*Actions` class exposes a read-only `Can*` beside its `Try*`, both running the same evaluation — `SkillActions.CanCast`/`CanUpgrade`, `ShopActions.IsHeroNearTeamShop`. The HUD polls these every sync, so keep them allocation-free.
+- **A gameplay rule lives once in `sim/`; the client calls it, never re-implements it.** A controller exposes a read-only `Can*` beside its `Try*`, both running the same evaluation — `SkillsController.CanCast`/`CanUpgrade`, `ShopActions.IsHeroNearTeamShop`. The HUD polls these every sync, so keep them allocation-free.
 - Gating the UI is UX and bandwidth only. The sim re-checks every command on arrival.
-- [`UnitLookup`](sim/UnitLookup.cs) provides stable identifiers for all units, and resolves them back to entities
+- [`UnitLookup`](sim/Utils/UnitLookup.cs) provides stable identifiers for all units, and resolves them back to entities
 
 ## Network Architecture
 

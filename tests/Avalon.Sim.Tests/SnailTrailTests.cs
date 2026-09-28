@@ -364,7 +364,14 @@ public class SnailTrailTests {
 
   private static bool HasBuffs(SimHarness harness, EntityRef entity) {
     var frame = harness.Frame;
-    return frame.Has<StatBuffs>(entity) && StatBuffApplication.ActiveCount(ref frame, entity) > 0;
+    if (!frame.Has<StatBuffs>(entity))
+      return false;
+
+    ref readonly var buffs = ref frame.GetReadOnly<StatBuffs>(entity);
+    for (var i = 0; i < StatBuffs.MaxEntries; i++)
+      if (buffs.IsActive(i))
+        return true;
+    return false;
   }
 
   private static int UnitId(SimHarness harness, EntityRef entity) {

@@ -156,7 +156,7 @@ public class PurchaseItemCommandTests {
     frame.GetReadOnly<Stats>(hero).AttackDamage.Should().Be(attackDamageBefore);
   }
 
-  // CommandValidation's own gate: an id the registry never heard of is dropped before ShopActions runs.
+  // CommandValidation drops unknown item ids before ShopController runs.
   [Fact]
   public void Purchase_UnknownItemId_IsNotExecuted() {
     var harness = SimHarness.CreateInitialized();
@@ -191,8 +191,8 @@ public class PurchaseItemCommandTests {
       PlaceHeroFarFromShop(ref frame, hero);
     SetGold(ref frame, hero, gold);
 
-    ShopActions.CanPurchase(ref frame, PlayerId, itemId).Should().Be(expected);
-    ShopActions.TryPurchase(ref frame, PlayerId, itemId).Should().Be(expected);
+    ShopController.CanPurchase(ref frame, PlayerId, itemId).Should().Be(expected);
+    ShopController.TryPurchase(ref frame, PlayerId, itemId).Should().Be(expected);
   }
 
   [Fact]
@@ -205,7 +205,7 @@ public class PurchaseItemCommandTests {
     SetGold(ref frame, hero, 100);
     var attackDamageBefore = frame.GetReadOnly<Stats>(hero).AttackDamage;
 
-    ShopActions.CanPurchase(ref frame, PlayerId, EyeKeyItemId).Should().BeTrue();
+    ShopController.CanPurchase(ref frame, PlayerId, EyeKeyItemId).Should().BeTrue();
 
     frame.GetReadOnly<Inventory>(hero).Gold.Should().Be(100);
     frame.GetReadOnly<Inventory>(hero).ItemCount.Should().Be(0);
@@ -223,8 +223,8 @@ public class PurchaseItemCommandTests {
     PlaceHeroAtTeamShop(ref frame, hero);
     SetGold(ref frame, hero, 15); // one Eye Key at 10, not two
 
-    ShopActions.CanPurchase(ref frame, PlayerId, EyeKeyItemId, 0, 0).Should().BeTrue();
-    ShopActions.CanPurchase(ref frame, PlayerId, EyeKeyItemId, 10, 1).Should().BeFalse();
+    ShopController.CanPurchase(ref frame, PlayerId, EyeKeyItemId, 0, 0).Should().BeTrue();
+    ShopController.CanPurchase(ref frame, PlayerId, EyeKeyItemId, 10, 1).Should().BeFalse();
   }
 
   [Fact]
@@ -240,8 +240,8 @@ public class PurchaseItemCommandTests {
     for (var i = 0; i < Inventory.MaxItems - 1; i++)
       inventory.TryAddItem(EyeKeyItemId);
 
-    ShopActions.CanPurchase(ref frame, PlayerId, EyeKeyItemId, 0, 0).Should().BeTrue();
-    ShopActions.CanPurchase(ref frame, PlayerId, EyeKeyItemId, 0, 1).Should().BeFalse();
+    ShopController.CanPurchase(ref frame, PlayerId, EyeKeyItemId, 0, 0).Should().BeTrue();
+    ShopController.CanPurchase(ref frame, PlayerId, EyeKeyItemId, 0, 1).Should().BeFalse();
   }
 
   private static PurchaseItemCommand Purchase(int itemAssetId) {

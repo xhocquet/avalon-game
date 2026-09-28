@@ -5,7 +5,7 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon.Sim.Heroes;
 
 // The planar geometry between a caster and the aim point that came off CastSkillCommand. Sits at the
-// root of Heroes/ so both SkillActions and any hero's skill set read the aim the same way.
+// root of Heroes/ so both SkillsController and any hero's skill set read the aim the same way.
 public static class SkillAim {
   // Pulls the aim point onto the skill's cast band along the line the client aimed. An unbounded end
   // (0 on the row) leaves that side alone, so a skill authoring neither keeps the raw point and only

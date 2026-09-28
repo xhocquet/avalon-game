@@ -6,7 +6,6 @@ using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Commands;
 using Meesles.Avalon.Sim.Components;
-using Meesles.Avalon.Sim.Heroes;
 using Meesles.Avalon.Sim.Navigation;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.Deterministic.Navigation;
@@ -273,8 +272,8 @@ public class InputCapture : IDisposable {
     var pendingRanks = predicted?.OutstandingFor(slot) ?? 0;
 
     return action == SkillAction.Cast
-      ? SkillActions.CanCast(ref frame, _engine.LocalPlayerId, slot, pendingRanks)
-      : SkillActions.CanUpgrade(ref frame, _engine.LocalPlayerId, slot,
+      ? SkillsController.CanCast(ref frame, _engine.LocalPlayerId, slot, pendingRanks)
+      : SkillsController.CanUpgrade(ref frame, _engine.LocalPlayerId, slot,
         predicted?.PendingPoints ?? 0, pendingRanks);
   }
 
@@ -289,7 +288,7 @@ public class InputCapture : IDisposable {
     if (MatchEnded) return false;
 
     var predicted = _gameUI?.PredictedPurchases;
-    if (!ShopActions.CanPurchase(ref frame, _engine.LocalPlayerId, itemAssetId,
+    if (!ShopController.CanPurchase(ref frame, _engine.LocalPlayerId, itemAssetId,
           predicted?.PendingGold ?? 0, predicted?.PendingItems ?? 0))
       return false;
 
@@ -371,14 +370,14 @@ public class InputCapture : IDisposable {
   }
 
   // Same result as clicking your own shop: it becomes the sole selection, which is what puts the buy
-  // grid in the action bar. Range is asked of ShopActions rather than measured against the ShopEntity
+  // grid in the action bar. Range is asked of ShopController rather than measured against the ShopEntity
   // node for the reason ActionBarController does the same — the node's transform comes from World.tscn
   // and the sim's from the Shop map marker, and the key must not open a grid the sim would refuse.
   private void OpenTeamShop() {
     var frame = _engine?.PredictedFrame.Frame;
     if (frame == null) return;
     if (!UnitLookup.TryGetPlayerHero(ref frame, _engine.LocalPlayerId, out var hero)) return;
-    if (!ShopActions.IsHeroNearTeamShop(ref frame, hero)) return;
+    if (!ShopController.IsHeroNearTeamShop(ref frame, hero)) return;
 
     var shop = FindTeamShop();
     if (shop != null) ApplySingleSelection(shop);

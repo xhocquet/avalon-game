@@ -14,8 +14,8 @@ public class CheatTests {
     harness.Tick(SimHarness.SetCheatCommand(1, harness.Frame.Tick, CheatFlags.GodMode));
 
     var frame = harness.Frame;
-    Cheats.IsEnabled(ref frame, 1, CheatFlags.GodMode).Should().BeTrue();
-    Cheats.IsEnabled(ref frame, 2, CheatFlags.GodMode).Should().BeFalse();
+    CheatsController.IsEnabled(ref frame, 1, CheatFlags.GodMode).Should().BeTrue();
+    CheatsController.IsEnabled(ref frame, 2, CheatFlags.GodMode).Should().BeFalse();
   }
 
   [Fact]
@@ -26,7 +26,7 @@ public class CheatTests {
     harness.Tick(SimHarness.SetCheatCommand(1, harness.Frame.Tick, CheatFlags.GodMode, false));
 
     var frame = harness.Frame;
-    Cheats.IsEnabled(ref frame, 1, CheatFlags.GodMode).Should().BeFalse();
+    CheatsController.IsEnabled(ref frame, 1, CheatFlags.GodMode).Should().BeFalse();
   }
 
   [Fact]
@@ -44,14 +44,14 @@ public class CheatTests {
     var frame = harness.Frame;
 
     // What the client retries against: no table yet means nothing has been applied.
-    Cheats.AreAllEnabled(ref frame, 1, CheatFlags.GodMode).Should().BeFalse();
-    Cheats.AreAllEnabled(ref frame, 1, CheatFlags.None).Should().BeTrue();
+    CheatsController.AreAllEnabled(ref frame, 1, CheatFlags.GodMode).Should().BeFalse();
+    CheatsController.AreAllEnabled(ref frame, 1, CheatFlags.None).Should().BeTrue();
 
     harness.Tick(SimHarness.SetCheatCommand(1, harness.Frame.Tick, CheatFlags.GodMode));
 
     frame = harness.Frame;
-    Cheats.AreAllEnabled(ref frame, 1, CheatFlags.GodMode).Should().BeTrue();
-    Cheats.AreAllEnabled(ref frame, 2, CheatFlags.GodMode).Should().BeFalse();
+    CheatsController.AreAllEnabled(ref frame, 1, CheatFlags.GodMode).Should().BeTrue();
+    CheatsController.AreAllEnabled(ref frame, 2, CheatFlags.GodMode).Should().BeFalse();
   }
 
   [Fact]
@@ -64,7 +64,7 @@ public class CheatTests {
     EntityRef attacker = harness.FindHero(2);
     var before = frame.GetReadOnly<Health>(hero).Current;
 
-    DamageApplication.ApplyDamage(ref frame, attacker, hero, FP64.FromInt(5000)).Should().Be(FP64.Zero);
+    DamageController.ApplyDamage(ref frame, attacker, hero, FP64.FromInt(5000)).Should().Be(FP64.Zero);
 
     frame.GetReadOnly<Health>(hero).Current.Should().Be(before);
     frame.GetReadOnly<Health>(hero).LastDamagerUnitId.Should().Be(0);
@@ -79,7 +79,7 @@ public class CheatTests {
     EntityRef target = harness.FindHero(2);
     var before = frame.GetReadOnly<Health>(target).Current;
 
-    DamageApplication.ApplyDamage(ref frame, harness.FindHero(1), target, FP64.FromInt(10))
+    DamageController.ApplyDamage(ref frame, harness.FindHero(1), target, FP64.FromInt(10))
       .Should().BeGreaterThan(FP64.Zero);
     frame.GetReadOnly<Health>(target).Current.Should().BeLessThan(before);
   }

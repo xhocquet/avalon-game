@@ -83,6 +83,7 @@ public static class UnitLookup {
     return TryGetTeamUnitById(ref frame, teamId, unitId, out entity);
   }
 
+  // ReSharper disable once UnusedMember.Global
   public static bool TryGetPlayerControllableUnitById(ref Frame frame, int playerId, int unitId,
     out EntityRef entity) {
     return TryGetPlayerOwnedUnitById(ref frame, playerId, unitId, out entity) &&

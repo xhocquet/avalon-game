@@ -10,7 +10,7 @@ namespace Meesles.Avalon.Sim.Components;
 // replay ends it on the tick it first did.
 //
 // One slot: a second application refreshes, keeping the rate and expiry being applied now. Damage
-// accrues every sim tick into Pending at AccrualPerTick but only reaches DamageApplication on an
+// accrues every sim tick into Pending at AccrualPerTick but only reaches DamageController on an
 // interval boundary (NextPayoutTick) and once more at expiry - the target takes a handful of solid
 // hits over the window instead of a floored point every frame.
 [KlothoComponent(ComponentIds.DamageOverTime)]

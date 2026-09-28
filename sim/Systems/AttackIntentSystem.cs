@@ -22,7 +22,7 @@ public class AttackIntentSystem(NavigationRuntime navigation = null) : ISystem {
 
     // Deferred: AttackTargetUnitId is one of the filter's own types (see the iteration rule in AGENTS.md).
     for (var i = 0; i < _spentIntents.Count; i++)
-      UnitIntent.ClearAttackIntent(ref frame, _spentIntents[i]);
+      UnitIntentController.ClearAttackIntent(ref frame, _spentIntents[i]);
   }
 
   // False means the order is spent and its AttackTargetUnitId comes off after the loop.
@@ -35,7 +35,7 @@ public class AttackIntentSystem(NavigationRuntime navigation = null) : ISystem {
     var targetUnitId = frame.GetReadOnly<AttackTargetUnitId>(attacker).TargetUnitId;
     if (!TryResolveTarget(ref frame, attacker, targetUnitId, out var target)) {
       LogAttackState(ref frame, attacker, targetUnitId, "cleared_invalid_target");
-      UnitIntent.ClearMoveTarget(ref frame, attacker);
+      UnitIntentController.ClearMoveTarget(ref frame, attacker);
       return false;
     }
 
@@ -52,7 +52,7 @@ public class AttackIntentSystem(NavigationRuntime navigation = null) : ISystem {
     ref var combat = ref frame.Get<Combat>(attacker);
     var wasOutOfRange = combat.TargetUnitId == 0;
     combat.TargetUnitId = targetUnitId;
-    UnitIntent.ClearMoveTarget(ref frame, attacker);
+    UnitIntentController.ClearMoveTarget(ref frame, attacker);
 
     if (wasOutOfRange)
       LogAttackState(ref frame, attacker, targetUnitId, $"in_range distSq={distSq} rangeSq={rangeSq}");
@@ -64,13 +64,13 @@ public class AttackIntentSystem(NavigationRuntime navigation = null) : ISystem {
     combat.TargetUnitId = 0;
 
     if (frame.Has<Turret>(attacker)) {
-      UnitIntent.ClearMoveTarget(ref frame, attacker);
+      UnitIntentController.ClearMoveTarget(ref frame, attacker);
       return false;
     }
 
     var approach = NavTargets.SnapToWalkable(navigation?.Query,
       frame.GetReadOnly<TransformComponent>(target).Position);
-    UnitIntent.SetMoveTarget(ref frame, attacker, approach);
+    UnitIntentController.SetMoveTarget(ref frame, attacker, approach);
     return true;
   }
 

@@ -14,15 +14,8 @@
   <!-- Pulls in the same packaged Klotho runtime DLL + analyzer as the dedicated server. -->
   <Import Project="../../client/addons/klotho/Klotho.Server.props" />
 
-  <PropertyGroup>
-    <!-- Compile the same deterministic sim source used by both client and server. -->
-    <SimRoot>../../sim</SimRoot>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Include="$(SimRoot)\**\*.cs" Link="Game\%(RecursiveDir)%(Filename)%(Extension)" />
-    <Compile Remove="$(SimRoot)\Tools\**\*.cs" />
-  </ItemGroup>
+  <!-- Compile the same deterministic sim source used by both client and server. -->
+  <Import Project="..\..\sim\Meesles.Avalon.Sim.projitems" Label="Shared" />
 
   <ItemGroup>
     <Content Include="..\..\client\Sim\Data\*.bytes">

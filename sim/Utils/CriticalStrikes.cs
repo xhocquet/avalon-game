@@ -1,5 +1,4 @@
 using Meesles.Avalon.Sim.Components;
-using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.Deterministic.Random;
 using xpTURN.Klotho.ECS;
@@ -18,8 +17,7 @@ public static class CriticalStrikes {
     return isCrit ? damage * frame.GetReadOnly<Stats>(attacker).CritDamage : damage;
   }
 
-  // One draw per (attacker, tick): an attacker lands at most one auto-attack in a tick, so nothing
-  // shares a draw with itself.
+  // Roll for a chance at an autoattack
   public static bool Rolls(ref Frame frame, EntityRef attacker, int attackerUnitId) {
     if (!frame.Has<Stats>(attacker))
       return false;
@@ -29,8 +27,8 @@ public static class CriticalStrikes {
       return false;
 
     var index = (ulong)(uint)attackerUnitId << 32 | (uint)frame.Tick;
-    var rng = DeterministicRandom.FromSeed(SimRandom.WorldSeed(ref frame), SimRandom.CriticalStrikeKey,
-      index);
+    var rng = DeterministicRandom.FromSeed(
+      SimRandom.WorldSeed(ref frame), SimRandom.CriticalStrikeKey, index);
     return rng.NextFixed() < chance; // NextFixed is [0, 1), so a chance of 1 always crits
   }
 }
