@@ -22,25 +22,17 @@ public class SkillDashSystem : ISystem {
       }
 
       ref var transform = ref frame.Get<TransformComponent>(entity);
-      var toDestination = dash.Destination - transform.Position;
-      toDestination.y = FP64.Zero;
-      var distance = toDestination.magnitude;
       var step = dash.Speed * dt;
-      if (step >= distance) {
-        transform.Position = dash.Destination;
+      if (Planar.MoveTowards(ref transform, dash.Destination, step)) {
         _completed.Add(entity);
         continue;
       }
-
-      var move = toDestination.normalized * step;
-      transform.Position += move;
-      transform.Rotation = FP64.Atan2(move.x, move.z);
     }
 
     foreach (var entity in _completed) {
       ref readonly var dash = ref frame.GetReadOnly<SkillDash>(entity);
       if (dash.IsActive)
-        SkillDashes.Complete(ref frame, entity, in dash, _allies);
+        DashController.Complete(ref frame, entity, in dash, _allies);
       frame.Remove<SkillDash>(entity);
     }
   }

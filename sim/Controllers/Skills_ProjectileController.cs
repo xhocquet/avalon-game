@@ -7,20 +7,13 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
 
-// Shared spawn side of the projectile lifecycle: skills put bullets in the air through here,
-// ProjectileSystem advances and resolves them. Kept at the root of Heroes/ with the rest of the
-// plumbing, so any hero's skill set can fire a volley without owning the entity assembly.
-public static class SkillProjectiles {
-  // Fires `count` projectiles travelling in the same direction, spread laterally across the
-  // caster's facing rather than fanned outward - the three parallel bars Crystal Bullets telegraphs.
-  // Offsets are symmetric about the aim line, so an odd count always puts one bullet dead centre.
+public static class ProjectileController {
   public static void SpawnVolley(ref Frame frame, in SkillCastContext ctx, FPVector3 direction,
     int count, FP64 spacing, FP64 speed, FP64 range, FP64 radius, FP64 spawnOffset, FP64 damage) {
     if (count <= 0 || speed <= FP64.Zero || range <= FP64.Zero)
       return;
 
-    // Perpendicular in the XZ plane, matching the Atan2(x, z) yaw convention: for direction +Z this
-    // is +X, so index 0 starts on the caster's left and the volley reads left to right.
+    // XZ perpendicular under the Atan2(x, z) yaw convention.
     var right = new FPVector3(direction.z, FP64.Zero, -direction.x);
     var firstOffset = -spacing * FP64.FromInt(count - 1) / FP64.FromInt(2);
     var muzzle = ctx.CasterPosition + direction * spawnOffset;
@@ -73,8 +66,6 @@ public static class SkillProjectiles {
     frame.EventRaiser.RaiseEvent(evt);
   }
 
-  // Closes out one spawned projectile. ProjectileSystem calls this for both endings so every
-  // ProjectileId the view saw born is one it also sees die.
   public static void RaiseDespawned(ref Frame frame, in Projectile projectile, FPVector3 position,
     int hitUnitId, SkillProjectileEnd reason) {
     if (frame.EventRaiser == null)

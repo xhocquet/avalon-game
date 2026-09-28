@@ -6,7 +6,7 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
 
-public static class SkillChannels {
+public static class ChannelController {
   public static bool Arm(ref Frame frame, EntityRef caster, SkillAsset skill, int rank,
     FPVector3 startPosition) {
     if (skill == null || rank <= 0)

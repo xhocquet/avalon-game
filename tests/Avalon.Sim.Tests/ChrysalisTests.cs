@@ -277,7 +277,7 @@ public class ChrysalisTests {
 
   private static bool IsCharging(SimHarness harness) {
     var frame = harness.Frame;
-    return SkillCharges.IsCharging(ref frame, Caster(harness));
+    return ChargeController.IsCharging(ref frame, Caster(harness));
   }
 
   private static bool IsSnared(SimHarness harness, EntityRef entity) {

@@ -12,7 +12,7 @@ public sealed class PickleKnightSkills()
     var direction = SkillAim.Direction(ref f, ctx.Caster, ctx.CasterPosition, ctx.TargetPosition);
     var healAmount = SkillAsset.AtRank(skill.HealAmount, skill.HealAmountPerRank, ctx.Rank);
 
-    SkillDashes.Start(ref f, ctx.Caster, ctx.CasterPosition, direction,
+    DashController.Start(ref f, ctx.Caster, ctx.CasterPosition, direction,
       skill.DashDistance, skill.DashSpeed, skill.AssetId, ctx.Rank, healAmount);
 
     BuffsController.ApplySkill(ref f, ctx.Caster, ctx.Skill, ctx.Rank);

@@ -47,7 +47,7 @@ public class ProjectileSystem : ISystem {
         var source = ResolveSource(ref frame, in projectile);
         DamageController.ApplyDamage(ref frame, source, target, projectile.Damage, DamageType.Magical);
         ApplyOnHitEffects(ref frame, in projectile, source, target);
-        SkillProjectiles.RaiseDespawned(ref frame, in projectile, end,
+        ProjectileController.RaiseDespawned(ref frame, in projectile, end,
           UnitLookup.GetUnitId(ref frame, target), SkillProjectileEnd.Hit);
         _expired.Add(entity);
         continue;
@@ -58,7 +58,7 @@ public class ProjectileSystem : ISystem {
       if (projectile.RemainingDistance > FP64.Zero)
         continue;
 
-      SkillProjectiles.RaiseDespawned(ref frame, in projectile, end, 0, SkillProjectileEnd.Expired);
+      ProjectileController.RaiseDespawned(ref frame, in projectile, end, 0, SkillProjectileEnd.Expired);
       _expired.Add(entity);
     }
 
@@ -116,11 +116,11 @@ public class ProjectileSystem : ISystem {
         continue;
 
       var candidateXZ = frame.GetReadOnly<TransformComponent>(candidate).Position.ToXZ();
-      var travel = ClosestTravelAlong(startXZ, endXZ, candidateXZ);
+      var travel = Planar.ClosestPointTravel(startXZ, endXZ, candidateXZ);
       var closest = startXZ + (endXZ - startXZ) * travel;
 
       var reach = projectile.Radius + BodyRadius(ref frame, candidate);
-      if ((candidateXZ - closest).sqrMagnitude > reach * reach)
+      if (Planar.DistanceSq(candidateXZ, closest) > reach * reach)
         continue;
 
       var unitId = frame.GetReadOnly<UnitIdentity>(candidate).UnitId;
@@ -173,14 +173,4 @@ public class ProjectileSystem : ISystem {
     return CombatRange.GameplayRadiusOf(ref frame, entity);
   }
 
-  // Normalized 0..1 position along [start, end] of the point closest to `point`. A zero-length
-  // segment (a bullet at the very end of its range) collapses to the start.
-  private static FP64 ClosestTravelAlong(FPVector2 start, FPVector2 end, FPVector2 point) {
-    var segment = end - start;
-    var lengthSq = segment.sqrMagnitude;
-    if (lengthSq <= FP64.Zero)
-      return FP64.Zero;
-
-    return FP64.Clamp01(FPVector2.Dot(point - start, segment) / lengthSq);
-  }
 }

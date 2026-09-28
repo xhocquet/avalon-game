@@ -97,10 +97,10 @@ public class RespawnSystem : ISystem {
     BurstAttacksController.Clear(ref frame, entity);
     SnareController.Clear(ref frame, entity);
     SilenceController.Clear(ref frame, entity);
-    SkillCharges.Clear(ref frame, entity);
-    SkillChannels.Clear(ref frame, entity);
-    SkillDashes.Clear(ref frame, entity);
-    SkillTrails.Clear(ref frame, entity);
+    ChargeController.Clear(ref frame, entity);
+    ChannelController.Clear(ref frame, entity);
+    DashController.Clear(ref frame, entity);
+    TrailController.Clear(ref frame, entity);
     DamageOverTimeController.Clear(ref frame, entity);
 
 

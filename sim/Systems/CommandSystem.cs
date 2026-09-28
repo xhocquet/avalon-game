@@ -73,19 +73,10 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
       ref var moveTarget = ref frame.Get<UnitMoveTarget>(entity);
       ref var transform = ref frame.Get<TransformComponent>(entity);
       var step = frame.GetReadOnly<Stats>(entity).MoveSpeed * dt;
-      var toTarget = moveTarget.Target - transform.Position;
-
-      toTarget.y = FP64.Zero;
-      var dist = toTarget.magnitude;
-      if (dist <= rules.StopDistance) {
+      if (Planar.MoveTowards(ref transform, moveTarget.Target, step, rules.StopDistance)) {
         _arrived.Add(entity);
         continue;
       }
-
-      var move = toTarget.normalized * step;
-      if (step >= dist) move = toTarget;
-      transform.Position += move;
-      transform.Rotation = FP64.Atan2(move.x, move.z);
     }
 
     // Deferred: UnitMoveTarget is one of the filter's own types (see the iteration rule in AGENTS.md).

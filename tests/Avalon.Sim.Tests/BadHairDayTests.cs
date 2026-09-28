@@ -13,7 +13,7 @@ namespace Meesles.Avalon.Sim.Tests;
 
 // Hairy Wizard's Ultimate: a channel that trails a storm on the caster for the wind-up, pulsing the
 // row's per-second rate at every hostile in the disc, then snares whatever it catches when the
-// wind-up ends. It reuses the SkillCharges clock and the burst snare Chrysalis owns; what is new
+// wind-up ends. It reuses ChargeController's clock and Chrysalis's burst snare; what is new
 // here is the channel aura - a moving disc re-collected every payout interval, not a lingering
 // per-target burn - so that is what these check.
 //
@@ -342,7 +342,7 @@ public class BadHairDayTests {
 
   private static bool IsCharging(SimHarness harness) {
     var frame = harness.Frame;
-    return SkillCharges.IsCharging(ref frame, Caster(harness));
+    return ChargeController.IsCharging(ref frame, Caster(harness));
   }
 
   private static bool IsSnared(SimHarness harness, EntityRef entity) {

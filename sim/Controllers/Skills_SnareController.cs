@@ -4,7 +4,7 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon.Sim;
 
 public static class SnareController {
-  // Keeps the later expiry when snares overlap
+  // Preserve the later expiry.
   public static bool Apply(ref Frame frame, EntityRef entity, int sourceId, int durationTicks) {
     if (sourceId == 0 || durationTicks <= 0)
       return false;

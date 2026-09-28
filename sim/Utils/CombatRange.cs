@@ -27,9 +27,7 @@ public static class CombatRange {
     ref readonly var attackerTransform = ref frame.GetReadOnly<TransformComponent>(attacker);
     ref readonly var targetTransform = ref frame.GetReadOnly<TransformComponent>(target);
 
-    var toTarget = targetTransform.Position - attackerTransform.Position;
-    toTarget.y = FP64.Zero;
-    distSq = toTarget.sqrMagnitude;
+    distSq = Planar.DistanceSq(attackerTransform.Position, targetTransform.Position);
     rangeSq = ReachSq(ref frame, attacker, target);
     return distSq <= rangeSq;
   }

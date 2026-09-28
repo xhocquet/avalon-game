@@ -23,7 +23,7 @@ func configure(family: ConTelegraphFamily, lane_count: int, lane_spacing: float,
 		area.shape_primitive = ConTelegraphArea3D.ShapePrimitive.BOX
 		area.fill_mode = ConTelegraphArea3D.FillMode.FORWARD
 		area.extents = Vector3(lane_half_width, lane_height, lane_length * 0.5)
-		# Negated x: local +X is the caster's left, the mirror of SkillProjectiles' `right`.
+		# Negated x: local +X is the caster's left, the mirror of ProjectileController's `right`.
 		area.position = Vector3(
 			-(first_offset + lane_spacing * i),
 			0,

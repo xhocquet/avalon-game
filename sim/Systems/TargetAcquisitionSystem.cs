@@ -67,7 +67,6 @@ public class TargetAcquisitionSystem : ISystem {
     var bestPriority = int.MaxValue;
     var bestDistanceSq = FP64.MaxValue;
     var bestUnitId = int.MaxValue;
-    var attackerXZ = attackerPosition.ToXZ();
 
     // Grid already narrowed candidates to those within radius (exact XZ distance filtered);
     // remaining checks are the cheap priority/team/health rules the broad-phase can't apply.
@@ -87,7 +86,7 @@ public class TargetAcquisitionSystem : ISystem {
 
       ref readonly var unit = ref frame.GetReadOnly<UnitIdentity>(candidate);
       ref readonly var candidateTransform = ref frame.GetReadOnly<TransformComponent>(candidate);
-      var distanceSq = (candidateTransform.Position.ToXZ() - attackerXZ).sqrMagnitude;
+      var distanceSq = Planar.DistanceSq(attackerPosition, candidateTransform.Position);
 
       // Priority first, then nearest; UnitId only breaks exact distance ties so the pick stays deterministic.
       if (!found || IsBetterCandidate(priority, distanceSq, unit.UnitId,

@@ -4,12 +4,7 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
 
-// The one place a trail emitter goes on a caster or comes off. Arming is the cast-side entry;
-// TrailSystem owns the drop cadence, the segment entities, and the per-tick contact test. Kept beside
-// SkillCharges and SkillProjectiles as the fourth way a skill puts something in the world.
-public static class SkillTrails {
-  // Arms an emitter on the caster, replacing any running one. Returns false when the row lays no
-  // trail or the numbers resolve to a no-op.
+public static class TrailController {
   public static bool Arm(ref Frame frame, EntityRef caster, SkillAsset skill, int rank) {
     if (skill == null || rank <= 0 || !skill.HasTrail)
       return false;
@@ -30,7 +25,7 @@ public static class SkillTrails {
     emitter.Rank = rank;
     emitter.SegmentsRemaining = skill.TrailSegmentCount;
     emitter.IntervalTicks = intervalTicks;
-    emitter.NextDropTick = frame.Tick; // First circle drops under the caster's feet this tick
+    emitter.NextDropTick = frame.Tick; // Drop the first segment now.
     emitter.SegmentLifetimeTicks = lifetimeTicks;
     emitter.Width = skill.TrailWidth;
     return true;

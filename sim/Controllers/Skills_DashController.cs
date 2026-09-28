@@ -5,7 +5,7 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
 
-public static class SkillDashes {
+public static class DashController {
   public static bool Start(ref Frame frame, EntityRef caster, FPVector3 start, FPVector3 direction,
     FP64 distance, FP64 speed, int sourceId, int rank, FP64 healAmount) {
     if (distance <= FP64.Zero || speed <= FP64.Zero || sourceId == 0 || rank <= 0)
@@ -40,13 +40,13 @@ public static class SkillDashes {
       frame.Remove<SkillDash>(caster);
   }
 
-  // Returns allies whose bodies cross the path from start to end.
+  // Include bodies intersecting the dash path.
   private static void CollectAllies(ref Frame frame, EntityRef caster, FPVector3 start,
     FPVector3 end, List<EntityRef> allies) {
     allies.Clear();
     var startXZ = start.ToXZ();
-    var segment = end.ToXZ() - startXZ;
-    var segmentLengthSq = segment.sqrMagnitude;
+    var endXZ = end.ToXZ();
+    var segment = endXZ - startXZ;
 
     var filter = frame.Filter<UnitIdentity, Team, Health, TransformComponent>();
     while (filter.Next(out var candidate)) {
@@ -54,12 +54,11 @@ public static class SkillDashes {
           !CombatTargeting.IsAlliedAndAlive(ref frame, caster, candidate))
         continue;
 
-      var offset = frame.GetReadOnly<TransformComponent>(candidate).Position.ToXZ() - startXZ;
-      var progress = FPVector2.Dot(offset, segment) / segmentLengthSq;
-      progress = FP64.Clamp(progress, FP64.Zero, FP64.One);
+      var candidatePosition = frame.GetReadOnly<TransformComponent>(candidate).Position.ToXZ();
+      var progress = Planar.ClosestPointTravel(startXZ, endXZ, candidatePosition);
       var nearest = startXZ + segment * progress;
       var body = CombatRange.GameplayRadiusOf(ref frame, candidate);
-      if ((offset - (nearest - startXZ)).sqrMagnitude <= body * body)
+      if (Planar.DistanceSq(candidatePosition, nearest) <= body * body)
         allies.Add(candidate);
     }
   }

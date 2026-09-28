@@ -21,7 +21,7 @@ public sealed class SnailheadSkills()
 
   // (snailhead.json)[../../client/Sim/Data/Assets/heroes/snailhead.json:69]
   private static void CastSnailTrail(ref Frame f, in SkillCastContext ctx) {
-    SkillTrails.Arm(ref f, ctx.Caster, ctx.Skill, ctx.Rank);
+    TrailController.Arm(ref f, ctx.Caster, ctx.Skill, ctx.Rank);
   }
 
   // (snailhead.json)[../../client/Sim/Data/Assets/heroes/snailhead.json:83]
@@ -35,7 +35,7 @@ public sealed class SnailheadSkills()
 
   // (snailhead.json)[../../client/Sim/Data/Assets/heroes/snailhead.json:101]
   private static void CastMolt(ref Frame f, in SkillCastContext ctx) {
-    SkillChannels.Arm(ref f, ctx.Caster, ctx.Skill, ctx.Rank, ctx.CasterPosition);
+    ChannelController.Arm(ref f, ctx.Caster, ctx.Skill, ctx.Rank, ctx.CasterPosition);
   }
 
   // TODO: Route channel completion to its owning skill set.

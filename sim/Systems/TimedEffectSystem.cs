@@ -8,7 +8,7 @@ namespace Meesles.Avalon.Sim;
 // procs, queued attack bursts, snares, silences, damage-over-time burns, charging skill bursts.
 // Starting any of them is command-driven and lives with the rule that owns it (DamageSystem,
 // SkillsController, BuffsController, EmpoweredAttackController, BurstAttacksController, SnareController, SilenceController, DamageOverTimeController,
-// SkillCharges); burning them down is this.
+// ChargeController); burning them down is this.
 //
 // Registered ahead of everything that reads Stats, casts, or deals damage for the frame, so an effect
 // that ended never pays out one more tick and a cooldown that reached 0 is spendable on the same tick
@@ -101,10 +101,10 @@ public class TimedEffectSystem : ISystem {
     }
 
     for (var i = 0; i < _pulsing.Count; i++)
-      SkillCharges.TickAura(ref frame, _pulsing[i]);
+      ChargeController.TickAura(ref frame, _pulsing[i]);
 
     for (var i = 0; i < _detonating.Count; i++)
-      SkillCharges.Detonate(ref frame, _detonating[i]);
+      ChargeController.Detonate(ref frame, _detonating[i]);
 
     _completingChannels.Clear();
     _cancellingChannels.Clear();
@@ -113,16 +113,16 @@ public class TimedEffectSystem : ISystem {
       ref readonly var channel = ref frame.GetReadOnly<SkillChannel>(entity);
       if (!channel.IsActive)
         continue;
-      if (SkillChannels.HasMoved(ref frame, entity))
+      if (ChannelController.HasMoved(ref frame, entity))
         _cancellingChannels.Add(entity);
       else if (channel.IsDue(frame.Tick))
         _completingChannels.Add(entity);
     }
 
     for (var i = 0; i < _cancellingChannels.Count; i++)
-      SkillChannels.Clear(ref frame, _cancellingChannels[i]);
+      ChannelController.Clear(ref frame, _cancellingChannels[i]);
 
     for (var i = 0; i < _completingChannels.Count; i++)
-      SkillChannels.Complete(ref frame, _completingChannels[i]);
+      ChannelController.Complete(ref frame, _completingChannels[i]);
   }
 }
