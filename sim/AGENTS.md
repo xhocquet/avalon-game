@@ -1,26 +1,25 @@
-# Contents
+# Layout
 
-Deep dives in [`docs/`](docs/):
+- `Assets/`: data-asset types and ids. Authored rows live in `client/Sim/Data/Assets/`.
+- `Commands/`: wire commands and validation.
+- `Components/`: deterministic ECS state.
+- `Controllers/`: shared gameplay actions.
+- `Events/`: simulation events and lobby player-config payloads.
+- `Factories/`: entity creation.
+- `Heroes/`: flat hero skill sets.
+- `Navigation/`: deterministic navigation helpers.
+- `Systems/`: per-tick simulation.
+- `Utils/`: shared deterministic queries and geometry.
 
-- [Heroes](docs/heroes.md) — `HeroStatsAsset` fields, combat range/timing, adding a hero
-- [XP & Leveling](docs/xp-and-leveling.md) — `Experience`, level/stat-growth curves, kill awards
-- [Skills & Upgrades](docs/skills-and-upgrades.md) — slots, `SkillAsset` tuning, casting/targeting, effect lifecycles
-- [Match End & Results](docs/match-end-and-results.md) — win conditions, `MatchOutcome`, per-player stats, `MatchRecord`
-- [Navigation](docs/navigation.md) — agent phases, temporal spreading, navmesh baking, move-target resolution, flow fields
-
-In this file: [Gold](#gold) · [Stats](#stats) · [Filter Iteration](#filter-iteration) · [Working Rules](#working-rules) · [Ownership](#ownership) · [Command Handling](#command-handling) · [Command Validation](#command-validation) · [Test Cheats](#test-cheats) · [Repo Commands](#repo-commands)
-
-- [`UnitLookup`](Utils/UnitLookup.cs) provides stable identifiers for all units, and resolves them back to entities
-
-`sim/` is authoritative deterministic gameplay compiled into both client and server — read [Shared Simulation](../AGENTS.md#shared-simulation) in the root doc before editing here.
-
-`client/Sim/Data/MapLayout.bytes` (Godot [`SimMarkerNode`](../client/Scripts/SimMarkerNode.cs) locations) and `client/Sim/Data/NavigationRegion3D.NavMeshData.bytes` are deterministic sim inputs baked by the client editor export.
+`sim/` is shared deterministic code compiled by client and server. Read
+[Shared Simulation](../AGENTS.md#shared-simulation) before changing gameplay. Map and nav inputs
+are baked into `client/Sim/Data/`.
 
 ## Namespaces
 
-- Files directly under `sim/`, including `Systems/`, use `Meesles.Avalon.Sim`.
-- Simulation subdomains use `Meesles.Avalon.Sim.<Subdomain>` (for example, `Components`, `Assets`, and `Navigation`).
-- Repo-root code uses `Meesles.Avalon`; `client/` and `server/` use `Meesles.Avalon.Client` and `Meesles.Avalon.Server` respectively.
+- `Assets/`, `Commands/`, `Components/`, `Factories/`, `Heroes/`, and `Navigation/` use matching subnamespaces.
+- Controllers, systems, utilities, and simulation events use `Meesles.Avalon.Sim`; `LobbyPlayerConfig` uses `.Events`.
+- Client and server use `Meesles.Avalon.Client` and `Meesles.Avalon.Server`.
 
 # Gold
 
