@@ -48,8 +48,6 @@ public static class SimulationSetup {
     // beside the nav registration below so both movement paths land at the same point in the frame.
     simulation.AddSystem(new CommandSystem(navigation), SystemPhase.Update);
 
-    // Hero behaviors and items will impact stats and other system
-    simulation.AddSystem(new HeroBehaviorSystem(), SystemPhase.Update);
     simulation.AddSystem(new InventorySystem(), SystemPhase.Update);
 
     if (navigation != null) // Movement

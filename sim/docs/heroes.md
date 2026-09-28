@@ -24,7 +24,5 @@
 - [`CombatRange.ReachSq`](../Utils/CombatRange.cs) is the only conversion from edge-to-edge range to centre distance, adding both `GameplayRadius`. Centre-to-centre puts turrets out of melee reach — their navmesh hole is ~1.6m wide against a 1.25m reach.
 - No attack period is stored. [`CombatTiming.CooldownTicks`](../Utils/CombatTiming.cs) derives it per hit, so rate bonuses stay additive and rounding never compounds.
 - Crit is opt-in per damage source — `DamageSystem` passes `canCrit: true` for auto-attacks, skills don't. It multiplies pre-mitigation.
-- `BehaviorId` selects an [`IHeroBehavior`](../Heroes/IHeroBehavior.cs): `OnSpawn` from `HeroFactory`, `OnTick` from [`HeroBehaviorSystem`](../Systems/HeroBehaviorSystem.cs). Skills dispatch separately (see Skills & Upgrades).
-- Behaviors are stateless singletons — a field on one survives rollback and desyncs. Put state in a component, added in `OnSpawn`.
 - Components are `[StructLayout(Sequential)]` structs: no subclassing, and a new hero must not change the shared layout.
-- New hero: ids in `AssetIds`, `heroes/<hero>.json` with one `FactionAsset`, one `HeroStatsAsset` and four `SkillAsset` rows, regenerate `Assets.bytes`. Code only for behavior no `BehaviorId` covers.
+- New hero: ids in `AssetIds`, `heroes/<hero>.json` with one `FactionAsset`, one `HeroStatsAsset` and four `SkillAsset` rows, regenerate `Assets.bytes`.

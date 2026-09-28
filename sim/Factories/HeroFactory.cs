@@ -1,6 +1,5 @@
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
-using Meesles.Avalon.Sim.Heroes;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
@@ -35,9 +34,6 @@ public static class HeroFactory {
     frame.Add(entity, new Combat());
     frame.Add(entity,
       NavAgentFactory.At(ref frame, position, heroAsset.MoveSpeed, heroAsset.PathingRadius));
-
-    // Register hero-specific logic
-    HeroBehaviors.Get(heroAsset.BehaviorId).OnSpawn(ref frame, entity, heroAsset);
 
     return entity;
   }

@@ -55,11 +55,6 @@ public enum SkillProjectileEnd {
 }
 
 // Authored in the asset JSON, so the values must stay stable.
-public enum HeroBehavior {
-  Default = 0
-}
-
-// Authored in the asset JSON, so the values must stay stable.
 public enum HeroSkillSet {
   HairyWizard = 0,
   Snailhead = 1,

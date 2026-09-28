@@ -2,7 +2,7 @@
 
 Deep dives in [`docs/`](docs/):
 
-- [Heroes](docs/heroes.md) — `HeroStatsAsset` fields, combat range/timing, `BehaviorId`, adding a hero
+- [Heroes](docs/heroes.md) — `HeroStatsAsset` fields, combat range/timing, adding a hero
 - [XP & Leveling](docs/xp-and-leveling.md) — `Experience`, level/stat-growth curves, kill awards
 - [Skills & Upgrades](docs/skills-and-upgrades.md) — slots, `SkillAsset` tuning, casting/targeting, effect lifecycles
 - [Match End & Results](docs/match-end-and-results.md) — win conditions, `MatchOutcome`, per-player stats, `MatchRecord`
