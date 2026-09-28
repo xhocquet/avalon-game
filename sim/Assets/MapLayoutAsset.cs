@@ -5,7 +5,6 @@ using xpTURN.Klotho.Serialization;
 
 namespace Meesles.Avalon.Sim.Assets;
 
-// Instance id is AssetIds.MapLayout; look it up with TryGet<MapLayoutAsset>()
 [KlothoDataAsset(AssetIds.TypeIds.MapLayout, AssetId = AssetIds.MapLayout, Key = "MapLayout")]
 public partial class MapLayoutAsset : IDataAsset {
   [KlothoOrder(0)] public int[] MarkerTypes;
@@ -13,15 +12,9 @@ public partial class MapLayoutAsset : IDataAsset {
   [KlothoOrder(2)] public FPVector3[] MarkerPositions;
   [KlothoOrder(3)] public int[] MarkerValues;
 
-  // Identity, not a display label: the exporter fills it from the map scene's filename, so it is
-  // whatever the .tscn is called. A pretty name for the UI belongs in a client-side catalog keyed
-  // off this, the way FactionCatalog carries the names FactionAsset doesn't.
-  [KlothoOrder(4)] public string MapName;
+  [KlothoOrder(4)] public string MapName; // Source scene filename, not a display name
 
-  // The exporter fills the three required arrays in lockstep, but a hand-edited MapLayout.json can
-  // leave them ragged. Scanning to the shortest drops the trailing markers on every peer identically
-  // instead of throwing partway through a lockstep tick. MarkerValues is excluded: it postdates the
-  // others, so layouts authored before it are legitimately short, and its readers already clamp.
+  // Hand-edited layouts can have ragged required arrays; ignore the trailing entries consistently.
   public int MarkerCount =>
     MarkerTypes == null || MarkerTeams == null || MarkerPositions == null
       ? 0

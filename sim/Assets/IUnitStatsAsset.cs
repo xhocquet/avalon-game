@@ -2,11 +2,7 @@ using xpTURN.Klotho.Deterministic.Math;
 
 namespace Meesles.Avalon.Sim.Assets;
 
-// The level-1 stat block every unit's asset carries, so factories build Stats once instead
-// of once per asset type. Implemented explicitly since the serialized members are fields.
-//
-// Distances are metres: game units divide by 100 (a 350 move speed is 3.5). Regen is per 5 seconds
-// Growth past level 1 is not here - only heroes level, and their per-level values live on HeroStatsAsset.
+// Level-1 stats copied into Stats by unit factories. Distances are metres; regen is per five seconds.
 public interface IUnitStatsAsset {
   FP64 BaseHealth { get; }
   FP64 BaseMana { get; }

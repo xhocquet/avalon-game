@@ -2,8 +2,7 @@ using xpTURN.Klotho.Deterministic.Math;
 
 namespace Meesles.Avalon.Sim.Assets;
 
-// One stat a skill's buff block lands on, parsed from a BuffStats entry. The effect code still owns
-// which unit it hits; this is only the stat, the mode, and the rank ramp.
+// One parsed BuffStats entry.
 public readonly struct BuffSpec(StatType stat, BuffMode mode, FP64 baseValue, FP64 perRank) {
   public readonly StatType Stat = stat;
   public readonly BuffMode Mode = mode;

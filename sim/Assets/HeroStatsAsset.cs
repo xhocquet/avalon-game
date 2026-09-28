@@ -4,15 +4,12 @@ using xpTURN.Klotho.Serialization;
 
 namespace Meesles.Avalon.Sim.Assets;
 
-// Instance ids live in the AssetIds.Hero* block; look one up with Get<HeroStatsAsset>(id).
-//
-// Every growing stat is a Base + PerLevel pair. Base is the level-1 value Stats.From seeds;
-//  Base + PerLevel * (MaxLevel - 1). Distances are metres (game units / 100).
+// Base is level 1; PerLevel reaches the cap through StatGrowth. Distances are metres.
 [KlothoDataAsset(AssetIds.TypeIds.Hero)]
 public partial class HeroStatsAsset : IDataAsset, IUnitStatsAsset {
   [KlothoOrder(0)] public int BehaviorId;
-  [KlothoOrder(1)] public int SkillSetId; // Maps to IHeroSkillSet
-  [KlothoOrder(2)] public int Skill1AssetId; // Maps to SkillAsset
+  [KlothoOrder(1)] public int SkillSetId;
+  [KlothoOrder(2)] public int Skill1AssetId;
   [KlothoOrder(3)] public int Skill2AssetId;
   [KlothoOrder(4)] public int Skill3AssetId;
   [KlothoOrder(5)] public int Skill4AssetId;
@@ -34,9 +31,7 @@ public partial class HeroStatsAsset : IDataAsset, IUnitStatsAsset {
   [KlothoOrder(20)] public FP64 BaseAttackSpeed; // Attacks per second
   [KlothoOrder(21)] public FP64 BonusAttackSpeedPerLevel; // Fraction of base; 0.029 is +2.9%
 
-  // How much of a bonus-attack-speed source this hero converts. Authored equal to BaseAttackSpeed
-  // where a hero has no ratio of its own. Nothing reads it yet.
-  [KlothoOrder(22)] public FP64 AttackSpeedRatio;
+  [KlothoOrder(22)] public FP64 AttackSpeedRatio; // Unused; match BaseAttackSpeed without a separate ratio
   [KlothoOrder(23)] public FP64 AttackWindup;
 
   [KlothoOrder(24)] public FP64 CritChance;
@@ -46,7 +41,7 @@ public partial class HeroStatsAsset : IDataAsset, IUnitStatsAsset {
   [KlothoOrder(28)] public FP64 AcquisitionRange;
 
   [KlothoOrder(29)] public FP64 GameplayRadius;
-  [KlothoOrder(30)] public FP64 SelectionRadius; // View-only; the sim never reads it
+  [KlothoOrder(30)] public FP64 SelectionRadius; // View-only
   [KlothoOrder(31)] public FP64 PathingRadius;
 
   FP64 IUnitStatsAsset.BaseHealth => BaseHealth;
@@ -66,8 +61,7 @@ public partial class HeroStatsAsset : IDataAsset, IUnitStatsAsset {
   FP64 IUnitStatsAsset.GameplayRadius => GameplayRadius;
   FP64 IUnitStatsAsset.PathingRadius => PathingRadius;
 
-  // This hero's per-level gain in `stat`. Zero for a stat that does not grow, which is what a newly
-  // added StatType reads as until it is authored here.
+  // Returns zero for stats without per-level growth.
   public FP64 GrowthOf(StatType stat) => stat switch {
     StatType.MaxHealth => HealthPerLevel,
     StatType.MaxMana => ManaPerLevel,
@@ -80,7 +74,7 @@ public partial class HeroStatsAsset : IDataAsset, IUnitStatsAsset {
     _ => FP64.Zero
   };
 
-  // Maps action slots to skill ID positions
+  // Maps action slots to skill assets.
   public int GetSkillAssetId(int slot) {
     return slot switch {
       0 => Skill1AssetId,

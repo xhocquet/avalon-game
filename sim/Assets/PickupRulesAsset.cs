@@ -4,7 +4,6 @@ using xpTURN.Klotho.Serialization;
 
 namespace Meesles.Avalon.Sim.Assets;
 
-// Instance id is AssetIds.PickupRules; look it up with Get<PickupRulesAsset>().
 [KlothoDataAsset(AssetIds.TypeIds.PickupRules, AssetId = AssetIds.PickupRules, Key = "PickupRules")]
 public partial class PickupRulesAsset : IDataAsset {
   [KlothoOrder(0)] public int OasisSpawnIntervalMs; // How often pickups spawn

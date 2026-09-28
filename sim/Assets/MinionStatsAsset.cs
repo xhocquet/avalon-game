@@ -4,8 +4,7 @@ using xpTURN.Klotho.Serialization;
 
 namespace Meesles.Avalon.Sim.Assets;
 
-// Instance id is AssetIds.MinionStats; look it up with Get<MinionStatsAsset>().
-// Minions never level, so this is the flat half of IUnitStatsAsset with no growth pairs.
+// Minions do not level.
 [KlothoDataAsset(AssetIds.TypeIds.MinionStats, AssetId = AssetIds.MinionStats, Key = "MinionStats")]
 public partial class MinionStatsAsset : IDataAsset, IUnitStatsAsset {
   [KlothoOrder(0)] public FP64 Health;

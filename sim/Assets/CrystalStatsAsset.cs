@@ -4,8 +4,7 @@ using xpTURN.Klotho.Serialization;
 
 namespace Meesles.Avalon.Sim.Assets;
 
-// Instance id is AssetIds.CrystalStats; look it up with Get<CrystalStatsAsset>().
-// A crystal only takes damage, so everything on the attacking half reads as zero
+// Crystals do not attack.
 [KlothoDataAsset(AssetIds.TypeIds.CrystalStats, AssetId = AssetIds.CrystalStats, Key = "CrystalStats")]
 public partial class CrystalStatsAsset : IDataAsset, IUnitStatsAsset {
   [KlothoOrder(0)] public FP64 Health;

@@ -4,9 +4,7 @@ using xpTURN.Klotho.Serialization;
 
 namespace Meesles.Avalon.Sim.Assets;
 
-// Instance id is AssetIds.XpRules; look it up with Get<XpRulesAsset>().
-// Kill rates and the level curve are flat across players. Per-level stat gains are not here: they
-// are per-hero, on HeroStatsAsset, so two heroes can scale differently off the same curve.
+// Kill rewards and the shared level curve. Hero stat growth lives on HeroStatsAsset.
 [KlothoDataAsset(AssetIds.TypeIds.XpRules, AssetId = AssetIds.XpRules, Key = "XpRules")]
 public partial class XpRulesAsset : IDataAsset {
   [KlothoOrder(0)] public int XpPerMinionKill;
@@ -17,13 +15,10 @@ public partial class XpRulesAsset : IDataAsset {
   [KlothoOrder(5)] public int XpToSecondLevel; // xp needed for level 2
   [KlothoOrder(6)] public int XpPerLevelIncrement; // modifier applied per level for xp req.
 
-  // Shapes how a hero's PerLevel growth is spread across the levels: see StatGrowth. The pair must
-  // satisfy A + B * (MaxLevel - 1) == 1 so a stat lands exactly on base + growth at the cap;
-  // StatGrowthTests pins that.
-  [KlothoOrder(7)] public FP64 StatGrowthCurveA;
+  [KlothoOrder(7)] public FP64 StatGrowthCurveA; // A + B * (MaxLevel - 1) must equal 1
   [KlothoOrder(8)] public FP64 StatGrowthCurveB;
 
-  // Lifetime XP a hero must have earned to be at `level`
+  // Lifetime XP required for level.
   public int TotalXpForLevel(int level) {
     if (level <= 1)
       return 0;

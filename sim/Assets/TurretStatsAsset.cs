@@ -4,7 +4,6 @@ using xpTURN.Klotho.Serialization;
 
 namespace Meesles.Avalon.Sim.Assets;
 
-// Instance id is AssetIds.TurretStats; look it up with Get<TurretStatsAsset>().
 [KlothoDataAsset(AssetIds.TypeIds.TurretStats, AssetId = AssetIds.TurretStats, Key = "TurretStats")]
 public partial class TurretStatsAsset : IDataAsset, IUnitStatsAsset {
   [KlothoOrder(0)] public FP64 Health;
@@ -15,8 +14,7 @@ public partial class TurretStatsAsset : IDataAsset, IUnitStatsAsset {
   [KlothoOrder(5)] public FP64 AttackWindup;
   [KlothoOrder(6)] public FP64 AttackRange;
 
-  // A turret cannot chase, so it is authored equal to AttackRange rather than reaching past it.
-  [KlothoOrder(7)] public FP64 AcquisitionRange;
+  [KlothoOrder(7)] public FP64 AcquisitionRange; // Turrets cannot chase; keep this equal to AttackRange
   [KlothoOrder(8)] public FP64 GameplayRadius;
 
   FP64 IUnitStatsAsset.BaseHealth => Health;

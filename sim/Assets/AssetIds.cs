@@ -1,17 +1,9 @@
 namespace Meesles.Avalon.Sim.Assets;
 
-// Central ledger of Klotho data-asset ids. These ids are baked into Assets.bytes and the wire
-// format, so they must stay stable across builds: never renumber a live asset, and never reuse the
-// id of a deleted one. Allocate from "next free" at the bottom of each block.
-//
-// Two id planes, unrelated to each other and to ComponentIds — id 100 here is not id 100 there.
-// TypeIds at the bottom are the [KlothoDataAsset(typeId)] wire discriminator, one per class.
-// Everything else is a runtime AssetId, one per row under client/Sim/Data/Assets/. Single-instance
-// assets reuse their type id as their instance id. Multi-instance assets get a block of their own —
-// factions at 200, shop items at 300, heroes at 400 — since their rows keep multiplying and would
-// otherwise chew through the type-id range.
+// Asset ids are serialized into Assets.bytes and the wire format. Never renumber or reuse one.
+// TypeIds identify asset classes; the other ids identify rows. They are separate number spaces.
 public static class AssetIds {
-  // Single-instance assets: one row each under Assets/, resolved via AssetRegistry.Get<T>().
+  // Single-row assets.
   public const int WaveRules = 101;
   public const int MapLayout = 102;
   public const int MinionStats = 103;
@@ -26,7 +18,7 @@ public static class AssetIds {
   public const int XpRules = 115;
   public const int GoldRules = 118;
 
-  // FactionAsset, FactionCatalog
+  // Factions.
   public const int FactionHairyWizards = 200;
   public const int FactionSnailheads = 201;
   public const int FactionCrystalWarriors = 202;
@@ -34,7 +26,7 @@ public static class AssetIds {
   public const int FactionPickleKnights = 204;
   // Next free faction id: 205
 
-  // ShopItemAsset, ShopItemCatalog
+  // Shop items.
   public const int ShopItemEyeKey = 300;
   public const int ShopItemFlowerBlade = 301;
   public const int ShopItemPatchCoat = 302;
@@ -43,7 +35,7 @@ public static class AssetIds {
   public const int ShopItemSquirtGun = 305;
   // Next free shop item id: 306
 
-  // One HeroStatsAsset per hero -> FactionAsset
+  // Heroes.
   public const int HeroHairyWizard = 400;
   public const int HeroSnailhead = 401;
   public const int HeroCrystalGiant = 402;
@@ -51,9 +43,7 @@ public static class AssetIds {
   public const int HeroPickleKnight = 404;
   // Next free hero id: 405
 
-  // SkillAsset, SkillCatalog. Four rows per hero in slot order (Primary, Secondary, Tertiary, Ultimate),
-  // blocked hero-major in the same order as the Hero* block above. Every hero owns its own rows even
-  // where the numbers currently match, so retuning one hero's skill never touches another's.
+  // Four skills per hero, in slot order. Keep this hero-major order aligned with the hero block.
   public const int SkillHairyWizardPrimary = 500;
   public const int SkillHairyWizardSecondary = 501;
   public const int SkillHairyWizardTertiary = 502;
@@ -76,15 +66,12 @@ public static class AssetIds {
   public const int SkillPickleKnightUltimate = 519;
   // Next free skill id: 520
 
-  // PickupTypeAsset, one row per collectable resource kind. Index-significant: a type's wallet slot
-  // in Resources is its offset from PickupTypeBase (see PickupTypes), so a deleted type
-  // leaves its id as a hole and the block never grows past PickupTypes.MaxTypes.
+  // Pickup types map to Resources slots by offset. Deleted ids remain holes.
   public const int PickupTypeBase = 600;
   public const int PickupTypeWater = 600;
   // Next free pickup type id: 601
 
-  // What the deserializer dispatches on to pick a type. Every asset class has one, including the
-  // multi-instance ones that own no id above.
+  // Klotho wire type discriminators.
   public static class TypeIds {
     public const int WaveRules = 101;
     public const int MapLayout = 102;

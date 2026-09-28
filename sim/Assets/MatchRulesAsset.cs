@@ -4,7 +4,6 @@ using xpTURN.Klotho.Serialization;
 
 namespace Meesles.Avalon.Sim.Assets;
 
-// Instance ids live in the AssetIds.MatchRules* block; look one up with Get<MatchRulesAsset>(id).
 [KlothoDataAsset(AssetIds.TypeIds.MatchRules, AssetId = AssetIds.MatchRules, Key = "MatchRules")]
 public partial class MatchRulesAsset : IDataAsset {
   [KlothoOrder(0)] public FP64 MatchDuration; // Seconds
@@ -18,8 +17,4 @@ public partial class MatchRulesAsset : IDataAsset {
   [KlothoOrder(8)] public int HeroKillScore;
   [KlothoOrder(9)] public int MinionKillScore;
   [KlothoOrder(10)] public int StructureKillScore;
-
-  // How often health/mana regen pays out. Regen stats are authored per 5 seconds, so a tick here
-  // grants RegenInterval/5000 of the stat. No system reads it yet.
-  [KlothoOrder(11)] public int RegenIntervalMs;
 }

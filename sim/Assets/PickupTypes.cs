@@ -1,8 +1,6 @@
 namespace Meesles.Avalon.Sim.Assets;
 
-// Maps a PickupTypeAsset id to its wallet slot in Resources. The slot is the type's offset
-// within the AssetIds.PickupType* block, so that block is index-significant: it starts at
-// PickupTypeBase, and a deleted type leaves its hole behind rather than shifting the ones after it.
+// Maps pickup asset ids to Resources slots by offset from PickupTypeBase.
 public static class PickupTypes {
   public const int MaxTypes = 8;
 
