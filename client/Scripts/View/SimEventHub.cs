@@ -143,14 +143,9 @@ public class SimEventHub {
       list[i](evt);
   }
 
-  private class Subscription : IDisposable {
-    private List<Action<SimulationEvent>> _list;
-    private Action<SimulationEvent> _wrapper;
-
-    public Subscription(List<Action<SimulationEvent>> list, Action<SimulationEvent> wrapper) {
-      _list = list;
-      _wrapper = wrapper;
-    }
+  private class Subscription(List<Action<SimulationEvent>> list, Action<SimulationEvent> wrapper) : IDisposable {
+    private List<Action<SimulationEvent>> _list = list;
+    private Action<SimulationEvent> _wrapper = wrapper;
 
     public void Dispose() {
       _list?.Remove(_wrapper);

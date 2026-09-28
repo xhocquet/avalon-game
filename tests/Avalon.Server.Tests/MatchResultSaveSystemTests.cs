@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using FluentAssertions;
-using Meesles.Avalon.Server;
 using Meesles.Avalon.Sim;
-using Xunit;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Logging;
 using xpTURN.Klotho.Network;
+using Xunit;
 
 namespace Meesles.Avalon.Server.Tests;
 
@@ -89,16 +88,10 @@ public sealed class MatchResultSaveSystemTests : IDisposable {
     }
   }
 
-  private sealed class PlayerInfo : IPlayerInfo {
-    public PlayerInfo(int playerId, string displayName, string account) {
-      PlayerId = playerId;
-      DisplayName = displayName;
-      Account = account;
-    }
-
-    public int PlayerId { get; }
-    public string DisplayName { get; }
-    public string Account { get; }
+  private sealed class PlayerInfo(int playerId, string displayName, string account) : IPlayerInfo {
+    public int PlayerId { get; } = playerId;
+    public string DisplayName { get; } = displayName;
+    public string Account { get; } = account;
     public bool IsReady => true;
     public int Ping => 0;
     public PlayerConnectionState ConnectionState => PlayerConnectionState.Connected;

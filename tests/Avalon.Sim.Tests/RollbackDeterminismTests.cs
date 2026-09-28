@@ -2,12 +2,12 @@ using System.Collections.Generic;
 using FluentAssertions;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
-using Xunit;
-using Xunit.Abstractions;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.Deterministic.Navigation;
 using xpTURN.Klotho.ECS;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace Meesles.Avalon.Sim.Tests;
 
@@ -15,7 +15,7 @@ namespace Meesles.Avalon.Sim.Tests;
 // what the server/client split means. Short version: the baseline re-runs from tick 0, so every
 // per-system cache is rebuilt identically in both runs; only a rollback replays ticks over state
 // that was restored, which is what exposes a cache that did not roll back with it.
-public class RollbackDeterminismTests {
+public class RollbackDeterminismTests(ITestOutputHelper output) {
   private const int WarmupTicks = 300;
   private const int MispredictedTicks = 15;
   private const int ReplayTicks = 90;
@@ -36,11 +36,7 @@ public class RollbackDeterminismTests {
   private const int ProjectileWarmupTicks = 300;
   private const int MaxTicksToNextVolley = 1500;
 
-  private readonly ITestOutputHelper _output;
-
-  public RollbackDeterminismTests(ITestOutputHelper output) {
-    _output = output;
-  }
+  private readonly ITestOutputHelper _output = output;
 
   // Broad guard: the ordinary game — heroes traversing the map, waves on the field — across a
   // rollback boundary. Here so that the next per-system cache added outside frame state fails in

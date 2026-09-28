@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Meesles.Avalon.Sim.Components;
-using Meesles.Avalon.Sim.Heroes;
 using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;

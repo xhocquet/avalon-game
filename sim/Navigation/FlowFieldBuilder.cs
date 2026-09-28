@@ -8,7 +8,9 @@ namespace Meesles.Avalon.Sim.Navigation;
 // pass and the two arrays the field itself keeps.
 public class FlowFieldBuilder {
   private readonly bool[] _closed;
+
   private readonly FP64[] _cost;
+
   // Traversal cost of each (triangle, edge) crossing, indexed tri * 3 + edge. Independent of the
   // goal and the dominant cost of a build otherwise: the magnitude of a triangle-centre delta is a
   // fixed-point sqrt, and the old per-build version paid ~2000 of them.

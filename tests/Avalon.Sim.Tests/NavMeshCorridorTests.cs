@@ -1,8 +1,8 @@
 using FluentAssertions;
-using Xunit;
 using xpTURN.Klotho.Deterministic.Geometry;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.Deterministic.Navigation;
+using Xunit;
 
 namespace Meesles.Avalon.Sim.Tests;
 

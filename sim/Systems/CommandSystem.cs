@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Commands;
 using Meesles.Avalon.Sim.Components;
-using Meesles.Avalon.Sim.Heroes;
 using Meesles.Avalon.Sim.Navigation;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;

@@ -5,10 +5,9 @@ using System.IO;
 using System.Text.Json;
 using CsvHelper;
 using FluentAssertions;
-using Meesles.Avalon.Sim;
-using Xunit;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
+using Xunit;
 
 namespace Meesles.Avalon.Sim.Tests;
 

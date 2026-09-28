@@ -4,15 +4,11 @@ using xpTURN.Klotho.Core;
 
 namespace Meesles.Avalon.Client.Scripts.View;
 
-public class ViewCallbacks : IViewCallbacks {
+public class ViewCallbacks(IViewHud hud) : IViewCallbacks {
   private IKlothoEngine _engine;
   private Action<int, SimulationEvent> _eventConfirmedHandler;
   private bool _gameOverShown;
-  private IViewHud _hud;
-
-  public ViewCallbacks(IViewHud hud) {
-    _hud = hud;
-  }
+  private IViewHud _hud = hud;
 
   public void OnGameStart(IKlothoEngine engine) {
     AttachEngine(engine);

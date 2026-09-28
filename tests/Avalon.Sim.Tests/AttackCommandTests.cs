@@ -1,7 +1,7 @@
 using FluentAssertions;
 using Meesles.Avalon.Sim.Commands;
-using Xunit;
 using xpTURN.Klotho.Serialization;
+using Xunit;
 
 namespace Meesles.Avalon.Sim.Tests;
 

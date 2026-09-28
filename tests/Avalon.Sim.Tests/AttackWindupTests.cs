@@ -3,10 +3,10 @@ using System.Linq;
 using FluentAssertions;
 using Meesles.Avalon.Sim.Components;
 using Meesles.Avalon.Sim.Factories;
-using Xunit;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
+using Xunit;
 
 namespace Meesles.Avalon.Sim.Tests;
 

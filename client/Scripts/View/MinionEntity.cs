@@ -1,7 +1,6 @@
 using Godot;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Core;
-using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Client.Scripts.View;
 

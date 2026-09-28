@@ -6,28 +6,19 @@ using xpTURN.Klotho.Godot;
 
 namespace Meesles.Avalon.Client.Scripts.View;
 
-public class UnitViewFactory : EntityViewFactory {
-  private readonly PackedScene _crystalScene;
-  private readonly FactionCatalog _factions;
-  private readonly PackedScene _turretScene;
-  private readonly PackedScene _pickupScene;
-  private readonly PackedScene _oasisScene;
-  private readonly IReadOnlySet<PackedScene> _brokenScenes;
+public class UnitViewFactory(FactionCatalog factions, PackedScene crystalScene, PackedScene turretScene,
+  PackedScene pickupScene = null, PackedScene oasisScene = null,
+  IReadOnlySet<PackedScene> brokenScenes = null) : EntityViewFactory {
+  private readonly PackedScene _crystalScene = crystalScene;
+  private readonly FactionCatalog _factions = factions;
+  private readonly PackedScene _turretScene = turretScene;
+  private readonly PackedScene _pickupScene = pickupScene;
+  private readonly PackedScene _oasisScene = oasisScene;
+  private readonly IReadOnlySet<PackedScene> _brokenScenes = brokenScenes;
 
   // Faction ids already reported by ResolvePrefab. Reconcile runs every tick and retries every entity
   // it could not spawn, so without this one mis-factioned unit writes a stack trace per tick forever.
   private readonly HashSet<int> _reportedFactionIds = [];
-
-  public UnitViewFactory(FactionCatalog factions, PackedScene crystalScene, PackedScene turretScene,
-    PackedScene pickupScene = null, PackedScene oasisScene = null,
-    IReadOnlySet<PackedScene> brokenScenes = null) {
-    _factions = factions;
-    _crystalScene = crystalScene;
-    _turretScene = turretScene;
-    _pickupScene = pickupScene;
-    _oasisScene = oasisScene;
-    _brokenScenes = brokenScenes;
-  }
 
   protected override PackedScene ResolvePrefab(Frame frame, EntityRef entity) {
     PackedScene scene;

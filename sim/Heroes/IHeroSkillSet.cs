@@ -8,28 +8,21 @@ namespace Meesles.Avalon.Sim.Heroes;
 
 // Everything a skill effect needs about the cast that produced it, resolved once by SkillsController.
 // Grows as the cast pipeline does (cast time, resource costs) without re-churning every skill set.
-public readonly struct SkillCastContext {
-  public readonly EntityRef Caster;
-  public readonly int PlayerId;
-  public readonly int Slot;
-  public readonly SkillAsset Skill;
-  public readonly int Rank;
-  public readonly FPVector3 CasterPosition;
-
-  // Planar aim point off CastSkillCommand. Self-cast skills ignore it; a skillshot reads it as a
-  // direction from CasterPosition.
-  public readonly FPVector3 TargetPosition;
-
-  public SkillCastContext(EntityRef caster, int playerId, int slot, SkillAsset skill, int rank,
-    FPVector3 casterPosition, FPVector3 targetPosition) {
-    Caster = caster;
-    PlayerId = playerId;
-    Slot = slot;
-    Skill = skill;
-    Rank = rank;
-    CasterPosition = casterPosition;
-    TargetPosition = targetPosition;
-  }
+public readonly struct SkillCastContext(
+  EntityRef caster,
+  int playerId,
+  int slot,
+  SkillAsset skill,
+  int rank,
+  FPVector3 casterPosition,
+  FPVector3 targetPosition) {
+  public readonly EntityRef Caster = caster;
+  public readonly int PlayerId = playerId;
+  public readonly int Slot = slot;
+  public readonly SkillAsset Skill = skill;
+  public readonly int Rank = rank;
+  public readonly FPVector3 CasterPosition = casterPosition;
+  public readonly FPVector3 TargetPosition = targetPosition;
 }
 
 // OnRankGained: Called after a point has been spent and the rank raised
@@ -42,18 +35,15 @@ public interface IHeroSkillSet {
 
 public delegate void SkillCastHandler(ref Frame frame, in SkillCastContext ctx);
 
-// Slot dispatch for the concrete hero skill sets: each hands the base its four cast methods in
-// SkillSlot order, keeping the skill's own name on the method.
-public abstract class HeroSkillSetBase : IHeroSkillSet {
-  private readonly SkillCastHandler[] _casts;
+public abstract class HeroSkillSetBase(
+  SkillCastHandler primary,
+  SkillCastHandler secondary,
+  SkillCastHandler tertiary,
+  SkillCastHandler ultimate)
+  : IHeroSkillSet {
+  private readonly SkillCastHandler[] _casts = [primary, secondary, tertiary, ultimate];
 
-  protected HeroSkillSetBase(SkillCastHandler primary, SkillCastHandler secondary,
-    SkillCastHandler tertiary, SkillCastHandler ultimate) {
-    _casts = [primary, secondary, tertiary, ultimate];
-  }
-
-  public virtual void OnRankGained(ref Frame frame, EntityRef entity, int slot, SkillAsset skill,
-    int newRank) { }
+  public virtual void OnRankGained(ref Frame f, EntityRef entity, int slot, SkillAsset skill, int newRank) { }
 
   public void OnCast(ref Frame frame, in SkillCastContext ctx) {
     if ((uint)ctx.Slot >= (uint)_casts.Length)
@@ -61,8 +51,7 @@ public abstract class HeroSkillSetBase : IHeroSkillSet {
     _casts[ctx.Slot]?.Invoke(ref frame, in ctx);
   }
 
-  public virtual void OnChannelComplete(ref Frame frame, EntityRef caster, int skillAssetId,
-    int rank) { }
+  public virtual void OnChannelComplete(ref Frame f, EntityRef caster, int skillAssetId, int rank) { }
 }
 
 public static class HeroSkillSets {

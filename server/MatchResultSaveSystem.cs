@@ -22,23 +22,17 @@ namespace Meesles.Avalon.Server {
     public MatchResult Match { get; init; }
   }
 
-  public class MatchResultSaveSystem : ISystem {
+  public class MatchResultSaveSystem(IKLogger logger, Func<IReadOnlyList<IPlayerInfo>> rosterProvider = null,
+    string resultsDirectory = null) : ISystem {
     private static readonly JsonSerializerOptions SerializerOptions = CreateSerializerOptions();
 
-    private readonly IKLogger _logger;
-    private readonly string _resultsDirectory;
-    private readonly Func<IReadOnlyList<IPlayerInfo>> _rosterProvider;
+    private readonly IKLogger _logger = logger;
+    private readonly string _resultsDirectory = resultsDirectory ?? Path.Combine(AppContext.BaseDirectory, "Results");
+    private readonly Func<IReadOnlyList<IPlayerInfo>> _rosterProvider = rosterProvider;
     private int _randomSeed;
     private int _maxPlayers;
     private int _minPlayers;
     private bool _saved;
-
-    public MatchResultSaveSystem(IKLogger logger, Func<IReadOnlyList<IPlayerInfo>> rosterProvider = null,
-      string resultsDirectory = null) {
-      _logger = logger;
-      _rosterProvider = rosterProvider;
-      _resultsDirectory = resultsDirectory ?? Path.Combine(AppContext.BaseDirectory, "Results");
-    }
 
     // The engine only hands these over at world init, well after the system is registered.
     public void SetSessionParameters(int randomSeed, int maxPlayers, int minPlayers) {

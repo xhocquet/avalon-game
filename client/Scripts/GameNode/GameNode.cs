@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using Godot;
 using Meesles.Avalon.Sim;
-using Meesles.Avalon.Sim.Navigation;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Navigation;
 using xpTURN.Klotho.ECS;

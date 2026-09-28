@@ -1,11 +1,11 @@
 using System;
 using System.IO;
+using Meesles.Avalon.Server;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.ECS;
-using xpTURN.Klotho.Logging;
 using xpTURN.Klotho.LiteNetLib;
+using xpTURN.Klotho.Logging;
 using xpTURN.Klotho.Network;
-using Meesles.Avalon.Server;
 
 // Force loading of shared sim code. See KlothoServerBootstrap
 KlothoServerBootstrap.Initialize("Avalon", "Meesles");

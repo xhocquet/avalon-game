@@ -45,5 +45,4 @@ public static class BurstAttacksController {
     if (frame.Has<AttackBurst>(entity))
       frame.Get<AttackBurst>(entity).Clear();
   }
-
 }

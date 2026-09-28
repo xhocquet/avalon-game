@@ -2,7 +2,6 @@ set shell := ["powershell", "-NoLogo", "-Command"]
 
 godot_exe := 'C:\Users\meesles\Coding\Godot-4.6-mono\Godot_v4.6.3-stable_mono_win64.exe'
 godot_console := 'C:\Users\meesles\Coding\Godot-4.6-mono\Godot_v4.6.3-stable_mono_win64_console.exe'
-resharper_cleanup := 'C:\Users\meesles\Downloads\JetBrains.ReSharper.CommandLineTools.2026.1.4\cleanupcode.exe'
 klotho_src := justfile_directory() + '\vendor\Klotho\com.xpturn.klotho\Godot~'
 klotho_dll := "xpTURN.Klotho.Runtime.dll"
 
@@ -164,11 +163,17 @@ remote-logs *args:
 
 #################################################################################
 
-# Reformat only. The default "Full Cleanup" profile also reorders type members, which
-# alphabetized NavigationAgentSystem's fields and split comment blocks off what they
-# document. sim/ is formatted by the pre-commit hook too, so keep this to whitespace/layout
-# the way dotnet format is — otherwise the two tools fight over every sim file.
+# Reformat C# and apply IDE0005/IDE0290 across client, server, shared sim, and tests.
+# Each project includes sim through its shared project import.
 [group('lint')]
 format:
-    & "{{ resharper_cleanup }}" .\client\Meesles.Avalon.Client.sln \
-      --profile="Built-in: Reformat Code" --exclude="**\addons\klotho\**"
+    dotnet format .\client\Meesles.Avalon.Client.csproj whitespace --no-restore --exclude "**\addons\klotho\**"
+    dotnet format .\client\Meesles.Avalon.Client.csproj style --diagnostics IDE0005 IDE0290 --severity info --no-restore --exclude "**\addons\klotho\**"
+    dotnet format .\server\Server.csproj whitespace --no-restore
+    dotnet format .\server\Server.csproj style --diagnostics IDE0005 IDE0290 --severity info --no-restore
+    dotnet format .\tests\Avalon.Client.Tests\Avalon.Client.Tests.csproj whitespace --no-restore
+    dotnet format .\tests\Avalon.Client.Tests\Avalon.Client.Tests.csproj style --diagnostics IDE0005 IDE0290 --severity info --no-restore
+    dotnet format .\tests\Avalon.Sim.Tests\Avalon.Sim.Tests.csproj whitespace --no-restore
+    dotnet format .\tests\Avalon.Sim.Tests\Avalon.Sim.Tests.csproj style --diagnostics IDE0005 IDE0290 --severity info --no-restore
+    dotnet format .\tests\Avalon.Server.Tests\Avalon.Server.Tests.csproj whitespace --no-restore
+    dotnet format .\tests\Avalon.Server.Tests\Avalon.Server.Tests.csproj style --diagnostics IDE0005 IDE0290 --severity info --no-restore

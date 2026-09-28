@@ -2,11 +2,10 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Heroes;
 
-public sealed class CrystalGiantSkills : HeroSkillSetBase {
-  public CrystalGiantSkills()
-    : base(CastSpikyPunch, CastHarden, CastCrystalBullets, CastChrysalis) { }
+public sealed class CrystalGiantSkills()
+  : HeroSkillSetBase(CastSpikyPunch, CastHarden, CastCrystalBullets, CastChrysalis) {
 
-  // (crystal-giant.json)[../../../client/Sim/Data/Assets/heroes/crystal-giant.json:53]
+  // (crystal-giant.json)[../../client/Sim/Data/Assets/heroes/crystal-giant.json:53]
   private static void CastSpikyPunch(ref Frame frame, in SkillCastContext ctx) {
     var skill = ctx.Skill;
     EmpoweredAttackController.Arm(ref frame, ctx.Caster, skill.AssetId,
@@ -15,12 +14,12 @@ public sealed class CrystalGiantSkills : HeroSkillSetBase {
       skill.ProcResetsAttackCooldown);
   }
 
-  // (crystal-giant.json)[../../../client/Sim/Data/Assets/heroes/crystal-giant.json:65]
+  // (crystal-giant.json)[../../client/Sim/Data/Assets/heroes/crystal-giant.json:65]
   private static void CastHarden(ref Frame frame, in SkillCastContext ctx) {
     BuffsController.ApplySkill(ref frame, ctx.Caster, ctx.Skill, ctx.Rank);
   }
 
-  // (crystal-giant.json)[../../../client/Sim/Data/Assets/heroes/crystal-giant.json:82]
+  // (crystal-giant.json)[../../client/Sim/Data/Assets/heroes/crystal-giant.json:82]
   private static void CastCrystalBullets(ref Frame frame, in SkillCastContext ctx) {
     var skill = ctx.Skill;
     var direction = SkillAim.Direction(ref frame, ctx.Caster, ctx.CasterPosition, ctx.TargetPosition);
@@ -29,7 +28,7 @@ public sealed class CrystalGiantSkills : HeroSkillSetBase {
       skill.ProjectileRadius, skill.ProjectileSpawnOffset, skill.DamageAtRank(ctx.Rank));
   }
 
-  // (crystal-giant.json)[../../../client/Sim/Data/Assets/heroes/crystal-giant.json:101]
+  // (crystal-giant.json)[../../client/Sim/Data/Assets/heroes/crystal-giant.json:101]
   private static void CastChrysalis(ref Frame frame, in SkillCastContext ctx) {
     var skill = ctx.Skill;
     var chargeTicks = TickMath.MsToTicksCeil(ref frame, skill.ChargeDurationMs);

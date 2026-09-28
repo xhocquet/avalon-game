@@ -43,14 +43,14 @@ public static class NavTargets {
     if (navMesh == null || query == null)
       return target;
 
-    var targetXZ = target.ToXZ();
-    if (query.FindTriangle(targetXZ) >= 0)
-      return WithClearance(navMesh, query, target, targetXZ, edgeClearance);
+    var targetXz = target.ToXZ();
+    if (query.FindTriangle(targetXz) >= 0)
+      return WithClearance(navMesh, query, target, targetXz, edgeClearance);
 
     // A click well past the map edge has no nearby grid cells to search, so the closest-point snap
     // would find nothing; clamping to the bounds lands it on the perimeter where the boundary
     // triangles are. Clicks inside an obstacle island are already in the box and pass through.
-    var bounded = navMesh.BoundsXZ.ClosestPoint(targetXZ);
+    var bounded = navMesh.BoundsXZ.ClosestPoint(targetXz);
     var closest = query.ClosestPointOnNavMesh(bounded, out var tri);
     return tri >= 0
       ? WithClearance(navMesh, query, target, closest, edgeClearance)
@@ -65,16 +65,16 @@ public static class NavTargets {
     if (navMesh == null || query == null)
       return target;
 
-    var targetXZ = target.ToXZ();
-    if (query.FindTriangle(targetXZ) >= 0)
-      return WithClearance(navMesh, query, target, targetXZ, edgeClearance);
+    var targetXz = target.ToXZ();
+    if (query.FindTriangle(targetXz) >= 0)
+      return WithClearance(navMesh, query, target, targetXz, edgeClearance);
 
-    var originXZ = query.ClosestPointOnNavMesh(origin.ToXZ(), out var originTri);
+    var originXz = query.ClosestPointOnNavMesh(origin.ToXZ(), out var originTri);
     if (originTri < 0)
       return ResolveMoveTarget(navMesh, query, target, edgeClearance);
 
-    var bounded = navMesh.BoundsXZ.ClosestPoint(targetXZ);
-    var startPos = new FPVector3(originXZ.x, FP64.Zero, originXZ.y);
+    var bounded = navMesh.BoundsXZ.ClosestPoint(targetXz);
+    var startPos = new FPVector3(originXz.x, FP64.Zero, originXz.y);
     var endPos = new FPVector3(bounded.x, FP64.Zero, bounded.y);
     var (resultPos, resultTri) = query.MoveAlongSurface(startPos, endPos, originTri, MultiFloorYThreshold);
 
@@ -86,8 +86,8 @@ public static class NavTargets {
 
   // Keeps the caller's y: destinations are planar, and the agent's own snap owns the height.
   private static FPVector3 WithClearance(FPNavMesh navMesh, FPNavMeshQuery query, FPVector3 target,
-    FPVector2 pointXZ, FP64 edgeClearance) {
-    var cleared = PushOffUnwalkableEdges(navMesh, query, pointXZ, edgeClearance);
+    FPVector2 pointXz, FP64 edgeClearance) {
+    var cleared = PushOffUnwalkableEdges(navMesh, query, pointXz, edgeClearance);
     return new FPVector3(cleared.x, target.y, cleared.y);
   }
 

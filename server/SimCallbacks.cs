@@ -1,31 +1,22 @@
 using System;
 using System.Collections.Generic;
-using xpTURN.Klotho.Core;
-using xpTURN.Klotho.ECS;
-using xpTURN.Klotho.Logging;
-using xpTURN.Klotho.Network;
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using Meesles.Avalon.Sim.Navigation;
+using xpTURN.Klotho.Core;
+using xpTURN.Klotho.ECS;
+using xpTURN.Klotho.Logging;
+using xpTURN.Klotho.Network;
 
 namespace Meesles.Avalon.Server {
-  public class SimCallbacks : ISimulationCallbacks {
-    private readonly IKLogger _logger;
-    private readonly int _maxPlayers;
-    private readonly byte[] _navMeshBytes;
-    private readonly Func<RoomManager> _roomManager;
+  public class SimCallbacks(IKLogger logger, int maxPlayers, byte[] navMeshBytes,
+    Func<RoomManager> roomManager = null) : ISimulationCallbacks {
+    private readonly IKLogger _logger = logger;
+    private readonly int _maxPlayers = maxPlayers;
+    private readonly byte[] _navMeshBytes = navMeshBytes;
+    private readonly Func<RoomManager> _roomManager = roomManager;
     private MatchResultSaveSystem _resultSaver;
-
-    // roomManager is resolved lazily: RoomManager owns the factory that builds this instance, so it
-    // does not exist yet at construction.
-    public SimCallbacks(IKLogger logger, int maxPlayers, byte[] navMeshBytes,
-      Func<RoomManager> roomManager = null) {
-      _logger = logger;
-      _maxPlayers = maxPlayers;
-      _navMeshBytes = navMeshBytes;
-      _roomManager = roomManager;
-    }
 
     public void RegisterSystems(EcsSimulation simulation) {
       SimulationSetup.RegisterSystems(simulation, NavigationRuntime.FromBytes(_navMeshBytes, _logger));

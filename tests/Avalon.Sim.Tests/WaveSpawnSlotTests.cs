@@ -1,8 +1,7 @@
 using System.Collections.Generic;
 using FluentAssertions;
-using Meesles.Avalon.Sim;
-using Xunit;
 using xpTURN.Klotho.Deterministic.Math;
+using Xunit;
 
 namespace Meesles.Avalon.Sim.Tests;
 

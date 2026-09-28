@@ -1,5 +1,4 @@
 using FluentAssertions;
-using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using Xunit;

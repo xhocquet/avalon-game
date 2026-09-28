@@ -2,23 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Deterministic.Math;
+using xpTURN.Klotho.Logging;
 using Xunit;
 using Xunit.Abstractions;
-using xpTURN.Klotho.ECS;
-using xpTURN.Klotho.Logging;
 
 namespace Meesles.Avalon.Sim.Tests;
 
-public class LoadTestHarness {
-  private readonly ITestOutputHelper _output;
-
-  public LoadTestHarness(ITestOutputHelper output) {
-    _output = output;
-  }
+public class LoadTestHarness(ITestOutputHelper output) {
+  private readonly ITestOutputHelper _output = output;
 
   [Theory]
   [InlineData(1_000)]

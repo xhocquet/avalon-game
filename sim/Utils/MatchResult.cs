@@ -9,27 +9,16 @@ namespace Meesles.Avalon.Sim;
 
 // One resource kind on a player's line. Only the kinds the round actually used get a row, so a
 // scoreboard never has to render a column of zeros for a type this map never spawned.
-public readonly struct ResourceTally {
-  public ResourceTally(int typeAssetId, int count) {
-    TypeAssetId = typeAssetId;
-    Count = count;
-  }
-
-  public int TypeAssetId { get; }
-  public int Count { get; }
+public readonly struct ResourceTally(int typeAssetId, int count) {
+  public int TypeAssetId { get; } = typeAssetId;
+  public int Count { get; } = count;
 }
 
 // A resource kind the round used, and what was feeding it.
-public readonly struct ResourceTypeSummary {
-  public ResourceTypeSummary(int typeAssetId, int amountPerPickup, int oasisCount) {
-    TypeAssetId = typeAssetId;
-    AmountPerPickup = amountPerPickup;
-    OasisCount = oasisCount;
-  }
-
-  public int TypeAssetId { get; }
-  public int AmountPerPickup { get; }
-  public int OasisCount { get; }
+public readonly struct ResourceTypeSummary(int typeAssetId, int amountPerPickup, int oasisCount) {
+  public int TypeAssetId { get; } = typeAssetId;
+  public int AmountPerPickup { get; } = amountPerPickup;
+  public int OasisCount { get; } = oasisCount;
 }
 
 // The setup the round was played under, read off the frame at the moment it ended. Everything here

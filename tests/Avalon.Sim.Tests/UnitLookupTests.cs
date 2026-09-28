@@ -1,7 +1,6 @@
 using FluentAssertions;
 using Meesles.Avalon.Sim.Components;
 using Xunit;
-using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Tests;
 

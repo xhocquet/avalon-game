@@ -1,6 +1,5 @@
 using Godot;
 using Meesles.Avalon.Client.Scripts.View;
-using xpTURN.Klotho.Godot;
 
 namespace Meesles.Avalon;
 

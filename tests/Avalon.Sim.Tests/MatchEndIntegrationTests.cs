@@ -4,8 +4,8 @@ using System.Text.Json.Serialization;
 using FluentAssertions;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
-using Xunit;
 using xpTURN.Klotho.ECS;
+using Xunit;
 
 namespace Meesles.Avalon.Sim.Tests;
 

@@ -82,8 +82,8 @@ public static class GroupFormation {
       return SnapToNavMesh(target, rules, navMesh, query);
 
     var blobRadius = FP64.Sqrt(FP64.FromInt(minionCount > 0 ? minionCount : 1)) * rules.MinionPackRadiusFactor;
-    var minionXZ = target.ToXZ() - forward * (blobRadius + rules.HeroClearance);
-    return SnapToNavMesh(new FPVector3(minionXZ.x, target.y, minionXZ.y), rules, navMesh, query);
+    var minionXz = target.ToXZ() - forward * (blobRadius + rules.HeroClearance);
+    return SnapToNavMesh(new FPVector3(minionXz.x, target.y, minionXz.y), rules, navMesh, query);
   }
 
   private static int CountHeroes(List<FormationUnit> units) {
