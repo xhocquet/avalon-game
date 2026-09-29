@@ -23,6 +23,7 @@ public static class SkillsController {
     var remainingPoints = skills.SkillPoints;
 
     HeroSkillSets.Get(heroAsset.SkillSetId).OnRankGained(ref frame, heroEntity, slot, skill, newRank);
+    StockpileController.Configure(ref frame, heroEntity, skill, newRank);
     RaiseUpgradedEvent(ref frame, heroEntity, playerId, slot, skills.GetSkillAssetId(slot), newRank,
       remainingPoints);
 
@@ -41,15 +42,17 @@ public static class SkillsController {
 
     ref var skills = ref frame.Get<Skills>(heroEntity);
 
-    // Start cooldown before the skill effect
+    var continuingDash = DashController.CanContinue(ref frame, heroEntity, skill.AssetId);
     var cooldownTicks = CooldownTicks(ref frame, skill);
-    skills.StartCooldown(slot, cooldownTicks);
+    if (!continuingDash)
+      skills.StartCooldown(slot, cooldownTicks);
 
     var rank = skills.GetRank(slot);
     var skillAssetId = skills.GetSkillAssetId(slot);
 
     // EvaluateCast already checked the mana pool
     ManaController.TrySpend(ref frame, heroEntity, skill.ManaCostAtRank(rank));
+    StockpileController.TrySpend(ref frame, heroEntity, skill);
 
     var casterPosition = frame.Has<TransformComponent>(heroEntity)
       ? frame.GetReadOnly<TransformComponent>(heroEntity).Position
@@ -107,8 +110,12 @@ public static class SkillsController {
     if (rank <= 0)
       return SkillRejectReason.NotLearned;
 
-    if (skills.GetCooldownRemainingTicks(slot) > 0)
+    if (skills.GetCooldownRemainingTicks(slot) > 0 &&
+        !DashController.CanContinue(ref frame, heroEntity, skill.AssetId))
       return SkillRejectReason.OnCooldown;
+
+    if (!StockpileController.CanSpend(ref frame, heroEntity, skill))
+      return SkillRejectReason.NoStockpileCharges;
 
     return ManaController.CanAfford(ref frame, heroEntity, skill.ManaCostAtRank(rank))
       ? SkillRejectReason.None
@@ -160,6 +167,7 @@ public static class SkillsController {
       case SkillRejectReason.HeroDead: return "hero_dead";
       case SkillRejectReason.Silenced: return "silenced";
       case SkillRejectReason.NotLearned: return "skill_not_learned";
+      case SkillRejectReason.NoStockpileCharges: return "no_stockpile_charges";
       case SkillRejectReason.AtMaxRank: return $"skill_at_max_rank maxRank={skill.MaxRank}";
       case SkillRejectReason.HeroStatsAssetMissing:
         return $"hero_stats_asset_missing heroId={frame.GetReadOnly<Hero>(heroEntity).HeroStatsAssetId}";

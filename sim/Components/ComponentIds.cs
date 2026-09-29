@@ -54,6 +54,7 @@ public static class ComponentIds {
   public const int Silence = 145;
   public const int SkillChannel = 146;
   public const int SkillDash = 147;
+  public const int SkillStockpiles = 148;
 
-  // Next free id: 148
+  // Next free id: 149
 }

@@ -112,6 +112,7 @@ public enum SkillRejectReason {
   Silenced,
   NotLearned,
   OnCooldown,
+  NoStockpileCharges,
   NotEnoughMana,
   NoSkillPoints,
   AtMaxRank

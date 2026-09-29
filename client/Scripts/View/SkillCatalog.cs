@@ -17,6 +17,7 @@ public class SkillCatalog {
   private const string CrystalWarriorIcons = "res://Assets/Portraits/Skills/CrystalWarrior/";
   private const string HairyWizardIcons = "res://Assets/Portraits/Skills/AllHairWizard/";
   private const string SnailheadIcons = "res://Assets/Portraits/Skills/SnailHeads/";
+  private const string PickleKnightIcons = "res://Assets/Portraits/Skills/PickleKnights/";
 
   public static readonly SkillDef[] SkillDefs = [
     new(AssetIds.SkillHairyWizardPrimary, AssetIds.HeroHairyWizard, SkillSlot.Primary, "Hairball",
@@ -47,10 +48,14 @@ public class SkillCatalog {
     new(AssetIds.SkillSkinwalkerSecondary, AssetIds.HeroSkinwalker, SkillSlot.Secondary, "Daily Practice"),
     new(AssetIds.SkillSkinwalkerTertiary, AssetIds.HeroSkinwalker, SkillSlot.Tertiary, "Eat to Survive"),
     new(AssetIds.SkillSkinwalkerUltimate, AssetIds.HeroSkinwalker, SkillSlot.Ultimate, "Desperation"),
-    new(AssetIds.SkillPickleKnightPrimary, AssetIds.HeroPickleKnight, SkillSlot.Primary, "Slip 'n Slide"),
-    new(AssetIds.SkillPickleKnightSecondary, AssetIds.HeroPickleKnight, SkillSlot.Secondary, "Double Dip"),
-    new(AssetIds.SkillPickleKnightTertiary, AssetIds.HeroPickleKnight, SkillSlot.Tertiary, "Refresh"),
-    new(AssetIds.SkillPickleKnightUltimate, AssetIds.HeroPickleKnight, SkillSlot.Ultimate, "Exploosion")
+    new(AssetIds.SkillPickleKnightPrimary, AssetIds.HeroPickleKnight, SkillSlot.Primary, "Slip 'n Slide",
+      PickleKnightIcons + "skill-slip-n-slide.webp"),
+    new(AssetIds.SkillPickleKnightSecondary, AssetIds.HeroPickleKnight, SkillSlot.Secondary, "Double Dip",
+      PickleKnightIcons + "skill-double-dip.webp"),
+    new(AssetIds.SkillPickleKnightTertiary, AssetIds.HeroPickleKnight, SkillSlot.Tertiary, "Refresh",
+      PickleKnightIcons + "skill-refresh.webp"),
+    new(AssetIds.SkillPickleKnightUltimate, AssetIds.HeroPickleKnight, SkillSlot.Ultimate, "Exploosion",
+      PickleKnightIcons + "skill-exploosion.webp")
   ];
 
   private readonly Dictionary<int, SkillDef> _byId = new();
@@ -75,6 +80,7 @@ public class SkillCatalog {
         failures.Add($"{def.Name} (id {def.SkillId}) -> {def.IconTexturePath}");
         continue;
       }
+
       _icons[def.SkillId] = texture;
     }
 

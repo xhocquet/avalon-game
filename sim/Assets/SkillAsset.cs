@@ -150,6 +150,7 @@ public partial class SkillAsset : IDataAsset {
   public FP64 ManaCostAtRank(int rank) => AtRank(ManaCost, ManaCostPerRank, rank);
   public FP64 DotDamagePerSecondAtRank(int rank) => AtRank(DotDamagePerSecond, DotDamagePerSecondPerRank, rank);
   public FP64 DamageAtRank(int rank) => AtRank(Damage, DamagePerRank, rank);
+  public int DashCountAtRank(int rank) => AtRank(DashCount, DashCountPerRank, rank);
 
   // Floored at 0: ChargeDurationMsPerRank is negative for a row that charges faster each rank.
   public int ChargeDurationMsAtRank(int rank) =>

@@ -62,6 +62,8 @@
     "DashCount": 3,
     "DashCountPerRank": 1,
     "DashDistance": 4.0,
+    "DashSpeed": 8.0,
+    "DashWidth": 1.0,
     "BuffStats": "BonusAttackSpeed flat 0.08 0.03",
     "BuffDurationMs": 3500,
     "Description": "Through rigorous training, you have the stamina to leap 3 (+1 per rank) times consecutively, dealing 45 (+15 per rank) attack damage to foes you pass through. Each dash refreshes a 3.5s attack speed buff of 8% (+3% per rank). CD: 28s"

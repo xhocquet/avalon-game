@@ -40,6 +40,7 @@ public static class SimulationSetup {
     // Every countdown in the frame - attack and skill cooldowns, buffs, attack procs - burned down in
     // one pass, ahead of every reader of them, so nothing pays out a tick it no longer has.
     simulation.AddSystem(new TimedEffectSystem(), SystemPhase.Update);
+    simulation.AddSystem(new SkillStockpileSystem(), SystemPhase.Update);
 
     // Command intake is not what this slot buys: EcsSimulation.Tick drains every OnCommand ahead of the
     // whole Update phase, so orders had already landed before the first system above ran. What sits here

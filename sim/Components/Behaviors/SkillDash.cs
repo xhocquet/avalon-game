@@ -11,8 +11,11 @@ public partial struct SkillDash : IComponent {
   public FPVector3 Destination;
   public FP64 Speed;
   public FP64 HealAmount;
+  public FP64 Damage;
+  public FP64 Width;
   public int SourceId;
   public int Rank;
+  public int RemainingDashes;
 
   public readonly bool IsActive => SourceId != 0 && Speed > FP64.Zero;
 
@@ -21,7 +24,10 @@ public partial struct SkillDash : IComponent {
     Destination = FPVector3.Zero;
     Speed = FP64.Zero;
     HealAmount = FP64.Zero;
+    Damage = FP64.Zero;
+    Width = FP64.Zero;
     SourceId = 0;
     Rank = 0;
+    RemainingDashes = 0;
   }
 }
