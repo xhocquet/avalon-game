@@ -8,6 +8,8 @@ namespace Meesles.Avalon.Sim;
 // a full attack period rather than being free to re-roll.
 [KlothoSerializable(121)]
 public partial class AttackWindupCanceledEvent : SimulationEvent {
+  public override EventMode Mode => EventMode.Regular;
+
   [KlothoOrder(0)] public int AttackHitId; // The AttackWindupStartedEvent this cancels
   [KlothoOrder(1)] public int AttackerUnitId;
   [KlothoOrder(2)] public int TargetUnitId;

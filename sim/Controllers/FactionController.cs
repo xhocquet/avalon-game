@@ -27,6 +27,6 @@ public static class FactionController {
 
   private static void Reject(ref Frame frame, int playerId, int factionId, string reason) {
     SimLog.Info(ref frame,
-      $"[Faction] REJECT tick={frame.Tick} playerId={playerId} factionId={factionId} reason={reason}");
+      $"[Faction] event=rejected tick={frame.Tick} playerId={playerId} factionId={factionId} reason={reason}");
   }
 }

@@ -20,7 +20,7 @@ public static class ShopController {
     stats.Add(StatType.AttackDamage, item.AttackBonus);
 
     SimLog.Info(ref frame,
-      $"[Shop] ACCEPT tick={frame.Tick} playerId={playerId} itemId={itemAssetId} cost={item.Cost} +ad={item.AttackBonus} goldLeft={inventory.Gold} attackDamageNow={stats.AttackDamage} items={inventory.ItemCount}");
+      $"[Shop] event=purchased tick={frame.Tick} playerId={playerId} itemAssetId={itemAssetId} cost={item.Cost} attackDamageAdded={item.AttackBonus} goldLeft={inventory.Gold} attackDamage={stats.AttackDamage} itemCount={inventory.ItemCount}");
     return true;
   }
 
@@ -115,6 +115,6 @@ public static class ShopController {
 
   private static void Reject(ref Frame frame, int playerId, int itemAssetId, string reason) {
     SimLog.Info(ref frame,
-      $"[Shop] REJECT tick={frame.Tick} playerId={playerId} itemId={itemAssetId} reason={reason}");
+      $"[Shop] event=rejected tick={frame.Tick} playerId={playerId} itemAssetId={itemAssetId} reason={reason}");
   }
 }

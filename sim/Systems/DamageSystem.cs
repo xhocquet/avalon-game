@@ -1,7 +1,6 @@
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
-using xpTURN.Klotho.Logging;
 
 namespace Meesles.Avalon.Sim;
 
@@ -122,8 +121,8 @@ public class DamageSystem : ISystem {
   }
 
   private static void LogDamageState(ref Frame frame, EntityRef attacker, int targetUnitId, string state) {
-    frame.Logger.KDebug(
-      $"[Combat] DamageSystem tick={frame.Tick} sourceUnitId={UnitLookup.GetUnitId(ref frame, attacker)} " +
+    SimLog.Debug(ref frame,
+      $"[Combat] event=attack_state tick={frame.Tick} sourceUnitId={UnitLookup.GetUnitId(ref frame, attacker)} " +
       $"targetUnitId={targetUnitId} state={state}");
   }
 }

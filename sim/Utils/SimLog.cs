@@ -28,5 +28,10 @@ public static class SimLog {
     frame.Logger?.Log(KLogLevel.Warning, message, null);
   }
 
+  public static void Debug(ref Frame frame, string message) {
+    if (Suppressed) return;
+    frame.Logger?.Log(KLogLevel.Debug, message, null);
+  }
+
   private static bool Suppressed => _isResimulating != null && _isResimulating();
 }

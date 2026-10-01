@@ -7,6 +7,8 @@ namespace Meesles.Avalon.Sim;
 // Triggered when a skill projectile despawns
 [KlothoSerializable(117)]
 public partial class SkillProjectileDespawnedEvent : SimulationEvent {
+  public override EventMode Mode => EventMode.Regular;
+
   [KlothoOrder(0)] public int ProjectileId;
   [KlothoOrder(1)] public FPVector3 Position;
 

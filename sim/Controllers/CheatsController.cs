@@ -21,11 +21,11 @@ public static class CheatsController {
     }
     else if (!frame.GetSingleton<CheatState>().SetFlags(playerId, (int)updated)) {
       SimLog.Warning(ref frame,
-        $"[Cheats] table full, dropping tick={frame.Tick} playerId={playerId} flags={updated}");
+        $"[Cheats] event=rejected tick={frame.Tick} playerId={playerId} flags={updated} reason=table_full");
       return;
     }
 
-    SimLog.Info(ref frame, $"[Cheats] SET tick={frame.Tick} playerId={playerId} flags={updated}");
+    SimLog.Info(ref frame, $"[Cheats] event=set tick={frame.Tick} playerId={playerId} flags={updated}");
   }
 
   public static bool IsEnabled(ref Frame frame, int playerId, CheatFlags flag) {

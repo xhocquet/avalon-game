@@ -47,7 +47,7 @@ public class TeamPruneSystem : ISystem {
       }
 
     SimLog.Info(ref frame,
-      $"[TeamPrune] tick={frame.Tick} activeTeams=[{string.Join(",", _activeTeams)}] " +
+      $"[TeamPrune] event=pruned tick={frame.Tick} activeTeams=[{string.Join(",", _activeTeams)}] " +
       $"prunedTeams=[{string.Join(",", _prunedTeams)}] prunedStructures={_toDestroy.Count}");
 
     MarkPruned(ref frame, CountCrystalTeams(ref frame));

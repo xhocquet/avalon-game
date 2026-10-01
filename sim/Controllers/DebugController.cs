@@ -291,11 +291,11 @@ public static class DebugController {
   }
 
   private static void Log(ref Frame frame, int playerId, DebugAction action, string details) {
-    SimLog.Info(ref frame, $"[Debug] {action} tick={frame.Tick} playerId={playerId} {details}");
+    SimLog.Info(ref frame, $"[Debug] event={action} tick={frame.Tick} playerId={playerId} {details}");
   }
 
   private static void Reject(ref Frame frame, int playerId, DebugAction action, string reason) {
     SimLog.Info(ref frame,
-      $"[Debug] REJECT tick={frame.Tick} playerId={playerId} action={action} reason={reason}");
+      $"[Debug] event=rejected tick={frame.Tick} playerId={playerId} action={action} reason={reason}");
   }
 }

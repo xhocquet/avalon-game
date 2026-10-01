@@ -6,6 +6,8 @@ namespace Meesles.Avalon.Sim;
 
 [KlothoSerializable(108)]
 public partial class AttackHitEvent : SimulationEvent {
+  public override EventMode Mode => EventMode.Regular;
+
   [KlothoOrder(0)] public int AttackerUnitId;
   [KlothoOrder(1)] public int TargetUnitId;
   [KlothoOrder(2)] public FP64 Damage;

@@ -28,7 +28,7 @@ public static class SkillsController {
       remainingPoints);
 
     SimLog.Info(ref frame,
-      $"[Skills] UPGRADE tick={frame.Tick} playerId={playerId} slot={slot} skillId={skills.GetSkillAssetId(slot)} rank={newRank} pointsLeft={remainingPoints}");
+      $"[Skills] event=upgraded tick={frame.Tick} playerId={playerId} slot={slot} skillAssetId={skills.GetSkillAssetId(slot)} rank={newRank} pointsLeft={remainingPoints}");
     return true;
   }
 
@@ -67,7 +67,7 @@ public static class SkillsController {
     RaiseCastEvent(ref frame, in ctx, skillAssetId);
 
     SimLog.Info(ref frame,
-      $"[Skills] CAST tick={frame.Tick} playerId={playerId} slot={slot} skillId={skillAssetId} rank={rank} cooldownTicks={cooldownTicks} target=({target.x}, {target.z})");
+      $"[Skills] event=cast tick={frame.Tick} playerId={playerId} slot={slot} skillAssetId={skillAssetId} rank={rank} cooldownTicks={cooldownTicks} target=({target.x},{target.z})");
     return true;
   }
 
@@ -220,6 +220,6 @@ public static class SkillsController {
 
   private static void Reject(ref Frame frame, string action, int playerId, int slot, string reason) {
     SimLog.Info(ref frame,
-      $"[Skills] REJECT tick={frame.Tick} action={action} playerId={playerId} slot={slot} reason={reason}");
+      $"[Skills] event=rejected tick={frame.Tick} action={action} playerId={playerId} slot={slot} reason={reason}");
   }
 }

@@ -7,7 +7,6 @@ using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.Deterministic.Navigation;
 using xpTURN.Klotho.ECS;
-using xpTURN.Klotho.Logging;
 using MoveCommand = Meesles.Avalon.Sim.Commands.MoveCommand;
 
 namespace Meesles.Avalon.Sim;
@@ -110,8 +109,8 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
       UnitIntentController.SetMoveTarget(ref frame, source.Entity, approach);
       UnitIntentController.AllowImmediateRepath(ref frame, source.Entity);
       UnitIntentController.SetAttackTarget(ref frame, source.Entity, command.TargetUnitId);
-      frame.Logger.KDebug(
-        $"[Combat] AttackCommand accepted tick={frame.Tick} playerId={command.PlayerId} sourceUnitId={source.UnitId} targetUnitId={command.TargetUnitId} moveTarget=({approach.x}, {approach.z})");
+      SimLog.Debug(ref frame,
+        $"[Command] event=attack_order_accepted tick={frame.Tick} playerId={command.PlayerId} sourceUnitId={source.UnitId} targetUnitId={command.TargetUnitId} moveTarget=({approach.x},{approach.z})");
     }
   }
 

@@ -3,7 +3,6 @@ using Meesles.Avalon.Sim.Components;
 using Meesles.Avalon.Sim.Navigation;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
-using xpTURN.Klotho.Logging;
 
 namespace Meesles.Avalon.Sim;
 
@@ -84,8 +83,8 @@ public class AttackIntentSystem(NavigationRuntime navigation = null) : ISystem {
   }
 
   private static void LogAttackState(ref Frame frame, EntityRef attacker, int attackTargetUnitId, string state) {
-    frame.Logger.KDebug(
-      $"[Combat] AttackIntent tick={frame.Tick} sourceUnitId={UnitLookup.GetUnitId(ref frame, attacker)} " +
+    SimLog.Debug(ref frame,
+      $"[Combat] event=attack_intent tick={frame.Tick} sourceUnitId={UnitLookup.GetUnitId(ref frame, attacker)} " +
       $"targetUnitId={attackTargetUnitId} state={state}");
   }
 }

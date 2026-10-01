@@ -8,6 +8,8 @@ namespace Meesles.Avalon.Sim;
 // has no early end, so the view times its own despawn off this - there is no matching despawn event.
 [KlothoSerializable(122)]
 public partial class SkillTrailSegmentSpawnedEvent : SimulationEvent {
+  public override EventMode Mode => EventMode.Regular;
+
   [KlothoOrder(0)] public int SegmentId;
   [KlothoOrder(1)] public int SourceUnitId;
   [KlothoOrder(2)] public int SkillAssetId;

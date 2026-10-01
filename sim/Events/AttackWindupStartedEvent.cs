@@ -10,6 +10,8 @@ namespace Meesles.Avalon.Sim;
 // damage it is supposed to lead.
 [KlothoSerializable(120)]
 public partial class AttackWindupStartedEvent : SimulationEvent {
+  public override EventMode Mode => EventMode.Regular;
+
   [KlothoOrder(0)] public int AttackHitId; // FK to AttackHitEvent.AttackHitId
   [KlothoOrder(1)] public int AttackerUnitId;
   [KlothoOrder(2)] public int TargetUnitId;

@@ -128,6 +128,6 @@ public static class CommandValidation {
 
   private static void Reject(ref Frame frame, ICommand command, string reason) {
     SimLog.Warning(ref frame,
-      $"[CommandValidation] REJECT tick={frame.Tick} playerId={command.PlayerId} cmd={command.GetType().Name} reason={reason}");
+      $"[Command] event=rejected tick={frame.Tick} playerId={command.PlayerId} command={command.GetType().Name} reason={reason}");
   }
 }

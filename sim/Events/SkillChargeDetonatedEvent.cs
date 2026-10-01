@@ -8,6 +8,8 @@ namespace Meesles.Avalon.Sim;
 // centred, which is wherever the caster stood on the detonation tick rather than where it cast.
 [KlothoSerializable(119)]
 public partial class SkillChargeDetonatedEvent : SimulationEvent {
+  public override EventMode Mode => EventMode.Regular;
+
   [KlothoOrder(0)] public int CasterUnitId;
   [KlothoOrder(1)] public int SkillAssetId;
   [KlothoOrder(2)] public FPVector3 Position;

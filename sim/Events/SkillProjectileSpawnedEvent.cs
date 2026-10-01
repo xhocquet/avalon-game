@@ -7,6 +7,8 @@ namespace Meesles.Avalon.Sim;
 // Triggered when a skill projectile spawns
 [KlothoSerializable(116)]
 public partial class SkillProjectileSpawnedEvent : SimulationEvent {
+  public override EventMode Mode => EventMode.Regular;
+
   [KlothoOrder(0)] public int ProjectileId;
   [KlothoOrder(1)] public int SourceUnitId;
   [KlothoOrder(2)] public int SkillAssetId;
