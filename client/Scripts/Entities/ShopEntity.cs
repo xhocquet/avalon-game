@@ -1,5 +1,4 @@
 using Godot;
-using Meesles.Avalon.Client.Scripts.View;
 using Meesles.Avalon.Client.Scripts.Interfaces;
 
 namespace Meesles.Avalon.Client.Scripts.Entities;

@@ -3,7 +3,6 @@ using Godot;
 using Meesles.Avalon.Client;
 using Meesles.Avalon.Client.Scripts;
 using Meesles.Avalon.Client.Scripts.GameState;
-using Meesles.Avalon.Client.Scripts.View;
 using Meesles.Avalon.Sim.Events;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.ECS;

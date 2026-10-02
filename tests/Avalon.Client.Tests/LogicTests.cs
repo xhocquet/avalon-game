@@ -1,5 +1,4 @@
 using GdUnit4;
-using Meesles.Avalon.Client.Scripts.View;
 using Meesles.Avalon.Sim;
 using static GdUnit4.Assertions;
 

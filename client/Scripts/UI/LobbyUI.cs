@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using Meesles.Avalon.Client.Scripts.GameState;
-using Meesles.Avalon.Client.Scripts.View;
 using Meesles.Avalon.Client.Scripts.Interfaces;
 using Meesles.Avalon.Sim;
 using xpTURN.Klotho.ECS;
