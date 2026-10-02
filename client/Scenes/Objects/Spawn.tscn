@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://c4gqw5blm3y8s"]
 
-[ext_resource type="Script" uid="uid://jt4rwdk0j6k6" path="res://Scripts/SimMarkerNode.cs" id="1_v7n2q"]
+[ext_resource type="Script" uid="uid://jt4rwdk0j6k6" path="res://Scripts/Editor/SimMarkerNode.cs" id="1_v7n2q"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_6kgpn"]
 radius = 0.1

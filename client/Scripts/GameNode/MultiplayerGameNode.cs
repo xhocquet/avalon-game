@@ -1,10 +1,11 @@
-// Avalon multiplayer game scene. Lobby readiness lives in LobbyGameNode; this scene renders play.
-
 using System.Threading.Tasks;
 using Godot;
 using Meesles.Avalon.Client;
 using Meesles.Avalon.Client.Scripts;
+using Meesles.Avalon.Client.Scripts.Factories;
+using Meesles.Avalon.Client.Scripts.GameState;
 using Meesles.Avalon.Client.Scripts.View;
+using Meesles.Avalon.Client.Scripts.Interfaces;
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Core;
@@ -113,8 +114,8 @@ public partial class MultiplayerGameNode : GameNode {
     _joining = true;
     _joinTask = _flow.JoinServerDrivenAsync(
       _transport,
-      ServerEndpoint.Host,
-      ServerEndpoint.Port,
+      ServerConfig.Host,
+      ServerConfig.Port,
       RoomId,
       _sesCfg,
       _driver.TrackConnection);
@@ -124,10 +125,10 @@ public partial class MultiplayerGameNode : GameNode {
     _pool = new DefaultGodotEntityViewPool();
     _factions = FactionCatalog.CreateDefault();
     Input.BindFactionCatalog(_factions);
-    var crystalScene = GD.Load<PackedScene>("res://Scenes/Objects/Crystal.tscn");
-    var turretScene = GD.Load<PackedScene>("res://Scenes/Objects/Turret.tscn");
-    var pickupScene = GD.Load<PackedScene>("res://Scenes/Objects/WaterBottle.tscn");
-    var oasisScene = GD.Load<PackedScene>("res://Scenes/Objects/Oasis.tscn");
+    var crystalScene = GD.Load<PackedScene>(Scenes.Crystal);
+    var turretScene = GD.Load<PackedScene>(Scenes.Turret);
+    var pickupScene = GD.Load<PackedScene>(Scenes.WaterBottle);
+    var oasisScene = GD.Load<PackedScene>(Scenes.Oasis);
     foreach (var faction in _factions.Entries) {
       TryPrewarm(_pool, faction.HeroScene, 2, $"{faction.DisplayName} hero");
       TryPrewarm(_pool, faction.MinionScene, 64, $"{faction.DisplayName} minion");
@@ -144,10 +145,10 @@ public partial class MultiplayerGameNode : GameNode {
   }
 
   private UnitViewFactory CreateFactory() {
-    var crystalScene = GD.Load<PackedScene>("res://Scenes/Objects/Crystal.tscn");
-    var turretScene = GD.Load<PackedScene>("res://Scenes/Objects/Turret.tscn");
-    var pickupScene = GD.Load<PackedScene>("res://Scenes/Objects/WaterBottle.tscn");
-    var oasisScene = GD.Load<PackedScene>("res://Scenes/Objects/Oasis.tscn");
+    var crystalScene = GD.Load<PackedScene>(Scenes.Crystal);
+    var turretScene = GD.Load<PackedScene>(Scenes.Turret);
+    var pickupScene = GD.Load<PackedScene>(Scenes.WaterBottle);
+    var oasisScene = GD.Load<PackedScene>(Scenes.Oasis);
     return new UnitViewFactory(_factions, crystalScene, turretScene, pickupScene, oasisScene,
       BrokenViewScenes);
   }
@@ -187,7 +188,7 @@ public partial class MultiplayerGameNode : GameNode {
     _logger.KInformation($"[Client] auto-ready sent from multiplayer scene.");
   }
 
-  private void CaptureRunningInput(KlothoSession session, float dt) {
+  private void CaptureRunningInput(KlothoSession session, float _) {
     if (session.State == KlothoState.Running)
       Input.CaptureInput();
   }
@@ -201,7 +202,7 @@ public partial class MultiplayerGameNode : GameNode {
     Input.SelectSingleView(view);
   }
 
-  private void OnLocalViewUnregistered(EntityViewNode view) {
+  private void OnLocalViewUnregistered(EntityViewNode _) {
     _localViewFocused = false;
     _camera?.SetFollowTarget(null);
   }
@@ -245,7 +246,7 @@ public partial class MultiplayerGameNode : GameNode {
     _camera?.SetFollowTarget(null);
   }
 
-  public override void _Process(double delta) {
+  public override void _Process(double _) {
     if (_joining && _joinTask != null) {
       if (_joinTask.IsFaulted) {
         _logger.KError($"[Client] join failed (server running?): {_joinTask.Exception?.GetBaseException().Message}");
@@ -289,9 +290,8 @@ public partial class MultiplayerGameNode : GameNode {
     _driver.PreSessionUpdate -= CaptureRunningInput;
     _driver.DetachAndStop();
     _session = null;
-    _transport?.Disconnect(); // releases the socket so the fresh lobby can bind its own
+    _transport?.Disconnect();
 
-    // A handed-off driver is parented to the tree root, so the scene swap would leave it behind.
     if (!_ownsDriver)
       _driver.QueueFree();
     _driver = null;

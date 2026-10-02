@@ -20,7 +20,7 @@ config/features=PackedStringArray("4.6", "C#", "Forward Plus")
 
 [autoload]
 
-CursorManager="*res://Scripts/CursorManager.cs"
+CursorManager="*res://Scripts/Input/CursorManager.cs"
 
 [display]
 

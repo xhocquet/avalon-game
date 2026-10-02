@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://3ded1f06hab5"]
 
-[ext_resource type="Script" uid="uid://h3mjd2vex7vv" path="res://Scripts/View/PickupEntity.cs" id="1_pickup"]
+[ext_resource type="Script" uid="uid://h3mjd2vex7vv" path="res://Scripts/Entities/PickupEntity.cs" id="1_pickup"]
 [ext_resource type="PackedScene" uid="uid://chnhs44116no2" path="res://Assets/Props/Water/WaterBottle.tscn" id="2_lwrxv"]
-[ext_resource type="Script" uid="uid://jt4rwdk0j6k6" path="res://Scripts/SimMarkerNode.cs" id="3_jjo26"]
+[ext_resource type="Script" uid="uid://jt4rwdk0j6k6" path="res://Scripts/Editor/SimMarkerNode.cs" id="3_jjo26"]
 [ext_resource type="Shader" uid="uid://bus13us8chvbq" path="res://Scenes/World/botw_explosion.gdshader" id="4_1vgwm"]
 [ext_resource type="Material" uid="uid://yu15n78dr18x" path="res://Assets/FX/WaterExplosionShaderMaterial.tres" id="4_t8004"]
 [ext_resource type="Texture2D" uid="uid://0j1wbqu4ajo" path="res://Assets/FX/Explosion/blue_edit.png" id="5_t8004"]

@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://ctd5irvpu30tj"]
 
 [ext_resource type="PackedScene" uid="uid://c2hwu7hxako5u" path="res://Assets/Heroes/SnailHead/walking_snailhead_v1.glb" id="1_6ayvj"]
-[ext_resource type="Script" uid="uid://cvasfy5yhl8gr" path="res://Scripts/View/HeroEntity.cs" id="2_hero"]
+[ext_resource type="Script" uid="uid://cvasfy5yhl8gr" path="res://Scripts/Entities/HeroEntity.cs" id="2_hero"]
 [ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="2_lk2n3"]
 
 [node name="Player" unique_id=765539556 instance=ExtResource("1_6ayvj")]

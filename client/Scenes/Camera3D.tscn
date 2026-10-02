@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bhs1kmrnawwhu"]
 
-[ext_resource type="Script" uid="uid://dftysf56fhh03" path="res://Scripts/CameraController.cs" id="1_camera_controller"]
+[ext_resource type="Script" uid="uid://dftysf56fhh03" path="res://Scripts/Input/CameraController.cs" id="1_camera_controller"]
 
 [node name="Camera3D" type="Camera3D" unique_id=402723439]
 current = true

@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://vuk38btq8hjc"]
 
 [ext_resource type="PackedScene" uid="uid://ccuue67855ior" path="res://Assets/Mobs/SpikySnail/spikysnail_rigged.glb" id="1_model"]
-[ext_resource type="Script" uid="uid://drxwt8mq0b2k8" path="res://Scripts/View/MinionEntity.cs" id="2_minion"]
+[ext_resource type="Script" uid="uid://drxwt8mq0b2k8" path="res://Scripts/Entities/MinionEntity.cs" id="2_minion"]
 [ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="3_ind"]
 
 [sub_resource type="Animation" id="Animation_y42po"]

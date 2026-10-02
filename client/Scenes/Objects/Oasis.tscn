@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://c8kx0oasis001"]
 
-[ext_resource type="Script" uid="uid://0ec6lphdt6ef" path="res://Scripts/View/OasisEntity.cs" id="1_oasis"]
-[ext_resource type="Script" uid="uid://jt4rwdk0j6k6" path="res://Scripts/SimMarkerNode.cs" id="3_simmarker"]
+[ext_resource type="Script" uid="uid://0ec6lphdt6ef" path="res://Scripts/Entities/OasisEntity.cs" id="1_oasis"]
+[ext_resource type="Script" uid="uid://jt4rwdk0j6k6" path="res://Scripts/Editor/SimMarkerNode.cs" id="3_simmarker"]
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_oasis"]
 top_radius = 1.75

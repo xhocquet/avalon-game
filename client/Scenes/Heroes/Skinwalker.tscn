@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://dhh3i5ijg58fo"]
 
 [ext_resource type="PackedScene" uid="uid://bejqbpuqo787c" path="res://Assets/Heroes/Skinwalker/skinwalkermergedv1.glb" id="1_olqw1"]
-[ext_resource type="Script" uid="uid://cvasfy5yhl8gr" path="res://Scripts/View/HeroEntity.cs" id="2_hero"]
+[ext_resource type="Script" uid="uid://cvasfy5yhl8gr" path="res://Scripts/Entities/HeroEntity.cs" id="2_hero"]
 [ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="2_j0xg8"]
 
 [node name="Skinwalker" unique_id=212024309 instance=ExtResource("1_olqw1")]

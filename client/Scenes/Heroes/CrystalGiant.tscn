@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://dsgbntq0rh18w" path="res://Assets/Heroes/CrystalWarriors/crystalwarrior.glb" id="1_t5jg0"]
 [ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="2_73r7p"]
-[ext_resource type="Script" uid="uid://cvasfy5yhl8gr" path="res://Scripts/View/HeroEntity.cs" id="2_hero"]
+[ext_resource type="Script" uid="uid://cvasfy5yhl8gr" path="res://Scripts/Entities/HeroEntity.cs" id="2_hero"]
 
 [node name="CrystalKnight" unique_id=189552492 instance=ExtResource("1_t5jg0")]
 script = ExtResource("2_hero")

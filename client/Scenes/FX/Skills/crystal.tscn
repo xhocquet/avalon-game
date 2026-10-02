@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://bfi0vebatqx0a"]
 
-[ext_resource type="Script" path="res://Scripts/View/CrystalBulletEffect.cs" id="1_script"]
+[ext_resource type="Script" path="res://Scripts/FX/CrystalBulletEffect.cs" id="1_script"]
 [ext_resource type="Shader" path="res://Assets/FX/Shaders/crystal.gdshader" id="2_shader"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_crystal"]

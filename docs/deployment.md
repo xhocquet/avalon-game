@@ -108,7 +108,7 @@ afterwards, even when the export fails. Resolution order at runtime:
 3. `127.0.0.1:7777`
 
 Step 3 is why a working copy still runs against localhost — the file is gitignored and never
-exists outside an export. `ServerEndpoint` is read by `LobbyGameNode` (prefills the lobby's
+exists outside an export. `ServerConfig` is read by `LobbyGameNode` (prefills the lobby's
 host/port fields, still editable) and by `MultiplayerGameNode`'s direct-join fallback.
 
 **Export templates.** The .NET editor needs the matching **.NET** templates — the directory name

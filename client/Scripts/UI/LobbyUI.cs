@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Godot;
+using Meesles.Avalon.Client.Scripts.GameState;
 using Meesles.Avalon.Client.Scripts.View;
+using Meesles.Avalon.Client.Scripts.Interfaces;
 using Meesles.Avalon.Sim;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Network;
@@ -44,7 +46,7 @@ public partial class LobbyUI : Control, IViewHud {
   private int? _roomId;
 
   public string Host => _ipField?.Text?.Trim();
-  public int Port => int.TryParse(_portField?.Text, out var p) ? p : ServerEndpoint.Port;
+  public int Port => int.TryParse(_portField?.Text, out var p) ? p : ServerConfig.Port;
 
   public event Action OnJoinClicked;
   public event Action OnDisconnectClicked;

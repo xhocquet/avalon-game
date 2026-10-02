@@ -1,5 +1,6 @@
 using Godot;
 using Meesles.Avalon.Client;
+using Meesles.Avalon.Client.Scripts.Factories;
 using Meesles.Avalon.Client.Scripts.View;
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Components;
@@ -66,16 +67,11 @@ public partial class SingleplayerGameNode : GameNode {
     _driver = new GodotSessionDriver();
     AddChild(_driver);
     _driver.BindTransport(_transport);
-    _driver.PreSessionUpdate += (s, dt) => {
+    _driver.PreSessionUpdate += (s, _) => {
       if (s.State == KlothoState.Running) Input.CaptureInput();
     };
 
     CreateView();
-    StartLocalSession();
-  }
-
-  private void ResetSession() {
-    StopSession();
     StartLocalSession();
   }
 
@@ -125,10 +121,10 @@ public partial class SingleplayerGameNode : GameNode {
     _pool = new DefaultGodotEntityViewPool();
     _factions = FactionCatalog.CreateDefault();
     Input.BindFactionCatalog(_factions);
-    var crystalScene = GD.Load<PackedScene>("res://Scenes/Objects/Crystal.tscn");
-    var turretScene = GD.Load<PackedScene>("res://Scenes/Objects/Turret.tscn");
-    var pickupScene = GD.Load<PackedScene>("res://Scenes/Objects/WaterBottle.tscn");
-    var oasisScene = GD.Load<PackedScene>("res://Scenes/Objects/Oasis.tscn");
+    var crystalScene = GD.Load<PackedScene>(Scenes.Crystal);
+    var turretScene = GD.Load<PackedScene>(Scenes.Turret);
+    var pickupScene = GD.Load<PackedScene>(Scenes.WaterBottle);
+    var oasisScene = GD.Load<PackedScene>(Scenes.Oasis);
     foreach (var faction in _factions.Entries) {
       TryPrewarm(_pool, faction.HeroScene, _sesCfg.MaxPlayers, $"{faction.DisplayName} hero");
       TryPrewarm(_pool, faction.MinionScene, 64, $"{faction.DisplayName} minion");
@@ -145,10 +141,10 @@ public partial class SingleplayerGameNode : GameNode {
   }
 
   private UnitViewFactory CreateFactory() {
-    var crystalScene = GD.Load<PackedScene>("res://Scenes/Objects/Crystal.tscn");
-    var turretScene = GD.Load<PackedScene>("res://Scenes/Objects/Turret.tscn");
-    var pickupScene = GD.Load<PackedScene>("res://Scenes/Objects/WaterBottle.tscn");
-    var oasisScene = GD.Load<PackedScene>("res://Scenes/Objects/Oasis.tscn");
+    var crystalScene = GD.Load<PackedScene>(Scenes.Crystal);
+    var turretScene = GD.Load<PackedScene>(Scenes.Turret);
+    var pickupScene = GD.Load<PackedScene>(Scenes.WaterBottle);
+    var oasisScene = GD.Load<PackedScene>(Scenes.Oasis);
     return new UnitViewFactory(_factions, crystalScene, turretScene, pickupScene, oasisScene,
       BrokenViewScenes);
   }
@@ -161,7 +157,7 @@ public partial class SingleplayerGameNode : GameNode {
     Input.SelectSingleView(view);
   }
 
-  private void OnLocalViewUnregistered(EntityViewNode view) {
+  private void OnLocalViewUnregistered(EntityViewNode _) {
     _camera?.SetFollowTarget(null);
   }
 

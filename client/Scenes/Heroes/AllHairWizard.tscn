@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://dixg6cag7iwnc"]
 
 [ext_resource type="PackedScene" uid="uid://djyed2tycvytj" path="res://Assets/Heroes/AllHairWizard/allhairwiz.glb" id="1_onny7"]
-[ext_resource type="Script" uid="uid://cvasfy5yhl8gr" path="res://Scripts/View/HeroEntity.cs" id="2_5kg2y"]
+[ext_resource type="Script" uid="uid://cvasfy5yhl8gr" path="res://Scripts/Entities/HeroEntity.cs" id="2_5kg2y"]
 [ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="3_yg1nu"]
 
 [node name="AllHairWizard" unique_id=1682798515 instance=ExtResource("1_onny7")]

@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://c4um04dyla66r"]
 
 [ext_resource type="PackedScene" uid="uid://ca0h8xysyukyh" path="res://Assets/Props/Fountain/abandoned_fountain.glb" id="1_uu4dh"]
-[ext_resource type="Script" uid="uid://cjj40prnipu4v" path="res://Scripts/View/StaticSelectableProp.cs" id="2_prop"]
+[ext_resource type="Script" uid="uid://cjj40prnipu4v" path="res://Scripts/Entities/StaticSelectableProp.cs" id="2_prop"]
 [ext_resource type="PackedScene" uid="uid://80mcbhomjk3l" path="res://Scenes/FX/HotSpring.tscn" id="3_mnioi"]
 [ext_resource type="PackedScene" uid="uid://c8kx0oasis001" path="res://Scenes/Objects/Oasis.tscn" id="4_bq713"]
 

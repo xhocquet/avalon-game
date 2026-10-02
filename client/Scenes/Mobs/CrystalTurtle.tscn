@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://cbptopvefqvvu" path="res://Assets/Mobs/CrystalTurtle/crystalturtle.glb" id="1_lxue8"]
 [ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="2_3ka08"]
-[ext_resource type="Script" uid="uid://drxwt8mq0b2k8" path="res://Scripts/View/MinionEntity.cs" id="2_minion"]
+[ext_resource type="Script" uid="uid://drxwt8mq0b2k8" path="res://Scripts/Entities/MinionEntity.cs" id="2_minion"]
 
 [node name="Minion" unique_id=1847225907 instance=ExtResource("1_lxue8")]
 script = ExtResource("2_minion")

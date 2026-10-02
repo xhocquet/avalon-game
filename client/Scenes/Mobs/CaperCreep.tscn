@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://cdjjx2l8mfh8r" path="res://Assets/Mobs/CaperCreep/capercreep_animations.glb" id="1_y1yu6"]
 [ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="2_6t0u1"]
-[ext_resource type="Script" uid="uid://drxwt8mq0b2k8" path="res://Scripts/View/MinionEntity.cs" id="3_minion"]
+[ext_resource type="Script" uid="uid://drxwt8mq0b2k8" path="res://Scripts/Entities/MinionEntity.cs" id="3_minion"]
 
 [node name="capercreep_animations" unique_id=1094035730 instance=ExtResource("1_y1yu6")]
 script = ExtResource("3_minion")
