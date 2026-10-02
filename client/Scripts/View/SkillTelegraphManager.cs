@@ -40,6 +40,7 @@ public class SkillTelegraphManager {
   private static readonly Dictionary<string, Resource> FamilyCache = new();
 
   private readonly TelegraphCatalog _catalog = TelegraphCatalog.CreateDefault();
+  private readonly SkillEffectCatalog _effects = new();
 
   private readonly Dictionary<int, Node3D> _trailSegments = new();
 
@@ -189,10 +190,15 @@ public class SkillTelegraphManager {
     var registry = _engine?.PredictedFrame.Frame?.AssetRegistry;
     if (registry == null || !registry.TryGet<SkillAsset>(evt.SkillAssetId, out var skill)) return;
 
+    var own = evt.PlayerId == _engine.LocalPlayerId;
+    if (_effects.HasProjectileEffect(evt.SkillAssetId)) {
+      if (own) HideAim();
+      return;
+    }
+
     _view.ViewsByUnitId.TryGetValue(evt.UnitId, out var casterView);
     if (!TryResolveCastAim(evt, casterView, out var origin, out var direction)) return;
 
-    var own = evt.PlayerId == _engine.LocalPlayerId;
     var telegraph = SpawnTelegraph(skill, def, own ? def.OwnFamilyPath : def.HostileFamilyPath,
       evt.Rank);
     if (telegraph == null) return;

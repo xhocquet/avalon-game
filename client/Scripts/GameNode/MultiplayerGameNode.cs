@@ -38,6 +38,7 @@ public partial class MultiplayerGameNode : GameNode {
   private KlothoSession _session;
   private ISimulationConfig _simCfg;
   private SimCallbacks _simulationCallbacks;
+  private SkillEffectsManager _skillEffects;
   private SkillTelegraphManager _telegraphs;
   private LiteNetLibTransport _transport;
   private bool _verified;
@@ -147,7 +148,8 @@ public partial class MultiplayerGameNode : GameNode {
     var turretScene = GD.Load<PackedScene>("res://Scenes/Objects/Turret.tscn");
     var pickupScene = GD.Load<PackedScene>("res://Scenes/Objects/WaterBottle.tscn");
     var oasisScene = GD.Load<PackedScene>("res://Scenes/Objects/Oasis.tscn");
-    return new UnitViewFactory(_factions, crystalScene, turretScene, pickupScene, oasisScene, BrokenViewScenes);
+    return new UnitViewFactory(_factions, crystalScene, turretScene, pickupScene, oasisScene,
+      BrokenViewScenes);
   }
 
   private void OnSessionReady(bool autoReady) {
@@ -165,6 +167,9 @@ public partial class MultiplayerGameNode : GameNode {
     _vfx.Attach(_events, _view);
     _telegraphs = new SkillTelegraphManager();
     _telegraphs.Attach(_events, _view, engine, this);
+    _skillEffects ??= new SkillEffectsManager();
+    if (_skillEffects.GetParent() == null) AddChild(_skillEffects);
+    _skillEffects.Attach(engine);
     Input.BindTelegraphs(_telegraphs);
     GameUi.BindSimEvents(_events);
     GameUi.SetPhase(_session.Phase);
@@ -303,6 +308,7 @@ public partial class MultiplayerGameNode : GameNode {
     }
 
     _vfx?.Detach();
+    _skillEffects?.Detach();
     _telegraphs?.Detach();
     _events?.Detach();
     _view?.Cleanup();

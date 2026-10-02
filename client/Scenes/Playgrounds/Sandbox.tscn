@@ -33,6 +33,7 @@
 [ext_resource type="Shader" uid="uid://l0uvbj0raqeo" path="res://Scenes/World/cartoon_fire.gdshader" id="30_jx5j3"]
 [ext_resource type="Texture2D" uid="uid://crf7v0er3rxt8" path="res://Assets/Props/Water/foam_mask.png" id="31_rok63"]
 [ext_resource type="PackedScene" uid="uid://bus13us8cbjnk" path="res://Scenes/FX/BotwExplosion.tscn" id="32_84wms"]
+[ext_resource type="Shader" uid="uid://cl7vksy1wu47o" path="res://Assets/FX/Shaders/crystal.gdshader" id="33_eaojp"]
 [ext_resource type="PackedScene" uid="uid://bus13us71bank" path="res://Scenes/FX/BotwExplosionIce.tscn" id="33_fnlpt"]
 [ext_resource type="PackedScene" uid="uid://bus13us8dntnk" path="res://Scenes/FX/BotwExplosionToxic.tscn" id="34_e58nk"]
 [ext_resource type="PackedScene" uid="uid://bus13us75dbwk" path="res://Scenes/FX/BotwExplosionMega.tscn" id="35_fcsjw"]
@@ -254,6 +255,17 @@ shader_parameter/outline_enabled = true
 shader_parameter/outline_color = Color(0.1, 0, 0.15, 1)
 shader_parameter/outline_thickness = 0.04
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_eaojp"]
+render_priority = 0
+shader = ExtResource("33_eaojp")
+shader_parameter/crystal_color = Color(0.4, 0.4, 1, 0.56)
+shader_parameter/light_direction = Vector3(-0.35, 0.8, 0.45)
+shader_parameter/emission_energy = 2.5
+shader_parameter/edge_color = Color(0.055, 0.045, 0.025, 1)
+shader_parameter/edge_width = 2.5
+
+[sub_resource type="QuadMesh" id="QuadMesh_ipf0h"]
+
 [node name="World2" type="Node3D" unique_id=1910615875]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1782293992]
@@ -265,7 +277,6 @@ shadow_enabled = true
 directional_shadow_mode = 1
 
 [node name="NavigationRegion3D" type="NavigationRegion3D" parent="." unique_id=235732599]
-visible = false
 navigation_mesh = SubResource("NavigationMesh_ayvj0")
 
 [node name="GroundMesh" type="MeshInstance3D" parent="NavigationRegion3D" unique_id=52655680]
@@ -413,6 +424,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -37.024994, 3.5, 43.146317)
 
 [node name="BotwExplosionPillar2" parent="FireShowcase" unique_id=1852293721 instance=ExtResource("36_rjsyd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40.29437, 2, 30.58073)
+
+[node name="Crystal" type="MeshInstance3D" parent="FireShowcase" unique_id=1613202823]
+transform = Transform3D(0.5800432, -0.11105269, 0.80698043, 0.056949828, 0.99376786, 0.09582297, -0.8125927, -0.009624074, 0.58275276, -9.536743e-07, 2.1309497, 26.969921)
+material_override = SubResource("ShaderMaterial_eaojp")
+mesh = SubResource("QuadMesh_ipf0h")
 
 [node name="Wiz" parent="." unique_id=1682798515 instance=ExtResource("25_36e3y")]
 transform = Transform3D(0.58277553, 0, 0.81263316, 0, 1, 0, -0.81263316, 0, 0.58277553, -11.287324, 0.023467302, -13.380169)

@@ -88,7 +88,8 @@ public class UnitViewFactory(FactionCatalog factions, PackedScene crystalScene, 
   }
 
   protected override bool ShouldRender(Frame frame, EntityRef entity) {
-    return frame.Has<Hero>(entity) || frame.Has<Crystal>(entity) || frame.Has<Turret>(entity) ||
+    return frame.Has<Hero>(entity) || frame.Has<Crystal>(entity) ||
+           frame.Has<Turret>(entity) ||
            frame.Has<Minion>(entity) || frame.Has<Pickup>(entity) || frame.Has<Oasis>(entity);
   }
 }

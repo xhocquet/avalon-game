@@ -3,10 +3,6 @@
 - **Assist gold.** `GoldRulesAsset.GoldPerAssist` (50) is authored but nothing reads it. Assists need a
 damage-participation window per victim before a payout has anything to key off — `Health.LastDamagerUnitId` only remembers the fatal hit, so the killer is the only actor a death can currently credit.
 
-## Naming consistency
-
-- Logging bypasses SimLog. AGENTS.md:87 says gameplay logging goes through SimLog so replayed ticks stay quiet, but CommandSystem.cs:105, AttackIntentSystem.cs:90, and DamageSystem.cs:67 call no explicit EventMode. The projectile pair is documented as deliberately Regular; AttackHitEvent isn't mentioned anywhere.
-
 ## Design gaps
 
 Fixed-buffer accessors are publicly unchecked. Skills.GetRank/GetSkillAssetId/GetCooldownRemainingTicks and Inventory.GetItemAssetId index fixed int buffers with no bounds check. That's documented and gated for the skill path (CommandValidation.AcceptSkillSlot), but Inventory.GetItemAssetId has no equivalent gate described anywhere, and both are reachable from the client's UI code.

@@ -204,7 +204,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
     _timerLabel = GetNode<Label>("DefaultUI/Timer");
     _focusTargetLabel = GetNodeOrNull<Label>("DefaultUI/Focus");
     _tabUi = GetNode<Control>("TabUI");
-    _scoreboardScoreLabel = GetNode<Label>("TabUI/ScoreboardPanel/Header/ScoreLabel");
+    _scoreboardScoreLabel = GetNode<Label>("TabUI/ScoreboardPanel/ResultPanelFrame/Header/ScoreLabel");
     const string bottomBar = "DefaultUI/BottomBar/Panels";
     _healthBar = GetNode<ColorRect>($"{bottomBar}/Vbox/HealthBar");
     _healthBarFill = GetNode<ColorRect>($"{bottomBar}/Vbox/HealthBar/HealthBarFill");

@@ -21,6 +21,7 @@ public partial class SingleplayerGameNode : GameNode {
   private ISessionConfig _sesCfg;
   private KlothoSession _session;
   private ISimulationConfig _simCfg;
+  private SkillEffectsManager _skillEffects;
   private SkillTelegraphManager _telegraphs;
 
   private LiteNetLibTransport _transport;
@@ -96,6 +97,9 @@ public partial class SingleplayerGameNode : GameNode {
     _vfx.Attach(_events, _view);
     _telegraphs = new SkillTelegraphManager();
     _telegraphs.Attach(_events, _view, engine, this);
+    _skillEffects ??= new SkillEffectsManager();
+    if (_skillEffects.GetParent() == null) AddChild(_skillEffects);
+    _skillEffects.Attach(engine);
     Input.BindTelegraphs(_telegraphs);
     GameUi.BindSimEvents(_events);
 
@@ -109,6 +113,7 @@ public partial class SingleplayerGameNode : GameNode {
     SimLog.UnbindStage();
     UnbindCameraFollow();
     _vfx?.Detach();
+    _skillEffects?.Detach();
     _telegraphs?.Detach();
     _events?.Detach();
     _driver?.DetachAndStop(saveReplay: false);
@@ -144,7 +149,8 @@ public partial class SingleplayerGameNode : GameNode {
     var turretScene = GD.Load<PackedScene>("res://Scenes/Objects/Turret.tscn");
     var pickupScene = GD.Load<PackedScene>("res://Scenes/Objects/WaterBottle.tscn");
     var oasisScene = GD.Load<PackedScene>("res://Scenes/Objects/Oasis.tscn");
-    return new UnitViewFactory(_factions, crystalScene, turretScene, pickupScene, oasisScene, BrokenViewScenes);
+    return new UnitViewFactory(_factions, crystalScene, turretScene, pickupScene, oasisScene,
+      BrokenViewScenes);
   }
 
   private void OnLocalViewRegistered(EntityViewNode view) {
