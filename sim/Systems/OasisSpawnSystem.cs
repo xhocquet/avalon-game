@@ -20,8 +20,7 @@ public class OasisSpawnSystem : ISystem {
     AdvanceLanding(ref frame);
   }
 
-  // Oases stay clear of new triggers while a spawn is already winding up or in flight — cheap
-  // insurance in case the prepare + flight durations are ever tuned close to the spawn interval.
+  // Do not begin another spawn while one is pending or in flight.
   private static void AdvanceCooldowns(ref Frame frame, PickupRulesAsset rules) {
     var seed = SimRandom.WorldSeed(ref frame);
     var filter = frame.Filter<Oasis, TransformComponent>();
@@ -118,8 +117,7 @@ public class OasisSpawnSystem : ISystem {
     return frame.AssetRegistry.TryGet<PickupTypeAsset>(typeAssetId, out var type) ? type.Amount : 0;
   }
 
-  // A point on a ring of radius `radius` around origin, at a uniformly random angle. Derived purely
-  // from (world seed, oasis id, tick) so it's identical on every rollback replay.
+  // Derives the eject direction from world seed, oasis id, and tick.
   private static FPVector3 GetRandomTargetPosition(ulong seed, int oasisId, int tick, FPVector3 origin,
     FP64 radius) {
     var index = (ulong)(uint)oasisId << 32 | (uint)tick;

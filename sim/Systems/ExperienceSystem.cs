@@ -6,8 +6,7 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
 
-// Converts kill XP into levels
-// Runs after DeathSystem = same tick processing of hero kill experience
+// Converts DeathSystem kill XP into same-tick levels.
 public class ExperienceSystem : ISystem {
   public void Update(ref Frame frame) {
     if (!frame.AssetRegistry.TryGet<XpRulesAsset>(out var rules) || rules.MaxLevel <= 1)
@@ -42,15 +41,14 @@ public class ExperienceSystem : ISystem {
       frame.Get<Skills>(entity).SkillPoints += levelAfter - levelBefore;
   }
 
-  // Per-hero growth off the hero's own row, applied as the difference between the two levels rather
-  // than a flat step each - the curve is not linear, and several levels can land on one tick.
+  // Apply the authored difference between levels; growth is not linear.
   private static void ApplyGrowth(ref Frame frame, EntityRef entity, HeroStatsAsset heroAsset,
     XpRulesAsset rules, int levelBefore, int levelAfter) {
     ref var stats = ref frame.Get<Stats>(entity);
     for (var i = 0; i < StatRanges.Count; i++) {
       var stat = (StatType)i;
 
-      // The pool maxes move through their own application so current HP/mana follow the pool up.
+      // Max-pool application also raises current health and mana.
       if (stat is StatType.MaxHealth or StatType.MaxMana)
         continue;
 

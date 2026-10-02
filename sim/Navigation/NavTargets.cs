@@ -3,29 +3,20 @@ using xpTURN.Klotho.Deterministic.Navigation;
 
 namespace Meesles.Avalon.Sim.Navigation;
 
-// Turns a world point — a right-click, a structure's centre — into somewhere a nav agent can
-// actually stand. The client resolves a move order through the same entry point the sim does, so
-// the click marker lands on the destination the unit will be given rather than on the raw click.
+// Resolves world points into walkable destinations.
 public static class NavTargets {
-  // Matches FPNavAgentSystem's own threshold, so a step the authoritative navigation treats as a
-  // wall is treated as one here too.
+  // Matches FPNavAgentSystem.
   private static readonly FP64 MultiFloorYThreshold = FP64.FromDouble(2.0);
 
-  // Planar distance (squared) under which a MoveAlongSurface result counts as "didn't move" — its
-  // bounded BFS returns the start point when it never reaches a wall, which is not a destination.
+  // MoveAlongSurface returns its start point when it cannot reach a wall.
   private static readonly FP64 NoMoveSqr = FP64.FromDouble(0.01);
 
-  // Clearing one wall can leave the point inside another's band, so corners need more than one push.
+  // Corners may need more than one clearance push.
   private const int MaxClearanceIterations = 4;
   private const int MaxCellRadius = 4;
   private static readonly FP64 MinPushDistance = FP64.FromDouble(0.0001);
 
-  // Nearest walkable point, no edge clearance. Structure approach targets use this: the attacker's
-  // range check clears the move target on the near rim, so breathing room buys nothing there.
-  //
-  // Snapped to the geometrically nearest walkable point rather than the rim facing the mover: the
-  // result has to stay constant per target, or a mover-relative point would shift every tick and
-  // repath-throttle the unit into standing still.
+  // Nearest walkable point without edge clearance; used for structure approach targets.
   public static FPVector3 SnapToWalkable(FPNavMeshQuery query, FPVector3 target) {
     if (query == null)
       return target;
@@ -34,10 +25,7 @@ public static class NavTargets {
     return tri >= 0 ? new FPVector3(snapped.x, target.y, snapped.y) : target;
   }
 
-  // Move-order resolution, mover-independent and idempotent: clamp into the navmesh bounds, snap to
-  // the nearest walkable point, then back off `edgeClearance` from the nearest unwalkable edge.
-  // Re-running it on its own result returns that result, which is what lets the client resolve the
-  // click and the sim re-resolve the command without the two disagreeing.
+  // Mover-independent, idempotent move target resolution.
   public static FPVector3 ResolveMoveTarget(FPNavMesh navMesh, FPNavMeshQuery query, FPVector3 target,
     FP64 edgeClearance) {
     if (navMesh == null || query == null)
@@ -47,9 +35,7 @@ public static class NavTargets {
     if (query.FindTriangle(targetXz) >= 0)
       return WithClearance(navMesh, query, target, targetXz, edgeClearance);
 
-    // A click well past the map edge has no nearby grid cells to search, so the closest-point snap
-    // would find nothing; clamping to the bounds lands it on the perimeter where the boundary
-    // triangles are. Clicks inside an obstacle island are already in the box and pass through.
+    // Clamp off-map clicks before looking up nearby grid cells.
     var bounded = navMesh.BoundsXZ.ClosestPoint(targetXz);
     var closest = query.ClosestPointOnNavMesh(bounded, out var tri);
     return tri >= 0
@@ -57,9 +43,7 @@ public static class NavTargets {
       : target;
   }
 
-  // Same, anchored on the unit doing the moving: a click behind a wall lands on the mover's side of
-  // it rather than on whichever edge happens to be geometrically nearest. Falls back to the
-  // mover-independent resolution, so the result is still a fixed point of it.
+  // Origin-aware resolution keeps blocked clicks on the mover's side of a wall.
   public static FPVector3 ResolveMoveTarget(FPNavMesh navMesh, FPNavMeshQuery query, FPVector3 target,
     FPVector3 origin, FP64 edgeClearance) {
     if (navMesh == null || query == null)
@@ -84,17 +68,14 @@ public static class NavTargets {
       : ResolveMoveTarget(navMesh, query, target, edgeClearance);
   }
 
-  // Keeps the caller's y: destinations are planar, and the agent's own snap owns the height.
+  // Keeps the caller's Y; the agent owns height snapping.
   private static FPVector3 WithClearance(FPNavMesh navMesh, FPNavMeshQuery query, FPVector3 target,
     FPVector2 pointXz, FP64 edgeClearance) {
     var cleared = PushOffUnwalkableEdges(navMesh, query, pointXz, edgeClearance);
     return new FPVector3(cleared.x, target.y, cleared.y);
   }
 
-  // Both snap paths land exactly ON the boundary, and a destination sitting on a wall leaves the
-  // agent grinding along it — avoidance and the agent's own radius keep pushing it off the point it
-  // is trying to reach, and it never arrives. Back off until the nearest unwalkable edge is
-  // `clearance` away.
+  // Move targets on walls can keep an agent from settling.
   private static FPVector2 PushOffUnwalkableEdges(FPNavMesh navMesh, FPNavMeshQuery query,
     FPVector2 point, FP64 clearance) {
     if (clearance <= FP64.Zero)
@@ -115,8 +96,7 @@ public static class NavTargets {
 
       var pushed = wallPoint + direction * clearance;
 
-      // A gap narrower than twice the clearance has no point that satisfies both its walls; keep the
-      // one found so far rather than stepping off the mesh entirely.
+      // Keep the last walkable result in gaps narrower than twice the clearance.
       if (query.FindTriangle(pushed) < 0)
         return result;
 
@@ -126,8 +106,7 @@ public static class NavTargets {
     return result;
   }
 
-  // Closest point on the nearest wall edge within `clearance`, plus the walkable triangle it bounds.
-  // A wall is a boundary edge or one facing a blocked triangle — the same test MoveAlongSurface uses.
+  // Returns the nearest boundary or blocked-neighbor edge within clearance.
   private static bool TryFindNearestWall(FPNavMesh navMesh, FPVector2 point, FP64 clearance,
     int cellRadius, out FPVector2 wallPoint, out int wallTri) {
     wallPoint = point;
@@ -173,14 +152,13 @@ public static class NavTargets {
     return wallTri >= 0;
   }
 
-  // "Straight off the wall" is undefined for a point sitting exactly on it; aim at the bounded
-  // triangle's centroid instead, which is always on the walkable side.
+  // Points exactly on an edge move toward the triangle centroid.
   private static FPVector2 InwardDirection(FPNavMesh navMesh, int triIdx, FPVector2 wallPoint) {
     var toCenter = navMesh.Triangles[triIdx].centerXZ - wallPoint;
     return toCenter.sqrMagnitude > FP64.Zero ? toCenter.normalized : FPVector2.Zero;
   }
 
-  // The wall search reads whole grid cells, so a clearance wider than one cell needs a wider scan.
+  // Wider clearances search more grid cells.
   private static int CellRadius(FPNavMesh navMesh, FP64 clearance) {
     var radius = 1;
     while (radius < MaxCellRadius && FP64.FromInt(radius) * navMesh.GridCellSize < clearance)

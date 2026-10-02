@@ -8,7 +8,7 @@ namespace Meesles.Avalon.Sim;
 // AttackHitEvent carrying the same AttackHitId, or never, if AttackWindupCanceledEvent lands first.
 // This is the phase attack animations play on - starting them on the hit runs the wind-up after the
 // damage it is supposed to lead.
-[KlothoSerializable(120)]
+[KlothoSerializable(SimulationEventTypeIds.AttackWindupStarted)]
 public partial class AttackWindupStartedEvent : SimulationEvent {
   public override EventMode Mode => EventMode.Regular;
 

@@ -10,8 +10,7 @@ namespace Meesles.Avalon.Sim;
 public class TargetAcquisitionSystem : ISystem {
   private readonly List<EntityRef> _nearbyCandidates = new();
 
-  // Built on first use: the cell size lives in CombatRulesAsset, which isn't available at
-  // construction time.
+  // Initialized from combat tuning.
   private SpatialHashGrid _candidateGrid;
 
   public void Update(ref Frame frame) {
@@ -20,8 +19,7 @@ public class TargetAcquisitionSystem : ISystem {
     _candidateGrid ??= new SpatialHashGrid(rules.TargetGridCellSize);
     BuildCandidateGrid(ref frame);
 
-    // Attackers that already hold a target are excluded outright — reacquisition is
-    // AttackIntentSystem's job, not this system's.
+    // AttackIntentSystem handles units that already have an order.
     var filter = frame.FilterWithout<UnitIdentity, Team, Stats, TransformComponent, AttackTargetUnitId>();
     while (filter.Next(out var attacker)) {
       if (!frame.Has<Combat>(attacker) || !CanAcquireTargets(ref frame, attacker))
@@ -38,8 +36,7 @@ public class TargetAcquisitionSystem : ISystem {
     }
   }
 
-  // Broad-phase: bucket every potential target once per tick so TryAcquireTarget only has to
-  // narrow-phase-check the handful of candidates near each attacker instead of every unit on the map.
+  // Rebuild the target broad phase once per tick.
   private void BuildCandidateGrid(ref Frame frame) {
     _candidateGrid.Clear();
 
@@ -68,8 +65,7 @@ public class TargetAcquisitionSystem : ISystem {
     var bestDistanceSq = FP64.MaxValue;
     var bestUnitId = int.MaxValue;
 
-    // Grid already narrowed candidates to those within radius (exact XZ distance filtered);
-    // remaining checks are the cheap priority/team/health rules the broad-phase can't apply.
+    // Apply priority, team, and health rules after the exact XZ query.
     _candidateGrid.QueryRadius(attackerPosition.ToXZ(), radius, _nearbyCandidates);
 
     for (var i = 0; i < _nearbyCandidates.Count; i++) {
@@ -88,7 +84,7 @@ public class TargetAcquisitionSystem : ISystem {
       ref readonly var candidateTransform = ref frame.GetReadOnly<TransformComponent>(candidate);
       var distanceSq = Planar.DistanceSq(attackerPosition, candidateTransform.Position);
 
-      // Priority first, then nearest; UnitId only breaks exact distance ties so the pick stays deterministic.
+      // Priority, distance, then UnitId for deterministic ties.
       if (!found || IsBetterCandidate(priority, distanceSq, unit.UnitId,
             bestPriority, bestDistanceSq, bestUnitId)) {
         found = true;

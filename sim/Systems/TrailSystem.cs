@@ -8,15 +8,7 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
 
-// Runs the trail lifecycle: emitters drop one segment per interval at the caster's current position,
-// segments linger and slow (or buff) whatever their width catches, then expire. Registered beside
-// ProjectileSystem because it is the same shape - entities that carry their own state in the frame,
-// a system that rebuilds everything it needs each tick and so survives a rollback with no snapshot of
-// its own.
-//
-// The emitter's drop clock could live in TimedEffectSystem with the other countdowns, but a drop
-// spawns an entity and the contact test walks the unit list, so the whole cycle sits here with the
-// segment mechanics rather than split across two systems.
+// Emits and expires trail segments, applying their contact effects.
 public class TrailSystem : ISystem {
   private readonly List<EntityRef> _dropping = new();
   private readonly List<EntityRef> _finished = new();
@@ -32,14 +24,12 @@ public class TrailSystem : ISystem {
     if (hasEmitter)
       AdvanceEmitters(ref frame);
 
-    // A segment born this tick starts contact-testing next tick, the way a projectile does not
-    // collide on its spawn tick.
+    // New segments begin contact checks next tick.
     if (hasSegment)
       AdvanceSegments(ref frame);
   }
 
-  // Collect first, mutate after: a drop creates a segment entity and reaping an exhausted emitter
-  // removes this filter's own component type.
+  // Drops create entities and finished emitters are removed after filtering.
   private void AdvanceEmitters(ref Frame frame) {
     _dropping.Clear();
     _finished.Clear();
@@ -91,8 +81,7 @@ public class TrailSystem : ISystem {
     RaiseSegmentSpawned(ref frame, in segment, position, emitter.SegmentLifetimeTicks);
   }
 
-  // One pass over the units feeds every segment's contact test, the same reason ProjectileSystem
-  // buckets units once per tick.
+  // Snapshot hittable units once for every segment.
   private void AdvanceSegments(ref Frame frame) {
     _units.Clear();
     var units = frame.Filter<UnitIdentity, Team, Health, TransformComponent>();
@@ -115,9 +104,7 @@ public class TrailSystem : ISystem {
       frame.DestroyEntity(entity);
   }
 
-  // Refreshes the row's buff block on every hostile whose body overlaps the circle. Keyed on the row,
-  // so a unit standing in the trail keeps the effect topped up and one that walks out loses it a
-  // buff-duration later.
+  // Refresh buffs on hostile units overlapping the segment.
   private void ApplyContact(ref Frame frame, EntityRef segmentEntity) {
     ref readonly var segment = ref frame.GetReadOnly<TrailSegment>(segmentEntity);
     if (!frame.AssetRegistry.TryGet<SkillAsset>(segment.SkillAssetId, out var skill))

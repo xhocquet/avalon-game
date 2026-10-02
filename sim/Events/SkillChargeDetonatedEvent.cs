@@ -6,7 +6,7 @@ namespace Meesles.Avalon.Sim;
 
 // Triggered when a charged skill burst pays out, one per detonation. Position is where the disc was
 // centred, which is wherever the caster stood on the detonation tick rather than where it cast.
-[KlothoSerializable(119)]
+[KlothoSerializable(SimulationEventTypeIds.SkillChargeDetonated)]
 public partial class SkillChargeDetonatedEvent : SimulationEvent {
   public override EventMode Mode => EventMode.Regular;
 

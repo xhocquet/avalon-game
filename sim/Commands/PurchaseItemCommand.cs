@@ -3,7 +3,7 @@ using xpTURN.Klotho.Serialization;
 
 namespace Meesles.Avalon.Sim.Commands;
 
-[KlothoSerializable(106)]
+[KlothoSerializable(CommandTypeIds.PurchaseItem)]
 public partial class PurchaseItemCommand : CommandBase {
   public int ItemAssetId;
   public override bool IsContinuousInput => false;

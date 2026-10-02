@@ -45,7 +45,7 @@ public class AttackIntentSystem(NavigationRuntime navigation = null) : ISystem {
     return true;
   }
 
-  // In range: lock the target in and stop moving, logging only the out-of-range -> in-range edge.
+  // Stop moving and log only the transition into range.
   private static void EngageTarget(ref Frame frame, EntityRef attacker,
     int targetUnitId, FP64 distSq, FP64 rangeSq) {
     ref var combat = ref frame.Get<Combat>(attacker);
@@ -57,7 +57,7 @@ public class AttackIntentSystem(NavigationRuntime navigation = null) : ISystem {
       LogAttackState(ref frame, attacker, targetUnitId, $"in_range distSq={distSq} rangeSq={rangeSq}");
   }
 
-  // Out of range: mobile units walk to the target, immobile turrets drop the intent entirely.
+  // Turrets drop out-of-range intents; mobile units pursue.
   private bool PursueTarget(ref Frame frame, EntityRef attacker, EntityRef target) {
     ref var combat = ref frame.Get<Combat>(attacker);
     combat.TargetUnitId = 0;
@@ -73,8 +73,7 @@ public class AttackIntentSystem(NavigationRuntime navigation = null) : ISystem {
     return true;
   }
 
-  // Beyond the shared hostility rule this system also needs the target's position, both to measure
-  // range and to walk to it.
+  // Range and pursuit need a target position.
   private bool TryResolveTarget(ref Frame frame, EntityRef attacker, int targetUnitId,
     out EntityRef target) {
     return _unitIdIndex.TryGet(targetUnitId, out target) &&

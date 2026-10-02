@@ -4,7 +4,7 @@ using xpTURN.Klotho.Serialization;
 
 namespace Meesles.Avalon.Sim;
 
-[KlothoSerializable(108)]
+[KlothoSerializable(SimulationEventTypeIds.AttackHit)]
 public partial class AttackHitEvent : SimulationEvent {
   public override EventMode Mode => EventMode.Regular;
 

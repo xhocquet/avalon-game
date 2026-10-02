@@ -3,17 +3,13 @@ using xpTURN.Klotho.Deterministic.Navigation;
 
 namespace Meesles.Avalon.Sim.Navigation;
 
-// Builds a TriangleFlowField per goal. Everything that doesn't depend on the goal - the edge cost
-// table - is computed once, and the working buffers are reused, so a cache miss costs a Dijkstra
-// pass and the two arrays the field itself keeps.
+// Reuses Dijkstra buffers and goal-independent edge costs.
 public class FlowFieldBuilder {
   private readonly bool[] _closed;
 
   private readonly FP64[] _cost;
 
-  // Traversal cost of each (triangle, edge) crossing, indexed tri * 3 + edge. Independent of the
-  // goal and the dominant cost of a build otherwise: the magnitude of a triangle-centre delta is a
-  // fixed-point sqrt, and the old per-build version paid ~2000 of them.
+  // Traversal cost for each triangle edge, indexed tri * 3 + edge.
   private readonly FP64[] _edgeCosts;
   private readonly MinHeap _heap;
   private readonly FPNavMesh _navMesh;
@@ -41,23 +37,21 @@ public class FlowFieldBuilder {
     }
   }
 
-  public TriangleFlowField Build(int goalTriIndex) {
-    var next = new int[_triCount];
+  public TriangleFlowField Build(int goalTriangleIndex) {
+    var nextTriangles = new int[_triCount];
 
     for (var i = 0; i < _triCount; i++) {
-      next[i] = TriangleFlowField.Unreachable;
+      nextTriangles[i] = TriangleFlowField.Unreachable;
       _cost[i] = FP64.MaxValue;
       _closed[i] = false;
     }
 
-    next[goalTriIndex] = TriangleFlowField.AtGoal;
-    _cost[goalTriIndex] = FP64.Zero;
+    nextTriangles[goalTriangleIndex] = TriangleFlowField.AtGoal;
+    _cost[goalTriangleIndex] = FP64.Zero;
 
-    // Dijkstra from the goal outward. The queue pops by (cost, triangle index), so the order
-    // triangles close in - and with it every parent chosen among equal-cost routes - is fixed by
-    // the navmesh alone.
+    // Triangle index breaks equal-cost ties.
     _heap.Clear();
-    _heap.Push(FP64.Zero, goalTriIndex);
+    _heap.Push(FP64.Zero, goalTriangleIndex);
 
     while (_heap.TryPop(out var current, out var poppedCost)) {
       if (_closed[current] || poppedCost != _cost[current]) // stale entry left by a later relaxation
@@ -72,7 +66,6 @@ public class FlowFieldBuilder {
         if (neighborIdx < 0)
           continue;
 
-        // Blocking is a runtime flag, so it stays a per-build check rather than baked into _edgeCosts.
         ref var neighborTri = ref _navMesh.Triangles[neighborIdx];
         if (neighborTri.isBlocked)
           continue;
@@ -82,16 +75,15 @@ public class FlowFieldBuilder {
           continue;
 
         _cost[neighborIdx] = newCost;
-        next[neighborIdx] = current;
+        nextTriangles[neighborIdx] = current;
         _heap.Push(newCost, neighborIdx);
       }
     }
 
-    return new TriangleFlowField(_navMesh, next);
+    return new TriangleFlowField(_navMesh, nextTriangles);
   }
 
-  // Lazy-deletion binary heap: a relaxed triangle is pushed again rather than repositioned, so the
-  // heap holds at most one entry per directed edge and Build drops the stale ones on pop.
+  // Relaxed triangles are pushed again; stale entries are skipped on pop.
   private class MinHeap(int capacity) {
     private readonly FP64[] _costs = new FP64[capacity];
     private readonly int[] _triangles = new int[capacity];

@@ -7,7 +7,7 @@ namespace Meesles.Avalon.Sim;
 // client frees that team's authored base props (World.tscn Team{TeamId}) so the view matches the
 // simulation. Synced so view listeners react only to the authoritative prune, never a mispredicted
 // one — freeing Godot nodes can't be undone.
-[KlothoSerializable(112)]
+[KlothoSerializable(SimulationEventTypeIds.TeamPruned)]
 public partial class TeamPrunedEvent : SimulationEvent {
   [KlothoOrder(0)] public int TeamId;
   public override EventMode Mode => EventMode.Synced;

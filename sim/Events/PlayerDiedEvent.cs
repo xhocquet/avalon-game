@@ -4,7 +4,7 @@ using xpTURN.Klotho.Serialization;
 
 namespace Meesles.Avalon.Sim;
 
-[KlothoSerializable(104)]
+[KlothoSerializable(SimulationEventTypeIds.PlayerDied)]
 public partial class PlayerDiedEvent : SimulationEvent {
   [KlothoOrder(0)] public int PlayerId;
   [KlothoOrder(1)] public int TeamId;

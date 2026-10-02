@@ -6,7 +6,7 @@ namespace Meesles.Avalon.Sim;
 // A swing that started will never land: the target died, left range, or stopped being hostile before
 // the windup ran out. The attacker keeps the cooldown it paid at the swing, so a whiffed attack costs
 // a full attack period rather than being free to re-roll.
-[KlothoSerializable(121)]
+[KlothoSerializable(SimulationEventTypeIds.AttackWindupCanceled)]
 public partial class AttackWindupCanceledEvent : SimulationEvent {
   public override EventMode Mode => EventMode.Regular;
 

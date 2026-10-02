@@ -14,7 +14,7 @@ namespace Meesles.Avalon.Sim.Tests;
 // throws or corrupts state during deserialization takes the process down with every room on it.
 public class CommandValidationTests {
   private const int FactionA = 200;
-  private const int MoveCommandTypeId = 100;
+  private const int MoveCommandTypeId = CommandTypeIds.Move;
 
   // A 30-byte MoveCommand frame carries no unit ids. Declaring 32767 of them used to size an array
   // from the wire count and then run the reader off the end of the span.

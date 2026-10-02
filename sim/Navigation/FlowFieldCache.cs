@@ -4,10 +4,7 @@ using xpTURN.Klotho.Deterministic.Navigation;
 namespace Meesles.Avalon.Sim.Navigation;
 
 public class FlowFieldCache(FPNavMesh navMesh) {
-  // A field costs triCount * 21B, so an uncapped cache tops out at triCount² - it grows with the map
-  // rather than with what is being played. 64 live goals is well past what a match reaches: a
-  // 3000-tick run with a move order every 20 ticks touched 97 distinct goal triangles in total, only
-  // a handful of them in use at any one moment.
+  // Bounds memory by live goals, not map size.
   private const int Capacity = 64;
 
   private readonly FlowFieldBuilder _builder = new(navMesh);
@@ -38,8 +35,7 @@ public class FlowFieldCache(FPNavMesh navMesh) {
     _fields.Clear();
   }
 
-  // Eviction only decides how often a field is rebuilt; Build is a pure function of the navmesh and
-  // the goal, so which entry goes is invisible to the simulation.
+  // Eviction only affects rebuild frequency.
   private void EvictLeastRecentlyUsed() {
     var oldestKey = 0;
     var oldestUse = int.MaxValue;

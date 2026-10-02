@@ -5,7 +5,7 @@ using xpTURN.Klotho.Serialization;
 namespace Meesles.Avalon.Sim;
 
 // Fired when an Oasis will spawn a resource, before it's actually ejected.
-[KlothoSerializable(109)]
+[KlothoSerializable(SimulationEventTypeIds.OasisResourcePreparing)]
 public partial class OasisResourcePreparingEvent : SimulationEvent {
   [KlothoOrder(0)] public int OasisId;
   [KlothoOrder(1)] public int PickupId;

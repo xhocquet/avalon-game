@@ -9,31 +9,29 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
 
-// All steering/settle/spread tuning lives in NavigationTuningAsset (Assets/rules.json). Squared
-// distances are derived once per tick from the linear values authored there.
+// Steering, settling, and spreading tune through NavigationTuningAsset.
 public class NavigationAgentSystem(NavigationRuntime navigation) : ISystem {
   private readonly NavigationRuntime _navigation = navigation;
   private readonly List<EntityRef> _nearbyAgents = new();
   private int _allCount;
 
-  // Separate collision layers. Built on first use: the cell size comes from the tuning asset,
-  // which isn't available at construction time.
+  // Separate collision layers, initialized from tuning.
   private SpatialHashGrid _heroAvoidanceGrid;
   private SpatialHashGrid _minionAvoidanceGrid;
 
-  // Shared position-sync bookkeeping
+  // Position-sync bookkeeping.
   private EntityRef[] _allEntities = new EntityRef[128];
   private EntityRef[] _avoidanceSubset = new EntityRef[128];
   private int _heroCount;
 
-  // Hero entities use existing A* path
+  // Heroes use A* paths.
   private EntityRef[] _heroEntities = new EntityRef[16];
 
-  // Spread-subset arrays for steering/avoidance phases
+  // Spread subsets for steering and avoidance.
   private EntityRef[] _heroSubset = new EntityRef[16];
   private int _minionCount;
 
-  // Minion entities use flow fields
+  // Minions use flow fields.
   private EntityRef[] _minionEntities = new EntityRef[256];
   private EntityRef[] _minionSubset = new EntityRef[256];
 
@@ -50,7 +48,7 @@ public class NavigationAgentSystem(NavigationRuntime navigation) : ISystem {
     var dt = FP64.FromInt(frame.DeltaTimeMs) / FP64.FromInt(1000);
     var snapThresholdSqr = tuning.PositionSnapThreshold * tuning.PositionSnapThreshold;
 
-    // Phase 1: Collect and categorize all nav agents
+    // Collect agents.
     var filter = frame.FilterWithout<NavAgentComponent, TransformComponent, PendingRespawn>();
     while (filter.Next(out var entity)) {
       ref var nav = ref frame.Get<NavAgentComponent>(entity);
@@ -64,10 +62,7 @@ public class NavigationAgentSystem(NavigationRuntime navigation) : ISystem {
 
       _allEntities[_allCount++] = entity;
 
-      // Snared: parked as Idle, which every later phase already skips - steering, ORCA, and the
-      // movement integrator all bail on a non-Moving agent. It stays in _allEntities so it still
-      // occupies its avoidance cell and still writes its position back. Its UnitMoveTarget is left
-      // alone, so the order resumes and repaths on its own once the hold ends.
+      // Keep snared agents in avoidance and preserve their target.
       if (SnareController.IsSnared(ref frame, entity)) {
         NavAgentComponent.Stop(ref nav);
         continue;
@@ -97,7 +92,7 @@ public class NavigationAgentSystem(NavigationRuntime navigation) : ISystem {
     if (_allCount == 0)
       return;
 
-    // Phase 2: Hero pathfinding via existing A* + funnel (spread across ticks)
+    // Update hero paths.
     if (_heroCount > 0) {
       var heroSubsetCount = BuildSpreadSubset(
         _heroEntities, _heroCount, tuning.HeroSteeringSpread, frame.Tick, 0,
@@ -106,7 +101,7 @@ public class NavigationAgentSystem(NavigationRuntime navigation) : ISystem {
         _navigation.AgentSystem.UpdateSteering(ref frame, _heroSubset, heroSubsetCount, frame.Tick);
     }
 
-    // Phase 3: Minion steering via flow fields (spread across ticks)
+    // Update minion flow-field steering.
     {
       var minionSubsetCount = BuildSpreadSubset(
         _minionEntities, _minionCount, tuning.MinionSteeringSpread, frame.Tick, 1,
@@ -115,10 +110,10 @@ public class NavigationAgentSystem(NavigationRuntime navigation) : ISystem {
         UpdateMinionFlowFieldSteering(ref frame, _minionSubset, minionSubsetCount, tuning);
     }
 
-    // Phase 4: ORCA avoidance with separate collision layers (spread across ticks)
+    // Update ORCA avoidance.
     var avoidance = _navigation.Avoidance;
     if (avoidance != null) {
-      // The runtime is constructed without a frame, so its ORCA tuning is applied here instead.
+      // Runtime construction has no frame for tuning.
       avoidance.TimeHorizon = tuning.AvoidanceTimeHorizon;
 
       _minionAvoidanceGrid.Clear();
@@ -153,18 +148,17 @@ public class NavigationAgentSystem(NavigationRuntime navigation) : ISystem {
       }
     }
 
-    // Phase 5: Movement integration (all agents)
+    // Integrate movement.
     _navigation.AgentSystem.UpdateMovement(ref frame, _allEntities, _allCount, dt);
 
-    // Phase 6: Sync back to transforms + arrival detection
+    // Sync transforms and arrivals.
     for (var i = 0; i < _allCount; i++) {
       var entity = _allEntities[i];
       ref var nav = ref frame.Get<NavAgentComponent>(entity);
       ref var transform = ref frame.Get<TransformComponent>(entity);
 
       transform.Position = new FPVector3(nav.Position.x, FP64.Zero, nav.Position.z);
-      // nav.Velocity is an FPVector2 on the XZ plane, so .y here IS Z — this is the same
-      // Atan2(x, z) yaw convention as CommandSystem and WaveSpawnSystem
+      // Velocity Y is world Z.
       if (nav.Velocity.sqrMagnitude > FP64.Zero)
         transform.Rotation = FP64.Atan2(nav.Velocity.x, nav.Velocity.y);
 
@@ -192,12 +186,7 @@ public class NavigationAgentSystem(NavigationRuntime navigation) : ISystem {
       var toTargetXZ = goalXZ - agentXZ;
       var distSqr = toTargetXZ.sqrMagnitude;
 
-      // Arrival: reached the target, OR near it but stuck with no progress. Settling a stuck minion
-      // where it stands — instead of insisting on the exact shared point — is what stops the crowd
-      // shuffling. SettleStuckTicks tunes how fast a packed crowd freezes.
-      //
-      // Pursuit is exempt: AttackIntentSystem re-issues the move target every tick, so a settled
-      // chaser re-settles forever, parked short of attack range and skipped by ORCA.
+      // Pursuit never settles; its target is refreshed each tick.
       var settle = !frame.Has<AttackTargetUnitId>(entity);
       var stuck = settle && UpdateSettleTracker(ref frame, entity, goalXZ, distSqr, tuning, settleZoneSqr);
       if (distSqr <= arrivalDistSqr || stuck) {
@@ -209,8 +198,7 @@ public class NavigationAgentSystem(NavigationRuntime navigation) : ISystem {
         continue;
       }
 
-      // Close to the slot: steer straight in, but decelerate on approach (arrival behaviour) so
-      // agents ease into place instead of charging at full speed and overshooting.
+      // Brake while steering directly into the target.
       if (distSqr <= directSteerDistSqr) {
         var mag = FP64.Sqrt(distSqr);
         var speed = mag < tuning.ArrivalBrakeDist
@@ -221,17 +209,15 @@ public class NavigationAgentSystem(NavigationRuntime navigation) : ISystem {
         continue;
       }
 
-      // Resolve goal triangle for flow field lookup
-      var goalTri = query.FindTriangle(goalXZ);
-      if (goalTri < 0) {
+      var goalTriangle = query.FindTriangle(goalXZ);
+      if (goalTriangle < 0) {
         nav.Status = (byte)FPNavAgentStatus.Moving;
         var mag = FP64.Sqrt(distSqr);
         nav.DesiredVelocity = toTargetXZ / mag * nav.Speed;
         continue;
       }
 
-      // Get or create flow field for this destination
-      var field = flowFields.GetOrCreate(goalTri);
+      var field = flowFields.GetOrCreate(goalTriangle);
 
       var currentTri = nav.CurrentTriangleIndex;
       if (currentTri < 0 || currentTri >= field.NextTriangle.Length) {
@@ -241,8 +227,8 @@ public class NavigationAgentSystem(NavigationRuntime navigation) : ISystem {
         continue;
       }
 
-      var next = field.NextTriangle[currentTri];
-      if (next == TriangleFlowField.AtGoal || next == TriangleFlowField.Unreachable) {
+      var nextTriangle = field.NextTriangle[currentTri];
+      if (nextTriangle == TriangleFlowField.AtGoal || nextTriangle == TriangleFlowField.Unreachable) {
         var mag = FP64.Sqrt(distSqr);
         nav.DesiredVelocity = mag > FP64.Zero ? toTargetXZ / mag * nav.Speed : FPVector2.Zero;
       }
@@ -261,8 +247,7 @@ public class NavigationAgentSystem(NavigationRuntime navigation) : ISystem {
     }
   }
 
-  // Tracks how close a minion has gotten to its slot and how long it has stalled. Returns true
-  // when the minion is within the settle zone and hasn't improved for SettleStuckTicks ticks.
+  // Settles minions that stall inside the settle zone.
   private static bool UpdateSettleTracker(ref Frame frame, EntityRef entity, FPVector2 goalXZ, FP64 distSqr,
     NavigationTuningAsset tuning, FP64 settleZoneSqr) {
     var dist = FP64.Sqrt(distSqr);
@@ -277,7 +262,7 @@ public class NavigationAgentSystem(NavigationRuntime navigation) : ISystem {
 
     ref var settle = ref frame.Get<MinionSettleTracker>(entity);
 
-    // Retargeted (new slot) → restart tracking against the new goal.
+    // Restart tracking for a new target.
     if (settle.TargetX != goalXZ.x || settle.TargetZ != goalXZ.y) {
       settle.TargetX = goalXZ.x;
       settle.TargetZ = goalXZ.y;
@@ -286,8 +271,7 @@ public class NavigationAgentSystem(NavigationRuntime navigation) : ISystem {
       return false;
     }
 
-    // Progress only counts if we've closed at least SettleProgressStep since the last reset, so a
-    // minion crawling at a fraction of a unit per second still trips the stuck detector.
+    // Ignore progress below the minimum step.
     if (dist + tuning.SettleProgressStep < settle.BestDist) {
       settle.BestDist = dist;
       settle.StuckTicks = 0;
@@ -308,14 +292,14 @@ public class NavigationAgentSystem(NavigationRuntime navigation) : ISystem {
       var deltaX = position.x - snap.LastSnappedX;
       var deltaZ = position.z - snap.LastSnappedZ;
 
-      // Use cached value while under threshold
+      // Keep the cached nav snap under the threshold.
       if (deltaX * deltaX + deltaZ * deltaZ < snapThresholdSqr) {
         nav.Position = position;
         return;
       }
     }
 
-    // Recalculate snap
+    // Refresh the nav snap.
     var snapXZ = _navigation.Query.ClosestPointOnNavMesh(position.ToXZ(), out var snapTri);
     nav.Position = snapTri >= 0
       ? new FPVector3(snapXZ.x, position.y, snapXZ.y)

@@ -7,9 +7,7 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
 
-// Decides when the match is over and records the outcome. The outcome is team-shaped: MatchOutcome
-// holds the winning team, and the single player id Klotho's MatchEndStateComponent wants is derived
-// from it at the end. Nothing downstream should read the winner back out of that player id.
+// Records team outcomes and maps them to Klotho's player-based end state.
 public class ScoreSystem : ISystem {
   private const int NoWinnerPlayerId = -1;
   private readonly List<int> _aliveCrystalTeamIds = [];
@@ -59,9 +57,7 @@ public class ScoreSystem : ISystem {
     };
     WriteOutcome(ref frame, outcome);
 
-    // The engine's own end state only speaks in players, so give it a representative of the winning
-    // team. A team that won with no hero left on the board reports a draw to Klotho and still records
-    // its win in MatchOutcome.
+    // Klotho needs a representative player for the winning team.
     var winnerPlayerId = TryGetPlayerIdForTeam(ref frame, winnerTeamId, out var playerId)
       ? playerId
       : NoWinnerPlayerId;
@@ -84,12 +80,11 @@ public class ScoreSystem : ISystem {
     frame.GetSingleton<MatchOutcome>() = outcome;
   }
 
-  // The win is keyed off crystals, not heroes: a team is in the match for as long as its base stands,
-  // whether or not anyone is currently alive to defend it.
+  // Crystals, not heroes, determine whether a team remains.
   private bool TryEvaluateCrystalWin(ref Frame frame, out int winnerTeamId) {
     winnerTeamId = MatchOutcome.NoWinnerTeamId;
 
-    // Before the teamless prune the board still holds every authored base, so the count means nothing.
+    // Authored bases are meaningful only after the teamless prune.
     if (!frame.TryGetSingleton<MatchSetupState>(out var setupEntity))
       return false;
 

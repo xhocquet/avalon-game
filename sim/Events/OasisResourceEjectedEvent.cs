@@ -5,7 +5,7 @@ using xpTURN.Klotho.Serialization;
 namespace Meesles.Avalon.Sim;
 
 // Fired when a resource leaves the oasis
-[KlothoSerializable(110)]
+[KlothoSerializable(SimulationEventTypeIds.OasisResourceEjected)]
 public partial class OasisResourceEjectedEvent : SimulationEvent {
   [KlothoOrder(0)] public int OasisId;
   [KlothoOrder(1)] public int PickupId;

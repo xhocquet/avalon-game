@@ -4,7 +4,7 @@ using xpTURN.Klotho.Serialization;
 
 namespace Meesles.Avalon.Sim.Commands;
 
-[KlothoSerializable(108)]
+[KlothoSerializable(CommandTypeIds.CastSkill)]
 public partial class CastSkillCommand : CommandBase {
   public int Slot;
   public FP64 TargetX;

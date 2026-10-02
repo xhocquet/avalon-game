@@ -7,17 +7,14 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
 
-// Advances every skill projectile and resolves collisions
-//
-// Everything this system remembers between calls is rebuilt from scratch inside Update. That is what
-// makes it rollback-safe: a projectile's own state lives on its entity, in the frame.
+// Projectile state lives in frame components; per-tick caches rebuild in Update.
 public class ProjectileSystem : ISystem {
   private readonly List<EntityRef> _candidates = new();
   private readonly List<EntityRef> _expired = new();
   private readonly UnitLookup.Index _unitIndex = new();
 
-  private SpatialHashGrid _grid; // Lazy: cell size comes off an asset, unreachable until a frame exists
-  private FP64 _maxBodyRadius; // Widest body radius in the grid, so the broad phase can't miss a candidate
+  private SpatialHashGrid _grid; // Initialized from asset tuning.
+  private FP64 _maxBodyRadius; // Keeps the broad phase conservative.
 
   public void Update(ref Frame frame) {
     if (!HasAnyProjectile(ref frame))
@@ -72,9 +69,7 @@ public class ProjectileSystem : ISystem {
     return filter.Next(out _);
   }
 
-  // Same broad phase as TargetAcquisitionSystem: bucket every damageable unit once, then only
-  // narrow-phase the handful near each bullet. Cleared and refilled every tick, which is the only
-  // reason a system-owned grid survives a rollback.
+  // Rebuilt every tick so the system-owned grid stays rollback-safe.
   private void BuildCandidateGrid(ref Frame frame) {
     _grid.Clear();
     _maxBodyRadius = FP64.Zero;
@@ -90,9 +85,7 @@ public class ProjectileSystem : ISystem {
     }
   }
 
-  // Nearest thing the bullet sweeps through this tick, measured along the segment so a bullet that
-  // passes two units in one step always resolves against the first one. UnitId breaks an exact tie,
-  // keeping the outcome independent of grid cell order.
+  // Hit the first unit along the segment; UnitId breaks equal-distance ties.
   private bool TryFindHit(ref Frame frame, in Projectile projectile, FPVector3 start, FPVector3 end,
     FP64 step, out EntityRef hit) {
     hit = default;
@@ -136,10 +129,7 @@ public class ProjectileSystem : ISystem {
     return found;
   }
 
-  // A projectile skill can author a slow and a burn that land where the bullet connects, both scaled
-  // to the rank that fired it. Separate from the impact damage, which may be zero - Strangle is all
-  // debuff. Re-read off the immutable row rather than ridden on the entity: a bullet's flight is under
-  // a second, so the rank that fired it is the rank that lands it.
+  // Apply rank-scaled authored on-hit effects.
   private static void ApplyOnHitEffects(ref Frame frame, in Projectile projectile, EntityRef source,
     EntityRef target) {
     if (!frame.AssetRegistry.TryGet<SkillAsset>(projectile.SkillAssetId, out var skill))
@@ -158,8 +148,7 @@ public class ProjectileSystem : ISystem {
         skill.DotDamagePerSecondAtRank(rank), TickMath.MsToTicksCeil(ref frame, skill.DotDurationMs));
   }
 
-  // Hostility rides the team stamped at spawn: the bullet outlives its caster, and its allegiance is
-  // fixed when it is fired regardless of what the caster does afterward.
+  // Projectile allegiance is fixed at spawn.
   private static bool IsHostile(ref Frame frame, in Projectile projectile, EntityRef candidate) {
     return CombatTargeting.IsHostileAndAlive(ref frame, projectile.TeamId, candidate);
   }
@@ -168,7 +157,7 @@ public class ProjectileSystem : ISystem {
     return _unitIndex.TryGet(projectile.SourceUnitId, out var source) ? source : default;
   }
 
-  // The authored body, not the nav agent's PathingRadius - a unit is pathed thinner than it is hit.
+  // Combat body radius differs from pathing radius.
   private static FP64 BodyRadius(ref Frame frame, EntityRef entity) {
     return CombatRange.GameplayRadiusOf(ref frame, entity);
   }

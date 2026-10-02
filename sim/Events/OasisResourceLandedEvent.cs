@@ -5,7 +5,7 @@ using xpTURN.Klotho.Serialization;
 namespace Meesles.Avalon.Sim;
 
 // Fired when a pickup lands at it's final location
-[KlothoSerializable(111)]
+[KlothoSerializable(SimulationEventTypeIds.OasisResourceLanded)]
 public partial class OasisResourceLandedEvent : SimulationEvent {
   [KlothoOrder(0)] public int PickupId;
   [KlothoOrder(1)] public FPVector3 Position;

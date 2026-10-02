@@ -6,7 +6,7 @@ namespace Meesles.Avalon.Sim;
 
 // Triggered when a laid trail drops one segment. The segment always lives exactly LifetimeTicks and
 // has no early end, so the view times its own despawn off this - there is no matching despawn event.
-[KlothoSerializable(122)]
+[KlothoSerializable(SimulationEventTypeIds.SkillTrailSegmentSpawned)]
 public partial class SkillTrailSegmentSpawnedEvent : SimulationEvent {
   public override EventMode Mode => EventMode.Regular;
 

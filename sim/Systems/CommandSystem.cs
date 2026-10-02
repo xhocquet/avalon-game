@@ -58,14 +58,13 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
     var dt = FP64.FromInt(frame.DeltaTimeMs) / FP64.FromInt(1000);
     _arrived.Clear();
 
-    // Stats is in the filter because it carries the speed: a unit with no stat block has no speed
-    // to move at, and every unit that can be ordered around (hero, minion) has one.
+    // Stats supplies movement speed.
     var filter = frame.Filter<UnitMoveTarget, TransformComponent, Stats>();
     while (filter.Next(out var entity)) {
       if (!_moveNavAgentsDirectly && frame.Has<NavAgentComponent>(entity))
         continue;
 
-      // Held in place: the order stands and resumes when the hold ends, it just makes no progress.
+      // Keep the order while snared.
       if (SnareController.IsSnared(ref frame, entity))
         continue;
 
@@ -114,8 +113,7 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
     }
   }
 
-  // Beyond the shared hostility rule an attack order also needs the target's position, to seed the
-  // ordered units' move target. Team-id overload: the issuing player is not itself an entity here.
+  // Attack orders also need a target position for their approach target.
   private static bool TryResolveAttackTarget(ref Frame frame, UnitLookup.Index unitIndex,
     AttackCommand command, int playerTeamId, out EntityRef targetEntity) {
     return unitIndex.TryGet(command.TargetUnitId, out targetEntity) &&
@@ -141,16 +139,13 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
       SetTarget(ref frame, _formationUnits[i].Entity, _formationDestinations[i]);
   }
 
-  // The field is storage, not state: Rebuild clears and refills the same dictionary, so repeat orders
-  // cost no allocation, while the contents never outlive the command that asked for them. An index
-  // held across ticks would survive a rollback and resolve ids against a frame that no longer exists.
+  // Rebuild per command: this cached index must not survive a rollback.
   private UnitLookup.Index RebuildUnitIndex(ref Frame frame) {
     _unitIndex.Rebuild(ref frame);
     return _unitIndex;
   }
 
-  // Shared front half of every unit order: resolve the commanded ids to entities the issuing player
-  // actually controls. False means the order has nobody to act on and should be dropped.
+  // Resolves controlled units from the command payload.
   private static bool CollectOrderedUnits(ref Frame frame, UnitLookup.Index unitIndex, int playerId,
     UnitIdList unitIds, List<FormationUnit> units, out int teamId) {
     units.Clear();
@@ -174,9 +169,7 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
       SetTarget(ref frame, hero, target);
   }
 
-  // The client resolves the click through the same helper before it sends the command, so this
-  // normally hands the point straight back; it is here so a raw or hand-built command still lands
-  // somewhere walkable with the same breathing room off the edges.
+  // Re-resolve raw commands with the same target rules as the client.
   private FPVector3 ResolveMoveTarget(ref Frame frame, FPVector3 target) {
     if (navigation == null)
       return target;

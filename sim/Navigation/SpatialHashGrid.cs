@@ -7,12 +7,7 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon.Sim.Navigation;
 
 /// <summary>
-///   Deterministic uniform spatial hash over the XZ plane. Rebuilt once per tick (Clear + Insert)
-///   and queried as a broad-phase for proximity lookups (target acquisition, avoidance, etc.) that
-///   would otherwise scan every entity. Cell lookups are keyed by exact coordinates rather than
-///   dictionary enumeration, so query results stay deterministic regardless of hash iteration
-///   order. <see cref="Clear" /> does enumerate the dictionary, but only to return pooled lists —
-///   nothing sim-visible depends on that order.
+///   Deterministic XZ broad-phase. Queries walk cell coordinates, never dictionary order.
 /// </summary>
 public class SpatialHashGrid {
   private readonly Dictionary<(int x, int z), List<(EntityRef Entity, FPVector2 Position)>> _cells = new();
@@ -25,7 +20,7 @@ public class SpatialHashGrid {
     _inverseCellSize = FP64.One / cellSize;
   }
 
-  /// <summary>Empties the grid. Call once per tick before re-inserting entities.</summary>
+  /// <summary>Returns cells to the pool.</summary>
   public void Clear() {
     foreach (var cell in _cells.Values)
       ListPool<(EntityRef Entity, FPVector2 Position)>.Return(cell);
@@ -33,7 +28,7 @@ public class SpatialHashGrid {
     _cells.Clear();
   }
 
-  /// <summary>Inserts an entity at its XZ position for later proximity queries.</summary>
+  /// <summary>Inserts an entity for proximity queries.</summary>
   public void Insert(EntityRef entity, FPVector2 positionXZ) {
     var key = CellKey(positionXZ);
     if (!_cells.TryGetValue(key, out var cell)) {
@@ -45,9 +40,7 @@ public class SpatialHashGrid {
   }
 
   /// <summary>
-  ///   Fills <paramref name="results" /> with every inserted entity within <paramref name="radius" />
-  ///   (inclusive) of <paramref name="center" />, exact-distance filtered. Does not exclude the
-  ///   query origin itself if it was also inserted at/within range of <paramref name="center" />.
+  ///   Fills results with entities at or within radius. Includes the query origin.
   /// </summary>
   public void QueryRadius(FPVector2 center, FP64 radius, List<EntityRef> results) {
     results.Clear();

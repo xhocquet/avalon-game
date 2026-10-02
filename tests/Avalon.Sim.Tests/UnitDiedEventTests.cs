@@ -11,7 +11,7 @@ public class UnitDiedEventTests {
   public void UnitDiedEvent_UsesReservedTypeAndSyncedMode() {
     var evt = new UnitDiedEvent();
 
-    evt.EventTypeId.Should().Be(102);
+    evt.EventTypeId.Should().Be(SimulationEventTypeIds.UnitDied);
     evt.Mode.Should().Be(xpTURN.Klotho.Core.EventMode.Synced);
   }
 
@@ -40,7 +40,7 @@ public class UnitDiedEventTests {
   public void CrystalDestroyedEvent_UsesReservedTypeAndSyncedMode() {
     var evt = new CrystalDestroyedEvent();
 
-    evt.EventTypeId.Should().Be(106);
+    evt.EventTypeId.Should().Be(SimulationEventTypeIds.CrystalDestroyed);
     evt.Mode.Should().Be(EventMode.Synced);
   }
 
@@ -67,7 +67,7 @@ public class UnitDiedEventTests {
   public void TurretDestroyedEvent_UsesReservedTypeAndSyncedMode() {
     var evt = new TurretDestroyedEvent();
 
-    evt.EventTypeId.Should().Be(107);
+    evt.EventTypeId.Should().Be(SimulationEventTypeIds.TurretDestroyed);
     evt.Mode.Should().Be(EventMode.Synced);
   }
 
@@ -88,7 +88,7 @@ public class UnitDiedEventTests {
   public void GameOverEvent_UsesReservedTypeAndSyncedMode() {
     var evt = new GameOverEvent();
 
-    evt.EventTypeId.Should().Be(101);
+    evt.EventTypeId.Should().Be(SimulationEventTypeIds.GameOver);
     evt.Mode.Should().Be(EventMode.Synced);
   }
 

@@ -6,10 +6,7 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
 
-// No spatial broad-phase here, unlike the other proximity systems: pickups are capped at the map's
-// hand-placed Pickup markers plus PickupRulesAsset.MaxGroundPickups, and collectors are heroes, so
-// the pass is a few hundred XZ checks on cached positions. A SpatialHashGrid rebuild would cost more
-// than the scan it replaces.
+// Pickup and collector caps keep direct proximity checks cheaper than a grid rebuild.
 public class PickupSystem : ISystem {
   private readonly List<EntityRef> _collected = [];
   private readonly List<Collector> _collectors = [];
@@ -48,9 +45,7 @@ public class PickupSystem : ISystem {
       frame.DestroyEntity(t);
   }
 
-  // Collectors are heroes — one per player — so the set is small and fixed for the tick.
-  // Snapshotting it once keeps the pickup loop off the filter/storage machinery: nothing
-  // here moves a transform, so the cached positions stay valid for the whole pass.
+  // Snapshot collector positions for the pass.
   private void CollectCollectors(ref Frame frame) {
     _collectors.Clear();
 

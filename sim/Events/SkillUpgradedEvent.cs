@@ -3,7 +3,7 @@ using xpTURN.Klotho.Serialization;
 
 namespace Meesles.Avalon.Sim;
 
-[KlothoSerializable(114)]
+[KlothoSerializable(SimulationEventTypeIds.SkillUpgraded)]
 public partial class SkillUpgradedEvent : SimulationEvent {
   [KlothoOrder(0)] public int UnitId;
   [KlothoOrder(1)] public int PlayerId;

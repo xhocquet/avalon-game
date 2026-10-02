@@ -4,7 +4,7 @@ using xpTURN.Klotho.Serialization;
 
 namespace Meesles.Avalon.Sim;
 
-[KlothoSerializable(115)]
+[KlothoSerializable(SimulationEventTypeIds.SkillCast)]
 public partial class SkillCastEvent : SimulationEvent {
   [KlothoOrder(0)] public int UnitId;
   [KlothoOrder(1)] public int PlayerId;

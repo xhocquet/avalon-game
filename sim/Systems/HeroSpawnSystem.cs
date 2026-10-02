@@ -4,11 +4,10 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
 
-// Spawn, delayed until factions are chosen
+// Spawns heroes after faction selection.
 public class HeroSpawnSystem : ISystem {
   public void Update(ref Frame frame) {
-    // Snapshot the slots we intend to spawn before mutating the frame (SpawnHero creates
-    // entities), mirroring WaveSpawnSystem. Filter order is deterministic.
+    // Snapshot slots before SpawnHero creates entities.
     List<(int PlayerId, int TeamId, int FactionId)> toSpawn = null;
     var graceTicks = SimulationSetup.GetSetupGraceTicks(ref frame);
 

@@ -4,22 +4,14 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
 
-// Auto-attacks, in two phases. A swing starts when the attacker is engaged and off cooldown
-// (AttackWindupStartedEvent), and lands AttackWindup seconds later (AttackHitEvent) - or is dropped
-// if the target stopped being a legal one in between (AttackWindupCanceledEvent).
-//
-// The attack period is paid at the swing, not the hit, so windup is spent inside the period rather
-// than added to it and a unit's attacks-per-second means what it is authored to mean. A swing that
-// whiffs still costs it.
+// Auto-attacks pay their period on the swing; windup is inside that period.
 public class DamageSystem : ISystem {
   private readonly UnitLookup.Index _unitIdIndex = new();
 
   public void Update(ref Frame frame) {
     _unitIdIndex.Rebuild(ref frame);
 
-    // Swings in flight resolve on the bare Combat filter, not the engaged one: AttackIntentSystem
-    // drops AttackTargetUnitId the moment an order is spent, and a swing left out of that filter
-    // would keep its WindupReleaseTick forever and never attack again.
+    // Resolve pending swings even after their intent is gone.
     var swinging = frame.Filter<Combat>();
     while (swinging.Next(out var attacker)) {
       if (frame.GetReadOnly<Combat>(attacker).WindupReleaseTick != 0)
@@ -42,8 +34,7 @@ public class DamageSystem : ISystem {
       return;
     }
 
-    // Taken up front so the whole swing - the windup event, anything that modifies the damage on the
-    // way in, and the hit - reports itself under one id.
+    // One id covers the windup and hit.
     var attackHitId = DamageController.NextHitId(ref frame);
     var cooldownTicks = BurstAttacksController.NextCooldownTicks(ref frame, attacker,
       CombatTiming.CooldownTicks(ref frame, attacker));
@@ -59,8 +50,7 @@ public class DamageSystem : ISystem {
     LogDamageState(ref frame, attacker, targetUnitId,
       $"windup_started windupTicks={windupTicks} cooldown={combat.CooldownRemainingTicks}");
 
-    // Nothing authored a windup, so the swing is the hit. Resolved here rather than a tick later so
-    // a zero-windup unit keeps the cadence it had before windup existed.
+    // Zero-windup attacks land on the swing tick.
     if (windupTicks == 0)
       ResolveSwing(ref frame, attacker);
   }
@@ -84,8 +74,7 @@ public class DamageSystem : ISystem {
 
     var healthBefore = frame.GetReadOnly<Health>(target).Current;
 
-    // Spent at the hit, not the swing: the multiplier applies to damage, and a swing that whiffs
-    // must not eat the charge the player is holding.
+    // Consume the damage modifier only on a hit.
     var attackDamage = EmpoweredAttackController.Consume(ref frame, attacker, target, attackHitId,
       GetAttackDamage(ref frame, attacker));
 
@@ -99,7 +88,7 @@ public class DamageSystem : ISystem {
       $"cooldown={frame.GetReadOnly<Combat>(attacker).CooldownRemainingTicks}");
   }
 
-  // Leaves CooldownRemainingTicks alone - it was paid at the swing and stands whether the hit landed.
+  // Cooldown is paid on the swing, even if the hit misses.
   private static void ClearSwing(ref Frame frame, EntityRef attacker) {
     ref var combat = ref frame.Get<Combat>(attacker);
     combat.WindupReleaseTick = 0;
@@ -113,7 +102,7 @@ public class DamageSystem : ISystem {
            CombatTargeting.IsHostileAndAlive(ref frame, attacker, target);
   }
 
-  // Attackers without a Stats block (nothing today, but structures/summons may skip it) deal nothing.
+  // Attackers without stats deal no basic-attack damage.
   private static FP64 GetAttackDamage(ref Frame frame, EntityRef attacker) {
     return frame.Has<Stats>(attacker)
       ? frame.GetReadOnly<Stats>(attacker).AttackDamage

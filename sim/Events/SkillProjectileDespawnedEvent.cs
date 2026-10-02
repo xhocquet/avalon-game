@@ -5,7 +5,7 @@ using xpTURN.Klotho.Serialization;
 namespace Meesles.Avalon.Sim;
 
 // Triggered when a skill projectile despawns
-[KlothoSerializable(117)]
+[KlothoSerializable(SimulationEventTypeIds.SkillProjectileDespawned)]
 public partial class SkillProjectileDespawnedEvent : SimulationEvent {
   public override EventMode Mode => EventMode.Regular;
 

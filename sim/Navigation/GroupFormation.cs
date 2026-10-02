@@ -6,8 +6,7 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Navigation;
 
-// One member of a group move. Position feeds the group centroid and nothing else; the centroid is
-// what gives the formation its facing.
+// Position contributes to the formation's facing centroid.
 public readonly struct FormationUnit(EntityRef entity, int unitId, bool isHero, FPVector3 position) {
   public readonly EntityRef Entity = entity;
   public readonly int UnitId = unitId;
@@ -15,20 +14,11 @@ public readonly struct FormationUnit(EntityRef entity, int unitId, bool isHero, 
   public readonly FPVector3 Position = position;
 }
 
-// Lays out a selected group around a move order: heroes on the click itself, minions blobbed up
-// behind them.
-//
-// Minions all share one destination instead of getting precomputed slots. Slots looked bad — a
-// minion eases up to its exact point, gets ORCA-blocked, then lurches the last bit once a
-// neighbour clears — and the assignment goes stale over a long march anyway. With a shared
-// destination ORCA packs them wherever they fit and NavigationAgentSystem's settle logic freezes
-// them there.
+// Heroes spread across the order target; minions share a target behind them.
 public static class GroupFormation {
   private static readonly FPVector2 DefaultForward = new(FP64.Zero, FP64.One);
 
-  // Sorts `units` in place (heroes first, then unit id, so peers agree on the order) and fills
-  // `destinations` with one target per unit, index-aligned to the sorted list. A null `navMesh` or
-  // `query` skips navmesh snapping.
+  // Sorts heroes first, then by unit id. Null nav inputs skip snapping for direct-move tests.
   public static void Solve(List<FormationUnit> units, FPVector3 target, MovementRulesAsset rules,
     FPNavMesh navMesh, FPNavMeshQuery query, List<FPVector3> destinations) {
     units.Sort(CompareUnits);
@@ -60,8 +50,7 @@ public static class GroupFormation {
     return a.UnitId.CompareTo(b.UnitId);
   }
 
-  // Direction of travel: centroid toward the click. An empty group has no centroid, and clicking
-  // the centroid itself yields no direction; both fall back to +Z.
+  // Faces from the group centroid toward the target, defaulting to +Z.
   private static FPVector2 GetForward(List<FormationUnit> units, FPVector3 target) {
     if (units.Count == 0)
       return DefaultForward;
@@ -75,7 +64,7 @@ public static class GroupFormation {
     return forward.sqrMagnitude > FP64.Zero ? forward.normalized : DefaultForward;
   }
 
-  // Back the blob off far enough that its front edge clears the hero. No hero, no offset.
+  // Keeps the minion pack behind the heroes.
   private static FPVector3 GetMinionTarget(int minionCount, int heroCount, FPVector3 target,
     FPVector2 forward, MovementRulesAsset rules, FPNavMesh navMesh, FPNavMeshQuery query) {
     if (heroCount == 0)
@@ -99,9 +88,7 @@ public static class GroupFormation {
     return FP64.FromInt(index * 2 - (count - 1)) * spacing * FP64.Half;
   }
 
-  // A null query is the direct-move test path, which never pathfinds — hand the slot back as-is.
-  // Formation slots are offset off the click, so a slot can land inside an obstacle the click
-  // cleared; they get the same edge clearance the click itself was resolved with.
+  // Formation offsets need the same edge clearance as the original target.
   private static FPVector3 SnapToNavMesh(FPVector3 slot, MovementRulesAsset rules, FPNavMesh navMesh,
     FPNavMeshQuery query) {
     return NavTargets.ResolveMoveTarget(navMesh, query, slot, rules.MoveTargetEdgeClearance);

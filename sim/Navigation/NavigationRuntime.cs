@@ -29,8 +29,7 @@ public class NavigationRuntime {
     var query = new FPNavMeshQuery(navMesh, logger);
     var pathfinder = new FPNavMeshPathfinder(navMesh, query, logger);
     var funnel = new FPNavMeshFunnel(navMesh, query, logger);
-    // Left at Klotho defaults here: the runtime is built before any frame exists, so
-    // NavigationAgentSystem applies NavigationTuningAsset's ORCA tuning once it has one.
+    // NavigationAgentSystem applies frame-specific ORCA tuning.
     var avoidance = new FPNavAvoidance();
     var agentSystem = new FPNavAgentSystem(navMesh, query, pathfinder, funnel, logger);
     agentSystem.SetAvoidance(avoidance);

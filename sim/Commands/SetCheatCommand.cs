@@ -5,7 +5,7 @@ namespace Meesles.Avalon.Sim.Commands;
 
 // Turns a CheatFlags bitmask on or off for the issuing player. See CheatsController for the scope and the
 // deliberate absence of any authority gate.
-[KlothoSerializable(109)]
+[KlothoSerializable(CommandTypeIds.SetCheat)]
 public partial class SetCheatCommand : CommandBase {
   public int Flags;
   public int Enabled; // 0 = clear, 1 = set

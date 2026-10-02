@@ -3,7 +3,7 @@ using xpTURN.Klotho.Serialization;
 
 namespace Meesles.Avalon.Sim.Commands;
 
-[KlothoSerializable(104)]
+[KlothoSerializable(CommandTypeIds.SelectFaction)]
 public partial class SelectFactionCommand : CommandBase {
   public int FactionId;
   public override bool IsContinuousInput => false;

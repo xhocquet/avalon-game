@@ -7,7 +7,7 @@ namespace Meesles.Avalon.Sim.Commands;
 // One-shot playground operation issued by the debug console: switch hero, hand out gold, spawn
 // minions. Scoped to the issuing player the same way SetCheatCommand is, and gated by nothing
 // beyond that — see DebugController for the rules and CheatsController for why that is deliberate.
-[KlothoSerializable(110)]
+[KlothoSerializable(CommandTypeIds.Debug)]
 public partial class DebugCommand : CommandBase {
   public int Action; // DebugAction
   public int Param;

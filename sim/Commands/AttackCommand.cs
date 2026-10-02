@@ -3,7 +3,7 @@ using xpTURN.Klotho.Serialization;
 
 namespace Meesles.Avalon.Sim.Commands;
 
-[KlothoSerializable(103)]
+[KlothoSerializable(CommandTypeIds.Attack)]
 public partial class AttackCommand : CommandBase {
   public int TargetUnitId;
   public override bool IsContinuousInput => false;

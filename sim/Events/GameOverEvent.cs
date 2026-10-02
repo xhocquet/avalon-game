@@ -6,7 +6,7 @@ namespace Meesles.Avalon.Sim;
 
 // Klotho requires IMatchEndEvent to drive Engine.OnMatchEnded and server room drain. WinnerPlayerId is
 // the interface's single-winner view of WinnerTeamId; the team is the real outcome (see MatchOutcome).
-[KlothoSerializable(101)]
+[KlothoSerializable(SimulationEventTypeIds.GameOver)]
 public partial class GameOverEvent : SimulationEvent, IMatchEndEvent {
   private static readonly FixedString32 UnknownReason = FixedString32.FromString("unknown");
   private static readonly FixedString32 CrystalReason = FixedString32.FromString("crystal");

@@ -10,8 +10,7 @@ public class InventorySystem : ISystem {
     if (matchRules.GoldTickIntervalMs <= 0)
       return;
 
-    // Gated on the match clock, not on how long a hero has existed, so a late-spawning hero doesn't
-    // get its own private delay.
+    // Gold timing follows the match clock, not hero spawn time.
     if (frame.Tick < GoldStartTick(ref frame, matchRules))
       return;
 

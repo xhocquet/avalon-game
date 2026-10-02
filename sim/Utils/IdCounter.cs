@@ -3,8 +3,7 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
 
-// One global sequence per counter component, allocated lazily so callers never have to order
-// Initialize before the first Next.
+// Lazily creates one global sequence for each counter component.
 public static class IdCounter<T> where T : unmanaged, IComponent, IIdCounter {
   public const int FirstId = 1;
 

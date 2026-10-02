@@ -4,7 +4,7 @@ using xpTURN.Klotho.Serialization;
 
 namespace Meesles.Avalon.Sim;
 
-[KlothoSerializable(106)]
+[KlothoSerializable(SimulationEventTypeIds.CrystalDestroyed)]
 public partial class CrystalDestroyedEvent : SimulationEvent {
   [KlothoOrder(0)] public int UnitId;
   [KlothoOrder(1)] public int CrystalId;

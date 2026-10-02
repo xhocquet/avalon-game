@@ -64,17 +64,16 @@ public enum HeroSkillSet {
 }
 
 public enum BuffMode {
-  Percent = 0, // Adds a fraction of the stat's current value
-  Flat = 1 // Adds the number as-is; for stats like BonusAttackSpeed where a fraction of ~0 is nothing
+  Percent = 0,
+  Flat = 1
 }
 
-// Test-only toggles a player can turn on for itself. Bitmask, carried on the wire by SetCheatCommand,
-// so the values must stay stable. Keep in sync with CheatsController.All.
+// Test-only toggles. Bitmask, SetCheatCommand, CheatsController.All
 [Flags]
 public enum CheatFlags {
   None = 0,
-  GodMode = 1 << 0, // Hero takes no damage
-  FreeShop = 1 << 2 // Shop buys cost no gold and ignore the shop's interact range
+  GodMode = 1 << 0,
+  FreeShop = 1 << 2
 }
 
 public enum DebugAction {
