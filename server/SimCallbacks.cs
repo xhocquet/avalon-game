@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
@@ -10,13 +9,12 @@ using xpTURN.Klotho.Logging;
 using xpTURN.Klotho.Network;
 
 namespace Meesles.Avalon.Server {
-  public class SimCallbacks(IKLogger logger, int maxPlayers, byte[] navMeshBytes,
-    Func<RoomManager> roomManager = null) : ISimulationCallbacks {
+  public class SimCallbacks(IKLogger logger, int maxPlayers, byte[] navMeshBytes) : ISimulationCallbacks {
     private readonly IKLogger _logger = logger;
     private readonly int _maxPlayers = maxPlayers;
     private readonly byte[] _navMeshBytes = navMeshBytes;
-    private readonly Func<RoomManager> _roomManager = roomManager;
     private MatchResultSaveSystem _resultSaver;
+    private Room _room;
 
     public void RegisterSystems(EcsSimulation simulation) {
       SimulationSetup.RegisterSystems(simulation, NavigationRuntime.FromBytes(_navMeshBytes, _logger));
@@ -24,20 +22,9 @@ namespace Meesles.Avalon.Server {
       simulation.AddSystem(_resultSaver, SystemPhase.LateUpdate);
     }
 
-    // The room that owns this callbacks instance is the one whose roster describes this match.
-    private IReadOnlyList<IPlayerInfo> ResolveRoster() {
-      var manager = _roomManager?.Invoke();
-      if (manager == null)
-        return null;
+    public void AttachRoom(Room room) => _room = room;
 
-      for (var roomId = 0; roomId < manager.MaxRooms; roomId++) {
-        var room = manager.GetRoom(roomId);
-        if (ReferenceEquals(room?.Callbacks, this))
-          return room.NetworkService.Players;
-      }
-
-      return null;
-    }
+    private IReadOnlyList<IPlayerInfo> ResolveRoster() => _room?.NetworkService.Players;
 
     public void OnInitializeWorld(IKlothoEngine engine) {
       _resultSaver?.SetSessionParameters(engine.RandomSeed, engine.SessionConfig.MaxPlayers,
@@ -80,5 +67,7 @@ namespace Meesles.Avalon.Server {
       // no-op: the server produces no local input. ServerInputCollector gathers the
       // client input messages and injects them into the simulation per tick.
     }
+
+    public void OnPlayerJoinedWorld(IKlothoEngine engine, Frame frame, int playerId) { }
   }
 }

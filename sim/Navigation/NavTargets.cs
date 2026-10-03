@@ -60,7 +60,8 @@ public static class NavTargets {
     var bounded = navMesh.BoundsXZ.ClosestPoint(targetXz);
     var startPos = new FPVector3(originXz.x, FP64.Zero, originXz.y);
     var endPos = new FPVector3(bounded.x, FP64.Zero, bounded.y);
-    var (resultPos, resultTri) = query.MoveAlongSurface(startPos, endPos, originTri, MultiFloorYThreshold);
+    var (resultPos, resultTri) = query.MoveAlongSurface(startPos, endPos, originTri,
+      FPNavAgentSystem.DEFAULT_AREA_MASK, MultiFloorYThreshold);
 
     var moved = FPVector2.SqrDistance(startPos.ToXZ(), resultPos.ToXZ()) > NoMoveSqr;
     return resultTri >= 0 && moved
@@ -125,7 +126,7 @@ public static class NavTargets {
         navMesh.GetCellTriangles(col, row, out var start, out var count);
         for (var i = 0; i < count; i++) {
           var triIdx = navMesh.GridTriangles[start + i];
-          ref var tri = ref navMesh.Triangles[triIdx];
+          ref readonly var tri = ref navMesh.Triangles[triIdx];
           if (tri.isBlocked)
             continue;
 

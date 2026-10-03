@@ -149,7 +149,7 @@ public class NavigationAgentSystem(NavigationRuntime navigation) : ISystem {
     }
 
     // Integrate movement.
-    _navigation.AgentSystem.UpdateMovement(ref frame, _allEntities, _allCount, dt);
+    _navigation.AgentSystem.UpdateMovement(ref frame, _allEntities, _allCount, frame.Tick, dt);
 
     // Sync transforms and arrivals.
     for (var i = 0; i < _allCount; i++) {

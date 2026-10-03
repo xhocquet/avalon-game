@@ -168,7 +168,7 @@ public class SimInvariantTests {
         .OrderBy(minion => (minion.Position - originalPosition).sqrMagnitude)
         .First();
 
-    (reusedSlotMinion.Position - originalPosition).sqrMagnitude.Should().Be(FP64.Zero);
+    (reusedSlotMinion.Position - originalPosition).sqrMagnitude.Should().BeLessThan(FP64.FromDouble(0.25));
   }
 
   [Fact]

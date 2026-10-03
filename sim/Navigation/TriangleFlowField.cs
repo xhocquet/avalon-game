@@ -29,7 +29,7 @@ public class TriangleFlowField {
     var nextTriangle = NextTriangle[triangle];
 
     if (nextTriangle >= 0) {
-      ref var sourceTriangle = ref _navMesh.Triangles[triangle];
+      ref readonly var sourceTriangle = ref _navMesh.Triangles[triangle];
       var toPortal = GetPortalMidpoint(triangle, nextTriangle) - sourceTriangle.centerXZ;
       var mag = toPortal.magnitude;
       if (mag > FP64.Zero)
@@ -42,7 +42,7 @@ public class TriangleFlowField {
   }
 
   private FPVector2 GetPortalMidpoint(int fromTri, int toTri) {
-    ref var sourceTriangle = ref _navMesh.Triangles[fromTri];
+    ref readonly var sourceTriangle = ref _navMesh.Triangles[fromTri];
 
     for (var edge = 0; edge < 3; edge++)
       if (sourceTriangle.GetNeighbor(edge) == toTri) {

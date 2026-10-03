@@ -24,13 +24,13 @@ public class FlowFieldBuilder {
     _edgeCosts = new FP64[_triCount * 3];
 
     for (var tri = 0; tri < _triCount; tri++) {
-      ref var triangle = ref navMesh.Triangles[tri];
+      ref readonly var triangle = ref navMesh.Triangles[tri];
       for (var edge = 0; edge < 3; edge++) {
         var neighborIdx = triangle.GetNeighbor(edge);
         if (neighborIdx < 0)
           continue;
 
-        ref var neighborTri = ref navMesh.Triangles[neighborIdx];
+        ref readonly var neighborTri = ref navMesh.Triangles[neighborIdx];
         var delta = neighborTri.centerXZ - triangle.centerXZ;
         _edgeCosts[tri * 3 + edge] = delta.magnitude * neighborTri.costMultiplier;
       }
@@ -59,14 +59,14 @@ public class FlowFieldBuilder {
 
       _closed[current] = true;
 
-      ref var currentTri = ref _navMesh.Triangles[current];
+      ref readonly var currentTri = ref _navMesh.Triangles[current];
 
       for (var edge = 0; edge < 3; edge++) {
         var neighborIdx = currentTri.GetNeighbor(edge);
         if (neighborIdx < 0)
           continue;
 
-        ref var neighborTri = ref _navMesh.Triangles[neighborIdx];
+        ref readonly var neighborTri = ref _navMesh.Triangles[neighborIdx];
         if (neighborTri.isBlocked)
           continue;
 

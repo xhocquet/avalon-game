@@ -74,7 +74,7 @@ public class AttackCommandExecutionTests {
     harness.Tick(SimHarness.AttackCommand(1, 1, target.UnitId, source.UnitId));
 
     GetAttackTarget(harness.Frame, source.UnitId).Should().Be(target.UnitId);
-    GetMoveTarget(harness.Frame, source.UnitId).Should().Be(target.Position);
+    GetMoveTarget(harness.Frame, source.UnitId).Should().Be(GetPosition(harness.Frame, target.UnitId));
   }
 
   [Fact]

@@ -42,7 +42,9 @@ namespace xpTURN.Klotho.Godot
 
             FPNavMesh fpNavMesh = FPNavMeshBuildPipeline.Build(
                 vertices, indices, areas, DEFAULT_CELL_SIZE,
-                log: m => GD.Print(m), logError: m => GD.PushError(m));
+                new GodotDebugSink(),
+                bakeAgentRadius: navMesh.AgentRadius, bakeMaxSlopeDeg: navMesh.AgentMaxSlope,
+                bakeAgentHeight: navMesh.AgentHeight, bakeAgentClimb: navMesh.AgentMaxClimb);
 
             Save(fpNavMesh, outPath);
         }
@@ -93,6 +95,7 @@ namespace xpTURN.Klotho.Godot
             for (int i = 0; i < srcVerts.Length; i++)
             {
                 global::Godot.Vector3 sv = xform * srcVerts[i];   // local -> world
+                sv.Y = 0f;
                 int found = -1;
                 for (int j = 0; j < weldedSrc.Count; j++)
                 {

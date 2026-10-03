@@ -63,17 +63,32 @@ if (!transport.Listen("0.0.0.0", port, maxRooms * maxPlayers)) {
 // RoomRouter consumes the RoomHandshakeMessage and routes peers to the room; RoomManager
 // wires EcsSimulation / ServerNetworkService / KlothoEngine / CommandFactory per room internally.
 var router = new RoomRouter(transport, logger);
-// Closed over below: rooms are only ever created once loop.Run() is under way, long after the
-// assignment. SimCallbacks needs it to find its own room's roster when it writes the match result.
-RoomManager roomManager = null;
 var roomManagerConfig = new RoomManagerConfigBuilder((roomLogger) =>
-    new SimCallbacks(roomLogger, maxPlayers, navMeshBytes, () => roomManager))
+    new SimCallbacks(roomLogger, maxPlayers, navMeshBytes))
   .WithRoomLimits(maxRooms, maxPlayers, maxSpectatorsPerRoom: 0)
   .WithSimulationConfig(simConfig)
   .WithSessionConfig(sessionConfig)
   .WithDerivedSimulation(sharedRegistry)
   .Build();
-roomManager = new RoomManager(transport, router, loggerFactory, roomManagerConfig);
+roomManagerConfig.OnRoomCreated = room => {
+  if (room.Callbacks is SimCallbacks callbacks)
+    callbacks.AttachRoom(room);
+};
+roomManagerConfig.OnRoomDraining = room => {
+  var players = room.NetworkService.Players;
+  var connected = 0;
+  for (var i = 0; i < players.Count; i++)
+    if (players[i].ConnectionState == PlayerConnectionState.Connected)
+      connected++;
+
+  var reason = room.EndRequestedAtUtc.HasValue ? room.EndReason.ToString() : "AllPeersGone";
+  logger.KInformation(
+    $"[RoomDrain] roomId={room.RoomId} reason={reason} phase={room.DrainPhase} players={players.Count} connected={connected}");
+
+  if (!room.EndRequestedAtUtc.HasValue && connected > 0)
+    logger.KWarning($"[RoomDrain] roomId={room.RoomId} abandoned with {connected} connected player(s).");
+};
+var roomManager = new RoomManager(transport, router, loggerFactory, roomManagerConfig);
 
 logger.KInformation(
   $"[AvalonServer] listening on port {port}, maxPlayers={maxPlayers}, tickInterval={tickIntervalMs}ms");

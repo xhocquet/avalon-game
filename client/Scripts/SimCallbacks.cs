@@ -140,6 +140,8 @@ public class SimCallbacks(
     }
   }
 
+  public void OnPlayerJoinedWorld(IKlothoEngine engine, Frame frame, int playerId) { }
+
   public void SetInput(InputCapture input) {
     _input = input;
   }

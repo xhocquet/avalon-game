@@ -55,5 +55,32 @@ namespace xpTURN.Klotho.Godot {
     // Diagnostics
     [Export] public int EventDispatchWarnMs { get; set; } = 5;
     [Export] public int TickDriftWarnMultiplier { get; set; } = 2;
+    [Export] public int DiagnosticHistoryTicks { get; set; } = 60;
+    [Export] public bool ComponentMemoryPeakSampling { get; set; } = false;
+    [Export] public bool SystemPerfMonitoring { get; set; } = false;
+
+    [Export] public int StageId { get; set; } = 0;
+    public byte[] MatchConfigData { get; set; }
+
+    [Export] public int[] MaxCountOverrideTypeIds { get; set; } = System.Array.Empty<int>();
+    [Export] public int[] MaxCountOverrideValues { get; set; } = System.Array.Empty<int>();
+
+    public System.Collections.Generic.IReadOnlyDictionary<int, int> ComponentMaxCountOverrides {
+      get {
+        var overrides = new System.Collections.Generic.Dictionary<int, int>();
+        var count = System.Math.Min(MaxCountOverrideTypeIds?.Length ?? 0, MaxCountOverrideValues?.Length ?? 0);
+        for (var i = 0; i < count; i++)
+          if (MaxCountOverrideValues[i] > 0)
+            overrides[MaxCountOverrideTypeIds[i]] = MaxCountOverrideValues[i];
+        return overrides;
+      }
+    }
+
+    [Export] public int[] PrunedComponentTypeIds { get; set; } = System.Array.Empty<int>();
+    private int[] _runtimePrunedComponentTypeIds;
+
+    public void SetRuntimePrunedComponentTypeIds(int[] typeIds) => _runtimePrunedComponentTypeIds = typeIds;
+    System.Collections.Generic.IReadOnlyCollection<int> ISimulationConfig.PrunedComponentTypeIds =>
+      _runtimePrunedComponentTypeIds ?? PrunedComponentTypeIds;
   }
 }

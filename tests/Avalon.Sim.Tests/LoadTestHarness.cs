@@ -22,9 +22,9 @@ public class LoadTestHarness(ITestOutputHelper output) {
     const int reportInterval = 500;
 
     var harness = SimHarness.CreateInitialized();
-    var timingLogger = new TimingCapture();
     var snapshots = new List<TickSnapshot>();
     var wallClock = Stopwatch.StartNew();
+    harness.Simulation.EnableSystemPerfMonitor();
 
     const int marchTick = 700;
 
@@ -42,8 +42,6 @@ public class LoadTestHarness(ITestOutputHelper output) {
       int entityCount = harness.Frame.Entities.Count;
       int minionCount = harness.Count<Minion>();
 
-      harness.Simulation.LogSystemTimings(timingLogger, $"tick-{tick + 1}", KLogLevel.Information);
-
       snapshots.Add(new TickSnapshot {
         Tick = tick + 1,
         WallClockMs = elapsedMs,
@@ -54,7 +52,11 @@ public class LoadTestHarness(ITestOutputHelper output) {
     }
 
     wallClock.Stop();
-    WriteReport(totalTicks, wallClock, snapshots, timingLogger.Lines);
+    var timingLog = harness.Simulation.AppendSystemPerfLog();
+    var timingLines = string.IsNullOrEmpty(timingLog)
+      ? new List<string>()
+      : new List<string>(timingLog.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries));
+    WriteReport(totalTicks, wallClock, snapshots, timingLines);
   }
 
   private static void IssueMarchCommands(SimHarness harness, int tick) {
@@ -128,13 +130,4 @@ public class LoadTestHarness(ITestOutputHelper output) {
     public long StateHash;
   }
 
-  private class TimingCapture : IKLogger {
-    public readonly List<string> Lines = new();
-
-    public bool IsEnabled(KLogLevel level) => true;
-
-    public void Log(KLogLevel level, string message, Exception exception) {
-      Lines.Add(message);
-    }
-  }
 }
