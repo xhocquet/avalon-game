@@ -3,7 +3,7 @@ using Godot;
 namespace Meesles.Avalon.Client.Scripts.View;
 
 [Tool]
-public partial class CrystalBulletEffect : Node3D {
+public partial class CrystalBulletEffect : ProjectileEffect {
   private const float HalfLength = 0.3f;
   private const float BaseRadius = 0.12f;
   private const int Sides = 5;
@@ -12,17 +12,10 @@ public partial class CrystalBulletEffect : Node3D {
 
   public override void _Ready() => EnsureMesh();
 
-  public void Configure(float radius) {
+  public override void Configure(float radius) {
     EnsureMesh();
     Scale = Vector3.One * Mathf.Max(radius / BaseRadius, 0.01f);
     Show();
-  }
-
-  public void ResetVisual() {
-    Hide();
-    GlobalPosition = Vector3.Zero;
-    GlobalRotation = Vector3.Zero;
-    Scale = Vector3.One;
   }
 
   private void EnsureMesh() {

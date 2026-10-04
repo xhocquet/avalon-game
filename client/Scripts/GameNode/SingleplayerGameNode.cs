@@ -95,7 +95,7 @@ public partial class SingleplayerGameNode : GameNode {
     _telegraphs.Attach(_events, _view, engine, this);
     _skillEffects ??= new SkillEffectsManager();
     if (_skillEffects.GetParent() == null) AddChild(_skillEffects);
-    _skillEffects.Attach(engine);
+    _skillEffects.Attach(engine, _events);
     Input.BindTelegraphs(_telegraphs);
     GameUi.BindSimEvents(_events);
 

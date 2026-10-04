@@ -1,0 +1,69 @@
+[gd_scene format=3 uid="uid://bfemd7ct4ft7m"]
+
+[ext_resource type="Shader" uid="uid://b7w8tvb4d7t5r" path="res://Assets/FX/Shaders/hairball.gdshader" id="1_hair"]
+[ext_resource type="Script" path="res://Scripts/FX/HairballEffect.cs" id="2_script"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hair"]
+render_priority = 0
+shader = ExtResource("1_hair")
+shader_parameter/hair_color = Color(0.38, 0.29, 0.18, 1)
+shader_parameter/highlight_color = Color(0.5, 0.39, 0.25, 1)
+shader_parameter/groove_color = Color(0.075, 0.055, 0.035, 1)
+shader_parameter/magic_color = Color(0.2, 0.95, 0.35, 1)
+shader_parameter/magic_strength = 0.65
+
+[sub_resource type="SphereMesh" id="SphereMesh_core"]
+radius = 0.195
+height = 0.39
+radial_segments = 16
+rings = 8
+
+[sub_resource type="TorusMesh" id="TorusMesh_hair"]
+inner_radius = 0.125
+outer_radius = 0.24
+rings = 32
+ring_segments = 8
+
+[node name="HairballProjectile" type="Node3D" unique_id=274824311]
+script = ExtResource("2_script")
+
+[node name="Core" type="MeshInstance3D" parent="." unique_id=635571051]
+material_override = SubResource("ShaderMaterial_hair")
+cast_shadow = 1
+instance_shader_parameters/strand_seed = 7.0
+mesh = SubResource("SphereMesh_core")
+
+[node name="HairLoopA" type="MeshInstance3D" parent="." unique_id=189260979]
+transform = Transform3D(0.97803074, -0.12073027, 0.16994123, 0.16994123, 0.9338993, -0.31456655, -0.12073027, 0.33653578, 0.9338993, 0, 0, 0)
+material_override = SubResource("ShaderMaterial_hair")
+cast_shadow = 1
+instance_shader_parameters/strand_seed = 0.3
+mesh = SubResource("TorusMesh_hair")
+
+[node name="HairLoopB" type="MeshInstance3D" parent="." unique_id=1130314113]
+transform = Transform3D(0.5691693, 0.74527043, 0.30715483, -0.25560555, 0.545509, -0.7717336, -0.742706, 0.3833952, 0.5009822, 0, 0, 0)
+material_override = SubResource("ShaderMaterial_hair")
+cast_shadow = 1
+instance_shader_parameters/strand_seed = 1.7
+mesh = SubResource("TorusMesh_hair")
+
+[node name="HairLoopC" type="MeshInstance3D" parent="." unique_id=222996122]
+transform = Transform3D(0.52344906, -0.8520133, 0.008629057, -0.019253733, -0.021952385, -0.9995736, 0.8518395, 0.5230597, -0.027895393, 0, 0, 0)
+material_override = SubResource("ShaderMaterial_hair")
+cast_shadow = 1
+instance_shader_parameters/strand_seed = 3.1
+mesh = SubResource("TorusMesh_hair")
+
+[node name="HairLoopD" type="MeshInstance3D" parent="." unique_id=1382043506]
+transform = Transform3D(0.5049891, -0.4021479, 0.7081886, 0.79060626, 0.08416964, -0.52062273, 0.14975937, 0.9116976, 0.36044538, 0, 0, 0)
+material_override = SubResource("ShaderMaterial_hair")
+cast_shadow = 1
+instance_shader_parameters/strand_seed = 4.6
+mesh = SubResource("TorusMesh_hair")
+
+[node name="HairLoopE" type="MeshInstance3D" parent="." unique_id=1546228201]
+transform = Transform3D(0.20182991, -0.8030455, 0.56069833, 0.5950638, 0.55524516, 0.58103514, -0.7779227, 0.21638104, 0.5899284, 0, 0, 0)
+material_override = SubResource("ShaderMaterial_hair")
+cast_shadow = 1
+instance_shader_parameters/strand_seed = 5.8
+mesh = SubResource("TorusMesh_hair")
