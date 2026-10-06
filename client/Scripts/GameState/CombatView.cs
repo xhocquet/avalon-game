@@ -6,9 +6,7 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon.Client.Scripts.GameState;
 
 internal static class CombatView {
-  // Fraction of the attack cooldown that has elapsed, in [0, 1]. Returns 0 when no cooldown is set.
-  // The period comes from CombatTiming rather than the component, because the sim derives it from
-  // attack speed at the moment of the hit instead of storing it.
+  // Fraction of the attack cooldown that has elapsed, in [0, 1]. Returns 0 when no cooldown is set
   public static float CooldownProgress(Frame frame, EntityRef attacker) {
     if (!frame.Has<Combat>(attacker)) return 0f;
 
