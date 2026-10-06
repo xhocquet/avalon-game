@@ -18,10 +18,10 @@ public partial class CursorManager : Node {
 
   public override void _Ready() {
     Instance = this;
-    _defaultCursor = GD.Load<Texture2D>("res://Assets/UI/default-cursor.png");
-    var textCursor = GD.Load<Texture2D>("res://Assets/UI/text-cursor.png");
-    _attackCursor = GD.Load<Texture2D>("res://Assets/UI/attack-cursor.png");
-    _interactCursor = GD.Load<Texture2D>("res://Assets/UI/target-cursor.png");
+    _defaultCursor = GD.Load<Texture2D>("res://Assets/UI/DefaultCursor.png");
+    var textCursor = GD.Load<Texture2D>("res://Assets/UI/TextCursor.png");
+    _attackCursor = GD.Load<Texture2D>("res://Assets/UI/AttackCursor.png");
+    _interactCursor = GD.Load<Texture2D>("res://Assets/UI/TargetCursor.png");
     Input.SetCustomMouseCursor(_defaultCursor, Input.CursorShape.Arrow, new Vector2(4, 4));
     Input.SetCustomMouseCursor(textCursor, Input.CursorShape.Ibeam, new Vector2(16, 16));
   }

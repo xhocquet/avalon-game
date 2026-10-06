@@ -1,8 +1,8 @@
 [
   {
     "$type": "Meesles.Avalon.Sim.Assets.PickupTypeAsset",
-    "AssetId": 600,
     "_Name": "Water",
-    "Amount": 10
+    "Amount": 10,
+    "AssetId": 600
   }
 ]

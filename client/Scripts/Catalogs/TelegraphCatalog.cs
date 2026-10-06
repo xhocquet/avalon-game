@@ -7,8 +7,8 @@ using Meesles.Avalon.Sim.Assets;
 namespace Meesles.Avalon;
 
 public class TelegraphCatalog {
-  private const string SelfFamily = "res://Scenes/FX/Telegraphs/telegraph_family_self.tres";
-  private const string HostileFamily = "res://Scenes/FX/Telegraphs/telegraph_family_hostile.tres";
+  private const string SelfFamily = "res://Scenes/FX/Telegraphs/TelegraphFamilySelf.tres";
+  private const string HostileFamily = "res://Scenes/FX/Telegraphs/TelegraphFamilyHostile.tres";
 
   public static readonly TelegraphDef[] TelegraphDefs = [
     new(AssetIds.SkillCrystalGiantTertiary, SelfFamily, HostileFamily, 4f),

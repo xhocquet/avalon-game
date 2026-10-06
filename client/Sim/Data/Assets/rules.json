@@ -3,9 +3,9 @@
     "$type": "Meesles.Avalon.Sim.Assets.WaveRulesAsset",
     "AssetId": 101,
     "FirstWaveDelayTicks": 30,
-    "SpawnIntervalTicks": 150,
+    "MinionSpacing": 0.8,
     "MinionsPerWave": 1,
-    "MinionSpacing": 0.8
+    "SpawnIntervalTicks": 150
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.ShopRulesAsset",
@@ -15,57 +15,57 @@
   {
     "$type": "Meesles.Avalon.Sim.Assets.MovementRulesAsset",
     "AssetId": 109,
-    "StopDistance": 0.15,
-    "MinionPackRadiusFactor": 0.4,
     "HeroClearance": 0.8,
     "HeroLateralSpacing": 1.0,
-    "MoveTargetEdgeClearance": 0.75
+    "MinionPackRadiusFactor": 0.4,
+    "MoveTargetEdgeClearance": 0.75,
+    "StopDistance": 0.15
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.MatchRulesAsset",
     "AssetId": 110,
-    "MatchDuration": 300.0,
-    "SetupGraceTicks": 30,
-    "RespawnDelayMs": 5000,
     "DeathScorePenalty": 1,
-    "GoldTickIntervalMs": 1000,
-    "StartingGoldPerTick": 1,
-    "StartingGold": 400,
     "GoldStartDelayMs": 60000,
+    "GoldTickIntervalMs": 1000,
     "HeroKillScore": 3,
+    "MatchDuration": 300.0,
     "MinionKillScore": 1,
+    "RespawnDelayMs": 5000,
+    "SetupGraceTicks": 30,
+    "StartingGold": 400,
+    "StartingGoldPerTick": 1,
     "StructureKillScore": 2
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.PickupRulesAsset",
     "AssetId": 111,
-    "OasisSpawnIntervalMs": 5000,
-    "OasisPrepareDurationMs": 800,
-    "OasisFlightDurationMs": 700,
+    "CollectRange": 1.5,
     "DefaultPickupTypeAssetId": 600,
-    "OasisEjectRadius": 8.0,
     "MaxGroundPickups": 10,
-    "CollectRange": 1.5
+    "OasisEjectRadius": 8.0,
+    "OasisFlightDurationMs": 700,
+    "OasisPrepareDurationMs": 800,
+    "OasisSpawnIntervalMs": 5000
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.NavigationTuningAsset",
+    "AccelerationFactor": 12.0,
+    "ArrivalBrakeDist": 1.0,
     "AssetId": 112,
     "AvoidanceGridCellSize": 5.0,
-    "MinionNeighborDist": 6.0,
-    "PositionSnapThreshold": 0.1,
-    "FlowFieldArrivalDist": 0.3,
-    "FlowFieldDirectSteerDist": 2.0,
-    "ArrivalBrakeDist": 1.0,
-    "SettleZone": 5.0,
-    "SettleProgressStep": 0.3,
-    "SettleStuckTicks": 15,
-    "BlockedZone": 3.0,
-    "BlockedSpeed": 2.5,
-    "HeroSteeringSpread": 1,
-    "MinionSteeringSpread": 1,
     "AvoidanceSpread": 1,
     "AvoidanceTimeHorizon": 2.0,
-    "AccelerationFactor": 12.0
+    "BlockedSpeed": 2.5,
+    "BlockedZone": 3.0,
+    "FlowFieldArrivalDist": 0.3,
+    "FlowFieldDirectSteerDist": 2.0,
+    "HeroSteeringSpread": 1,
+    "MinionNeighborDist": 6.0,
+    "MinionSteeringSpread": 1,
+    "PositionSnapThreshold": 0.1,
+    "SettleProgressStep": 0.3,
+    "SettleStuckTicks": 15,
+    "SettleZone": 5.0
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.CombatRulesAsset",
@@ -75,23 +75,23 @@
   {
     "$type": "Meesles.Avalon.Sim.Assets.GoldRulesAsset",
     "AssetId": 118,
-    "GoldPerMinionKill": 15,
-    "GoldPerHeroKill": 110,
-    "GoldPerTurretKill": 250,
+    "GoldPerAssist": 50,
     "GoldPerCrystalKill": 500,
-    "GoldPerAssist": 50
+    "GoldPerHeroKill": 110,
+    "GoldPerMinionKill": 15,
+    "GoldPerTurretKill": 250
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.XpRulesAsset",
     "AssetId": 115,
-    "XpPerMinionKill": 20,
-    "XpPerHeroKill": 120,
-    "XpPerTurretKill": 60,
-    "XpPerCrystalKill": 100,
     "MaxLevel": 18,
-    "XpToSecondLevel": 60,
-    "XpPerLevelIncrement": 10,
     "StatGrowthCurveA": 0.7025,
-    "StatGrowthCurveB": 0.0175
+    "StatGrowthCurveB": 0.0175,
+    "XpPerCrystalKill": 100,
+    "XpPerHeroKill": 120,
+    "XpPerLevelIncrement": 10,
+    "XpPerMinionKill": 20,
+    "XpPerTurretKill": 60,
+    "XpToSecondLevel": 60
   }
 ]

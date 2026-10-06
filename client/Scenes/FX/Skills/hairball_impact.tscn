@@ -1,21 +1,8 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://bahsqyn6v5kji"]
 
-[ext_resource type="Shader" path="res://Assets/FX/Shaders/hairball.gdshader" id="1_hair"]
-[ext_resource type="Script" path="res://Scripts/FX/HairballImpactEffect.cs" id="2_script"]
-[ext_resource type="PackedScene" path="res://Scenes/FX/Skills/hairball.tscn" id="3_hairball"]
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_curl"]
-shader = ExtResource("1_hair")
-shader_parameter/magic_color = Color(0.38, 0.29, 0.18, 1)
-shader_parameter/magic_strength = 0.0
-shader_parameter/magic_amount = 0.0
-
-[sub_resource type="TorusMesh" id="TorusMesh_curl"]
-material = SubResource("ShaderMaterial_curl")
-inner_radius = 0.31
-outer_radius = 0.34
-rings = 16
-ring_segments = 6
+[ext_resource type="Shader" uid="uid://daen1qdnkawax" path="res://Assets/FX/Shaders/hairball.gdshader" id="1_hair"]
+[ext_resource type="Script" uid="uid://dgeqg3m1w164p" path="res://Scripts/FX/HairballImpactEffect.cs" id="2_script"]
+[ext_resource type="PackedScene" uid="uid://bbst0oi7rxrvu" path="res://Scenes/FX/Skills/hairball.tscn" id="3_hairball"]
 
 [sub_resource type="Curve" id="Curve_curl_scale"]
 _data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.55, 0.9), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
@@ -27,17 +14,34 @@ curve = SubResource("Curve_curl_scale")
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_curls"]
 emission_shape = 1
 emission_sphere_radius = 0.08
+angle_min = -180.0
+angle_max = 180.0
 spread = 180.0
 initial_velocity_min = 1.4
 initial_velocity_max = 2.6
 angular_velocity_min = -480.0
 angular_velocity_max = 480.0
-angle_min = -180.0
-angle_max = 180.0
-gravity = Vector3(0, -2.0, 0)
+gravity = Vector3(0, -2, 0)
 scale_min = 0.8
 scale_max = 1.5
 scale_curve = SubResource("CurveTexture_curl_scale")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_curl"]
+render_priority = 0
+shader = ExtResource("1_hair")
+shader_parameter/hair_color = Color(0.38, 0.29, 0.18, 1)
+shader_parameter/highlight_color = Color(0.5, 0.39, 0.25, 1)
+shader_parameter/groove_color = Color(0.075, 0.055, 0.035, 1)
+shader_parameter/magic_color = Color(0.38, 0.29, 0.18, 1)
+shader_parameter/magic_strength = 0.0
+shader_parameter/magic_amount = 0.0
+
+[sub_resource type="TorusMesh" id="TorusMesh_curl"]
+material = SubResource("ShaderMaterial_curl")
+inner_radius = 0.31
+outer_radius = 0.34
+rings = 16
+ring_segments = 6
 
 [sub_resource type="TorusMesh" id="TorusMesh_burst"]
 inner_radius = 0.21125
@@ -45,39 +49,40 @@ outer_radius = 0.24
 rings = 32
 ring_segments = 8
 
-[node name="HairballImpact" type="Node3D"]
+[node name="HairballImpact" type="Node3D" unique_id=1310941917]
 script = ExtResource("2_script")
 
-[node name="Curls" type="GPUParticles3D" parent="."]
+[node name="Curls" type="GPUParticles3D" parent="." unique_id=1294872621]
 cast_shadow = 0
 instance_shader_parameters/curl_cutoff = 0.72
 instance_shader_parameters/strand_seed = 1.7
+emitting = false
 amount = 10
 lifetime = 0.45
 one_shot = true
 explosiveness = 1.0
 randomness = 0.2
-local_coords = true
 visibility_aabb = AABB(-2, -2, -2, 4, 4, 4)
+local_coords = true
 process_material = SubResource("ParticleProcessMaterial_curls")
 draw_pass_1 = SubResource("TorusMesh_curl")
 
-[node name="HairBurst" parent="." instance=ExtResource("3_hairball")]
-scale = Vector3(1.6666667, 1.6666667, 1.6666667)
+[node name="HairBurst" parent="." unique_id=1690038348 instance=ExtResource("3_hairball")]
+transform = Transform3D(1.6666667, 0, 0, 0, 1.6666667, 0, 0, 0, 1.6666667, 0, 0, 0)
 
-[node name="HairLoopA" parent="HairBurst" index="1"]
+[node name="HairLoopA" parent="HairBurst" index="1" unique_id=189260979]
 mesh = SubResource("TorusMesh_burst")
 
-[node name="HairLoopB" parent="HairBurst" index="2"]
+[node name="HairLoopB" parent="HairBurst" index="2" unique_id=1130314113]
 mesh = SubResource("TorusMesh_burst")
 
-[node name="HairLoopC" parent="HairBurst" index="3"]
+[node name="HairLoopC" parent="HairBurst" index="3" unique_id=222996122]
 mesh = SubResource("TorusMesh_burst")
 
-[node name="HairLoopD" parent="HairBurst" index="4"]
+[node name="HairLoopD" parent="HairBurst" index="4" unique_id=1382043506]
 mesh = SubResource("TorusMesh_burst")
 
-[node name="HairLoopE" parent="HairBurst" index="5"]
+[node name="HairLoopE" parent="HairBurst" index="5" unique_id=1546228201]
 mesh = SubResource("TorusMesh_burst")
 
 [editable path="HairBurst"]

@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://80mcbhomjk3l"]
 
-[ext_resource type="Shader" uid="uid://c7h0yuow2nn0n" path="res://Scenes/World/hot_spring.gdshader" id="1_po2l5"]
-[ext_resource type="Texture2D" uid="uid://crf7v0er3rxt8" path="res://Assets/Props/Water/foam_mask.png" id="2_5ja1a"]
+[ext_resource type="Shader" uid="uid://c7h0yuow2nn0n" path="res://Scenes/World/HotSpring.gdshader" id="1_po2l5"]
+[ext_resource type="Texture2D" uid="uid://crf7v0er3rxt8" path="res://Assets/Props/Water/FoamMask.png" id="2_5ja1a"]
 
 [sub_resource type="Gradient" id="Gradient_2wmbs"]
 offsets = PackedFloat32Array(0, 0.4398936, 1)

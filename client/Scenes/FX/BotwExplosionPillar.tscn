@@ -1,9 +1,9 @@
 [gd_scene format=3 uid="uid://bus13us78hhnk"]
 
-[ext_resource type="Shader" uid="uid://b0tw3xpl0si0n7" path="res://Scenes/World/botw_explosion.gdshader" id="1_shader"]
-[ext_resource type="Texture2D" path="res://Assets/FX/Explosion/red_edit.png" id="2_red"]
-[ext_resource type="Texture2D" path="res://Assets/FX/Explosion/green_edit.png" id="3_green"]
-[ext_resource type="Texture2D" path="res://Assets/FX/Explosion/blue_edit.png" id="4_blue"]
+[ext_resource type="Shader" uid="uid://b0tw3xpl0si0n7" path="res://Scenes/World/BotwExplosion.gdshader" id="1_shader"]
+[ext_resource type="Texture2D" path="res://Assets/FX/Explosion/RedEdit.png" id="2_red"]
+[ext_resource type="Texture2D" path="res://Assets/FX/Explosion/GreenEdit.png" id="3_green"]
+[ext_resource type="Texture2D" path="res://Assets/FX/Explosion/BlueEdit.png" id="4_blue"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_pil"]
 noise_type = 2

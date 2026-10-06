@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dhdprtyxna4ek"]
 
-[ext_resource type="Shader" uid="uid://1vr58k1171gu" path="res://Scenes/circle_loading.gdshader" id="1_7g3i6"]
+[ext_resource type="Shader" uid="uid://1vr58k1171gu" path="res://Scenes/CircleLoading.gdshader" id="1_7g3i6"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_2iiil"]
 render_priority = 0

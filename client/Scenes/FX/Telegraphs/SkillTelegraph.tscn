@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3]
 
-[ext_resource type="Script" path="res://Scenes/FX/Telegraphs/skill_telegraph.gd" id="1_root"]
+[ext_resource type="Script" path="res://Scenes/FX/Telegraphs/SkillTelegraph.gd" id="1_root"]
 [ext_resource type="Script" uid="uid://f5phte33sgmk" path="res://addons/constructive_telegraphs/src/con_telegraph_instance_3d.gd" id="2_instance"]
 
 [node name="SkillTelegraph" type="Node3D"]

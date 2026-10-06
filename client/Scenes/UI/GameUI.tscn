@@ -6,12 +6,12 @@
 [ext_resource type="Texture2D" uid="uid://d1qivwnkvrbob" path="res://Assets/Placeholders/brown-swirl.webp" id="4_brown"]
 [ext_resource type="Texture2D" uid="uid://ccdswr4rnqhwo" path="res://Assets/Placeholders/red-swirl.webp" id="5_skill"]
 [ext_resource type="Texture2D" uid="uid://dtwrx5vouadx3" path="res://Assets/Placeholders/purple-swirl.webp" id="6_action"]
-[ext_resource type="Texture2D" uid="uid://ceovv176pphu8" path="res://Assets/UI/panel-border-grey-detail.png" id="8_selection_border"]
-[ext_resource type="Texture2D" uid="uid://b6ghwu1go2tju" path="res://Assets/UI/panel-border-brown-compact.png" id="9_minimap_frame"]
-[ext_resource type="Texture2D" uid="uid://4m0ncay541cq" path="res://Assets/UI/panel-grey-bolts-dark-compact.png" id="10_stats_frame"]
-[ext_resource type="Texture2D" uid="uid://7id8nsq0deiy" path="res://Assets/UI/panel-border-brown-detail-compact.png" id="11_portrait_frame"]
-[ext_resource type="Texture2D" uid="uid://bicga7n34pxfc" path="res://Assets/UI/panel-grid-paper-2-3-compact.png" id="12_item_frame"]
-[ext_resource type="Texture2D" uid="uid://bf52wrpq5ea63" path="res://Assets/UI/panel-grid-paper-4-4-compact.png" id="13_action_frame"]
+[ext_resource type="Texture2D" uid="uid://ceovv176pphu8" path="res://Assets/UI/PanelBorderGreyDetail.png" id="8_selection_border"]
+[ext_resource type="Texture2D" uid="uid://b6ghwu1go2tju" path="res://Assets/UI/PanelBorderBrownCompact.png" id="9_minimap_frame"]
+[ext_resource type="Texture2D" uid="uid://4m0ncay541cq" path="res://Assets/UI/PanelGreyBoltsDarkCompact.png" id="10_stats_frame"]
+[ext_resource type="Texture2D" uid="uid://7id8nsq0deiy" path="res://Assets/UI/PanelBorderBrownDetailCompact.png" id="11_portrait_frame"]
+[ext_resource type="Texture2D" uid="uid://bicga7n34pxfc" path="res://Assets/UI/PanelGridPaper23Compact.png" id="12_item_frame"]
+[ext_resource type="Texture2D" uid="uid://bf52wrpq5ea63" path="res://Assets/UI/PanelGridPaper44Compact.png" id="13_action_frame"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_ie3ut"]
 font_size = 32

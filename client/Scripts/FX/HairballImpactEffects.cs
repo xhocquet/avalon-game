@@ -8,7 +8,7 @@ using xpTURN.Klotho.Deterministic.Math;
 namespace Meesles.Avalon.Client.Scripts.View;
 
 public sealed class HairballImpactEffects {
-  private const string ScenePath = "res://Scenes/FX/Skills/hairball_impact.tscn";
+  private const string ScenePath = "res://Scenes/FX/Skills/HairballImpact.tscn";
   private const float BaseRadius = 0.4f;
   private static PackedScene _scene;
 

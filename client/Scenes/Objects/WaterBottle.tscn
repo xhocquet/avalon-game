@@ -3,11 +3,11 @@
 [ext_resource type="Script" uid="uid://h3mjd2vex7vv" path="res://Scripts/Entities/PickupEntity.cs" id="1_pickup"]
 [ext_resource type="PackedScene" uid="uid://chnhs44116no2" path="res://Assets/Props/Water/WaterBottle.tscn" id="2_lwrxv"]
 [ext_resource type="Script" uid="uid://jt4rwdk0j6k6" path="res://Scripts/Editor/SimMarkerNode.cs" id="3_jjo26"]
-[ext_resource type="Shader" uid="uid://bus13us8chvbq" path="res://Scenes/World/botw_explosion.gdshader" id="4_1vgwm"]
+[ext_resource type="Shader" uid="uid://bus13us8chvbq" path="res://Scenes/World/BotwExplosion.gdshader" id="4_1vgwm"]
 [ext_resource type="Material" uid="uid://yu15n78dr18x" path="res://Assets/FX/WaterExplosionShaderMaterial.tres" id="4_t8004"]
-[ext_resource type="Texture2D" uid="uid://0j1wbqu4ajo" path="res://Assets/FX/Explosion/blue_edit.png" id="5_t8004"]
-[ext_resource type="Texture2D" uid="uid://bkmq2y8jopccn" path="res://Assets/FX/Explosion/green_edit.png" id="6_vsejn"]
-[ext_resource type="Texture2D" uid="uid://drh2njt5ep8pl" path="res://Assets/FX/Explosion/red_edit.png" id="7_nsepp"]
+[ext_resource type="Texture2D" uid="uid://0j1wbqu4ajo" path="res://Assets/FX/Explosion/BlueEdit.png" id="5_t8004"]
+[ext_resource type="Texture2D" uid="uid://bkmq2y8jopccn" path="res://Assets/FX/Explosion/GreenEdit.png" id="6_vsejn"]
+[ext_resource type="Texture2D" uid="uid://drh2njt5ep8pl" path="res://Assets/FX/Explosion/RedEdit.png" id="7_nsepp"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_lwrxv"]
 height = 1.2722168

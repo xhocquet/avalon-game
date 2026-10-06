@@ -4,8 +4,8 @@ using Meesles.Avalon.Sim.Assets;
 namespace Meesles.Avalon.Client.Scripts.View;
 
 public class SkillEffectCatalog {
-  public const string CrystalBulletScenePath = "res://Scenes/FX/Skills/crystal.tscn";
-  public const string HairballScenePath = "res://Scenes/FX/Skills/hairball.tscn";
+  public const string CrystalBulletScenePath = "res://Scenes/FX/Skills/Crystal.tscn";
+  public const string HairballScenePath = "res://Scenes/FX/Skills/Hairball.tscn";
 
   private static readonly HashSet<int> ProjectileEffects = [
     AssetIds.SkillCrystalGiantTertiary,

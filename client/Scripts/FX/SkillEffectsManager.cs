@@ -11,7 +11,6 @@ namespace Meesles.Avalon.Client.Scripts.View;
 
 // Client-only active-skill visuals. Unsupported projectile skills keep their telegraph only.
 public partial class SkillEffectsManager : Node {
-  private const int PrewarmCount = 64;
   private const float ProjectileHeight = 1.5f;
 
   private static PackedScene _crystalBulletScene;
@@ -38,7 +37,6 @@ public partial class SkillEffectsManager : Node {
     AddChild(_layer);
     if (events != null)
       _hairballImpacts.Attach(events, _layer, ProjectileHeight);
-    Prewarm();
 
     var frame = _engine.PredictedFrame.Frame;
     if (frame != null)
@@ -54,6 +52,7 @@ public partial class SkillEffectsManager : Node {
     foreach (var effect in _active.Values)
       Release(effect.Node);
     _active.Clear();
+    ClearPools();
 
     if (_layer != null && GodotObject.IsInstanceValid(_layer))
       _layer.QueueFree();
@@ -74,10 +73,6 @@ public partial class SkillEffectsManager : Node {
 
   public override void _ExitTree() {
     Detach();
-    while (_idleCrystalBullets.Count > 0)
-      _idleCrystalBullets.Pop().QueueFree();
-    while (_idleHairballs.Count > 0)
-      _idleHairballs.Pop().QueueFree();
     base._ExitTree();
   }
 
@@ -96,15 +91,27 @@ public partial class SkillEffectsManager : Node {
     var filter = frame.Filter<Projectile, TransformComponent>();
     while (filter.Next(out var entity)) {
       ref readonly var projectile = ref frame.GetReadOnly<Projectile>(entity);
+      if (_active.TryGetValue(projectile.ProjectileId, out var effect) &&
+          effect.SkillAssetId == projectile.SkillAssetId)
+        _staleProjectileIds.Remove(projectile.ProjectileId);
+    }
+
+    foreach (var projectileId in _staleProjectileIds) {
+      Release(_active[projectileId].Node);
+      _active.Remove(projectileId);
+    }
+
+    var (crystalCount, hairballCount) = PoolTargets(ref frame);
+    ResizePools(crystalCount, hairballCount);
+
+    filter = frame.Filter<Projectile, TransformComponent>();
+    while (filter.Next(out var entity)) {
+      ref readonly var projectile = ref frame.GetReadOnly<Projectile>(entity);
       if (!_catalog.HasProjectileEffect(projectile.SkillAssetId))
         continue;
 
-      _staleProjectileIds.Remove(projectile.ProjectileId);
       ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);
-      if (!_active.TryGetValue(projectile.ProjectileId, out var effect) ||
-          effect.SkillAssetId != projectile.SkillAssetId) {
-        if (effect != null)
-          Release(effect.Node);
+      if (!_active.TryGetValue(projectile.ProjectileId, out var effect)) {
         effect = new ActiveProjectile(RentProjectile(projectile.SkillAssetId), projectile.SkillAssetId);
         _active[projectile.ProjectileId] = effect;
         effect.Configure(projectile.Radius);
@@ -114,10 +121,7 @@ public partial class SkillEffectsManager : Node {
       effect.Direction = projectile.Direction;
     }
 
-    foreach (var projectileId in _staleProjectileIds) {
-      Release(_active[projectileId].Node);
-      _active.Remove(projectileId);
-    }
+    ResizePools(crystalCount, hairballCount);
   }
 
   private ProjectileEffect RentProjectile(int skillAssetId) => skillAssetId switch {
@@ -152,19 +156,62 @@ public partial class SkillEffectsManager : Node {
     }
   }
 
-  private void Prewarm() {
-    Prewarm(ref _crystalBulletScene, SkillEffectCatalog.CrystalBulletScenePath, _idleCrystalBullets);
-    Prewarm(ref _hairballScene, SkillEffectCatalog.HairballScenePath, _idleHairballs);
+  private static (int Crystals, int Hairballs) PoolTargets(ref Frame frame) {
+    var crystals = 0;
+    var hairballs = 0;
+    var heroes = frame.Filter<Hero, Skills>();
+    while (heroes.Next(out var entity)) {
+      ref readonly var skills = ref frame.GetReadOnly<Skills>(entity);
+      for (var slot = 0; slot < Skills.MaxSlots; slot++) {
+        var skillAssetId = skills.GetSkillAssetId(slot);
+        if (skillAssetId != AssetIds.SkillCrystalGiantTertiary &&
+            skillAssetId != AssetIds.SkillHairyWizardPrimary)
+          continue;
+        if (!frame.AssetRegistry.TryGet<SkillAsset>(skillAssetId, out var skill))
+          continue;
+        var count = skill.ProjectileCount > 0 ? skill.ProjectileCount : 0; // One volley per caster; overflow rents on demand.
+        if (skillAssetId == AssetIds.SkillCrystalGiantTertiary)
+          crystals += count;
+        else
+          hairballs += count;
+      }
+    }
+    return (crystals, hairballs);
   }
 
-  private static void Prewarm<T>(ref PackedScene scene, string scenePath, Stack<T> pool) where T : ProjectileEffect {
+  private void ResizePools(int crystals, int hairballs) {
+    foreach (var effect in _active.Values) {
+      if (effect.SkillAssetId == AssetIds.SkillCrystalGiantTertiary)
+        crystals--;
+      else if (effect.SkillAssetId == AssetIds.SkillHairyWizardPrimary)
+        hairballs--;
+    }
+    ResizePool(ref _crystalBulletScene, SkillEffectCatalog.CrystalBulletScenePath, _idleCrystalBullets,
+      Math.Max(crystals, 0));
+    ResizePool(ref _hairballScene, SkillEffectCatalog.HairballScenePath, _idleHairballs,
+      Math.Max(hairballs, 0));
+  }
+
+  private void ClearPools() {
+    while (_idleCrystalBullets.Count > 0)
+      _idleCrystalBullets.Pop().Free();
+    while (_idleHairballs.Count > 0)
+      _idleHairballs.Pop().Free();
+  }
+
+  private static void ResizePool<T>(ref PackedScene scene, string scenePath, Stack<T> pool, int idleCount)
+    where T : ProjectileEffect {
+    while (pool.Count > idleCount)
+      pool.Pop().Free();
+    if (pool.Count >= idleCount) return;
+
     scene ??= GD.Load<PackedScene>(scenePath);
     if (scene == null) {
       GD.PushError($"[SkillEffects] Missing {scenePath}.");
       return;
     }
 
-    while (pool.Count < PrewarmCount) {
+    while (pool.Count < idleCount) {
       var bullet = scene.Instantiate<T>();
       if (bullet == null) break;
       pool.Push(bullet);
