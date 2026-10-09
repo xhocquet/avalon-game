@@ -34,10 +34,12 @@ public class VfxManager {
   private IDisposable _turretDestroyedSub;
   private IDisposable _crystalDestroyedSub;
   private EntityViewUpdaterNode _view;
+  private Mesh _attackLineMesh;
 
   public void Attach(SimEventHub events, EntityViewUpdaterNode view) {
     Detach();
     _view = view;
+    _attackLineMesh = DebugAttackLine.CreateMesh();
     // OnFx, not OnPredicted: a local host verifies every tick, so nothing arrives on the predicted
     // stream there and VFX subscribed to it play only in networked matches. A mispredicted flash is
     // transient and harmless, which is why UI state uses confirmed events but VFX do not.
@@ -68,6 +70,7 @@ public class VfxManager {
     _crystalDestroyedSub?.Dispose();
     _crystalDestroyedSub = null;
     _view = null;
+    _attackLineMesh = null;
   }
 
   // The swing, not the hit: an attack clip started when damage lands plays its wind-up after the
@@ -87,7 +90,7 @@ public class VfxManager {
     // The debug line stands in for rigs that have no attack clip yet.
     if (attackerView is not IAttackableView attacker ||
         !attacker.OnAttackWindupVfx(targetPos, windupSeconds))
-      _view.AddChild(DebugAttackLine.Create(attackerPos, targetPos));
+      _view.AddChild(DebugAttackLine.Create(attackerPos, targetPos, _attackLineMesh));
   }
 
   private void HandleAttackWindupCanceled(AttackWindupCanceledEvent evt) {

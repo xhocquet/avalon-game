@@ -52,25 +52,30 @@ public partial class DebugConsole : CanvasLayer {
 
   public override void _Ready() {
     _panel = GetNode<Control>("Panel");
-    _output = GetNode<RichTextLabel>("Panel/Layout/Output");
-    _input = GetNode<LineEdit>("Panel/Layout/Input");
+    _output = GetNode<RichTextLabel>("Panel/Layout/Console/Output");
+    _input = GetNode<LineEdit>("Panel/Layout/Console/Input");
     _input.TextSubmitted += OnSubmitted;
-    BuildQuickActions(GetNode<HFlowContainer>("Panel/Layout/Actions"));
+    BuildQuickActions(GetNode<GridContainer>("Panel/Layout/Actions"));
     Visible = false;
     PrintHelp();
   }
 
   // FocusMode.None on every button: a click runs the command and leaves the caret in the prompt, so
   // the buttons and typing are not two modes.
-  private void BuildQuickActions(HFlowContainer row) {
+  private void BuildQuickActions(GridContainer grid) {
     foreach (var (label, command) in QuickActions) {
-      var button = new Button { Text = label, FocusMode = Control.FocusModeEnum.None };
+      var button = new Button {
+        Text = label,
+        FocusMode = Control.FocusModeEnum.None,
+        SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+        SizeFlagsVertical = Control.SizeFlags.ExpandFill
+      };
       var line = command;
       button.Pressed += () => {
         Print($"[color=#7fb2ff]> {line}[/color]");
         Run(line);
       };
-      row.AddChild(button);
+      grid.AddChild(button);
     }
   }
 

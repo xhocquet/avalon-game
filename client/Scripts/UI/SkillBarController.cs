@@ -22,7 +22,7 @@ namespace Meesles.Avalon;
 // is harmless.
 public class SkillBarController {
   private const float CellSize = 54f;
-  private static readonly Texture2D EmptySlotTexture = GD.Load<Texture2D>("res://Assets/Placeholders/red-swirl.webp");
+  private static Texture2D EmptySlotTexture => GD.Load<Texture2D>("res://Assets/Placeholders/red-swirl.webp");
   public const int SlotCount = Skills.MaxSlots;
 
   // Indexed by SkillSlot. Distinct hues so the four slots stay tellable apart before they have icons.

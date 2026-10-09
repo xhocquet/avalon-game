@@ -17,7 +17,7 @@ const int maxRooms = 1; // single concurrent match
 
 using var loggerFactory = KLoggerFactory.Create(builder => {
   builder.SetMinimumLevel(logLevel);
-  builder.AddConsole();
+  builder.AddSink(new ColoredConsoleSink());
   builder.AddRollingFile(options => {
     options.FilePrefix = "AvalonServer";
     options.RollingSizeKB = 1024 * 1024;

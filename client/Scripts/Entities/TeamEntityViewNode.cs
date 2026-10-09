@@ -9,7 +9,7 @@ namespace Meesles.Avalon.Client.Scripts.Entities;
 public abstract partial class TeamEntityViewNode : EntityViewNode, ISelectableTeamView {
   private const string SelectionIndicatorNode = "SelectionIndicator";
   private const uint MinimapLayer = 1u << 1;
-  private static readonly Texture2D MinimapIcon = GD.Load<Texture2D>("res://Assets/UI/TargetCursor.png");
+  private static Texture2D MinimapIcon => GD.Load<Texture2D>("res://Assets/UI/TargetCursor.png");
   private static readonly Color TeamOneColor = new(0.25f, 0.75f, 0.95f);
   private static readonly Color TeamTwoColor = new(0.95f, 0.35f, 0.28f);
   private static readonly Color NeutralColor = new(0.55f, 0.85f, 0.35f);

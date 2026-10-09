@@ -5,7 +5,6 @@ using System.IO;
 using System.Text;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Deterministic.Math;
-using xpTURN.Klotho.Logging;
 using Xunit;
 using Xunit.Abstractions;
 

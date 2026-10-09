@@ -20,6 +20,41 @@ bg_color = Color(0.1, 0.12, 0.15, 1)
 border_width_left = 2
 border_color = Color(0.27, 0.76, 0.7, 1)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button"]
+content_margin_left = 10.0
+content_margin_top = 4.0
+content_margin_right = 10.0
+content_margin_bottom = 4.0
+bg_color = Color(0.1, 0.12, 0.15, 1)
+border_width_left = 2
+border_color = Color(0.27, 0.76, 0.7, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_hover"]
+content_margin_left = 10.0
+content_margin_top = 4.0
+content_margin_right = 10.0
+content_margin_bottom = 4.0
+bg_color = Color(0.12, 0.24, 0.24, 1)
+border_width_left = 2
+border_color = Color(0.27, 0.76, 0.7, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_pressed"]
+content_margin_left = 10.0
+content_margin_top = 4.0
+content_margin_right = 10.0
+content_margin_bottom = 4.0
+bg_color = Color(0.1, 0.33, 0.3, 1)
+border_width_left = 2
+border_color = Color(0.27, 0.76, 0.7, 1)
+
+[sub_resource type="Theme" id="Theme_actions"]
+Button/colors/font_color = Color(0.82, 0.86, 0.88, 1)
+Button/colors/font_hover_color = Color(0.27, 0.76, 0.7, 1)
+Button/colors/font_pressed_color = Color(0.27, 0.76, 0.7, 1)
+Button/styles/normal = SubResource("StyleBoxFlat_button")
+Button/styles/hover = SubResource("StyleBoxFlat_button_hover")
+Button/styles/pressed = SubResource("StyleBoxFlat_button_pressed")
+
 [node name="DebugConsole" type="CanvasLayer"]
 process_mode = 3
 layer = 100
@@ -32,11 +67,25 @@ offset_bottom = 320.0
 grow_horizontal = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_console")
 
-[node name="Layout" type="VBoxContainer" parent="Panel"]
+[node name="Layout" type="HBoxContainer" parent="Panel"]
 layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Actions" type="GridContainer" parent="Panel/Layout"]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+size_flags_vertical = 3
+theme = SubResource("Theme_actions")
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 4
+columns = 2
+
+[node name="Console" type="VBoxContainer" parent="Panel/Layout"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = 8
 
-[node name="Output" type="RichTextLabel" parent="Panel/Layout"]
+[node name="Output" type="RichTextLabel" parent="Panel/Layout/Console"]
 layout_mode = 2
 size_flags_vertical = 3
 bbcode_enabled = true
@@ -45,12 +94,7 @@ theme_override_colors/default_color = Color(0.82, 0.86, 0.88, 1)
 theme_override_font_sizes/normal_font_size = 14
 theme_override_font_sizes/mono_font_size = 14
 
-[node name="Actions" type="HFlowContainer" parent="Panel/Layout"]
-layout_mode = 2
-theme_override_constants/h_separation = 6
-theme_override_constants/v_separation = 4
-
-[node name="Input" type="LineEdit" parent="Panel/Layout"]
+[node name="Input" type="LineEdit" parent="Panel/Layout/Console"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 15
 theme_override_styles/normal = SubResource("StyleBoxFlat_prompt")

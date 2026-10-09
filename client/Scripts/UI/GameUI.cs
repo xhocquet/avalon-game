@@ -515,6 +515,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private void SetupTabUi() {
     if (_tabUi == null) return;
     _tabUi.TopLevel = true;
+    _tabUi.SetAnchorsPreset(Control.LayoutPreset.TopLeft);
     _tabUi.Visible = false;
     UpdateTabUiSize(_tabUi);
     GetViewport().SizeChanged += () => UpdateTabUiSize(_tabUi);

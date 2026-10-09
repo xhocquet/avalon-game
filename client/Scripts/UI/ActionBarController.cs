@@ -25,7 +25,7 @@ namespace Meesles.Avalon;
 public class ActionBarController {
   private const float CellSize = 54f;
   private const int RowCount = 4;
-  private static readonly Texture2D EmptySlotTexture = GD.Load<Texture2D>("res://Assets/Placeholders/purple-swirl.webp");
+  private static Texture2D EmptySlotTexture => GD.Load<Texture2D>("res://Assets/Placeholders/purple-swirl.webp");
 
   private readonly List<ItemButton> _buttons = new();
   private readonly ShopItemCatalog _catalog;

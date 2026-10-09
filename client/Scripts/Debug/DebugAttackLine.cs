@@ -9,29 +9,48 @@ public partial class DebugAttackLine : MeshInstance3D {
   private float _elapsed;
 
   public static DebugAttackLine Create(Vector3 from, Vector3 to) {
-    var node = new DebugAttackLine();
+    return Create(from, to, CreateMesh());
+  }
+
+  public static DebugAttackLine Create(Vector3 from, Vector3 to, Mesh mesh) {
+    var node = new DebugAttackLine {
+      Mesh = mesh,
+      CastShadow = ShadowCastingSetting.Off
+    };
 
     from.Y += ModelCenterY;
     to.Y += ModelCenterY;
 
+    var offset = to - from;
+    node.Position = from;
+    if (offset.LengthSquared() > 0f)
+      node.Basis = new Basis(new Quaternion(Vector3.Forward, offset.Normalized()))
+                   * Basis.FromScale(new Vector3(1f, 1f, offset.Length()));
+    else
+      node.Visible = false;
+
+    return node;
+  }
+
+  public static Mesh CreateMesh() {
     var mesh = new ImmediateMesh();
     mesh.SurfaceBegin(Mesh.PrimitiveType.Lines);
     mesh.SurfaceSetColor(Colors.Red);
-    mesh.SurfaceAddVertex(from);
+    mesh.SurfaceAddVertex(Vector3.Zero);
     mesh.SurfaceSetColor(Colors.Red);
-    mesh.SurfaceAddVertex(to);
+    mesh.SurfaceAddVertex(Vector3.Forward);
     mesh.SurfaceEnd();
 
     var mat = new StandardMaterial3D {
       AlbedoColor = Colors.Red,
       ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
       VertexColorUseAsAlbedo = true,
+      Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
       NoDepthTest = true
     };
     mesh.SurfaceSetMaterial(0, mat);
 
-    node.Mesh = mesh;
-    return node;
+    return mesh;
   }
 
   public override void _Process(double delta) {
@@ -41,13 +60,6 @@ public partial class DebugAttackLine : MeshInstance3D {
       return;
     }
 
-    var alpha = 1f - _elapsed / Duration;
-    if (Mesh is ImmediateMesh im && im.GetSurfaceCount() > 0) {
-      var mat = im.SurfaceGetMaterial(0) as StandardMaterial3D;
-      if (mat != null) {
-        mat.Transparency = BaseMaterial3D.TransparencyEnum.Alpha;
-        mat.AlbedoColor = new Color(1f, 0f, 0f, alpha);
-      }
-    }
+    Transparency = _elapsed / Duration;
   }
 }

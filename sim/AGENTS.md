@@ -93,7 +93,9 @@ Wire limits live in [`CommandLimits`](Commands/CommandLimits.cs), not the assets
 
 # Test Cheats
 
-`--godmode`, `--freeshop` and `--allcheats` on the client command line set [`CheatFlags`](Enums.cs) for that player. They are parsed by [`CheatOptions`](../client/Scripts/View/CheatOptions.cs), sent as `SetCheatCommand`, and stored per player in the `CheatState` singleton, which [`CheatsController`](Controllers/CheatsController.cs) reads. `DamageController` gates on `GodMode`, `ShopController` on `FreeShop`. Nothing authorizes the command beyond scoping it to the issuing player.
+`--godmode`, `--freeshop` and `--allcheats` on the client command line set [`CheatFlags`](Enums.cs) for that player. They are parsed by [`CheatOptions`](../client/Scripts/Debug/CheatOptions.cs), sent as `SetCheatCommand`, and stored per player in the `CheatState` singleton, which [`CheatsController`](Controllers/CheatsController.cs) reads. `DamageController` gates on `GodMode`, `ShopController` on `FreeShop`. Nothing authorizes the command beyond scoping it to the issuing player.
+
+`--allcheats` also sends Max Skills followed by Refresh CDs once per match, after the local hero and cheat flags appear in the verified frame. These use the same `DebugCommand` actions as the console.
 
 Adding another cheat: a value in `CheatFlags`, the same bit in `CheatsController.All` so validation accepts it, the arg in `CheatOptions`, and the read wherever the rule lives. The command and the storage need no change.
 

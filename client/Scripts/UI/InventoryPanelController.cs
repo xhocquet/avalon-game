@@ -13,7 +13,7 @@ namespace Meesles.Avalon;
 // allocation-free (just an int[] compare) and survive rollback: a corrected count simply repaints.
 public class InventoryPanelController {
   private const float CellSize = 54f;
-  private static readonly Texture2D EmptySlotTexture = GD.Load<Texture2D>("res://Assets/Placeholders/brown-swirl.webp");
+  private static Texture2D EmptySlotTexture => GD.Load<Texture2D>("res://Assets/Placeholders/brown-swirl.webp");
 
   private readonly ShopItemCatalog _catalog;
   private readonly int[] _counts = new int[ShopItemCatalog.ItemDefs.Length];

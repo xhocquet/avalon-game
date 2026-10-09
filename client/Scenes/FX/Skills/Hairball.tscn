@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bbst0oi7rxrvu"]
 
-[ext_resource type="Shader" uid="uid://b7w8tvb4d7t5r" path="res://Assets/FX/Shaders/Hairball.gdshader" id="1_hair"]
+[ext_resource type="Shader" path="res://Assets/FX/Shaders/Hairball.gdshader" id="1_hair"]
 [ext_resource type="Script" path="res://Scripts/FX/HairballEffect.cs" id="2_script"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_hair"]

@@ -19,7 +19,9 @@ public class SimCallbacks(
   private const int CheatSendTick = 60;
   private const int CheatRetryIntervalTicks = 30;
   private const int CheatMaxAttempts = 10;
+  private static readonly DebugAction[] StartupCheats = [DebugAction.MaxSkills, DebugAction.RefreshCooldowns];
   private int _cheatAttempts;
+  private int _startupCheatIndex;
   private int _nextCheatSendTick = CheatSendTick;
   private bool _factionSelectionSent;
   private IKlothoEngine _engine;
@@ -98,6 +100,18 @@ public class SimCallbacks(
       LogCommandSent("SetCheatCommand", tick, playerId,
         $"flags={CheatOptions.Flags} attempt={_cheatAttempts}");
       return;
+    }
+
+    if (CheatOptions.AllCheats && _startupCheatIndex < StartupCheats.Length) {
+      var frame = _engine?.VerifiedFrame.Frame;
+      if (frame != null &&
+          CheatsController.AreAllEnabled(ref frame, playerId, CheatOptions.Flags) &&
+          UnitLookup.TryGetPlayerHero(ref frame, playerId, out _)) {
+        var command = new DebugCommand { Action = (int)StartupCheats[_startupCheatIndex++] };
+        sender.Send(command);
+        LogCommandSent("DebugCommand", tick, playerId, Describe(command));
+        return;
+      }
     }
 
     // Ahead of the gameplay queues: a console command is a deliberate one-off and should not wait
