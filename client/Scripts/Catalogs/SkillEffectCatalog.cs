@@ -8,6 +8,7 @@ public class SkillEffectCatalog {
   public const string HairballScenePath = "res://Scenes/FX/Skills/Hairball.tscn";
   public const string PickleKnightRefreshScenePath = "res://Scenes/FX/Skills/PickleKnightRefresh.tscn";
   public const string PickleKnightExploosionScenePath = "res://Scenes/FX/Skills/PickleKnightExploosion.tscn";
+  public const string SkinwalkerEatToSurviveScenePath = "res://Scenes/FX/Skills/SkinwalkerEatToSurvive.tscn";
 
   private static readonly HashSet<int> ProjectileEffects = [
     AssetIds.SkillCrystalGiantTertiary,

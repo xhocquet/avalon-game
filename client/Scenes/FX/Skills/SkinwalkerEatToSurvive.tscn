@@ -1,0 +1,11 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://Scenes/FX/Skills/HealingEffect.tscn" id="1_healing"]
+[ext_resource type="Script" path="res://Scripts/FX/HealingSkillEffect.cs" id="2_script"]
+
+[node name="SkinwalkerEatToSurvive" instance=ExtResource("1_healing")]
+script = ExtResource("2_script")
+DurationSeconds = 1.0
+Height = 3.5
+RadiusMultiplier = 2.0
+InitialRadiusFraction = 0.9
