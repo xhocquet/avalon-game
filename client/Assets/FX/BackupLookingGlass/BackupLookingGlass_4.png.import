@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://1n7vboalika6"
-path="res://.godot/imported/backup_looking_glass_display_concept_1_4.png-c36c9c0538f8f39fa3b16a4c128bdfe9.ctex"
+path="res://.godot/imported/BackupLookingGlass_4.png-708dca4a11046ad71ed10c0d271a2493.ctex"
 metadata={
 "vram_texture": false
 }
@@ -13,8 +13,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://Assets/FX/imports/backup_looking_glass_display_concept_1_4.png"
-dest_files=["res://.godot/imported/backup_looking_glass_display_concept_1_4.png-c36c9c0538f8f39fa3b16a4c128bdfe9.ctex"]
+source_file="res://Assets/FX/BackupLookingGlass/BackupLookingGlass_4.png"
+dest_files=["res://.godot/imported/BackupLookingGlass_4.png-708dca4a11046ad71ed10c0d271a2493.ctex"]
 
 [params]
 

@@ -2,21 +2,21 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b2pqcbwekmsha"
-path.s3tc="res://.godot/imported/backup_looking_glass_display_concept_1_2.png-caf81b7cbdf2357326ed20f90face09a.s3tc.ctex"
-path.etc2="res://.godot/imported/backup_looking_glass_display_concept_1_2.png-caf81b7cbdf2357326ed20f90face09a.etc2.ctex"
+uid="uid://c8cw55s8no4kb"
+path.s3tc="res://.godot/imported/BackupLookingGlass_3.jpg-c7b38d6350360f4362fbf6b42279f869.s3tc.ctex"
+path.etc2="res://.godot/imported/BackupLookingGlass_3.jpg-c7b38d6350360f4362fbf6b42279f869.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
-"md5": "0fce72a4fe8d5e159cfc39015b03700f"
+"md5": "a783143045e8b9bd2847e497b3b3bf49"
 }
 
 [deps]
 
-source_file="res://Assets/FX/imports/backup_looking_glass_display_concept_1_2.png"
-dest_files=["res://.godot/imported/backup_looking_glass_display_concept_1_2.png-caf81b7cbdf2357326ed20f90face09a.s3tc.ctex", "res://.godot/imported/backup_looking_glass_display_concept_1_2.png-caf81b7cbdf2357326ed20f90face09a.etc2.ctex"]
+source_file="res://Assets/FX/BackupLookingGlass/BackupLookingGlass_3.jpg"
+dest_files=["res://.godot/imported/BackupLookingGlass_3.jpg-c7b38d6350360f4362fbf6b42279f869.s3tc.ctex", "res://.godot/imported/BackupLookingGlass_3.jpg-c7b38d6350360f4362fbf6b42279f869.etc2.ctex"]
 
 [params]
 

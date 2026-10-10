@@ -1,6 +1,6 @@
 [gd_scene format=3]
 
-[ext_resource type="PackedScene" path="res://Assets/FX/HealingEffect/HealingEffect.tscn" id="1_healing"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/Skills/HealingEffect.tscn" id="1_healing"]
 [ext_resource type="Script" path="res://Scripts/FX/HealingSkillEffect.cs" id="2_script"]
 [ext_resource type="Script" path="res://addons/constructive_telegraphs/src/con_telegraph_instance_3d.gd" id="3_instance"]
 [ext_resource type="Script" path="res://addons/constructive_telegraphs/src/con_telegraph_area_3d.gd" id="4_area"]

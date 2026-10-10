@@ -33,7 +33,7 @@
 [ext_resource type="Shader" uid="uid://l0uvbj0raqeo" path="res://Scenes/World/CartoonFire.gdshader" id="30_jx5j3"]
 [ext_resource type="Texture2D" uid="uid://crf7v0er3rxt8" path="res://Assets/Props/Water/FoamMask.png" id="31_rok63"]
 [ext_resource type="PackedScene" uid="uid://bus13us8cbjnk" path="res://Scenes/FX/BotwExplosion.tscn" id="32_84wms"]
-[ext_resource type="Shader" uid="uid://b6sfkxjg6b7a4" path="res://Assets/FX/Shaders/crystal.gdshader" id="33_eaojp"]
+[ext_resource type="Shader" uid="uid://b6sfkxjg6b7a4" path="res://Assets/FX/Shaders/Crystal.gdshader" id="33_eaojp"]
 [ext_resource type="PackedScene" uid="uid://bus13us71bank" path="res://Scenes/FX/BotwExplosionIce.tscn" id="33_fnlpt"]
 [ext_resource type="PackedScene" uid="uid://bus13us8dntnk" path="res://Scenes/FX/BotwExplosionToxic.tscn" id="34_e58nk"]
 [ext_resource type="PackedScene" uid="uid://bus13us75dbwk" path="res://Scenes/FX/BotwExplosionMega.tscn" id="35_fcsjw"]

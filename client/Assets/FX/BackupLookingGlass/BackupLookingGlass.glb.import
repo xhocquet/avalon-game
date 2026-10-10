@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://cvxe7h4t5a4co"
-path="res://.godot/imported/backup_looking_glass_display_concept_1.glb-ab0e45f462e531a19f5b5f3bb0d882f1.scn"
+path="res://.godot/imported/BackupLookingGlass.glb-7b2ba95b28652d0b5459c4cad075f120.scn"
 
 [deps]
 
-source_file="res://Assets/FX/imports/backup_looking_glass_display_concept_1.glb"
-dest_files=["res://.godot/imported/backup_looking_glass_display_concept_1.glb-ab0e45f462e531a19f5b5f3bb0d882f1.scn"]
+source_file="res://Assets/FX/BackupLookingGlass/BackupLookingGlass.glb"
+dest_files=["res://.godot/imported/BackupLookingGlass.glb-7b2ba95b28652d0b5459c4cad075f120.scn"]
 
 [params]
 
