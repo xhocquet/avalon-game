@@ -3,6 +3,8 @@ using Meesles.Avalon.Client.Scripts.GameState;
 using Meesles.Avalon.Client.Scripts.Interfaces;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Core;
+using xpTURN.Klotho.Deterministic.Math;
+using xpTURN.Klotho.Deterministic.Navigation;
 
 namespace Meesles.Avalon.Client.Scripts.Entities;
 
@@ -10,7 +12,6 @@ public partial class MinionEntity : TeamEntityViewNode, IAttackableView {
   private const string UnitsGroup = "units";
   private const string AnimRun = "Run";
   private const string AnimIdle = "Stand";
-  // private static readonly Quaternion FlipY = new(Vector3.Up, Mathf.Pi);
 
   [Export] public string WalkAnimationOverride { get; set; } = "";
   [Export] public string IdleAnimationOverride { get; set; } = "";
@@ -40,8 +41,13 @@ public partial class MinionEntity : TeamEntityViewNode, IAttackableView {
       return;
     }
 
-    if (_anim.CurrentAnimation != animName) {
+    if (_anim.CurrentAnimation != animName || !_anim.IsPlaying()) {
       _anim.Play(animName);
+      var clip = _anim.GetAnimation(animName);
+      if (clip.LoopMode != Animation.LoopModeEnum.None && TryGetCachedUnitId(out var unitId)) {
+        var phase = unchecked((uint)unitId * 2654435761u) / 4294967296.0;
+        _anim.Seek(phase * clip.Length, true);
+      }
     }
   }
 
@@ -103,12 +109,11 @@ public partial class MinionEntity : TeamEntityViewNode, IAttackableView {
     AddToGroup(UnitsGroup);
     _isMoving = false;
     _isAttacking = false;
-    if (_anim != null) PlayOrStop(IdleAnim);
-
     var live = frame.Frame;
     if (live != null && live.Has<UnitIdentity>(EntityRef))
       SetCachedUnitId(live.GetReadOnly<UnitIdentity>(EntityRef).UnitId);
     BindTeam(frame);
+    if (_anim != null) ReturnToLocomotion();
   }
 
   public override void OnDeactivate() {
@@ -116,6 +121,7 @@ public partial class MinionEntity : TeamEntityViewNode, IAttackableView {
     ClearTeam();
     _isMoving = false;
     _isAttacking = false;
+    _anim?.Stop();
   }
 
   public override void OnUpdateView() {
@@ -123,14 +129,12 @@ public partial class MinionEntity : TeamEntityViewNode, IAttackableView {
     var frame = Engine.PredictedFrame.Frame;
     if (frame == null) return;
 
-    var moving = frame.Has<UnitMoveTarget>(EntityRef);
+    var moving = frame.Has<NavAgentComponent>(EntityRef)
+      ? frame.GetReadOnly<NavAgentComponent>(EntityRef).Velocity.sqrMagnitude > FP64.Zero
+      : frame.Has<UnitMoveTarget>(EntityRef);
     if (moving == _isMoving) return;
     _isMoving = moving;
     _isAttacking = false; // Movement interrupts the attack clip.
-    PlayOrStop(_isMoving ? RunAnim : IdleAnim);
+    ReturnToLocomotion();
   }
-
-  // public override void OnLateUpdateView() {
-  //   Quaternion *= FlipY;
-  // }
 }
