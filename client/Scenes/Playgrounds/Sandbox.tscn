@@ -27,7 +27,7 @@
 [ext_resource type="PackedScene" uid="uid://c4um04dyla66r" path="res://Scenes/Objects/Fountain.tscn" id="27_dg1mo"]
 [ext_resource type="PackedScene" uid="uid://ry63ypkrgtjk" path="res://Scenes/Heroes/PickleKnight.tscn" id="27_gwvee"]
 [ext_resource type="PackedScene" uid="uid://dhh3i5ijg58fo" path="res://Scenes/Heroes/Skinwalker.tscn" id="28_3kenh"]
-[ext_resource type="PackedScene" uid="uid://cuh0tkyxt3hv" path="res://Scenes/FX/HexGate.tscn" id="28_8obd1"]
+[ext_resource type="PackedScene" uid="uid://cuh0tkyxt3hv" path="res://Scenes/FX/Environment/HexGate.tscn" id="28_8obd1"]
 [ext_resource type="PackedScene" uid="uid://ctd5irvpu30tj" path="res://Scenes/Heroes/SnailHead.tscn" id="29_7ykkm"]
 [ext_resource type="PackedScene" uid="uid://3ded1f06hab5" path="res://Scenes/Objects/WaterBottle.tscn" id="29_iwewf"]
 [ext_resource type="Shader" uid="uid://l0uvbj0raqeo" path="res://Scenes/World/CartoonFire.gdshader" id="30_jx5j3"]
