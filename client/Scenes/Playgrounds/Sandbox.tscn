@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://klsya8v6joam"]
 
-[ext_resource type="Shader" path="res://Scenes/World/Sky.gdshader" id="1_7ykkm"]
+[ext_resource type="Shader" uid="uid://dme5a40ljtsc5" path="res://Scenes/World/sky.gdshader" id="1_7ykkm"]
 [ext_resource type="Shader" uid="uid://dkl23k2monqos" path="res://Scenes/World/WorldSplatmap.gdshader" id="2_wau1u"]
 [ext_resource type="Texture2D" uid="uid://bhri4xhnx2dw7" path="res://Assets/Props/Ground/texture4/ground_0034_color_2k.jpg" id="3_chqrk"]
 [ext_resource type="Texture2D" uid="uid://8e5e6xh3shr0" path="res://Assets/Props/Ground/Grass1/Grass007_2K-JPG_Color.jpg" id="4_yvjgh"]
@@ -33,7 +33,7 @@
 [ext_resource type="Shader" uid="uid://l0uvbj0raqeo" path="res://Scenes/World/CartoonFire.gdshader" id="30_jx5j3"]
 [ext_resource type="Texture2D" uid="uid://crf7v0er3rxt8" path="res://Assets/Props/Water/FoamMask.png" id="31_rok63"]
 [ext_resource type="PackedScene" uid="uid://bus13us8cbjnk" path="res://Scenes/FX/BotwExplosion.tscn" id="32_84wms"]
-[ext_resource type="Shader" uid="uid://b6sfkxjg6b7a4" path="res://Assets/FX/Shaders/Crystal.gdshader" id="33_eaojp"]
+[ext_resource type="Shader" uid="uid://b6sfkxjg6b7a4" path="res://Assets/FX/Shaders/crystal.gdshader" id="33_eaojp"]
 [ext_resource type="PackedScene" uid="uid://bus13us71bank" path="res://Scenes/FX/BotwExplosionIce.tscn" id="33_fnlpt"]
 [ext_resource type="PackedScene" uid="uid://bus13us8dntnk" path="res://Scenes/FX/BotwExplosionToxic.tscn" id="34_e58nk"]
 [ext_resource type="PackedScene" uid="uid://bus13us75dbwk" path="res://Scenes/FX/BotwExplosionMega.tscn" id="35_fcsjw"]
@@ -43,6 +43,10 @@
 [ext_resource type="PackedScene" uid="uid://bfkese80ta8j8" path="res://Scenes/Mobs/CrystalTurtle.tscn" id="40_3kenh"]
 [ext_resource type="PackedScene" uid="uid://jpnctrugpqg7" path="res://Scenes/Mobs/CaperCreep.tscn" id="41_7ykkm"]
 [ext_resource type="PackedScene" uid="uid://bwb3aihrvx5ue" path="res://Scenes/Mobs/PatchRat.tscn" id="42_otmnd"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/MetaballicExplosionAir.tscn" id="44_xwlof"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/MetaballicExplosionFire.tscn" id="45_o0axr"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/MetaballicExplosionOil.tscn" id="46_y5sde"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/MetaballicExplosionWater.tscn" id="47_ax11q"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_dngt1"]
 shader = ExtResource("1_7ykkm")
@@ -459,3 +463,15 @@ transform = Transform3D(0.4619498, 0, 0.8869061, 0, 1, 0, -0.8869061, 0, 0.46194
 
 [node name="PatchRat" parent="." unique_id=516344692 instance=ExtResource("42_otmnd")]
 transform = Transform3D(-0.6620578, 0, -0.74945277, 0, 1, 0, 0.74945277, 0, -0.6620578, -8.69523, -2.3841858e-07, -14.147077)
+
+[node name="MetaballicExplosionAir" parent="." unique_id=1127523286 instance=ExtResource("44_xwlof")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.590704, 2.92714, 14.502872)
+
+[node name="MetaballicExplosionFire" parent="." unique_id=163381011 instance=ExtResource("45_o0axr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5915432, 2.92714, 17.695704)
+
+[node name="MetaballicExplosionOil" parent="." unique_id=822990860 instance=ExtResource("46_y5sde")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6462188, 2.92714, 10.789302)
+
+[node name="MetaballicExplosionWater" parent="." unique_id=1166322232 instance=ExtResource("47_ax11q")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.514676, 2.92714, 13.906206)

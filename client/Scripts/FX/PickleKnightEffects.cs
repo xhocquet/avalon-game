@@ -3,69 +3,85 @@ using System.Collections.Generic;
 using Godot;
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
+using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
+using xpTURN.Klotho.Godot;
 
 namespace Meesles.Avalon.Client.Scripts.View;
 
 public sealed class PickleKnightEffects {
-  private const float ExploosionBaseRadius = 5f;
   private static PackedScene _refreshScene;
   private static PackedScene _exploosionScene;
-
-  private readonly HashSet<GpuParticles3D> _active = new();
+  private readonly Dictionary<HealingSkillEffect, Stack<HealingSkillEffect>> _active = new();
+  private readonly Stack<HealingSkillEffect> _refreshPool = new();
+  private readonly Stack<HealingSkillEffect> _exploosionPool = new();
   private IDisposable _castSub;
   private IKlothoEngine _engine;
   private Node3D _layer;
+  private EntityViewUpdaterNode _view;
 
-  public void Attach(SimEventHub events, Node3D layer, IKlothoEngine engine) {
+  public void Attach(SimEventHub events, Node3D layer, IKlothoEngine engine, EntityViewUpdaterNode view) {
     Detach();
     _layer = layer;
     _engine = engine;
+    _view = view;
+    _refreshPool.Push(Create(ref _refreshScene, SkillEffectCatalog.PickleKnightRefreshScenePath));
+    _exploosionPool.Push(Create(ref _exploosionScene, SkillEffectCatalog.PickleKnightExploosionScenePath));
     _castSub = events.OnConfirmed<SkillCastEvent>(HandleCast);
   }
 
   public void Detach() {
     _castSub?.Dispose();
     _castSub = null;
-    foreach (var effect in _active)
-      if (GodotObject.IsInstanceValid(effect)) effect.QueueFree();
+    foreach (var effect in _active.Keys) Destroy(effect);
     _active.Clear();
+    while (_refreshPool.Count > 0) Destroy(_refreshPool.Pop());
+    while (_exploosionPool.Count > 0) Destroy(_exploosionPool.Pop());
     _layer = null;
     _engine = null;
+    _view = null;
   }
 
   private void HandleCast(SkillCastEvent evt) {
-    if (_layer == null) return;
+    if (_layer == null || (evt.SkillAssetId != AssetIds.SkillPickleKnightTertiary &&
+                           evt.SkillAssetId != AssetIds.SkillPickleKnightUltimate)) return;
+    var frame = _engine?.PredictedFrame.Frame;
+    if (frame == null || !frame.AssetRegistry.TryGet<SkillAsset>(evt.SkillAssetId, out var skill)) return;
 
-    PackedScene scene;
-    switch (evt.SkillAssetId) {
-      case AssetIds.SkillPickleKnightTertiary:
-        scene = _refreshScene ??= GD.Load<PackedScene>(SkillEffectCatalog.PickleKnightRefreshScenePath);
-        break;
-      case AssetIds.SkillPickleKnightUltimate:
-        scene = _exploosionScene ??= GD.Load<PackedScene>(SkillEffectCatalog.PickleKnightExploosionScenePath);
-        break;
-      default:
+    var refresh = evt.SkillAssetId == AssetIds.SkillPickleKnightTertiary;
+    EntityViewNode follow = null;
+    var radius = skill.AreaRadius.ToFloat();
+    if (refresh) {
+      if (!UnitLookup.TryGetEntityByUnitId(ref frame, evt.UnitId, out var caster) || !frame.Has<Stats>(caster))
         return;
+      radius = frame.GetReadOnly<Stats>(caster).GameplayRadius.ToFloat();
+      _view?.ViewsByUnitId.TryGetValue(evt.UnitId, out follow);
     }
+    var pool = refresh ? _refreshPool : _exploosionPool;
+    var effect = pool.Count > 0 ? pool.Pop() : refresh
+      ? Create(ref _refreshScene, SkillEffectCatalog.PickleKnightRefreshScenePath)
+      : Create(ref _exploosionScene, SkillEffectCatalog.PickleKnightExploosionScenePath);
+    _active.Add(effect, pool);
+    effect.Play(evt.Position.ToVector3(), Mathf.Max(radius, 0.01f), follow);
+  }
 
-    var effect = scene?.Instantiate<GpuParticles3D>();
-    if (effect == null) return;
-
-    effect.Emitting = false;
-    effect.Position = evt.Position.ToVector3() + Vector3.Up;
-    var registry = _engine?.PredictedFrame.Frame?.AssetRegistry;
-    if (evt.SkillAssetId == AssetIds.SkillPickleKnightUltimate &&
-        registry != null && registry.TryGet<SkillAsset>(evt.SkillAssetId, out var skill))
-      effect.Scale = Vector3.One * Mathf.Max(skill.AreaRadius.ToFloat() / ExploosionBaseRadius, 0.01f);
-
-    _active.Add(effect);
-    effect.Finished += () => {
-      _active.Remove(effect);
-      effect.QueueFree();
-    };
+  private HealingSkillEffect Create(ref PackedScene scene, string path) {
+    scene ??= GD.Load<PackedScene>(path);
+    var effect = scene.Instantiate<HealingSkillEffect>();
+    effect.Finished = Release;
     _layer.AddChild(effect);
-    effect.Restart();
+    return effect;
+  }
+
+  private void Release(HealingSkillEffect effect) {
+    if (_active.Remove(effect, out var pool)) pool.Push(effect);
+  }
+
+  private static void Destroy(HealingSkillEffect effect) {
+    if (!GodotObject.IsInstanceValid(effect)) return;
+    effect.Finished = null;
+    effect.ResetVisual();
+    effect.QueueFree();
   }
 }

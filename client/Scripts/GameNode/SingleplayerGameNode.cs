@@ -3,8 +3,10 @@ using Meesles.Avalon.Client;
 using Meesles.Avalon.Client.Scripts.Factories;
 using Meesles.Avalon.Client.Scripts.View;
 using Meesles.Avalon.Sim;
+using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Core;
+using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.Godot;
 using xpTURN.Klotho.LiteNetLib;
 using xpTURN.Klotho.Network;
@@ -37,6 +39,8 @@ public partial class SingleplayerGameNode : GameNode {
 
     var logger = CreateLogger("Singleplayer");
     var registry = LoadAssetRegistry();
+    if (GameType.Id == "combat-playground")
+      registry.Get<MatchRulesAsset>().MatchDuration = FP64.FromInt(60 * 60);
     var navMeshBytes = LoadNavigationMeshBytes();
     _simCfg = new SimulationConfig {
       InputDelayTicks = 1,
@@ -95,7 +99,7 @@ public partial class SingleplayerGameNode : GameNode {
     _telegraphs.Attach(_events, _view, engine, this);
     _skillEffects ??= new SkillEffectsManager();
     if (_skillEffects.GetParent() == null) AddChild(_skillEffects);
-    _skillEffects.Attach(engine, _events);
+    _skillEffects.Attach(engine, _events, _view);
     Input.BindTelegraphs(_telegraphs);
     GameUi.BindSimEvents(_events);
 

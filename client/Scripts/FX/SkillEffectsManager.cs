@@ -6,6 +6,7 @@ using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
+using xpTURN.Klotho.Godot;
 
 namespace Meesles.Avalon.Client.Scripts.View;
 
@@ -28,7 +29,7 @@ public partial class SkillEffectsManager : Node {
   private Node3D _layer;
   private float _secondsSinceTick;
 
-  public void Attach(IKlothoEngine engine, SimEventHub events = null) {
+  public void Attach(IKlothoEngine engine, SimEventHub events = null, EntityViewUpdaterNode view = null) {
     Detach();
     _engine = engine;
     _engine.OnTickExecuted += HandleTickExecuted;
@@ -38,7 +39,7 @@ public partial class SkillEffectsManager : Node {
     AddChild(_layer);
     if (events != null) {
       _hairballImpacts.Attach(events, _layer, ProjectileHeight);
-      _pickleKnightEffects.Attach(events, _layer, engine);
+      _pickleKnightEffects.Attach(events, _layer, engine, view);
     }
 
     var frame = _engine.PredictedFrame.Frame;
