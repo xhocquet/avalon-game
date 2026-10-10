@@ -1,0 +1,339 @@
+[gd_scene format=3]
+
+[ext_resource type="Shader" path="res://Assets/FX/AppearanceLightBeam/AppearanceLightBeam.gdshader" id="shader"]
+
+[ext_resource type="ArrayMesh" path="res://Assets/FX/AppearanceLightBeam/Beam.obj" id="beam"]
+
+[ext_resource type="ArrayMesh" path="res://Assets/FX/AppearanceLightBeam/CenteredBeam.obj" id="centered"]
+
+[ext_resource type="ArrayMesh" path="res://Assets/FX/AppearanceLightBeam/RingWall.obj" id="wall"]
+
+[ext_resource type="ArrayMesh" path="res://Assets/FX/AppearanceLightBeam/Plane.obj" id="plane"]
+
+[ext_resource type="Texture2D" path="res://Assets/FX/AppearanceLightBeam/Beam.png" id="beam_texture"]
+
+[ext_resource type="Texture2D" path="res://Assets/FX/AppearanceLightBeam/Streaks.png" id="streaks"]
+
+[ext_resource type="Texture2D" path="res://Assets/FX/AppearanceLightBeam/Ring.png" id="ring"]
+
+[ext_resource type="Texture2D" path="res://Assets/FX/AppearanceLightBeam/StarFlare.png" id="flare"]
+
+[sub_resource type="ShaderMaterial" id="Material_Beam"]
+resource_local_to_scene = true
+shader = ExtResource("shader")
+shader_parameter/effect_texture = ExtResource("beam_texture")
+shader_parameter/tint = Color(1, 0.85, 0.5, 1)
+shader_parameter/intensity = 2.0
+shader_parameter/opacity = 1.0
+shader_parameter/face_camera = false
+
+[sub_resource type="ShaderMaterial" id="Material_Streaks"]
+resource_local_to_scene = true
+shader = ExtResource("shader")
+shader_parameter/effect_texture = ExtResource("streaks")
+shader_parameter/tint = Color(1, 0.65, 0.18, 1)
+shader_parameter/intensity = 1.5
+shader_parameter/opacity = 1.0
+shader_parameter/face_camera = false
+
+[sub_resource type="ShaderMaterial" id="Material_Ring"]
+resource_local_to_scene = true
+shader = ExtResource("shader")
+shader_parameter/effect_texture = ExtResource("ring")
+shader_parameter/tint = Color(1, 0.7, 0.25, 1)
+shader_parameter/intensity = 1.8
+shader_parameter/opacity = 1.0
+shader_parameter/face_camera = false
+
+[sub_resource type="ShaderMaterial" id="Material_Flare"]
+resource_local_to_scene = true
+shader = ExtResource("shader")
+shader_parameter/effect_texture = ExtResource("flare")
+shader_parameter/tint = Color(1, 0.92, 0.7, 1)
+shader_parameter/intensity = 2.5
+shader_parameter/opacity = 1.0
+shader_parameter/face_camera = true
+
+[sub_resource type="Animation" id="Animation_RESET"]
+resource_name = "RESET"
+length = 0.001
+tracks/0/type = "value"
+tracks/0/path = NodePath("Beam:scale")
+tracks/0/interp = 1
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.85, 5, 0.85)]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("Core:scale")
+tracks/1/interp = 1
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0.3, 5, 0.3)]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("Streaks:scale")
+tracks/2/interp = 1
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(1.6, 3.5, 1.6)]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("RingWall:scale")
+tracks/3/interp = 1
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(8, 8, 8)]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("GroundRing:scale")
+tracks/4/interp = 1
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(3.5, 3.5, 3.5)]
+}
+tracks/5/type = "value"
+tracks/5/path = NodePath("Flare:scale")
+tracks/5/interp = 1
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(2.4, 2.4, 2.4)]
+}
+tracks/6/type = "value"
+tracks/6/path = NodePath("Beam:material_override:shader_parameter/opacity")
+tracks/6/interp = 1
+tracks/6/enabled = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.0]
+}
+tracks/7/type = "value"
+tracks/7/path = NodePath("Streaks:material_override:shader_parameter/opacity")
+tracks/7/interp = 1
+tracks/7/enabled = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.0]
+}
+tracks/8/type = "value"
+tracks/8/path = NodePath("GroundRing:material_override:shader_parameter/opacity")
+tracks/8/interp = 1
+tracks/8/enabled = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.0]
+}
+tracks/9/type = "value"
+tracks/9/path = NodePath("Flare:material_override:shader_parameter/opacity")
+tracks/9/interp = 1
+tracks/9/enabled = true
+tracks/9/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.0]
+}
+tracks/10/type = "value"
+tracks/10/path = NodePath("Streaks:rotation:y")
+tracks/10/interp = 1
+tracks/10/enabled = true
+tracks/10/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+
+[sub_resource type="Animation" id="Animation_Appearance"]
+resource_name = "Appearance"
+length = 2.0
+tracks/0/type = "value"
+tracks/0/path = NodePath("Beam:scale")
+tracks/0/interp = 1
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.18, 0.6, 1.25, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(0.01, 0.1, 0.01), Vector3(0.85, 5, 0.85), Vector3(1.15, 5.5, 1.15), Vector3(0.65, 5.8, 0.65), Vector3(0.01, 6, 0.01)]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("Core:scale")
+tracks/1/interp = 1
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.12, 0.75, 1.5, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(0.01, 0.1, 0.01), Vector3(0.3, 5, 0.3), Vector3(0.22, 5.5, 0.22), Vector3(0.06, 5.8, 0.06), Vector3(0.01, 6, 0.01)]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("Streaks:scale")
+tracks/2/interp = 1
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.3, 1.2, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(0.1, 0.1, 0.1), Vector3(1.6, 3.5, 1.6), Vector3(2, 4.2, 2), Vector3(2.3, 4.8, 2.3)]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("RingWall:scale")
+tracks/3/interp = 1
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.35, 1.1, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(1, 1, 1), Vector3(8, 8, 8), Vector3(10, 10, 12), Vector3(13, 13, 16)]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("GroundRing:scale")
+tracks/4/interp = 1
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.35, 1.1, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(0.2, 0.2, 0.2), Vector3(3.5, 3.5, 3.5), Vector3(4.5, 4.5, 4.5), Vector3(6, 6, 6)]
+}
+tracks/5/type = "value"
+tracks/5/path = NodePath("Flare:scale")
+tracks/5/interp = 1
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 0.12, 0.6, 1.4, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(0.01, 0.01, 0.01), Vector3(2.4, 2.4, 2.4), Vector3(1.4, 1.4, 1.4), Vector3(0.5, 0.5, 0.5), Vector3(0.01, 0.01, 0.01)]
+}
+tracks/6/type = "value"
+tracks/6/path = NodePath("Beam:material_override:shader_parameter/opacity")
+tracks/6/interp = 1
+tracks/6/enabled = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0, 0.12, 0.65, 1.3, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [0.0, 1.0, 0.9, 0.35, 0.0]
+}
+tracks/7/type = "value"
+tracks/7/path = NodePath("Streaks:material_override:shader_parameter/opacity")
+tracks/7/interp = 1
+tracks/7/enabled = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0, 0.12, 0.65, 1.3, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [0.0, 1.0, 0.9, 0.35, 0.0]
+}
+tracks/8/type = "value"
+tracks/8/path = NodePath("GroundRing:material_override:shader_parameter/opacity")
+tracks/8/interp = 1
+tracks/8/enabled = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0, 0.12, 0.65, 1.3, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [0.0, 1.0, 0.9, 0.35, 0.0]
+}
+tracks/9/type = "value"
+tracks/9/path = NodePath("Flare:material_override:shader_parameter/opacity")
+tracks/9/interp = 1
+tracks/9/enabled = true
+tracks/9/keys = {
+"times": PackedFloat32Array(0, 0.12, 0.65, 1.3, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [0.0, 1.0, 0.9, 0.35, 0.0]
+}
+tracks/10/type = "value"
+tracks/10/path = NodePath("Streaks:rotation:y")
+tracks/10/interp = 1
+tracks/10/enabled = true
+tracks/10/keys = {
+"times": PackedFloat32Array(0, 2),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 1.2]
+}
+
+[sub_resource type="AnimationLibrary" id="Library"]
+_data = {
+&"RESET": SubResource("Animation_RESET"),
+&"Appearance": SubResource("Animation_Appearance")
+}
+
+[node name="AppearanceLightBeam" type="Node3D"]
+
+[node name="Beam" type="MeshInstance3D" parent="."]
+scale = Vector3(0.85, 5, 0.85)
+cast_shadow = 0
+material_override = SubResource("Material_Beam")
+mesh = ExtResource("beam")
+
+[node name="Core" type="MeshInstance3D" parent="."]
+position = Vector3(0, 2.5, 0)
+scale = Vector3(0.3, 5, 0.3)
+cast_shadow = 0
+material_override = SubResource("Material_Beam")
+mesh = ExtResource("centered")
+
+[node name="Streaks" type="MeshInstance3D" parent="."]
+scale = Vector3(1.6, 3.5, 1.6)
+cast_shadow = 0
+material_override = SubResource("Material_Streaks")
+mesh = ExtResource("beam")
+
+[node name="RingWall" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.03, 0)
+rotation = Vector3(1.5707963, 0, 0)
+scale = Vector3(8, 8, 8)
+cast_shadow = 0
+material_override = SubResource("Material_Streaks")
+mesh = ExtResource("wall")
+
+[node name="GroundRing" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.025, 0)
+rotation = Vector3(-1.5707963, 0, 0)
+scale = Vector3(3.5, 3.5, 3.5)
+cast_shadow = 0
+material_override = SubResource("Material_Ring")
+mesh = ExtResource("plane")
+
+[node name="Flare" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.2, 0)
+scale = Vector3(2.4, 2.4, 2.4)
+cast_shadow = 0
+material_override = SubResource("Material_Flare")
+mesh = ExtResource("plane")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("Library")
+}
+autoplay = "Appearance"

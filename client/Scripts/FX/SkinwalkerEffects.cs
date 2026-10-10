@@ -12,8 +12,11 @@ namespace Meesles.Avalon.Client.Scripts.View;
 
 public sealed class SkinwalkerEffects {
   private static PackedScene _scene;
+  private static PackedScene _sprintScene;
   private readonly HashSet<HealingSkillEffect> _active = new();
   private readonly Stack<HealingSkillEffect> _pool = new();
+  private readonly HashSet<SprintSkillEffect> _activeSprints = new();
+  private readonly Stack<SprintSkillEffect> _sprintPool = new();
   private IDisposable _castSub;
   private IKlothoEngine _engine;
   private Node3D _layer;
@@ -25,6 +28,7 @@ public sealed class SkinwalkerEffects {
     _engine = engine;
     _view = view;
     _pool.Push(Create());
+    _sprintPool.Push(CreateSprint());
     _castSub = events.OnConfirmed<SkillCastEvent>(HandleCast);
   }
 
@@ -34,23 +38,33 @@ public sealed class SkinwalkerEffects {
     foreach (var effect in _active) Destroy(effect);
     _active.Clear();
     while (_pool.Count > 0) Destroy(_pool.Pop());
+    foreach (var effect in _activeSprints) Destroy(effect);
+    _activeSprints.Clear();
+    while (_sprintPool.Count > 0) Destroy(_sprintPool.Pop());
     _engine = null;
     _layer = null;
     _view = null;
   }
 
   private void HandleCast(SkillCastEvent evt) {
-    if (_layer == null || evt.SkillAssetId != AssetIds.SkillSkinwalkerTertiary) return;
+    if (_layer == null || (evt.SkillAssetId != AssetIds.SkillSkinwalkerPrimary &&
+                           evt.SkillAssetId != AssetIds.SkillSkinwalkerTertiary)) return;
     var frame = _engine?.PredictedFrame.Frame;
     if (frame == null || !UnitLookup.TryGetEntityByUnitId(ref frame, evt.UnitId, out var caster) ||
         !frame.Has<Stats>(caster)) return;
 
     EntityViewNode follow = null;
     _view?.ViewsByUnitId.TryGetValue(evt.UnitId, out follow);
-    var radius = frame.GetReadOnly<Stats>(caster).GameplayRadius.ToFloat();
+    var radius = Mathf.Max(frame.GetReadOnly<Stats>(caster).GameplayRadius.ToFloat(), 0.01f);
+    if (evt.SkillAssetId == AssetIds.SkillSkinwalkerPrimary) {
+      var sprint = _sprintPool.Count > 0 ? _sprintPool.Pop() : CreateSprint();
+      _activeSprints.Add(sprint);
+      sprint.Play(evt.Position.ToVector3(), radius, follow);
+      return;
+    }
     var effect = _pool.Count > 0 ? _pool.Pop() : Create();
     _active.Add(effect);
-    effect.Play(evt.Position.ToVector3(), Mathf.Max(radius, 0.01f), follow);
+    effect.Play(evt.Position.ToVector3(), radius, follow);
   }
 
   private HealingSkillEffect Create() {
@@ -63,6 +77,25 @@ public sealed class SkinwalkerEffects {
 
   private void Release(HealingSkillEffect effect) {
     if (_active.Remove(effect)) _pool.Push(effect);
+  }
+
+  private SprintSkillEffect CreateSprint() {
+    _sprintScene ??= GD.Load<PackedScene>(SkillEffectCatalog.SkinwalkerSprintScenePath);
+    var effect = _sprintScene.Instantiate<SprintSkillEffect>();
+    effect.Finished = Release;
+    _layer.AddChild(effect);
+    return effect;
+  }
+
+  private void Release(SprintSkillEffect effect) {
+    if (_activeSprints.Remove(effect)) _sprintPool.Push(effect);
+  }
+
+  private static void Destroy(SprintSkillEffect effect) {
+    if (!GodotObject.IsInstanceValid(effect)) return;
+    effect.Finished = null;
+    effect.ResetVisual();
+    effect.QueueFree();
   }
 
   private static void Destroy(HealingSkillEffect effect) {

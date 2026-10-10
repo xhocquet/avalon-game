@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://cnwqsvybpriup"
+path="res://.godot/imported/Beam.obj-7e5c98662eaaf42fea8f19d8c81dffc1.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Beam.obj-7e5c98662eaaf42fea8f19d8c81dffc1.mesh"]
+
+source_file="res://Assets/FX/AppearanceLightBeam/Beam.obj"
+dest_files=["res://.godot/imported/Beam.obj-7e5c98662eaaf42fea8f19d8c81dffc1.mesh", "res://.godot/imported/Beam.obj-7e5c98662eaaf42fea8f19d8c81dffc1.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false
