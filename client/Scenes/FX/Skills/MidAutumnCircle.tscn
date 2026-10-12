@@ -1,0 +1,363 @@
+[gd_scene format=3]
+
+[ext_resource type="Shader" path="res://Assets/FX/MidAutumnCircle/MidAutumnCircle.gdshader" id="shader"]
+
+[ext_resource type="ArrayMesh" path="res://Assets/FX/MidAutumnCircle/GlowPlane.obj" id="mesh_GlowPlane"]
+
+[ext_resource type="ArrayMesh" path="res://Assets/FX/MidAutumnCircle/Plane.obj" id="mesh_Plane"]
+
+[ext_resource type="ArrayMesh" path="res://Assets/FX/MidAutumnCircle/RingWall.obj" id="mesh_RingWall"]
+
+[ext_resource type="Texture2D" path="res://Assets/FX/MidAutumnCircle/LightStreaks.png" id="tex_LightStreaks"]
+
+[ext_resource type="Texture2D" path="res://Assets/FX/MidAutumnCircle/Seal.png" id="tex_Seal"]
+
+[ext_resource type="Texture2D" path="res://Assets/FX/MidAutumnCircle/EnergyRing.png" id="tex_EnergyRing"]
+
+[ext_resource type="Texture2D" path="res://Assets/FX/MidAutumnCircle/OrnateRing.png" id="tex_OrnateRing"]
+
+[ext_resource type="Texture2D" path="res://Assets/FX/MidAutumnCircle/Swirl.png" id="tex_Swirl"]
+
+[sub_resource type="ShaderMaterial" id="Material_Seal"]
+resource_local_to_scene = true
+shader = ExtResource("shader")
+shader_parameter/effect_texture = ExtResource("tex_Seal")
+shader_parameter/tint = Color(1, 0.85, 0.4, 1)
+shader_parameter/intensity = 0.75
+shader_parameter/opacity = 1.0
+
+[sub_resource type="ShaderMaterial" id="Material_OrnateRing"]
+resource_local_to_scene = true
+shader = ExtResource("shader")
+shader_parameter/effect_texture = ExtResource("tex_OrnateRing")
+shader_parameter/tint = Color(1, 0.55, 0.12, 1)
+shader_parameter/intensity = 1.2
+shader_parameter/opacity = 1.0
+
+[sub_resource type="ShaderMaterial" id="Material_EnergyRing"]
+resource_local_to_scene = true
+shader = ExtResource("shader")
+shader_parameter/effect_texture = ExtResource("tex_EnergyRing")
+shader_parameter/tint = Color(1, 0.75, 0.25, 1)
+shader_parameter/intensity = 1.7
+shader_parameter/opacity = 1.0
+
+[sub_resource type="ShaderMaterial" id="Material_Swirl"]
+resource_local_to_scene = true
+shader = ExtResource("shader")
+shader_parameter/effect_texture = ExtResource("tex_Swirl")
+shader_parameter/tint = Color(1, 0.9, 0.6, 1)
+shader_parameter/intensity = 1.1
+shader_parameter/opacity = 1.0
+
+shader_parameter/texture_region = Vector4(0.1, 0.1, 0.8, 0.8)
+
+[sub_resource type="ShaderMaterial" id="Material_Wall"]
+resource_local_to_scene = true
+shader = ExtResource("shader")
+shader_parameter/effect_texture = ExtResource("tex_LightStreaks")
+shader_parameter/tint = Color(1, 0.65, 0.16, 0.45)
+shader_parameter/intensity = 0.8
+shader_parameter/opacity = 1.0
+
+shader_parameter/wall = true
+shader_parameter/texture_region = Vector4(0, 0.51, 1, 0.48)
+shader_parameter/scroll_speed = Vector2(0.12, 0)
+
+[sub_resource type="ShaderMaterial" id="Material_Mote"]
+resource_local_to_scene = true
+shader = ExtResource("shader")
+shader_parameter/effect_texture = ExtResource("tex_EnergyRing")
+shader_parameter/tint = Color(1, 0.85, 0.45, 1)
+shader_parameter/intensity = 1.7
+shader_parameter/opacity = 1.0
+
+shader_parameter/generated_plane_uv = true
+shader_parameter/face_camera = true
+
+[sub_resource type="Animation" id="Animation_RESET"]
+resource_name = "RESET"
+length = 0.001
+
+tracks/0/type = "value"
+tracks/0/path = NodePath("Seal/Mesh:material_override:shader_parameter/opacity")
+tracks/0/interp = 1
+tracks/0/enabled = true
+tracks/0/keys = { "times": PackedFloat32Array(0), "transitions": PackedFloat32Array(1), "update": 0, "values": [0.6] }
+
+tracks/1/type = "value"
+tracks/1/path = NodePath("OrnateRing:rotation:y")
+tracks/1/interp = 1
+tracks/1/enabled = true
+tracks/1/keys = { "times": PackedFloat32Array(0), "transitions": PackedFloat32Array(1), "update": 0, "values": [0.0] }
+
+tracks/2/type = "value"
+tracks/2/path = NodePath("OrnateRing/Mesh:material_override:shader_parameter/opacity")
+tracks/2/interp = 1
+tracks/2/enabled = true
+tracks/2/keys = { "times": PackedFloat32Array(0), "transitions": PackedFloat32Array(1), "update": 0, "values": [0.6] }
+
+tracks/3/type = "value"
+tracks/3/path = NodePath("EnergyRing:rotation:y")
+tracks/3/interp = 1
+tracks/3/enabled = true
+tracks/3/keys = { "times": PackedFloat32Array(0), "transitions": PackedFloat32Array(1), "update": 0, "values": [0.0] }
+
+tracks/4/type = "value"
+tracks/4/path = NodePath("EnergyRing/Mesh:material_override:shader_parameter/opacity")
+tracks/4/interp = 1
+tracks/4/enabled = true
+tracks/4/keys = { "times": PackedFloat32Array(0), "transitions": PackedFloat32Array(1), "update": 0, "values": [0.6] }
+
+tracks/5/type = "value"
+tracks/5/path = NodePath("Swirl:rotation:y")
+tracks/5/interp = 1
+tracks/5/enabled = true
+tracks/5/keys = { "times": PackedFloat32Array(0), "transitions": PackedFloat32Array(1), "update": 0, "values": [0.0] }
+
+tracks/6/type = "value"
+tracks/6/path = NodePath("Swirl/Mesh:material_override:shader_parameter/opacity")
+tracks/6/interp = 1
+tracks/6/enabled = true
+tracks/6/keys = { "times": PackedFloat32Array(0), "transitions": PackedFloat32Array(1), "update": 0, "values": [0.6] }
+
+tracks/7/type = "value"
+tracks/7/path = NodePath("MoteOrbit1:rotation:y")
+tracks/7/interp = 1
+tracks/7/enabled = true
+tracks/7/keys = { "times": PackedFloat32Array(0), "transitions": PackedFloat32Array(1), "update": 0, "values": [0.0] }
+
+tracks/8/type = "value"
+tracks/8/path = NodePath("MoteOrbit1/Glow:position:y")
+tracks/8/interp = 1
+tracks/8/enabled = true
+tracks/8/keys = { "times": PackedFloat32Array(0), "transitions": PackedFloat32Array(1), "update": 0, "values": [0.3] }
+
+tracks/9/type = "value"
+tracks/9/path = NodePath("MoteOrbit2:rotation:y")
+tracks/9/interp = 1
+tracks/9/enabled = true
+tracks/9/keys = { "times": PackedFloat32Array(0), "transitions": PackedFloat32Array(1), "update": 0, "values": [1.570796327] }
+
+tracks/10/type = "value"
+tracks/10/path = NodePath("MoteOrbit2/Glow:position:y")
+tracks/10/interp = 1
+tracks/10/enabled = true
+tracks/10/keys = { "times": PackedFloat32Array(0), "transitions": PackedFloat32Array(1), "update": 0, "values": [0.44999999999999996] }
+
+tracks/11/type = "value"
+tracks/11/path = NodePath("MoteOrbit3:rotation:y")
+tracks/11/interp = 1
+tracks/11/enabled = true
+tracks/11/keys = { "times": PackedFloat32Array(0), "transitions": PackedFloat32Array(1), "update": 0, "values": [3.141592654] }
+
+tracks/12/type = "value"
+tracks/12/path = NodePath("MoteOrbit3/Glow:position:y")
+tracks/12/interp = 1
+tracks/12/enabled = true
+tracks/12/keys = { "times": PackedFloat32Array(0), "transitions": PackedFloat32Array(1), "update": 0, "values": [0.6] }
+
+tracks/13/type = "value"
+tracks/13/path = NodePath("MoteOrbit4:rotation:y")
+tracks/13/interp = 1
+tracks/13/enabled = true
+tracks/13/keys = { "times": PackedFloat32Array(0), "transitions": PackedFloat32Array(1), "update": 0, "values": [4.712388981] }
+
+tracks/14/type = "value"
+tracks/14/path = NodePath("MoteOrbit4/Glow:position:y")
+tracks/14/interp = 1
+tracks/14/enabled = true
+tracks/14/keys = { "times": PackedFloat32Array(0), "transitions": PackedFloat32Array(1), "update": 0, "values": [0.75] }
+
+[sub_resource type="Animation" id="Animation_Loop"]
+resource_name = "Loop"
+length = 6.0
+
+loop_mode = 1
+
+tracks/0/type = "value"
+tracks/0/path = NodePath("Seal/Mesh:material_override:shader_parameter/opacity")
+tracks/0/interp = 1
+tracks/0/enabled = true
+tracks/0/keys = { "times": PackedFloat32Array(0, 1.5, 3, 4.5, 6), "transitions": PackedFloat32Array(1, 1, 1, 1, 1), "update": 0, "values": [0.6, 1, 0.6, 1, 0.6] }
+
+tracks/1/type = "value"
+tracks/1/path = NodePath("OrnateRing:rotation:y")
+tracks/1/interp = 1
+tracks/1/enabled = true
+tracks/1/keys = { "times": PackedFloat32Array(0, 6), "transitions": PackedFloat32Array(1, 1), "update": 0, "values": [0.0, 6.283185307] }
+
+tracks/2/type = "value"
+tracks/2/path = NodePath("OrnateRing/Mesh:material_override:shader_parameter/opacity")
+tracks/2/interp = 1
+tracks/2/enabled = true
+tracks/2/keys = { "times": PackedFloat32Array(0, 1.5, 3, 4.5, 6), "transitions": PackedFloat32Array(1, 1, 1, 1, 1), "update": 0, "values": [0.6, 1, 0.6, 1, 0.6] }
+
+tracks/3/type = "value"
+tracks/3/path = NodePath("EnergyRing:rotation:y")
+tracks/3/interp = 1
+tracks/3/enabled = true
+tracks/3/keys = { "times": PackedFloat32Array(0, 6), "transitions": PackedFloat32Array(1, 1), "update": 0, "values": [0.0, -12.566370614] }
+
+tracks/4/type = "value"
+tracks/4/path = NodePath("EnergyRing/Mesh:material_override:shader_parameter/opacity")
+tracks/4/interp = 1
+tracks/4/enabled = true
+tracks/4/keys = { "times": PackedFloat32Array(0, 1.5, 3, 4.5, 6), "transitions": PackedFloat32Array(1, 1, 1, 1, 1), "update": 0, "values": [0.6, 1, 0.6, 1, 0.6] }
+
+tracks/5/type = "value"
+tracks/5/path = NodePath("Swirl:rotation:y")
+tracks/5/interp = 1
+tracks/5/enabled = true
+tracks/5/keys = { "times": PackedFloat32Array(0, 6), "transitions": PackedFloat32Array(1, 1), "update": 0, "values": [0.0, 12.566370614] }
+
+tracks/6/type = "value"
+tracks/6/path = NodePath("Swirl/Mesh:material_override:shader_parameter/opacity")
+tracks/6/interp = 1
+tracks/6/enabled = true
+tracks/6/keys = { "times": PackedFloat32Array(0, 1.5, 3, 4.5, 6), "transitions": PackedFloat32Array(1, 1, 1, 1, 1), "update": 0, "values": [0.6, 1, 0.6, 1, 0.6] }
+
+tracks/7/type = "value"
+tracks/7/path = NodePath("MoteOrbit1:rotation:y")
+tracks/7/interp = 1
+tracks/7/enabled = true
+tracks/7/keys = { "times": PackedFloat32Array(0, 6), "transitions": PackedFloat32Array(1, 1), "update": 0, "values": [0.0, 6.283185307] }
+
+tracks/8/type = "value"
+tracks/8/path = NodePath("MoteOrbit1/Glow:position:y")
+tracks/8/interp = 1
+tracks/8/enabled = true
+tracks/8/keys = { "times": PackedFloat32Array(0, 3, 6), "transitions": PackedFloat32Array(1, 1, 1), "update": 0, "values": [0.3, 1.4, 0.3] }
+
+tracks/9/type = "value"
+tracks/9/path = NodePath("MoteOrbit2:rotation:y")
+tracks/9/interp = 1
+tracks/9/enabled = true
+tracks/9/keys = { "times": PackedFloat32Array(0, 6), "transitions": PackedFloat32Array(1, 1), "update": 0, "values": [1.570796327, 7.853981634] }
+
+tracks/10/type = "value"
+tracks/10/path = NodePath("MoteOrbit2/Glow:position:y")
+tracks/10/interp = 1
+tracks/10/enabled = true
+tracks/10/keys = { "times": PackedFloat32Array(0, 3, 6), "transitions": PackedFloat32Array(1, 1, 1), "update": 0, "values": [0.44999999999999996, 1.5499999999999998, 0.44999999999999996] }
+
+tracks/11/type = "value"
+tracks/11/path = NodePath("MoteOrbit3:rotation:y")
+tracks/11/interp = 1
+tracks/11/enabled = true
+tracks/11/keys = { "times": PackedFloat32Array(0, 6), "transitions": PackedFloat32Array(1, 1), "update": 0, "values": [3.141592654, 9.424777961] }
+
+tracks/12/type = "value"
+tracks/12/path = NodePath("MoteOrbit3/Glow:position:y")
+tracks/12/interp = 1
+tracks/12/enabled = true
+tracks/12/keys = { "times": PackedFloat32Array(0, 3, 6), "transitions": PackedFloat32Array(1, 1, 1), "update": 0, "values": [0.6, 1.7, 0.6] }
+
+tracks/13/type = "value"
+tracks/13/path = NodePath("MoteOrbit4:rotation:y")
+tracks/13/interp = 1
+tracks/13/enabled = true
+tracks/13/keys = { "times": PackedFloat32Array(0, 6), "transitions": PackedFloat32Array(1, 1), "update": 0, "values": [4.712388981, 10.995574288] }
+
+tracks/14/type = "value"
+tracks/14/path = NodePath("MoteOrbit4/Glow:position:y")
+tracks/14/interp = 1
+tracks/14/enabled = true
+tracks/14/keys = { "times": PackedFloat32Array(0, 3, 6), "transitions": PackedFloat32Array(1, 1, 1), "update": 0, "values": [0.75, 1.8499999999999999, 0.75] }
+
+[sub_resource type="AnimationLibrary" id="Library"]
+_data = { &"RESET": SubResource("Animation_RESET"), &"Loop": SubResource("Animation_Loop") }
+
+[node name="MidAutumnCircle" type="Node3D"]
+
+[node name="Seal" type="Node3D" parent="."]
+position = Vector3(0, 0.03, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="Seal"]
+rotation = Vector3(-1.570796327, 0, 0)
+scale = Vector3(2.5, 2.5, 2.5)
+cast_shadow = 0
+material_override = SubResource("Material_Seal")
+mesh = ExtResource("mesh_Plane")
+
+[node name="OrnateRing" type="Node3D" parent="."]
+position = Vector3(0, 0.04, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="OrnateRing"]
+rotation = Vector3(-1.570796327, 0, 0)
+scale = Vector3(4.0, 4.0, 4.0)
+cast_shadow = 0
+material_override = SubResource("Material_OrnateRing")
+mesh = ExtResource("mesh_Plane")
+
+[node name="EnergyRing" type="Node3D" parent="."]
+position = Vector3(0, 0.05, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="EnergyRing"]
+rotation = Vector3(-1.570796327, 0, 0)
+scale = Vector3(4.4, 4.4, 4.4)
+cast_shadow = 0
+material_override = SubResource("Material_EnergyRing")
+mesh = ExtResource("mesh_Plane")
+
+[node name="Swirl" type="Node3D" parent="."]
+position = Vector3(0, 0.06, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="Swirl"]
+rotation = Vector3(-1.570796327, 0, 0)
+scale = Vector3(4.1, 4.1, 4.1)
+cast_shadow = 0
+material_override = SubResource("Material_Swirl")
+mesh = ExtResource("mesh_Plane")
+
+[node name="LightWall" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.93, 0)
+rotation = Vector3(-1.570796327, 0, 0)
+scale = Vector3(20, 20, 9)
+cast_shadow = 0
+material_override = SubResource("Material_Wall")
+mesh = ExtResource("mesh_RingWall")
+
+[node name="MoteOrbit1" type="Node3D" parent="."]
+rotation = Vector3(0, 0.0, 0)
+
+[node name="Glow" type="MeshInstance3D" parent="MoteOrbit1"]
+position = Vector3(1.5, 0.3, 0)
+scale = Vector3(0.25, 0.25, 0.25)
+cast_shadow = 0
+material_override = SubResource("Material_Mote")
+mesh = ExtResource("mesh_GlowPlane")
+
+[node name="MoteOrbit2" type="Node3D" parent="."]
+rotation = Vector3(0, 1.570796327, 0)
+
+[node name="Glow" type="MeshInstance3D" parent="MoteOrbit2"]
+position = Vector3(1.5, 0.44999999999999996, 0)
+scale = Vector3(0.25, 0.25, 0.25)
+cast_shadow = 0
+material_override = SubResource("Material_Mote")
+mesh = ExtResource("mesh_GlowPlane")
+
+[node name="MoteOrbit3" type="Node3D" parent="."]
+rotation = Vector3(0, 3.141592654, 0)
+
+[node name="Glow" type="MeshInstance3D" parent="MoteOrbit3"]
+position = Vector3(1.5, 0.6, 0)
+scale = Vector3(0.25, 0.25, 0.25)
+cast_shadow = 0
+material_override = SubResource("Material_Mote")
+mesh = ExtResource("mesh_GlowPlane")
+
+[node name="MoteOrbit4" type="Node3D" parent="."]
+rotation = Vector3(0, 4.712388981, 0)
+
+[node name="Glow" type="MeshInstance3D" parent="MoteOrbit4"]
+position = Vector3(1.5, 0.75, 0)
+scale = Vector3(0.25, 0.25, 0.25)
+cast_shadow = 0
+material_override = SubResource("Material_Mote")
+mesh = ExtResource("mesh_GlowPlane")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = { &"": SubResource("Library") }
+autoplay = "Loop"

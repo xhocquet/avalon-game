@@ -33,7 +33,7 @@
 [ext_resource type="Shader" uid="uid://l0uvbj0raqeo" path="res://Scenes/World/CartoonFire.gdshader" id="30_jx5j3"]
 [ext_resource type="Texture2D" uid="uid://crf7v0er3rxt8" path="res://Assets/Props/Water/FoamMask.png" id="31_rok63"]
 [ext_resource type="PackedScene" uid="uid://bus13us8cbjnk" path="res://Scenes/FX/BotwExplosion.tscn" id="32_84wms"]
-[ext_resource type="Shader" uid="uid://b6sfkxjg6b7a4" path="res://Assets/FX/Shaders/Crystal.gdshader" id="33_eaojp"]
+[ext_resource type="Shader" uid="uid://dbw1ngnabrf6q" path="res://Assets/FX/Shaders/Crystal.gdshader" id="33_eaojp"]
 [ext_resource type="PackedScene" uid="uid://bus13us71bank" path="res://Scenes/FX/BotwExplosionIce.tscn" id="33_fnlpt"]
 [ext_resource type="PackedScene" uid="uid://bus13us8dntnk" path="res://Scenes/FX/BotwExplosionToxic.tscn" id="34_e58nk"]
 [ext_resource type="PackedScene" uid="uid://bus13us75dbwk" path="res://Scenes/FX/BotwExplosionMega.tscn" id="35_fcsjw"]
@@ -47,6 +47,14 @@
 [ext_resource type="PackedScene" path="res://Scenes/FX/MetaballicExplosionFire.tscn" id="45_o0axr"]
 [ext_resource type="PackedScene" path="res://Scenes/FX/MetaballicExplosionOil.tscn" id="46_y5sde"]
 [ext_resource type="PackedScene" path="res://Scenes/FX/MetaballicExplosionWater.tscn" id="47_ax11q"]
+[ext_resource type="PackedScene" uid="uid://d068orhfm6aw5" path="res://Scenes/FX/Skills/ClockLoop.tscn" id="48_o0axr"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/Skills/MidAutumnCircle.tscn" id="49_y5sde"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/Skills/MagicCrystal.tscn" id="50_ax11q"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/Skills/ChainLightning02.tscn" id="51_nsnk1"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/Skills/ChainLightning.tscn" id="52_hmxu6"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/Skills/ArrowTrail.tscn" id="53_hmxu6"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/Skills/Firelings.tscn" id="54_44824"]
+[ext_resource type="PackedScene" uid="uid://jur2i8b07gah" path="res://Scenes/FX/Skills/FlocksAttack.tscn" id="55_j7eg7"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_dngt1"]
 shader = ExtResource("1_7ykkm")
@@ -475,3 +483,27 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6462188, 2.92714, 10.789302
 
 [node name="MetaballicExplosionWater" parent="." unique_id=1166322232 instance=ExtResource("47_ax11q")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.514676, 2.92714, 13.906206)
+
+[node name="ClockLoop" parent="." unique_id=773514770 instance=ExtResource("48_o0axr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.3937755, 0, 8.845369)
+
+[node name="MidAutumnCircle" parent="." unique_id=2095106643 instance=ExtResource("49_y5sde")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.8902721, 1.0603023, 5.894681)
+
+[node name="MagicCrystal" parent="." unique_id=1552189664 instance=ExtResource("50_ax11q")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.6357155, 0, 7.1523952)
+
+[node name="ChainLightning02" parent="." unique_id=776825933 instance=ExtResource("51_nsnk1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.719018, 2.3821087, 11.593615)
+
+[node name="ChainLightning" parent="." unique_id=1467272813 instance=ExtResource("52_hmxu6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.5103383, 2.5395193, 10.900824)
+
+[node name="ArrowTrail" parent="." unique_id=405613397 instance=ExtResource("53_hmxu6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5563064, 0, 18.86118)
+
+[node name="Firelings" parent="." unique_id=195793452 instance=ExtResource("54_44824")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.322735, 1.9964638, 2.4309158)
+
+[node name="FlocksAttack" parent="." unique_id=1636888431 instance=ExtResource("55_j7eg7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.532272, 4.577772, -0.2529993)

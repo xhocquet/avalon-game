@@ -1,0 +1,416 @@
+[gd_scene format=3]
+
+[ext_resource type="Shader" path="res://Assets/FX/Shaders/ImportedGlow.gdshader" id="shader"]
+
+[ext_resource type="ArrayMesh" path="res://Assets/FX/OrbOrange/OuterSphere.obj" id="mesh_OuterOrb"]
+
+[ext_resource type="Texture2D" path="res://Assets/FX/OrbOrange/Energy.png" id="tex_OuterOrb"]
+
+[ext_resource type="ArrayMesh" path="res://Assets/FX/OrbOrange/InnerSphere.obj" id="mesh_InnerOrb"]
+
+[ext_resource type="Texture2D" path="res://Assets/FX/OrbOrange/Energy.png" id="tex_InnerOrb"]
+
+[ext_resource type="ArrayMesh" path="res://Assets/FX/OrbOrange/CoreSphere.obj" id="mesh_Core"]
+
+[ext_resource type="Texture2D" path="res://Assets/FX/OrbOrange/Orb.png" id="tex_Core"]
+
+[ext_resource type="ArrayMesh" path="res://Assets/FX/OrbOrange/SwirlRing.obj" id="mesh_Swirl"]
+
+[ext_resource type="Texture2D" path="res://Assets/FX/OrbOrange/Swirl.png" id="tex_Swirl"]
+
+[ext_resource type="ArrayMesh" path="res://Assets/FX/OrbOrange/Plane.obj" id="mesh_GroundRing"]
+
+[ext_resource type="Texture2D" path="res://Assets/FX/OrbOrange/Ring.png" id="tex_GroundRing"]
+
+[ext_resource type="ArrayMesh" path="res://Assets/FX/OrbOrange/Ground.obj" id="mesh_Ground"]
+
+[ext_resource type="Texture2D" path="res://Assets/FX/OrbOrange/GroundGlow.png" id="tex_Ground"]
+
+[sub_resource type="ShaderMaterial" id="mat_OuterOrb"]
+resource_local_to_scene = true
+shader = ExtResource("shader")
+shader_parameter/effect_texture = ExtResource("tex_OuterOrb")
+shader_parameter/tint = Color(1, 0.25, 0.02, 1)
+shader_parameter/intensity = 1.2
+shader_parameter/opacity = 1.0
+shader_parameter/texture_color = false
+shader_parameter/scroll_speed = Vector2(0.08, 0.03)
+
+[sub_resource type="ShaderMaterial" id="mat_InnerOrb"]
+resource_local_to_scene = true
+shader = ExtResource("shader")
+shader_parameter/effect_texture = ExtResource("tex_InnerOrb")
+shader_parameter/tint = Color(1, 0.55, 0.08, 1)
+shader_parameter/intensity = 1.2
+shader_parameter/opacity = 1.0
+shader_parameter/texture_color = false
+shader_parameter/scroll_speed = Vector2(-0.05, 0.02)
+
+[sub_resource type="ShaderMaterial" id="mat_Core"]
+resource_local_to_scene = true
+shader = ExtResource("shader")
+shader_parameter/effect_texture = ExtResource("tex_Core")
+shader_parameter/tint = Color(1, 1, 1, 1)
+shader_parameter/intensity = 1.2
+shader_parameter/opacity = 1.0
+shader_parameter/texture_color = true
+shader_parameter/scroll_speed = Vector2(0.02, 0)
+
+[sub_resource type="ShaderMaterial" id="mat_Swirl"]
+resource_local_to_scene = true
+shader = ExtResource("shader")
+shader_parameter/effect_texture = ExtResource("tex_Swirl")
+shader_parameter/tint = Color(1, 0.55, 0.06, 1)
+shader_parameter/intensity = 1.2
+shader_parameter/opacity = 1.0
+shader_parameter/texture_color = false
+shader_parameter/scroll_speed = Vector2(0.1, 0)
+
+[sub_resource type="ShaderMaterial" id="mat_GroundRing"]
+resource_local_to_scene = true
+shader = ExtResource("shader")
+shader_parameter/effect_texture = ExtResource("tex_GroundRing")
+shader_parameter/tint = Color(1, 0.35, 0.02, 1)
+shader_parameter/intensity = 1.2
+shader_parameter/opacity = 1.0
+shader_parameter/texture_color = false
+shader_parameter/scroll_speed = Vector2(0, 0)
+
+[sub_resource type="ShaderMaterial" id="mat_Ground"]
+resource_local_to_scene = true
+shader = ExtResource("shader")
+shader_parameter/effect_texture = ExtResource("tex_Ground")
+shader_parameter/tint = Color(1, 1, 1, 1)
+shader_parameter/intensity = 1.2
+shader_parameter/opacity = 1.0
+shader_parameter/texture_color = true
+shader_parameter/scroll_speed = Vector2(0, 0)
+
+[sub_resource type="Animation" id="RESET"]
+resource_name = "RESET"
+length = 0.001
+
+tracks/0/type = "value"
+tracks/0/path = NodePath("OuterOrb:material_override:shader_parameter/opacity")
+tracks/0/interp = 1
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.0]
+}
+
+tracks/1/type = "value"
+tracks/1/path = NodePath("OuterOrb:scale")
+tracks/1/interp = 1
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(1, 1, 1)]
+}
+
+tracks/2/type = "value"
+tracks/2/path = NodePath("InnerOrb:material_override:shader_parameter/opacity")
+tracks/2/interp = 1
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.0]
+}
+
+tracks/3/type = "value"
+tracks/3/path = NodePath("InnerOrb:scale")
+tracks/3/interp = 1
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(1, 1, 1)]
+}
+
+tracks/4/type = "value"
+tracks/4/path = NodePath("Core:material_override:shader_parameter/opacity")
+tracks/4/interp = 1
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.0]
+}
+
+tracks/5/type = "value"
+tracks/5/path = NodePath("Core:scale")
+tracks/5/interp = 1
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(1, 1, 1)]
+}
+
+tracks/6/type = "value"
+tracks/6/path = NodePath("Swirl:material_override:shader_parameter/opacity")
+tracks/6/interp = 1
+tracks/6/enabled = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.0]
+}
+
+tracks/7/type = "value"
+tracks/7/path = NodePath("Swirl:scale")
+tracks/7/interp = 1
+tracks/7/enabled = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(1, 1, 1)]
+}
+
+tracks/8/type = "value"
+tracks/8/path = NodePath("GroundRing:material_override:shader_parameter/opacity")
+tracks/8/interp = 1
+tracks/8/enabled = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.0]
+}
+
+tracks/9/type = "value"
+tracks/9/path = NodePath("GroundRing:scale")
+tracks/9/interp = 1
+tracks/9/enabled = true
+tracks/9/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(3, 3, 3)]
+}
+
+tracks/10/type = "value"
+tracks/10/path = NodePath("Ground:material_override:shader_parameter/opacity")
+tracks/10/interp = 1
+tracks/10/enabled = true
+tracks/10/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.0]
+}
+
+tracks/11/type = "value"
+tracks/11/path = NodePath("Ground:scale")
+tracks/11/interp = 1
+tracks/11/enabled = true
+tracks/11/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(1, 1, 1)]
+}
+
+[sub_resource type="Animation" id="Effect"]
+resource_name = "Effect"
+length = 2.0
+
+tracks/0/type = "value"
+tracks/0/path = NodePath("OuterOrb:material_override:shader_parameter/opacity")
+tracks/0/interp = 1
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.15, 1.2, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [0.0, 1.0, 0.8, 0.0]
+}
+
+tracks/1/type = "value"
+tracks/1/path = NodePath("OuterOrb:scale")
+tracks/1/interp = 1
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.2, 1.2, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(0.05, 0.05, 0.05), Vector3(1, 1, 1), Vector3(1.08, 1.08, 1.08), Vector3(1.25, 1.25, 1.25)]
+}
+
+tracks/2/type = "value"
+tracks/2/path = NodePath("InnerOrb:material_override:shader_parameter/opacity")
+tracks/2/interp = 1
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.15, 1.2, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [0.0, 1.0, 0.8, 0.0]
+}
+
+tracks/3/type = "value"
+tracks/3/path = NodePath("InnerOrb:scale")
+tracks/3/interp = 1
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.2, 1.2, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(0.05, 0.05, 0.05), Vector3(1, 1, 1), Vector3(1.08, 1.08, 1.08), Vector3(1.25, 1.25, 1.25)]
+}
+
+tracks/4/type = "value"
+tracks/4/path = NodePath("Core:material_override:shader_parameter/opacity")
+tracks/4/interp = 1
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.15, 1.2, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [0.0, 1.0, 0.8, 0.0]
+}
+
+tracks/5/type = "value"
+tracks/5/path = NodePath("Core:scale")
+tracks/5/interp = 1
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 0.2, 1.2, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(0.05, 0.05, 0.05), Vector3(1, 1, 1), Vector3(1.08, 1.08, 1.08), Vector3(1.25, 1.25, 1.25)]
+}
+
+tracks/6/type = "value"
+tracks/6/path = NodePath("Swirl:material_override:shader_parameter/opacity")
+tracks/6/interp = 1
+tracks/6/enabled = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0, 0.15, 1.2, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [0.0, 1.0, 0.8, 0.0]
+}
+
+tracks/7/type = "value"
+tracks/7/path = NodePath("Swirl:scale")
+tracks/7/interp = 1
+tracks/7/enabled = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0, 0.2, 1.2, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(0.05, 0.05, 0.05), Vector3(1, 1, 1), Vector3(1.08, 1.08, 1.08), Vector3(1.25, 1.25, 1.25)]
+}
+
+tracks/8/type = "value"
+tracks/8/path = NodePath("GroundRing:material_override:shader_parameter/opacity")
+tracks/8/interp = 1
+tracks/8/enabled = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0, 0.15, 1.2, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [0.0, 1.0, 0.8, 0.0]
+}
+
+tracks/9/type = "value"
+tracks/9/path = NodePath("GroundRing:scale")
+tracks/9/interp = 1
+tracks/9/enabled = true
+tracks/9/keys = {
+"times": PackedFloat32Array(0, 0.2, 1.2, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(0.15000000000000002, 0.15000000000000002, 0.15000000000000002), Vector3(3, 3, 3), Vector3(3.24, 3.24, 3.24), Vector3(3.75, 3.75, 3.75)]
+}
+
+tracks/10/type = "value"
+tracks/10/path = NodePath("Ground:material_override:shader_parameter/opacity")
+tracks/10/interp = 1
+tracks/10/enabled = true
+tracks/10/keys = {
+"times": PackedFloat32Array(0, 0.15, 1.2, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [0.0, 1.0, 0.8, 0.0]
+}
+
+tracks/11/type = "value"
+tracks/11/path = NodePath("Ground:scale")
+tracks/11/interp = 1
+tracks/11/enabled = true
+tracks/11/keys = {
+"times": PackedFloat32Array(0, 0.2, 1.2, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(0.05, 0.05, 0.05), Vector3(1, 1, 1), Vector3(1.08, 1.08, 1.08), Vector3(1.25, 1.25, 1.25)]
+}
+
+[sub_resource type="AnimationLibrary" id="Library"]
+_data = { &"RESET": SubResource("RESET"), &"Effect": SubResource("Effect") }
+
+[node name="OrbOrange" type="Node3D"]
+
+[node name="OuterOrb" type="MeshInstance3D" parent="."]
+position = Vector3(0, 1.25, 0)
+rotation = Vector3(0, 0, 0)
+scale = Vector3(1, 1, 1)
+cast_shadow = 0
+material_override = SubResource("mat_OuterOrb")
+mesh = ExtResource("mesh_OuterOrb")
+
+[node name="InnerOrb" type="MeshInstance3D" parent="."]
+position = Vector3(0, 1.25, 0)
+rotation = Vector3(0, 1.2, 0)
+scale = Vector3(1, 1, 1)
+cast_shadow = 0
+material_override = SubResource("mat_InnerOrb")
+mesh = ExtResource("mesh_InnerOrb")
+
+[node name="Core" type="MeshInstance3D" parent="."]
+position = Vector3(0, 1.25, 0)
+rotation = Vector3(0, 0, 0)
+scale = Vector3(1, 1, 1)
+cast_shadow = 0
+material_override = SubResource("mat_Core")
+mesh = ExtResource("mesh_Core")
+
+[node name="Swirl" type="MeshInstance3D" parent="."]
+position = Vector3(0, 1.25, 0)
+rotation = Vector3(0, 1.5707963, 0)
+scale = Vector3(1, 1, 1)
+cast_shadow = 0
+material_override = SubResource("mat_Swirl")
+mesh = ExtResource("mesh_Swirl")
+
+[node name="GroundRing" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.03, 0)
+rotation = Vector3(-1.5707963, 0, 0)
+scale = Vector3(3, 3, 3)
+cast_shadow = 0
+material_override = SubResource("mat_GroundRing")
+mesh = ExtResource("mesh_GroundRing")
+
+[node name="Ground" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.05, 0)
+rotation = Vector3(0, 0, 0)
+scale = Vector3(1, 1, 1)
+cast_shadow = 0
+material_override = SubResource("mat_Ground")
+mesh = ExtResource("mesh_Ground")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = { &"": SubResource("Library") }
+autoplay = "Effect"

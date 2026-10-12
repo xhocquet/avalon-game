@@ -1,0 +1,91 @@
+[gd_scene format=3]
+
+[ext_resource type="Shader" path="res://Assets/FX/Firelings/Firelings.gdshader" id="shader"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/Firelings/FireSphere.obj" id="sphere"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/Firelings/Ember.obj" id="ember"]
+
+[sub_resource type="ShaderMaterial" id="Material_Core"]
+resource_local_to_scene = true
+shader = ExtResource("shader")
+shader_parameter/opacity = 1.0
+shader_parameter/intensity = 1.5
+shader_parameter/shell = false
+
+[sub_resource type="ShaderMaterial" id="Material_Shell"]
+resource_local_to_scene = true
+shader = ExtResource("shader")
+shader_parameter/opacity = 1.0
+shader_parameter/intensity = 1.8
+shader_parameter/shell = true
+
+[sub_resource type="StandardMaterial3D" id="Material_Ember"]
+resource_local_to_scene = true
+transparency = 1
+blend_mode = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_color = Color(1, 0.45, 0.035, 1)
+
+[sub_resource type="Gradient" id="Gradient_Ember"]
+offsets = PackedFloat32Array(0, 0.15, 0.65, 1)
+colors = PackedColorArray(1, 0.8, 0.3, 0, 1, 0.8, 0.3, 1, 1, 0.3, 0.01, 0.8, 0.5, 0.02, 0, 0)
+
+[sub_resource type="GradientTexture1D" id="Texture_Ember"]
+gradient = SubResource("Gradient_Ember")
+
+[sub_resource type="ParticleProcessMaterial" id="Particles_Ember"]
+resource_local_to_scene = true
+emission_shape = 1
+emission_sphere_radius = 0.45
+direction = Vector3(0, 1, 0)
+spread = 30.0
+initial_velocity_min = 0.6
+initial_velocity_max = 1.2
+gravity = Vector3(0, 0.3, 0)
+scale_min = 0.25
+scale_max = 0.8
+color_ramp = SubResource("Texture_Ember")
+
+[sub_resource type="Animation" id="Animation_Loop"]
+resource_name = "Loop"
+length = 1.2
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/path = NodePath("Core:scale")
+tracks/0/interp = 1
+tracks/0/keys = { "times": PackedFloat32Array(0, 0.4, 0.8, 1.2), "transitions": PackedFloat32Array(1, 1, 1, 1), "update": 0, "values": [Vector3(1, 1, 1), Vector3(1.04, 1.08, 1.04), Vector3(0.97, 1.03, 0.97), Vector3(1, 1, 1)] }
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_Loop"]
+_data = { &"Loop": SubResource("Animation_Loop") }
+
+[node name="Firelings" type="Node3D"]
+
+[node name="Core" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.6, 0)
+mesh = ExtResource("sphere")
+material_override = SubResource("Material_Core")
+cast_shadow = 0
+
+[node name="Flames" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.6, 0)
+scale = Vector3(1.1, 1.15, 1.1)
+mesh = ExtResource("sphere")
+material_override = SubResource("Material_Shell")
+cast_shadow = 0
+extra_cull_margin = 0.3
+
+[node name="Embers" type="GPUParticles3D" parent="."]
+position = Vector3(0, 0.6, 0)
+amount = 48
+lifetime = 1.5
+preprocess = 1.5
+randomness = 0.4
+visibility_aabb = AABB(-1.5, -1, -1.5, 3, 4, 3)
+process_material = SubResource("Particles_Ember")
+draw_pass_1 = ExtResource("ember")
+material_override = SubResource("Material_Ember")
+cast_shadow = 0
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries/ = SubResource("AnimationLibrary_Loop")
+autoplay = &"Loop"

@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://b8ajdg5qlqylx"
+path="res://.godot/imported/Cylinder.obj-2a52784c76ed9d893abc60d5ae420300.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Cylinder.obj-2a52784c76ed9d893abc60d5ae420300.mesh"]
+
+source_file="res://Assets/FX/TeleportBlue/Cylinder.obj"
+dest_files=["res://.godot/imported/Cylinder.obj-2a52784c76ed9d893abc60d5ae420300.mesh", "res://.godot/imported/Cylinder.obj-2a52784c76ed9d893abc60d5ae420300.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

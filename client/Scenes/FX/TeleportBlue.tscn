@@ -1,0 +1,218 @@
+[gd_scene format=3]
+
+[ext_resource type="Shader" path="res://Assets/FX/Shaders/ImportedGlow.gdshader" id="shader"]
+
+[ext_resource type="ArrayMesh" path="res://Assets/FX/TeleportBlue/Base.obj" id="mesh_Base"]
+
+[ext_resource type="Texture2D" path="res://Assets/FX/TeleportBlue/BaseGlow.png" id="tex_Base"]
+
+[ext_resource type="ArrayMesh" path="res://Assets/FX/TeleportBlue/Cylinder.obj" id="mesh_Cylinder"]
+
+[ext_resource type="Texture2D" path="res://Assets/FX/TeleportBlue/CylinderGlow.png" id="tex_Cylinder"]
+
+[ext_resource type="ArrayMesh" path="res://Assets/FX/TeleportBlue/Cylinder.obj" id="mesh_Core"]
+
+[ext_resource type="Texture2D" path="res://Assets/FX/TeleportBlue/CylinderGlow.png" id="tex_Core"]
+
+[sub_resource type="ShaderMaterial" id="mat_Base"]
+resource_local_to_scene = true
+shader = ExtResource("shader")
+shader_parameter/effect_texture = ExtResource("tex_Base")
+shader_parameter/tint = Color(0.12, 0.55, 1, 1)
+shader_parameter/intensity = 1.2
+shader_parameter/opacity = 1.0
+shader_parameter/texture_color = false
+shader_parameter/scroll_speed = Vector2(0, 0)
+
+[sub_resource type="ShaderMaterial" id="mat_Cylinder"]
+resource_local_to_scene = true
+shader = ExtResource("shader")
+shader_parameter/effect_texture = ExtResource("tex_Cylinder")
+shader_parameter/tint = Color(0.08, 0.4, 1, 1)
+shader_parameter/intensity = 1.2
+shader_parameter/opacity = 1.0
+shader_parameter/texture_color = false
+shader_parameter/scroll_speed = Vector2(0.1, -0.15)
+
+[sub_resource type="ShaderMaterial" id="mat_Core"]
+resource_local_to_scene = true
+shader = ExtResource("shader")
+shader_parameter/effect_texture = ExtResource("tex_Core")
+shader_parameter/tint = Color(0.4, 0.8, 1, 1)
+shader_parameter/intensity = 1.2
+shader_parameter/opacity = 1.0
+shader_parameter/texture_color = false
+shader_parameter/scroll_speed = Vector2(-0.06, 0.12)
+
+[sub_resource type="Animation" id="RESET"]
+resource_name = "RESET"
+length = 0.001
+
+tracks/0/type = "value"
+tracks/0/path = NodePath("Base:material_override:shader_parameter/opacity")
+tracks/0/interp = 1
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.0]
+}
+
+tracks/1/type = "value"
+tracks/1/path = NodePath("Base:scale")
+tracks/1/interp = 1
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(1.8, 1, 1.8)]
+}
+
+tracks/2/type = "value"
+tracks/2/path = NodePath("Cylinder:material_override:shader_parameter/opacity")
+tracks/2/interp = 1
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.0]
+}
+
+tracks/3/type = "value"
+tracks/3/path = NodePath("Cylinder:scale")
+tracks/3/interp = 1
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(2.4, 3.2, 2.4)]
+}
+
+tracks/4/type = "value"
+tracks/4/path = NodePath("Core:material_override:shader_parameter/opacity")
+tracks/4/interp = 1
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.0]
+}
+
+tracks/5/type = "value"
+tracks/5/path = NodePath("Core:scale")
+tracks/5/interp = 1
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(1.4, 3.5, 1.4)]
+}
+
+[sub_resource type="Animation" id="Effect"]
+resource_name = "Effect"
+length = 2.0
+
+tracks/0/type = "value"
+tracks/0/path = NodePath("Base:material_override:shader_parameter/opacity")
+tracks/0/interp = 1
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.15, 1.2, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [0.0, 1.0, 0.8, 0.0]
+}
+
+tracks/1/type = "value"
+tracks/1/path = NodePath("Base:scale")
+tracks/1/interp = 1
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.2, 1.2, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(0.09000000000000001, 0.05, 0.09000000000000001), Vector3(1.8, 1, 1.8), Vector3(1.9440000000000002, 1.08, 1.9440000000000002), Vector3(2.25, 1.25, 2.25)]
+}
+
+tracks/2/type = "value"
+tracks/2/path = NodePath("Cylinder:material_override:shader_parameter/opacity")
+tracks/2/interp = 1
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.15, 1.2, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [0.0, 1.0, 0.8, 0.0]
+}
+
+tracks/3/type = "value"
+tracks/3/path = NodePath("Cylinder:scale")
+tracks/3/interp = 1
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.2, 1.2, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(0.12, 0.16000000000000003, 0.12), Vector3(2.4, 3.2, 2.4), Vector3(2.592, 3.4560000000000004, 2.592), Vector3(3.0, 4.0, 3.0)]
+}
+
+tracks/4/type = "value"
+tracks/4/path = NodePath("Core:material_override:shader_parameter/opacity")
+tracks/4/interp = 1
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.15, 1.2, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [0.0, 1.0, 0.8, 0.0]
+}
+
+tracks/5/type = "value"
+tracks/5/path = NodePath("Core:scale")
+tracks/5/interp = 1
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 0.2, 1.2, 2),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(0.06999999999999999, 0.17500000000000002, 0.06999999999999999), Vector3(1.4, 3.5, 1.4), Vector3(1.512, 3.7800000000000002, 1.512), Vector3(1.75, 4.375, 1.75)]
+}
+
+[sub_resource type="AnimationLibrary" id="Library"]
+_data = { &"RESET": SubResource("RESET"), &"Effect": SubResource("Effect") }
+
+[node name="TeleportBlue" type="Node3D"]
+
+[node name="Base" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.04, 0)
+rotation = Vector3(0, 0, 0)
+scale = Vector3(1.8, 1, 1.8)
+cast_shadow = 0
+material_override = SubResource("mat_Base")
+mesh = ExtResource("mesh_Base")
+
+[node name="Cylinder" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.06, 0)
+rotation = Vector3(0, 0, 0)
+scale = Vector3(2.4, 3.2, 2.4)
+cast_shadow = 0
+material_override = SubResource("mat_Cylinder")
+mesh = ExtResource("mesh_Cylinder")
+
+[node name="Core" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.06, 0)
+rotation = Vector3(0, 0, 0)
+scale = Vector3(1.4, 3.5, 1.4)
+cast_shadow = 0
+material_override = SubResource("mat_Core")
+mesh = ExtResource("mesh_Core")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = { &"": SubResource("Library") }
+autoplay = "Effect"

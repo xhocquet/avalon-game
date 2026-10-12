@@ -1,0 +1,44 @@
+[gd_scene format=3]
+
+[ext_resource type="Shader" path="res://Assets/FX/ArrowTrail/ArrowTrail.gdshader" id="shader"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/ArrowTrail/AngularTrail.obj" id="mesh"]
+
+[sub_resource type="ShaderMaterial" id="Material_Glow"]
+resource_local_to_scene = true
+shader = ExtResource("shader")
+shader_parameter/tint = Color(0.15, 0.8, 1, 1)
+shader_parameter/intensity = 1.5
+shader_parameter/opacity = 1.0
+
+[sub_resource type="Animation" id="Animation_RESET"]
+resource_name = "RESET"
+length = 0.001
+tracks/0/type = "value"
+tracks/0/path = NodePath("Mesh:material_override:shader_parameter/opacity")
+tracks/0/keys = { "times": PackedFloat32Array(0), "transitions": PackedFloat32Array(1), "update": 0, "values": [1.0] }
+
+[sub_resource type="Animation" id="Animation_Effect"]
+resource_name = "Effect"
+length = 1.0
+tracks/0/type = "value"
+tracks/0/path = NodePath("Mesh:material_override:shader_parameter/opacity")
+tracks/0/interp = 1
+tracks/0/keys = { "times": PackedFloat32Array(0, 0.08, 0.6, 1), "transitions": PackedFloat32Array(1, 1, 1, 1), "update": 0, "values": [0.0, 1.0, 0.8, 0.0] }
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_Effect"]
+_data = {
+&"RESET": SubResource("Animation_RESET"),
+&"Effect": SubResource("Animation_Effect")
+}
+
+[node name="ArrowTrail" type="Node3D"]
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.2, 0)
+mesh = ExtResource("mesh")
+material_override = SubResource("Material_Glow")
+cast_shadow = 0
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries/ = SubResource("AnimationLibrary_Effect")
+autoplay = &"Effect"

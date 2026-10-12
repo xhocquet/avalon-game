@@ -1,0 +1,335 @@
+[gd_scene format=3 uid="uid://jur2i8b07gah"]
+
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame001.res" id="frame1"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame002.res" id="frame2"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame003.res" id="frame3"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame004.res" id="frame4"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame005.res" id="frame5"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame006.res" id="frame6"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame007.res" id="frame7"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame008.res" id="frame8"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame009.res" id="frame9"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame010.res" id="frame10"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame011.res" id="frame11"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame012.res" id="frame12"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame013.res" id="frame13"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame014.res" id="frame14"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame015.res" id="frame15"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame016.res" id="frame16"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame017.res" id="frame17"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame018.res" id="frame18"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame019.res" id="frame19"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame020.res" id="frame20"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame021.res" id="frame21"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame022.res" id="frame22"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame023.res" id="frame23"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame024.res" id="frame24"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame025.res" id="frame25"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame026.res" id="frame26"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame027.res" id="frame27"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame028.res" id="frame28"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame029.res" id="frame29"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame030.res" id="frame30"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame031.res" id="frame31"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame032.res" id="frame32"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame033.res" id="frame33"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame034.res" id="frame34"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame035.res" id="frame35"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame036.res" id="frame36"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame037.res" id="frame37"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame038.res" id="frame38"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame039.res" id="frame39"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame040.res" id="frame40"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame041.res" id="frame41"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame042.res" id="frame42"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame043.res" id="frame43"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame044.res" id="frame44"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame045.res" id="frame45"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame046.res" id="frame46"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame047.res" id="frame47"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame048.res" id="frame48"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame049.res" id="frame49"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame050.res" id="frame50"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame051.res" id="frame51"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame052.res" id="frame52"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame053.res" id="frame53"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame054.res" id="frame54"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame055.res" id="frame55"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame056.res" id="frame56"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame057.res" id="frame57"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame058.res" id="frame58"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame059.res" id="frame59"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame060.res" id="frame60"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame061.res" id="frame61"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame062.res" id="frame62"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame063.res" id="frame63"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame064.res" id="frame64"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame065.res" id="frame65"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame066.res" id="frame66"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame067.res" id="frame67"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame068.res" id="frame68"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame069.res" id="frame69"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame070.res" id="frame70"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame071.res" id="frame71"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame072.res" id="frame72"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame073.res" id="frame73"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame074.res" id="frame74"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame075.res" id="frame75"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame076.res" id="frame76"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame077.res" id="frame77"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame078.res" id="frame78"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame079.res" id="frame79"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame080.res" id="frame80"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame081.res" id="frame81"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame082.res" id="frame82"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame083.res" id="frame83"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame084.res" id="frame84"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame085.res" id="frame85"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame086.res" id="frame86"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame087.res" id="frame87"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame088.res" id="frame88"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame089.res" id="frame89"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame090.res" id="frame90"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame091.res" id="frame91"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame092.res" id="frame92"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame093.res" id="frame93"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame094.res" id="frame94"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame095.res" id="frame95"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame096.res" id="frame96"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame097.res" id="frame97"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame098.res" id="frame98"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame099.res" id="frame99"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame100.res" id="frame100"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame101.res" id="frame101"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame102.res" id="frame102"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame103.res" id="frame103"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame104.res" id="frame104"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame105.res" id="frame105"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame106.res" id="frame106"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame107.res" id="frame107"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame108.res" id="frame108"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame109.res" id="frame109"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame110.res" id="frame110"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame111.res" id="frame111"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame112.res" id="frame112"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame113.res" id="frame113"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame114.res" id="frame114"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame115.res" id="frame115"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame116.res" id="frame116"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame117.res" id="frame117"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame118.res" id="frame118"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame119.res" id="frame119"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame120.res" id="frame120"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame121.res" id="frame121"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame122.res" id="frame122"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame123.res" id="frame123"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame124.res" id="frame124"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame125.res" id="frame125"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame126.res" id="frame126"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame127.res" id="frame127"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame128.res" id="frame128"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame129.res" id="frame129"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame130.res" id="frame130"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame131.res" id="frame131"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame132.res" id="frame132"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame133.res" id="frame133"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame134.res" id="frame134"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame135.res" id="frame135"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame136.res" id="frame136"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame137.res" id="frame137"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame138.res" id="frame138"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame139.res" id="frame139"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame140.res" id="frame140"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame141.res" id="frame141"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame142.res" id="frame142"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame143.res" id="frame143"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame144.res" id="frame144"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame145.res" id="frame145"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame146.res" id="frame146"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame147.res" id="frame147"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame148.res" id="frame148"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame149.res" id="frame149"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame150.res" id="frame150"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame151.res" id="frame151"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame152.res" id="frame152"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame153.res" id="frame153"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame154.res" id="frame154"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame155.res" id="frame155"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame156.res" id="frame156"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame157.res" id="frame157"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame158.res" id="frame158"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame159.res" id="frame159"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame160.res" id="frame160"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame161.res" id="frame161"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame162.res" id="frame162"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame163.res" id="frame163"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame164.res" id="frame164"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame165.res" id="frame165"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame166.res" id="frame166"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame167.res" id="frame167"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame168.res" id="frame168"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame169.res" id="frame169"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame170.res" id="frame170"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame171.res" id="frame171"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame172.res" id="frame172"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame173.res" id="frame173"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame174.res" id="frame174"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame175.res" id="frame175"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame176.res" id="frame176"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame177.res" id="frame177"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame178.res" id="frame178"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame179.res" id="frame179"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame180.res" id="frame180"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame181.res" id="frame181"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame182.res" id="frame182"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame183.res" id="frame183"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame184.res" id="frame184"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame185.res" id="frame185"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame186.res" id="frame186"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame187.res" id="frame187"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame188.res" id="frame188"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame189.res" id="frame189"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame190.res" id="frame190"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame191.res" id="frame191"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame192.res" id="frame192"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame193.res" id="frame193"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame194.res" id="frame194"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame195.res" id="frame195"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame196.res" id="frame196"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame197.res" id="frame197"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame198.res" id="frame198"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame199.res" id="frame199"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame200.res" id="frame200"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame201.res" id="frame201"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame202.res" id="frame202"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame203.res" id="frame203"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame204.res" id="frame204"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame205.res" id="frame205"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame206.res" id="frame206"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame207.res" id="frame207"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame208.res" id="frame208"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame209.res" id="frame209"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame210.res" id="frame210"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame211.res" id="frame211"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame212.res" id="frame212"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame213.res" id="frame213"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame214.res" id="frame214"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame215.res" id="frame215"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame216.res" id="frame216"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame217.res" id="frame217"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame218.res" id="frame218"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame219.res" id="frame219"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame220.res" id="frame220"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame221.res" id="frame221"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame222.res" id="frame222"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame223.res" id="frame223"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame224.res" id="frame224"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame225.res" id="frame225"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame226.res" id="frame226"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame227.res" id="frame227"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame228.res" id="frame228"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame229.res" id="frame229"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame230.res" id="frame230"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame231.res" id="frame231"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame232.res" id="frame232"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame233.res" id="frame233"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame234.res" id="frame234"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame235.res" id="frame235"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame236.res" id="frame236"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame237.res" id="frame237"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame238.res" id="frame238"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame239.res" id="frame239"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame240.res" id="frame240"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame241.res" id="frame241"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame242.res" id="frame242"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame243.res" id="frame243"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame244.res" id="frame244"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame245.res" id="frame245"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame246.res" id="frame246"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame247.res" id="frame247"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame248.res" id="frame248"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame249.res" id="frame249"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame250.res" id="frame250"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame251.res" id="frame251"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/FlocksAttack/Frames/FlockFrame252.res" id="frame252"]
+[ext_resource type="Shader" uid="uid://uaea3lr4ijmr" path="res://Assets/FX/FlocksAttack/FlocksAttack.gdshader" id="shader"]
+
+[sub_resource type="ShaderMaterial" id="Material_Flock"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource("shader")
+shader_parameter/tint = Color(0.15, 0.4, 1, 0.3)
+shader_parameter/opacity = 1.0
+shader_parameter/intensity = 1.2
+
+[sub_resource type="Animation" id="Animation_Attack"]
+resource_name = "Attack"
+length = 4.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Flock:mesh")
+tracks/0/interp = 0
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.01666667, 0.03333333, 0.05, 0.06666667, 0.08333333, 0.1, 0.11666667, 0.13333333, 0.15, 0.16666667, 0.18333334, 0.2, 0.21666667, 0.23333333, 0.25, 0.26666668, 0.28333333, 0.3, 0.31666666, 0.33333334, 0.35, 0.36666667, 0.38333333, 0.4, 0.41666666, 0.43333334, 0.45, 0.46666667, 0.48333332, 0.5, 0.51666665, 0.5333333, 0.55, 0.56666666, 0.5833333, 0.6, 0.6166667, 0.6333333, 0.65, 0.6666667, 0.68333334, 0.7, 0.7166667, 0.73333335, 0.75, 0.76666665, 0.7833333, 0.8, 0.81666666, 0.8333333, 0.85, 0.8666667, 0.8833333, 0.9, 0.9166667, 0.93333334, 0.95, 0.9666667, 0.98333335, 1, 1.0166667, 1.0333333, 1.05, 1.0666667, 1.0833334, 1.1, 1.1166667, 1.1333333, 1.15, 1.1666666, 1.1833333, 1.2, 1.2166667, 1.2333333, 1.25, 1.2666667, 1.2833333, 1.3, 1.3166667, 1.3333334, 1.35, 1.3666667, 1.3833333, 1.4, 1.4166666, 1.4333333, 1.45, 1.4666667, 1.4833333, 1.5, 1.5166667, 1.5333333, 1.55, 1.5666667, 1.5833334, 1.6, 1.6166667, 1.6333333, 1.65, 1.6666666, 1.6833333, 1.7, 1.7166667, 1.7333333, 1.75, 1.7666667, 1.7833333, 1.8, 1.8166667, 1.8333334, 1.85, 1.8666667, 1.8833333, 1.9, 1.9166666, 1.9333333, 1.95, 1.9666667, 1.9833333, 2, 2.0166667, 2.0333333, 2.05, 2.0666666, 2.0833333, 2.1, 2.1166666, 2.1333334, 2.15, 2.1666667, 2.1833334, 2.2, 2.2166667, 2.2333333, 2.25, 2.2666667, 2.2833333, 2.3, 2.3166666, 2.3333333, 2.35, 2.3666666, 2.3833334, 2.4, 2.4166667, 2.4333334, 2.45, 2.4666667, 2.4833333, 2.5, 2.5166667, 2.5333333, 2.55, 2.5666666, 2.5833333, 2.6, 2.6166666, 2.6333334, 2.65, 2.6666667, 2.6833334, 2.7, 2.7166667, 2.7333333, 2.75, 2.7666667, 2.7833333, 2.8, 2.8166666, 2.8333333, 2.85, 2.8666666, 2.8833334, 2.9, 2.9166667, 2.9333334, 2.95, 2.9666667, 2.9833333, 3, 3.0166667, 3.0333333, 3.05, 3.0666666, 3.0833333, 3.1, 3.1166666, 3.1333334, 3.15, 3.1666667, 3.1833334, 3.2, 3.2166667, 3.2333333, 3.25, 3.2666667, 3.2833333, 3.3, 3.3166666, 3.3333333, 3.35, 3.3666666, 3.3833334, 3.4, 3.4166667, 3.4333334, 3.45, 3.4666667, 3.4833333, 3.5, 3.5166667, 3.5333333, 3.55, 3.5666666, 3.5833333, 3.6, 3.6166666, 3.6333334, 3.65, 3.6666667, 3.6833334, 3.7, 3.7166667, 3.7333333, 3.75, 3.7666667, 3.7833333, 3.8, 3.8166666, 3.8333333, 3.85, 3.8666666, 3.8833334, 3.9, 3.9166667, 3.9333334, 3.95, 3.9666667, 3.9833333, 4, 4.016667, 4.0333333, 4.05, 4.0666666, 4.0833335, 4.1, 4.116667, 4.133333, 4.15, 4.1666665, 4.1833334, 4.2),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [ExtResource("frame1"), ExtResource("frame2"), ExtResource("frame3"), ExtResource("frame4"), ExtResource("frame5"), ExtResource("frame6"), ExtResource("frame7"), ExtResource("frame8"), ExtResource("frame9"), ExtResource("frame10"), ExtResource("frame11"), ExtResource("frame12"), ExtResource("frame13"), ExtResource("frame14"), ExtResource("frame15"), ExtResource("frame16"), ExtResource("frame17"), ExtResource("frame18"), ExtResource("frame19"), ExtResource("frame20"), ExtResource("frame21"), ExtResource("frame22"), ExtResource("frame23"), ExtResource("frame24"), ExtResource("frame25"), ExtResource("frame26"), ExtResource("frame27"), ExtResource("frame28"), ExtResource("frame29"), ExtResource("frame30"), ExtResource("frame31"), ExtResource("frame32"), ExtResource("frame33"), ExtResource("frame34"), ExtResource("frame35"), ExtResource("frame36"), ExtResource("frame37"), ExtResource("frame38"), ExtResource("frame39"), ExtResource("frame40"), ExtResource("frame41"), ExtResource("frame42"), ExtResource("frame43"), ExtResource("frame44"), ExtResource("frame45"), ExtResource("frame46"), ExtResource("frame47"), ExtResource("frame48"), ExtResource("frame49"), ExtResource("frame50"), ExtResource("frame51"), ExtResource("frame52"), ExtResource("frame53"), ExtResource("frame54"), ExtResource("frame55"), ExtResource("frame56"), ExtResource("frame57"), ExtResource("frame58"), ExtResource("frame59"), ExtResource("frame60"), ExtResource("frame61"), ExtResource("frame62"), ExtResource("frame63"), ExtResource("frame64"), ExtResource("frame65"), ExtResource("frame66"), ExtResource("frame67"), ExtResource("frame68"), ExtResource("frame69"), ExtResource("frame70"), ExtResource("frame71"), ExtResource("frame72"), ExtResource("frame73"), ExtResource("frame74"), ExtResource("frame75"), ExtResource("frame76"), ExtResource("frame77"), ExtResource("frame78"), ExtResource("frame79"), ExtResource("frame80"), ExtResource("frame81"), ExtResource("frame82"), ExtResource("frame83"), ExtResource("frame84"), ExtResource("frame85"), ExtResource("frame86"), ExtResource("frame87"), ExtResource("frame88"), ExtResource("frame89"), ExtResource("frame90"), ExtResource("frame91"), ExtResource("frame92"), ExtResource("frame93"), ExtResource("frame94"), ExtResource("frame95"), ExtResource("frame96"), ExtResource("frame97"), ExtResource("frame98"), ExtResource("frame99"), ExtResource("frame100"), ExtResource("frame101"), ExtResource("frame102"), ExtResource("frame103"), ExtResource("frame104"), ExtResource("frame105"), ExtResource("frame106"), ExtResource("frame107"), ExtResource("frame108"), ExtResource("frame109"), ExtResource("frame110"), ExtResource("frame111"), ExtResource("frame112"), ExtResource("frame113"), ExtResource("frame114"), ExtResource("frame115"), ExtResource("frame116"), ExtResource("frame117"), ExtResource("frame118"), ExtResource("frame119"), ExtResource("frame120"), ExtResource("frame121"), ExtResource("frame122"), ExtResource("frame123"), ExtResource("frame124"), ExtResource("frame125"), ExtResource("frame126"), ExtResource("frame127"), ExtResource("frame128"), ExtResource("frame129"), ExtResource("frame130"), ExtResource("frame131"), ExtResource("frame132"), ExtResource("frame133"), ExtResource("frame134"), ExtResource("frame135"), ExtResource("frame136"), ExtResource("frame137"), ExtResource("frame138"), ExtResource("frame139"), ExtResource("frame140"), ExtResource("frame141"), ExtResource("frame142"), ExtResource("frame143"), ExtResource("frame144"), ExtResource("frame145"), ExtResource("frame146"), ExtResource("frame147"), ExtResource("frame148"), ExtResource("frame149"), ExtResource("frame150"), ExtResource("frame151"), ExtResource("frame152"), ExtResource("frame153"), ExtResource("frame154"), ExtResource("frame155"), ExtResource("frame156"), ExtResource("frame157"), ExtResource("frame158"), ExtResource("frame159"), ExtResource("frame160"), ExtResource("frame161"), ExtResource("frame162"), ExtResource("frame163"), ExtResource("frame164"), ExtResource("frame165"), ExtResource("frame166"), ExtResource("frame167"), ExtResource("frame168"), ExtResource("frame169"), ExtResource("frame170"), ExtResource("frame171"), ExtResource("frame172"), ExtResource("frame173"), ExtResource("frame174"), ExtResource("frame175"), ExtResource("frame176"), ExtResource("frame177"), ExtResource("frame178"), ExtResource("frame179"), ExtResource("frame180"), ExtResource("frame181"), ExtResource("frame182"), ExtResource("frame183"), ExtResource("frame184"), ExtResource("frame185"), ExtResource("frame186"), ExtResource("frame187"), ExtResource("frame188"), ExtResource("frame189"), ExtResource("frame190"), ExtResource("frame191"), ExtResource("frame192"), ExtResource("frame193"), ExtResource("frame194"), ExtResource("frame195"), ExtResource("frame196"), ExtResource("frame197"), ExtResource("frame198"), ExtResource("frame199"), ExtResource("frame200"), ExtResource("frame201"), ExtResource("frame202"), ExtResource("frame203"), ExtResource("frame204"), ExtResource("frame205"), ExtResource("frame206"), ExtResource("frame207"), ExtResource("frame208"), ExtResource("frame209"), ExtResource("frame210"), ExtResource("frame211"), ExtResource("frame212"), ExtResource("frame213"), ExtResource("frame214"), ExtResource("frame215"), ExtResource("frame216"), ExtResource("frame217"), ExtResource("frame218"), ExtResource("frame219"), ExtResource("frame220"), ExtResource("frame221"), ExtResource("frame222"), ExtResource("frame223"), ExtResource("frame224"), ExtResource("frame225"), ExtResource("frame226"), ExtResource("frame227"), ExtResource("frame228"), ExtResource("frame229"), ExtResource("frame230"), ExtResource("frame231"), ExtResource("frame232"), ExtResource("frame233"), ExtResource("frame234"), ExtResource("frame235"), ExtResource("frame236"), ExtResource("frame237"), ExtResource("frame238"), ExtResource("frame239"), ExtResource("frame240"), ExtResource("frame241"), ExtResource("frame242"), ExtResource("frame243"), ExtResource("frame244"), ExtResource("frame245"), ExtResource("frame246"), ExtResource("frame247"), ExtResource("frame248"), ExtResource("frame249"), ExtResource("frame250"), ExtResource("frame251"), ExtResource("frame252"), null]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Flock:material_override:shader_parameter/opacity")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.08, 3.8, 4.2),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [0.0, 1.0, 1.0, 0.0]
+}
+
+[sub_resource type="Animation" id="Animation_Reset"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Flock:mesh")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [ExtResource("frame1")]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Flock:material_override:shader_parameter/opacity")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [1.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_Attack"]
+_data = {
+&"Attack": SubResource("Animation_Attack"),
+&"RESET": SubResource("Animation_Reset")
+}
+
+[node name="FlocksAttack" type="Node3D" unique_id=359540412]
+
+[node name="Flock" type="MeshInstance3D" parent="." unique_id=1065534024]
+material_override = SubResource("Material_Flock")
+cast_shadow = 0
+mesh = ExtResource("frame1")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=2016672550]
+libraries/ = SubResource("AnimationLibrary_Attack")
+autoplay = &"Attack"

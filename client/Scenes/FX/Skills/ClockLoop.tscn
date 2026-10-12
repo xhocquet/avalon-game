@@ -1,0 +1,126 @@
+[gd_scene format=3 uid="uid://d068orhfm6aw5"]
+
+[ext_resource type="ArrayMesh" uid="uid://25vsdp7f0wou" path="res://Assets/FX/ClockLoop/HourHand.obj" id="mesh_HourHand"]
+[ext_resource type="ArrayMesh" uid="uid://j2bvvqe0svbc" path="res://Assets/FX/ClockLoop/InnerRing.obj" id="mesh_InnerRing"]
+[ext_resource type="ArrayMesh" uid="uid://uoses0c4d3ya" path="res://Assets/FX/ClockLoop/MinuteHand.obj" id="mesh_MinuteHand"]
+[ext_resource type="ArrayMesh" uid="uid://b04f4nyeb2frn" path="res://Assets/FX/ClockLoop/Numerals.obj" id="mesh_Numerals"]
+[ext_resource type="ArrayMesh" uid="uid://bya5a0pfaauco" path="res://Assets/FX/ClockLoop/OuterRing.obj" id="mesh_OuterRing"]
+
+[sub_resource type="StandardMaterial3D" id="Material_Gold"]
+transparency = 1
+blend_mode = 1
+cull_mode = 2
+shading_mode = 0
+albedo_color = Color(1, 0.65, 0.15, 0.9)
+
+[sub_resource type="StandardMaterial3D" id="Material_Light"]
+transparency = 1
+blend_mode = 1
+cull_mode = 2
+shading_mode = 0
+albedo_color = Color(1, 0.9, 0.5, 1)
+
+[sub_resource type="Animation" id="Animation_Loop"]
+resource_name = "Loop"
+length = 144.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("MinuteHand:rotation:y")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 144),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, -75.398223686]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("HourHand:rotation:y")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 144),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.523598776, -5.759586532]
+}
+
+[sub_resource type="Animation" id="Animation_RESET"]
+resource_name = "RESET"
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("MinuteHand:rotation:y")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("HourHand:rotation:y")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.523598776]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_clock"]
+_data = {
+&"Loop": SubResource("Animation_Loop"),
+&"RESET": SubResource("Animation_RESET")
+}
+
+[node name="ClockLoop" type="Node3D" unique_id=519351080]
+
+[node name="OuterRing" type="MeshInstance3D" parent="." unique_id=2088509841]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03, 0)
+material_override = SubResource("Material_Gold")
+cast_shadow = 0
+mesh = ExtResource("mesh_OuterRing")
+
+[node name="InnerRing" type="MeshInstance3D" parent="." unique_id=607904331]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.035, 0)
+material_override = SubResource("Material_Gold")
+cast_shadow = 0
+mesh = ExtResource("mesh_InnerRing")
+
+[node name="Numerals" type="MeshInstance3D" parent="." unique_id=1118376416]
+transform = Transform3D(0.37, 0, 0, 0, 1, 0, 0, 0, 0.54, 0, 0.04, 0)
+material_override = SubResource("Material_Light")
+cast_shadow = 0
+mesh = ExtResource("mesh_Numerals")
+
+[node name="MinuteHand" type="Node3D" parent="." unique_id=1628797510]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.055, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="MinuteHand" unique_id=327356945]
+transform = Transform3D(1.6, 0, 0, 0, -6.9938224e-08, 1.6, 0, -1.6, -6.9938224e-08, 0, 0, 0)
+material_override = SubResource("Material_Light")
+cast_shadow = 0
+mesh = ExtResource("mesh_MinuteHand")
+
+[node name="HourHand" type="Node3D" parent="." unique_id=1678065271]
+transform = Transform3D(0.8660254, 0, 0.5, 0, 1, 0, -0.5, 0, 0.8660254, 0, 0.06, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="HourHand" unique_id=1070602667]
+transform = Transform3D(1.6, 0, 0, 0, -6.9938224e-08, 1.6, 0, -1.6, -6.9938224e-08, 0, 0, 0)
+material_override = SubResource("Material_Light")
+cast_shadow = 0
+mesh = ExtResource("mesh_HourHand")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1046952262]
+libraries/ = SubResource("AnimationLibrary_clock")
+autoplay = &"Loop"

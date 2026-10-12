@@ -1,4 +1,4 @@
-[gd_resource type="AnimationLibrary" format=3]
+[gd_resource type="AnimationLibrary" format=3 uid="uid://cim2rk28grt7i"]
 
 [sub_resource type="Animation" id="Animation_f22du"]
 resource_name = "Idle"
