@@ -1,0 +1,65 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="PackedScene" path="res://Scenes/FX/StylizedFireOrange.tscn" id="orange"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/StylizedFireCyan.tscn" id="cyan"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/StylizedFireGreen.tscn" id="green"]
+
+[sub_resource type="Environment" id="Environment"]
+background_mode = 1
+background_color = Color(0.018, 0.025, 0.04, 1)
+ambient_light_source = 3
+ambient_light_color = Color(0.5, 0.6, 0.8, 1)
+ambient_light_energy = 0.3
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="StandardMaterial3D" id="FloorMaterial"]
+albedo_color = Color(0.06, 0.075, 0.1, 1)
+roughness = 0.9
+
+[sub_resource type="PlaneMesh" id="FloorMesh"]
+material = SubResource("FloorMaterial")
+size = Vector2(20, 20)
+
+[node name="StylizedFirePreview" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment")
+
+[node name="Floor" type="MeshInstance3D" parent="."]
+mesh = SubResource("FloorMesh")
+
+[node name="Orange" parent="." instance=ExtResource("orange")]
+position = Vector3(-1.6, 0, 0)
+
+[node name="Cyan" parent="." instance=ExtResource("cyan")]
+
+[node name="Green" parent="." instance=ExtResource("green")]
+position = Vector3(1.6, 0, 0)
+
+[node name="OrangeLabel" type="Label3D" parent="."]
+position = Vector3(-1.6, 0.08, 0.7)
+billboard = 1
+text = "Orange"
+font_size = 32
+outline_size = 6
+
+[node name="CyanLabel" type="Label3D" parent="."]
+position = Vector3(0, 0.08, 0.7)
+billboard = 1
+text = "Cyan"
+font_size = 32
+outline_size = 6
+
+[node name="GreenLabel" type="Label3D" parent="."]
+position = Vector3(1.6, 0.08, 0.7)
+billboard = 1
+text = "Green"
+font_size = 32
+outline_size = 6
+
+[node name="Camera3D" type="Camera3D" parent="."]
+position = Vector3(0, 2, 5)
+rotation = Vector3(-0.2915, 0, 0)
+current = true
+fov = 42.0

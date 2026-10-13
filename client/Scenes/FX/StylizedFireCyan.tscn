@@ -1,0 +1,185 @@
+[gd_scene load_steps=32 format=3]
+
+[ext_resource type="Shader" path="res://Assets/FX/StylizedFire/StylizedFire.gdshader" id="2_ear7p"]
+[ext_resource type="ArrayMesh" path="res://Assets/FX/StylizedFire/FlameMesh.tres" id="3_3oo2k"]
+
+[sub_resource type="Gradient" id="Gradient_ear7p"]
+offsets = PackedFloat32Array(0, 0.06793478, 0.2652174)
+colors = PackedColorArray(0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_3oo2k"]
+gradient = SubResource("Gradient_ear7p")
+width = 32
+height = 128
+fill_from = Vector2(0, 1)
+fill_to = Vector2(0, 0)
+
+[sub_resource type="Gradient" id="Gradient_7hhqn"]
+offsets = PackedFloat32Array(0, 0.029891305, 0.095108695, 0.26086956, 0.35326087)
+colors = PackedColorArray(0.18431373, 0.18431373, 0.18431373, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0.20392157, 1, 1, 0.16206568, 0.1620655, 0.16206563, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_uwfmv"]
+gradient = SubResource("Gradient_7hhqn")
+height = 256
+fill_from = Vector2(0, 1)
+fill_to = Vector2(0, 0)
+
+[sub_resource type="Gradient" id="Gradient_jw47b"]
+offsets = PackedFloat32Array(0, 0.16576087, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_ol622"]
+fractal_type = 2
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_5toxt"]
+width = 64
+height = 64
+noise = SubResource("FastNoiseLite_ol622")
+color_ramp = SubResource("Gradient_jw47b")
+seamless = true
+
+[sub_resource type="Gradient" id="Gradient_ahmi5"]
+offsets = PackedFloat32Array(0.5782609, 0.90869564, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_ow41l"]
+gradient = SubResource("Gradient_ahmi5")
+fill_to = Vector2(0, 1)
+
+[sub_resource type="Gradient" id="Gradient_4xfxw"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_08enn"]
+noise_type = 0
+fractal_type = 0
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_h2jv8"]
+noise = SubResource("FastNoiseLite_08enn")
+color_ramp = SubResource("Gradient_4xfxw")
+seamless = true
+
+[sub_resource type="Gradient" id="Gradient_2txox"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_ccey5"]
+fractal_type = 0
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_uoc37"]
+noise = SubResource("FastNoiseLite_ccey5")
+color_ramp = SubResource("Gradient_2txox")
+
+[sub_resource type="Gradient" id="Gradient_2gn4q"]
+offsets = PackedFloat32Array(0.30706522, 0.6820652, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_arjyu"]
+gradient = SubResource("Gradient_2gn4q")
+fill_from = Vector2(1, 1)
+
+[sub_resource type="Gradient" id="Gradient_rh0km"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_4guuq"]
+fractal_type = 2
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_u6r7h"]
+width = 64
+height = 64
+noise = SubResource("FastNoiseLite_4guuq")
+color_ramp = SubResource("Gradient_rh0km")
+seamless = true
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_fyxh7"]
+resource_local_to_scene = true
+render_priority = 0
+shader = ExtResource("2_ear7p")
+shader_parameter/Noise_Texture = SubResource("NoiseTexture2D_5toxt")
+shader_parameter/Coloring_Texture = SubResource("GradientTexture2D_uwfmv")
+shader_parameter/UV_Random = SubResource("NoiseTexture2D_uoc37")
+shader_parameter/Alpha_Texture = SubResource("GradientTexture2D_3oo2k")
+shader_parameter/Speed = Vector2(0.675, 0.23)
+shader_parameter/Emmision_Power = 1.0
+shader_parameter/Twist_Power = 0.99
+shader_parameter/Vertex_Noise_Texture = SubResource("NoiseTexture2D_u6r7h")
+shader_parameter/Vertex_Noise_Power_Texture = SubResource("GradientTexture2D_arjyu")
+shader_parameter/Displace_Power = 0.5
+shader_parameter/Fresnel_Power = 5.0
+shader_parameter/Random_Power = 0.16
+shader_parameter/Fresnel_Color = Color(0.30980393, 1, 1, 1)
+shader_parameter/Tail_Vertex_Noise_Texture = SubResource("NoiseTexture2D_h2jv8")
+shader_parameter/Tail_Vertex_Noise_Power_Texture = SubResource("GradientTexture2D_ow41l")
+shader_parameter/Tail_Displace_Power = 0.3
+
+[sub_resource type="Gradient" id="Gradient_3oo2k"]
+colors = PackedColorArray(0, 0, 1, 1, 0, 1, 1, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_x3sph"]
+gradient = SubResource("Gradient_3oo2k")
+
+[sub_resource type="Curve" id="Curve_8xm58"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.13350783, 1), 0.0, 0.0, 0, 0, Vector2(0.5811518, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 4
+
+[sub_resource type="CurveTexture" id="CurveTexture_6wgel"]
+curve = SubResource("Curve_8xm58")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_7hhqn"]
+resource_local_to_scene = true
+emission_shape = 1
+emission_sphere_radius = 0.5
+gravity = Vector3(2, 4, 0)
+linear_accel_min = -0.5000022
+linear_accel_max = 0.49999776
+scale_min = 0.01
+scale_max = 0.049999997
+scale_curve = SubResource("CurveTexture_6wgel")
+color_initial_ramp = SubResource("GradientTexture1D_x3sph")
+hue_variation_min = -2.2351742e-08
+hue_variation_max = 0.019999977
+turbulence_enabled = true
+turbulence_noise_strength = 0.5
+turbulence_noise_scale = 1.0
+
+[sub_resource type="Curve" id="Curve_uwfmv"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qqi0f"]
+resource_local_to_scene = true
+render_priority = 4
+cull_mode = 2
+vertex_color_use_as_albedo = true
+emission_enabled = true
+emission = Color(0, 0, 1, 1)
+emission_energy_multiplier = 10.0
+use_particle_trails = true
+
+[sub_resource type="RibbonTrailMesh" id="RibbonTrailMesh_jw47b"]
+resource_local_to_scene = true
+material = SubResource("StandardMaterial3D_qqi0f")
+sections = 2
+curve = SubResource("Curve_uwfmv")
+
+[node name="StylizedFireCyan" type="Node3D"]
+
+[node name="Flame" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 0.25, 0)
+material_override = SubResource("ShaderMaterial_fyxh7")
+cast_shadow = 0
+mesh = ExtResource("3_3oo2k")
+skeleton = NodePath("")
+
+[node name="Light" type="OmniLight3D" parent="Flame"]
+light_color = Color(7.70092e-06, 0.7593809, 0.89030135, 1)
+light_energy = 2.0
+omni_range = 2.0
+
+[node name="Sparks" type="GPUParticles3D" parent="Flame"]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0)
+cast_shadow = 0
+amount = 64
+preprocess = 0.5
+visibility_aabb = AABB(-2, -1, -2, 6, 5, 4)
+lifetime = 0.5
+trail_enabled = true
+trail_lifetime = 0.05
+process_material = SubResource("ParticleProcessMaterial_7hhqn")
+draw_pass_1 = SubResource("RibbonTrailMesh_jw47b")
+

@@ -216,6 +216,7 @@ public class SkillTelegraphManager {
   // fade_out_completed - there is no despawn event to wait on. The event is pooled, so read its
   // fields into locals before the TreeExiting closure captures anything.
   private void HandleTrailSegmentSpawned(SkillTrailSegmentSpawnedEvent evt) {
+    if (_effects.HasTrailEffect(evt.SkillAssetId)) return;
     var segmentId = evt.SegmentId;
     if (_layer == null || _engine == null || _trailSegments.ContainsKey(segmentId)) return;
     if (!_catalog.TryResolve(evt.SkillAssetId, out var def)) return;

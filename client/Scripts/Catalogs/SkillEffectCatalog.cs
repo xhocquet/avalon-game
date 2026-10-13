@@ -10,6 +10,7 @@ public class SkillEffectCatalog {
   public const string PickleKnightExploosionScenePath = "res://Scenes/FX/Skills/PickleKnightExploosion.tscn";
   public const string SkinwalkerEatToSurviveScenePath = "res://Scenes/FX/Skills/SkinwalkerEatToSurvive.tscn";
   public const string SkinwalkerSprintScenePath = "res://Scenes/FX/Skills/SkinwalkerSprint.tscn";
+  public const string SnailTrailScenePath = "res://Scenes/FX/Skills/SnailTrail.tscn";
 
   private static readonly HashSet<int> ProjectileEffects = [
     AssetIds.SkillCrystalGiantTertiary,
@@ -17,4 +18,5 @@ public class SkillEffectCatalog {
   ];
 
   public bool HasProjectileEffect(int skillAssetId) => ProjectileEffects.Contains(skillAssetId);
+  public bool HasTrailEffect(int skillAssetId) => skillAssetId == AssetIds.SkillSnailheadSecondary;
 }

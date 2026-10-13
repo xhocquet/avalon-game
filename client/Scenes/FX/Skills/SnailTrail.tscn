@@ -1,0 +1,26 @@
+[gd_scene format=3]
+
+[ext_resource type="Shader" path="res://Assets/FX/SnailTrail/SnailTrail.gdshader" id="shader"]
+[ext_resource type="Script" path="res://Scenes/FX/Skills/SnailTrail.gd" id="script"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/Skills/LoopingBubbles.tscn" id="bubbles"]
+
+[sub_resource type="ShaderMaterial" id="SlimeMaterial"]
+resource_local_to_scene = true
+shader = ExtResource("shader")
+
+[sub_resource type="BoxMesh" id="ProjectionVolume"]
+size = Vector3(1, 1, 1)
+
+[node name="SnailTrail" type="Node3D"]
+script = ExtResource("script")
+
+[node name="Decal" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.12, 0)
+scale = Vector3(2, 0.6, 2)
+cast_shadow = 0
+material_override = SubResource("SlimeMaterial")
+mesh = SubResource("ProjectionVolume")
+
+[node name="Bubbles" parent="." instance=ExtResource("bubbles")]
+emission_radius = 0.75
+bubble_color = Color(0.5, 0.95, 0.12, 0.9)

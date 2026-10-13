@@ -22,6 +22,7 @@ public partial class SkillEffectsManager : Node {
   private readonly HairballImpactEffects _hairballImpacts = new();
   private readonly PickleKnightEffects _pickleKnightEffects = new();
   private readonly SkinwalkerEffects _skinwalkerEffects = new();
+  private readonly SnailTrailEffects _snailTrailEffects = new();
   private readonly Stack<CrystalBulletEffect> _idleCrystalBullets = new();
   private readonly Stack<HairballEffect> _idleHairballs = new();
   private readonly List<int> _staleProjectileIds = new();
@@ -38,6 +39,7 @@ public partial class SkillEffectsManager : Node {
 
     _layer = new Node3D { Name = "SkillEffectsLayer" };
     AddChild(_layer);
+    _snailTrailEffects.Attach(_layer);
     if (events != null) {
       _hairballImpacts.Attach(events, _layer, ProjectileHeight);
       _pickleKnightEffects.Attach(events, _layer, engine, view);
@@ -53,6 +55,7 @@ public partial class SkillEffectsManager : Node {
     _hairballImpacts.Detach();
     _pickleKnightEffects.Detach();
     _skinwalkerEffects.Detach();
+    _snailTrailEffects.Detach();
     if (_engine != null)
       _engine.OnTickExecuted -= HandleTickExecuted;
     _engine = null;
@@ -69,9 +72,10 @@ public partial class SkillEffectsManager : Node {
   }
 
   public override void _Process(double delta) {
-    if (_active.Count == 0 || _engine == null) return;
+    if (_engine == null) return;
 
     _secondsSinceTick = Mathf.Min(_secondsSinceTick + (float)delta, _engine.TickInterval / 1000f);
+    _snailTrailEffects.ApplyVisual(_secondsSinceTick);
     foreach (var effect in _active.Values) {
       effect.SpinRadians = Mathf.PosMod(effect.SpinRadians + effect.Node.SpinRadiansPerSecond * (float)delta,
         Mathf.Tau);
@@ -92,6 +96,7 @@ public partial class SkillEffectsManager : Node {
   }
 
   private void Reconcile(ref Frame frame) {
+    _snailTrailEffects.Reconcile(ref frame);
     _staleProjectileIds.Clear();
     foreach (var projectileId in _active.Keys)
       _staleProjectileIds.Add(projectileId);

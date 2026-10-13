@@ -33,7 +33,7 @@
 [ext_resource type="Shader" uid="uid://l0uvbj0raqeo" path="res://Scenes/World/CartoonFire.gdshader" id="30_jx5j3"]
 [ext_resource type="Texture2D" uid="uid://crf7v0er3rxt8" path="res://Assets/Props/Water/FoamMask.png" id="31_rok63"]
 [ext_resource type="PackedScene" uid="uid://bus13us8cbjnk" path="res://Scenes/FX/BotwExplosion.tscn" id="32_84wms"]
-[ext_resource type="Shader" uid="uid://dbw1ngnabrf6q" path="res://Assets/FX/Shaders/Crystal.gdshader" id="33_eaojp"]
+[ext_resource type="Shader" uid="uid://dbw1ngnabrf6q" path="res://Assets/FX/Shaders/crystal.gdshader" id="33_eaojp"]
 [ext_resource type="PackedScene" uid="uid://bus13us71bank" path="res://Scenes/FX/BotwExplosionIce.tscn" id="33_fnlpt"]
 [ext_resource type="PackedScene" uid="uid://bus13us8dntnk" path="res://Scenes/FX/BotwExplosionToxic.tscn" id="34_e58nk"]
 [ext_resource type="PackedScene" uid="uid://bus13us75dbwk" path="res://Scenes/FX/BotwExplosionMega.tscn" id="35_fcsjw"]
@@ -55,6 +55,7 @@
 [ext_resource type="PackedScene" path="res://Scenes/FX/Skills/ArrowTrail.tscn" id="53_hmxu6"]
 [ext_resource type="PackedScene" path="res://Scenes/FX/Skills/Firelings.tscn" id="54_44824"]
 [ext_resource type="PackedScene" uid="uid://jur2i8b07gah" path="res://Scenes/FX/Skills/FlocksAttack.tscn" id="55_j7eg7"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/Skills/SnailTrail.tscn" id="56_bj8gg"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_dngt1"]
 shader = ExtResource("1_7ykkm")
@@ -507,3 +508,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.322735, 1.9964638, 2.43091
 
 [node name="FlocksAttack" parent="." unique_id=1636888431 instance=ExtResource("55_j7eg7")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.532272, 4.577772, -0.2529993)
+
+[node name="SnailTrail" parent="." unique_id=1132408201 instance=ExtResource("56_bj8gg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.963213, 0.021259785, 3.8339405)
