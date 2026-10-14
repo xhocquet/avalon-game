@@ -1,0 +1,38 @@
+[gd_scene format=3]
+
+[ext_resource type="Shader" path="res://Assets/FX/SnailTrail/SnailTrail.gdshader" id="shader"]
+[ext_resource type="Script" path="res://Scenes/FX/Skills/VenomousSlobber.gd" id="script"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/Skills/LoopingBubbles.tscn" id="bubbles"]
+
+[sub_resource type="ShaderMaterial" id="SlimeMaterial"]
+resource_local_to_scene = true
+shader = ExtResource("shader")
+shader_parameter/cone_shape = true
+shader_parameter/cone_angle_degrees = 60.0
+
+[sub_resource type="BoxMesh" id="ProjectionVolume"]
+size = Vector3(1, 1, 1)
+
+[node name="VenomousSlobber" type="Node3D"]
+script = ExtResource("script")
+
+[node name="Decal" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.12, -3)
+scale = Vector3(12, 0.6, 6)
+cast_shadow = 0
+material_override = SubResource("SlimeMaterial")
+mesh = SubResource("ProjectionVolume")
+
+[node name="Bubbles" type="Node3D" parent="."]
+
+[node name="Near" parent="Bubbles" instance=ExtResource("bubbles")]
+bubble_color = Color(0.5, 0.95, 0.12, 0.9)
+
+[node name="Middle" parent="Bubbles" instance=ExtResource("bubbles")]
+bubble_color = Color(0.5, 0.95, 0.12, 0.9)
+
+[node name="Far" parent="Bubbles" instance=ExtResource("bubbles")]
+bubble_color = Color(0.5, 0.95, 0.12, 0.9)
+
+[node name="Tip" parent="Bubbles" instance=ExtResource("bubbles")]
+bubble_color = Color(0.5, 0.95, 0.12, 0.9)

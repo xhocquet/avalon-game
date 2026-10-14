@@ -23,6 +23,7 @@ public partial class SkillEffectsManager : Node {
   private readonly PickleKnightEffects _pickleKnightEffects = new();
   private readonly SkinwalkerEffects _skinwalkerEffects = new();
   private readonly SnailTrailEffects _snailTrailEffects = new();
+  private readonly VenomousSlobberEffects _venomousSlobberEffects = new();
   private readonly Stack<CrystalBulletEffect> _idleCrystalBullets = new();
   private readonly Stack<HairballEffect> _idleHairballs = new();
   private readonly List<int> _staleProjectileIds = new();
@@ -44,6 +45,7 @@ public partial class SkillEffectsManager : Node {
       _hairballImpacts.Attach(events, _layer, ProjectileHeight);
       _pickleKnightEffects.Attach(events, _layer, engine, view);
       _skinwalkerEffects.Attach(events, _layer, engine, view);
+      _venomousSlobberEffects.Attach(events, _layer, engine);
     }
 
     var frame = _engine.PredictedFrame.Frame;
@@ -56,6 +58,7 @@ public partial class SkillEffectsManager : Node {
     _pickleKnightEffects.Detach();
     _skinwalkerEffects.Detach();
     _snailTrailEffects.Detach();
+    _venomousSlobberEffects.Detach();
     if (_engine != null)
       _engine.OnTickExecuted -= HandleTickExecuted;
     _engine = null;

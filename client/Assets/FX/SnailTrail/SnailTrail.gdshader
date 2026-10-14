@@ -13,6 +13,10 @@ uniform float fade_start : hint_range(0.0, 1.0) = 0.35;
 uniform float fade_end : hint_range(0.0, 1.0) = 0.9;
 uniform float fade_power = 2.0;
 uniform bool use_particle_alpha_scissor = false;
+uniform bool cone_shape = false;
+uniform float cone_angle_degrees = 60.0;
+uniform float reveal : hint_range(0.0, 1.0) = 1.0;
+uniform float texture_scale = 1.0;
 
 varying mat4 inverse_model;
 
@@ -46,9 +50,18 @@ void fragment() {
     }
 
     vec2 uv = local.xz * 2.0;
-    float grain = noise(uv * 5.5 + vec2(seed));
+    if (cone_shape) {
+        uv = vec2(local.x * 2.0, local.z - 0.5);
+    }
+    float grain = noise(uv * 5.5 * texture_scale + vec2(seed));
     float edge = length(uv) + (noise(uv * 7.0 + vec2(seed)) - 0.5) * 0.14;
     float mask = 1.0 - smoothstep(0.78, 1.0, edge);
+    if (cone_shape) {
+        float angle = abs(atan(uv.x, -uv.y));
+        float half_angle = radians(cone_angle_degrees) * 0.5;
+        mask *= 1.0 - smoothstep(max(half_angle - 0.035, 0.0), half_angle, angle);
+        mask *= 1.0 - smoothstep(max(reveal - 0.08, 0.0), max(reveal, 0.001), length(uv));
+    }
     float y_fade = 1.0;
     if (enable_y_fade) {
         y_fade = 1.0 - pow(smoothstep(fade_start, fade_end, local.y + 0.5), fade_power);
