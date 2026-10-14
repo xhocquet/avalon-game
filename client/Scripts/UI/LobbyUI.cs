@@ -110,7 +110,7 @@ public partial class LobbyUI : Control, IViewHud {
 
     var group = new ButtonGroup();
     foreach (var def in defs) {
-      var card = new Button {
+      var card = new Meesles.Avalon.Client.TooltipButton {
         Name = $"GameTypeCard{def.Id}",
         Text = def.Name,
         ToggleMode = true,

@@ -1,4 +1,5 @@
 using Godot;
+using Meesles.Avalon.Client;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.ECS;
 
@@ -93,13 +94,13 @@ public class InventoryPanelController {
       var def = ShopItemCatalog.ItemDefs[i];
       var data = _catalog.Resolve(def.Id);
 
-      var icon = new TextureRect {
+      var icon = new TooltipTextureRect {
         Name = $"Item_{def.Id}",
         CustomMinimumSize = new Vector2(CellSize, CellSize),
         Texture = data.IconTexture,
         ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
         StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
-        TooltipText = count > 1 ? $"{data.DisplayName} x{count}" : data.DisplayName
+        TooltipText = count > 1 ? $"{data.DisplayName}\nQuantity: {count}" : data.DisplayName
       };
 
       if (count > 1)

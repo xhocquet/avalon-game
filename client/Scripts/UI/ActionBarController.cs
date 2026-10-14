@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Godot;
+using Meesles.Avalon.Client;
 using Meesles.Avalon.Client.Scripts.Entities;
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
@@ -121,7 +122,7 @@ public class ActionBarController {
       var data = _catalog.Resolve(def.Id);
       var cost = GetCost(frame, def.Id);
 
-      var button = new TextureButton {
+      var button = new TooltipTextureButton {
         Name = $"Buy_{def.Id}",
         CustomMinimumSize = new Vector2(CellSize, CellSize),
         TextureNormal = data.IconTexture,

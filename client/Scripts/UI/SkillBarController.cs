@@ -1,6 +1,6 @@
 using System;
-using System.Text;
 using Godot;
+using Meesles.Avalon.Client;
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
@@ -22,6 +22,7 @@ namespace Meesles.Avalon;
 // is harmless.
 public class SkillBarController {
   private const float CellSize = 54f;
+  private const float BadgePadding = 4f;
   private static Texture2D EmptySlotTexture => GD.Load<Texture2D>("res://Assets/Placeholders/red-swirl.webp");
   public const int SlotCount = Skills.MaxSlots;
 
@@ -62,9 +63,6 @@ public class SkillBarController {
   private static readonly Color BlockStripTextColor = new(0.9f, 0.9f, 0.95f, 1f);
 
   private static readonly string[] HotkeyLabels = ["Q", "W", "E", "R"];
-
-  // Tooltip text is unstyled and unwrapped by Godot; this is where BuildTooltip folds a description.
-  private const int TooltipWrapColumn = 46;
 
   private readonly SkillCatalog _catalog;
   private readonly Cell[] _cells = new Cell[SlotCount];
@@ -186,44 +184,20 @@ public class SkillBarController {
     cell.UpgradeHint.Visible = canUpgrade;
     cell.Label.Text = rank.ToString();
     cell.Button.Disabled = !canUpgrade;
-    cell.Button.TooltipText = BuildTooltip(slot, rank, maxRank, skillAssetId, asset?.Description);
+    cell.Button.TooltipText = BuildTooltip(slot, skillAssetId, asset);
   }
 
-  // Name, ranks, and the authored blurb. A row with no description leaves the paragraph out.
-  private string BuildTooltip(int slot, int rank, int maxRank, int skillAssetId, string description) {
+  // Name, base cooldown, and authored blurb.
+  private string BuildTooltip(int slot, int skillAssetId, SkillAsset asset) {
     var name = _catalog != null && _catalog.TryResolve(skillAssetId, out var def)
       ? def.Name
       : ((SkillSlot)slot).ToString();
-    if (maxRank <= 0) return name;
+    if (asset == null || asset.MaxRank <= 0) return name;
 
-    var blurb = string.IsNullOrWhiteSpace(description) ? "" : $"\n\n{Wrap(description)}";
-    return $"{name}\nRank {rank} / {maxRank}{blurb}";
-  }
-
-  // Godot's default tooltip is a Label with autowrap off, so a paragraph would render as one line as
-  // wide as the sentence. Break it on whitespace at the column; authored newlines pass through.
-  private static string Wrap(string text) {
-    var wrapped = new StringBuilder(text.Length + 16);
-    foreach (var paragraph in text.Split('\n')) {
-      if (wrapped.Length > 0) wrapped.Append('\n');
-
-      var column = 0;
-      foreach (var word in paragraph.Split(' ', StringSplitOptions.RemoveEmptyEntries)) {
-        if (column > 0 && column + 1 + word.Length > TooltipWrapColumn) {
-          wrapped.Append('\n');
-          column = 0;
-        }
-        else if (column > 0) {
-          wrapped.Append(' ');
-          column++;
-        }
-
-        wrapped.Append(word);
-        column += word.Length;
-      }
-    }
-
-    return wrapped.ToString();
+    var description = asset.Description;
+    var blurb = string.IsNullOrWhiteSpace(description) ? "" : $"\n\n{description.Trim()}";
+    var cooldown = FormattableString.Invariant($"Cooldown: {asset.CooldownMs / 1000.0:0.##}s");
+    return $"{name}\n{cooldown}{blurb}";
   }
 
   // The .tscn authors placeholder cells into ActionGrid; drop them all and lay down the four skill cells
@@ -270,7 +244,7 @@ public class SkillBarController {
 
     // Flat and textless, so it contributes only input and the hover/pressed highlight; the rect behind it
     // and the label above it do the drawing.
-    var button = new Button { Name = "Upgrade", Flat = true, Disabled = true };
+    var button = new TooltipButton { Name = "Upgrade", Flat = true, Disabled = true };
     button.SetAnchorsPreset(Control.LayoutPreset.FullRect);
     var captured = slot;
     button.Pressed += () => _onUpgrade?.Invoke(captured);
@@ -291,6 +265,10 @@ public class SkillBarController {
       VerticalAlignment = VerticalAlignment.Center
     };
     label.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+    label.OffsetLeft = BadgePadding;
+    label.OffsetTop = BadgePadding;
+    label.OffsetRight = -BadgePadding;
+    label.OffsetBottom = -BadgePadding;
     label.AddThemeFontSizeOverride("font_size", 20);
     label.AddThemeColorOverride("font_outline_color", new Color(0f, 0f, 0f));
     label.AddThemeConstantOverride("outline_size", 3);
@@ -354,6 +332,10 @@ public class SkillBarController {
       VerticalAlignment = VerticalAlignment.Top
     };
     badge.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+    badge.OffsetLeft = BadgePadding;
+    badge.OffsetTop = BadgePadding;
+    badge.OffsetRight = -BadgePadding;
+    badge.OffsetBottom = -BadgePadding;
     badge.AddThemeFontSizeOverride("font_size", 12);
     badge.AddThemeColorOverride("font_outline_color", new Color(0f, 0f, 0f));
     badge.AddThemeConstantOverride("outline_size", 3);
