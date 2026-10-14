@@ -5,6 +5,24 @@ extends Node3D
 
 const AreaScript := preload("res://addons/constructive_telegraphs/src/con_telegraph_area_3d.gd")
 
+var _caster: Node3D
+
+
+func follow_caster(caster: Node3D) -> void:
+	_caster = caster
+	global_position = caster.global_position
+
+
+func _process(_delta: float) -> void:
+	if _caster == null:
+		return
+	if not is_instance_valid(_caster):
+		queue_free()
+		return
+	var instance: ConTelegraphInstance3D = get_node("ConTelegraphInstance3D")
+	if instance.fill_progress < 1.0:
+		global_position = _caster.global_position
+
 ## lane_spacing/half_width/length/start_offset are world units measured along the node's own axes;
 ## lane_height is the box's vertical half-extent, which only has to clear the terrain it decals onto.
 func configure(family: ConTelegraphFamily, lane_count: int, lane_spacing: float,
@@ -66,7 +84,8 @@ func configure_circle(family: ConTelegraphFamily, radius: float, fill_seconds: f
 	area.shape_primitive = ConTelegraphArea3D.ShapePrimitive.CYLINDER
 	area.fill_mode = ConTelegraphArea3D.FillMode.IN_TO_OUT
 	area.radius = radius
-	area.angle = 360.0
+	area.angle = -1.0 # Unclipped cylinder.
+	area.bounce_multiplier = 1.0
 	area.extents = Vector3(radius, height, radius)
 	instance.add_child(area)
 

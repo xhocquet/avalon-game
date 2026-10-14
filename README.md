@@ -1,5 +1,13 @@
 ## TODO
 
+Skill FX
+
+HairWizard - Tendril W, Buff E, Ult
+Snailhead - Buff E, Ult
+Crystal Giant - Punch Q, Buff W, Ult
+Skinwalker - Icons, Dash W, Ult Buff
+Pickle - Dash Q, Proc W
+
 - **Assist gold.** `GoldRulesAsset.GoldPerAssist` (50) is authored but nothing reads it. Assists need a
 damage-participation window per victim before a payout has anything to key off — `Health.LastDamagerUnitId` only remembers the fatal hit, so the killer is the only actor a death can currently credit.
 

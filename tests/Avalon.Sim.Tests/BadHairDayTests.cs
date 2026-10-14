@@ -137,7 +137,10 @@ public class BadHairDayTests {
     var leftHealth = Health(harness, leftBehind);
     var aheadHealth = Health(harness, walkedInto);
 
+    var collector = CollectEvents(harness);
     Tick(harness, SimHarness.MoveCommand(CasterPlayerId, 0, origin.x + FP64.FromInt(12), origin.z));
+    AdvanceTo(harness, castTick + ChargeTicks(harness, skill) - 1);
+    var detonationCenter = HeroPosition(harness); // Timed effects run before movement.
     AdvanceTo(harness, castTick + ChargeTicks(harness, skill));
 
     HeroPosition(harness).x.Should().BeGreaterThan(origin.x + FP64.FromInt(5), "the channel roots nothing");
@@ -151,6 +154,9 @@ public class BadHairDayTests {
     IsSnared(harness, leftBehind).Should().BeFalse();
     aheadTook.Should().BeGreaterThan(FP64.Zero);
     IsSnared(harness, walkedInto).Should().BeTrue();
+    var detonated = collector.Collected.OfType<SkillChargeDetonatedEvent>().Should().ContainSingle().Subject;
+    detonated.Position.Should().Be(detonationCenter);
+    detonated.Position.Should().NotBe(origin);
   }
 
   [Fact]

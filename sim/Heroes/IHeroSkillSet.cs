@@ -68,7 +68,7 @@ public static class HeroSkillSets {
 
   private static IHeroSkillSet Create(HeroSkillSet skillSet) {
     return skillSet switch {
-      HeroSkillSet.HairyWizard => new HairyWizardSkills(),
+      HeroSkillSet.HairyWizard => new AllHairWizardSkills(),
       HeroSkillSet.Snailhead => new SnailheadSkills(),
       HeroSkillSet.CrystalGiant => new CrystalGiantSkills(),
       HeroSkillSet.Skinwalker => new SkinwalkerSkills(),

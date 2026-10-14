@@ -3,7 +3,7 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Heroes;
 
-public sealed class HairyWizardSkills()
+public sealed class AllHairWizardSkills()
   : HeroSkillSetBase(CastHairball, CastStrangle, CastCloseShave, CastBadHairDay) {
 
   // (hairy-wizard.json)[../../client/Sim/Data/Assets/heroes/hairy-wizard.json:58]

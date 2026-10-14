@@ -208,6 +208,8 @@ public class SkillTelegraphManager {
 
     telegraph.GlobalPosition = origin;
     telegraph.LookAt(origin + direction, Vector3.Up); // -Z is the lanes' forward, matching FillMode.FORWARD
+    if (skill.HasArea && skill.ChargeDurationMs > 0 && casterView != null)
+      telegraph.Call("follow_caster", casterView);
     telegraph.Call("play");
   }
 
