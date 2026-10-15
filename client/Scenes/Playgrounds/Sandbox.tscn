@@ -57,6 +57,8 @@
 [ext_resource type="PackedScene" uid="uid://jur2i8b07gah" path="res://Scenes/FX/Skills/FlocksAttack.tscn" id="55_j7eg7"]
 [ext_resource type="PackedScene" path="res://Scenes/FX/Skills/SnailTrail.tscn" id="56_bj8gg"]
 [ext_resource type="PackedScene" path="res://Scenes/FX/Skills/VenomousSlobber.tscn" id="57_p8sos"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/Skills/AppearanceLightBeam.tscn" id="58_sb4fi"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/Skills/AppearanceStarlight.tscn" id="59_57wwg"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_dngt1"]
 shader = ExtResource("1_7ykkm")
@@ -515,3 +517,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, 9.535723)
 
 [node name="SnailTrail" parent="." unique_id=776478971 instance=ExtResource("56_bj8gg")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.819559, 4.7683716e-07, 6.955537)
+
+[node name="AppearanceLightBeam" parent="." unique_id=1496317377 instance=ExtResource("58_sb4fi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.250595, 1.3633575, 7.857361)
+
+[node name="AppearanceStarlight" parent="." unique_id=1068865455 instance=ExtResource("59_57wwg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.2872, 0.60216296, 12.865356)

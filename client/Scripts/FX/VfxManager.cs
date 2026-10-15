@@ -2,6 +2,7 @@ using System;
 using Godot;
 using Meesles.Avalon.Client.Scripts.Interfaces;
 using Meesles.Avalon.Sim;
+using Meesles.Avalon.Sim.Assets;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.Godot;
 
@@ -136,7 +137,7 @@ public class VfxManager {
   // explosion goes on rather than the caster view - by the time this arrives they agree anyway, and a
   // caster that died on the detonation tick has no view left.
   private void HandleSkillChargeDetonated(SkillChargeDetonatedEvent evt) {
-    if (_view == null) return;
+    if (_view == null || evt.SkillAssetId == AssetIds.SkillCrystalGiantUltimate) return;
     SpawnDeathExplosion(evt.Position.ToVector3());
   }
 

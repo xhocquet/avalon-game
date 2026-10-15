@@ -35,7 +35,9 @@ public sealed class SnailheadSkills()
 
   // (snailhead.json)[../../client/Sim/Data/Assets/heroes/snailhead.json:101]
   private static void CastMolt(ref Frame f, in SkillCastContext ctx) {
-    ChannelController.Arm(ref f, ctx.Caster, ctx.Skill, ctx.Rank, ctx.CasterPosition);
+    if (!ChannelController.Arm(ref f, ctx.Caster, ctx.Skill, ctx.Rank, ctx.CasterPosition)) return;
+    UnitIntentController.ClearMoveTarget(ref f, ctx.Caster);
+    UnitIntentController.ClearAttackIntent(ref f, ctx.Caster);
   }
 
   // TODO: Route channel completion to its owning skill set.

@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using Godot;
 
 namespace Meesles.Avalon.Client.Scripts.View;
 
 public partial class SprintSkillEffect : Node3D {
   [Export] public float DurationSeconds { get; set; } = 1f;
+  [Export] public Color Tint { get; set; } = Colors.White;
 
   public Action<SprintSkillEffect> Finished;
   private AnimationPlayer _animation;
@@ -13,6 +15,12 @@ public partial class SprintSkillEffect : Node3D {
 
   public override void _Ready() {
     _animation = GetNode<AnimationPlayer>("Visual/AnimationPlayer");
+    var materials = new HashSet<ShaderMaterial>();
+    foreach (var child in GetNode<Node3D>("Visual").GetChildren()) {
+      if (child is MeshInstance3D mesh && mesh.MaterialOverride is ShaderMaterial material &&
+          materials.Add(material))
+        material.SetShaderParameter("tint", material.GetShaderParameter("tint").AsColor() * Tint);
+    }
     ResetVisual();
   }
 

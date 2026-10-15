@@ -40,6 +40,66 @@ public class MoltTests {
   }
 
   [Fact]
+  public void CastingWhileMoving_StopsTheOrderAndCompletesTheChannel() {
+    var harness = CreateSnailheadHarness();
+    var hero = Caster(harness);
+    var frame = harness.Frame;
+    var maxHealth = HealthController.GetMaxHealth(ref frame, hero);
+    frame.Get<Health>(hero).Current = maxHealth / FP64.FromInt(2);
+    harness.Tick(SimHarness.UpgradeSkillCommand(CasterPlayerId, 0, Ultimate));
+    var initialPosition = frame.GetReadOnly<TransformComponent>(hero).Position;
+    var target = initialPosition + FPVector3.Right * FP64.FromInt(10);
+    harness.Tick(SimHarness.MoveCommand(CasterPlayerId, 0, target.x, target.z));
+    frame.Has<UnitMoveTarget>(hero).Should().BeTrue();
+    var castPosition = frame.GetReadOnly<TransformComponent>(hero).Position;
+    castPosition.Should().NotBe(initialPosition);
+
+    var castTick = frame.Tick;
+    harness.Tick(SimHarness.CastSkillCommand(CasterPlayerId, 0, Ultimate));
+    frame.Has<UnitMoveTarget>(hero).Should().BeFalse();
+    frame.GetReadOnly<TransformComponent>(hero).Position.Should().Be(castPosition);
+    var completeTick = castTick + Ticks(harness, MoltAsset(harness).ChargeDurationMsAtRank(1));
+    AdvanceTo(harness, completeTick - 1);
+    frame.GetReadOnly<SkillChannel>(hero).IsActive.Should().BeTrue();
+    frame.GetReadOnly<TransformComponent>(hero).Position.Should().Be(castPosition);
+    AdvanceTo(harness, completeTick);
+    Health(harness).Should().Be(maxHealth);
+    ActiveBuffs(harness).Should().HaveCount(2);
+  }
+
+  [Fact]
+  public void CastingWithAnAttackOrder_ClearsPursuit() {
+    var harness = CreateSnailheadHarness();
+    var hero = Caster(harness);
+    var enemy = harness.FindHero(2);
+    var frame = harness.Frame;
+    UnitIntentController.SetAttackTarget(ref frame, hero, UnitLookup.GetUnitId(ref frame, enemy));
+    UnitIntentController.SetMoveTarget(ref frame, hero, frame.GetReadOnly<TransformComponent>(enemy).Position);
+
+    LearnAndCast(harness);
+
+    frame.Has<AttackTargetUnitId>(hero).Should().BeFalse();
+    frame.Has<UnitMoveTarget>(hero).Should().BeFalse();
+    harness.Tick();
+    frame.GetReadOnly<SkillChannel>(hero).IsActive.Should().BeTrue();
+  }
+
+  [Fact]
+  public void NewMovementOrderAfterCasting_StillCancelsTheChannel() {
+    var harness = CreateSnailheadHarness();
+    var hero = Caster(harness);
+    LearnAndCast(harness);
+    var frame = harness.Frame;
+    var target = frame.GetReadOnly<TransformComponent>(hero).Position + FPVector3.Right * FP64.FromInt(10);
+
+    harness.Tick(SimHarness.MoveCommand(CasterPlayerId, 0, target.x, target.z));
+    harness.Tick();
+
+    frame.GetReadOnly<SkillChannel>(hero).IsActive.Should().BeFalse();
+    ActiveBuffs(harness).Should().BeEmpty();
+  }
+
+  [Fact]
   public void MovingBeforeCompletion_CancelsTheChannelAndItsEffects() {
     var harness = CreateSnailheadHarness();
     var skill = MoltAsset(harness);

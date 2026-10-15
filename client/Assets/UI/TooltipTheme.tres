@@ -1,6 +1,6 @@
-[gd_resource type="Theme" load_steps=3 format=3]
+[gd_resource type="Theme" format=3 uid="uid://dsjqwx1n0vmjb"]
 
-[ext_resource type="Texture2D" path="res://Assets/UI/PanelBorderBrownCompact.png" id="1_frame"]
+[ext_resource type="Texture2D" uid="uid://b6ghwu1go2tju" path="res://Assets/UI/PanelBorderBrownCompact.png" id="1_frame"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_tooltip"]
 content_margin_left = 18.0
@@ -15,6 +15,6 @@ texture_margin_bottom = 8.0
 modulate_color = Color(0.38, 0.38, 0.38, 1)
 
 [resource]
-TooltipPanel/styles/panel = SubResource("StyleBoxTexture_tooltip")
 TooltipLabel/colors/font_color = Color(0.95, 0.93, 0.88, 1)
 TooltipLabel/font_sizes/font_size = 16
+TooltipPanel/styles/panel = SubResource("StyleBoxTexture_tooltip")

@@ -1,0 +1,9 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://Scenes/FX/Skills/MidAutumnCircle.tscn" id="1_visual"]
+[ext_resource type="Script" path="res://Scripts/FX/ChargeCircleFadeEffect.gd" id="2_script"]
+
+[node name="ChargeCircle" type="Node3D"]
+script = ExtResource("2_script")
+
+[node name="Visual" parent="." instance=ExtResource("1_visual")]

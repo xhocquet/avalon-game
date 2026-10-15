@@ -19,7 +19,6 @@ public class TelegraphCatalog {
     new(AssetIds.SkillSnailheadPrimary, SelfFamily, HostileFamily, 4f, 0.35f),
     // One circle per trail segment; its spawn event supplies FillSeconds
     new(AssetIds.SkillSnailheadSecondary, SelfFamily, HostileFamily, 4f),
-    new(AssetIds.SkillSnailheadUltimate, SelfFamily, HostileFamily, 4f),
     new(AssetIds.SkillPickleKnightPrimary, SelfFamily, HostileFamily, 4f)
   ];
 

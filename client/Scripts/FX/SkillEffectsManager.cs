@@ -19,7 +19,12 @@ public partial class SkillEffectsManager : Node {
 
   private readonly Dictionary<int, ActiveProjectile> _active = new();
   private readonly SkillEffectCatalog _catalog = new();
+  private readonly ChargeCircleEffects _chargeCircles = new();
+  private readonly MoltBuffEffects _moltBuffs = new();
+  private readonly ChrysalisEffects _chrysalisEffects = new();
   private readonly HairballImpactEffects _hairballImpacts = new();
+  private readonly AllHairWizardEffects _allHairWizardEffects = new();
+  private readonly SnailheadEffects _snailheadEffects = new();
   private readonly PickleKnightEffects _pickleKnightEffects = new();
   private readonly SkinwalkerEffects _skinwalkerEffects = new();
   private readonly SnailTrailEffects _snailTrailEffects = new();
@@ -41,8 +46,13 @@ public partial class SkillEffectsManager : Node {
     _layer = new Node3D { Name = "SkillEffectsLayer" };
     AddChild(_layer);
     _snailTrailEffects.Attach(_layer);
+    _chargeCircles.Attach(_layer, view);
+    _moltBuffs.Attach(_layer, view);
     if (events != null) {
+      _chrysalisEffects.Attach(events, _layer);
       _hairballImpacts.Attach(events, _layer, ProjectileHeight);
+      _allHairWizardEffects.Attach(events, _layer, engine, view);
+      _snailheadEffects.Attach(events, _layer, engine, view);
       _pickleKnightEffects.Attach(events, _layer, engine, view);
       _skinwalkerEffects.Attach(events, _layer, engine, view);
       _venomousSlobberEffects.Attach(events, _layer, engine);
@@ -55,9 +65,14 @@ public partial class SkillEffectsManager : Node {
 
   public void Detach() {
     _hairballImpacts.Detach();
+    _allHairWizardEffects.Detach();
+    _snailheadEffects.Detach();
     _pickleKnightEffects.Detach();
     _skinwalkerEffects.Detach();
     _snailTrailEffects.Detach();
+    _chargeCircles.Detach();
+    _moltBuffs.Detach();
+    _chrysalisEffects.Detach();
     _venomousSlobberEffects.Detach();
     if (_engine != null)
       _engine.OnTickExecuted -= HandleTickExecuted;
@@ -79,6 +94,8 @@ public partial class SkillEffectsManager : Node {
 
     _secondsSinceTick = Mathf.Min(_secondsSinceTick + (float)delta, _engine.TickInterval / 1000f);
     _snailTrailEffects.ApplyVisual(_secondsSinceTick);
+    _chargeCircles.ApplyVisual(_secondsSinceTick);
+    _moltBuffs.ApplyVisual(_secondsSinceTick);
     foreach (var effect in _active.Values) {
       effect.SpinRadians = Mathf.PosMod(effect.SpinRadians + effect.Node.SpinRadiansPerSecond * (float)delta,
         Mathf.Tau);
@@ -100,6 +117,8 @@ public partial class SkillEffectsManager : Node {
 
   private void Reconcile(ref Frame frame) {
     _snailTrailEffects.Reconcile(ref frame);
+    _chargeCircles.Reconcile(ref frame);
+    _moltBuffs.Reconcile(ref frame);
     _staleProjectileIds.Clear();
     foreach (var projectileId in _active.Keys)
       _staleProjectileIds.Add(projectileId);

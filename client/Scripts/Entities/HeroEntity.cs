@@ -1,6 +1,7 @@
 using Godot;
 using Meesles.Avalon.Client.Scripts.GameState;
 using Meesles.Avalon.Client.Scripts.Interfaces;
+using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.ECS;
@@ -142,7 +143,7 @@ public partial class HeroEntity : TeamEntityViewNode, IPlayerView, IAttackableVi
     if (_isDead)
       return;
 
-    var moving = frame.Has<UnitMoveTarget>(EntityRef);
+    var moving = frame.Has<UnitMoveTarget>(EntityRef) && !SnareController.IsSnared(ref frame, EntityRef);
     if (moving == _isMoving) return;
     _isMoving = moving;
 
