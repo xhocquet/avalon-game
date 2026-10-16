@@ -3,8 +3,7 @@
 Skill FX
 
 HairWizard - Tendril W, Ult
-Crystal Giant - Punch Q, Buff W
-Skinwalker - Icons, Dash W
+Crystal Giant - Punch Q
 Pickle - Dash Q, Proc W
 
 - **Assist gold.** `GoldRulesAsset.GoldPerAssist` (50) is authored but nothing reads it. Assists need a

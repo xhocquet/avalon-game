@@ -8,6 +8,9 @@
 script = ExtResource("2_hero")
 WalkAnimationOverride = "preset_biped_run"
 IdleAnimationOverride = "preset_biped_idle"
+SkillAnimationOverrides = Dictionary[int, String]({
+513: "preset_biped_run"
+})
 
 [node name="Armature" parent="." index="0" unique_id=1242160596]
 transform = Transform3D(0.6470477, 0, -2.4148145, 0, 2.5, 0, 2.4148145, 0, 0.6470477, 0, 0, 0)

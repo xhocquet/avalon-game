@@ -21,6 +21,7 @@ public sealed class MoltBuffEffects {
     Detach();
     _layer = layer;
     _view = view;
+    _pool.Push(Create());
   }
 
   public void Detach() {

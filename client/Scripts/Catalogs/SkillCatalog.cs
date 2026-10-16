@@ -12,6 +12,7 @@ public class SkillCatalog {
   private const string CrystalWarriorIcons = "res://Assets/Portraits/Skills/CrystalWarrior/";
   private const string HairyWizardIcons = "res://Assets/Portraits/Skills/AllHairWizard/";
   private const string SnailheadIcons = "res://Assets/Portraits/Skills/SnailHeads/";
+  private const string SkinwalkerIcons = "res://Assets/Portraits/Skills/Skinwalkers/";
   private const string PickleKnightIcons = "res://Assets/Portraits/Skills/PickleKnights/";
 
   public static readonly SkillDef[] SkillDefs = [
@@ -39,10 +40,14 @@ public class SkillCatalog {
       CrystalWarriorIcons + "crystal-bullets.webp"),
     new(AssetIds.SkillCrystalGiantUltimate, AssetIds.HeroCrystalGiant, SkillSlot.Ultimate, "Chrysalis",
       CrystalWarriorIcons + "4-chrysalis.webp"),
-    new(AssetIds.SkillSkinwalkerPrimary, AssetIds.HeroSkinwalker, SkillSlot.Primary, "Sprint"),
-    new(AssetIds.SkillSkinwalkerSecondary, AssetIds.HeroSkinwalker, SkillSlot.Secondary, "Daily Practice"),
-    new(AssetIds.SkillSkinwalkerTertiary, AssetIds.HeroSkinwalker, SkillSlot.Tertiary, "Eat to Survive"),
-    new(AssetIds.SkillSkinwalkerUltimate, AssetIds.HeroSkinwalker, SkillSlot.Ultimate, "Desperation"),
+    new(AssetIds.SkillSkinwalkerPrimary, AssetIds.HeroSkinwalker, SkillSlot.Primary, "Sprint",
+      SkinwalkerIcons + "skill-sprint.webp"),
+    new(AssetIds.SkillSkinwalkerSecondary, AssetIds.HeroSkinwalker, SkillSlot.Secondary, "Daily Practice",
+      SkinwalkerIcons + "skill-daily-practice.webp"),
+    new(AssetIds.SkillSkinwalkerTertiary, AssetIds.HeroSkinwalker, SkillSlot.Tertiary, "Eat to Survive",
+      SkinwalkerIcons + "skill-eat-to-survive.webp"),
+    new(AssetIds.SkillSkinwalkerUltimate, AssetIds.HeroSkinwalker, SkillSlot.Ultimate, "Desperation",
+      SkinwalkerIcons + "skill-desperation.webp"),
     new(AssetIds.SkillPickleKnightPrimary, AssetIds.HeroPickleKnight, SkillSlot.Primary, "Slip 'n Slide",
       PickleKnightIcons + "skill-slip-n-slide.webp"),
     new(AssetIds.SkillPickleKnightSecondary, AssetIds.HeroPickleKnight, SkillSlot.Secondary, "Double Dip",

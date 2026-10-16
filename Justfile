@@ -28,6 +28,16 @@ quickplay id="combat-playground" *args:
     dotnet build .\client\Meesles.Avalon.Client.csproj
     & "{{ godot_console }}" --path ".\client" -- --quickplay --gametype={{ id }} {{ args }}
 
+# CPU trace + flame graph; close the game and wait for the trace to finish saving.
+[group('play')]
+quickplay-profile id="combat-playground" *args:
+    pwsh -NoProfile -File .\scripts\quickplay-profile.ps1 -Profile dotnet-sampled-thread-time -Godot "{{ godot_exe }}" -GameType {{ id }} {{ args }}
+
+# Allocation/GC trace + CPU samples for investigating managed pauses.
+[group('play')]
+quickplay-profile-gc id="combat-playground" *args:
+    pwsh -NoProfile -File .\scripts\quickplay-profile.ps1 -Profile gc-verbose -Godot "{{ godot_exe }}" -GameType {{ id }} {{ args }}
+
 [group('play')]
 server:
     dotnet run --project .\tools\AssetGen

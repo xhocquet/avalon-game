@@ -13,10 +13,13 @@ namespace Meesles.Avalon.Client.Scripts.View;
 public sealed class SkinwalkerEffects {
   private static PackedScene _scene;
   private static PackedScene _sprintScene;
+  private static PackedScene _dashScene;
   private readonly HashSet<HealingSkillEffect> _active = new();
   private readonly Stack<HealingSkillEffect> _pool = new();
   private readonly HashSet<SprintSkillEffect> _activeSprints = new();
   private readonly Stack<SprintSkillEffect> _sprintPool = new();
+  private readonly HashSet<SprintSkillEffect> _activeDashes = new();
+  private readonly Stack<SprintSkillEffect> _dashPool = new();
   private IDisposable _castSub;
   private IKlothoEngine _engine;
   private Node3D _layer;
@@ -29,6 +32,7 @@ public sealed class SkinwalkerEffects {
     _view = view;
     _pool.Push(Create());
     _sprintPool.Push(CreateSprint());
+    _dashPool.Push(CreateDash());
     _castSub = events.OnConfirmed<SkillCastEvent>(HandleCast);
   }
 
@@ -41,6 +45,9 @@ public sealed class SkinwalkerEffects {
     foreach (var effect in _activeSprints) Destroy(effect);
     _activeSprints.Clear();
     while (_sprintPool.Count > 0) Destroy(_sprintPool.Pop());
+    foreach (var effect in _activeDashes) Destroy(effect);
+    _activeDashes.Clear();
+    while (_dashPool.Count > 0) Destroy(_dashPool.Pop());
     _engine = null;
     _layer = null;
     _view = null;
@@ -48,6 +55,7 @@ public sealed class SkinwalkerEffects {
 
   private void HandleCast(SkillCastEvent evt) {
     if (_layer == null || (evt.SkillAssetId != AssetIds.SkillSkinwalkerPrimary &&
+                           evt.SkillAssetId != AssetIds.SkillSkinwalkerSecondary &&
                            evt.SkillAssetId != AssetIds.SkillSkinwalkerTertiary)) return;
     var frame = _engine?.PredictedFrame.Frame;
     if (frame == null || !UnitLookup.TryGetEntityByUnitId(ref frame, evt.UnitId, out var caster) ||
@@ -60,6 +68,12 @@ public sealed class SkinwalkerEffects {
       var sprint = _sprintPool.Count > 0 ? _sprintPool.Pop() : CreateSprint();
       _activeSprints.Add(sprint);
       sprint.Play(evt.Position.ToVector3(), radius, follow);
+      return;
+    }
+    if (evt.SkillAssetId == AssetIds.SkillSkinwalkerSecondary) {
+      var dash = _dashPool.Count > 0 ? _dashPool.Pop() : CreateDash();
+      _activeDashes.Add(dash);
+      dash.Play(evt.Position.ToVector3(), radius, follow);
       return;
     }
     var effect = _pool.Count > 0 ? _pool.Pop() : Create();
@@ -89,6 +103,18 @@ public sealed class SkinwalkerEffects {
 
   private void Release(SprintSkillEffect effect) {
     if (_activeSprints.Remove(effect)) _sprintPool.Push(effect);
+  }
+
+  private SprintSkillEffect CreateDash() {
+    _dashScene ??= GD.Load<PackedScene>(SkillEffectCatalog.SkinwalkerDailyPracticeScenePath);
+    var effect = _dashScene.Instantiate<SprintSkillEffect>();
+    effect.Finished = ReleaseDash;
+    _layer.AddChild(effect);
+    return effect;
+  }
+
+  private void ReleaseDash(SprintSkillEffect effect) {
+    if (_activeDashes.Remove(effect)) _dashPool.Push(effect);
   }
 
   private static void Destroy(SprintSkillEffect effect) {

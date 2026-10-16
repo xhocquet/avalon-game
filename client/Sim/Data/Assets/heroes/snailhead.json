@@ -60,12 +60,12 @@
 	"BuffDurationMs": 2500,
 	"BuffStats": "MoveSpeed pct -0.3",
 	"CooldownMs": 35000,
-	"Description": "You leave a trail of slime behind you for 4.5s (+2s per rank). Enemies that touch the slime are slowed by 20% for 2.5s. CD: 35s",
+	"Description": "Drop 6 slime patches, starting immediately and then every 0.6s. Each patch has a radius of 1 and lasts 4.5s (+2s per rank). Enemies touching slime are slowed by 30% for 2.5s, refreshed while touching it. CD: 35s",
 	"SelfCast": true,
 	"TrailDurationMs": 4500,
 	"TrailDurationMsPerRank": 2000,
-	"TrailSegmentCount": 8,
-	"TrailSegmentIntervalMs": 400,
+	"TrailSegmentCount": 6,
+	"TrailSegmentIntervalMs": 600,
 	"TrailWidth": 1.0
   },
   {

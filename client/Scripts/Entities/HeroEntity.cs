@@ -18,6 +18,7 @@ public partial class HeroEntity : TeamEntityViewNode, IPlayerView, IAttackableVi
   [Export] public string IdleAnimationOverride { get; set; } = "";
   // Empty rigs use the debug fallback.
   [Export] public string AttackAnimationOverride { get; set; } = "";
+  [Export] public Godot.Collections.Dictionary<int, string> SkillAnimationOverrides { get; set; } = new();
 
   // Contact time keeps the clip aligned to the sim damage tick.
   [Export] public float AttackContactTime { get; set; }
@@ -29,6 +30,7 @@ public partial class HeroEntity : TeamEntityViewNode, IPlayerView, IAttackableVi
   private bool _isDead;
   private bool _isMoving;
   private bool _isAttacking;
+  private string _skillAnimation = "";
 
   private string WalkAnim => string.IsNullOrEmpty(WalkAnimationOverride) ? AnimWalk : WalkAnimationOverride;
   private string IdleAnim => string.IsNullOrEmpty(IdleAnimationOverride) ? AnimIdle : IdleAnimationOverride;
@@ -47,7 +49,7 @@ public partial class HeroEntity : TeamEntityViewNode, IPlayerView, IAttackableVi
   }
 
   public bool OnAttackWindupVfx(Vector3 targetPosition, float windupSeconds) {
-    if (_isDead || !HasAttackAnim) return false;
+    if (_isDead || !string.IsNullOrEmpty(_skillAnimation) || !HasAttackAnim) return false;
 
     _isAttacking = true;
     _anim.SpeedScale = AttackPlaybackSpeed.For(AttackContactTime, windupSeconds);
@@ -71,7 +73,7 @@ public partial class HeroEntity : TeamEntityViewNode, IPlayerView, IAttackableVi
 
   private void ReturnToLocomotion() {
     _anim.SpeedScale = 1.0f;
-    PlayOrStop(_isMoving ? WalkAnim : IdleAnim);
+    PlayOrStop(!string.IsNullOrEmpty(_skillAnimation) ? _skillAnimation : _isMoving ? WalkAnim : IdleAnim);
   }
 
   public void OnHitVfx(float damage, Vector3 attackerPosition) {
@@ -108,6 +110,8 @@ public partial class HeroEntity : TeamEntityViewNode, IPlayerView, IAttackableVi
     _isMoving = false;
     _isDead = false;
     _isAttacking = false;
+    _skillAnimation = "";
+    if (_anim != null) _anim.SpeedScale = 1.0f;
     if (_anim != null) PlayOrStop(IdleAnim);
 
     var live = frame.Frame;
@@ -124,6 +128,7 @@ public partial class HeroEntity : TeamEntityViewNode, IPlayerView, IAttackableVi
     ClearTeam();
     _isDead = false;
     _isAttacking = false;
+    _skillAnimation = "";
   }
 
   public override void OnUpdateView() {
@@ -136,6 +141,7 @@ public partial class HeroEntity : TeamEntityViewNode, IPlayerView, IAttackableVi
       _isDead = dead;
       _isMoving = false;
       _isAttacking = false;
+      _skillAnimation = "";
       _anim.SpeedScale = 1.0f;
       PlayOrStop(_isDead ? AnimDeath : IdleAnim);
     }
@@ -144,15 +150,35 @@ public partial class HeroEntity : TeamEntityViewNode, IPlayerView, IAttackableVi
       return;
 
     var moving = frame.Has<UnitMoveTarget>(EntityRef) && !SnareController.IsSnared(ref frame, EntityRef);
-    if (moving == _isMoving) return;
+    var skillAnimation = "";
+    if (frame.Has<SkillDash>(EntityRef)) {
+      ref readonly var dash = ref frame.GetReadOnly<SkillDash>(EntityRef);
+      if (dash.IsActive && SkillAnimationOverrides.TryGetValue(dash.SourceId, out var clip) &&
+          _anim.HasAnimation(clip))
+        skillAnimation = clip;
+    }
+    UpdateLocomotion(moving, skillAnimation);
+  }
+
+  private void UpdateLocomotion(bool moving, string skillAnimation) {
+    var skillChanged = skillAnimation != _skillAnimation;
+    var movementChanged = moving != _isMoving;
     _isMoving = moving;
+    _skillAnimation = skillAnimation;
+
+    if (!string.IsNullOrEmpty(_skillAnimation)) {
+      _isAttacking = false;
+      if (skillChanged) ReturnToLocomotion();
+      return;
+    }
+
+    if (!skillChanged && !movementChanged) return;
 
     // Stopping at attack range must not interrupt windup.
     if (!_isMoving && _isAttacking) return;
 
     _isAttacking = false;
-    _anim.SpeedScale = 1.0f;
-    PlayOrStop(_isMoving ? WalkAnim : IdleAnim);
+    ReturnToLocomotion();
   }
 
   public override bool OwnerMatches(int ownerId) {

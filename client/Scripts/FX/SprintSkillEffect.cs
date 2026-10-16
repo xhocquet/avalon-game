@@ -6,7 +6,9 @@ namespace Meesles.Avalon.Client.Scripts.View;
 
 public partial class SprintSkillEffect : Node3D {
   [Export] public float DurationSeconds { get; set; } = 1f;
+  [Export] public string AnimationName { get; set; } = "Appearance";
   [Export] public Color Tint { get; set; } = Colors.White;
+  [Export] public Godot.Collections.Dictionary<NodePath, Vector3> MeshScaleMultipliers { get; set; } = new();
 
   public Action<SprintSkillEffect> Finished;
   private AnimationPlayer _animation;
@@ -29,9 +31,9 @@ public partial class SprintSkillEffect : Node3D {
     _follow = follow;
     GlobalPosition = follow != null ? follow.GlobalPosition : position;
     Scale = Vector3.One * radius;
-    _animation.Play("Appearance");
+    _animation.Play(AnimationName);
     _animation.Pause();
-    _animation.Seek(0, true);
+    SeekAnimation(0);
     Visible = true;
     SetProcess(true);
   }
@@ -41,7 +43,7 @@ public partial class SprintSkillEffect : Node3D {
       GlobalPosition = _follow.GlobalPosition;
     _elapsed += (float)delta;
     var progress = Mathf.Clamp(_elapsed / Mathf.Max(DurationSeconds, 0.01f), 0f, 1f);
-    _animation.Seek(progress * _animation.CurrentAnimationLength, true);
+    SeekAnimation(progress * _animation.CurrentAnimationLength);
     if (progress >= 1f) {
       ResetVisual();
       Finished?.Invoke(this);
@@ -54,5 +56,11 @@ public partial class SprintSkillEffect : Node3D {
     _elapsed = 0f;
     _follow = null;
     _animation?.Stop();
+  }
+
+  private void SeekAnimation(double time) {
+    _animation.Seek(time, true);
+    foreach (var (path, multiplier) in MeshScaleMultipliers)
+      GetNode<Node3D>(path).Scale *= multiplier;
   }
 }

@@ -22,6 +22,7 @@ public partial class SkillEffectsManager : Node {
   private readonly ChargeCircleEffects _chargeCircles = new();
   private readonly MoltBuffEffects _moltBuffs = new();
   private readonly ChrysalisEffects _chrysalisEffects = new();
+  private readonly CrystalGiantEffects _crystalGiantEffects = new();
   private readonly HairballImpactEffects _hairballImpacts = new();
   private readonly AllHairWizardEffects _allHairWizardEffects = new();
   private readonly SnailheadEffects _snailheadEffects = new();
@@ -50,6 +51,7 @@ public partial class SkillEffectsManager : Node {
     _moltBuffs.Attach(_layer, view);
     if (events != null) {
       _chrysalisEffects.Attach(events, _layer);
+      _crystalGiantEffects.Attach(events, _layer, engine, view);
       _hairballImpacts.Attach(events, _layer, ProjectileHeight);
       _allHairWizardEffects.Attach(events, _layer, engine, view);
       _snailheadEffects.Attach(events, _layer, engine, view);
@@ -73,6 +75,7 @@ public partial class SkillEffectsManager : Node {
     _chargeCircles.Detach();
     _moltBuffs.Detach();
     _chrysalisEffects.Detach();
+    _crystalGiantEffects.Detach();
     _venomousSlobberEffects.Detach();
     if (_engine != null)
       _engine.OnTickExecuted -= HandleTickExecuted;

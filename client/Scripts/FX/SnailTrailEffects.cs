@@ -60,12 +60,16 @@ public sealed class SnailTrailEffects {
         _active.Add(segment.SegmentId, effect);
       }
       var lifetimeTicks = TickMath.MsToTicksCeil(ref frame, skill.TrailDurationMsAtRank(segment.Rank));
+      var durationTicks = lifetimeTicks > 0 ? lifetimeTicks : 1;
+      var tickIntervalMs = TickMath.DeltaTimeMs(ref frame);
+      effect.NeedsConfigure = effect.Width != segment.Width || effect.DurationTicks != durationTicks ||
+                              effect.TickIntervalMs != tickIntervalMs;
       effect.Position = frame.GetReadOnly<TransformComponent>(entity).Position;
       effect.Width = segment.Width;
       effect.Seed = segment.SegmentId;
-      effect.DurationTicks = lifetimeTicks > 0 ? lifetimeTicks : 1;
+      effect.DurationTicks = durationTicks;
       effect.RemainingTicks = segment.ExpiryTick - frame.Tick;
-      effect.TickIntervalMs = TickMath.DeltaTimeMs(ref frame);
+      effect.TickIntervalMs = tickIntervalMs;
     }
     ResizePool(target);
     ConfigureVisuals();
@@ -74,9 +78,11 @@ public sealed class SnailTrailEffects {
   private void ConfigureVisuals() {
     foreach (var effect in _active.Values) {
       effect.Node.GlobalPosition = effect.Position.ToVector3();
+      if (!effect.NeedsConfigure) continue;
       var duration = effect.DurationTicks * effect.TickIntervalMs / 1000f;
       effect.Node.Call("configure_segment", effect.Width.ToFloat(), duration,
         (float)effect.Seed, false);
+      effect.NeedsConfigure = false;
     }
     ApplyVisual(0f);
   }
@@ -122,6 +128,7 @@ public sealed class SnailTrailEffects {
     public FPVector3 Position;
     public FP64 Width;
     public int Seed;
+    public bool NeedsConfigure;
     public int DurationTicks;
     public int RemainingTicks;
     public int TickIntervalMs;

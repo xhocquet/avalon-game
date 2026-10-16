@@ -5,7 +5,8 @@
 
 [node name="SnailheadSwivelEyes" type="Node3D"]
 script = ExtResource("2_script")
-DurationSeconds = 1.5
+DurationSeconds = 0.5
 Tint = Color(0.12, 1, 0.3, 1)
 
 [node name="Visual" parent="." instance=ExtResource("1_visual")]
+scale = Vector3(1, 1.5, 1)

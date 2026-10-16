@@ -110,9 +110,9 @@ public partial class SkillAsset : IDataAsset {
   // ==========================================================================
   // Trail left behind the caster
   // ==========================================================================
-  [KlothoOrder(51)] public int TrailDurationMs; // How long the trail emission takes
+  [KlothoOrder(51)] public int TrailDurationMs; // Lifetime of each trail segment
   [KlothoOrder(52)] public int TrailDurationMsPerRank;
-  [KlothoOrder(53)] public FP64 TrailWidth; // Diameter of the trail segment
+  [KlothoOrder(53)] public FP64 TrailWidth; // Radius of the trail segment
   [KlothoOrder(54)] public int TrailSegmentCount; // Total # of segments
   [KlothoOrder(55)] public int TrailSegmentIntervalMs; // Ms between each segment
 

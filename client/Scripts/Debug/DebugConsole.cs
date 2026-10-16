@@ -4,6 +4,7 @@ using System.Globalization;
 using Godot;
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Commands;
+using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Deterministic.Math;
 using ICommand = xpTURN.Klotho.Core.ICommand;
 using IKlothoEngine = xpTURN.Klotho.Core.IKlothoEngine;
@@ -28,6 +29,9 @@ public partial class DebugConsole : CanvasLayer {
   private InputCapture _inputCapture;
   private RichTextLabel _output;
   private Control _panel;
+  private Label _heroFaction;
+  private Button _previousHero;
+  private Button _nextHero;
 
   // Last ground point the cursor was over while it was not on the console. A button click puts the
   // pointer on the panel, so `spawn` and `tp` fired from one aim at wherever you were last looking
@@ -55,9 +59,54 @@ public partial class DebugConsole : CanvasLayer {
     _output = GetNode<RichTextLabel>("Panel/Layout/Console/Output");
     _input = GetNode<LineEdit>("Panel/Layout/Console/Input");
     _input.TextSubmitted += OnSubmitted;
-    BuildQuickActions(GetNode<GridContainer>("Panel/Layout/Actions"));
+    BuildQuickActions(GetNode<GridContainer>("Panel/Layout/ActionPanel/Actions"));
+    _heroFaction = GetNode<Label>("Panel/Layout/ActionPanel/HeroSwitcher/Faction");
+    _previousHero = GetNode<Button>("Panel/Layout/ActionPanel/HeroSwitcher/Previous");
+    _nextHero = GetNode<Button>("Panel/Layout/ActionPanel/HeroSwitcher/Next");
+    _previousHero.Pressed += () => CycleHero(-1);
+    _nextHero.Pressed += () => CycleHero(1);
     Visible = false;
     PrintHelp();
+  }
+
+  public override void _Process(double delta) {
+    if (!Visible)
+      return;
+
+    var index = CurrentFactionIndex();
+    _heroFaction.Text = index < 0 ? "Hero" : FactionCatalog.FactionDefs[index].Name;
+    _previousHero.Disabled = _nextHero.Disabled = index < 0 || _inputCapture == null;
+  }
+
+  private int CurrentFactionIndex() {
+    var frame = _engine?.PredictedFrame.Frame;
+    if (frame == null)
+      return -1;
+
+    var slots = frame.Filter<PlayerFaction>();
+    while (slots.Next(out var entity)) {
+      ref readonly var slot = ref frame.GetReadOnly<PlayerFaction>(entity);
+      if (slot.PlayerId != _engine.LocalPlayerId)
+        continue;
+
+      for (var i = 0; i < FactionCatalog.FactionDefs.Length; i++)
+        if (FactionCatalog.FactionDefs[i].Id == slot.FactionId)
+          return i;
+
+      return -1;
+    }
+
+    return -1;
+  }
+
+  private void CycleHero(int direction) {
+    var index = CurrentFactionIndex();
+    if (index < 0)
+      return;
+
+    var factions = FactionCatalog.FactionDefs;
+    var next = factions[(index + direction + factions.Length) % factions.Length];
+    SwitchHero(next.Id.ToString(CultureInfo.InvariantCulture));
   }
 
   // FocusMode.None on every button: a click runs the command and leaves the caret in the prompt, so

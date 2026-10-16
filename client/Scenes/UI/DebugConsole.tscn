@@ -71,11 +71,40 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_console")
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="Actions" type="GridContainer" parent="Panel/Layout"]
+[node name="ActionPanel" type="VBoxContainer" parent="Panel/Layout"]
 custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
-size_flags_vertical = 3
 theme = SubResource("Theme_actions")
+theme_override_constants/separation = 6
+
+[node name="HeroSwitcher" type="HBoxContainer" parent="Panel/Layout/ActionPanel"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Previous" type="Button" parent="Panel/Layout/ActionPanel/HeroSwitcher"]
+custom_minimum_size = Vector2(36, 0)
+layout_mode = 2
+focus_mode = 0
+tooltip_text = "Previous hero faction"
+text = "<"
+
+[node name="Faction" type="Label" parent="Panel/Layout/ActionPanel/HeroSwitcher"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.82, 0.86, 0.88, 1)
+text = "Hero"
+horizontal_alignment = 1
+
+[node name="Next" type="Button" parent="Panel/Layout/ActionPanel/HeroSwitcher"]
+custom_minimum_size = Vector2(36, 0)
+layout_mode = 2
+focus_mode = 0
+tooltip_text = "Next hero faction"
+text = ">"
+
+[node name="Actions" type="GridContainer" parent="Panel/Layout/ActionPanel"]
+layout_mode = 2
+size_flags_vertical = 3
 theme_override_constants/h_separation = 6
 theme_override_constants/v_separation = 4
 columns = 2
