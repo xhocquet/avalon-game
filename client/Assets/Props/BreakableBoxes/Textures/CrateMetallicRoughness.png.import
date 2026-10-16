@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dv46kholxshye"
-path="res://.godot/imported/SnailHead.png-b69e34e953d6223ecb1fa1d184dfa002.ctex"
+uid="uid://ct87uwx5fx36"
+path="res://.godot/imported/CrateMetallicRoughness.png-7636fffda62c38dff9d435817247422b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/Portraits/SnailHead.png"
-dest_files=["res://.godot/imported/SnailHead.png-b69e34e953d6223ecb1fa1d184dfa002.ctex"]
+source_file="res://Assets/Props/BreakableBoxes/Textures/CrateMetallicRoughness.png"
+dest_files=["res://.godot/imported/CrateMetallicRoughness.png-7636fffda62c38dff9d435817247422b.ctex"]
 
 [params]
 

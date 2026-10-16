@@ -110,10 +110,10 @@ public partial class LobbyGameNode : GameNode {
     foreach (var arg in OS.GetCmdlineUserArgs()) {
       if (!arg.StartsWith("--faction=")) continue;
       var value = arg["--faction=".Length..];
-      if (int.TryParse(value, out var factionId))
-        FactionSelection.SelectedFactionId = factionId;
+      if (FactionCatalog.TryResolveFaction(value, out var faction))
+        FactionSelection.SelectedFactionId = faction.Id;
       else
-        _logger.KError($"[Client] --faction value '{value}' is not a valid faction id.");
+        _logger.KError($"[Client] unknown faction '{value}'. Use an ID or allhair, pickle, snail, skinwalker, crystal.");
     }
   }
 

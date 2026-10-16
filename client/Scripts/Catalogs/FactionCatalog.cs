@@ -2,7 +2,9 @@
 // Faction IDs come from the sim-side ledger in sim/Assets/AssetIds.cs and match the
 // FactionAsset rows in client/Sim/Data/Assets/heroes/*.json
 
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Godot;
 using Meesles.Avalon.Sim.Assets;
 
@@ -52,6 +54,26 @@ public class FactionCatalog {
   }
 
   public IReadOnlyCollection<FactionData> Entries => _byId.Values;
+
+  public static bool TryResolveFaction(string value, out FactionDef match) {
+    match = default;
+    if (string.IsNullOrWhiteSpace(value)) return false;
+    var name = value.Trim().Replace(" ", "").ToLowerInvariant();
+    var id = name switch {
+      "allhair" => FactionHairyWizardsId,
+      "pickle" => FactionPickleKnightsId,
+      "snail" => FactionSnailheadsId,
+      "skinwalker" => FactionSkinwalkerTribeId,
+      "crystal" => FactionCrystalWarriorsId,
+      _ => int.TryParse(name, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed) ? parsed : 0
+    };
+    foreach (var def in FactionDefs)
+      if (def.Id == id || def.Name.Replace(" ", "").StartsWith(name, StringComparison.OrdinalIgnoreCase)) {
+        match = def;
+        return true;
+      }
+    return false;
+  }
 
   public FactionData Resolve(int factionId) {
     return _byId.TryGetValue(factionId, out var entry)

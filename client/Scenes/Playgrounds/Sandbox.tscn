@@ -59,6 +59,20 @@
 [ext_resource type="PackedScene" path="res://Scenes/FX/Skills/VenomousSlobber.tscn" id="57_p8sos"]
 [ext_resource type="PackedScene" path="res://Scenes/FX/Skills/AppearanceLightBeam.tscn" id="58_sb4fi"]
 [ext_resource type="PackedScene" path="res://Scenes/FX/Skills/AppearanceStarlight.tscn" id="59_57wwg"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/PickupSheen.tscn" id="60_57wwg"]
+[ext_resource type="PackedScene" path="res://Scenes/Objects/BreakableBoxes/Barrel.tscn" id="61_5xljr"]
+[ext_resource type="PackedScene" path="res://Scenes/Objects/BreakableBoxes/BarrelBroken1.tscn" id="62_smy3i"]
+[ext_resource type="PackedScene" path="res://Scenes/Objects/BreakableBoxes/BarrelBroken2.tscn" id="63_orava"]
+[ext_resource type="PackedScene" path="res://Scenes/Objects/BreakableBoxes/BarrelRing.tscn" id="64_uyvcj"]
+[ext_resource type="PackedScene" path="res://Scenes/Objects/BreakableBoxes/Crate.tscn" id="65_l1q8x"]
+[ext_resource type="PackedScene" path="res://Scenes/Objects/BreakableBoxes/CrateBroken1.tscn" id="66_n2edn"]
+[ext_resource type="PackedScene" path="res://Scenes/Objects/BreakableBoxes/CrateBroken2.tscn" id="67_4dqka"]
+[ext_resource type="PackedScene" path="res://Scenes/Objects/BreakableBoxes/Jar.tscn" id="68_migwe"]
+[ext_resource type="PackedScene" path="res://Scenes/Objects/BreakableBoxes/JarBroken1.tscn" id="69_ksqoh"]
+[ext_resource type="PackedScene" path="res://Scenes/Objects/BreakableBoxes/JarBroken2.tscn" id="70_fknry"]
+[ext_resource type="PackedScene" path="res://Scenes/Objects/BreakableBoxes/JarBroken3.tscn" id="71_ks1u0"]
+[ext_resource type="PackedScene" path="res://Scenes/Objects/BreakableBoxes/JarBroken4.tscn" id="72_wk3q0"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/HitSpark.tscn" id="73_smy3i"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_dngt1"]
 shader = ExtResource("1_7ykkm")
@@ -523,3 +537,45 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.250595, 1.3633575, 7.85736
 
 [node name="AppearanceStarlight" parent="." unique_id=1068865455 instance=ExtResource("59_57wwg")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.2872, 0.60216296, 12.865356)
+
+[node name="PickupSheen" parent="." unique_id=678702274 instance=ExtResource("60_57wwg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.073857, -0.30979645, 16.181398)
+
+[node name="Barrel" parent="." unique_id=1621452306 instance=ExtResource("61_5xljr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.31198, 0.05049351, 21.748117)
+
+[node name="BarrelBroken1" parent="." unique_id=106553140 instance=ExtResource("62_smy3i")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.60552, 2.3841858e-07, 22.152477)
+
+[node name="BarrelBroken2" parent="." unique_id=1435786620 instance=ExtResource("63_orava")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.843791, 0, 20.71189)
+
+[node name="BarrelRing" parent="." unique_id=702865380 instance=ExtResource("64_uyvcj")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.941321, 0, 21.062084)
+
+[node name="Crate" parent="." unique_id=1996780691 instance=ExtResource("65_l1q8x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.318385, 0, 20.385935)
+
+[node name="CrateBroken1" parent="." unique_id=1253028527 instance=ExtResource("66_n2edn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.383575, 0, 19.581898)
+
+[node name="CrateBroken2" parent="." unique_id=1453548123 instance=ExtResource("67_4dqka")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.021613, 0, 19.273602)
+
+[node name="Jar" parent="." unique_id=1731520891 instance=ExtResource("68_migwe")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.659981, 0, 22.419638)
+
+[node name="JarBroken1" parent="." unique_id=253308646 instance=ExtResource("69_ksqoh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.769227, 0, 23.56752)
+
+[node name="JarBroken2" parent="." unique_id=823706682 instance=ExtResource("70_fknry")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.134057, 0, 22.911871)
+
+[node name="JarBroken3" parent="." unique_id=502691951 instance=ExtResource("71_ks1u0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.191718, 0, 22.306282)
+
+[node name="JarBroken4" parent="." unique_id=273121137 instance=ExtResource("72_wk3q0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.384063, 0, 23.765545)
+
+[node name="HitSpark" parent="." unique_id=626526686 instance=ExtResource("73_smy3i")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.644442, 0.5724673, 25.949207)

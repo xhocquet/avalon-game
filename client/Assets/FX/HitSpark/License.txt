@@ -1,0 +1,20 @@
+REEBOO Stylized VFX - License
+Copyright (c) 2026 REEBOO Labs
+
+By buying or downloading this pack you get a non-exclusive, worldwide, perpetual license to:
+
+  - use the effects, shaders, scripts and textures in any number of your own projects,
+    commercial or non-commercial (games, apps, videos, prototypes);
+  - change them however you like.
+
+You may not:
+
+  - resell, share, or redistribute the files, whether as they are or modified, on their own or
+    as part of another asset pack, template, plugin or library;
+  - claim that you made the original files.
+
+Shipping the effects inside a compiled or exported game is always allowed.
+Credit is not required, but "VFX by REEBOO Labs" is appreciated.
+
+THE PACK IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND. IN NO EVENT SHALL REEBOO LABS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING FROM ITS USE.

@@ -3,8 +3,8 @@
 param(
   [int]    $Port = 7777,
   [int]    $Ticks = 0,
-  [int]    $Faction1 = 200,
-  [int]    $Faction2 = 201,
+  [string] $Faction1 = "200",
+  [string] $Faction2 = "201",
   [switch] $Godmode,
   [string] $Godot = $(if ($env:GODOT) { $env:GODOT } else { "C:\Users\meesles\Coding\Godot-4.6-mono\Godot_v4.6.3-stable_mono_win64.exe" })
 )

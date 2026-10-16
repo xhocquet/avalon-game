@@ -1,0 +1,20 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://Assets/Props/BreakableBoxes/Materials/CrateMaterial.tres" id="1_m1eq3"]
+[ext_resource type="ArrayMesh" path="res://Assets/Props/BreakableBoxes/Meshes/Crate.res" id="2_c00tl"]
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_np748"]
+data = PackedVector3Array(-1, 0, 1, -1, 2, -1, -1, 2, 1, -1, 0, 1, -1, 0, -1, -1, 2, -1, -1, 0, -1, 1, 2, -1, -1, 2, -1, -1, 0, -1, 1, 0, -1, 1, 2, -1, 1, 0, -1, 1, 2, 1, 1, 2, -1, 1, 0, -1, 1, 0, 1, 1, 2, 1, 1, 0, 1, -1, 2, 1, 1, 2, 1, 1, 0, 1, -1, 0, 1, -1, 2, 1, -1, 0, -1, 1, 0, 1, 1, 0, -1, -1, 0, -1, -1, 0, 1, 1, 0, 1, 1, 2, -1, -1, 2, 1, -1, 2, -1, 1, 2, -1, 1, 2, 1, -1, 2, 1)
+
+[node name="Crate" type="Node3D" unique_id=1996780691]
+
+[node name="Model" type="MeshInstance3D" parent="." unique_id=188228277]
+material_override = ExtResource("1_m1eq3")
+mesh = ExtResource("2_c00tl")
+skeleton = NodePath("")
+
+[node name="Collision" type="StaticBody3D" parent="Model" unique_id=106912189]
+transform = Transform3D(0.41414726, 0, 0, 0, 0.41414726, 0, 0, 0, 0.41414726, 0, 0, 0)
+
+[node name="CollisionShape" type="CollisionShape3D" parent="Model/Collision" unique_id=1146837599]
+shape = SubResource("ConcavePolygonShape3D_np748")

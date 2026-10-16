@@ -1,0 +1,154 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://Scenes/Objects/BreakableBoxes/BarrelBroken1.tscn" id="1_hc57x"]
+[ext_resource type="PackedScene" path="res://Scenes/Objects/BreakableBoxes/BarrelBroken2.tscn" id="2_vpbqd"]
+[ext_resource type="PackedScene" path="res://Scenes/Objects/BreakableBoxes/Barrel.tscn" id="3_kno0r"]
+[ext_resource type="PackedScene" path="res://Scenes/Objects/BreakableBoxes/BarrelRing.tscn" id="4_ry6uu"]
+[ext_resource type="PackedScene" path="res://Scenes/Objects/BreakableBoxes/Crate.tscn" id="5_8cp1d"]
+[ext_resource type="PackedScene" path="res://Scenes/Objects/BreakableBoxes/CrateBroken2.tscn" id="6_3k6yw"]
+[ext_resource type="PackedScene" path="res://Scenes/Objects/BreakableBoxes/CrateBroken1.tscn" id="7_gdvbk"]
+[ext_resource type="PackedScene" path="res://Scenes/Objects/BreakableBoxes/JarBroken1.tscn" id="8_7qs63"]
+[ext_resource type="PackedScene" path="res://Scenes/Objects/BreakableBoxes/JarBroken2.tscn" id="9_us2j5"]
+[ext_resource type="PackedScene" path="res://Scenes/Objects/BreakableBoxes/JarBroken3.tscn" id="10_ox8ag"]
+[ext_resource type="PackedScene" path="res://Scenes/Objects/BreakableBoxes/Jar.tscn" id="11_n7n8n"]
+[ext_resource type="PackedScene" path="res://Scenes/Objects/BreakableBoxes/JarBroken4.tscn" id="12_70y5h"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wd3dd"]
+albedo_color = Color(0.18, 0.21, 0.24, 1)
+roughness = 0.9
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_vpq0s"]
+size = Vector2(13, 10)
+
+[sub_resource type="Environment" id="Environment_qrjcc"]
+background_mode = 1
+background_color = Color(0.09, 0.11, 0.14, 1)
+ambient_light_source = 2
+ambient_light_color = Color(1, 1, 1, 1)
+ambient_light_energy = 0.6
+
+[node name="BreakableBoxesPreview" type="Node3D" unique_id=506908918]
+
+[node name="BarrelBroken1" type="Node3D" parent="." unique_id=106553140 instance=ExtResource("1_hc57x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.2, 0, -2.6)
+
+[node name="BarrelBroken1Label" type="Label3D" parent="." unique_id=1493631179]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.2, 1.5, -2.6)
+billboard = 1
+text = "BarrelBroken1"
+font_size = 40
+
+[node name="BarrelBroken2" type="Node3D" parent="." unique_id=1435786620 instance=ExtResource("2_vpbqd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.1, 0, -2.6)
+
+[node name="BarrelBroken2Label" type="Label3D" parent="." unique_id=873744454]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.1, 1.5, -2.6)
+billboard = 1
+text = "BarrelBroken2"
+font_size = 40
+
+[node name="Barrel" type="Node3D" parent="." unique_id=1621452306 instance=ExtResource("3_kno0r")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2.6)
+
+[node name="BarrelLabel" type="Label3D" parent="." unique_id=1440181821]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -2.6)
+billboard = 1
+text = "Barrel"
+font_size = 40
+
+[node name="BarrelRing" type="Node3D" parent="." unique_id=702865380 instance=ExtResource("4_ry6uu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.1, 0, -2.6)
+
+[node name="BarrelRingLabel" type="Label3D" parent="." unique_id=513115483]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.1, 1.5, -2.6)
+billboard = 1
+text = "BarrelRing"
+font_size = 40
+
+[node name="Crate" type="Node3D" parent="." unique_id=1996780691 instance=ExtResource("5_8cp1d")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.2, 0, 0)
+
+[node name="CrateLabel" type="Label3D" parent="." unique_id=805882905]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.2, 1.5, 0)
+billboard = 1
+text = "Crate"
+font_size = 40
+
+[node name="CrateBroken2" type="Node3D" parent="." unique_id=1453548123 instance=ExtResource("6_3k6yw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.1, 0, 0)
+
+[node name="CrateBroken2Label" type="Label3D" parent="." unique_id=1938506867]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.1, 1.5, 0)
+billboard = 1
+text = "CrateBroken2"
+font_size = 40
+
+[node name="CrateBroken1" type="Node3D" parent="." unique_id=1253028527 instance=ExtResource("7_gdvbk")]
+
+[node name="CrateBroken1Label" type="Label3D" parent="." unique_id=1663455960]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+billboard = 1
+text = "CrateBroken1"
+font_size = 40
+
+[node name="JarBroken1" type="Node3D" parent="." unique_id=253308646 instance=ExtResource("8_7qs63")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.2, 0, 2.6)
+
+[node name="JarBroken1Label" type="Label3D" parent="." unique_id=120087620]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.2, 1.5, 2.6)
+billboard = 1
+text = "JarBroken1"
+font_size = 40
+
+[node name="JarBroken2" type="Node3D" parent="." unique_id=823706682 instance=ExtResource("9_us2j5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.1, 0, 2.6)
+
+[node name="JarBroken2Label" type="Label3D" parent="." unique_id=768795312]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.1, 1.5, 2.6)
+billboard = 1
+text = "JarBroken2"
+font_size = 40
+
+[node name="JarBroken3" type="Node3D" parent="." unique_id=502691951 instance=ExtResource("10_ox8ag")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.6)
+
+[node name="JarBroken3Label" type="Label3D" parent="." unique_id=514454336]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 2.6)
+billboard = 1
+text = "JarBroken3"
+font_size = 40
+
+[node name="Jar" type="Node3D" parent="." unique_id=1731520891 instance=ExtResource("11_n7n8n")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.1, 0, 2.6)
+
+[node name="JarLabel" type="Label3D" parent="." unique_id=1245579242]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.1, 1.5, 2.6)
+billboard = 1
+text = "Jar"
+font_size = 40
+
+[node name="JarBroken4" type="Node3D" parent="." unique_id=273121137 instance=ExtResource("12_70y5h")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.2, 0, 2.6)
+
+[node name="JarBroken4Label" type="Label3D" parent="." unique_id=534251976]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.2, 1.5, 2.6)
+billboard = 1
+text = "JarBroken4"
+font_size = 40
+
+[node name="Floor" type="MeshInstance3D" parent="." unique_id=561787912]
+material_override = SubResource("StandardMaterial3D_wd3dd")
+mesh = SubResource("PlaneMesh_vpq0s")
+
+[node name="Sun" type="DirectionalLight3D" parent="." unique_id=685530976]
+transform = Transform3D(0.8660254, 0.40957603, -0.28678823, 0, 0.57357645, 0.81915206, 0.5, -0.7094065, 0.49673176, 0, 0, 0)
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=676238409]
+environment = SubResource("Environment_qrjcc")
+
+[node name="Camera" type="Camera3D" parent="." unique_id=655256584]
+transform = Transform3D(0.86824316, -0.2913762, 0.40156406, 0, 0.8093783, 0.58728755, -0.4961389, -0.5099084, 0.7027372, 8, 12, 14)
+projection = 1
+current = true
+size = 14.0

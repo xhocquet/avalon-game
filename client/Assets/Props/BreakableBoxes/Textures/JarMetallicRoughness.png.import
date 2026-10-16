@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dbgl7vtp22non"
-path="res://.godot/imported/Skinwalker.png-5ca5d913493bf3289ae88c045a6a2464.ctex"
+uid="uid://coeabr78yiaaq"
+path="res://.godot/imported/JarMetallicRoughness.png-71afa722d5e841c84add5dea2bcfa872.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/Portraits/Skinwalker.png"
-dest_files=["res://.godot/imported/Skinwalker.png-5ca5d913493bf3289ae88c045a6a2464.ctex"]
+source_file="res://Assets/Props/BreakableBoxes/Textures/JarMetallicRoughness.png"
+dest_files=["res://.godot/imported/JarMetallicRoughness.png-71afa722d5e841c84add5dea2bcfa872.ctex"]
 
 [params]
 

@@ -6,11 +6,13 @@ namespace Meesles.Avalon.Client.Scripts.View;
 public class SkillEffectCatalog {
   public const string CrystalBulletScenePath = "res://Scenes/FX/Skills/Crystal.tscn";
   public const string CrystalGiantHardenScenePath = "res://Scenes/FX/Skills/CrystalGiantHarden.tscn";
+  public const string CrystalGiantSpikyPunchScenePath = "res://Scenes/FX/Skills/CrystalGiantSpikyPunch.tscn";
   public const string ChargeCircleScenePath = "res://Scenes/FX/Skills/ChargeCircle.tscn";
   public const string ChrysalisBurstScenePath = "res://Scenes/FX/Skills/ChrysalisBurst.tscn";
   public const string HairballScenePath = "res://Scenes/FX/Skills/Hairball.tscn";
   public const string AllHairWizardCloseShaveScenePath = "res://Scenes/FX/Skills/AllHairWizardCloseShave.tscn";
   public const string PickleKnightRefreshScenePath = "res://Scenes/FX/Skills/PickleKnightRefresh.tscn";
+  public const string PickleKnightDoubleDipScenePath = "res://Scenes/FX/Skills/PickleKnightDoubleDip.tscn";
   public const string PickleKnightExploosionScenePath = "res://Scenes/FX/Skills/PickleKnightExploosion.tscn";
   public const string SkinwalkerEatToSurviveScenePath = "res://Scenes/FX/Skills/SkinwalkerEatToSurvive.tscn";
   public const string SkinwalkerSprintScenePath = "res://Scenes/FX/Skills/SkinwalkerSprint.tscn";

@@ -246,6 +246,7 @@ public partial class DebugConsole : CanvasLayer {
         Repaint();
         return;
       case "hero":
+      case "faction":
         SwitchHero(arg);
         return;
       case "gold":
@@ -298,7 +299,8 @@ public partial class DebugConsole : CanvasLayer {
   private void PrintHelp() {
     Print("""
           [color=#7fb2ff]Debug console[/color]  —  F1 or ` toggles, Esc closes, Up/Down walks history
-            hero <name|id>   switch faction, respawns the hero
+            faction <name|id>   switch faction, respawns the hero (alias: hero)
+              allhair, pickle, snail, skinwalker, crystal
             gold [n]         grant gold (default 1000)
             xp [n]           grant experience (default 1000)
             sp [n]           grant skill points (default 1)
@@ -320,7 +322,7 @@ public partial class DebugConsole : CanvasLayer {
   private void SpawnMinions(string teamArg, string factionArg) {
     var factionId = 0;
     if (factionArg != null) {
-      if (!TryResolveFaction(factionArg, out var def)) {
+      if (!FactionCatalog.TryResolveFaction(factionArg, out var def)) {
         Print($"[color=#ff8080]no hero matching '{factionArg}'[/color]");
         return;
       }
@@ -337,34 +339,13 @@ public partial class DebugConsole : CanvasLayer {
       return;
     }
 
-    if (!TryResolveFaction(arg, out var def)) {
+    if (!FactionCatalog.TryResolveFaction(arg, out var def)) {
       Print($"[color=#ff8080]no hero matching '{arg}'[/color]");
       return;
     }
 
     Print($"switching to {def.Name}");
     SendAction(DebugAction.SwitchFaction, def.Id);
-  }
-
-  // Accepts the faction id or any prefix of the display name with the spaces taken out, so `hero
-  // pickle` and `hero 204` both land.
-  private static bool TryResolveFaction(string arg, out FactionCatalog.FactionDef match) {
-    if (int.TryParse(arg, NumberStyles.Integer, CultureInfo.InvariantCulture, out var id))
-      foreach (var def in FactionCatalog.FactionDefs)
-        if (def.Id == id) {
-          match = def;
-          return true;
-        }
-
-    var needle = arg.ToLowerInvariant();
-    foreach (var def in FactionCatalog.FactionDefs)
-      if (def.Name.Replace(" ", "").ToLowerInvariant().StartsWith(needle, StringComparison.Ordinal)) {
-        match = def;
-        return true;
-      }
-
-    match = default;
-    return false;
   }
 
   private static IEnumerable<string> HeroNames() {
