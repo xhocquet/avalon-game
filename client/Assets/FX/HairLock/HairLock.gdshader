@@ -8,6 +8,7 @@ uniform float motion = 0.65;
 uniform float messiness = 0.0;
 uniform float motion_speed = 1.0;
 uniform float roll_speed = 0.0;
+uniform float radial_spread = 0.0;
 uniform float phase = 0.0;
 
 vec2 bend(float t, float seed) {
@@ -27,7 +28,11 @@ vec2 bend(float t, float seed) {
             + sin(t * 15.0 - clock * 1.7 + strand_phase) * 0.018
     );
     float flyaway = mix(1.0, 1.45, step(10.5, seed));
-    return (coherent + loose * messiness * flyaway) * envelope * lock_length * motion;
+    vec2 offset = (coherent + loose * messiness * flyaway) * envelope * lock_length * motion;
+    if (radial_spread > 0.0) {
+        offset.y = offset.y * 0.3 + envelope * lock_length * 0.08;
+    }
+    return offset;
 }
 
 void vertex() {
@@ -42,6 +47,13 @@ void vertex() {
     mat2 rotation = mat2(vec2(cos(roll), sin(roll)), vec2(-sin(roll), cos(roll)));
     VERTEX.xy = rotation * VERTEX.xy;
     NORMAL.xy = rotation * NORMAL.xy;
+    if (radial_spread > 0.0) {
+        float strand = mod(round(seed) * 7.0, 18.0); // Interleave thick strands and flyaways.
+        float angle = (strand / 17.0 - 0.5) * radial_spread;
+        mat2 fan = mat2(vec2(cos(angle), sin(angle)), vec2(-sin(angle), cos(angle)));
+        VERTEX.xz = fan * VERTEX.xz;
+        NORMAL.xz = fan * NORMAL.xz;
+    }
 }
 
 void fragment() {

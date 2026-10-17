@@ -29,6 +29,10 @@ const SIDES = 6
 	set(value):
 		roll_speed_degrees = value
 		_update_material()
+@export_range(0.0, 360.0, 1.0) var radial_spread_degrees: float = 0.0:
+	set(value):
+		radial_spread_degrees = clampf(value, 0.0, 360.0)
+		_update_material()
 @export var phase: float = 0.0:
 	set(value):
 		phase = value
@@ -79,12 +83,17 @@ func _update_material() -> void:
 	_material.set_shader_parameter("messiness", messiness)
 	_material.set_shader_parameter("motion_speed", motion_speed)
 	_material.set_shader_parameter("roll_speed", deg_to_rad(roll_speed_degrees))
+	_material.set_shader_parameter("radial_spread", deg_to_rad(radial_spread_degrees))
 	_material.set_shader_parameter("phase", phase)
 	_material.set_shader_parameter("hair_color", hair_color)
 	var margin := thickness * 0.5 + length * maxf(0.13, motion * (0.06 + messiness * 0.15))
 	if not is_zero_approx(roll_speed_degrees):
 		margin *= sqrt(2.0)
-	_visual.custom_aabb = AABB(Vector3(-margin, -margin, -0.05), Vector3(margin * 2.0, margin * 2.0, length + 0.1))
+	if radial_spread_degrees > 0.0:
+		var radius := length + margin
+		_visual.custom_aabb = AABB(Vector3(-radius, -radius, -radius), Vector3.ONE * radius * 2.0)
+	else:
+		_visual.custom_aabb = AABB(Vector3(-margin, -margin, -0.05), Vector3(margin * 2.0, margin * 2.0, length + 0.1))
 
 
 static func _build_mesh() -> ArrayMesh:

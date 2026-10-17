@@ -12,6 +12,7 @@ public class SkillEffectCatalog {
   public const string HairballScenePath = "res://Scenes/FX/Skills/Hairball.tscn";
   public const string AllHairWizardStrangleScenePath = "res://Scenes/FX/Skills/AllHairWizardStrangle.tscn";
   public const string AllHairWizardCloseShaveScenePath = "res://Scenes/FX/Skills/AllHairWizardCloseShave.tscn";
+  public const string AllHairWizardBadHairDayScenePath = "res://Scenes/FX/Skills/HairLockExplosion.tscn";
   public const string PickleKnightRefreshScenePath = "res://Scenes/FX/Skills/PickleKnightRefresh.tscn";
   public const string PickleKnightDoubleDipScenePath = "res://Scenes/FX/Skills/PickleKnightDoubleDip.tscn";
   public const string PickleKnightExploosionScenePath = "res://Scenes/FX/Skills/PickleKnightExploosion.tscn";
@@ -31,5 +32,6 @@ public class SkillEffectCatalog {
   public bool HasProjectileEffect(int skillAssetId) => ProjectileEffects.Contains(skillAssetId);
   public bool HasTetherEffect(int skillAssetId) => skillAssetId == AssetIds.SkillHairyWizardSecondary;
   public bool HasTrailEffect(int skillAssetId) => skillAssetId == AssetIds.SkillSnailheadSecondary;
-  public bool HasCastEffect(int skillAssetId) => skillAssetId == AssetIds.SkillSnailheadPrimary;
+  public bool HasCastEffect(int skillAssetId) => skillAssetId is
+    AssetIds.SkillSnailheadPrimary or AssetIds.SkillHairyWizardUltimate;
 }

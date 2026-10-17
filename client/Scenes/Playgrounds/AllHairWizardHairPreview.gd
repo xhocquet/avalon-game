@@ -5,11 +5,13 @@ const VARIANTS = [
 	HAIR,
 	preload("res://Scenes/FX/Skills/HairLockMessy.tscn"),
 	preload("res://Scenes/FX/Skills/HairLockWild.tscn"),
+	preload("res://Scenes/FX/Skills/HairLockExplosion.tscn"),
 ]
 const WIZARD = preload("res://Assets/Heroes/AllHairWizard/allhairwiz.glb")
 
 var _strangle: Node3D
 var _locks: Array[Node3D] = []
+var _explosion: Node3D
 var _range := 9.0
 var _radius := 5.5
 var _range_scale := 1.0
@@ -35,6 +37,9 @@ func _ready() -> void:
 		lock.motion = 0.85
 		add_child(lock)
 		_locks.append(lock)
+	_explosion = VARIANTS[3].instantiate()
+	_explosion.position = Vector3(5, 0.75, 0)
+	add_child(_explosion)
 	_add_wizard(Vector3(-11, 0, 0))
 	_add_wizard(Vector3(5, 0, 0))
 	_add_label("STRANGLE — length test", Vector3(-6.5, 0.1, 2.2))
@@ -79,9 +84,9 @@ func _ready() -> void:
 	_info = Label.new()
 	panel.add_child(_info)
 	var variants := OptionButton.new()
-	for title in ["Original", "Messy", "Wild"]:
+	for title in ["Original", "Messy", "Wild", "Explosion — 2 layers / 36 strands"]:
 		variants.add_item(title)
-	variants.selected = 1
+	variants.selected = 3
 	variants.item_selected.connect(_set_variant)
 	panel.add_child(variants)
 	var slider := HSlider.new()
@@ -92,14 +97,17 @@ func _ready() -> void:
 	slider.value_changed.connect(_resize)
 	panel.add_child(slider)
 	var help := Label.new()
-	help.text = "Drag to change reach · Wheel to zoom · 1 overview · 2 close-up"
+	help.text = "Drag to change reach · Wheel to zoom\n1 overview · 2 lock close-up · 3 explosion close-up"
 	panel.add_child(help)
-	_set_variant(1)
+	_set_variant(3)
 	_resize(1.0)
 
 
 func _set_variant(index: int) -> void:
 	var preset = VARIANTS[index].instantiate()
+	_explosion.visible = preset.radial_spread_degrees > 0.0
+	for lock in _locks:
+		lock.visible = not _explosion.visible
 	for lock in [_strangle] + _locks:
 		lock.motion = preset.motion
 		lock.messiness = preset.messiness
@@ -111,12 +119,14 @@ func _set_variant(index: int) -> void:
 
 func _resize(value: float) -> void:
 	_range_scale = value
+	_explosion.length = _radius * value
 	_strangle.configure_between(Vector3(-10.5, 1.4, 0), Vector3(-10.5 + _range * value, 1.4, 0))
 	for i in range(_locks.size()):
 		var angle := float(i) * TAU / _locks.size()
 		var root := Vector3(5, 1.4, 0)
 		var tip := root + Vector3(cos(angle), -0.12, sin(angle)) * _radius * value
 		_locks[i].configure_between(root, tip)
+		_locks[i].visible = not _explosion.visible
 	_info.text = "Hair lock prototype\nStrangle: %.2f m    Ult radius: %.2f m" % [_range * value, _radius * value]
 
 
@@ -136,6 +146,11 @@ func _unhandled_input(event: InputEvent) -> void:
 			_camera.position = center + Vector3(0, 3, 6)
 			_camera.look_at(center)
 			_camera.size = 7.5
+		elif event.keycode == KEY_3:
+			var center := _explosion.position
+			_camera.position = center + Vector3(0, 10, 9)
+			_camera.look_at(center)
+			_camera.size = _radius * _range_scale * 2.5
 
 
 func _add_wizard(at: Vector3) -> void:
