@@ -95,9 +95,9 @@
     "AssetId": 503,
     "ChargeDurationMs": 3000,
     "CooldownMs": 110000,
-    "Description": "Your frustration about frizz and knots takes over. You lash out with all of your might, dealing 24 (+12 per rank) magic damage per second. After 3s, foes within your range are snared for 4s. CD: 110s",
-    "DotDamagePerSecond": 24,
-    "DotDamagePerSecondPerRank": 12,
+    "Description": "Your frustration about frizz and knots takes over. You lash out with all of your might, dealing 80 (+80 per rank) magic damage per second. After 3s, foes within your range are snared for 4s. CD: 110s",
+    "DotDamagePerSecond": 80,
+    "DotDamagePerSecondPerRank": 80,
     "SelfCast": true,
     "SnareDurationMs": 4000
   }

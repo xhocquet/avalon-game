@@ -2,7 +2,6 @@ using System;
 using Godot;
 using Meesles.Avalon.Client.Scripts.Interfaces;
 using Meesles.Avalon.Sim;
-using Meesles.Avalon.Sim.Assets;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.Godot;
 
@@ -31,7 +30,6 @@ public class VfxManager {
   private IDisposable _attackHitSub;
   private IDisposable _attackProcSub;
   private IDisposable _attackWindupSub;
-  private IDisposable _chargeDetonatedSub;
   private IDisposable _turretDestroyedSub;
   private IDisposable _crystalDestroyedSub;
   private EntityViewUpdaterNode _view;
@@ -48,7 +46,6 @@ public class VfxManager {
     _attackCanceledSub = events.OnFx<AttackWindupCanceledEvent>(HandleAttackWindupCanceled);
     _attackHitSub = events.OnFx<AttackHitEvent>(HandleAttackHit);
     _attackProcSub = events.OnFx<AttackProcConsumedEvent>(HandleAttackProcConsumed);
-    _chargeDetonatedSub = events.OnFx<SkillChargeDetonatedEvent>(HandleSkillChargeDetonated);
     // Death effects use the confirmed stream: these events are Synced, and a big one-shot
     // explosion would be jarring to spawn on a mispredicted tick and then rewind.
     _turretDestroyedSub = events.OnConfirmed<TurretDestroyedEvent>(HandleTurretDestroyed);
@@ -64,8 +61,6 @@ public class VfxManager {
     _attackHitSub = null;
     _attackProcSub?.Dispose();
     _attackProcSub = null;
-    _chargeDetonatedSub?.Dispose();
-    _chargeDetonatedSub = null;
     _turretDestroyedSub?.Dispose();
     _turretDestroyedSub = null;
     _crystalDestroyedSub?.Dispose();
@@ -131,14 +126,6 @@ public class VfxManager {
       : Vector3.Zero;
 
     _view.AddChild(DamageNumber.Create(label, position, emphasized: true));
-  }
-
-  // The burst is centred on the caster wherever it ended up, so the event's own position is what the
-  // explosion goes on rather than the caster view - by the time this arrives they agree anyway, and a
-  // caster that died on the detonation tick has no view left.
-  private void HandleSkillChargeDetonated(SkillChargeDetonatedEvent evt) {
-    if (_view == null || evt.SkillAssetId == AssetIds.SkillCrystalGiantUltimate) return;
-    SpawnDeathExplosion(evt.Position.ToVector3());
   }
 
   private void HandleTurretDestroyed(TurretDestroyedEvent evt) {

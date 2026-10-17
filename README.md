@@ -1,8 +1,5 @@
 ## TODO
 
-Skill FX
-
-HairWizard - Tendril W, Ult
 Pickle - Dash Q
 
 - **Assist gold.** `GoldRulesAsset.GoldPerAssist` (50) is authored but nothing reads it. Assists need a
