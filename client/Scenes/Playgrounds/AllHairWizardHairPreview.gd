@@ -1,6 +1,11 @@
 extends Node3D
 
 const HAIR = preload("res://Scenes/FX/Skills/HairLock.tscn")
+const VARIANTS = [
+	HAIR,
+	preload("res://Scenes/FX/Skills/HairLockMessy.tscn"),
+	preload("res://Scenes/FX/Skills/HairLockWild.tscn"),
+]
 const WIZARD = preload("res://Assets/Heroes/AllHairWizard/allhairwiz.glb")
 
 var _strangle: Node3D
@@ -73,6 +78,12 @@ func _ready() -> void:
 	canvas.add_child(panel)
 	_info = Label.new()
 	panel.add_child(_info)
+	var variants := OptionButton.new()
+	for title in ["Original", "Messy", "Wild"]:
+		variants.add_item(title)
+	variants.selected = 1
+	variants.item_selected.connect(_set_variant)
+	panel.add_child(variants)
 	var slider := HSlider.new()
 	slider.min_value = 0.25
 	slider.max_value = 2.0
@@ -83,7 +94,19 @@ func _ready() -> void:
 	var help := Label.new()
 	help.text = "Drag to change reach · Wheel to zoom · 1 overview · 2 close-up"
 	panel.add_child(help)
+	_set_variant(1)
 	_resize(1.0)
+
+
+func _set_variant(index: int) -> void:
+	var preset = VARIANTS[index].instantiate()
+	for lock in [_strangle] + _locks:
+		lock.motion = preset.motion
+		lock.messiness = preset.messiness
+		lock.motion_speed = preset.motion_speed
+		if index == 0 and lock != _strangle:
+			lock.motion = 0.85
+	preset.free()
 
 
 func _resize(value: float) -> void:

@@ -17,6 +17,18 @@ const SIDES = 6
 	set(value):
 		motion = value
 		_update_material()
+@export_range(0.0, 2.0, 0.01) var messiness: float = 0.0:
+	set(value):
+		messiness = maxf(value, 0.0)
+		_update_material()
+@export_range(0.0, 4.0, 0.01) var motion_speed: float = 1.0:
+	set(value):
+		motion_speed = maxf(value, 0.0)
+		_update_material()
+@export_range(-180.0, 180.0, 1.0) var roll_speed_degrees: float = 0.0:
+	set(value):
+		roll_speed_degrees = value
+		_update_material()
 @export var phase: float = 0.0:
 	set(value):
 		phase = value
@@ -64,9 +76,14 @@ func _update_material() -> void:
 	_material.set_shader_parameter("lock_length", length)
 	_material.set_shader_parameter("lock_width", thickness)
 	_material.set_shader_parameter("motion", motion)
+	_material.set_shader_parameter("messiness", messiness)
+	_material.set_shader_parameter("motion_speed", motion_speed)
+	_material.set_shader_parameter("roll_speed", deg_to_rad(roll_speed_degrees))
 	_material.set_shader_parameter("phase", phase)
 	_material.set_shader_parameter("hair_color", hair_color)
-	var margin := thickness * 0.5 + length * 0.13
+	var margin := thickness * 0.5 + length * maxf(0.13, motion * (0.06 + messiness * 0.15))
+	if not is_zero_approx(roll_speed_degrees):
+		margin *= sqrt(2.0)
 	_visual.custom_aabb = AABB(Vector3(-margin, -margin, -0.05), Vector3(margin * 2.0, margin * 2.0, length + 0.1))
 
 

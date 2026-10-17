@@ -191,7 +191,8 @@ public class SkillTelegraphManager {
     if (registry == null || !registry.TryGet<SkillAsset>(evt.SkillAssetId, out var skill)) return;
 
     var own = evt.PlayerId == _engine.LocalPlayerId;
-    if (_effects.HasProjectileEffect(evt.SkillAssetId) || _effects.HasCastEffect(evt.SkillAssetId)) {
+    if (_effects.HasProjectileEffect(evt.SkillAssetId) || _effects.HasTetherEffect(evt.SkillAssetId) ||
+        _effects.HasCastEffect(evt.SkillAssetId)) {
       if (own) HideAim();
       return;
     }

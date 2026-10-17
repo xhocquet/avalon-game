@@ -24,6 +24,7 @@ public partial class SkillEffectsManager : Node {
   private readonly ChrysalisEffects _chrysalisEffects = new();
   private readonly CrystalGiantEffects _crystalGiantEffects = new();
   private readonly HairballImpactEffects _hairballImpacts = new();
+  private readonly StrangleEffects _strangleEffects = new();
   private readonly AllHairWizardEffects _allHairWizardEffects = new();
   private readonly SnailheadEffects _snailheadEffects = new();
   private readonly PickleKnightEffects _pickleKnightEffects = new();
@@ -49,6 +50,7 @@ public partial class SkillEffectsManager : Node {
     _snailTrailEffects.Attach(_layer);
     _chargeCircles.Attach(_layer, view);
     _moltBuffs.Attach(_layer, view);
+    _strangleEffects.Attach(_layer, view);
     if (events != null) {
       _chrysalisEffects.Attach(events, _layer);
       _crystalGiantEffects.Attach(events, _layer, engine, view);
@@ -66,6 +68,7 @@ public partial class SkillEffectsManager : Node {
   }
 
   public void Detach() {
+    _strangleEffects.Detach();
     _hairballImpacts.Detach();
     _allHairWizardEffects.Detach();
     _snailheadEffects.Detach();
@@ -99,6 +102,7 @@ public partial class SkillEffectsManager : Node {
     _snailTrailEffects.ApplyVisual(_secondsSinceTick);
     _chargeCircles.ApplyVisual(_secondsSinceTick);
     _moltBuffs.ApplyVisual(_secondsSinceTick);
+    _strangleEffects.ApplyVisual(_secondsSinceTick);
     foreach (var effect in _active.Values) {
       effect.SpinRadians = Mathf.PosMod(effect.SpinRadians + effect.Node.SpinRadiansPerSecond * (float)delta,
         Mathf.Tau);
@@ -122,6 +126,7 @@ public partial class SkillEffectsManager : Node {
     _snailTrailEffects.Reconcile(ref frame);
     _chargeCircles.Reconcile(ref frame);
     _moltBuffs.Reconcile(ref frame);
+    _strangleEffects.Reconcile(ref frame);
     _staleProjectileIds.Clear();
     foreach (var projectileId in _active.Keys)
       _staleProjectileIds.Add(projectileId);

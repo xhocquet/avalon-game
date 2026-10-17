@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://Scenes/FX/Skills/HairLock.tscn" id="1_hair"]
+
+[node name="HairLockMessy" instance=ExtResource("1_hair")]
+motion = 1.1
+messiness = 0.65
+motion_speed = 1.4

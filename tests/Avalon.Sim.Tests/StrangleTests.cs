@@ -62,6 +62,26 @@ public class StrangleTests {
     entry.Stat.Should().Be(StatType.MoveSpeed);
   }
 
+  [Theory]
+  [InlineData(9, 16, 2)]
+  [InlineData(9, 16, 1)]
+  [InlineData(14, 40, 2)]
+  [InlineData(14, 40, 1)]
+  public void BoltHitsAtHalfOrFullTravel_AfterRangeAndSpeedChanges(int range, int speed, int divisor) {
+    var harness = CreateHarness();
+    var skill = StrangleAsset(harness);
+    skill.ProjectileRange = FP64.FromInt(range);
+    skill.ProjectileSpeed = FP64.FromInt(speed);
+    var origin = LearnAndCastAlongX(harness);
+    var distance = skill.ProjectileSpawnOffset + skill.ProjectileRange / FP64.FromInt(divisor);
+    var enemy = SpawnDummy(harness, origin + FPVector3.Right * distance, EnemyTeamId);
+
+    AdvanceUntilHit(harness);
+
+    IsBurning(harness, enemy).Should().BeTrue();
+    Entries(harness, enemy).Should().ContainSingle();
+  }
+
   [Fact]
   public void AnEnemyItHits_BurnsForTheRowsRateOverItsWindow() {
     var harness = CreateHarness();
