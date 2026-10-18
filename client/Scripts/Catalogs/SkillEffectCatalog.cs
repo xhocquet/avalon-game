@@ -13,6 +13,7 @@ public class SkillEffectCatalog {
   public const string AllHairWizardStrangleScenePath = "res://Scenes/FX/Skills/AllHairWizardStrangle.tscn";
   public const string AllHairWizardCloseShaveScenePath = "res://Scenes/FX/Skills/AllHairWizardCloseShave.tscn";
   public const string AllHairWizardBadHairDayScenePath = "res://Scenes/FX/Skills/HairLockExplosion.tscn";
+  public const string PickleKnightSlipNSlideScenePath = "res://Scenes/FX/Skills/PickleKnightSlipNSlide.tscn";
   public const string PickleKnightRefreshScenePath = "res://Scenes/FX/Skills/PickleKnightRefresh.tscn";
   public const string PickleKnightDoubleDipScenePath = "res://Scenes/FX/Skills/PickleKnightDoubleDip.tscn";
   public const string PickleKnightExploosionScenePath = "res://Scenes/FX/Skills/PickleKnightExploosion.tscn";

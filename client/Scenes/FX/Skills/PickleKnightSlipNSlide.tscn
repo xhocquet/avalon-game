@@ -1,0 +1,11 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://Scenes/FX/TeleportBlue.tscn" id="1_visual"]
+[ext_resource type="Script" path="res://Scripts/FX/SprintSkillEffect.cs" id="2_script"]
+
+[node name="PickleKnightSlipNSlide" type="Node3D"]
+script = ExtResource("2_script")
+DurationSeconds = 0.5
+AnimationName = "Effect"
+
+[node name="Visual" parent="." instance=ExtResource("1_visual")]

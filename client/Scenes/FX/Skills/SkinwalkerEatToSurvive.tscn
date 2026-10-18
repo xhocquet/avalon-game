@@ -6,6 +6,6 @@
 [node name="SkinwalkerEatToSurvive" instance=ExtResource("1_healing")]
 script = ExtResource("2_script")
 DurationSeconds = 1.0
-Height = 3.5
-RadiusMultiplier = 2.0
+Height = 1.75
+RadiusMultiplier = 1.0
 InitialRadiusFraction = 0.9

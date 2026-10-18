@@ -12,9 +12,12 @@ using xpTURN.Klotho.Godot;
 namespace Meesles.Avalon.Client.Scripts.View;
 
 public sealed class PickleKnightEffects {
+  private static PackedScene _dashScene;
   private static PackedScene _refreshScene;
   private static PackedScene _exploosionScene;
   private static PackedScene _doubleDipScene;
+  private readonly HashSet<SprintSkillEffect> _activeDashes = new();
+  private readonly Stack<SprintSkillEffect> _dashPool = new();
   private readonly HashSet<SheenSkillEffect> _activeSheens = new();
   private readonly Stack<SheenSkillEffect> _sheenPool = new();
   private readonly Dictionary<HealingSkillEffect, Stack<HealingSkillEffect>> _active = new();
@@ -30,6 +33,7 @@ public sealed class PickleKnightEffects {
     _layer = layer;
     _engine = engine;
     _view = view;
+    _dashPool.Push(CreateDash());
     _sheenPool.Push(CreateSheen());
     _refreshPool.Push(Create(ref _refreshScene, SkillEffectCatalog.PickleKnightRefreshScenePath));
     _exploosionPool.Push(Create(ref _exploosionScene, SkillEffectCatalog.PickleKnightExploosionScenePath));
@@ -39,6 +43,9 @@ public sealed class PickleKnightEffects {
   public void Detach() {
     _castSub?.Dispose();
     _castSub = null;
+    foreach (var effect in _activeDashes) Destroy(effect);
+    _activeDashes.Clear();
+    while (_dashPool.Count > 0) Destroy(_dashPool.Pop());
     foreach (var effect in _active.Keys) Destroy(effect);
     _active.Clear();
     while (_refreshPool.Count > 0) Destroy(_refreshPool.Pop());
@@ -52,11 +59,24 @@ public sealed class PickleKnightEffects {
   }
 
   private void HandleCast(SkillCastEvent evt) {
-    if (_layer == null || (evt.SkillAssetId != AssetIds.SkillPickleKnightSecondary &&
+    if (_layer == null || (evt.SkillAssetId != AssetIds.SkillPickleKnightPrimary &&
+                           evt.SkillAssetId != AssetIds.SkillPickleKnightSecondary &&
                            evt.SkillAssetId != AssetIds.SkillPickleKnightTertiary &&
                            evt.SkillAssetId != AssetIds.SkillPickleKnightUltimate)) return;
     var frame = _engine?.PredictedFrame.Frame;
     if (frame == null || !frame.AssetRegistry.TryGet<SkillAsset>(evt.SkillAssetId, out var skill)) return;
+
+    if (evt.SkillAssetId == AssetIds.SkillPickleKnightPrimary) {
+      if (!UnitLookup.TryGetEntityByUnitId(ref frame, evt.UnitId, out var caster) ||
+          !frame.Has<Stats>(caster)) return;
+      EntityViewNode casterView = null;
+      _view?.ViewsByUnitId.TryGetValue(evt.UnitId, out casterView);
+      var dash = _dashPool.Count > 0 ? _dashPool.Pop() : CreateDash();
+      _activeDashes.Add(dash);
+      dash.Play(evt.Position.ToVector3(), Mathf.Max(frame.GetReadOnly<Stats>(caster).GameplayRadius.ToFloat(), 0.01f),
+        casterView);
+      return;
+    }
 
     if (evt.SkillAssetId == AssetIds.SkillPickleKnightSecondary) {
       if (!UnitLookup.TryGetEntityByUnitId(ref frame, evt.UnitId, out var caster) ||
@@ -108,6 +128,25 @@ public sealed class PickleKnightEffects {
 
   private void Release(SheenSkillEffect effect) {
     if (_activeSheens.Remove(effect)) _sheenPool.Push(effect);
+  }
+
+  private SprintSkillEffect CreateDash() {
+    _dashScene ??= GD.Load<PackedScene>(SkillEffectCatalog.PickleKnightSlipNSlideScenePath);
+    var effect = _dashScene.Instantiate<SprintSkillEffect>();
+    effect.Finished = ReleaseDash;
+    _layer.AddChild(effect);
+    return effect;
+  }
+
+  private void ReleaseDash(SprintSkillEffect effect) {
+    if (_activeDashes.Remove(effect)) _dashPool.Push(effect);
+  }
+
+  private static void Destroy(SprintSkillEffect effect) {
+    if (!GodotObject.IsInstanceValid(effect)) return;
+    effect.Finished = null;
+    effect.ResetVisual();
+    effect.QueueFree();
   }
 
   private static void Destroy(SheenSkillEffect effect) {
