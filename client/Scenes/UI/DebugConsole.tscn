@@ -61,9 +61,13 @@ layer = 100
 script = ExtResource("1_script")
 
 [node name="Panel" type="PanelContainer" parent="."]
-anchors_preset = 10
-anchor_right = 1.0
-offset_bottom = 320.0
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -400.0
+offset_top = 200.0
+offset_right = 400.0
+offset_bottom = 520.0
 grow_horizontal = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_console")
 
@@ -72,8 +76,8 @@ layout_mode = 2
 theme_override_constants/separation = 12
 
 [node name="ActionPanel" type="VBoxContainer" parent="Panel/Layout"]
-custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
+size_flags_horizontal = 3
 theme = SubResource("Theme_actions")
 theme_override_constants/separation = 6
 
@@ -94,6 +98,7 @@ size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.82, 0.86, 0.88, 1)
 text = "Hero"
 horizontal_alignment = 1
+clip_text = true
 
 [node name="Next" type="Button" parent="Panel/Layout/ActionPanel/HeroSwitcher"]
 custom_minimum_size = Vector2(36, 0)
@@ -102,16 +107,15 @@ focus_mode = 0
 tooltip_text = "Next hero faction"
 text = ">"
 
-[node name="Actions" type="GridContainer" parent="Panel/Layout/ActionPanel"]
+[node name="Actions" type="VBoxContainer" parent="Panel/Layout/ActionPanel"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/h_separation = 6
-theme_override_constants/v_separation = 4
-columns = 2
+theme_override_constants/separation = 4
 
 [node name="Console" type="VBoxContainer" parent="Panel/Layout"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
 theme_override_constants/separation = 8
 
 [node name="Output" type="RichTextLabel" parent="Panel/Layout/Console"]

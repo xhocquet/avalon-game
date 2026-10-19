@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cuh0tkyxt3hv"]
 
-[ext_resource type="Shader" uid="uid://vo38g3s24mc7" path="res://Scenes/HexGrid.gdshader" id="1_sfiln"]
+[ext_resource type="Shader" uid="uid://vo38g3s24mc7" path="res://Scenes/FX/HexGrid.gdshader" id="1_sfiln"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ofdpw"]
 render_priority = 0

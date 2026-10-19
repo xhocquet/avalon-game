@@ -73,7 +73,8 @@ public enum BuffMode {
 public enum CheatFlags {
   None = 0,
   GodMode = 1 << 0,
-  FreeShop = 1 << 2
+  FreeShop = 1 << 2,
+  NoFog = 1 << 3
 }
 
 public enum DebugAction {

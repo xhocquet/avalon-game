@@ -33,6 +33,9 @@ public sealed class CrystalGiantSkills()
     var skill = ctx.Skill;
     var chargeTicks = TickMath.MsToTicksCeil(ref frame, skill.ChargeDurationMs);
 
+    UnitIntentController.ClearMoveTarget(ref frame, ctx.Caster);
+    UnitIntentController.ClearAttackIntent(ref frame, ctx.Caster);
+
     BuffsController.ApplySkill(ref frame, ctx.Caster, ctx.Skill, ctx.Rank);
 
     if (skill.ChargeRootsCaster)

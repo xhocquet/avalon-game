@@ -73,6 +73,43 @@ public class ChrysalisTests {
   }
 
   [Fact]
+  public void Cast_DiscardsThePreviousMoveOrderInsteadOfResumingAfterTheWindUp() {
+    var harness = CreateCrystalGiantHarness();
+    var skill = ChrysalisAsset(harness);
+    var origin = HeroPosition(harness);
+
+    Tick(harness, SimHarness.MoveCommand(CasterPlayerId, 0, origin.x + FP64.FromInt(20), origin.z));
+    harness.Frame.Has<UnitMoveTarget>(Caster(harness)).Should().BeTrue();
+
+    var castTick = LearnAndCast(harness);
+    var castPosition = HeroPosition(harness);
+    harness.Frame.Has<UnitMoveTarget>(Caster(harness)).Should().BeFalse();
+
+    AdvanceTo(harness, castTick + ChargeTicks(harness, skill) + 20);
+    HeroPosition(harness).Should().Be(castPosition);
+    harness.Frame.Has<UnitMoveTarget>(Caster(harness)).Should().BeFalse();
+  }
+
+  [Fact]
+  public void Cast_ClearsAttackPursuitSoItCannotRestoreTheMoveOrder() {
+    var harness = CreateCrystalGiantHarness();
+    Tick(harness, SimHarness.UpgradeSkillCommand(CasterPlayerId, 0, Ultimate));
+
+    var frame = harness.Frame;
+    var caster = Caster(harness);
+    var enemy = harness.FindHero(EnemyPlayerId);
+    frame.Add(caster, new Combat { TargetUnitId = UnitId(harness, enemy) });
+    UnitIntentController.SetAttackTarget(ref frame, caster, UnitId(harness, enemy));
+    UnitIntentController.SetMoveTarget(ref frame, caster, Position(harness, enemy));
+
+    harness.Tick(SimHarness.CastSkillCommand(CasterPlayerId, 0, Ultimate));
+
+    harness.Frame.Has<AttackTargetUnitId>(caster).Should().BeFalse();
+    harness.Frame.GetReadOnly<Combat>(caster).TargetUnitId.Should().Be(0);
+    harness.Frame.Has<UnitMoveTarget>(caster).Should().BeFalse();
+  }
+
+  [Fact]
   public void TheCasterIsRootedForTheWindUpAndWalksAgainOnceItEnds() {
     var harness = CreateCrystalGiantHarness();
     var skill = ChrysalisAsset(harness);

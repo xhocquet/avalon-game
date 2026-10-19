@@ -19,7 +19,10 @@ public static class CheatOptions {
           flags |= CheatFlags.FreeShop;
           break;
         case "--allcheats":
-          flags |= CheatsController.All;
+          flags |= CheatsController.All & ~CheatFlags.NoFog;
+          break;
+        case "--nofog":
+          flags |= CheatFlags.NoFog;
           break;
       }
 

@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3]
 
-[ext_resource type="PackedScene" path="res://Scenes/FX/Skills/HairLockWild.tscn" id="1_hair"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/Heroes/AllHairWizard/HairLockWild.tscn" id="1_hair"]
 [ext_resource type="Script" path="res://Scripts/FX/HairLockExplosion.gd" id="2_explosion"]
 
 [node name="HairLockExplosion" instance=ExtResource("1_hair")]

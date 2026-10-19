@@ -2,7 +2,7 @@
 
 [ext_resource type="Shader" path="res://Assets/FX/Shaders/Hairball.gdshader" id="1_hair"]
 [ext_resource type="Script" path="res://Scripts/FX/HairballImpactEffect.cs" id="2_script"]
-[ext_resource type="PackedScene" path="res://Scenes/FX/Skills/Hairball.tscn" id="3_hairball"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/Heroes/HairyWizard/Hairball.tscn" id="3_hairball"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_curl"]
 shader = ExtResource("1_hair")

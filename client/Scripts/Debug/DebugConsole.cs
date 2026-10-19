@@ -39,17 +39,12 @@ public partial class DebugConsole : CanvasLayer {
   private Vector3 _lastWorldPoint;
 
   // Each button is the console line it runs, so a button and the typed command cannot drift apart.
-  private static readonly (string Label, string Command)[] QuickActions = [
-    ("Max Skills", "maxskills"),
-    ("Refresh CDs", "cd"),
-    ("+1000 Gold", "gold"),
-    ("+5000 XP", "xp 5000"),
-    ("Spawn Enemies", "spawn"),
-    ("Clear Minions", "clear"),
-    ("Heal", "heal"),
-    ("Kill", "kill"),
-    ("God", "god"),
-    ("Free Shop", "freeshop")
+  private static readonly (string Label, string Command)[][] QuickActions = [
+    [("Max Skills", "maxskills"), ("Refresh CDs", "cd")],
+    [("+1000 Gold", "gold"), ("+5000 XP", "xp 5000")],
+    [("Spawn Enemies", "spawn"), ("Heal", "heal")],
+    [("Free Shop", "freeshop"), ("Fog", "fow")],
+    [("God", "god"), ("Kill", "kill"), ("Clear", "clear")]
   ];
 
   public bool IsOpen => Visible;
@@ -59,7 +54,7 @@ public partial class DebugConsole : CanvasLayer {
     _output = GetNode<RichTextLabel>("Panel/Layout/Console/Output");
     _input = GetNode<LineEdit>("Panel/Layout/Console/Input");
     _input.TextSubmitted += OnSubmitted;
-    BuildQuickActions(GetNode<GridContainer>("Panel/Layout/ActionPanel/Actions"));
+    BuildQuickActions(GetNode<VBoxContainer>("Panel/Layout/ActionPanel/Actions"));
     _heroFaction = GetNode<Label>("Panel/Layout/ActionPanel/HeroSwitcher/Faction");
     _previousHero = GetNode<Button>("Panel/Layout/ActionPanel/HeroSwitcher/Previous");
     _nextHero = GetNode<Button>("Panel/Layout/ActionPanel/HeroSwitcher/Next");
@@ -111,20 +106,27 @@ public partial class DebugConsole : CanvasLayer {
 
   // FocusMode.None on every button: a click runs the command and leaves the caret in the prompt, so
   // the buttons and typing are not two modes.
-  private void BuildQuickActions(GridContainer grid) {
-    foreach (var (label, command) in QuickActions) {
-      var button = new Button {
-        Text = label,
-        FocusMode = Control.FocusModeEnum.None,
-        SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
-        SizeFlagsVertical = Control.SizeFlags.ExpandFill
-      };
-      var line = command;
-      button.Pressed += () => {
-        Print($"[color=#7fb2ff]> {line}[/color]");
-        Run(line);
-      };
-      grid.AddChild(button);
+  private void BuildQuickActions(VBoxContainer actions) {
+    foreach (var entries in QuickActions) {
+      var row = new HBoxContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill };
+      row.AddThemeConstantOverride("separation", 6);
+      actions.AddChild(row);
+      foreach (var (label, command) in entries) {
+        var button = new Button {
+          Text = label,
+          TooltipText = command == "clear" ? "Clear minions" : command == "fow" ? "Toggle fog of war for your team" : label,
+          ClipText = true,
+          FocusMode = Control.FocusModeEnum.None,
+          SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+          SizeFlagsVertical = Control.SizeFlags.ExpandFill
+        };
+        var line = command;
+        button.Pressed += () => {
+          Print($"[color=#7fb2ff]> {line}[/color]");
+          Run(line);
+        };
+        row.AddChild(button);
+      }
     }
   }
 
@@ -285,6 +287,9 @@ public partial class DebugConsole : CanvasLayer {
       case "freeshop":
         SetCheat(CheatFlags.FreeShop, arg);
         return;
+      case "fow":
+        SetCheat(CheatFlags.NoFog, arg == null ? null : arg is "1" or "on" or "true" ? "off" : "on");
+        return;
       case "cheats":
         PrintCheats();
         return;
@@ -311,6 +316,7 @@ public partial class DebugConsole : CanvasLayer {
             spawn [team] [faction]   minions at the cursor (default: enemy team, their faction)
             clear [team]     remove minions (default: all teams)
             god / freeshop [on|off]   toggle a cheat, no argument flips it
+            fow [on|off]      toggle team fog of war, no argument flips it
             cheats           show active cheat flags
             clearlog         wipe this log
           """);

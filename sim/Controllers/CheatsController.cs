@@ -5,7 +5,18 @@ namespace Meesles.Avalon.Sim;
 
 // Stores per-player development cheat flags in CheatState
 public static class CheatsController {
-  public const CheatFlags All = CheatFlags.GodMode | CheatFlags.FreeShop;
+  public const CheatFlags All = CheatFlags.GodMode | CheatFlags.FreeShop | CheatFlags.NoFog;
+
+  public static bool IsFogDisabled(ref Frame frame, int teamId) {
+    if (!frame.TryGetSingleton<CheatState>(out _))
+      return false;
+    var heroes = frame.Filter<Hero, Team>();
+    while (heroes.Next(out var hero))
+      if (frame.GetReadOnly<Team>(hero).TeamId == teamId &&
+          IsEnabled(ref frame, frame.GetReadOnly<Hero>(hero).PlayerId, CheatFlags.NoFog))
+        return true;
+    return false;
+  }
 
   public static void Set(ref Frame frame, int playerId, CheatFlags flags, bool enabled) {
     var current = (CheatFlags)GetFlags(ref frame, playerId);

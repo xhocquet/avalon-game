@@ -17,6 +17,7 @@ public static class AssetIds {
   public const int CombatRules = 113;
   public const int XpRules = 115;
   public const int GoldRules = 118;
+  public const int VisionRules = 119;
 
   // Factions.
   public const int FactionHairyWizards = 200;
@@ -92,6 +93,7 @@ public static class AssetIds {
 
     public const int PickupType = 117;
     public const int GoldRules = 118;
-    // Next free type id: 119
+    public const int VisionRules = 119;
+    // Next free type id: 120
   }
 }

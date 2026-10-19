@@ -34,6 +34,7 @@ public partial class HealthBars : ColorRect {
     foreach (var node in GetTree().GetNodesInGroup("units")) {
       if (node is not Node3D node3d || !IsInstanceValid(node3d)) continue;
       if (node is not EntityViewNode evn) continue;
+      if (!node3d.IsVisibleInTree()) continue;
 
       var frame = evn.Engine?.PredictedFrame.Frame;
       if (frame == null) continue;

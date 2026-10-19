@@ -118,7 +118,8 @@ public class CommandSystem(NavigationRuntime navigation = null) : ISystem, IComm
     AttackCommand command, int playerTeamId, out EntityRef targetEntity) {
     return unitIndex.TryGet(command.TargetUnitId, out targetEntity) &&
            frame.Has<TransformComponent>(targetEntity) &&
-           CombatTargeting.IsHostileAndAlive(ref frame, playerTeamId, targetEntity);
+           CombatTargeting.IsHostileAndAlive(ref frame, playerTeamId, targetEntity) &&
+           Visibility.IsUnitVisible(ref frame, playerTeamId, targetEntity);
   }
 
   private void ApplySelectedUnitTargets(ref Frame frame, MoveCommand command, FPVector3 target) {

@@ -64,6 +64,8 @@ public class AttackCommandExecutionTests {
   public void ValidAttack_RecordsIntentAndReplacesMoveTargetWithChaseTarget() {
     var harness = SimHarness.CreateInitialized();
     var (source, target) = SpawnFirstWave(harness);
+    SetPosition(harness, source.UnitId, OpenGround);
+    SetPosition(harness, target.UnitId, EastOfOpenGround(FP64.FromInt(8)));
 
     var move = SimHarness.MoveCommand(1, 0, FP64.One, -FP64.One);
     move.UnitIds.Add(source.UnitId);
@@ -81,9 +83,12 @@ public class AttackCommandExecutionTests {
   public void AttackIntent_UpdatesChaseTargetWhenTargetMoves() {
     var harness = SimHarness.CreateInitialized();
     var (source, target) = SpawnFirstWave(harness);
+    SetPosition(harness, source.UnitId, OpenGround);
+    SetPosition(harness, target.UnitId, EastOfOpenGround(FP64.FromInt(8)));
     harness.Tick(SimHarness.AttackCommand(1, 0, target.UnitId, source.UnitId));
 
-    FPVector3 movedTarget = target.Position + new FPVector3(FP64.FromInt(3), FP64.Zero, FP64.FromInt(-2));
+    FPVector3 movedTarget = GetPosition(harness.Frame, target.UnitId) +
+      new FPVector3(FP64.FromInt(3), FP64.Zero, FP64.FromInt(-2));
     SetPosition(harness, target.UnitId, movedTarget);
 
     harness.Tick();
@@ -167,6 +172,9 @@ public class AttackCommandExecutionTests {
   [Fact]
   public void HeroAttackCommand_SetsMoveTargetImmediately() {
     var harness = SimHarness.CreateInitialized();
+    var crystalPosition = GetPosition(harness.Frame, unitId: 2);
+    SetPosition(harness, unitId: 3, SnapToWalkable(harness,
+      crystalPosition + (FPVector3.Zero - crystalPosition).normalized * FP64.FromInt(10)));
 
     harness.Tick(SimHarness.AttackCommand(1, 0, targetUnitId: 2, sourceUnitIds: 3));
 

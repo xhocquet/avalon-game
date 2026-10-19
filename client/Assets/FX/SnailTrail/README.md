@@ -1,6 +1,6 @@
 # Snail Trail
 
-`Scenes/FX/Skills/SnailTrail.tscn` is one stationary slime segment for Snailhead's Snail Trail (skill 505). Its default radius is 1, matching `TrailWidth` in `snailhead.json`. The mesh is a depth-projection volume; place the scene root at ground level over opaque geometry.
+`Scenes/FX/Heroes/Snailhead/SnailTrail.tscn` is one stationary slime segment for Snailhead's Snail Trail (skill 505). Its default radius is 1, matching `TrailWidth` in `snailhead.json`. The mesh is a depth-projection volume; place the scene root at ground level over opaque geometry.
 
 The shader adapts [LeLu's decal shader](https://godotshaders.com/shader/decal-shader-y_fading-particle-alpha-scissor-treshold/), based on OlisUnfinishedProjects' Godot 4 decal shader. The source code is CC0. The adaptation keeps depth projection, Y fading and alpha-scissor erosion, adds Compatibility depth reconstruction, and replaces the source's unspecified textures with procedural slime. No source images or videos are included.
 
@@ -8,6 +8,4 @@ Adjust `radius`, `lifetime_seconds`, `variation_seed`, or the instance-local sha
 
 Gameplay uses `SnailTrailEffects` through `SkillEffectsManager`. It reconciles predicted `TrailSegment` entities, using their position, width and expiry tick; erosion follows the skill asset's rank-scaled lifetime. The pool preloads `TrailSegmentCount` splatters per hero with this skill, includes active splatters in that budget, and rents overflow on demand. Expired or rolled-back segments return to the pool. Snail Trail replaces its generic trail telegraph; other trail skills keep their fallback. The integration is client-only.
 
-Run `Scenes/Playgrounds/SnailTrailPreview.tscn` for a repeating eight-segment trail at 0.4-second intervals with a 4.5-second lifetime.
-
-`Scenes/FX/Skills/VenomousSlobber.tscn` uses the same shader in cone mode with a brief outward reveal, erosion and bubbles. `VenomousSlobberEffects` pools it and listens for confirmed skill 504 casts, using the skill asset's cone range/angle and the cast position/aim. The scene's `duration_seconds` (1.4 seconds) controls cosmetic persistence; damage is instantaneous in the sim. Its aiming telegraph remains available, while this effect replaces the cast telegraph. Run `Scenes/Playgrounds/VenomousSlobberPreview.tscn` to preview it.
+`Scenes/FX/Heroes/Snailhead/VenomousSlobber.tscn` uses the same shader in cone mode with a brief outward reveal, erosion and bubbles. `VenomousSlobberEffects` pools it and listens for confirmed skill 504 casts, using the skill asset's cone range/angle and the cast position/aim. The scene's `duration_seconds` (1.4 seconds) controls cosmetic persistence; damage is instantaneous in the sim. Its aiming telegraph remains available, while this effect replaces the cast telegraph.

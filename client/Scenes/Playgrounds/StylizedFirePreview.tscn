@@ -1,8 +1,8 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene format=3]
 
-[ext_resource type="PackedScene" path="res://Scenes/FX/StylizedFireOrange.tscn" id="orange"]
-[ext_resource type="PackedScene" path="res://Scenes/FX/StylizedFireCyan.tscn" id="cyan"]
-[ext_resource type="PackedScene" path="res://Scenes/FX/StylizedFireGreen.tscn" id="green"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/FireOrange.tscn" id="orange"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/FireCyan.tscn" id="cyan"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/FireGreen.tscn" id="green"]
 
 [sub_resource type="Environment" id="Environment"]
 background_mode = 1

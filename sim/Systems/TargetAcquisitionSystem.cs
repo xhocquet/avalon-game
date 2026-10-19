@@ -7,17 +7,13 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
 
-public class TargetAcquisitionSystem : ISystem {
+public class TargetAcquisitionSystem(UnitSpatialIndex spatial = null) : ISystem {
   private readonly List<EntityRef> _nearbyCandidates = new();
 
-  // Initialized from combat tuning.
-  private SpatialHashGrid _candidateGrid;
+  private readonly UnitSpatialIndex _standaloneIndex = spatial == null ? new UnitSpatialIndex() : null;
 
   public void Update(ref Frame frame) {
-    var rules = frame.AssetRegistry.Get<CombatRulesAsset>();
-
-    _candidateGrid ??= new SpatialHashGrid(rules.TargetGridCellSize);
-    BuildCandidateGrid(ref frame);
+    _standaloneIndex?.Update(ref frame);
 
     // AttackIntentSystem handles units that already have an order.
     var filter = frame.FilterWithout<UnitIdentity, Team, Stats, TransformComponent, AttackTargetUnitId>();
@@ -33,17 +29,6 @@ public class TargetAcquisitionSystem : ISystem {
         continue;
 
       UnitIntentController.SetAttackTarget(ref frame, attacker, targetUnitId);
-    }
-  }
-
-  // Rebuild the target broad phase once per tick.
-  private void BuildCandidateGrid(ref Frame frame) {
-    _candidateGrid.Clear();
-
-    var filter = frame.Filter<UnitIdentity, Team, Health, TransformComponent>();
-    while (filter.Next(out var candidate)) {
-      ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(candidate);
-      _candidateGrid.Insert(candidate, transform.Position.ToXZ());
     }
   }
 
@@ -66,7 +51,7 @@ public class TargetAcquisitionSystem : ISystem {
     var bestUnitId = int.MaxValue;
 
     // Apply priority, team, and health rules after the exact XZ query.
-    _candidateGrid.QueryRadius(attackerPosition.ToXZ(), radius, _nearbyCandidates);
+    (spatial ?? _standaloneIndex).Grid.QueryRadius(attackerPosition.ToXZ(), radius, _nearbyCandidates);
 
     for (var i = 0; i < _nearbyCandidates.Count; i++) {
       var candidate = _nearbyCandidates[i];
@@ -78,6 +63,14 @@ public class TargetAcquisitionSystem : ISystem {
         continue;
 
       if (!CombatTargeting.IsHostileAndAlive(ref frame, attacker, candidate))
+        continue;
+
+      var teamId = frame.GetReadOnly<Team>(attacker).TeamId;
+      if (spatial != null && frame.Has<UnitVisibility>(candidate)) {
+        if ((frame.GetReadOnly<UnitVisibility>(candidate).Teams & Visibility.TeamBit(teamId)) == 0)
+          continue;
+      }
+      else if (!Visibility.IsUnitVisible(ref frame, teamId, candidate))
         continue;
 
       ref readonly var unit = ref frame.GetReadOnly<UnitIdentity>(candidate);

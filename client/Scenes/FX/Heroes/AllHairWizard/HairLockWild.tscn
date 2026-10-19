@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3]
 
-[ext_resource type="PackedScene" path="res://Scenes/FX/Skills/HairLock.tscn" id="1_hair"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/Heroes/AllHairWizard/HairLock.tscn" id="1_hair"]
 
 [node name="HairLockWild" instance=ExtResource("1_hair")]
 motion = 1.5

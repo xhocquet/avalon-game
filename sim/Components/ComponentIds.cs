@@ -56,5 +56,7 @@ public static class ComponentIds {
   public const int SkillDash = 147;
   public const int SkillStockpiles = 148;
 
-  // Next free id: 149
+  public const int UnitVisibility = 149;
+
+  // Next free id: 150
 }

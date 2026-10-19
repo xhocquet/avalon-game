@@ -23,16 +23,16 @@
 [ext_resource type="PackedScene" uid="uid://c4gqw5blm3y8s" path="res://Scenes/Objects/Spawn.tscn" id="21_hnw25"]
 [ext_resource type="PackedScene" uid="uid://d1k4fk8laqf34" path="res://Assets/Props/Shop/Shop.tscn" id="22_khp2f"]
 [ext_resource type="PackedScene" uid="uid://dixg6cag7iwnc" path="res://Scenes/Heroes/AllHairWizard.tscn" id="25_36e3y"]
-[ext_resource type="PackedScene" path="res://Scenes/FX/Skills/HairLockMessy.tscn" id="25_l1q8x"]
-[ext_resource type="PackedScene" path="res://Scenes/FX/Skills/HairLockWild.tscn" id="26_n2edn"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/Heroes/AllHairWizard/HairLockMessy.tscn" id="25_l1q8x"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/Heroes/AllHairWizard/HairLockWild.tscn" id="26_n2edn"]
 [ext_resource type="PackedScene" uid="uid://mlocswueicgs" path="res://Scenes/Heroes/CrystalGiant.tscn" id="26_o2o48"]
 [ext_resource type="PackedScene" uid="uid://c4um04dyla66r" path="res://Scenes/Objects/Fountain.tscn" id="27_dg1mo"]
 [ext_resource type="PackedScene" uid="uid://ry63ypkrgtjk" path="res://Scenes/Heroes/PickleKnight.tscn" id="27_gwvee"]
 [ext_resource type="PackedScene" uid="uid://dhh3i5ijg58fo" path="res://Scenes/Heroes/Skinwalker.tscn" id="28_3kenh"]
-[ext_resource type="PackedScene" uid="uid://cuh0tkyxt3hv" path="res://Scenes/FX/Environment/HexGate.tscn" id="28_8obd1"]
+[ext_resource type="PackedScene" uid="uid://cuh0tkyxt3hv" path="res://Scenes/FX/HexGate.tscn" id="28_8obd1"]
 [ext_resource type="PackedScene" uid="uid://ctd5irvpu30tj" path="res://Scenes/Heroes/SnailHead.tscn" id="29_7ykkm"]
 [ext_resource type="PackedScene" uid="uid://3ded1f06hab5" path="res://Scenes/Objects/WaterBottle.tscn" id="29_iwewf"]
-[ext_resource type="Shader" uid="uid://l0uvbj0raqeo" path="res://Scenes/World/CartoonFire.gdshader" id="30_jx5j3"]
+[ext_resource type="Shader" uid="uid://l0uvbj0raqeo" path="res://Scenes/FX/CartoonFire.gdshader" id="30_jx5j3"]
 [ext_resource type="Texture2D" uid="uid://crf7v0er3rxt8" path="res://Assets/Props/Water/FoamMask.png" id="31_rok63"]
 [ext_resource type="PackedScene" uid="uid://bus13us8cbjnk" path="res://Scenes/FX/BotwExplosion.tscn" id="32_84wms"]
 [ext_resource type="Shader" uid="uid://dbw1ngnabrf6q" path="res://Assets/FX/Shaders/crystal.gdshader" id="33_eaojp"]
@@ -57,8 +57,8 @@
 [ext_resource type="PackedScene" path="res://Scenes/FX/Skills/ArrowTrail.tscn" id="53_hmxu6"]
 [ext_resource type="PackedScene" path="res://Scenes/FX/Skills/Firelings.tscn" id="54_44824"]
 [ext_resource type="PackedScene" uid="uid://jur2i8b07gah" path="res://Scenes/FX/Skills/FlocksAttack.tscn" id="55_j7eg7"]
-[ext_resource type="PackedScene" path="res://Scenes/FX/Skills/SnailTrail.tscn" id="56_bj8gg"]
-[ext_resource type="PackedScene" path="res://Scenes/FX/Skills/VenomousSlobber.tscn" id="57_p8sos"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/Heroes/Snailhead/SnailTrail.tscn" id="56_bj8gg"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/Heroes/Snailhead/VenomousSlobber.tscn" id="57_p8sos"]
 [ext_resource type="PackedScene" path="res://Scenes/FX/Skills/AppearanceLightBeam.tscn" id="58_sb4fi"]
 [ext_resource type="PackedScene" path="res://Scenes/FX/Skills/AppearanceStarlight.tscn" id="59_57wwg"]
 [ext_resource type="PackedScene" path="res://Scenes/FX/PickupSheen.tscn" id="60_57wwg"]
@@ -75,7 +75,14 @@
 [ext_resource type="PackedScene" path="res://Scenes/Objects/BreakableBoxes/JarBroken3.tscn" id="71_ks1u0"]
 [ext_resource type="PackedScene" path="res://Scenes/Objects/BreakableBoxes/JarBroken4.tscn" id="72_wk3q0"]
 [ext_resource type="PackedScene" path="res://Scenes/FX/HitSpark.tscn" id="73_smy3i"]
-[ext_resource type="PackedScene" path="res://Scenes/FX/Skills/HairLock.tscn" id="74_orava"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/Heroes/AllHairWizard/HairLock.tscn" id="74_orava"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/Skills/SnowCircle.tscn" id="77_n2edn"]
+[ext_resource type="PackedScene" path="res://Scenes/Playgrounds/LoopingBubblesPreview.tscn" id="78_4dqka"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/FireCyan.tscn" id="79_fknry"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/FireGreen.tscn" id="80_ks1u0"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/FireOrange.tscn" id="81_wk3q0"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/TeleportBlue.tscn" id="82_ks1u0"]
+[ext_resource type="PackedScene" uid="uid://80mcbhomjk3l" path="res://Scenes/FX/HotSpring.tscn" id="83_wk3q0"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_dngt1"]
 shader = ExtResource("1_7ykkm")
@@ -591,5 +598,30 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.644442, 0.5724673, 25.94920
 
 [node name="HairLock" parent="." unique_id=260588515 instance=ExtResource("74_orava")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.6742282, 1.9578018, 31.03885)
-messiness = null
-motion_speed = null
+
+[node name="SnowCircle" parent="." unique_id=481823970 instance=ExtResource("77_n2edn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22.615898, 2.020059, 14.796711)
+
+[node name="LoopingBubblesPreview" parent="." unique_id=1862151715 instance=ExtResource("78_4dqka")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 29.508831, 0.061377764, 1.6940689)
+
+[node name="PickupSheen2" parent="." unique_id=1810389844 instance=ExtResource("60_57wwg")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 33.84932, 0.3343897, 3.7676363)
+
+[node name="StylizedFireCyan" parent="." unique_id=1649741403 instance=ExtResource("79_fknry")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -21.59525, 0.19383383, 7.606117)
+
+[node name="StylizedFireGreen" parent="." unique_id=1734252061 instance=ExtResource("80_ks1u0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -21.00479, 0, 8.487049)
+
+[node name="StylizedFireOrange" parent="." unique_id=1709936873 instance=ExtResource("81_wk3q0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20.410446, 0, 9.7564535)
+
+[node name="HexGate" parent="." unique_id=1726329597 instance=ExtResource("28_8obd1")]
+transform = Transform3D(-0.73375356, -6.146729e-08, -0.6794158, 0.0023716372, 0.9999939, -0.0025614058, 0.67941153, -0.003490768, -0.7337493, 26.619205, 3.101089, 15.384256)
+
+[node name="TeleportBlue" parent="." unique_id=949684736 instance=ExtResource("82_ks1u0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.238266, 0.32943344, 12.996273)
+
+[node name="PulsingWater" parent="." unique_id=1361180651 instance=ExtResource("83_wk3q0")]
+transform = Transform3D(0.30721748, 0, 0, 0, 1, 0, 0, 0, 0.30721748, 4.6447906, 0.26203442, -12.681594)

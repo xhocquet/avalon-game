@@ -20,6 +20,7 @@ public class StructureAttackApproachTests {
   public void AttackOrderOnTurret_LandsOnTheNavMesh() {
     var harness = SimHarness.CreateInitialized();
     var (turretUnitId, turretPosition) = FindHostileTurret(harness);
+    SetPosition(harness, HeroUnitId, ApproachFrom(harness, turretPosition, FP64.FromInt(10)));
 
     TriangleAt(harness, turretPosition).Should().BeLessThan(0,
       "this test is only meaningful while structures actually hole the navmesh");
@@ -37,6 +38,7 @@ public class StructureAttackApproachTests {
   public void AttackOrderOnTurret_MovesTheHero() {
     var harness = SimHarness.CreateInitialized();
     var (turretUnitId, turretPosition) = FindHostileTurret(harness);
+    SetPosition(harness, HeroUnitId, ApproachFrom(harness, turretPosition, FP64.FromInt(10)));
     harness.Tick();
 
     harness.Tick(SimHarness.AttackCommand(HeroPlayerId, 1, turretUnitId, HeroUnitId));

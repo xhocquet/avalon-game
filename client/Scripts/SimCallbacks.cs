@@ -21,6 +21,7 @@ public class SimCallbacks(
   private const int CheatMaxAttempts = 10;
   private static readonly DebugAction[] StartupCheats = [DebugAction.MaxSkills, DebugAction.RefreshCooldowns];
   private int _cheatAttempts;
+  private bool _startupCheatsConfirmed;
   private int _startupCheatIndex;
   private int _nextCheatSendTick = CheatSendTick;
   private bool _factionSelectionSent;
@@ -73,7 +74,15 @@ public class SimCallbacks(
   // The frame is the confirmation: a rejected command leaves the flags unset, so it is asked again.
   // Capped so a cheat the sim keeps refusing (an unknown flag) doesn't starve real input forever.
   private bool ShouldSendCheats(int playerId, int tick) {
-    if (CheatOptions.Flags == CheatFlags.None || _cheatAttempts >= CheatMaxAttempts)
+    if (_startupCheatsConfirmed || CheatOptions.Flags == CheatFlags.None)
+      return false;
+
+    var verifiedFrame = _engine?.VerifiedFrame.Frame;
+    if (verifiedFrame != null && CheatsController.AreAllEnabled(ref verifiedFrame, playerId, CheatOptions.Flags)) {
+      _startupCheatsConfirmed = true;
+      return false;
+    }
+    if (_cheatAttempts >= CheatMaxAttempts)
       return false;
     if (tick < _nextCheatSendTick)
       return false;

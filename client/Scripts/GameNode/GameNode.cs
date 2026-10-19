@@ -81,7 +81,7 @@ public abstract partial class GameNode : Node {
 
     LoggerFactory = KLoggerFactory.Create(builder => {
       builder.SetMinimumLevel(KLogLevel.Information);
-      builder.AddSink(new GodotLogSink());
+      builder.AddSink(new ClientLogSink());
       builder.AddRollingFile(options => {
         options.FilePrefix = uniquePrefix;
         options.Directory = logDir;

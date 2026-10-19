@@ -8,20 +8,19 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon.Sim;
 
 // Projectile state lives in frame components; per-tick caches rebuild in Update.
-public class ProjectileSystem : ISystem {
+public class ProjectileSystem(UnitSpatialIndex spatial = null) : ISystem {
   private readonly List<EntityRef> _candidates = new();
   private readonly List<EntityRef> _expired = new();
   private readonly UnitLookup.Index _unitIndex = new();
 
-  private SpatialHashGrid _grid; // Initialized from asset tuning.
+  private readonly UnitSpatialIndex _standaloneIndex = spatial == null ? new UnitSpatialIndex() : null;
   private FP64 _maxBodyRadius; // Keeps the broad phase conservative.
 
   public void Update(ref Frame frame) {
     if (!HasAnyProjectile(ref frame))
       return;
 
-    var rules = frame.AssetRegistry.Get<CombatRulesAsset>();
-    _grid ??= new SpatialHashGrid(rules.TargetGridCellSize);
+    _standaloneIndex?.Update(ref frame);
     BuildCandidateGrid(ref frame);
     _unitIndex.Rebuild(ref frame);
 
@@ -71,14 +70,10 @@ public class ProjectileSystem : ISystem {
 
   // Rebuilt every tick so the system-owned grid stays rollback-safe.
   private void BuildCandidateGrid(ref Frame frame) {
-    _grid.Clear();
     _maxBodyRadius = FP64.Zero;
 
     var filter = frame.Filter<UnitIdentity, Team, Health, TransformComponent>();
     while (filter.Next(out var candidate)) {
-      ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(candidate);
-      _grid.Insert(candidate, transform.Position.ToXZ());
-
       var bodyRadius = BodyRadius(ref frame, candidate);
       if (bodyRadius > _maxBodyRadius)
         _maxBodyRadius = bodyRadius;
@@ -94,7 +89,7 @@ public class ProjectileSystem : ISystem {
     var endXZ = end.ToXZ();
     var midpoint = (startXZ + endXZ) / FP64.FromInt(2);
     var queryRadius = step / FP64.FromInt(2) + projectile.Radius + _maxBodyRadius;
-    _grid.QueryRadius(midpoint, queryRadius, _candidates);
+    (spatial ?? _standaloneIndex).Grid.QueryRadius(midpoint, queryRadius, _candidates);
 
     var found = false;
     var bestTravel = FP64.Zero;

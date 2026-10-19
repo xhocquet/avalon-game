@@ -14,6 +14,14 @@ public partial class MapLayoutAsset : IDataAsset {
 
   [KlothoOrder(4)] public string MapName; // Source scene filename, not a display name
 
+  [KlothoOrder(5)] public FPVector2 VisionOrigin;
+  [KlothoOrder(6)] public FPVector2 VisionSize;
+  [KlothoOrder(7)] public FP64 VisionCellSize;
+  [KlothoOrder(8)] public FPVector2[] SightEdges;
+
+  private SightGeometry _sightGeometry;
+  public SightGeometry SightGeometry => _sightGeometry ??= new SightGeometry(SightEdges, VisionCellSize);
+
   // Hand-edited layouts can have ragged required arrays; ignore the trailing entries consistently.
   public int MarkerCount =>
     MarkerTypes == null || MarkerTeams == null || MarkerPositions == null

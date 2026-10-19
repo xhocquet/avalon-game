@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Godot;
 using Meesles.Avalon.Client.Scripts.Entities;
 using Meesles.Avalon.Client.Scripts.Interfaces;
+using Meesles.Avalon.Client.Scripts.View;
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
@@ -79,6 +80,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private Label _timerLabel;
   private SubViewport _minimapViewport;
   private Camera3D _minimapCamera;
+  private VisionRenderer _visionRenderer;
   private TextureRect _portraitTexture;
   private Texture2D _portraitPlaceholder;
   [Export] public float FocusRingRadiusPx { get; set; } = 52.0f;
@@ -90,6 +92,11 @@ public partial class GameUI : CanvasLayer, IViewHud {
   [Export] public float MinimapHeight { get; set; } = 60.0f;
 
   public void SyncFromFrame(Frame frame) {
+    if (_visionRenderer == null) {
+      _visionRenderer = new VisionRenderer { Name = "VisionRenderer" };
+      AddChild(_visionRenderer);
+    }
+    _visionRenderer.Sync(frame, _localPlayerId);
     if (_scoreboardScoreLabel != null)
       _scoreboardScoreLabel.Text = FormatLiveScores(frame);
 

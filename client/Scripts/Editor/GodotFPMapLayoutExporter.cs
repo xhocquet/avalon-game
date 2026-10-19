@@ -45,6 +45,7 @@ public partial class GodotFPMapLayoutExporter : RefCounted {
       MapName = ResolveMapName(root)
     };
 
+    VisionMapBaker.Populate(root, asset);
     Save(asset);
   }
 

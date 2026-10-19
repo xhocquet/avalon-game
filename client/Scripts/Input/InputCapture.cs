@@ -777,7 +777,7 @@ public class InputCapture : IDisposable {
         return null;
 
       var view = FindOwningView(hit["collider"].As<GodotObject>() as Node);
-      if (view != null && filter(view))
+      if (view != null && view.IsVisibleInTree() && filter(view))
         return view;
 
       exclude.Add(hit["rid"].As<Rid>());

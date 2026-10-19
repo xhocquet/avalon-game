@@ -57,9 +57,13 @@ public static class SimulationSetup {
     simulation.AddSystem(new SkillDashSystem(), SystemPhase.Update);
     simulation.AddSystem(new PickupSystem(), SystemPhase.Update); // Depends on movement
 
+    var units = new UnitSpatialIndex();
+    simulation.AddSystem(units, SystemPhase.Update);
+    simulation.AddSystem(new VisionSystem(units), SystemPhase.Update);
+
     // Begin offensive concepts
-    simulation.AddSystem(new TargetAcquisitionSystem(), SystemPhase.Update);
-    simulation.AddSystem(new ProjectileSystem(), SystemPhase.Update);
+    simulation.AddSystem(new TargetAcquisitionSystem(units), SystemPhase.Update);
+    simulation.AddSystem(new ProjectileSystem(units), SystemPhase.Update);
     simulation.AddSystem(new TrailSystem(), SystemPhase.Update);
     simulation.AddSystem(new AttackIntentSystem(navigation), SystemPhase.Update);
     simulation.AddSystem(new DamageSystem(), SystemPhase.Update);

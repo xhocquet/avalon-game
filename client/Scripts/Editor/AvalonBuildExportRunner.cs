@@ -167,6 +167,7 @@ public partial class AvalonBuildExportRunner : RefCounted {
       MarkerValues = values.ToArray(),
       MapName = mapName
     };
+    VisionMapBaker.Populate(root, asset);
 
     // Only one MapLayoutAsset can be registered at a time (fixed AssetId), so each map gets its own
     // file and the game type decides which one the session loads. The default map keeps the
