@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Components;
@@ -18,9 +19,20 @@ public unsafe partial struct Buffs : IComponent {
   public readonly int GetExpiryTick(int index) => ExpiryTicks[index];
   public readonly bool IsExpired(int index, int tick) => IsActive(index) && tick >= ExpiryTicks[index];
 
-  public readonly int FindSlot(int sourceSkillAssetId, int expiryTick) {
+  public readonly int GetDurationTicks(int index) =>
+    IsActive(index) ? System.Math.Max(0, ExpiryTicks[index] - StartedTicks[index]) : 0;
+
+  public readonly int GetRemainingTicks(int index, int tick) =>
+    System.Math.Clamp(ExpiryTicks[index] - tick, 0, GetDurationTicks(index));
+
+  public readonly FP64 GetRemainingFraction(int index, int tick) {
+    var duration = GetDurationTicks(index);
+    return duration > 0 ? FP64.FromInt(GetRemainingTicks(index, tick)) / FP64.FromInt(duration) : FP64.Zero;
+  }
+
+  public readonly int FindSlot(int sourceSkillAssetId) {
     for (var i = 0; i < MaxEntries; i++)
-      if (SourceSkillAssetIds[i] == sourceSkillAssetId && ExpiryTicks[i] == expiryTick)
+      if (SourceSkillAssetIds[i] == sourceSkillAssetId)
         return i;
     return -1;
   }

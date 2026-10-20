@@ -179,7 +179,7 @@ public class RollbackDeterminismTests(ITestOutputHelper output) {
     var filter = frame.Filter<Hero, Stats>();
     while (filter.Next(out var entity))
       BuffsController.Apply(ref frame, entity, Assets.AssetIds.SkillCrystalGiantUltimate,
-        StatType.Armor, FP64.Zero, FP64.FromInt(1) / FP64.FromInt(2), durationTicks: 600);
+        [new(StatType.Armor, BuffMode.Percent, FP64.Half, FP64.Zero)], rank: 1, durationTicks: 600);
   }
 
   private static FP64 HeroArmor(SimHarness harness) {

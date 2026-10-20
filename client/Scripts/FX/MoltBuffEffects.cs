@@ -43,10 +43,13 @@ public sealed class MoltBuffEffects {
     while (filter.Next(out var entity)) {
       ref readonly var buffs = ref frame.GetReadOnly<Buffs>(entity);
       var expiryTick = 0;
+      var startedTick = 0;
       for (var i = 0; i < Buffs.MaxEntries; i++)
         if (buffs.GetSourceSkillAssetId(i) == skill.AssetId && buffs.GetExpiryTick(i) > frame.Tick &&
-            buffs.GetExpiryTick(i) > expiryTick)
+            buffs.GetExpiryTick(i) > expiryTick) {
           expiryTick = buffs.GetExpiryTick(i);
+          startedTick = buffs.GetStartedTick(i);
+        }
       if (expiryTick == 0) continue;
 
       var unitId = UnitLookup.GetUnitId(ref frame, entity);
@@ -55,10 +58,7 @@ public sealed class MoltBuffEffects {
         effect = new ActiveBuff(_pool.Count > 0 ? _pool.Pop() : Create());
         _active.Add(unitId, effect);
       }
-      var rank = frame.Has<Skills>(entity)
-        ? frame.GetReadOnly<Skills>(entity).GetRank((int)SkillSlot.Ultimate) : 1;
-      var durationTicks = TickMath.MsToTicksCeil(ref frame, skill.BuffDurationMsAtRank(rank));
-      effect.ElapsedTicks = frame.Tick - (expiryTick - durationTicks);
+      effect.ElapsedTicks = frame.Tick - startedTick;
       effect.TickIntervalMs = TickMath.DeltaTimeMs(ref frame);
       effect.Position = frame.GetReadOnly<TransformComponent>(entity).Position;
       effect.Radius = frame.GetReadOnly<Stats>(entity).GameplayRadius;

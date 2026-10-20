@@ -16,12 +16,12 @@ public class StatusEffectsTests {
     var baseSpeed = frame.GetReadOnly<Stats>(hero).MoveSpeed;
     var baseArmor = frame.GetReadOnly<Stats>(hero).Armor;
 
-    BuffsController.Apply(ref frame, hero, SourceId, StatType.MoveSpeed,
-      FP64.Zero, -FP64.Half, 600).Should().BeTrue();
-    BuffsController.Apply(ref frame, hero, SourceId, StatType.Armor,
-      FP64.Zero, -FP64.Half, 600).Should().BeTrue();
-    BuffsController.Apply(ref frame, hero, SourceId + 1, StatType.MoveSpeed,
-      FP64.Zero, FP64.Half, 600).Should().BeTrue();
+    BuffsController.Apply(ref frame, hero, SourceId, [
+      new(StatType.MoveSpeed, BuffMode.Percent, -FP64.Half, FP64.Zero),
+      new(StatType.Armor, BuffMode.Percent, -FP64.Half, FP64.Zero)
+    ], 1, 600).Should().BeTrue();
+    BuffsController.Apply(ref frame, hero, SourceId + 1,
+      [new(StatType.MoveSpeed, BuffMode.Percent, FP64.Half, FP64.Zero)], 1, 600).Should().BeTrue();
     SnareController.Apply(ref frame, hero, SourceId, 600).Should().BeTrue();
     SilenceController.Apply(ref frame, hero, SourceId, 600).Should().BeTrue();
     DamageOverTimeController.Apply(ref frame, hero, hero, SourceId, FP64.FromInt(10), 600).Should().BeTrue();

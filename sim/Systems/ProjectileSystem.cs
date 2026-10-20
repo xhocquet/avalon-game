@@ -132,11 +132,8 @@ public class ProjectileSystem(UnitSpatialIndex spatial = null) : ISystem {
 
     var rank = projectile.Rank;
 
-    if (skill.BuffSpecs.Length > 0) {
-      var buffTicks = TickMath.MsToTicksCeil(ref frame, skill.BuffDurationMsAtRank(rank));
-      foreach (var spec in skill.BuffSpecs)
-        BuffsController.ApplySpec(ref frame, target, skill.AssetId, spec, rank, buffTicks);
-    }
+    if (skill.BuffSpecs.Length > 0)
+      BuffsController.ApplySkill(ref frame, target, skill, rank);
 
     if (skill.DotDurationMs > 0)
       DamageOverTimeController.Apply(ref frame, target, source, skill.AssetId,

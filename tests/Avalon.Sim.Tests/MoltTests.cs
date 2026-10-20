@@ -22,8 +22,8 @@ public class MoltTests {
     var frame = harness.Frame;
     var maxHealth = HealthController.GetMaxHealth(ref frame, hero);
     frame.Get<Health>(hero).Current = maxHealth / FP64.FromInt(2);
-    BuffsController.Apply(ref frame, hero, DebuffSource, StatType.MoveSpeed,
-      FP64.Zero, -FP64.Half, 600).Should().BeTrue();
+    BuffsController.Apply(ref frame, hero, DebuffSource,
+      [new(StatType.MoveSpeed, BuffMode.Percent, -FP64.Half, FP64.Zero)], 1, 600).Should().BeTrue();
     SnareController.Apply(ref frame, hero, DebuffSource, 600).Should().BeTrue();
 
     var castTick = LearnAndCast(harness);

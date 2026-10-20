@@ -122,8 +122,8 @@ public class RefreshTests {
     var baseSpeed = CasterStat(harness, StatType.MoveSpeed);
 
     var frame = harness.Frame;
-    BuffsController.Apply(ref frame, hero, SomeDebuffSource, StatType.MoveSpeed,
-      FP64.Zero, -FP64.Half, 600).Should().BeTrue();
+    BuffsController.Apply(ref frame, hero, SomeDebuffSource,
+      [new(StatType.MoveSpeed, BuffMode.Percent, -FP64.Half, FP64.Zero)], 1, 600).Should().BeTrue();
     SnareController.Apply(ref frame, hero, SomeDebuffSource, 600).Should().BeTrue();
     DamageOverTimeController.Apply(ref frame, hero, hero, SomeDebuffSource, FP64.FromInt(10), 600).Should().BeTrue();
 
@@ -164,10 +164,10 @@ public class RefreshTests {
     var baseSpeed = CasterStat(harness, StatType.MoveSpeed);
 
     var frame = harness.Frame;
-    BuffsController.Apply(ref frame, hero, SomeDebuffSource, StatType.Armor,
-      FP64.Zero, FP64.Half, 600).Should().BeTrue();
-    BuffsController.Apply(ref frame, hero, SomeDebuffSource, StatType.MoveSpeed,
-      FP64.Zero, -FP64.Half, 600).Should().BeTrue();
+    BuffsController.Apply(ref frame, hero, SomeDebuffSource, [
+      new(StatType.Armor, BuffMode.Percent, FP64.Half, FP64.Zero),
+      new(StatType.MoveSpeed, BuffMode.Percent, -FP64.Half, FP64.Zero)
+    ], 1, 600).Should().BeTrue();
 
     LearnAndCast(harness);
 

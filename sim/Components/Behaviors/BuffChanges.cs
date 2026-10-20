@@ -21,13 +21,6 @@ public unsafe partial struct BuffChanges : IComponent {
     (BuffChangeKind)Kinds[index], Parameters[index],
     FP64.FromRaw(AppliedRaw[index]));
 
-  public readonly int FindSlot(int buffIndex, BuffChangeKind kind, int parameter) {
-    for (var i = 0; i < MaxEntries; i++)
-      if (BuffSlots[i] == buffIndex + 1 && Kinds[i] == (int)kind && Parameters[i] == parameter)
-        return i;
-    return -1;
-  }
-
   public readonly bool HasChanges(int buffIndex) {
     for (var i = 0; i < MaxEntries; i++)
       if (BuffSlots[i] == buffIndex + 1)

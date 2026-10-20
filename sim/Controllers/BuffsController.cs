@@ -1,3 +1,4 @@
+using System;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Deterministic.Math;
@@ -7,60 +8,66 @@ namespace Meesles.Avalon.Sim;
 
 // Applies buff changes and reverts them at expiry.
 public static class BuffsController {
-  public static void ApplySkill(ref Frame frame, EntityRef target, SkillAsset skill, int rank) {
+  public static bool ApplySkill(ref Frame frame, EntityRef target, SkillAsset skill, int rank) {
     var durationTicks = TickMath.MsToTicksCeil(ref frame, skill.BuffDurationMsAtRank(rank));
-    foreach (var spec in skill.BuffSpecs)
-      ApplySpec(ref frame, target, skill.AssetId, spec, rank, durationTicks);
+    return Apply(ref frame, target, skill.AssetId, skill.BuffSpecs, rank, durationTicks);
   }
 
-  // Applies a ranked buff spec
-  public static bool ApplySpec(ref Frame frame, EntityRef entity, int sourceId, in BuffSpec spec,
-    int rank, int durationTicks) {
-    var magnitude = spec.MagnitudeAtRank(rank);
-    return spec.Mode == BuffMode.Flat
-      ? Apply(ref frame, entity, sourceId, spec.Stat, magnitude, FP64.Zero, durationTicks)
-      : Apply(ref frame, entity, sourceId, spec.Stat, FP64.Zero, magnitude, durationTicks);
-  }
-
-  // Refreshes matching source/stat buffs; returns false for invalid or full buff lists
-  public static bool Apply(ref Frame frame, EntityRef entity, int sourceId, StatType stat, FP64 flat,
-    FP64 percent, int durationTicks) {
-    if (sourceId == 0 || durationTicks <= 0 || !frame.Has<Stats>(entity))
+  // Applies one complete buff, replacing the same skill's existing buff.
+  public static bool Apply(ref Frame frame, EntityRef entity, int sourceSkillAssetId,
+    ReadOnlySpan<BuffSpec> specs, int rank, int durationTicks) {
+    if (sourceSkillAssetId == 0 || rank <= 0 || durationTicks <= 0 || !frame.Has<Stats>(entity))
       return false;
 
-    if (flat == FP64.Zero && percent == FP64.Zero) // Do not reserve slots for no-op buffs
+    var required = 0;
+    foreach (var spec in specs) {
+      if ((uint)spec.Stat >= (uint)StatType.StatCount || spec.Mode is not (BuffMode.Flat or BuffMode.Percent))
+        return false;
+      if (spec.MagnitudeAtRank(rank) != FP64.Zero)
+        required++;
+    }
+    if (required == 0 || required > BuffChanges.MaxEntries)
       return false;
 
-    if (!frame.Has<Buffs>(entity))
-      frame.Add(entity, new Buffs());
-    if (!frame.Has<BuffChanges>(entity))
-      frame.Add(entity, new BuffChanges());
-
-    ref var buffs = ref frame.Get<Buffs>(entity);
-    ref var changes = ref frame.Get<BuffChanges>(entity);
-    ref var stats = ref frame.Get<Stats>(entity);
-
-    var slot = FindStatChange(in buffs, in changes, sourceId, stat);
-    if (slot >= 0)
-      Revert(ref stats, ref buffs, ref changes, slot);
-    else if ((slot = changes.FindFreeSlot()) < 0)
-      return false;
-
-    var expiryTick = frame.Tick + durationTicks;
-    var buffIndex = buffs.FindSlot(sourceId, expiryTick);
-    if (buffIndex < 0) {
+    var buffs = frame.Has<Buffs>(entity) ? frame.GetReadOnly<Buffs>(entity) : default;
+    var changes = frame.Has<BuffChanges>(entity) ? frame.GetReadOnly<BuffChanges>(entity) : default;
+    var stats = frame.GetReadOnly<Stats>(entity);
+    var buffIndex = buffs.FindSlot(sourceSkillAssetId);
+    if (buffIndex >= 0) {
+      for (var i = 0; i < BuffChanges.MaxEntries; i++)
+        if (changes.IsActive(i) && changes.GetBuffIndex(i) == buffIndex)
+          Revert(ref stats, ref buffs, ref changes, i);
+    }
+    else {
       buffIndex = buffs.FindFreeSlot();
       if (buffIndex < 0)
         return false;
-      buffs.Set(buffIndex, sourceId, frame.Tick, expiryTick);
     }
 
-    // Refresh from the unbuffed stat value
-    var before = stats.Get(stat);
-    stats.Add(stat, flat + before * percent);
+    buffs.Set(buffIndex, sourceSkillAssetId, frame.Tick, frame.Tick + durationTicks);
+    foreach (var spec in specs) {
+      var magnitude = spec.MagnitudeAtRank(rank);
+      if (magnitude == FP64.Zero)
+        continue;
+      var slot = changes.FindFreeSlot();
+      if (slot < 0)
+        return false;
 
-    // Preserve the clamped delta for revert
-    changes.Set(slot, buffIndex, BuffChange.Stat(stat, stats.Get(stat) - before));
+      var before = stats.Get(spec.Stat);
+      stats.Add(spec.Stat, spec.Mode == BuffMode.Flat ? magnitude : before * magnitude);
+      changes.Set(slot, buffIndex, BuffChange.Stat(spec.Stat, stats.Get(spec.Stat) - before));
+    }
+
+    // Commit the staged components only after every change fits.
+    if (!frame.Has<Buffs>(entity))
+      frame.Add(entity, buffs);
+    else
+      frame.Get<Buffs>(entity) = buffs;
+    if (!frame.Has<BuffChanges>(entity))
+      frame.Add(entity, changes);
+    else
+      frame.Get<BuffChanges>(entity) = changes;
+    frame.Get<Stats>(entity) = stats;
     return true;
   }
 
@@ -115,17 +122,6 @@ public static class BuffsController {
     for (var i = 0; i < BuffChanges.MaxEntries; i++)
       if (changes.IsActive(i))
         Revert(ref stats, ref buffs, ref changes, i);
-  }
-
-  private static int FindStatChange(in Buffs buffs, in BuffChanges changes, int sourceId, StatType stat) {
-    for (var i = 0; i < Buffs.MaxEntries; i++) {
-      if (buffs.GetSourceSkillAssetId(i) != sourceId)
-        continue;
-      var slot = changes.FindSlot(i, BuffChangeKind.Stat, (int)stat);
-      if (slot >= 0)
-        return slot;
-    }
-    return -1;
   }
 
   private static void Revert(ref Stats stats, ref Buffs buffs, ref BuffChanges changes, int slot) {

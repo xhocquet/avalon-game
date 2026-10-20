@@ -128,8 +128,7 @@ public class TrailSystem : ISystem {
       if (offset.sqrMagnitude > reach * reach)
         continue;
 
-      foreach (var spec in skill.BuffSpecs)
-        BuffsController.ApplySpec(ref frame, unit, skill.AssetId, spec, segment.Rank, buffTicks);
+      BuffsController.ApplySkill(ref frame, unit, skill, segment.Rank);
     }
   }
 

@@ -2,20 +2,63 @@
 
 1. No unified reader.
 The HUD would currently need to inspect each component individually. Existing VFX do exactly that—Molt reads StatBuffs, while Strangle reads DamageOverTime.
-
-2. Stat entries aren’t player-facing effect entries.
-A skill granting armor and magic resistance occupies two StatBuffs slots. We probably want one icon with both modifiers in its tooltip, not two icons. A skill can also produce multiple effect types, so grouping everything by skill ID alone needs care when their durations differ.
-
-3. Remaining time is available; original duration generally isn’t.
-Numeric countdowns are straightforward. A radial “percentage remaining” needs the applied duration/start tick, or a reliable way to reconstruct it. Most effect components don’t retain rank or application time.
-
-4. These aren’t general stacking containers.
-Stat buffs refresh by skill ID + stat, not caster. Snares/silences keep the later expiry; DOT/proc applications replace their single slot. The UI can faithfully display current state, but it can’t show separate instances the sim doesn’t retain.
-
-My recommendation
 Add a shared, read-only StatusEffects query before building the widget. It would collect these components into a consistent set of entries containing effect kind, source skill, expiry, polarity, and relevant details. The UI then consumes one list.
 
-That’s a modest consolidation step. We’re ready to start the UI work without a full gameplay-system rewrite, but directly wiring the HUD to these six components would spread the special cases into the UI. The unified reader is the useful first piece.
+Issues to fix first
+
+1. Separate identity, stacking, and timing policy
+These are different decisions:
+
+Decision Examples
+What counts as the same effect? Same skill globally; same skill per caster; shared Poison status
+What happens on reapplication? Refresh existing; add an independent stack; ignore
+What happens to duration? Restart full duration; keep later expiry; extend
+What happens at the stack limit? Refresh oldest; replace weakest; reject new stack
+These belong on the effect definition, with defaults. A skill can eventually apply several effects with different policies—Strangle’s slow and DOT are already an example.
+
+Your default for ordinary buffs is straightforward: same skill refreshes one buff unless explicitly authored otherwise. We should also record caster unit ID separately from the origin skill ID, so effects that opt into per-caster behavior can use it.
+
+1. DOT refresh currently discards damage
+In `DamageOverTimeController.Apply`, reapplication resets both:
+
+Pending accrued damage to zero.
+The next payout to one full interval after application.
+Repeated applications can postpone payouts and erase damage already accrued. A normal refresh should preserve accrued damage and the payout schedule while updating duration—and magnitude according to an explicit rule.
+
+For capped, independently stacking DOTs, each instance needs its own attribution, expiry, rate, and accrual state. We should define whether the cap is per effect, per caster, or across all DOTs rather than assuming one global cap.
+
+1. Poison needs its own effect identity
+Your on/off poison example fits a non-stacking status:
+
+One active Poison effect.
+Reapplication follows its refresh rule.
+Damage is applied periodically without increasing a stack count.
+Two different skills could apply that same Poison status while retaining their origin skill attribution. That requires an effect ID distinct from the source skill ID.
+
+One terminology point to settle when implementing damage: “raw damage” could mean the authored damage amount before normal mitigation, or damage that bypasses mitigation. Current DOT damage is magical and goes through normal mitigation.
+
+1. Define how overlapping stat percentages combine
+Different skills currently calculate percentage changes against the current modified stat. That makes their amounts depend on application/refresh order.
+
+For example:
+
+Start with 100 armor.
+Apply +20% → 120.
+Apply +50% → 180.
+Refresh the first buff: remove its stored 20, then grant 20% of 160 → 192.
+The first skill didn’t stack another copy, but refreshing it increased the combined bonus. We should choose a consistent modifier calculation—such as percentages against base stats—before supporting more stacking.
+
+Recommended next task
+Make stat-buff application atomic and add an explicit default refresh policy.
+
+That step should cover:
+
+Find an existing effect by its application identity.
+Refresh all its changes together.
+Restart its stored lifetime.
+Reject the entire application if capacity is insufficient.
+Define and test overlapping percentage modifiers.
+Then tackle DOT instances and capped stacking, including preserving accrued damage on refresh. This keeps the work incremental while addressing the application problems in the current roster first.
 
 - **Assist gold.** `GoldRulesAsset.GoldPerAssist` (50) is authored but nothing reads it. Assists need a
 damage-participation window per victim before a payout has anything to key off — `Health.LastDamagerUnitId` only remembers the fatal hit, so the killer is the only actor a death can currently credit.
