@@ -195,11 +195,11 @@ public class SwivelEyesTests {
 
   private static bool HasBuffs(SimHarness harness, EntityRef entity) {
     var frame = harness.Frame;
-    if (!frame.Has<StatBuffs>(entity))
+    if (!frame.Has<Buffs>(entity))
       return false;
 
-    ref readonly var buffs = ref frame.GetReadOnly<StatBuffs>(entity);
-    for (var i = 0; i < StatBuffs.MaxEntries; i++)
+    ref readonly var buffs = ref frame.GetReadOnly<Buffs>(entity);
+    for (var i = 0; i < Buffs.MaxEntries; i++)
       if (buffs.IsActive(i))
         return true;
     return false;
@@ -210,14 +210,8 @@ public class SwivelEyesTests {
   private static List<BuffEntry> CasterEntries(SimHarness harness) {
     var entries = new List<BuffEntry>();
     var hero = harness.FindHero(CasterPlayerId);
-    if (!harness.Frame.Has<StatBuffs>(hero))
-      return entries;
-
-    ref readonly var buffs = ref harness.Frame.GetReadOnly<StatBuffs>(hero);
-    for (var i = 0; i < StatBuffs.MaxEntries; i++)
-      if (buffs.IsActive(i))
-        entries.Add(new BuffEntry(buffs.GetSourceId(i), buffs.GetStat(i), buffs.GetApplied(i),
-          buffs.GetExpiryTick(i)));
+    foreach (var entry in BuffTestQueries.StatChanges(harness.Frame, hero))
+      entries.Add(new BuffEntry(entry.SourceId, entry.Stat, entry.Applied, entry.ExpiryTick));
 
     return entries;
   }

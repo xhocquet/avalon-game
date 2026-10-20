@@ -127,7 +127,7 @@ public class RollbackDeterminismTests(ITestOutputHelper output) {
   }
 
   // Timed stat buffs across a rollback boundary. A buff is two writes that must stay paired - the
-  // amount added to Stats and the entry on StatBuffs that owes it back - so a
+  // amount added to Stats and the entry on BuffChanges that owes it back - so a
   // restore that reached one and not the other would leave a hero permanently hardened or hand back
   // an amount it was never given. The discarded branch stacks a buff of its own so the snapshot has
   // both a stat value and an entry the replay must not inherit.
@@ -157,7 +157,7 @@ public class RollbackDeterminismTests(ITestOutputHelper output) {
     Report(divergences, ReplayTicks, WarmupTicks);
 
     divergences.Should().BeEmpty(
-      "a buff's applied amount and its expiry tick live on StatBuffs, so a rollback " +
+      "a buff's applied amount and its expiry tick live on frame components, so a rollback " +
       "restores them with the stat they moved. A divergence here means buff state was tracked " +
       "on TimedEffectSystem instead, and the discarded prediction branch leaked into the replay.");
   }
@@ -194,9 +194,9 @@ public class RollbackDeterminismTests(ITestOutputHelper output) {
     var frame = harness.Frame;
     var hero = harness.FindHero(1);
     var hasActiveBuff = false;
-    if (frame.Has<StatBuffs>(hero)) {
-      ref readonly var buffs = ref frame.GetReadOnly<StatBuffs>(hero);
-      for (var i = 0; i < StatBuffs.MaxEntries; i++)
+    if (frame.Has<Buffs>(hero)) {
+      ref readonly var buffs = ref frame.GetReadOnly<Buffs>(hero);
+      for (var i = 0; i < Buffs.MaxEntries; i++)
         if (buffs.IsActive(i)) {
           hasActiveBuff = true;
           break;

@@ -41,7 +41,7 @@ public static class ComponentIds {
   public const int CheatState = 132;
   public const int MatchOutcome = 133;
   public const int Resources = 134;
-  public const int StatBuffs = 135;
+  // 135 retired: StatBuffs
   public const int AttackProc = 136;
   public const int AttackHitIdCounter = 137;
   public const int AttackBurst = 138;
@@ -58,5 +58,8 @@ public static class ComponentIds {
 
   public const int UnitVisibility = 149;
 
-  // Next free id: 150
+  public const int Buffs = 150;
+  public const int BuffChanges = 151;
+
+  // Next free id: 152
 }

@@ -5,7 +5,7 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon.Sim.Components;
 
 // An empowered auto-attack waiting to be spent: armed by a cast, consumed by the next attack that
-// lands, dropped if neither happens before ExpiryTick. The counterpart to StatBuffs - both
+// lands, dropped if neither happens before ExpiryTick. The counterpart to Buffs - both
 // expire on a tick, but a buff is worth something every tick it holds while this is worth nothing
 // until the one attack that spends it.
 //

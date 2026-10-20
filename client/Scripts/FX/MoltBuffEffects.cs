@@ -39,12 +39,12 @@ public sealed class MoltBuffEffects {
     _staleIds.Clear();
     foreach (var unitId in _active.Keys) _staleIds.Add(unitId);
 
-    var filter = frame.Filter<StatBuffs, Stats, TransformComponent>();
+    var filter = frame.Filter<Buffs, Stats, TransformComponent>();
     while (filter.Next(out var entity)) {
-      ref readonly var buffs = ref frame.GetReadOnly<StatBuffs>(entity);
+      ref readonly var buffs = ref frame.GetReadOnly<Buffs>(entity);
       var expiryTick = 0;
-      for (var i = 0; i < StatBuffs.MaxEntries; i++)
-        if (buffs.GetSourceId(i) == skill.AssetId && buffs.GetExpiryTick(i) > frame.Tick &&
+      for (var i = 0; i < Buffs.MaxEntries; i++)
+        if (buffs.GetSourceSkillAssetId(i) == skill.AssetId && buffs.GetExpiryTick(i) > frame.Tick &&
             buffs.GetExpiryTick(i) > expiryTick)
           expiryTick = buffs.GetExpiryTick(i);
       if (expiryTick == 0) continue;

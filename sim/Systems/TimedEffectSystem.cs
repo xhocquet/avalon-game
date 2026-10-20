@@ -25,7 +25,7 @@ public class TimedEffectSystem : ISystem {
     while (casters.Next(out var entity))
       frame.Get<Skills>(entity).TickCooldowns();
 
-    var buffed = frame.Filter<StatBuffs, Stats>();
+    var buffed = frame.Filter<Buffs, BuffChanges, Stats>();
     while (buffed.Next(out var entity))
       BuffsController.ExpireDue(ref frame, entity);
 

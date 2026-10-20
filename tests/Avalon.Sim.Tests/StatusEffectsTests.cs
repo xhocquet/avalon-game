@@ -42,14 +42,6 @@ public class StatusEffectsTests {
   private static int ActiveBuffCount(SimHarness harness) {
     var frame = harness.Frame;
     var hero = harness.FindHero(1);
-    if (!frame.Has<StatBuffs>(hero))
-      return 0;
-
-    ref readonly var buffs = ref frame.GetReadOnly<StatBuffs>(hero);
-    var count = 0;
-    for (var i = 0; i < StatBuffs.MaxEntries; i++)
-      if (buffs.IsActive(i))
-        count++;
-    return count;
+    return BuffTestQueries.StatChanges(frame, hero).Count;
   }
 }

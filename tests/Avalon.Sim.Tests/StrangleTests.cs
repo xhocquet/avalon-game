@@ -366,14 +366,8 @@ public class StrangleTests {
 
   private static List<BuffEntry> Entries(SimHarness harness, EntityRef entity) {
     var entries = new List<BuffEntry>();
-    if (!harness.Frame.Has<StatBuffs>(entity))
-      return entries;
-
-    ref readonly var buffs = ref harness.Frame.GetReadOnly<StatBuffs>(entity);
-    for (var i = 0; i < StatBuffs.MaxEntries; i++)
-      if (buffs.IsActive(i))
-        entries.Add(new BuffEntry(buffs.GetSourceId(i), buffs.GetStat(i), buffs.GetApplied(i),
-          buffs.GetExpiryTick(i)));
+    foreach (var entry in BuffTestQueries.StatChanges(harness.Frame, entity))
+      entries.Add(new BuffEntry(entry.SourceId, entry.Stat, entry.Applied, entry.ExpiryTick));
 
     return entries;
   }

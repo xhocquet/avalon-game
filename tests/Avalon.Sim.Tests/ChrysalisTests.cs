@@ -368,14 +368,8 @@ public class ChrysalisTests {
   private static List<BuffEntry> BuffEntries(SimHarness harness) {
     var entries = new List<BuffEntry>();
     var hero = Caster(harness);
-    if (!harness.Frame.Has<StatBuffs>(hero))
-      return entries;
-
-    ref readonly var buffs = ref harness.Frame.GetReadOnly<StatBuffs>(hero);
-    for (var i = 0; i < StatBuffs.MaxEntries; i++)
-      if (buffs.IsActive(i))
-        entries.Add(new BuffEntry(buffs.GetSourceId(i), buffs.GetStat(i), buffs.GetApplied(i),
-          buffs.GetExpiryTick(i)));
+    foreach (var entry in BuffTestQueries.StatChanges(harness.Frame, hero))
+      entries.Add(new BuffEntry(entry.SourceId, entry.Stat, entry.Applied, entry.ExpiryTick));
 
     return entries;
   }

@@ -5,7 +5,7 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim;
 
-// Applies timed stat buffs and reverts them at expiry
+// Applies buff changes and reverts them at expiry.
 public static class BuffsController {
   public static void ApplySkill(ref Frame frame, EntityRef target, SkillAsset skill, int rank) {
     var durationTicks = TickMath.MsToTicksCeil(ref frame, skill.BuffDurationMsAtRank(rank));
@@ -31,51 +31,65 @@ public static class BuffsController {
     if (flat == FP64.Zero && percent == FP64.Zero) // Do not reserve slots for no-op buffs
       return false;
 
-    if (!frame.Has<StatBuffs>(entity))
-      frame.Add(entity, new StatBuffs());
+    if (!frame.Has<Buffs>(entity))
+      frame.Add(entity, new Buffs());
+    if (!frame.Has<BuffChanges>(entity))
+      frame.Add(entity, new BuffChanges());
 
-    ref var buffs = ref frame.Get<StatBuffs>(entity);
+    ref var buffs = ref frame.Get<Buffs>(entity);
+    ref var changes = ref frame.Get<BuffChanges>(entity);
     ref var stats = ref frame.Get<Stats>(entity);
 
-    var slot = buffs.FindSlot(sourceId, stat);
+    var slot = FindStatChange(in buffs, in changes, sourceId, stat);
     if (slot >= 0)
-      Revert(ref stats, ref buffs, slot); // Replace the existing buff
-    else if ((slot = buffs.FindFreeSlot()) < 0)
+      Revert(ref stats, ref buffs, ref changes, slot);
+    else if ((slot = changes.FindFreeSlot()) < 0)
       return false;
+
+    var expiryTick = frame.Tick + durationTicks;
+    var buffIndex = buffs.FindSlot(sourceId, expiryTick);
+    if (buffIndex < 0) {
+      buffIndex = buffs.FindFreeSlot();
+      if (buffIndex < 0)
+        return false;
+      buffs.Set(buffIndex, sourceId, frame.Tick, expiryTick);
+    }
 
     // Refresh from the unbuffed stat value
     var before = stats.Get(stat);
     stats.Add(stat, flat + before * percent);
 
     // Preserve the clamped delta for revert
-    buffs.Set(slot, sourceId, stat, stats.Get(stat) - before, frame.Tick + durationTicks);
+    changes.Set(slot, buffIndex, BuffChange.Stat(stat, stats.Get(stat) - before));
     return true;
   }
 
   // TimedEffectSystem calls this once per tick
   public static void ExpireDue(ref Frame frame, EntityRef entity) {
-    ref var buffs = ref frame.Get<StatBuffs>(entity);
+    ref var buffs = ref frame.Get<Buffs>(entity);
+    ref var changes = ref frame.Get<BuffChanges>(entity);
     ref var stats = ref frame.Get<Stats>(entity);
 
-    for (var i = 0; i < StatBuffs.MaxEntries; i++)
-      if (buffs.IsExpired(i, frame.Tick))
-        Revert(ref stats, ref buffs, i);
+    for (var i = 0; i < BuffChanges.MaxEntries; i++)
+      if (changes.IsActive(i) && buffs.IsExpired(changes.GetBuffIndex(i), frame.Tick))
+        Revert(ref stats, ref buffs, ref changes, i);
   }
 
   // Removes adverse stat buffs and returns their count
   public static int ClearHarmful(ref Frame frame, EntityRef entity) {
-    if (!frame.Has<StatBuffs>(entity) || !frame.Has<Stats>(entity))
+    if (!frame.Has<Buffs>(entity) || !frame.Has<BuffChanges>(entity) || !frame.Has<Stats>(entity))
       return 0;
 
-    ref var buffs = ref frame.Get<StatBuffs>(entity);
+    ref var buffs = ref frame.Get<Buffs>(entity);
+    ref var changes = ref frame.Get<BuffChanges>(entity);
     ref var stats = ref frame.Get<Stats>(entity);
 
     var cleared = 0;
-    for (var i = 0; i < StatBuffs.MaxEntries; i++) {
-      if (buffs.GetPolarity(i) != EffectPolarity.Debuff)
+    for (var i = 0; i < BuffChanges.MaxEntries; i++) {
+      if (!changes.IsActive(i) || changes.GetChange(i).Polarity != EffectPolarity.Debuff)
         continue;
 
-      Revert(ref stats, ref buffs, i);
+      Revert(ref stats, ref buffs, ref changes, i);
       cleared++;
     }
 
@@ -91,19 +105,37 @@ public static class BuffsController {
 
   // Reverts all buffs; used on death
   public static void ClearAll(ref Frame frame, EntityRef entity) {
-    if (!frame.Has<StatBuffs>(entity) || !frame.Has<Stats>(entity))
+    if (!frame.Has<Buffs>(entity) || !frame.Has<BuffChanges>(entity) || !frame.Has<Stats>(entity))
       return;
 
-    ref var buffs = ref frame.Get<StatBuffs>(entity);
+    ref var buffs = ref frame.Get<Buffs>(entity);
+    ref var changes = ref frame.Get<BuffChanges>(entity);
     ref var stats = ref frame.Get<Stats>(entity);
 
-    for (var i = 0; i < StatBuffs.MaxEntries; i++)
-      if (buffs.IsActive(i))
-        Revert(ref stats, ref buffs, i);
+    for (var i = 0; i < BuffChanges.MaxEntries; i++)
+      if (changes.IsActive(i))
+        Revert(ref stats, ref buffs, ref changes, i);
   }
 
-  private static void Revert(ref Stats stats, ref StatBuffs buffs, int slot) {
-    stats.Add(buffs.GetStat(slot), -buffs.GetApplied(slot));
-    buffs.Clear(slot);
+  private static int FindStatChange(in Buffs buffs, in BuffChanges changes, int sourceId, StatType stat) {
+    for (var i = 0; i < Buffs.MaxEntries; i++) {
+      if (buffs.GetSourceSkillAssetId(i) != sourceId)
+        continue;
+      var slot = changes.FindSlot(i, BuffChangeKind.Stat, (int)stat);
+      if (slot >= 0)
+        return slot;
+    }
+    return -1;
+  }
+
+  private static void Revert(ref Stats stats, ref Buffs buffs, ref BuffChanges changes, int slot) {
+    var change = changes.GetChange(slot);
+    if (change.Kind == BuffChangeKind.Stat)
+      stats.Add((StatType)change.Parameter, -change.Applied);
+
+    var buffIndex = changes.GetBuffIndex(slot);
+    changes.Clear(slot);
+    if (!changes.HasChanges(buffIndex))
+      buffs.Clear(buffIndex);
   }
 }

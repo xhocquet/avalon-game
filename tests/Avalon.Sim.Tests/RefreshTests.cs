@@ -14,7 +14,7 @@ namespace Meesles.Avalon.Sim.Tests;
 // what makes the aim point the client sent irrelevant on both ends.
 //
 // It is also the first cleanse: the row's ClearsDebuffs flag routes through BuffsController.ClearNegative,
-// which strips every negative status the caster carries - an adverse StatBuffs entry, a snare, a
+// which strips every negative status the caster carries - an adverse buff change, a snare, a
 // silence, a burn - and leaves the beneficial ones running.
 public class RefreshTests {
   private const int CasterPlayerId = 1;
@@ -222,15 +222,7 @@ public class RefreshTests {
   private static int ActiveBuffCount(SimHarness harness) {
     var frame = harness.Frame;
     var hero = harness.FindHero(CasterPlayerId);
-    if (!frame.Has<StatBuffs>(hero))
-      return 0;
-
-    ref readonly var buffs = ref frame.GetReadOnly<StatBuffs>(hero);
-    var count = 0;
-    for (var i = 0; i < StatBuffs.MaxEntries; i++)
-      if (buffs.IsActive(i))
-        count++;
-    return count;
+    return BuffTestQueries.StatChanges(frame, hero).Count;
   }
 
   private static int Cooldown(SimHarness harness) {
