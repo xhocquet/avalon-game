@@ -15,7 +15,7 @@ public sealed class PickleKnightSkills()
     DashController.Start(ref f, ctx.Caster, ctx.CasterPosition, direction,
       skill.DashDistance, skill.DashSpeed, skill.AssetId, ctx.Rank, healAmount);
 
-    BuffsController.ApplySkill(ref f, ctx.Caster, ctx.Skill, ctx.Rank);
+    BuffsController.ApplySkill(ref f, ctx.Caster, ctx.Skill, ctx.Rank, UnitLookup.GetUnitId(ref f, ctx.Caster));
   }
 
   // (pickle-knight.json)[../../client/Sim/Data/Assets/heroes/pickle-knight.json:69]

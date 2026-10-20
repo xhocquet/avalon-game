@@ -119,6 +119,9 @@ public class SnailTrailTests {
     var entry = Entries(harness, enemy).Should().ContainSingle().Subject;
     entry.SourceId.Should().Be(AssetIds.SkillSnailheadSecondary);
     entry.Stat.Should().Be(StatType.MoveSpeed);
+    ref readonly var buffs = ref harness.Frame.GetReadOnly<Buffs>(enemy);
+    buffs.GetSourceUnitId(buffs.FindSlot(entry.SourceId)).Should()
+      .Be(UnitId(harness, harness.FindHero(CasterPlayerId)));
 
     // Walk it clear and let the last refresh lapse: the slow wears off a buff-window later.
     var leftAt = entry.ExpiryTick - Ticks(harness, skill.BuffDurationMs);

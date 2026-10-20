@@ -47,7 +47,7 @@ public static class ComponentIds {
   public const int AttackBurst = 138;
   public const int Snare = 139;
   public const int SkillCharge = 140;
-  public const int DamageOverTime = 141;
+  // 141 retired: single-slot DamageOverTime
   public const int TrailEmitter = 142;
   public const int TrailSegment = 143;
   public const int TrailSegmentIdCounter = 144;
@@ -58,8 +58,12 @@ public static class ComponentIds {
 
   public const int UnitVisibility = 149;
 
-  public const int Buffs = 150;
+  // 150 retired: Buffs without caster attribution
   public const int BuffChanges = 151;
 
-  // Next free id: 152
+  public const int DamageOverTime = 152;
+
+  public const int Buffs = 153;
+
+  // Next free id: 154
 }

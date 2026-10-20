@@ -133,6 +133,20 @@ public partial class SkillAsset : IDataAsset {
   [KlothoOrder(62)] public FP64 DashSpeed; // Units/second
   [KlothoOrder(63)] public FP64 DashWidth; // Width in units
 
+  [KlothoOrder(64)] public int BuffIdentityMode = (int)BuffIdentity.Skill;
+  [KlothoOrder(65)] public int BuffReapply = (int)BuffReapplication.Refresh;
+  [KlothoOrder(66)] public int BuffDurationMode = (int)BuffDurationPolicy.Restart;
+  [KlothoOrder(67)] public int BuffMaxStacks = 1;
+  [KlothoOrder(68)] public int BuffOverflow = (int)BuffStackOverflow.Reject;
+
+  public BuffApplicationPolicy BuffPolicy => new() {
+    Identity = (BuffIdentity)BuffIdentityMode,
+    Reapplication = (BuffReapplication)BuffReapply,
+    Duration = (BuffDurationPolicy)BuffDurationMode,
+    MaxStacks = BuffMaxStacks,
+    Overflow = (BuffStackOverflow)BuffOverflow
+  };
+
 
   public bool HasCastRange => MinCastRange > FP64.Zero || MaxCastRange > FP64.Zero;
   public bool HasCone => ConeRange > FP64.Zero && ConeAngleDegrees > FP64.Zero;

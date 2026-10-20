@@ -10,11 +10,15 @@ public unsafe partial struct Buffs : IComponent {
   public const int MaxEntries = 6;
 
   public fixed int SourceSkillAssetIds[MaxEntries]; // Originating SkillAsset; 0 marks a free slot
+  public fixed int SourceUnitIds[MaxEntries]; // Caster; 0 means unattributed
+  public fixed int Ranks[MaxEntries];
   public fixed int StartedTicks[MaxEntries];
   public fixed int ExpiryTicks[MaxEntries];
 
   public readonly bool IsActive(int index) => SourceSkillAssetIds[index] != 0;
   public readonly int GetSourceSkillAssetId(int index) => SourceSkillAssetIds[index];
+  public readonly int GetSourceUnitId(int index) => SourceUnitIds[index];
+  public readonly int GetRank(int index) => Ranks[index];
   public readonly int GetStartedTick(int index) => StartedTicks[index];
   public readonly int GetExpiryTick(int index) => ExpiryTicks[index];
   public readonly bool IsExpired(int index, int tick) => IsActive(index) && tick >= ExpiryTicks[index];
@@ -44,14 +48,19 @@ public unsafe partial struct Buffs : IComponent {
     return -1;
   }
 
-  public void Set(int index, int sourceSkillAssetId, int startedTick, int expiryTick) {
+  public void Set(int index, int sourceSkillAssetId, int startedTick, int expiryTick,
+    int sourceUnitId = 0, int rank = 0) {
     SourceSkillAssetIds[index] = sourceSkillAssetId;
+    SourceUnitIds[index] = sourceUnitId;
+    Ranks[index] = rank;
     StartedTicks[index] = startedTick;
     ExpiryTicks[index] = expiryTick;
   }
 
   public void Clear(int index) {
     SourceSkillAssetIds[index] = 0;
+    SourceUnitIds[index] = 0;
+    Ranks[index] = 0;
     StartedTicks[index] = 0;
     ExpiryTicks[index] = 0;
   }

@@ -8,15 +8,21 @@ namespace Meesles.Avalon.Sim;
 
 // Applies buff changes and reverts them at expiry.
 public static class BuffsController {
-  public static bool ApplySkill(ref Frame frame, EntityRef target, SkillAsset skill, int rank) {
+  public static bool ApplySkill(ref Frame frame, EntityRef target, SkillAsset skill, int rank,
+    int sourceUnitId = 0) {
     var durationTicks = TickMath.MsToTicksCeil(ref frame, skill.BuffDurationMsAtRank(rank));
-    return Apply(ref frame, target, skill.AssetId, skill.BuffSpecs, rank, durationTicks);
+    return Apply(ref frame, target, skill.AssetId, skill.BuffSpecs, rank, durationTicks,
+      sourceUnitId, skill.BuffPolicy);
   }
 
-  // Applies one complete buff, replacing the same skill's existing buff.
+  // Stages one complete buff application before committing any frame state.
   public static bool Apply(ref Frame frame, EntityRef entity, int sourceSkillAssetId,
-    ReadOnlySpan<BuffSpec> specs, int rank, int durationTicks) {
-    if (sourceSkillAssetId == 0 || rank <= 0 || durationTicks <= 0 || !frame.Has<Stats>(entity))
+    ReadOnlySpan<BuffSpec> specs, int rank, int durationTicks, int sourceUnitId = 0,
+    BuffApplicationPolicy? applicationPolicy = null) {
+    var policy = applicationPolicy ?? BuffApplicationPolicy.Default;
+    if (sourceSkillAssetId == 0 || rank <= 0 || durationTicks <= 0 ||
+        durationTicks > int.MaxValue - frame.Tick || !frame.Has<Stats>(entity) || !policy.IsValid ||
+        sourceUnitId < 0 || (policy.Identity == BuffIdentity.SkillPerCaster && sourceUnitId == 0))
       return false;
 
     var required = 0;
@@ -32,11 +38,63 @@ public static class BuffsController {
     var buffs = frame.Has<Buffs>(entity) ? frame.GetReadOnly<Buffs>(entity) : default;
     var changes = frame.Has<BuffChanges>(entity) ? frame.GetReadOnly<BuffChanges>(entity) : default;
     var stats = frame.GetReadOnly<Stats>(entity);
-    var buffIndex = buffs.FindSlot(sourceSkillAssetId);
+    for (var i = 0; i < Buffs.MaxEntries; i++)
+      if (buffs.IsExpired(i, frame.Tick))
+        RevertBuff(ref stats, ref buffs, ref changes, i);
+
+    var count = 0;
+    var oldest = -1;
+    var weakest = -1;
+    for (var i = 0; i < Buffs.MaxEntries; i++) {
+      if (!buffs.IsActive(i) || buffs.GetSourceSkillAssetId(i) != sourceSkillAssetId ||
+          (policy.Identity == BuffIdentity.SkillPerCaster && buffs.GetSourceUnitId(i) != sourceUnitId))
+        continue;
+      count++;
+      if (oldest < 0 || buffs.GetStartedTick(i) < buffs.GetStartedTick(oldest))
+        oldest = i;
+      if (weakest < 0 || buffs.GetRank(i) < buffs.GetRank(weakest) ||
+          (buffs.GetRank(i) == buffs.GetRank(weakest) && buffs.GetStartedTick(i) < buffs.GetStartedTick(weakest)))
+        weakest = i;
+    }
+
+    var buffIndex = -1;
+    var replace = false;
+    if (count > 0) {
+      if (policy.Reapplication == BuffReapplication.Ignore)
+        return false;
+      if (policy.Reapplication == BuffReapplication.Refresh)
+        buffIndex = oldest;
+      else if (count >= policy.MaxStacks) {
+        switch (policy.Overflow) {
+          case BuffStackOverflow.Reject:
+            return false;
+          case BuffStackOverflow.RefreshOldest:
+            buffIndex = oldest;
+            break;
+          case BuffStackOverflow.ReplaceWeakest:
+            buffIndex = weakest;
+            replace = true;
+            break;
+        }
+      }
+    }
+
+    var startedTick = frame.Tick;
+    var expiryTick = frame.Tick + durationTicks;
     if (buffIndex >= 0) {
-      for (var i = 0; i < BuffChanges.MaxEntries; i++)
-        if (changes.IsActive(i) && changes.GetBuffIndex(i) == buffIndex)
-          Revert(ref stats, ref buffs, ref changes, i);
+      if (!replace) {
+        if (policy.Duration == BuffDurationPolicy.KeepLaterExpiry && buffs.GetExpiryTick(buffIndex) >= expiryTick) {
+          startedTick = buffs.GetStartedTick(buffIndex);
+          expiryTick = buffs.GetExpiryTick(buffIndex);
+        }
+        else if (policy.Duration == BuffDurationPolicy.Extend) {
+          if (buffs.GetExpiryTick(buffIndex) > int.MaxValue - durationTicks)
+            return false;
+          startedTick = buffs.GetStartedTick(buffIndex);
+          expiryTick = buffs.GetExpiryTick(buffIndex) + durationTicks;
+        }
+      }
+      RevertBuff(ref stats, ref buffs, ref changes, buffIndex);
     }
     else {
       buffIndex = buffs.FindFreeSlot();
@@ -44,7 +102,7 @@ public static class BuffsController {
         return false;
     }
 
-    buffs.Set(buffIndex, sourceSkillAssetId, frame.Tick, frame.Tick + durationTicks);
+    buffs.Set(buffIndex, sourceSkillAssetId, startedTick, expiryTick, sourceUnitId, rank);
     foreach (var spec in specs) {
       var magnitude = spec.MagnitudeAtRank(rank);
       if (magnitude == FP64.Zero)
@@ -121,6 +179,12 @@ public static class BuffsController {
 
     for (var i = 0; i < BuffChanges.MaxEntries; i++)
       if (changes.IsActive(i))
+        Revert(ref stats, ref buffs, ref changes, i);
+  }
+
+  private static void RevertBuff(ref Stats stats, ref Buffs buffs, ref BuffChanges changes, int buffIndex) {
+    for (var i = 0; i < BuffChanges.MaxEntries; i++)
+      if (changes.IsActive(i) && changes.GetBuffIndex(i) == buffIndex)
         Revert(ref stats, ref buffs, ref changes, i);
   }
 

@@ -55,12 +55,13 @@ public sealed class StrangleEffects {
       effect.TargetView = null;
     }
 
-    var burns = frame.Filter<DamageOverTime, TransformComponent>();
-    while (burns.Next(out var entity)) {
-      ref readonly var burn = ref frame.GetReadOnly<DamageOverTime>(entity);
-      if (burn.SourceId != AssetIds.SkillHairyWizardSecondary || burn.ExpiryTick <= frame.Tick ||
+    var burns = frame.Filter<DamageOverTime>();
+    while (burns.Next(out var effectEntity)) {
+      ref readonly var burn = ref frame.GetReadOnly<DamageOverTime>(effectEntity);
+      if (burn.SourceSkillAssetId != AssetIds.SkillHairyWizardSecondary || burn.ExpiryTick <= frame.Tick ||
           !TryGetSource(ref frame, burn.SourceUnitId, out var source) ||
-          !frame.AssetRegistry.TryGet<SkillAsset>(burn.SourceId, out var skill)) continue;
+          !TryGetSource(ref frame, burn.TargetUnitId, out var entity) ||
+          !frame.AssetRegistry.TryGet<SkillAsset>(burn.SourceSkillAssetId, out var skill)) continue;
 
       var unitId = UnitLookup.GetUnitId(ref frame, entity);
       if (unitId == 0) continue;

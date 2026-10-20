@@ -28,7 +28,8 @@ public sealed class AllHairWizardSkills()
 
   // (hairy-wizard.json)[../../client/Sim/Data/Assets/heroes/hairy-wizard.json:89]
   private static void CastCloseShave(ref Frame frame, in SkillCastContext ctx) {
-    BuffsController.ApplySkill(ref frame, ctx.Caster, ctx.Skill, ctx.Rank);
+    BuffsController.ApplySkill(ref frame, ctx.Caster, ctx.Skill, ctx.Rank,
+      UnitLookup.GetUnitId(ref frame, ctx.Caster));
   }
 
   // (hairy-wizard.json)[../../client/Sim/Data/Assets/heroes/hairy-wizard.json:102]

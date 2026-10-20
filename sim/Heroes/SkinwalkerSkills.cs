@@ -7,7 +7,7 @@ public sealed class SkinwalkerSkills()
   : HeroSkillSetBase(CastSprint, CastDailyPractice, CastEatToSurvive, CastDesperation) {
   // (skinwalker.json)[../../client/Sim/Data/Assets/heroes/skinwalker.json:53]
   private static void CastSprint(ref Frame f, in SkillCastContext ctx) {
-    BuffsController.ApplySkill(ref f, ctx.Caster, ctx.Skill, ctx.Rank);
+    BuffsController.ApplySkill(ref f, ctx.Caster, ctx.Skill, ctx.Rank, UnitLookup.GetUnitId(ref f, ctx.Caster));
   }
 
   // (skinwalker.json)[../../client/Sim/Data/Assets/heroes/skinwalker.json:67]
@@ -17,7 +17,7 @@ public sealed class SkinwalkerSkills()
     DashController.Start(ref f, ctx.Caster, ctx.CasterPosition, direction,
       skill.DashDistance, skill.DashSpeed, skill.AssetId, ctx.Rank, healAmount: default,
       skill.DashCountAtRank(ctx.Rank), skill.DamageAtRank(ctx.Rank), skill.DashWidth);
-    BuffsController.ApplySkill(ref f, ctx.Caster, skill, ctx.Rank);
+    BuffsController.ApplySkill(ref f, ctx.Caster, skill, ctx.Rank, UnitLookup.GetUnitId(ref f, ctx.Caster));
   }
 
   // (skinwalker.json)[../../client/Sim/Data/Assets/heroes/skinwalker.json:82]
@@ -31,6 +31,6 @@ public sealed class SkinwalkerSkills()
 
   // (skinwalker.json)[../../client/Sim/Data/Assets/heroes/skinwalker.json:92]
   private static void CastDesperation(ref Frame f, in SkillCastContext ctx) {
-    BuffsController.ApplySkill(ref f, ctx.Caster, ctx.Skill, ctx.Rank);
+    BuffsController.ApplySkill(ref f, ctx.Caster, ctx.Skill, ctx.Rank, UnitLookup.GetUnitId(ref f, ctx.Caster));
   }
 }

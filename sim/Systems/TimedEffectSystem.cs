@@ -11,6 +11,7 @@ public class TimedEffectSystem : ISystem {
   private readonly List<EntityRef> _completingChannels = [];
   private readonly List<EntityRef> _cancellingChannels = [];
   private readonly List<EntityRef> _burning = [];
+  private readonly UnitLookup.Index _dotUnits = new();
 
   public void Update(ref Frame frame) {
     var attackers = frame.Filter<Combat>();
@@ -62,11 +63,12 @@ public class TimedEffectSystem : ISystem {
     _burning.Clear();
     var burning = frame.Filter<DamageOverTime>();
     while (burning.Next(out var entity))
-      if (frame.GetReadOnly<DamageOverTime>(entity).IsBurning)
-        _burning.Add(entity);
+      _burning.Add(entity);
 
+    if (_burning.Count > 0)
+      _dotUnits.Rebuild(ref frame);
     for (var i = 0; i < _burning.Count; i++)
-      DamageOverTimeController.Tick(ref frame, _burning[i]);
+      DamageOverTimeController.Tick(ref frame, _burning[i], _dotUnits);
 
     // Charge effects can mutate entities while applying damage, so defer them.
     _detonating.Clear();

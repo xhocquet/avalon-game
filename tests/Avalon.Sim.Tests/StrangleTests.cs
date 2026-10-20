@@ -60,6 +60,9 @@ public class StrangleTests {
     var entry = Entries(harness, enemy).Should().ContainSingle().Subject;
     entry.SourceId.Should().Be(AssetIds.SkillHairyWizardSecondary);
     entry.Stat.Should().Be(StatType.MoveSpeed);
+    ref readonly var buffs = ref harness.Frame.GetReadOnly<Buffs>(enemy);
+    buffs.GetSourceUnitId(buffs.FindSlot(entry.SourceId)).Should()
+      .Be(harness.Frame.GetReadOnly<UnitIdentity>(harness.FindHero(CasterPlayerId)).UnitId);
   }
 
   [Theory]
@@ -151,8 +154,7 @@ public class StrangleTests {
     AdvancePast(harness, hitTick + System.Math.Max(burnTicks, slowTicks));
 
     IsBurning(harness, enemy).Should().BeFalse();
-    harness.Frame.Has<DamageOverTime>(enemy)
-      .Should().BeTrue("the burn slot is cleared in place, not removed");
+    harness.Count<DamageOverTime>().Should().Be(0, "expired DOT effect entities are removed");
     // The slow reverts exactly: the dummy is back to the speed it had before the bolt.
     StatOf(harness, enemy, StatType.MoveSpeed).Should().Be(FP64.FromInt(DummySpeed));
     Entries(harness, enemy).Should().BeEmpty();

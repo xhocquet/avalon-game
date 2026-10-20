@@ -4,27 +4,21 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Components;
 
-// A magic-damage burn ticking on its target: attached by an effect that leaves it behind (a projectile
-// hit today), paid out over the window rather than on contact. Like a snare or a stat buff the window
-// is an absolute expiry tick, so TimedEffectSystem is one comparison per burning unit and a rollback
-// replay ends it on the tick it first did.
-//
-// One slot: a second application refreshes, keeping the rate and expiry being applied now. Damage
-// accrues every sim tick into Pending at AccrualPerTick but only reaches DamageController on an
-// interval boundary (NextPayoutTick) and once more at expiry - the target takes a handful of solid
-// hits over the window instead of a floored point every frame.
+// One effect entity per target + skill. Accrual and payout clocks belong to this instance.
 [KlothoComponent(ComponentIds.DamageOverTime)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public partial struct DamageOverTime : IComponent {
-  public int SourceId; // SkillAsset id burning the unit; 0 means it is not burning
-  public int SourceUnitId; // who the kill credits
+  public int SourceSkillAssetId; // 0 marks a cleared effect
+  public int SourceUnitId; // Latest caster; receives kill credit
+  public int TargetUnitId;
+  public int StartedTick;
   public int ExpiryTick;
   public int IntervalTicks; // ticks between payouts
   public int NextPayoutTick; // absolute tick the next payout is due
-  public FP64 AccrualPerTick; // per-second rate scaled to the tick length, fixed at attach time
+  public FP64 AccrualPerTick; // Refreshed rate affects future accrual only
   public FP64 Pending; // damage accrued since the last payout
 
-  public readonly bool IsBurning => SourceId != 0;
+  public readonly bool IsBurning => SourceSkillAssetId != 0;
   public readonly EffectPolarity Polarity => IsBurning ? EffectPolarity.Debuff : EffectPolarity.Neutral;
 
   public readonly bool IsExpired(int tick) {
@@ -32,8 +26,10 @@ public partial struct DamageOverTime : IComponent {
   }
 
   public void Clear() {
-    SourceId = 0;
+    SourceSkillAssetId = 0;
     SourceUnitId = 0;
+    TargetUnitId = 0;
+    StartedTick = 0;
     ExpiryTick = 0;
     IntervalTicks = 0;
     NextPayoutTick = 0;

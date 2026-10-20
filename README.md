@@ -18,25 +18,6 @@ These belong on the effect definition, with defaults. A skill can eventually app
 
 Your default for ordinary buffs is straightforward: same skill refreshes one buff unless explicitly authored otherwise. We should also record caster unit ID separately from the origin skill ID, so effects that opt into per-caster behavior can use it.
 
-1. DOT refresh currently discards damage
-In `DamageOverTimeController.Apply`, reapplication resets both:
-
-Pending accrued damage to zero.
-The next payout to one full interval after application.
-Repeated applications can postpone payouts and erase damage already accrued. A normal refresh should preserve accrued damage and the payout schedule while updating duration—and magnitude according to an explicit rule.
-
-For capped, independently stacking DOTs, each instance needs its own attribution, expiry, rate, and accrual state. We should define whether the cap is per effect, per caster, or across all DOTs rather than assuming one global cap.
-
-1. Poison needs its own effect identity
-Your on/off poison example fits a non-stacking status:
-
-One active Poison effect.
-Reapplication follows its refresh rule.
-Damage is applied periodically without increasing a stack count.
-Two different skills could apply that same Poison status while retaining their origin skill attribution. That requires an effect ID distinct from the source skill ID.
-
-One terminology point to settle when implementing damage: “raw damage” could mean the authored damage amount before normal mitigation, or damage that bypasses mitigation. Current DOT damage is magical and goes through normal mitigation.
-
 1. Define how overlapping stat percentages combine
 Different skills currently calculate percentage changes against the current modified stat. That makes their amounts depend on application/refresh order.
 
@@ -47,9 +28,6 @@ Apply +20% → 120.
 Apply +50% → 180.
 Refresh the first buff: remove its stored 20, then grant 20% of 160 → 192.
 The first skill didn’t stack another copy, but refreshing it increased the combined bonus. We should choose a consistent modifier calculation—such as percentages against base stats—before supporting more stacking.
-
-Recommended next task
-Make stat-buff application atomic and add an explicit default refresh policy.
 
 That step should cover:
 
