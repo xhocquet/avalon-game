@@ -1,5 +1,3 @@
-- Fog of war
-
 - Buff/debuff status icons
 
 - **Assist gold.** `GoldRulesAsset.GoldPerAssist` (50) is authored but nothing reads it. Assists need a
