@@ -30,7 +30,7 @@ public sealed class SnailheadSkills()
     CombatRange.CollectAlliesInRadius(ref f, ctx.Caster, ctx.CasterPosition, ctx.Skill.AreaRadius, hits);
 
     foreach (var ally in hits)
-      BuffsController.ApplySkill(ref f, ally, ctx.Skill, ctx.Rank, UnitLookup.GetUnitId(ref f, ctx.Caster));
+      BuffsController.ApplySkill(ref f, ally, in ctx);
   }
 
   // (snailhead.json)[../../client/Sim/Data/Assets/heroes/snailhead.json:101]
@@ -60,6 +60,6 @@ public sealed class SnailheadSkills()
     if (skill.ClearsDebuffs)
       BuffsController.ClearNegative(ref f, caster);
 
-    BuffsController.ApplySkill(ref f, caster, ctx.Skill, ctx.Rank, UnitLookup.GetUnitId(ref f, caster));
+    BuffsController.ApplySkill(ref f, in ctx);
   }
 }

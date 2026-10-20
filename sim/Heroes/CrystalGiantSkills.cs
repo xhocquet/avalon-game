@@ -16,8 +16,7 @@ public sealed class CrystalGiantSkills()
 
   // (crystal-giant.json)[../../client/Sim/Data/Assets/heroes/crystal-giant.json:65]
   private static void CastHarden(ref Frame frame, in SkillCastContext ctx) {
-    BuffsController.ApplySkill(ref frame, ctx.Caster, ctx.Skill, ctx.Rank,
-      UnitLookup.GetUnitId(ref frame, ctx.Caster));
+    BuffsController.ApplySkill(ref frame, in ctx);
   }
 
   // (crystal-giant.json)[../../client/Sim/Data/Assets/heroes/crystal-giant.json:82]
@@ -37,8 +36,7 @@ public sealed class CrystalGiantSkills()
     UnitIntentController.ClearMoveTarget(ref frame, ctx.Caster);
     UnitIntentController.ClearAttackIntent(ref frame, ctx.Caster);
 
-    BuffsController.ApplySkill(ref frame, ctx.Caster, ctx.Skill, ctx.Rank,
-      UnitLookup.GetUnitId(ref frame, ctx.Caster));
+    BuffsController.ApplySkill(ref frame, in ctx);
 
     if (skill.ChargeRootsCaster)
       SnareController.Apply(ref frame, ctx.Caster, skill.AssetId, chargeTicks);
