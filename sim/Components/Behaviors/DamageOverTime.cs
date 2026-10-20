@@ -25,6 +25,7 @@ public partial struct DamageOverTime : IComponent {
   public FP64 Pending; // damage accrued since the last payout
 
   public readonly bool IsBurning => SourceId != 0;
+  public readonly EffectPolarity Polarity => IsBurning ? EffectPolarity.Debuff : EffectPolarity.Neutral;
 
   public readonly bool IsExpired(int tick) {
     return IsBurning && tick >= ExpiryTick;

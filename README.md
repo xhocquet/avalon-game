@@ -1,4 +1,24 @@
-- Buff/debuff status icons
+## Buff/debuff status icons
+
+1. No unified reader.
+The HUD would currently need to inspect each component individually. Existing VFX do exactly that—Molt reads StatBuffs, while Strangle reads DamageOverTime.
+
+2. Stat entries aren’t player-facing effect entries.
+A skill granting armor and magic resistance occupies two StatBuffs slots. We probably want one icon with both modifiers in its tooltip, not two icons. A skill can also produce multiple effect types, so grouping everything by skill ID alone needs care when their durations differ.
+
+3. Buff/debuff classification isn’t exposed.
+The sim knows whether a stat modifier is harmful, but that logic is private inside BuffsController. A UI reader should reuse that rule rather than duplicate it.
+
+4. Remaining time is available; original duration generally isn’t.
+Numeric countdowns are straightforward. A radial “percentage remaining” needs the applied duration/start tick, or a reliable way to reconstruct it. Most effect components don’t retain rank or application time.
+
+5. These aren’t general stacking containers.
+Stat buffs refresh by skill ID + stat, not caster. Snares/silences keep the later expiry; DOT/proc applications replace their single slot. The UI can faithfully display current state, but it can’t show separate instances the sim doesn’t retain.
+
+My recommendation
+Add a shared, read-only StatusEffects query before building the widget. It would collect these components into a consistent set of entries containing effect kind, source skill, expiry, polarity, and relevant details. The UI then consumes one list.
+
+That’s a modest consolidation step. We’re ready to start the UI work without a full gameplay-system rewrite, but directly wiring the HUD to these six components would spread the special cases into the UI. The unified reader is the useful first piece.
 
 - **Assist gold.** `GoldRulesAsset.GoldPerAssist` (50) is authored but nothing reads it. Assists need a
 damage-participation window per victim before a payout has anything to key off — `Health.LastDamagerUnitId` only remembers the fatal hit, so the killer is the only actor a death can currently credit.

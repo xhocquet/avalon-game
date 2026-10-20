@@ -72,7 +72,7 @@ public static class BuffsController {
 
     var cleared = 0;
     for (var i = 0; i < StatBuffs.MaxEntries; i++) {
-      if (!buffs.IsActive(i) || !IsAdverse(buffs.GetStat(i), buffs.GetApplied(i)))
+      if (buffs.GetPolarity(i) != EffectPolarity.Debuff)
         continue;
 
       Revert(ref stats, ref buffs, i);
@@ -105,20 +105,5 @@ public static class BuffsController {
   private static void Revert(ref Stats stats, ref StatBuffs buffs, int slot) {
     stats.Add(buffs.GetStat(slot), -buffs.GetApplied(slot));
     buffs.Clear(slot);
-  }
-
-  private static bool IsAdverse(StatType stat, FP64 applied) {
-    if (applied == FP64.Zero)
-      return false;
-
-    return HigherIsBetter(stat) ? applied < FP64.Zero : applied > FP64.Zero;
-  }
-
-  private static bool HigherIsBetter(StatType stat) {
-    return stat switch {
-      StatType.AttackWindup => false, // Seconds between a swing starting and landing
-      StatType.GameplayRadius => false, // A bigger hurtbox is worse
-      _ => true
-    };
   }
 }

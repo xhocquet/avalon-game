@@ -20,6 +20,7 @@ public partial struct AttackProc : IComponent {
   public FP64 DamageMultiplier; // Total multiplier on the hit: 4 is 400% of a normal attack
 
   public readonly bool IsArmed => SourceId != 0;
+  public readonly EffectPolarity Polarity => IsArmed ? EffectPolarity.Buff : EffectPolarity.Neutral;
 
   public readonly bool IsExpired(int tick) {
     return IsArmed && tick >= ExpiryTick;

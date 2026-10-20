@@ -17,6 +17,7 @@ public partial struct Silence : IComponent {
   public int ExpiryTick;
 
   public readonly bool IsSilenced => SourceId != 0;
+  public readonly EffectPolarity Polarity => IsSilenced ? EffectPolarity.Debuff : EffectPolarity.Neutral;
 
   public readonly bool IsExpired(int tick) {
     return IsSilenced && tick >= ExpiryTick;

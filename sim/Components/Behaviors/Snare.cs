@@ -17,6 +17,7 @@ public partial struct Snare : IComponent {
   public int ExpiryTick;
 
   public readonly bool IsSnared => SourceId != 0;
+  public readonly EffectPolarity Polarity => IsSnared ? EffectPolarity.Debuff : EffectPolarity.Neutral;
 
   public readonly bool IsExpired(int tick) {
     return IsSnared && tick >= ExpiryTick;

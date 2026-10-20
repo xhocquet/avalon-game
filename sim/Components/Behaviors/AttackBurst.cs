@@ -19,6 +19,7 @@ public partial struct AttackBurst : IComponent {
   public int ExpiryTick;
 
   public readonly bool IsQueued => SourceId != 0 && Remaining > 0;
+  public readonly EffectPolarity Polarity => IsQueued ? EffectPolarity.Buff : EffectPolarity.Neutral;
 
   public readonly bool IsExpired(int tick) {
     return SourceId != 0 && tick >= ExpiryTick;

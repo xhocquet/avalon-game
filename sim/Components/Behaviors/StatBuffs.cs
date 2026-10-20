@@ -38,6 +38,15 @@ public unsafe partial struct StatBuffs : IComponent {
     return FP64.FromRaw(AppliedRaw[index]);
   }
 
+  public readonly EffectPolarity GetPolarity(int index) {
+    var applied = GetApplied(index);
+    if (!IsActive(index) || applied == FP64.Zero)
+      return EffectPolarity.Neutral;
+
+    var higherIsBetter = GetStat(index) is not (StatType.AttackWindup or StatType.GameplayRadius);
+    return (applied > FP64.Zero) == higherIsBetter ? EffectPolarity.Buff : EffectPolarity.Debuff;
+  }
+
   public readonly int GetExpiryTick(int index) {
     return ExpiryTicks[index];
   }
