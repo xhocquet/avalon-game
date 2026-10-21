@@ -33,6 +33,7 @@ are baked into `client/Sim/Data/`.
 # Stats
 
 - [`Stats`](Components/Behaviors/Stats.cs) is one `FP64` per [`StatType`](Enums.cs) in a `fixed long` buffer of raw 32.32 values rather than named fields — a stat can't be missed in a `switch`, every write goes through the same clamp, and fractional modifiers survive instead of truncating. `readonly` properties keep call sites reading `stats.MoveSpeed`.
+- Runtime permanent changes use [`StatsController.AddBase`/`SetBase`](Controllers/StatsController.cs). Active buffs retain authored flat/percent magnitudes; effective stats are `base + base * sum(percent) + sum(flat)`, clamped once. [`BaseStats`](Components/Behaviors/BaseStats.cs) preserves permanent values while modifiers are active and is removed with the last stat modifier. Direct `Stats.Set`/`Add` is for construction only.
 - `StatType` values stay contiguous from 0, and [`StatRanges.Rows`](Utils/StatRanges.cs) carries one row per entry in the same order. Nothing serializes the enum, so renumbering is safe.
 - `StatRanges` holds `(Min, Max, Initial)` per stat in code rather than asset JSON: these are the bounds that stop a divide by zero or an empty health pool, the same class of thing as `CommandLimits`. Tuning goes in the asset row, inside them.
 - `Stats.Create()` is the only correct starting point — a default-constructed block is all zeroes, out of range for any stat with a non-zero floor. `From(IUnitStatsAsset)` builds on it, and every factory goes through one of the two.

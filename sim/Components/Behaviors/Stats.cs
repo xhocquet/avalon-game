@@ -5,14 +5,9 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Components;
 
-// Every buffable value a unit carries. Changes apply only to this unit; base values come from the
-// unit's asset row and everything on top of them arrives through Add.
-//
-// Stored as one FP64-per-StatType buffer rather than named fields, so a stat that gains an enum
-// value cannot be forgotten in a switch and every write goes through the same clamp. FP64 has no
-// blittable fixed-buffer form, so the raw 32.32 longs are the storage and Get/Set convert; the
-// generated codec walks the buffer for serialization and hashing the same way Skills does.
-// Size: StatCount * 8 = 128B, at the 128-byte component ceiling.
+// Effective stats. Use StatsController for permanent runtime changes.
+// One raw 32.32 fixed-point long per StatType, 128 bytes total.
+// The generated codec serializes and hashes each buffer element.
 [KlothoComponent(ComponentIds.Stats)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public unsafe partial struct Stats : IComponent {
@@ -35,7 +30,7 @@ public unsafe partial struct Stats : IComponent {
   public readonly FP64 GameplayRadius => Get(StatType.GameplayRadius);
   public readonly FP64 AttackWindup => Get(StatType.AttackWindup);
 
-  // Attacks per second, the form DamageSystem needs. Capped because the cooldown is its reciprocal.
+  // Combined attack rate after bonuses, clamped to the supported range.
   public readonly FP64 AttacksPerSecond {
     get {
       var rate = BaseAttackSpeed * (FP64.One + BonusAttackSpeed);
@@ -53,17 +48,14 @@ public unsafe partial struct Stats : IComponent {
 
   public void Add(StatType stat, FP64 delta) => Set(stat, Get(stat) + delta);
 
-  // Chainable Set on a copy, so a caller building a block by hand reads like the object initializer
-  // the buffer took away: Stats.Create().With(StatType.MoveSpeed, speed).
+  // Copy-based initializer: Stats.Create().With(StatType.MoveSpeed, speed).
   public readonly Stats With(StatType stat, FP64 value) {
     var copy = this;
     copy.Set(stat, value);
     return copy;
   }
 
-  // A default-constructed component is all zeroes, which is out of range for anything with a
-  // non-zero floor - a BaseAttackSpeed of 0 would divide by zero in the cooldown. Every construction
-  // path starts here rather than from `default`.
+  // Use instead of default(Stats), which violates stats' nonzero minimums.
   public static Stats Create() {
     var stats = new Stats();
     for (var i = 0; i < StatRanges.Count; i++)
@@ -72,8 +64,6 @@ public unsafe partial struct Stats : IComponent {
     return stats;
   }
 
-  // Seeds the level-1 values off an asset row. Growth beyond level 1 is applied by ExperienceSystem
-  // through Add, so this is only ever the spawn seed.
   public static Stats From(IUnitStatsAsset asset) {
     var stats = Create();
     stats.Set(StatType.MaxHealth, asset.BaseHealth);

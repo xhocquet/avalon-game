@@ -54,7 +54,7 @@ public static class ManaController {
     if (amount == FP64.Zero || !frame.Has<Stats>(target))
       return;
 
-    frame.Get<Stats>(target).Add(StatType.MaxMana, amount);
+    StatsController.AddBase(ref frame, target, StatType.MaxMana, amount);
 
     if (!frame.Has<Health>(target))
       return;

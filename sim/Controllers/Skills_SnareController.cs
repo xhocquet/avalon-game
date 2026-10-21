@@ -18,6 +18,7 @@ public static class SnareController {
       return false;
 
     snare.SourceId = sourceId;
+    snare.StartedTick = frame.Tick;
     snare.ExpiryTick = expiryTick;
     return true;
   }

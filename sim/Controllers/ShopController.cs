@@ -16,8 +16,8 @@ public static class ShopController {
     ref var inventory = ref frame.Get<Inventory>(heroEntity);
     inventory.Gold -= CostFor(ref frame, playerId, item);
     inventory.TryAddItem(itemAssetId);
-    ref var stats = ref frame.Get<Stats>(heroEntity);
-    stats.Add(StatType.AttackDamage, item.AttackBonus);
+    StatsController.AddBase(ref frame, heroEntity, StatType.AttackDamage, item.AttackBonus);
+    ref readonly var stats = ref frame.GetReadOnly<Stats>(heroEntity);
 
     SimLog.Info(ref frame,
       $"[Shop] event=purchased tick={frame.Tick} playerId={playerId} itemAssetId={itemAssetId} cost={item.Cost} attackDamageAdded={item.AttackBonus} goldLeft={inventory.Gold} attackDamage={stats.AttackDamage} itemCount={inventory.ItemCount}");

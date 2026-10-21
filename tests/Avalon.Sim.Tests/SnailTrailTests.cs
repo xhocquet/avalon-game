@@ -386,12 +386,12 @@ public class SnailTrailTests {
     return TickMath.MsToTicksCeil(ref frame, milliseconds);
   }
 
-  private readonly record struct BuffEntry(int SourceId, StatType Stat, FP64 Applied, int ExpiryTick);
+  private readonly record struct BuffEntry(int SourceId, StatType Stat, FP64 Magnitude, int ExpiryTick);
 
   private static List<BuffEntry> Entries(SimHarness harness, EntityRef entity) {
     var entries = new List<BuffEntry>();
     foreach (var entry in BuffTestQueries.StatChanges(harness.Frame, entity))
-      entries.Add(new BuffEntry(entry.SourceId, entry.Stat, entry.Applied, entry.ExpiryTick));
+      entries.Add(new BuffEntry(entry.SourceId, entry.Stat, entry.Magnitude, entry.ExpiryTick));
 
     return entries;
   }

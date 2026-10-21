@@ -139,12 +139,26 @@ public partial class SkillAsset : IDataAsset {
   [KlothoOrder(67)] public int BuffMaxStacks = 1;
   [KlothoOrder(68)] public int BuffOverflow = (int)BuffStackOverflow.Reject;
 
+  [KlothoOrder(69)] public int DotIdentityMode = (int)BuffIdentity.Skill;
+  [KlothoOrder(70)] public int DotReapply = (int)BuffReapplication.Refresh;
+  [KlothoOrder(71)] public int DotDurationMode = (int)BuffDurationPolicy.Restart;
+  [KlothoOrder(72)] public int DotMaxStacks = 1;
+  [KlothoOrder(73)] public int DotOverflow = (int)BuffStackOverflow.Reject;
+
   public BuffApplicationPolicy BuffPolicy => new() {
     Identity = (BuffIdentity)BuffIdentityMode,
     Reapplication = (BuffReapplication)BuffReapply,
     Duration = (BuffDurationPolicy)BuffDurationMode,
     MaxStacks = BuffMaxStacks,
     Overflow = (BuffStackOverflow)BuffOverflow
+  };
+
+  public BuffApplicationPolicy DotPolicy => new() {
+    Identity = (BuffIdentity)DotIdentityMode,
+    Reapplication = (BuffReapplication)DotReapply,
+    Duration = (BuffDurationPolicy)DotDurationMode,
+    MaxStacks = DotMaxStacks,
+    Overflow = (BuffStackOverflow)DotOverflow
   };
 
 

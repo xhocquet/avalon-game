@@ -219,35 +219,35 @@ layout_mode = 2
 size_flags_vertical = 8
 theme_override_constants/separation = 0
 
-[node name="MarginContainer" type="MarginContainer" parent="DefaultUI/BottomBar/Panels/Vbox" unique_id=1272668631]
+[node name="BuffMarginContainer" type="MarginContainer" parent="DefaultUI/BottomBar/Panels/Vbox" unique_id=1272668631]
 layout_mode = 2
 theme_override_constants/margin_bottom = 4
 
-[node name="HBoxContainer" type="HBoxContainer" parent="DefaultUI/BottomBar/Panels/Vbox/MarginContainer" unique_id=337556673]
+[node name="BuffContainer" type="HBoxContainer" parent="DefaultUI/BottomBar/Panels/Vbox/BuffMarginContainer" unique_id=337556673]
 layout_mode = 2
 
-[node name="ColorRect" type="TextureRect" parent="DefaultUI/BottomBar/Panels/Vbox/MarginContainer/HBoxContainer" unique_id=1344061431]
+[node name="ColorRect" type="TextureRect" parent="DefaultUI/BottomBar/Panels/Vbox/BuffMarginContainer/BuffContainer" unique_id=1344061431]
 custom_minimum_size = Vector2(34, 34)
 layout_mode = 2
 texture = ExtResource("5_skill")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="ColorRect2" type="TextureRect" parent="DefaultUI/BottomBar/Panels/Vbox/MarginContainer/HBoxContainer" unique_id=968597310]
+[node name="ColorRect2" type="TextureRect" parent="DefaultUI/BottomBar/Panels/Vbox/BuffMarginContainer/BuffContainer" unique_id=968597310]
 custom_minimum_size = Vector2(34, 34)
 layout_mode = 2
 texture = ExtResource("5_skill")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="ColorRect3" type="TextureRect" parent="DefaultUI/BottomBar/Panels/Vbox/MarginContainer/HBoxContainer" unique_id=1519490981]
+[node name="ColorRect3" type="TextureRect" parent="DefaultUI/BottomBar/Panels/Vbox/BuffMarginContainer/BuffContainer" unique_id=1519490981]
 custom_minimum_size = Vector2(34, 34)
 layout_mode = 2
 texture = ExtResource("5_skill")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="ColorRect4" type="TextureRect" parent="DefaultUI/BottomBar/Panels/Vbox/MarginContainer/HBoxContainer" unique_id=525650775]
+[node name="ColorRect4" type="TextureRect" parent="DefaultUI/BottomBar/Panels/Vbox/BuffMarginContainer/BuffContainer" unique_id=525650775]
 custom_minimum_size = Vector2(34, 34)
 layout_mode = 2
 texture = ExtResource("5_skill")

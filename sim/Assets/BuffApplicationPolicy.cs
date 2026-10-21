@@ -20,7 +20,7 @@ public enum BuffDurationPolicy {
 public enum BuffStackOverflow {
   Reject = 0,
   RefreshOldest = 1,
-  ReplaceWeakest = 2 // Lowest applied rank, then oldest
+  ReplaceWeakest = 2 // Weakness is defined by the effect type
 }
 
 public struct BuffApplicationPolicy {

@@ -14,6 +14,25 @@ public class PurchaseItemCommandTests {
   private const int PlayerId = 1;
 
   [Fact]
+  public void Purchase_UpdatesTheBaseUnderAnActivePercentageBuff() {
+    var harness = SimHarness.CreateInitialized();
+    var frame = harness.Frame;
+    var hero = FindHero(ref frame, PlayerId);
+    PlaceHeroAtTeamShop(ref frame, hero);
+    SetGold(ref frame, hero, 10);
+    var baseline = frame.GetReadOnly<Stats>(hero).AttackDamage;
+    BuffsController.Apply(ref frame, hero, AssetIds.SkillSkinwalkerUltimate,
+      [new(StatType.AttackDamage, BuffMode.Percent, FP64.Half, FP64.Zero)], 1, 100).Should().BeTrue();
+
+    harness.Tick(Purchase(EyeKeyItemId));
+    frame = harness.Frame;
+    var expectedBase = baseline + FP64.FromInt(10);
+    frame.GetReadOnly<Stats>(hero).AttackDamage.Should().Be(expectedBase + expectedBase * FP64.Half);
+    BuffsController.ClearAll(ref frame, hero);
+    frame.GetReadOnly<Stats>(hero).AttackDamage.Should().Be(expectedBase);
+  }
+
+  [Fact]
   public void Serialize_RoundTripsItemAssetId() {
     var original = new PurchaseItemCommand { PlayerId = 2, Tick = 9, ItemAssetId = 304 };
 

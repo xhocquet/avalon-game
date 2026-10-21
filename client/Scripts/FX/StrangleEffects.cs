@@ -13,9 +13,9 @@ public sealed class StrangleEffects {
   private const float Height = 1.5f;
   private const float BaseRadius = 0.25f;
   private static PackedScene _scene;
-  private readonly Dictionary<(bool Attached, int Id), ActiveLock> _active = new();
+  private readonly Dictionary<(bool Attached, long Id), ActiveLock> _active = new();
   private readonly Stack<Node3D> _pool = new();
-  private readonly List<(bool Attached, int Id)> _stale = new();
+  private readonly List<(bool Attached, long Id)> _stale = new();
   private readonly UnitLookup.Index _units = new();
   private Node3D _layer;
   private EntityViewUpdaterNode _view;
@@ -65,7 +65,7 @@ public sealed class StrangleEffects {
 
       var unitId = UnitLookup.GetUnitId(ref frame, entity);
       if (unitId == 0) continue;
-      var effect = Sync(ref frame, (true, unitId), source, burn.SourceUnitId,
+      var effect = Sync(ref frame, (true, effectEntity.ToId()), source, burn.SourceUnitId,
         frame.GetReadOnly<TransformComponent>(entity).Position, skill.ProjectileRadius);
       effect.Speed = FP64.Zero;
       effect.RemainingDistance = FP64.Zero;
@@ -100,7 +100,7 @@ public sealed class StrangleEffects {
     }
   }
 
-  private ActiveLock Sync(ref Frame frame, (bool Attached, int Id) key, EntityRef source, int sourceId,
+  private ActiveLock Sync(ref Frame frame, (bool Attached, long Id) key, EntityRef source, int sourceId,
     FPVector3 tip, FP64 radius) {
     _stale.Remove(key);
     if (!_active.TryGetValue(key, out var effect)) {

@@ -44,7 +44,6 @@ public class ExperienceSystem : ISystem {
   // Apply the authored difference between levels; growth is not linear.
   private static void ApplyGrowth(ref Frame frame, EntityRef entity, HeroStatsAsset heroAsset,
     XpRulesAsset rules, int levelBefore, int levelAfter) {
-    ref var stats = ref frame.Get<Stats>(entity);
     for (var i = 0; i < StatRanges.Count; i++) {
       var stat = (StatType)i;
 
@@ -54,7 +53,7 @@ public class ExperienceSystem : ISystem {
 
       var growth = heroAsset.GrowthOf(stat);
       if (growth != FP64.Zero)
-        stats.Add(stat, StatGrowth.Between(rules, growth, levelBefore, levelAfter));
+        StatsController.AddBase(ref frame, entity, stat, StatGrowth.Between(rules, growth, levelBefore, levelAfter));
     }
 
     HealthController.GrantMaxHealth(ref frame, entity,

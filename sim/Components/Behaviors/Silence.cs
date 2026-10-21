@@ -3,17 +3,13 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Components;
 
-// A unit silenced: it still moves, turns, and auto-attacks, but cannot cast a skill until ExpiryTick.
-// The hold is not a stat - it is a single gate in SkillsController.EvaluateCast, so the client greys the
-// skill bar the same tick the sim would reject the cast.
-//
-// A single slot rather than a buffer, the same shape as Snare: overlapping silences keep the later
-// expiry and the source that owns it, so a second one can extend the hold but never cut it short.
-// SourceId is 0 when the unit is free, so the component stays on once added.
+// Blocks skill casts until ExpiryTick. Movement, turning, and auto-attacks are unaffected.
+// Overlapping silences keep the later expiry and its source. Cleared in place.
 [KlothoComponent(ComponentIds.Silence)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public partial struct Silence : IComponent {
-  public int SourceId; // SkillAsset id silencing the unit; 0 means it is free
+  public int SourceId; // Source skill asset id; 0 when inactive
+  public int StartedTick;
   public int ExpiryTick;
 
   public readonly bool IsSilenced => SourceId != 0;
@@ -25,6 +21,7 @@ public partial struct Silence : IComponent {
 
   public void Clear() {
     SourceId = 0;
+    StartedTick = 0;
     ExpiryTick = 0;
   }
 }

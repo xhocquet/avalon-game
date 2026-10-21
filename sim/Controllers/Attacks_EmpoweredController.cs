@@ -16,6 +16,7 @@ public static class EmpoweredAttackController {
 
     ref var proc = ref frame.Get<AttackProc>(entity);
     proc.SourceId = sourceId;
+    proc.StartedTick = frame.Tick;
     proc.DamageMultiplier = damageMultiplier;
     proc.ExpiryTick = frame.Tick + durationTicks;
 

@@ -14,7 +14,7 @@ public class HardenTests {
   private const int Secondary = (int)SkillSlot.Secondary;
 
   [Fact]
-  public void Cast_RaisesBothResistsByTheRowsPercentageOfTheirCurrentValue() {
+  public void Cast_RaisesBothResistsByTheRowsPercentageOfTheirBaseValue() {
     var harness = CreateCrystalGiantHarness();
     var skill = HardenAsset(harness);
     var armorBefore = Stat(harness, StatType.Armor);
@@ -38,12 +38,11 @@ public class HardenTests {
     skill.BuffPercent.Should().BeGreaterThan(FP64.Zero);
     SkillAsset.AtRank(skill.BuffPercent, skill.BuffPercentPerRank, 2).Should().Be(skill.BuffPercent + skill.BuffPercentPerRank);
 
-    var armorBefore = Stat(harness, StatType.Armor);
     LearnAndCast(harness);
 
     var entry = Entries(harness).Should().ContainSingle(e => e.Stat == StatType.Armor).Subject;
     entry.SourceId.Should().Be(AssetIds.SkillCrystalGiantSecondary);
-    entry.Applied.Should().Be(armorBefore * SkillAsset.AtRank(skill.BuffPercent, skill.BuffPercentPerRank, 1));
+    entry.Magnitude.Should().Be(SkillAsset.AtRank(skill.BuffPercent, skill.BuffPercentPerRank, 1));
   }
 
   [Fact]
@@ -66,26 +65,25 @@ public class HardenTests {
     Entries(harness).Should().BeEmpty();
   }
 
-  // A percentage of a stat that moved under the buff would refund the wrong amount if the revert
-  // recomputed it, so the entry keeps the delta it actually applied.
   [Fact]
-  public void ALevelUpMidBuff_DoesNotChangeWhatTheBuffGivesBackOnExpiry() {
+  public void ALevelUpMidBuff_UpdatesThePercentageBonus_AndExpiryLeavesThePermanentGrowth() {
     var harness = CreateCrystalGiantHarness();
     var skill = HardenAsset(harness);
     var hero = harness.FindHero(CasterPlayerId);
 
     var castTick = LearnAndCast(harness);
-    var applied = Entries(harness).Should().ContainSingle(e => e.Stat == StatType.Armor).Subject.Applied;
 
     var frame = harness.Frame;
     frame.Get<Experience>(hero).Xp =
       harness.AssetRegistry.Get<XpRulesAsset>().TotalXpForLevel(3);
     harness.Tick(); // ExperienceSystem grants the level and its armor growth
 
-    var armorWhileBuffed = Stat(harness, StatType.Armor);
+    frame = harness.Frame;
+    var baseline = StatsController.GetBase(ref frame, hero, StatType.Armor);
+    Stat(harness, StatType.Armor).Should().Be(baseline + baseline * skill.BuffPercent);
     AdvanceTo(harness, castTick + DurationTicks(harness, skill));
 
-    Stat(harness, StatType.Armor).Should().Be(armorWhileBuffed - applied);
+    Stat(harness, StatType.Armor).Should().Be(baseline);
   }
 
   [Fact]
@@ -173,13 +171,13 @@ public class HardenTests {
     return harness.Frame.GetReadOnly<Stats>(harness.FindHero(CasterPlayerId)).Get(stat);
   }
 
-  private readonly record struct BuffEntry(int SourceId, StatType Stat, FP64 Applied, int ExpiryTick);
+  private readonly record struct BuffEntry(int SourceId, StatType Stat, FP64 Magnitude, int ExpiryTick);
 
   private static List<BuffEntry> Entries(SimHarness harness) {
     var entries = new List<BuffEntry>();
     var hero = harness.FindHero(CasterPlayerId);
     foreach (var entry in BuffTestQueries.StatChanges(harness.Frame, hero))
-      entries.Add(new BuffEntry(entry.SourceId, entry.Stat, entry.Applied, entry.ExpiryTick));
+      entries.Add(new BuffEntry(entry.SourceId, entry.Stat, entry.Magnitude, entry.ExpiryTick));
 
     return entries;
   }

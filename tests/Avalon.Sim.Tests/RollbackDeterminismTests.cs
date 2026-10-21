@@ -126,11 +126,7 @@ public class RollbackDeterminismTests(ITestOutputHelper output) {
       "cached on ProjectileSystem instead, and the discarded prediction branch leaked into the replay.");
   }
 
-  // Timed stat buffs across a rollback boundary. A buff is two writes that must stay paired - the
-  // amount added to Stats and the entry on BuffChanges that owes it back - so a
-  // restore that reached one and not the other would leave a hero permanently hardened or hand back
-  // an amount it was never given. The discarded branch stacks a buff of its own so the snapshot has
-  // both a stat value and an entry the replay must not inherit.
+  // The discarded branch adds a modifier alongside the snapshotted buff.
   [Fact]
   public void Rollback_AfterMispredictedBuff_ReplayMatchesServerHashes() {
     var rollback = RollbackHarness.Create(spawnHeroesNow: false);
@@ -157,8 +153,8 @@ public class RollbackDeterminismTests(ITestOutputHelper output) {
     Report(divergences, ReplayTicks, WarmupTicks);
 
     divergences.Should().BeEmpty(
-      "a buff's applied amount and its expiry tick live on frame components, so a rollback " +
-      "restores them with the stat they moved. A divergence here means buff state was tracked " +
+      "a buff's base values, modifiers, and expiry tick live on frame components, so a rollback " +
+      "restores them together. A divergence here means buff state was tracked " +
       "on TimedEffectSystem instead, and the discarded prediction branch leaked into the replay.");
   }
 

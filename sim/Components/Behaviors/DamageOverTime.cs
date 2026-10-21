@@ -4,7 +4,7 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Components;
 
-// One effect entity per target + skill. Accrual and payout clocks belong to this instance.
+// One effect entity per DOT stack. Accrual and payout clocks belong to this instance.
 [KlothoComponent(ComponentIds.DamageOverTime)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public partial struct DamageOverTime : IComponent {

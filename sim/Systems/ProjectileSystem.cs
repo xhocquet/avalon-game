@@ -136,8 +136,7 @@ public class ProjectileSystem(UnitSpatialIndex spatial = null) : ISystem {
       BuffsController.ApplySkill(ref frame, target, skill, rank, projectile.SourceUnitId);
 
     if (skill.DotDurationMs > 0)
-      DamageOverTimeController.Apply(ref frame, target, source, skill.AssetId,
-        skill.DotDamagePerSecondAtRank(rank), TickMath.MsToTicksCeil(ref frame, skill.DotDurationMs));
+      DamageOverTimeController.ApplySkill(ref frame, target, projectile.SourceUnitId, skill, rank);
   }
 
   // Projectile allegiance is fixed at spawn.

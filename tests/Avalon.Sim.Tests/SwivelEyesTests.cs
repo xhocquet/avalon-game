@@ -45,12 +45,11 @@ public class SwivelEyesTests {
     skill.BuffPercent.Should().BeGreaterThan(FP64.Zero);
     SkillAsset.AtRank(skill.BuffPercent, skill.BuffPercentPerRank, 2).Should().Be(skill.BuffPercent + skill.BuffPercentPerRank);
 
-    var armorBefore = CasterStat(harness, StatType.Armor);
     LearnAndCast(harness);
 
     var armor = CasterEntries(harness).Should().ContainSingle(e => e.Stat == StatType.Armor).Subject;
     armor.SourceId.Should().Be(AssetIds.SkillSnailheadTertiary);
-    armor.Applied.Should().Be(armorBefore * SkillAsset.AtRank(skill.BuffPercent, skill.BuffPercentPerRank, 1));
+    armor.Magnitude.Should().Be(SkillAsset.AtRank(skill.BuffPercent, skill.BuffPercentPerRank, 1));
     CasterEntries(harness).Should().Contain(e => e.Stat == StatType.MagicResist);
   }
 
@@ -205,13 +204,13 @@ public class SwivelEyesTests {
     return false;
   }
 
-  private readonly record struct BuffEntry(int SourceId, StatType Stat, FP64 Applied, int ExpiryTick);
+  private readonly record struct BuffEntry(int SourceId, StatType Stat, FP64 Magnitude, int ExpiryTick);
 
   private static List<BuffEntry> CasterEntries(SimHarness harness) {
     var entries = new List<BuffEntry>();
     var hero = harness.FindHero(CasterPlayerId);
     foreach (var entry in BuffTestQueries.StatChanges(harness.Frame, hero))
-      entries.Add(new BuffEntry(entry.SourceId, entry.Stat, entry.Applied, entry.ExpiryTick));
+      entries.Add(new BuffEntry(entry.SourceId, entry.Stat, entry.Magnitude, entry.ExpiryTick));
 
     return entries;
   }

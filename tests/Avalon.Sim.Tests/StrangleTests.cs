@@ -25,6 +25,24 @@ public class StrangleTests {
   private const int DummySpeed = 10;
 
   [Fact]
+  public void RepeatedProjectileHits_UseTheAuthoredDotStackingPolicy_WhileTheSlowRefreshes() {
+    var harness = CreateHarness();
+    var skill = StrangleAsset(harness);
+    skill.CooldownMs = 0;
+    skill.DotReapply = (int)BuffReapplication.Stack;
+    skill.DotMaxStacks = 2;
+    var origin = LearnAndCastAlongX(harness);
+    var enemy = SpawnDummy(harness, origin + FPVector3.Right * FP64.FromInt(5), EnemyTeamId);
+    AdvanceUntilHit(harness);
+
+    harness.Tick(SimHarness.CastSkillCommand(CasterPlayerId, harness.Frame.Tick, Secondary,
+      origin.x + FP64.FromInt(20), origin.z));
+    AdvanceUntilHit(harness);
+    harness.Count<DamageOverTime>().Should().Be(2);
+    Entries(harness, enemy).Should().ContainSingle();
+  }
+
+  [Fact]
   public void Cast_PutsOneBoltOnTheAimLineThatDealsNothingOnContact() {
     var harness = CreateHarness();
 
@@ -364,12 +382,12 @@ public class StrangleTests {
     return found.OrderBy(p => p.Item1.Index).ToList();
   }
 
-  private readonly record struct BuffEntry(int SourceId, StatType Stat, FP64 Applied, int ExpiryTick);
+  private readonly record struct BuffEntry(int SourceId, StatType Stat, FP64 Magnitude, int ExpiryTick);
 
   private static List<BuffEntry> Entries(SimHarness harness, EntityRef entity) {
     var entries = new List<BuffEntry>();
     foreach (var entry in BuffTestQueries.StatChanges(harness.Frame, entity))
-      entries.Add(new BuffEntry(entry.SourceId, entry.Stat, entry.Applied, entry.ExpiryTick));
+      entries.Add(new BuffEntry(entry.SourceId, entry.Stat, entry.Magnitude, entry.ExpiryTick));
 
     return entries;
   }

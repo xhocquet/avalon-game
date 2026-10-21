@@ -37,13 +37,12 @@ public class CloseShaveTests {
     SkillAsset.AtRank(skill.BuffPercent, skill.BuffPercentPerRank, 1).Should().Be(skill.BuffPercent);
     SkillAsset.AtRank(skill.BuffPercent, skill.BuffPercentPerRank, 4).Should().Be(skill.BuffPercent + skill.BuffPercentPerRank * FP64.FromInt(3));
 
-    var speedBefore = MoveSpeed(harness);
     LearnAndCast(harness, rank: 3);
 
     var entry = Entries(harness).Should().ContainSingle().Subject;
     entry.SourceId.Should().Be(AssetIds.SkillHairyWizardTertiary);
     entry.Stat.Should().Be(StatType.MoveSpeed);
-    entry.Applied.Should().Be(speedBefore * SkillAsset.AtRank(skill.BuffPercent, skill.BuffPercentPerRank, 3));
+    entry.Magnitude.Should().Be(SkillAsset.AtRank(skill.BuffPercent, skill.BuffPercentPerRank, 3));
   }
 
   [Fact]
@@ -116,13 +115,13 @@ public class CloseShaveTests {
     return Stat(harness, StatType.MoveSpeed);
   }
 
-  private readonly record struct BuffEntry(int SourceId, StatType Stat, FP64 Applied, int ExpiryTick);
+  private readonly record struct BuffEntry(int SourceId, StatType Stat, FP64 Magnitude, int ExpiryTick);
 
   private static List<BuffEntry> Entries(SimHarness harness) {
     var entries = new List<BuffEntry>();
     var hero = harness.FindHero(CasterPlayerId);
     foreach (var entry in BuffTestQueries.StatChanges(harness.Frame, hero))
-      entries.Add(new BuffEntry(entry.SourceId, entry.Stat, entry.Applied, entry.ExpiryTick));
+      entries.Add(new BuffEntry(entry.SourceId, entry.Stat, entry.Magnitude, entry.ExpiryTick));
 
     return entries;
   }

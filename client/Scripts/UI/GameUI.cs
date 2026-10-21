@@ -51,6 +51,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
 
   private ActionBarController _actionBar;
   private SkillBarController _skillBar;
+  private BuffBarController _buffBar;
   private InventoryPanelController _inventoryPanel;
   private ShopItemCatalog _shopCatalog;
   private SkillCatalog _skillCatalog;
@@ -96,6 +97,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
       _visionRenderer = new VisionRenderer { Name = "VisionRenderer" };
       AddChild(_visionRenderer);
     }
+
     _visionRenderer.Sync(frame, _localPlayerId);
     if (_scoreboardScoreLabel != null)
       _scoreboardScoreLabel.Text = FormatLiveScores(frame);
@@ -105,6 +107,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
     UpdateLocalPlayerStats(frame);
     UpdateLocalPlayerExperience(frame);
     _skillBar?.Update(frame, _localPlayerId);
+    _buffBar?.Update(frame, _localPlayerId);
     _actionBar?.Update(frame, _localPlayerId, _contextShop);
     _inventoryPanel?.Update(frame, _localPlayerId);
 
@@ -132,6 +135,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
     // Session boundary - in-flight upgrades and buys from the previous one are void.
     PredictedSkills.Clear();
     PredictedPurchases.Clear();
+    _buffBar?.Clear();
   }
 
   public void ShowResult(MatchResult result) {
@@ -254,6 +258,8 @@ public partial class GameUI : CanvasLayer, IViewHud {
       $"{bottomBar}/ActionPanel/ActionGrid");
     _shopCatalog = ShopItemCatalog.CreateDefault();
     _skillCatalog = SkillCatalog.CreateDefault();
+    _buffBar = new BuffBarController(GetNodeOrNull<HBoxContainer>(
+      $"{bottomBar}/Vbox/BuffMarginContainer/BuffContainer"), _skillCatalog);
 
     // Order matters: the skill bar claims the grid's leading cells, then the action bar is told how many
     // to leave alone. Building them the other way round would let the action bar clear the skill cells.
@@ -396,8 +402,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
     }
   }
 
-  // Reads the live Stats, which already carries item and buff contributions - timed buffs
-  // Add into it and record what they moved so the expiry can take the same amount back off.
+  // Reads effective stats, including item and buff modifiers.
   private void SetHeroStats(in Stats stats) {
     SetStatValue(_attackDamageLabel, $"{stats.AttackDamage.ToFloat():0.#}");
     SetStatValue(_attackSpeedLabel, $"{stats.AttacksPerSecond.ToFloat():0.00}");

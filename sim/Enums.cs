@@ -71,7 +71,8 @@ public enum BuffMode {
 public enum EffectPolarity {
   Neutral = 0,
   Buff = 1,
-  Debuff = 2
+  Debuff = 2,
+  Mixed = 3
 }
 
 // Test-only toggles. Bitmask, SetCheatCommand, CheatsController.All

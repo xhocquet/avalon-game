@@ -18,6 +18,7 @@ public static class SilenceController {
       return false;
 
     silence.SourceId = sourceId;
+    silence.StartedTick = frame.Tick;
     silence.ExpiryTick = expiryTick;
     return true;
   }

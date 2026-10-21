@@ -42,16 +42,16 @@ public static class ComponentIds {
   public const int MatchOutcome = 133;
   public const int Resources = 134;
   // 135 retired: StatBuffs
-  public const int AttackProc = 136;
+  // 136 retired: AttackProc without start tick
   public const int AttackHitIdCounter = 137;
-  public const int AttackBurst = 138;
-  public const int Snare = 139;
+  // 138 retired: AttackBurst without start tick
+  // 139 retired: Snare without start tick
   public const int SkillCharge = 140;
   // 141 retired: single-slot DamageOverTime
   public const int TrailEmitter = 142;
   public const int TrailSegment = 143;
   public const int TrailSegmentIdCounter = 144;
-  public const int Silence = 145;
+  // 145 retired: Silence without start tick
   public const int SkillChannel = 146;
   public const int SkillDash = 147;
   public const int SkillStockpiles = 148;
@@ -59,11 +59,19 @@ public static class ComponentIds {
   public const int UnitVisibility = 149;
 
   // 150 retired: Buffs without caster attribution
-  public const int BuffChanges = 151;
+  // 151 retired: BuffChanges with applied deltas
 
   public const int DamageOverTime = 152;
 
   public const int Buffs = 153;
 
-  // Next free id: 154
+  public const int BaseStats = 154;
+  public const int BuffChanges = 155;
+
+  public const int AttackProc = 156;
+  public const int AttackBurst = 157;
+  public const int Snare = 158;
+  public const int Silence = 159;
+
+  // Next free id: 160
 }

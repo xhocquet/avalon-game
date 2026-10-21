@@ -14,6 +14,7 @@ public static class BurstAttacksController {
 
     ref var burst = ref frame.Get<AttackBurst>(entity);
     burst.SourceId = sourceId;
+    burst.StartedTick = frame.Tick;
     burst.Remaining = totalAttacks - 1;
     burst.DelayTicks = delayTicks;
     burst.ExpiryTick = frame.Tick + durationTicks;

@@ -35,7 +35,7 @@ public static class HealthController {
     if (amount == FP64.Zero || !frame.Has<Stats>(target))
       return;
 
-    frame.Get<Stats>(target).Add(StatType.MaxHealth, amount);
+    StatsController.AddBase(ref frame, target, StatType.MaxHealth, amount);
 
     if (amount > FP64.Zero) {
       ApplyHeal(ref frame, target, amount);

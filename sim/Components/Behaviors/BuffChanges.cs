@@ -13,13 +13,22 @@ public unsafe partial struct BuffChanges : IComponent {
   public fixed int BuffSlots[MaxEntries]; // Buff index + 1; 0 marks a free slot
   public fixed int Kinds[MaxEntries];
   public fixed int Parameters[MaxEntries];
-  public fixed long AppliedRaw[MaxEntries]; // Exact clamped delta, not the authored magnitude
+  public fixed long MagnitudesRaw[MaxEntries]; // Authored flat amount or percentage
 
   public readonly bool IsActive(int index) => BuffSlots[index] != 0;
   public readonly int GetBuffIndex(int index) => BuffSlots[index] - 1;
   public readonly BuffChange GetChange(int index) => new(
     (BuffChangeKind)Kinds[index], Parameters[index],
-    FP64.FromRaw(AppliedRaw[index]));
+    FP64.FromRaw(MagnitudesRaw[index]));
+
+  public readonly bool HasStatChanges {
+    get {
+      for (var i = 0; i < MaxEntries; i++)
+        if (IsActive(i) && GetChange(i).IsStat)
+          return true;
+      return false;
+    }
+  }
 
   public readonly bool HasChanges(int buffIndex) {
     for (var i = 0; i < MaxEntries; i++)
@@ -39,13 +48,13 @@ public unsafe partial struct BuffChanges : IComponent {
     BuffSlots[index] = buffIndex + 1;
     Kinds[index] = (int)change.Kind;
     Parameters[index] = change.Parameter;
-    AppliedRaw[index] = change.Applied.RawValue;
+    MagnitudesRaw[index] = change.Magnitude.RawValue;
   }
 
   public void Clear(int index) {
     BuffSlots[index] = 0;
     Kinds[index] = 0;
     Parameters[index] = 0;
-    AppliedRaw[index] = 0;
+    MagnitudesRaw[index] = 0;
   }
 }

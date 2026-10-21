@@ -6,7 +6,7 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon.Sim.Tests;
 
 internal static class BuffTestQueries {
-  internal readonly record struct Entry(int SourceId, StatType Stat, FP64 Applied, int ExpiryTick);
+  internal readonly record struct Entry(int SourceId, StatType Stat, FP64 Magnitude, int ExpiryTick);
 
   internal static List<Entry> StatChanges(Frame frame, EntityRef entity) {
     var entries = new List<Entry>();
@@ -19,10 +19,10 @@ internal static class BuffTestQueries {
       if (!changes.IsActive(i))
         continue;
       var change = changes.GetChange(i);
-      if (change.Kind != BuffChangeKind.Stat)
+      if (!change.IsStat)
         continue;
       var buffIndex = changes.GetBuffIndex(i);
-      entries.Add(new Entry(buffs.GetSourceSkillAssetId(buffIndex), (StatType)change.Parameter, change.Applied,
+      entries.Add(new Entry(buffs.GetSourceSkillAssetId(buffIndex), (StatType)change.Parameter, change.Magnitude,
         buffs.GetExpiryTick(buffIndex)));
     }
     return entries;

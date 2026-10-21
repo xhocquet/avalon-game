@@ -56,7 +56,6 @@ public class ChrysalisTests {
     skill.SelfCast.Should().BeTrue();
     skill.SnareDurationMsAtRank(2).Should().Be(skill.SnareDurationMs + skill.SnareDurationMsPerRank);
 
-    var armorBefore = Stat(harness, StatType.Armor);
     var castTick = LearnAndCast(harness);
 
     var charge = harness.Frame.GetReadOnly<SkillCharge>(Caster(harness));
@@ -68,7 +67,7 @@ public class ChrysalisTests {
 
     var entry = BuffEntries(harness).Should().ContainSingle().Subject;
     entry.Stat.Should().Be(StatType.Armor);
-    entry.Applied.Should().Be(armorBefore * SkillAsset.AtRank(skill.BuffPercent, skill.BuffPercentPerRank, 1));
+    entry.Magnitude.Should().Be(SkillAsset.AtRank(skill.BuffPercent, skill.BuffPercentPerRank, 1));
     entry.ExpiryTick.Should().Be(castTick + Ticks(harness, skill.BuffDurationMs));
   }
 
@@ -363,13 +362,13 @@ public class ChrysalisTests {
     return Ticks(harness, skill.SnareDurationMsAtRank(1));
   }
 
-  private readonly record struct BuffEntry(int SourceId, StatType Stat, FP64 Applied, int ExpiryTick);
+  private readonly record struct BuffEntry(int SourceId, StatType Stat, FP64 Magnitude, int ExpiryTick);
 
   private static List<BuffEntry> BuffEntries(SimHarness harness) {
     var entries = new List<BuffEntry>();
     var hero = Caster(harness);
     foreach (var entry in BuffTestQueries.StatChanges(harness.Frame, hero))
-      entries.Add(new BuffEntry(entry.SourceId, entry.Stat, entry.Applied, entry.ExpiryTick));
+      entries.Add(new BuffEntry(entry.SourceId, entry.Stat, entry.Magnitude, entry.ExpiryTick));
 
     return entries;
   }
