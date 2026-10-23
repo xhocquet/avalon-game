@@ -309,7 +309,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
   }
 
   private void OnCrystalDestroyed(CrystalDestroyedEvent evt) {
-    ShowAnnouncement("Crystal Destroyed!");
+    ShowAnnouncement("Container Destroyed!");
   }
 
   private void OnTurretDestroyed(TurretDestroyedEvent evt) {

@@ -23,7 +23,7 @@ public partial class SimMarkerNode : EntityViewNode, ISelectableTeamView, INamed
   [Export] public int Value { get; set; }
 
   public string DisplayName => MarkerType switch {
-    MapMarkerType.Crystal => "Crystal",
+    MapMarkerType.Crystal => "Container",
     MapMarkerType.SpawnPoint => "Spawn Point",
     MapMarkerType.Shop => "Shop",
     MapMarkerType.Turret => "Turret",

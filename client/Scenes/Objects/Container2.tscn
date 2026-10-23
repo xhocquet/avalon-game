@@ -1,0 +1,25 @@
+[gd_scene format=3 uid="uid://qjurpo3ywmsk"]
+
+[ext_resource type="PackedScene" uid="uid://bnt8tb5b8bnu7" path="res://Assets/Props/Container2/Gemini_Generated_Image_3bi8rc3_Colorful_crate_cart_with_wooden_wheels_Prism_31_a4cd323e.glb" id="1_4xxri"]
+[ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="2_7uqqd"]
+[ext_resource type="Script" uid="uid://jt4rwdk0j6k6" path="res://Scripts/Editor/SimMarkerNode.cs" id="3_ehktp"]
+[ext_resource type="PackedScene" uid="uid://bxr3wurwhllji" path="res://Scenes/Objects/Tent.tscn" id="4_yumw0"]
+[ext_resource type="Script" uid="uid://dlfhfroalx5qf" path="res://Scripts/Entities/ContainerEntity.cs" id="5_entity"]
+
+[node name="Container2" unique_id=216888927 groups=["units"] instance=ExtResource("1_4xxri")]
+script = ExtResource("5_entity")
+
+[node name="tripo_node_1a1fc3ea-4a20-4987-8a39-fee792b04a50" parent="." index="0" unique_id=1057186293]
+transform = Transform3D(4.0001316, 0, -4.4720182, 0, 6, 0, 4.4720182, 0, 4.0001316, 0, 2.6926026, 0)
+
+[node name="SelectionIndicator" parent="." index="1" unique_id=2143077504 instance=ExtResource("2_7uqqd")]
+transform = Transform3D(5, 0, 0, 0, 1.5, 0, 0, 0, 5, 0, 0.19596004, 0)
+
+[node name="SimMarker" type="Node3D" parent="." index="2" unique_id=1310370453]
+script = ExtResource("3_ehktp")
+
+[node name="tent" parent="." index="3" unique_id=1709691259 instance=ExtResource("4_yumw0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.736204, 0, -0.24494362)
+
+[node name="tent2" parent="." index="4" unique_id=197809293 instance=ExtResource("4_yumw0")]
+transform = Transform3D(0.37554497, 0, -0.9268041, 0, 1, 0, 0.9268041, 0, 0.37554497, 1.0476189, 0, 6.1003885)

@@ -18,10 +18,10 @@
 [ext_resource type="Texture2D" uid="uid://c07674roea6ag" path="res://Assets/Props/Ground/Grass1/Grass007_2K-JPG_Roughness.jpg" id="16_60xsm"]
 [ext_resource type="Texture2D" uid="uid://vkfdijmbudqu" path="res://Assets/Props/Ground/texture3/ground_0013_roughness_2k.jpg" id="17_o4qml"]
 [ext_resource type="Texture2D" uid="uid://dyaeoq1mqg00e" path="res://Assets/Props/Ground/splatmap.jpg" id="18_gg0cj"]
-[ext_resource type="PackedScene" uid="uid://bw00gejcd6ugv" path="res://Scenes/Objects/Turret.tscn" id="19_k41nq"]
-[ext_resource type="PackedScene" uid="uid://cribhhvg03u8g" path="res://Scenes/Objects/Crystal.tscn" id="20_mm73m"]
+[ext_resource type="PackedScene" uid="uid://27ja1dxjwmub" path="res://Scenes/Objects/Turret2.tscn" id="19_k41nq"]
+[ext_resource type="PackedScene" uid="uid://qjurpo3ywmsk" path="res://Scenes/Objects/Container2.tscn" id="20_mm73m"]
 [ext_resource type="PackedScene" uid="uid://c4gqw5blm3y8s" path="res://Scenes/Objects/Spawn.tscn" id="21_hnw25"]
-[ext_resource type="PackedScene" uid="uid://d1k4fk8laqf34" path="res://Assets/Props/Shop/Shop.tscn" id="22_khp2f"]
+[ext_resource type="PackedScene" uid="uid://do0rarfh4frcx" path="res://Scenes/Objects/Shop2.tscn" id="22_khp2f"]
 [ext_resource type="PackedScene" uid="uid://dixg6cag7iwnc" path="res://Scenes/Heroes/AllHairWizard.tscn" id="25_36e3y"]
 [ext_resource type="PackedScene" path="res://Scenes/FX/Heroes/AllHairWizard/HairLockMessy.tscn" id="25_l1q8x"]
 [ext_resource type="PackedScene" path="res://Scenes/FX/Heroes/AllHairWizard/HairLockWild.tscn" id="26_n2edn"]
@@ -331,7 +331,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, 40)
 [node name="Turret2" parent="NavigationRegion3D/Team1" unique_id=531032508 instance=ExtResource("19_k41nq")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, 0, 30)
 
-[node name="Crystal" parent="NavigationRegion3D/Team1" unique_id=971075756 instance=ExtResource("20_mm73m")]
+[node name="Container" parent="NavigationRegion3D/Team1" unique_id=971075756 instance=ExtResource("20_mm73m")]
 transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, -40, 0, 40)
 
 [node name="Spawn" parent="NavigationRegion3D/Team1" unique_id=1750147463 instance=ExtResource("21_hnw25")]
@@ -350,7 +350,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0, -40)
 [node name="Turret2" parent="NavigationRegion3D/Team2" unique_id=823099813 instance=ExtResource("19_k41nq")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, -30)
 
-[node name="Crystal" parent="NavigationRegion3D/Team2" unique_id=123894650 instance=ExtResource("20_mm73m")]
+[node name="Container" parent="NavigationRegion3D/Team2" unique_id=123894650 instance=ExtResource("20_mm73m")]
 transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 40, 0, -40)
 
 [node name="Spawn" parent="NavigationRegion3D/Team2" unique_id=170271985 instance=ExtResource("21_hnw25")]
@@ -369,7 +369,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, 30)
 [node name="Turret2" parent="NavigationRegion3D/Team3" unique_id=234931221 instance=ExtResource("19_k41nq")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0, 40)
 
-[node name="Crystal" parent="NavigationRegion3D/Team3" unique_id=212411324 instance=ExtResource("20_mm73m")]
+[node name="Container" parent="NavigationRegion3D/Team3" unique_id=212411324 instance=ExtResource("20_mm73m")]
 transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 40, 0, 40)
 
 [node name="Spawn" parent="NavigationRegion3D/Team3" unique_id=500623652 instance=ExtResource("21_hnw25")]
@@ -388,8 +388,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, -40)
 [node name="Turret2" parent="NavigationRegion3D/Team4" unique_id=2145533211 instance=ExtResource("19_k41nq")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, 0, -30)
 
-[node name="Crystal" parent="NavigationRegion3D/Team4" unique_id=1545334481 instance=ExtResource("20_mm73m")]
-transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, -40, 0, -40)
+[node name="Container" parent="NavigationRegion3D/Team4" unique_id=1545334481 instance=ExtResource("20_mm73m")]
+transform = Transform3D(0.17996083, 0, 0.7794961, 0, 0.8, 0, -0.7794961, 0, 0.17996083, -40, 0, -40)
 
 [node name="Spawn" parent="NavigationRegion3D/Team4" unique_id=1275283759 instance=ExtResource("21_hnw25")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -35, 0, -35)

@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://dy422denfs6yh"
-path="res://.godot/imported/Shop.glb-cf5fab6b0c7314fee5fbb5af7dc1574e.scn"
+uid="uid://bnt8tb5b8bnu7"
+path="res://.godot/imported/Gemini_Generated_Image_3bi8rc3_Colorful_crate_cart_with_wooden_wheels_Prism_31_a4cd323e.glb-f70248d27c9b21698eebb5a5e577a1f7.scn"
 
 [deps]
 
-source_file="res://Assets/Props/Shop/Shop.glb"
-dest_files=["res://.godot/imported/Shop.glb-cf5fab6b0c7314fee5fbb5af7dc1574e.scn"]
+source_file="res://Assets/Props/Container2/Gemini_Generated_Image_3bi8rc3_Colorful_crate_cart_with_wooden_wheels_Prism_31_a4cd323e.glb"
+dest_files=["res://.godot/imported/Gemini_Generated_Image_3bi8rc3_Colorful_crate_cart_with_wooden_wheels_Prism_31_a4cd323e.glb-f70248d27c9b21698eebb5a5e577a1f7.scn"]
 
 [params]
 

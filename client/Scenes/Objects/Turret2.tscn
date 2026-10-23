@@ -1,0 +1,36 @@
+[gd_scene format=3 uid="uid://27ja1dxjwmub"]
+
+[ext_resource type="PackedScene" uid="uid://dmqqg8dn7oe2e" path="res://Assets/Props/Turret2/3b3b0a6a48b849d6.glb" id="1_w6etq"]
+[ext_resource type="Script" uid="uid://cohxjlrjee2gr" path="res://Scripts/Entities/TurretEntity.cs" id="2_entity"]
+[ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="3_indicator"]
+[ext_resource type="Script" uid="uid://jt4rwdk0j6k6" path="res://Scripts/Editor/SimMarkerNode.cs" id="4_marker"]
+[ext_resource type="Shader" uid="uid://1vr58k1171gu" path="res://Scenes/CircleLoading.gdshader" id="5_loading"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_loading"]
+render_priority = 0
+shader = ExtResource("5_loading")
+shader_parameter/aoe_color = Color(1, 0, 0, 0.92156863)
+shader_parameter/width = 0.01
+shader_parameter/fill_value = 0.70000001043084
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_loading"]
+material = SubResource("ShaderMaterial_loading")
+center_offset = Vector3(0, 0.1, 0)
+
+[node name="Turret2" unique_id=1786945830 instance=ExtResource("1_w6etq")]
+script = ExtResource("2_entity")
+
+[node name="tripo_node_b510a70f-1b78-4700-acb4-e278d" parent="." index="0" unique_id=418909397]
+transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 0, 2.5200047, 0)
+
+[node name="SimMarker" type="Node3D" parent="." index="1" unique_id=823878169]
+script = ExtResource("4_marker")
+MarkerType = 3
+
+[node name="SelectionIndicator" parent="." index="2" unique_id=1760968681 instance=ExtResource("3_indicator")]
+transform = Transform3D(2, 0, 0, 0, 1.5, 0, 0, 0, 2, 0, 0.06259564, 0)
+
+[node name="LoadingIndicator" type="MeshInstance3D" parent="." index="3" unique_id=1525892773]
+transform = Transform3D(1.2, 0, 0, 0, 0.22, 0, 0, 0, 1.2, -0.0015563965, 0.005756378, -0.003035307)
+visible = false
+mesh = SubResource("PlaneMesh_loading")

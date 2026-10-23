@@ -30,6 +30,9 @@ tools/**/obj/
 # Local scratch space (also holds deploy publish/dist output)
 .tmp/
 
+# Archived assets
+/archive/
+
 # Deploy config — hosts, users, key paths
 .env*
 !.env.example

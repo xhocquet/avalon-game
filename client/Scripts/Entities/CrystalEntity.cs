@@ -7,7 +7,7 @@ namespace Meesles.Avalon.Client.Scripts.Entities;
 
 public partial class CrystalEntity : TeamEntityViewNode, IAttackableView, INamedView {
   private const string UnitsGroup = "units";
-  public string DisplayName => "Crystal";
+  public virtual string DisplayName => "Crystal";
 
   [Export] public float SelectPickRadius { get; set; } = -1.0f;
   [Export] public float SelectPickHeight { get; set; } = -1.0f;

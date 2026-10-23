@@ -2,11 +2,11 @@
 
 [ext_resource type="PackedScene" uid="uid://bbvdly6vma5mr" path="res://Scenes/World/WorldEnvironment.tscn" id="1_env"]
 [ext_resource type="Material" uid="uid://cowspplyfkffa" path="res://addons/constructive_telegraphs/resources/con_telegraph_next_pass.tres" id="1_telegraph"]
-[ext_resource type="Shader" path="res://Scenes/Playgrounds/Grid.gdshader" id="2_grid"]
-[ext_resource type="PackedScene" uid="uid://bw00gejcd6ugv" path="res://Scenes/Objects/Turret.tscn" id="5_turret"]
-[ext_resource type="PackedScene" uid="uid://cribhhvg03u8g" path="res://Scenes/Objects/Crystal.tscn" id="6_crystal"]
+[ext_resource type="Shader" uid="uid://drbvqj4wsvdbh" path="res://Scenes/Playgrounds/grid.gdshader" id="2_grid"]
+[ext_resource type="PackedScene" uid="uid://27ja1dxjwmub" path="res://Scenes/Objects/Turret2.tscn" id="5_turret"]
+[ext_resource type="PackedScene" uid="uid://qjurpo3ywmsk" path="res://Scenes/Objects/Container2.tscn" id="6_crystal"]
 [ext_resource type="PackedScene" uid="uid://c4gqw5blm3y8s" path="res://Scenes/Objects/Spawn.tscn" id="7_spawn"]
-[ext_resource type="PackedScene" uid="uid://d1k4fk8laqf34" path="res://Assets/Props/Shop/Shop.tscn" id="9_shop"]
+[ext_resource type="PackedScene" uid="uid://do0rarfh4frcx" path="res://Scenes/Objects/Shop2.tscn" id="9_shop"]
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_arena"]
 sample_partition_type = 2
@@ -14,6 +14,7 @@ cell_size = 0.1
 agent_max_slope = 0.02
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ground"]
+render_priority = 0
 next_pass = ExtResource("1_telegraph")
 shader = ExtResource("2_grid")
 shader_parameter/subdivisions = 20.0
@@ -53,122 +54,122 @@ size = Vector3(6, 6, 6)
 material = SubResource("StandardMaterial3D_pillar")
 size = Vector3(24, 6, 3)
 
-[node name="CombatArena" type="Node3D"]
+[node name="CombatArena" type="Node3D" unique_id=542973731]
 
-[node name="WorldEnvironment" parent="." instance=ExtResource("1_env")]
+[node name="WorldEnvironment" parent="." unique_id=634924943 instance=ExtResource("1_env")]
 
-[node name="NavigationRegion3D" type="NavigationRegion3D" parent="."]
+[node name="NavigationRegion3D" type="NavigationRegion3D" parent="." unique_id=602056059]
 navigation_mesh = SubResource("NavigationMesh_arena")
 
-[node name="GroundMesh" type="MeshInstance3D" parent="NavigationRegion3D"]
+[node name="GroundMesh" type="MeshInstance3D" parent="NavigationRegion3D" unique_id=1776837731]
 mesh = SubResource("PlaneMesh_ground")
 
-[node name="Team1" type="Node3D" parent="NavigationRegion3D"]
+[node name="Team1" type="Node3D" parent="NavigationRegion3D" unique_id=280206770]
 
-[node name="Crystal" parent="NavigationRegion3D/Team1" instance=ExtResource("6_crystal")]
-transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, -40, 0, 40)
+[node name="Container" parent="NavigationRegion3D/Team1" unique_id=248095135 instance=ExtResource("6_crystal")]
+transform = Transform3D(-0.76557654, 0, 0.23214765, 0, 0.8, 0, -0.23214765, 0, -0.76557654, -40, 0, 40)
 
-[node name="Turret" parent="NavigationRegion3D/Team1" instance=ExtResource("5_turret")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, 40)
+[node name="Turret" parent="NavigationRegion3D/Team1" unique_id=1680124023 instance=ExtResource("5_turret")]
+transform = Transform3D(-0.16274053, 0, 0.9866689, 0, 1, 0, -0.9866689, 0, -0.16274053, -30, 0, 40)
 
-[node name="Turret2" parent="NavigationRegion3D/Team1" instance=ExtResource("5_turret")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, 0, 30)
+[node name="Turret2" parent="NavigationRegion3D/Team1" unique_id=1775212014 instance=ExtResource("5_turret")]
+transform = Transform3D(-0.9948507, 0, 0.10135137, 0, 1, 0, -0.10135137, 0, -0.9948507, -40, 0, 30)
 
-[node name="Spawn" parent="NavigationRegion3D/Team1" instance=ExtResource("7_spawn")]
+[node name="Spawn" parent="NavigationRegion3D/Team1" unique_id=929368976 instance=ExtResource("7_spawn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -34, 0, 34)
 Team = 1
 
-[node name="Shop" parent="NavigationRegion3D/Team1" instance=ExtResource("9_shop")]
-transform = Transform3D(-0.70710678, 0, 0.70710678, 0, 1, 0, -0.70710678, 0, -0.70710678, -28, 0, 28)
+[node name="Shop" parent="NavigationRegion3D/Team1" unique_id=1911568157 instance=ExtResource("9_shop")]
+transform = Transform3D(0.99999994, 0, 0, 0, 1, 0, 0, 0, 0.99999994, -28, 0, 28)
 Team = 1
 
-[node name="Team2" type="Node3D" parent="NavigationRegion3D"]
+[node name="Team2" type="Node3D" parent="NavigationRegion3D" unique_id=1905454222]
 
-[node name="Crystal" parent="NavigationRegion3D/Team2" instance=ExtResource("6_crystal")]
-transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 40, 0, -40)
+[node name="Container" parent="NavigationRegion3D/Team2" unique_id=424625563 instance=ExtResource("6_crystal")]
+transform = Transform3D(0.7983737, 0, 0.05098489, 0, 0.8, 0, -0.05098489, 0, 0.7983737, 40, 0, -40)
 
-[node name="Turret" parent="NavigationRegion3D/Team2" instance=ExtResource("5_turret")]
+[node name="Turret" parent="NavigationRegion3D/Team2" unique_id=1133703093 instance=ExtResource("5_turret")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0, -40)
 
-[node name="Turret2" parent="NavigationRegion3D/Team2" instance=ExtResource("5_turret")]
+[node name="Turret2" parent="NavigationRegion3D/Team2" unique_id=963022880 instance=ExtResource("5_turret")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, -30)
 
-[node name="Spawn" parent="NavigationRegion3D/Team2" instance=ExtResource("7_spawn")]
+[node name="Spawn" parent="NavigationRegion3D/Team2" unique_id=619487084 instance=ExtResource("7_spawn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34, 0, -34)
 Team = 2
 
-[node name="Shop" parent="NavigationRegion3D/Team2" instance=ExtResource("9_shop")]
-transform = Transform3D(0.70710678, 0, -0.70710678, 0, 1, 0, 0.70710678, 0, 0.70710678, 28, 0, -28)
+[node name="Shop" parent="NavigationRegion3D/Team2" unique_id=1204969217 instance=ExtResource("9_shop")]
+transform = Transform3D(0.99999994, 0, 0, 0, 1, 0, 0, 0, 0.99999994, 28, 0, -28)
 Team = 2
 
-[node name="Team3" type="Node3D" parent="NavigationRegion3D"]
+[node name="Team3" type="Node3D" parent="NavigationRegion3D" unique_id=677105795]
 
-[node name="Crystal" parent="NavigationRegion3D/Team3" instance=ExtResource("6_crystal")]
-transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 40, 0, 40)
+[node name="Container" parent="NavigationRegion3D/Team3" unique_id=1798342109 instance=ExtResource("6_crystal")]
+transform = Transform3D(0.1146006, 0, -0.7917492, 0, 0.8, 0, 0.7917492, 0, 0.1146006, 40, 0, 40)
 
-[node name="Turret" parent="NavigationRegion3D/Team3" instance=ExtResource("5_turret")]
+[node name="Turret" parent="NavigationRegion3D/Team3" unique_id=751321276 instance=ExtResource("5_turret")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0, 40)
 
-[node name="Turret2" parent="NavigationRegion3D/Team3" instance=ExtResource("5_turret")]
+[node name="Turret2" parent="NavigationRegion3D/Team3" unique_id=369858268 instance=ExtResource("5_turret")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, 30)
 
-[node name="Spawn" parent="NavigationRegion3D/Team3" instance=ExtResource("7_spawn")]
+[node name="Spawn" parent="NavigationRegion3D/Team3" unique_id=1216751011 instance=ExtResource("7_spawn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34, 0, 34)
 Team = 3
 
-[node name="Shop" parent="NavigationRegion3D/Team3" instance=ExtResource("9_shop")]
-transform = Transform3D(-0.70710678, 0, -0.70710678, 0, 1, 0, 0.70710678, 0, -0.70710678, 28, 0, 28)
+[node name="Shop" parent="NavigationRegion3D/Team3" unique_id=216545122 instance=ExtResource("9_shop")]
+transform = Transform3D(0.99999994, 0, 0, 0, 1, 0, 0, 0, 0.99999994, 28, 0, 28)
 Team = 3
 
-[node name="Team4" type="Node3D" parent="NavigationRegion3D"]
+[node name="Team4" type="Node3D" parent="NavigationRegion3D" unique_id=1529899528]
 
-[node name="Crystal" parent="NavigationRegion3D/Team4" instance=ExtResource("6_crystal")]
-transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, -40, 0, -40)
+[node name="Container" parent="NavigationRegion3D/Team4" unique_id=1767042769 instance=ExtResource("6_crystal")]
+transform = Transform3D(-0.031142792, 0, 0.7993936, 0, 0.8, 0, -0.7993936, 0, -0.031142792, -40, 0, -40)
 
-[node name="Turret" parent="NavigationRegion3D/Team4" instance=ExtResource("5_turret")]
+[node name="Turret" parent="NavigationRegion3D/Team4" unique_id=640605772 instance=ExtResource("5_turret")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, -40)
 
-[node name="Turret2" parent="NavigationRegion3D/Team4" instance=ExtResource("5_turret")]
+[node name="Turret2" parent="NavigationRegion3D/Team4" unique_id=1273193761 instance=ExtResource("5_turret")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, 0, -30)
 
-[node name="Spawn" parent="NavigationRegion3D/Team4" instance=ExtResource("7_spawn")]
+[node name="Spawn" parent="NavigationRegion3D/Team4" unique_id=247331002 instance=ExtResource("7_spawn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -34, 0, -34)
 Team = 4
 
-[node name="Shop" parent="NavigationRegion3D/Team4" instance=ExtResource("9_shop")]
-transform = Transform3D(0.70710678, 0, 0.70710678, 0, 1, 0, -0.70710678, 0, 0.70710678, -28, 0, -28)
+[node name="Shop" parent="NavigationRegion3D/Team4" unique_id=1065237186 instance=ExtResource("9_shop")]
+transform = Transform3D(0.99999994, 0, 0, 0, 1, 0, 0, 0, 0.99999994, -28, 0, -28)
 Team = 4
 
-[node name="Cover" type="Node3D" parent="NavigationRegion3D"]
+[node name="Cover" type="Node3D" parent="NavigationRegion3D" unique_id=606676299]
 
-[node name="Pillar" type="MeshInstance3D" parent="NavigationRegion3D/Cover"]
+[node name="Pillar" type="MeshInstance3D" parent="NavigationRegion3D/Cover" unique_id=478104366]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 3, -12)
 mesh = SubResource("BoxMesh_pillar")
 
-[node name="Pillar2" type="MeshInstance3D" parent="NavigationRegion3D/Cover"]
+[node name="Pillar2" type="MeshInstance3D" parent="NavigationRegion3D/Cover" unique_id=1138603183]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 3, -12)
 mesh = SubResource("BoxMesh_pillar")
 
-[node name="Pillar3" type="MeshInstance3D" parent="NavigationRegion3D/Cover"]
+[node name="Pillar3" type="MeshInstance3D" parent="NavigationRegion3D/Cover" unique_id=697256147]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 3, 12)
 mesh = SubResource("BoxMesh_pillar")
 
-[node name="Pillar4" type="MeshInstance3D" parent="NavigationRegion3D/Cover"]
+[node name="Pillar4" type="MeshInstance3D" parent="NavigationRegion3D/Cover" unique_id=1639298746]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 3, 12)
 mesh = SubResource("BoxMesh_pillar")
 
-[node name="Wall" type="MeshInstance3D" parent="NavigationRegion3D/Cover"]
+[node name="Wall" type="MeshInstance3D" parent="NavigationRegion3D/Cover" unique_id=934693368]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -26)
 mesh = SubResource("BoxMesh_wall")
 
-[node name="Wall2" type="MeshInstance3D" parent="NavigationRegion3D/Cover"]
+[node name="Wall2" type="MeshInstance3D" parent="NavigationRegion3D/Cover" unique_id=1555108824]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 26)
 mesh = SubResource("BoxMesh_wall")
 
-[node name="Wall3" type="MeshInstance3D" parent="NavigationRegion3D/Cover"]
+[node name="Wall3" type="MeshInstance3D" parent="NavigationRegion3D/Cover" unique_id=668497027]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -26, 3, 0)
 mesh = SubResource("BoxMesh_wall")
 
-[node name="Wall4" type="MeshInstance3D" parent="NavigationRegion3D/Cover"]
+[node name="Wall4" type="MeshInstance3D" parent="NavigationRegion3D/Cover" unique_id=1867450200]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 26, 3, 0)
 mesh = SubResource("BoxMesh_wall")

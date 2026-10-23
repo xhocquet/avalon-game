@@ -8,7 +8,7 @@ namespace Meesles.Avalon.Client.Scripts.Factories;
 
 public class UnitViewFactory(
   FactionCatalog factions,
-  PackedScene crystalScene,
+  PackedScene containerScene,
   PackedScene turretScene,
   PackedScene pickupScene = null,
   PackedScene oasisScene = null,
@@ -45,7 +45,7 @@ public class UnitViewFactory(
   }
 
   private PackedScene ResolveScene(Frame frame, EntityRef entity) {
-    if (frame.Has<Crystal>(entity)) return crystalScene;
+    if (frame.Has<Crystal>(entity)) return containerScene;
     if (frame.Has<Turret>(entity)) return turretScene;
     if (frame.Has<Pickup>(entity)) return pickupScene;
     if (frame.Has<Oasis>(entity)) return oasisScene;

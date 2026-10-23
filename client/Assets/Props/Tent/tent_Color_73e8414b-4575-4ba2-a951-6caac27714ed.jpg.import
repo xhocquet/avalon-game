@@ -2,18 +2,21 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://du6disj6ps0te"
-path.s3tc="res://.godot/imported/Shop_0.png-a9d6b65f17653a296c9e3d01a5305454.s3tc.ctex"
-path.etc2="res://.godot/imported/Shop_0.png-a9d6b65f17653a296c9e3d01a5305454.etc2.ctex"
+uid="uid://djlcqp85q6o71"
+path.s3tc="res://.godot/imported/tent_Color_73e8414b-4575-4ba2-a951-6caac27714ed.jpg-35d62cf719cbd19477228830c689852c.s3tc.ctex"
+path.etc2="res://.godot/imported/tent_Color_73e8414b-4575-4ba2-a951-6caac27714ed.jpg-35d62cf719cbd19477228830c689852c.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
+generator_parameters={
+"md5": "cd9511ab87345289ca5abd129bec389a"
+}
 
 [deps]
 
-source_file="res://Assets/Props/Shop/Shop_0.png"
-dest_files=["res://.godot/imported/Shop_0.png-a9d6b65f17653a296c9e3d01a5305454.s3tc.ctex", "res://.godot/imported/Shop_0.png-a9d6b65f17653a296c9e3d01a5305454.etc2.ctex"]
+source_file="res://Assets/Props/Tent/tent_Color_73e8414b-4575-4ba2-a951-6caac27714ed.jpg"
+dest_files=["res://.godot/imported/tent_Color_73e8414b-4575-4ba2-a951-6caac27714ed.jpg-35d62cf719cbd19477228830c689852c.s3tc.ctex", "res://.godot/imported/tent_Color_73e8414b-4575-4ba2-a951-6caac27714ed.jpg-35d62cf719cbd19477228830c689852c.etc2.ctex"]
 
 [params]
 

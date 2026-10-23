@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://bxr3wurwhllji"]
+
+[ext_resource type="PackedScene" uid="uid://cgdkany005mvd" path="res://Assets/Props/Tent/tent.glb" id="1_n7dnv"]
+
+[node name="tent" unique_id=1709691259 instance=ExtResource("1_n7dnv")]
+
+[node name="tripo_node_73e8414b-4575-4ba2-a951-6caac27714ed" parent="." index="0" unique_id=1331065130]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0.9518852, 0)

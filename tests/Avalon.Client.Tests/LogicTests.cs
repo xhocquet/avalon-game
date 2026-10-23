@@ -22,7 +22,7 @@ public class LogicTests {
     AssertThat(MatchResultText.Headline(result, localPlayerId: 2)).IsEqual("Victory");
     AssertThat(MatchResultText.Headline(result, localPlayerId: 1)).IsEqual("Defeat");
     AssertThat(MatchResultText.Summary(result, localPlayerId: 2))
-      .IsEqual("Victory\nCrystal destroyed  ·  02:05");
+      .IsEqual("Victory\nContainer destroyed  ·  02:05");
   }
 
   [TestCase]

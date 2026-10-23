@@ -125,7 +125,7 @@ public partial class SingleplayerGameNode : GameNode {
     _pool = new DefaultGodotEntityViewPool();
     _factions = FactionCatalog.CreateDefault();
     Input.BindFactionCatalog(_factions);
-    var crystalScene = GD.Load<PackedScene>(Scenes.Crystal);
+    var containerScene = GD.Load<PackedScene>(Scenes.Container);
     var turretScene = GD.Load<PackedScene>(Scenes.Turret);
     var pickupScene = GD.Load<PackedScene>(Scenes.WaterBottle);
     var oasisScene = GD.Load<PackedScene>(Scenes.Oasis);
@@ -134,7 +134,7 @@ public partial class SingleplayerGameNode : GameNode {
       TryPrewarm(_pool, faction.MinionScene, 64, $"{faction.DisplayName} minion");
     }
 
-    TryPrewarm(_pool, crystalScene, _sesCfg.MaxPlayers, "Crystal");
+    TryPrewarm(_pool, containerScene, _sesCfg.MaxPlayers, "Container");
     TryPrewarm(_pool, turretScene, _sesCfg.MaxPlayers * 2, "Turret");
     TryPrewarm(_pool, pickupScene, 32, "Pickup");
     TryPrewarm(_pool, oasisScene, 4, "Oasis");
@@ -145,11 +145,11 @@ public partial class SingleplayerGameNode : GameNode {
   }
 
   private UnitViewFactory CreateFactory() {
-    var crystalScene = GD.Load<PackedScene>(Scenes.Crystal);
+    var containerScene = GD.Load<PackedScene>(Scenes.Container);
     var turretScene = GD.Load<PackedScene>(Scenes.Turret);
     var pickupScene = GD.Load<PackedScene>(Scenes.WaterBottle);
     var oasisScene = GD.Load<PackedScene>(Scenes.Oasis);
-    return new UnitViewFactory(_factions, crystalScene, turretScene, pickupScene, oasisScene,
+    return new UnitViewFactory(_factions, containerScene, turretScene, pickupScene, oasisScene,
       BrokenViewScenes);
   }
 

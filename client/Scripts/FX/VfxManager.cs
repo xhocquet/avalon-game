@@ -9,8 +9,8 @@ namespace Meesles.Avalon.Client.Scripts.View;
 
 public class VfxManager {
   private const string ExplosionScenePath = "res://Scenes/FX/BotwExplosionMega.tscn";
-  private const string TurretScenePath = "res://Scenes/Objects/Turret.tscn";
-  private const string CrystalScenePath = "res://Scenes/Objects/Crystal.tscn";
+  private const string TurretScenePath = Scenes.Turret;
+  private const string ContainerScenePath = Scenes.Container;
 
   // How long the red death silhouette lingers before it has fully faded out.
   private const float DeathTintFadeSeconds = 0.7f;
@@ -22,7 +22,7 @@ public class VfxManager {
 
   private static PackedScene _explosionScene;
   private static PackedScene _turretScene;
-  private static PackedScene _crystalScene;
+  private static PackedScene _containerScene;
 
   private readonly SkillCatalog _skills = SkillCatalog.CreateDefault();
 
@@ -139,7 +139,7 @@ public class VfxManager {
     if (_view == null) return;
     var position = ResolveDeathPosition(evt.UnitId, evt.Position);
     SpawnDeathExplosion(position);
-    SpawnDeathTint(ref _crystalScene, CrystalScenePath, position);
+    SpawnDeathTint(ref _containerScene, ContainerScenePath, position);
   }
 
   // Prefer the live view position when it's still around, but the entity is destroyed the same

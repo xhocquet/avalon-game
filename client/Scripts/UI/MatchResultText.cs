@@ -20,7 +20,7 @@ public static class MatchResultText {
   public static string Reason(MatchResult result) {
     var duration = FormatDuration(result.DurationMs);
     return result.Reason switch {
-      MatchEndReason.Crystal => $"Crystal destroyed  ·  {duration}",
+      MatchEndReason.Crystal => $"Container destroyed  ·  {duration}",
       MatchEndReason.Timeout => $"Time expired  ·  {duration}",
       _ => duration
     };
