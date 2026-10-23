@@ -13,6 +13,17 @@ using Xunit;
 namespace Meesles.Avalon.Sim.Tests;
 
 public class VisionTests {
+  [Theory]
+  [InlineData(-6, 8, -6, 2, true)]
+  [InlineData(-6, -8, -6, -14, true)]
+  [InlineData(0, 8, 0, -8, false)]
+  public void WorldClearingHasSightAcrossOpenGroundButNotThroughFountain(
+    int ax, int az, int bx, int bz, bool visible) {
+    var map = SimHarness.CreateInitialized().AssetRegistry.Get<MapLayoutAsset>();
+    Visibility.CanSee(map, Point(ax, az), Point(bx, bz), FP64.FromInt(18), FP64.Zero)
+      .Should().Be(visible);
+  }
+
   [Fact]
   public void NoFogRevealsOnlyTheIssuingTeamAndRestoresSightWhenDisabled() {
     var frame = CreateFrame();

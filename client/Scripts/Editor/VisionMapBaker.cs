@@ -11,7 +11,8 @@ public static class VisionMapBaker {
   public static void Populate(Node root, MapLayoutAsset layout) {
     var region = FindRegion(root) ?? throw new InvalidOperationException("Vision bake requires a NavigationRegion3D.");
     using var mesh = (NavigationMesh)region.NavigationMesh.Duplicate();
-    mesh.AgentRadius = 0; // Preserve obstacle footprints without agent-clearance erosion.
+    mesh.AgentRadius = mesh.CellSize; // Minimum one-voxel clearance.
+    mesh.ClearPolygons();
     using var source = new NavigationMeshSourceGeometryData3D();
     var gates = region.GetNodeOrNull<Node>("Gates");
     var gateIndex = gates?.GetIndex() ?? 0;
@@ -28,7 +29,7 @@ public static class VisionMapBaker {
     }
 
     var vertices = mesh.GetVertices();
-    if (vertices.Length == 0)
+    if (vertices.Length == 0 || mesh.GetPolygonCount() == 0)
       throw new InvalidOperationException("Vision bake produced no walkable geometry.");
     var points = new List<FPVector2>();
     var welded = new Dictionary<(long, long), int>();

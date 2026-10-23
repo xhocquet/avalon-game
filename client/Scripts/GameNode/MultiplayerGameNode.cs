@@ -150,7 +150,7 @@ public partial class MultiplayerGameNode : GameNode {
     var pickupScene = GD.Load<PackedScene>(Scenes.WaterBottle);
     var oasisScene = GD.Load<PackedScene>(Scenes.Oasis);
     return new UnitViewFactory(_factions, containerScene, turretScene, pickupScene, oasisScene,
-      BrokenViewScenes);
+      BrokenViewScenes, GetNodeOrNull("World"));
   }
 
   private void OnSessionReady(bool autoReady) {

@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using Godot;
+using Meesles.Avalon.Client.Scripts.Entities;
 using Meesles.Avalon.Sim.Components;
+using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Godot;
 
@@ -12,10 +14,49 @@ public class UnitViewFactory(
   PackedScene turretScene,
   PackedScene pickupScene = null,
   PackedScene oasisScene = null,
-  IReadOnlySet<PackedScene> brokenScenes = null) : EntityViewFactory {
+  IReadOnlySet<PackedScene> brokenScenes = null,
+  Node world = null) : EntityViewFactory {
   // Faction ids already reported by ResolvePrefab. Reconcile runs every tick and retries every entity
   // it could not spawn, so without this one mis-factioned unit writes a stack trace per tick forever.
   private readonly HashSet<int> _reportedFactionIds = [];
+
+  public override ViewFlags GetViewFlags(Frame frame, EntityRef entity) {
+    return FindPlacedContainer(frame, entity) != null
+      ? base.GetViewFlags(frame, entity) | ViewFlags.DisableUpdate
+      : base.GetViewFlags(frame, entity);
+  }
+
+  public override EntityViewNode Create(Frame frame, EntityRef entity, BindBehaviour behaviour, ViewFlags flags) {
+    var placed = FindPlacedContainer(frame, entity);
+    if (placed != null) {
+      var transform = placed.GlobalTransform;
+      placed.GetParent().RemoveChild(placed);
+      placed.Transform = transform;
+      placed.SourcePrefab = ResolvePrefab(frame, entity);
+      return placed;
+    }
+
+    return base.Create(frame, entity, behaviour, flags);
+  }
+
+  private ContainerEntity FindPlacedContainer(Frame frame, EntityRef entity) {
+    return world != null && frame.Has<Crystal>(entity) && frame.Has<TransformComponent>(entity)
+      ? FindContainer(world, frame.GetReadOnly<TransformComponent>(entity).Position.ToVector3())
+      : null;
+  }
+
+  private static ContainerEntity FindContainer(Node node, Vector3 position) {
+    if (node is ContainerEntity container && container.GlobalPosition.DistanceSquaredTo(position) < 0.01f)
+      return container;
+
+    foreach (var child in node.GetChildren()) {
+      var found = FindContainer(child, position);
+      if (found != null)
+        return found;
+    }
+
+    return null;
+  }
 
   protected override PackedScene ResolvePrefab(Frame frame, EntityRef entity) {
     PackedScene scene;
