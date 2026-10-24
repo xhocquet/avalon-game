@@ -1,0 +1,70 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://Assets/Placeholders/brown-swirl.webp" id="2_placeholder"]
+[ext_resource type="Script" path="res://Scripts/UI/LobbyPlayerSlot.cs" id="3_slot"]
+[ext_resource type="Resource" path="res://Resources/UI/TeamPalette.tres" id="4_palette"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot"]
+bg_color = Color(0.17, 0.17, 0.17, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.3, 0.3, 0.3, 1)
+
+[node name="PlayerSlot" type="PanelContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_slot")
+script = ExtResource("3_slot")
+Palette = ExtResource("4_palette")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="Row" type="HBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="PortraitFrame" type="Control" parent="Margin/Row"]
+custom_minimum_size = Vector2(40, 50)
+layout_mode = 2
+size_flags_horizontal = 4
+clip_contents = true
+
+[node name="Portrait" type="TextureRect" parent="Margin/Row/PortraitFrame"]
+modulate = Color(1, 1, 1, 0.25)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_placeholder")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Info" type="VBoxContainer" parent="Margin/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_constants/separation = 2
+
+[node name="NameLabel" type="Label" parent="Margin/Row/Info"]
+modulate = Color(1, 1, 1, 0.45)
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Empty"
+text_overrun_behavior = 3
+horizontal_alignment = 0
+
+[node name="StatusLabel" type="Label" parent="Margin/Row/Info"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
+theme_override_font_sizes/font_size = 13
+text = "—"
+horizontal_alignment = 0
+

@@ -1,11 +1,9 @@
 using Godot;
+using Meesles.Avalon.Client;
 
 namespace Meesles.Avalon;
 
 public partial class SelectionIndicator : Node3D {
-  private static readonly Color TeamOneColor = new(0.25f, 0.75f, 0.95f, 0.72f);
-  private static readonly Color TeamTwoColor = new(0.95f, 0.35f, 0.28f, 0.72f);
-  private static readonly Color NeutralColor = new(0.55f, 0.85f, 0.35f, 0.72f);
   private StandardMaterial3D _material;
 
   private MeshInstance3D _ring;
@@ -26,7 +24,7 @@ public partial class SelectionIndicator : Node3D {
   }
 
   public void SetTeamId(int teamId) {
-    SetTint(teamId == 1 ? TeamOneColor : teamId == 2 ? TeamTwoColor : NeutralColor);
+    SetTint(TeamPalette.Default.ForTeam(teamId, 0.72f));
   }
 
   private void SetTint(Color color) {

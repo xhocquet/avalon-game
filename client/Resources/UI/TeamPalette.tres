@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TeamPalette" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/TeamPalette.cs" id="1_palette"]
+
+[resource]
+script = ExtResource("1_palette")
+TeamOne = Color(0.25, 0.75, 0.95, 1)
+TeamTwo = Color(0.95, 0.35, 0.28, 1)
+Neutral = Color(0.55, 0.85, 0.35, 1)

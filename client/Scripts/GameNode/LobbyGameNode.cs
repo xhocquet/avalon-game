@@ -131,7 +131,6 @@ public partial class LobbyGameNode : GameNode {
   private void OnJoin() {
     if (_session != null || _joining) return;
     _joining = true;
-    LobbyUi.SetGameTypeEnabled(false);
 
     _flowSetup.ClaimedDisplayName = PlayerProfile.PlayerName;
 
@@ -169,7 +168,6 @@ public partial class LobbyGameNode : GameNode {
     LobbyUi.SetLocalReady(false);
     LobbyUi.SetPhase(SessionPhase.Disconnected);
     LobbyUi.SetConnected(false);
-    LobbyUi.SetGameTypeEnabled(true);
   }
 
   private void OnStartLocal() {
@@ -240,7 +238,6 @@ public partial class LobbyGameNode : GameNode {
         _joining = false;
         _joinTask = null;
         LobbyUi.SetConnected(false);
-        LobbyUi.SetGameTypeEnabled(true);
       }
       else if (_joinTask.IsCompleted) {
         _session = _joinTask.Result;

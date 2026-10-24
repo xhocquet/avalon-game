@@ -1,4 +1,5 @@
 using Godot;
+using Meesles.Avalon.Client;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Godot;
@@ -12,9 +13,9 @@ public partial class HealthBars : ColorRect {
   [Export] public float BarScreenOffsetY { get; set; } = -10.0f;
   [Export] public Color BackgroundColor { get; set; } = new(0f, 0f, 0f, 0.45f);
   [Export] public Color FrameColor { get; set; } = new(0f, 0f, 0f, 0.75f);
-  [Export] public Color TeamOneFillColor { get; set; } = new(0.25f, 0.75f, 0.95f);
-  [Export] public Color TeamTwoFillColor { get; set; } = new(0.95f, 0.35f, 0.28f);
-  [Export] public Color NeutralFillColor { get; set; } = new(0.55f, 0.85f, 0.35f);
+  [Export] public Color TeamOneFillColor { get; set; } = TeamPalette.Default.TeamOne;
+  [Export] public Color TeamTwoFillColor { get; set; } = TeamPalette.Default.TeamTwo;
+  [Export] public Color NeutralFillColor { get; set; } = TeamPalette.Default.Neutral;
 
   public override void _Ready() {
     MouseFilter = MouseFilterEnum.Ignore;

@@ -11,11 +11,6 @@ public partial class TurretEntity : TeamEntityViewNode, IAttackableView, INamedV
   private const string CooldownParam = "fill_value";
   private const string AoeColorParam = "aoe_color";
 
-  // Match SelectionIndicator colors and authored opacity.
-  private static readonly Color TeamOneColor = new(0.25f, 0.75f, 0.95f, 0.92f);
-  private static readonly Color TeamTwoColor = new(0.95f, 0.35f, 0.28f, 0.92f);
-  private static readonly Color NeutralColor = new(0.55f, 0.85f, 0.35f, 0.92f);
-
   public string DisplayName => "Turret";
 
   [Export] public float SelectPickRadius { get; set; } = 1.2f;
@@ -80,7 +75,7 @@ public partial class TurretEntity : TeamEntityViewNode, IAttackableView, INamedV
   }
 
   private void ApplyTeamTint() {
-    var color = TeamId == 1 ? TeamOneColor : TeamId == 2 ? TeamTwoColor : NeutralColor;
+    var color = TeamPalette.Default.ForTeam(TeamId, 0.92f);
     _loadingIndicatorMaterial?.SetShaderParameter(AoeColorParam, color);
   }
 }

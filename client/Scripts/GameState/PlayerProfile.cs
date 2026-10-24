@@ -1,8 +1,14 @@
 namespace Meesles.Avalon.Client.Scripts.GameState;
 
-// Local-only player identity for now. The lobby name field writes here; nothing sends it to the
-// server yet (Klotho's IPlayerInfo.DisplayName is still unset), so remote slots fall back to "PN".
 public static class PlayerProfile {
-  public const string DefaultName = "Player";
+  private static readonly string[] Names = [
+    "MossGoblin", "SoupWizard", "SirBonks", "PocketDragon",
+    "WobblyKnight", "BogEnjoyer", "TinyMenace", "BreadPaladin",
+    "SleepyMimic", "FrogBaron", "LootGremlin", "MildlyCursed",
+    "SneakyTurnip", "GravyMage", "OopsAllGoblins", "CrumbCollector",
+    "BonkAppetit", "SnailWarlord", "MushroomMayor", "RustySpoon"
+  ];
+
+  public static readonly string DefaultName = Names[System.Random.Shared.Next(Names.Length)];
   public static string PlayerName = DefaultName;
 }

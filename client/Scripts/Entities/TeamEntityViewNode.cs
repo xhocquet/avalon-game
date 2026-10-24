@@ -10,9 +10,6 @@ public abstract partial class TeamEntityViewNode : EntityViewNode, ISelectableTe
   private const string SelectionIndicatorNode = "SelectionIndicator";
   private const uint MinimapLayer = 1u << 1;
   private static Texture2D MinimapIcon => GD.Load<Texture2D>("res://Assets/UI/TargetCursor.png");
-  private static readonly Color TeamOneColor = new(0.25f, 0.75f, 0.95f);
-  private static readonly Color TeamTwoColor = new(0.95f, 0.35f, 0.28f);
-  private static readonly Color NeutralColor = new(0.55f, 0.85f, 0.35f);
 
   protected int TeamId { get; private set; } = -1;
 
@@ -38,7 +35,7 @@ public abstract partial class TeamEntityViewNode : EntityViewNode, ISelectableTe
     TeamId = teamId;
     var marker = GetNodeOrNull<Sprite3D>("MinimapMarker");
     if (marker != null)
-      marker.Modulate = teamId == 1 ? TeamOneColor : teamId == 2 ? TeamTwoColor : NeutralColor;
+      marker.Modulate = TeamPalette.Default.ForTeam(teamId);
     GetNodeOrNull<SelectionIndicator>(SelectionIndicatorNode)?.SetTeamId(TeamId);
   }
 
