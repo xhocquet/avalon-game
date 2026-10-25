@@ -1,0 +1,13 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" uid="uid://djyed2tycvytj" path="res://Assets/Heroes/AllHairWizard/allhairwiz.glb" id="1_onny7"]
+
+
+[node name="AllHairWizard" unique_id=1682798515 instance=ExtResource("1_onny7")]
+
+[node name="PatchworkWizard_Rig" parent="." index="0" unique_id=90880087]
+transform = Transform3D(-1.04907336e-07, 0, -2.4, 0, 2.4, 0, 2.4, 0, -1.04907336e-07, 0, 0.015, 0)
+
+[node name="AnimationPlayer" parent="." index="1" unique_id=19356392]
+autoplay = &"AllHairWizard_Idle"
+

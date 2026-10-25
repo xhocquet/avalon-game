@@ -1,0 +1,141 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/VaultPage.cs" id="1_vault"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/ChampionPreview.tscn" id="2_preview"]
+[ext_resource type="Texture2D" path="res://Assets/UI/PanelBorderBrown.png" id="3_border"]
+[ext_resource type="Theme" path="res://Resources/UI/LobbyButtonTheme.tres" id="4_theme"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_section"]
+content_margin_left = 16.0
+content_margin_top = 16.0
+content_margin_right = 16.0
+content_margin_bottom = 16.0
+texture = ExtResource("3_border")
+texture_margin_left = 32.0
+texture_margin_top = 32.0
+texture_margin_right = 32.0
+texture_margin_bottom = 32.0
+region_rect = Rect2(0, 0, 128, 128)
+draw_center = false
+
+[node name="VaultPage" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("4_theme")
+script = ExtResource("1_vault")
+
+[node name="Sections" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 32
+
+[node name="HeroesPanel" type="MarginContainer" parent="Sections"]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="Column" type="VBoxContainer" parent="Sections/HeroesPanel"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Scroll" type="ScrollContainer" parent="Sections/HeroesPanel/Column"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Margin" type="MarginContainer" parent="Sections/HeroesPanel/Column/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="HeroButtons" type="VBoxContainer" parent="Sections/HeroesPanel/Column/Scroll/Margin"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 16
+
+[node name="Viewer" type="VBoxContainer" parent="Sections"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 16
+
+[node name="ModelPanel" type="PanelContainer" parent="Sections/Viewer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxTexture_section")
+
+[node name="Column" type="VBoxContainer" parent="Sections/Viewer/ModelPanel"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="HeroName" type="Label" parent="Sections/Viewer/ModelPanel/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Hairy Wizards"
+horizontal_alignment = 1
+
+[node name="Preview" parent="Sections/Viewer/ModelPanel/Column" instance=ExtResource("2_preview")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+AutoFrame = true
+AllowRotation = true
+tooltip_text = "Drag left or right to rotate"
+
+[node name="AnimationPanel" type="CenterContainer" parent="Sections/Viewer"]
+layout_mode = 2
+
+[node name="Row" type="HBoxContainer" parent="Sections/Viewer/AnimationPanel"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="PreviousAnimation" type="Button" parent="Sections/Viewer/AnimationPanel/Row"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(72, 56)
+layout_mode = 2
+theme_type_variation = &"LobbyButton"
+theme_override_font_sizes/font_size = 32
+text = "‹"
+tooltip_text = "Previous animation"
+
+[node name="Column" type="VBoxContainer" parent="Sections/Viewer/AnimationPanel/Row"]
+layout_mode = 2
+alignment = 1
+
+[node name="Title" type="Label" parent="Sections/Viewer/AnimationPanel/Row/Column"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
+theme_override_font_sizes/font_size = 18
+text = "Animation"
+horizontal_alignment = 1
+
+[node name="AnimationName" type="Label" parent="Sections/Viewer/AnimationPanel/Row/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "—"
+horizontal_alignment = 1
+
+[node name="NextAnimation" type="Button" parent="Sections/Viewer/AnimationPanel/Row"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(72, 56)
+layout_mode = 2
+theme_type_variation = &"LobbyButton"
+theme_override_font_sizes/font_size = 32
+text = "›"
+tooltip_text = "Next animation"

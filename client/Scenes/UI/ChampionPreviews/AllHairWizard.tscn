@@ -1,0 +1,40 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://Scenes/Heroes/Presentation/AllHairWizard.tscn" id="1_model"]
+
+[sub_resource type="Environment" id="Environment_preview"]
+ambient_light_source = 3
+ambient_light_color = Color(0.78, 0.83, 1, 1)
+ambient_light_energy = 0.65
+reflected_light_source = 2
+tonemap_mode = 2
+
+[node name="Stage" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_preview")
+
+[node name="KeyLight" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.8660254, 0.28678823, -0.40957603, 0, 0.81915206, 0.57357645, 0.5, -0.49673176, 0.7094065, 0, 0, 0)
+light_color = Color(1, 0.9, 0.78, 1)
+light_energy = 1.4
+
+[node name="FillLight" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.70710677, -0.1830127, 0.68301266, 0, 0.9659258, 0.25881904, -0.70710677, 0.1830127, -0.68301266, 0, 0, 0)
+visible = false
+light_color = Color(0.65, 0.78, 1, 1)
+light_energy = 0.8
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.98948795, -0.14461526, 0, 0.14461526, 0.98948795, 0.001364, 0.75445616, 5.108983)
+projection = 1
+current = true
+size = 2.1
+near = 0.01
+far = 1000.0
+
+[node name="ChampionPivot" type="Node3D" parent="."]
+transform = Transform3D(0.91322577, 0, -0.40745413, 0, 1, 0, 0.40745413, 0, 0.91322577, 0, 0, 0)
+
+[node name="AllHairWizard" parent="ChampionPivot" instance=ExtResource("1_model")]
+

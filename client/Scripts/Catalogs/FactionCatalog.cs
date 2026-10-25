@@ -106,6 +106,8 @@ public class FactionCatalog {
     public readonly int Id = id;
     public readonly string Name = name;
     public readonly string HeroScenePath = heroScenePath;
+    public string HeroPresentationScenePath => HeroScenePath.Replace("/Heroes/", "/Heroes/Presentation/");
+    public string HeroPreviewScenePath => HeroScenePath.Replace("/Heroes/", "/UI/ChampionPreviews/");
     public readonly string MinionScenePath = minionScenePath;
     public readonly string HeroPortraitTexturePath = heroPortraitTexturePath;
     public readonly string MinionPortraitTexturePath = minionPortraitTexturePath;

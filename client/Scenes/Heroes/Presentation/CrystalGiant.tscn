@@ -1,0 +1,13 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" uid="uid://dsgbntq0rh18w" path="res://Assets/Heroes/CrystalWarriors/crystalwarrior.glb" id="1_t5jg0"]
+
+
+[node name="CrystalKnight" unique_id=189552492 instance=ExtResource("1_t5jg0")]
+
+[node name="CrystalGiant_Rig" parent="." index="0" unique_id=1182412071]
+transform = Transform3D(-3.5762787e-07, 0, -4.0000005, 0, 4, 0, 4.0000005, 0, -3.5762787e-07, 0, 0, 0)
+
+[node name="AnimationPlayer" parent="." index="1" unique_id=113289965]
+autoplay = &"CrystalGiant_Idle"
+

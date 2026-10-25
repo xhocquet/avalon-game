@@ -22,6 +22,7 @@ public partial class LobbyUI : Control, IViewHud {
   private readonly PlayerSlot[] _slots = new PlayerSlot[SlotsPerSide * 2];
 
   private GridContainer _factionGrid;
+  private ChampionPreview _championPreview;
   private Button _startButton;
   private Button _disconnectButton;
   private LineEdit _ipField;
@@ -61,7 +62,7 @@ public partial class LobbyUI : Control, IViewHud {
   public override void _Ready() {
     const string bottom = "Root/BottomBar/Margin/Row";
 
-    _nameField = GetNode<LineEdit>("Root/TopBar/Margin/Row/RightColumn/NameField");
+    _nameField = GetNode<LineEdit>("%NameField");
     _ipField = GetNode<LineEdit>("%IpField");
     _portField = GetNode<LineEdit>("%PortField");
     _buttonContent = GetNode<VBoxContainer>($"{bottom}/MiddleColumn/Center/Buttons/ReadyButton/Content");
@@ -73,6 +74,7 @@ public partial class LobbyUI : Control, IViewHud {
     _readyButton = GetNode<Button>($"{bottom}/MiddleColumn/Center/Buttons/ReadyButton");
 
     _factionGrid = GetNode<GridContainer>("%FactionGrid");
+    _championPreview = GetNode<ChampionPreview>("%ChampionPreview");
 
     for (var i = 0; i < _slots.Length; i++) {
       var side = i < SlotsPerSide ? "LeftColumn/Allies" : "RightColumn/Enemies";
@@ -98,9 +100,41 @@ public partial class LobbyUI : Control, IViewHud {
     _readyButton.Pressed += HandleReadyPressed;
     _startButton.Pressed += () => OnStartLocalClicked?.Invoke();
 
+    BindPages();
     BindFactionCards();
     ApplySelectedGameType(GameTypeSelection.SelectedGameTypeId);
     ClearSlots();
+  }
+
+  private void BindPages() {
+    const string tabs = "Root/TopBar/Margin/Row/MiddleColumn/Center/Tabs";
+    var lobbyPage = GetNode<Control>("Root/Columns");
+    var lobbyFooter = GetNode<Control>("Root/BottomBar/Margin");
+    var vaultPage = GetNode<Control>("%VaultPage");
+    var settingsPage = GetNode<Control>("%SettingsPage");
+    var settingsFooter = GetNode<Control>("Root/BottomBar/SettingsButtons");
+    var settingsPanel = settingsPage.GetNode<Control>("SettingsPanel");
+    var heroPanel = GetNode<Control>("Root/Columns/MiddleColumn");
+
+    void UpdateSettingsWidth() {
+      var halfWidth = Mathf.Min(heroPanel.Size.X, settingsPage.Size.X / 2);
+      settingsPanel.OffsetLeft = -halfWidth;
+      settingsPanel.OffsetRight = halfWidth;
+    }
+
+    heroPanel.Resized += UpdateSettingsWidth;
+    settingsPage.Resized += UpdateSettingsWidth;
+    UpdateSettingsWidth();
+
+    GetNode<Button>($"{tabs}/Play").Toggled += selected => {
+      lobbyPage.Visible = selected;
+      lobbyFooter.Visible = selected;
+    };
+    GetNode<Button>($"{tabs}/Vault").Toggled += selected => vaultPage.Visible = selected;
+    GetNode<Button>($"{tabs}/Settings").Toggled += selected => {
+      settingsPage.Visible = selected;
+      settingsFooter.Visible = selected;
+    };
   }
 
   // -------------------------------------------------------------------- game type selection
@@ -168,6 +202,7 @@ public partial class LobbyUI : Control, IViewHud {
 
   // Keeps the card toggles in sync with one pick.
   private void ApplySelectedFaction(int factionId) {
+    _championPreview.ShowFaction(factionId);
     var defs = FactionCatalog.FactionDefs;
     for (var i = 0; i < _factionCards.Count && i < defs.Length; i++) {
       var selected = defs[i].Id == factionId;
