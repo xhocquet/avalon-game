@@ -1,23 +1,11 @@
 [gd_scene format=3 uid="uid://ds0laytwwjog8"]
 
 [ext_resource type="Script" uid="uid://dmre4bujrf1ng" path="res://Scripts/UI/LobbyUI.cs" id="1_lobbyui"]
-[ext_resource type="PackedScene" path="res://Scenes/UI/FactionCard.tscn" id="3_faction_card"]
+[ext_resource type="PackedScene" uid="uid://b5e31ghkpfero" path="res://Scenes/UI/FactionCard.tscn" id="3_faction_card"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/PlayerSlot.tscn" id="8_player_slot"]
 [ext_resource type="Script" uid="uid://ds7r8e1ewsity" path="res://Scripts/UI/DisconnectButton.cs" id="9_disconnect"]
-[ext_resource type="Theme" path="res://Resources/UI/LobbyButtonTheme.tres" id="11_button_theme"]
-[ext_resource type="Texture2D" uid="uid://ceovv176pphu8" path="res://Assets/UI/PanelBorderGreyDetail.png" id="10_section_panel"]
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_section"]
-content_margin_left = 2.0
-content_margin_top = 2.0
-content_margin_right = 2.0
-content_margin_bottom = 2.0
-texture = ExtResource("10_section_panel")
-texture_margin_left = 16.0
-texture_margin_top = 16.0
-texture_margin_right = 16.0
-texture_margin_bottom = 16.0
-draw_center = false
+[ext_resource type="Texture2D" uid="uid://55n0fc0fgtoa" path="res://Assets/UI/PanelBorderBrown.png" id="10_section_panel"]
+[ext_resource type="Theme" uid="uid://bbcbaf401pdy7" path="res://Resources/UI/LobbyButtonTheme.tres" id="11_button_theme"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_section"]
 content_margin_left = 2.0
@@ -26,6 +14,19 @@ content_margin_right = 2.0
 content_margin_bottom = 2.0
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_nav"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_section"]
+content_margin_left = 16.0
+content_margin_top = 16.0
+content_margin_right = 16.0
+content_margin_bottom = 16.0
+texture = ExtResource("10_section_panel")
+texture_margin_left = 32.0
+texture_margin_top = 32.0
+texture_margin_right = 32.0
+texture_margin_bottom = 32.0
+region_rect = Rect2(0, 0, 128, 128)
+draw_center = false
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_m24sg"]
 
@@ -107,16 +108,6 @@ grow_vertical = 2
 theme = ExtResource("11_button_theme")
 script = ExtResource("1_lobbyui")
 
-[node name="Background" type="ColorRect" parent="." unique_id=2000637459]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-color = Color(0.09, 0.09, 0.09, 1)
-
 [node name="Root" type="VBoxContainer" parent="." unique_id=1500894610]
 layout_mode = 1
 anchors_preset = 15
@@ -155,10 +146,13 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 48
+theme_override_colors/font_color = Color(1, 0.32156864, 0.7882353, 1)
+theme_override_colors/font_outline_color = Color(0.9098039, 0.9019608, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 72
 text = "Avalon"
 vertical_alignment = 1
+uppercase = true
 
 [node name="MiddleColumn" type="Control" parent="Root/TopBar/Margin/Row" unique_id=552074709]
 layout_mode = 2
@@ -185,7 +179,26 @@ theme_override_font_sizes/font_size = 28
 toggle_mode = true
 button_pressed = true
 button_group = SubResource("ButtonGroup_nav")
-text = "Play"
+text = "Lobby"
+
+[node name="SelectedBorder" type="NinePatchRect" parent="Root/TopBar/Margin/Row/MiddleColumn/Center/Tabs/Play" unique_id=413187792]
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("10_section_panel")
+draw_center = false
+patch_margin_left = 32
+patch_margin_top = 32
+patch_margin_right = 32
+patch_margin_bottom = 32
 
 [node name="Vault" type="Button" parent="Root/TopBar/Margin/Row/MiddleColumn/Center/Tabs" unique_id=1989374001]
 custom_minimum_size = Vector2(160, 72)
@@ -196,6 +209,26 @@ toggle_mode = true
 button_group = SubResource("ButtonGroup_nav")
 text = "Vault"
 
+[node name="SelectedBorder" type="NinePatchRect" parent="Root/TopBar/Margin/Row/MiddleColumn/Center/Tabs/Vault" unique_id=687925588]
+visible = false
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("10_section_panel")
+draw_center = false
+patch_margin_left = 32
+patch_margin_top = 32
+patch_margin_right = 32
+patch_margin_bottom = 32
+
 [node name="Settings" type="Button" parent="Root/TopBar/Margin/Row/MiddleColumn/Center/Tabs" unique_id=1582386903]
 custom_minimum_size = Vector2(160, 72)
 layout_mode = 2
@@ -205,67 +238,94 @@ toggle_mode = true
 button_group = SubResource("ButtonGroup_nav")
 text = "Settings"
 
+[node name="SelectedBorder" type="NinePatchRect" parent="Root/TopBar/Margin/Row/MiddleColumn/Center/Tabs/Settings" unique_id=1595801267]
+visible = false
+show_behind_parent = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -8.0
+offset_top = -8.0
+offset_right = 8.0
+offset_bottom = 8.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("10_section_panel")
+draw_center = false
+patch_margin_left = 32
+patch_margin_top = 32
+patch_margin_right = 32
+patch_margin_bottom = 32
+
 [node name="RightColumn" type="Control" parent="Root/TopBar/Margin/Row" unique_id=1195033427]
 layout_mode = 2
 size_flags_horizontal = 3
 
+[node name="NameField" type="LineEdit" parent="Root/TopBar/Margin/Row/RightColumn" unique_id=846127593]
+custom_minimum_size = Vector2(280, 56)
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -280.0
+offset_top = -28.0
+offset_bottom = 28.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_font_sizes/font_size = 32
+placeholder_text = "Player name"
+max_length = 24
+
 [node name="Columns" type="HBoxContainer" parent="Root" unique_id=533614109]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 4
+theme_override_constants/separation = 32
 
-[node name="LeftColumn" type="PanelContainer" parent="Root/Columns" unique_id=934601903]
+[node name="LeftColumn" type="VBoxContainer" parent="Root/Columns" unique_id=1894204135]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 4
+size_flags_stretch_ratio = 2.0
+
+[node name="ServerHeaderLabel" type="Label" parent="Root/Columns/LeftColumn" unique_id=2039072502]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
+theme_override_font_sizes/font_size = 24
+text = "Connect to Server"
+horizontal_alignment = 1
+
+[node name="LeftColumn" type="PanelContainer" parent="Root/Columns/LeftColumn" unique_id=934601903]
+layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_section")
 
-[node name="Margin" type="MarginContainer" parent="Root/Columns/LeftColumn" unique_id=696351002]
+[node name="Margin" type="MarginContainer" parent="Root/Columns/LeftColumn/LeftColumn" unique_id=696351002]
 layout_mode = 2
+size_flags_vertical = 4
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 16
 theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 16
 
-[node name="VBox" type="VBoxContainer" parent="Root/Columns/LeftColumn/Margin" unique_id=1662136899]
+[node name="VBox" type="VBoxContainer" parent="Root/Columns/LeftColumn/LeftColumn/Margin" unique_id=1662136899]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 8
+
+[node name="HostRow" type="HBoxContainer" parent="Root/Columns/LeftColumn/LeftColumn/Margin/VBox" unique_id=1940628405]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="NameHeaderLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox" unique_id=535509393]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
-theme_override_font_sizes/font_size = 24
-text = "Username"
-
-[node name="NameField" type="LineEdit" parent="Root/Columns/LeftColumn/Margin/VBox" unique_id=846127593]
-custom_minimum_size = Vector2(0, 56)
-layout_mode = 2
-theme_override_font_sizes/font_size = 32
-placeholder_text = "Player name"
-max_length = 24
-
-[node name="UsernameServerSpacer" type="Control" parent="Root/Columns/LeftColumn/Margin/VBox"]
-custom_minimum_size = Vector2(0, 24)
-layout_mode = 2
-size_flags_vertical = 3
-mouse_filter = 2
-
-[node name="ServerHeaderLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox" unique_id=2039072502]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
-theme_override_font_sizes/font_size = 24
-text = "Server"
-
-[node name="HostRow" type="HBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox" unique_id=1940628405]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="HostPrefixLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/HostRow" unique_id=2058291885]
+[node name="HostPrefixLabel" type="Label" parent="Root/Columns/LeftColumn/LeftColumn/Margin/VBox/HostRow" unique_id=2058291885]
 custom_minimum_size = Vector2(56, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "IP"
 
-[node name="IpField" type="LineEdit" parent="Root/Columns/LeftColumn/Margin/VBox/HostRow" unique_id=1480079704]
+[node name="IpField" type="LineEdit" parent="Root/Columns/LeftColumn/LeftColumn/Margin/VBox/HostRow" unique_id=1480079704]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -273,17 +333,18 @@ theme_override_font_sizes/font_size = 32
 text = "127.0.0.1"
 placeholder_text = "IP"
 
-[node name="PortRow" type="HBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox" unique_id=788551831]
+[node name="PortRow" type="HBoxContainer" parent="Root/Columns/LeftColumn/LeftColumn/Margin/VBox" unique_id=788551831]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="PortPrefixLabel" type="Label" parent="Root/Columns/LeftColumn/Margin/VBox/PortRow" unique_id=1875419319]
+[node name="PortPrefixLabel" type="Label" parent="Root/Columns/LeftColumn/LeftColumn/Margin/VBox/PortRow" unique_id=1875419319]
 custom_minimum_size = Vector2(56, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "Port"
 
-[node name="PortField" type="LineEdit" parent="Root/Columns/LeftColumn/Margin/VBox/PortRow" unique_id=1583891168]
+[node name="PortField" type="LineEdit" parent="Root/Columns/LeftColumn/LeftColumn/Margin/VBox/PortRow" unique_id=1583891168]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(112, 56)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -291,11 +352,12 @@ theme_override_font_sizes/font_size = 32
 text = "7777"
 placeholder_text = "Port"
 
-[node name="JoinRow" type="HBoxContainer" parent="Root/Columns/LeftColumn/Margin/VBox" unique_id=541631024]
+[node name="JoinRow" type="HBoxContainer" parent="Root/Columns/LeftColumn/LeftColumn/Margin/VBox" unique_id=541631024]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 16
 
-[node name="JoinButton" type="Button" parent="Root/Columns/LeftColumn/Margin/VBox/JoinRow" unique_id=291804523]
+[node name="JoinButton" type="Button" parent="Root/Columns/LeftColumn/LeftColumn/Margin/VBox/JoinRow" unique_id=291804523]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -304,7 +366,8 @@ theme_type_variation = &"LobbyButton"
 theme_override_font_sizes/font_size = 24
 text = "Join"
 
-[node name="DisconnectButton" type="Button" parent="Root/Columns/LeftColumn/Margin/VBox/JoinRow" unique_id=1029939699]
+[node name="DisconnectButton" type="Button" parent="Root/Columns/LeftColumn/LeftColumn/Margin/VBox/JoinRow" unique_id=1029939699]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -315,59 +378,57 @@ disabled = true
 text = "Disconnect"
 script = ExtResource("9_disconnect")
 
-[node name="MiddleColumn" type="Control" parent="Root/Columns"]
+[node name="MiddleColumn" type="PanelContainer" parent="Root/Columns" unique_id=1367533383]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 2.0
-
-[node name="RightColumn" type="VBoxContainer" parent="Root/Columns" unique_id=707597872]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 1.0
-theme_override_constants/separation = 16
-
-[node name="FactionPanel" type="PanelContainer" parent="Root/Columns/RightColumn" unique_id=1456781351]
-layout_mode = 2
-size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxTexture_section")
 
-[node name="Margin" type="MarginContainer" parent="Root/Columns/RightColumn/FactionPanel" unique_id=800178875]
+[node name="VBoxContainer" type="VBoxContainer" parent="Root/Columns" unique_id=1208351046]
 layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 16
 
-[node name="VBox" type="VBoxContainer" parent="Root/Columns/RightColumn/FactionPanel/Margin" unique_id=1156287423]
+[node name="Label" type="Label" parent="Root/Columns/VBoxContainer" unique_id=1874999734]
 layout_mode = 2
-theme_override_constants/separation = 8
-alignment = 1
+theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
+theme_override_font_sizes/font_size = 24
+text = "Hero Selection"
+horizontal_alignment = 1
 
-[node name="FactionGrid" type="GridContainer" parent="Root/Columns/RightColumn/FactionPanel/Margin/VBox" unique_id=956182226]
+[node name="FactionPanel" type="PanelContainer" parent="Root/Columns/VBoxContainer" unique_id=1456781351]
 layout_mode = 2
-size_flags_horizontal = 4
-theme_override_constants/h_separation = 16
+size_flags_stretch_ratio = 2.0
+theme_override_styles/panel = SubResource("StyleBoxTexture_section")
+
+[node name="MarginContainer" type="MarginContainer" parent="Root/Columns/VBoxContainer/FactionPanel" unique_id=1700543656]
+layout_mode = 2
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="FactionGrid" type="GridContainer" parent="Root/Columns/VBoxContainer/FactionPanel/MarginContainer" unique_id=956182226]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 0
 theme_override_constants/v_separation = 16
-columns = 2
+columns = 3
 
-[node name="FactionCard200" parent="Root/Columns/RightColumn/FactionPanel/Margin/VBox/FactionGrid" unique_id=471995429 instance=ExtResource("3_faction_card")]
+[node name="FactionCard200" parent="Root/Columns/VBoxContainer/FactionPanel/MarginContainer/FactionGrid" unique_id=471995429 instance=ExtResource("3_faction_card")]
 layout_mode = 2
 button_pressed = true
 button_group = SubResource("ButtonGroup_m24sg")
 
-[node name="FactionCard201" parent="Root/Columns/RightColumn/FactionPanel/Margin/VBox/FactionGrid" unique_id=1889702375 instance=ExtResource("3_faction_card")]
+[node name="FactionCard201" parent="Root/Columns/VBoxContainer/FactionPanel/MarginContainer/FactionGrid" unique_id=1889702375 instance=ExtResource("3_faction_card")]
 layout_mode = 2
 button_group = SubResource("ButtonGroup_52mon")
 
-[node name="FactionCard202" parent="Root/Columns/RightColumn/FactionPanel/Margin/VBox/FactionGrid" unique_id=630765934 instance=ExtResource("3_faction_card")]
+[node name="FactionCard202" parent="Root/Columns/VBoxContainer/FactionPanel/MarginContainer/FactionGrid" unique_id=630765934 instance=ExtResource("3_faction_card")]
 layout_mode = 2
 button_group = SubResource("ButtonGroup_pn33i")
 
-[node name="FactionCard203" parent="Root/Columns/RightColumn/FactionPanel/Margin/VBox/FactionGrid" unique_id=867080687 instance=ExtResource("3_faction_card")]
+[node name="FactionCard203" parent="Root/Columns/VBoxContainer/FactionPanel/MarginContainer/FactionGrid" unique_id=867080687 instance=ExtResource("3_faction_card")]
 layout_mode = 2
 button_group = SubResource("ButtonGroup_b70fe")
 
-[node name="FactionCard204" parent="Root/Columns/RightColumn/FactionPanel/Margin/VBox/FactionGrid" unique_id=988021604 instance=ExtResource("3_faction_card")]
+[node name="FactionCard204" parent="Root/Columns/VBoxContainer/FactionPanel/MarginContainer/FactionGrid" unique_id=988021604 instance=ExtResource("3_faction_card")]
 layout_mode = 2
 button_group = SubResource("ButtonGroup_5k2t4")
 
@@ -378,8 +439,6 @@ theme_override_styles/panel = SubResource("StyleBoxEmpty_section")
 
 [node name="Margin" type="MarginContainer" parent="Root/BottomBar" unique_id=1210724808]
 layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_right = 24
 
 [node name="Row" type="HBoxContainer" parent="Root/BottomBar/Margin" unique_id=1373143995]
 layout_mode = 2
@@ -439,12 +498,12 @@ theme_type_variation = &"LobbyButton"
 theme_override_font_sizes/font_size = 28
 
 [node name="ReadyButton" type="Button" parent="Root/BottomBar/Margin/Row/MiddleColumn/Center/Buttons" unique_id=605603485]
-custom_minimum_size = Vector2(220, 72)
+custom_minimum_size = Vector2(300, 72)
 layout_mode = 2
 theme_type_variation = &"LobbyButton"
 theme_override_font_sizes/font_size = 28
 
-[node name="Content" type="VBoxContainer" parent="Root/BottomBar/Margin/Row/MiddleColumn/Center/Buttons/ReadyButton"]
+[node name="Content" type="VBoxContainer" parent="Root/BottomBar/Margin/Row/MiddleColumn/Center/Buttons/ReadyButton" unique_id=1023268102]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -456,17 +515,14 @@ mouse_filter = 2
 theme_override_constants/separation = 2
 alignment = 1
 
-[node name="Title" type="Label" parent="Root/BottomBar/Margin/Row/MiddleColumn/Center/Buttons/ReadyButton/Content"]
+[node name="Title" type="Label" parent="Root/BottomBar/Margin/Row/MiddleColumn/Center/Buttons/ReadyButton/Content" unique_id=709985060]
 layout_mode = 2
-mouse_filter = 2
 theme_override_font_sizes/font_size = 28
 text = "Ready"
 horizontal_alignment = 1
 
 [node name="StatusLabel" type="Label" parent="Root/BottomBar/Margin/Row/MiddleColumn/Center/Buttons/ReadyButton/Content" unique_id=576487050]
 layout_mode = 2
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 1)
 theme_override_font_sizes/font_size = 13
 text = "Not connected"
 horizontal_alignment = 1
@@ -523,3 +579,7 @@ theme_override_font_sizes/font_size = 24
 text = "RESULT"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[connection signal="toggled" from="Root/TopBar/Margin/Row/MiddleColumn/Center/Tabs/Play" to="Root/TopBar/Margin/Row/MiddleColumn/Center/Tabs/Play/SelectedBorder" method="set_visible"]
+[connection signal="toggled" from="Root/TopBar/Margin/Row/MiddleColumn/Center/Tabs/Vault" to="Root/TopBar/Margin/Row/MiddleColumn/Center/Tabs/Vault/SelectedBorder" method="set_visible"]
+[connection signal="toggled" from="Root/TopBar/Margin/Row/MiddleColumn/Center/Tabs/Settings" to="Root/TopBar/Margin/Row/MiddleColumn/Center/Tabs/Settings/SelectedBorder" method="set_visible"]

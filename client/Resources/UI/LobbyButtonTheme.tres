@@ -12,7 +12,6 @@ texture_margin_left = 16.0
 texture_margin_top = 16.0
 texture_margin_right = 16.0
 texture_margin_bottom = 16.0
-modulate_color = Color(0.65, 0.65, 0.65, 1)
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_hover"]
 content_margin_left = 12.0
@@ -24,7 +23,6 @@ texture_margin_left = 16.0
 texture_margin_top = 16.0
 texture_margin_right = 16.0
 texture_margin_bottom = 16.0
-modulate_color = Color(1.15, 1.15, 1.15, 1)
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_pressed"]
 content_margin_left = 12.0
@@ -36,7 +34,6 @@ texture_margin_left = 16.0
 texture_margin_top = 16.0
 texture_margin_right = 16.0
 texture_margin_bottom = 16.0
-modulate_color = Color(0.8, 0.8, 0.8, 1)
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_normal"]
 content_margin_left = 12.0

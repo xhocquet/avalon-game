@@ -21,6 +21,11 @@ quickplay-multiplayer ticks="0" faction1="200" faction2="201":
     & .\scripts\quickplay.ps1 -Ticks {{ ticks }} -Faction1 {{ faction1 }} \
       -Faction2 {{ faction2 }} -Godmode:${{ godmode }}
 
+# Two rendered clients, repeatable movement, and separate server/client traces.
+[group('play')]
+multiplayer-profile seconds="60":
+    pwsh -NoProfile -File .\scripts\multiplayer-profile.ps1 -Seconds {{ seconds }} -Godot "{{ godot_exe }}"
+
 # Local playground straight into a match. `just quickplay nav-playground`, or add cheat args:
 # `just quickplay combat-playground --allcheats`
 [group('play')]

@@ -13,6 +13,7 @@ public partial class LobbyUI : Control, IViewHud {
   private const int SlotsPerSide = 3;
 
   private readonly List<Button> _factionCards = [];
+  private readonly List<(NinePatchRect Frame, Texture2D DefaultTexture)> _factionFrames = [];
   private readonly Dictionary<int, Texture2D> _factionPortraits = new();
 
   // playerId -> factionId, fed by LobbyGameNode from the LobbyPlayerConfig broadcast. Slots with no
@@ -37,6 +38,7 @@ public partial class LobbyUI : Control, IViewHud {
   private Label _resultLabel;
   private PanelContainer _resultPanel;
   private Texture2D _placeholderPortrait;
+  private Texture2D _selectedFactionBorder;
   private Label _status;
   private SessionPhase _phase = SessionPhase.None;
   private double? _countdownSeconds;
@@ -57,21 +59,20 @@ public partial class LobbyUI : Control, IViewHud {
   public event Action OnStartLocalClicked;
 
   public override void _Ready() {
-    const string left = "Root/Columns/LeftColumn/Margin/VBox";
     const string bottom = "Root/BottomBar/Margin/Row";
 
-    _nameField = GetNode<LineEdit>($"{left}/NameField");
-    _ipField = GetNode<LineEdit>($"{left}/HostRow/IpField");
-    _portField = GetNode<LineEdit>($"{left}/PortRow/PortField");
+    _nameField = GetNode<LineEdit>("Root/TopBar/Margin/Row/RightColumn/NameField");
+    _ipField = GetNode<LineEdit>("%IpField");
+    _portField = GetNode<LineEdit>("%PortField");
     _buttonContent = GetNode<VBoxContainer>($"{bottom}/MiddleColumn/Center/Buttons/ReadyButton/Content");
     _buttonTitle = _buttonContent.GetNode<Label>("Title");
     _status = _buttonContent.GetNode<Label>("StatusLabel");
     _startButton = GetNode<Button>($"{bottom}/MiddleColumn/Center/Buttons/StartButton");
-    _joinButton = GetNode<Button>($"{left}/JoinRow/JoinButton");
-    _disconnectButton = GetNode<Button>($"{left}/JoinRow/DisconnectButton");
+    _joinButton = GetNode<Button>("%JoinButton");
+    _disconnectButton = GetNode<Button>("%DisconnectButton");
     _readyButton = GetNode<Button>($"{bottom}/MiddleColumn/Center/Buttons/ReadyButton");
 
-    _factionGrid = GetNode<GridContainer>("Root/Columns/RightColumn/FactionPanel/Margin/VBox/FactionGrid");
+    _factionGrid = GetNode<GridContainer>("%FactionGrid");
 
     for (var i = 0; i < _slots.Length; i++) {
       var side = i < SlotsPerSide ? "LeftColumn/Allies" : "RightColumn/Enemies";
@@ -132,15 +133,18 @@ public partial class LobbyUI : Control, IViewHud {
   // a shared ButtonGroup so exactly one stays lit; the pick mirrors into FactionSelection, which
   // SimCallbacks reads to send the SelectFactionCommand at match start.
   private void BindFactionCards() {
+    _selectedFactionBorder = GD.Load<Texture2D>("res://Assets/UI/PanelBorderGreyDetail.png");
     var defs = FactionCatalog.FactionDefs;
     foreach (var def in defs) {
       var portrait = GD.Load<Texture2D>(def.HeroPortraitTexturePath);
       if (portrait != null) _factionPortraits[def.Id] = portrait;
 
       var card = _factionGrid.GetNode<Button>($"FactionCard{def.Id}");
-      var texture = card.GetNode<TextureRect>("Margin/VBox/PortraitTexture");
+      var texture = card.GetNode<TextureRect>("%PortraitTexture");
       texture.Texture = portrait ?? PlaceholderPortrait;
-      var label = card.GetNode<Label>("Margin/VBox/FactionName");
+      var frame = card.GetNode<NinePatchRect>("%PortraitFrame");
+      _factionFrames.Add((frame, frame.Texture));
+      var label = card.GetNode<Label>("%FactionName");
       label.Text = def.Name;
       var factionId = def.Id;
       card.Pressed += () => SelectFaction(factionId);
@@ -165,9 +169,12 @@ public partial class LobbyUI : Control, IViewHud {
   // Keeps the card toggles in sync with one pick.
   private void ApplySelectedFaction(int factionId) {
     var defs = FactionCatalog.FactionDefs;
-    for (var i = 0; i < _factionCards.Count && i < defs.Length; i++)
-      _factionCards[i].SetPressedNoSignal(defs[i].Id == factionId);
-
+    for (var i = 0; i < _factionCards.Count && i < defs.Length; i++) {
+      var selected = defs[i].Id == factionId;
+      _factionCards[i].SetPressedNoSignal(selected);
+      var (frame, defaultTexture) = _factionFrames[i];
+      frame.Texture = selected ? _selectedFactionBorder : defaultTexture;
+    }
   }
 
   private Texture2D ResolvePortrait(int factionId) {
