@@ -1,4 +1,4 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://bup2syir3rr0q"]
 
 [ext_resource type="PackedScene" path="res://Scenes/Heroes/Presentation/SnailHead.tscn" id="1_model"]
 
@@ -9,32 +9,31 @@ ambient_light_energy = 0.65
 reflected_light_source = 2
 tonemap_mode = 2
 
-[node name="Stage" type="Node3D"]
+[node name="Stage" type="Node3D" unique_id=93234326]
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=587773425]
 environment = SubResource("Environment_preview")
 
-[node name="KeyLight" type="DirectionalLight3D" parent="."]
+[node name="KeyLight" type="DirectionalLight3D" parent="." unique_id=921039724]
 transform = Transform3D(0.8660254, 0.28678823, -0.40957603, 0, 0.81915206, 0.57357645, 0.5, -0.49673176, 0.7094065, 0, 0, 0)
 light_color = Color(1, 0.9, 0.78, 1)
 light_energy = 1.4
 
-[node name="FillLight" type="DirectionalLight3D" parent="."]
+[node name="FillLight" type="DirectionalLight3D" parent="." unique_id=2080022010]
 transform = Transform3D(-0.70710677, -0.1830127, 0.68301266, 0, 0.9659258, 0.25881904, -0.70710677, 0.1830127, -0.68301266, 0, 0, 0)
 visible = false
 light_color = Color(0.65, 0.78, 1, 1)
 light_energy = 0.8
 
-[node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.98948795, -0.14461526, 0, 0.14461526, 0.98948795, 0.00159588, 0.88271371, 5.97751011)
+[node name="Camera3D" type="Camera3D" parent="." unique_id=2105084688]
+transform = Transform3D(1, 0, 0, 0, 0.9988061, 0.04884977, 0, -0.04884977, 0.9988061, 0, 1.8, 6)
 projection = 1
 current = true
-size = 2.4570
+size = 1.2
 near = 0.01
 far = 1000.0
 
-[node name="ChampionPivot" type="Node3D" parent="."]
-transform = Transform3D(0.91322577, 0, -0.40745413, 0, 1, 0, 0.40745413, 0, 0.91322577, 0, 0, 0)
+[node name="ChampionPivot" type="Node3D" parent="." unique_id=60010145]
+transform = Transform3D(0.9995758, 0, 0.029125333, 0, 1, 0, -0.029125333, 0, 0.9995758, 0, 0, 0)
 
-[node name="SnailHead" parent="ChampionPivot" instance=ExtResource("1_model")]
-
+[node name="SnailHead" parent="ChampionPivot" unique_id=879026467 instance=ExtResource("1_model")]

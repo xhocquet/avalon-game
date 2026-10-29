@@ -6,10 +6,12 @@
 
 [node name="Skinwalker" unique_id=212024309 instance=ExtResource("1_olqw1")]
 script = ExtResource("2_hero")
-WalkAnimationOverride = "preset_biped_run"
-IdleAnimationOverride = "preset_biped_idle"
+WalkAnimationOverride = "walk"
+IdleAnimationOverride = "idle"
+DeathAnimationOverride = "death"
+AttackAnimationOverride = "attack"
 SkillAnimationOverrides = Dictionary[int, String]({
-513: "preset_biped_run"
+513: "run"
 })
 
 [node name="AnimationPlayer" parent="." index="1"]

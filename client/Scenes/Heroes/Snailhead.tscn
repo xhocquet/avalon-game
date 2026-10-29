@@ -6,8 +6,10 @@
 
 [node name="Player" unique_id=765539556 instance=ExtResource("1_6ayvj")]
 script = ExtResource("2_hero")
-WalkAnimationOverride = "Walk"
-IdleAnimationOverride = "Idle"
+WalkAnimationOverride = "walk"
+IdleAnimationOverride = "idle"
+DeathAnimationOverride = "death"
+AttackAnimationOverride = "attack"
 
 [node name="AnimationPlayer" parent="." index="1"]
 autoplay = &""

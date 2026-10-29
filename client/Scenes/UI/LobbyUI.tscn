@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" path="res://Scenes/UI/VaultPage.tscn" id="12_vault"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/SettingsPage.tscn" id="13_settings"]
 [ext_resource type="PackedScene" uid="uid://duyqka540kv7v" path="res://Scenes/UI/ChampionPreview.tscn" id="14_preview"]
+[ext_resource type="Texture2D" uid="uid://b4335cupm5gci" path="res://Assets/UI/vine-border.webp" id="15_vine_border"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_top_bar"]
 content_margin_left = 2.0
@@ -417,11 +418,28 @@ script = ExtResource("9_disconnect")
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 2.0
-theme_override_styles/panel = SubResource("StyleBoxTexture_section")
+theme_override_styles/panel = SubResource("StyleBoxEmpty_section")
 
 [node name="ChampionPreview" parent="Root/Columns/MiddleColumn" unique_id=1904620522 instance=ExtResource("14_preview")]
 unique_name_in_owner = true
 layout_mode = 2
+
+[node name="HeroPreviewFrame" type="Control" parent="Root/Columns/MiddleColumn"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="VineBorder" type="NinePatchRect" parent="Root/Columns/MiddleColumn/HeroPreviewFrame"]
+layout_mode = 1
+anchor_right = 8.0
+anchor_bottom = 8.0
+scale = Vector2(0.125, 0.125)
+mouse_filter = 2
+texture = ExtResource("15_vine_border")
+draw_center = false
+patch_margin_left = 1264
+patch_margin_top = 776
+patch_margin_right = 1264
+patch_margin_bottom = 776
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Root/Columns" unique_id=1208351046]
 layout_mode = 2
@@ -613,13 +631,13 @@ size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_rmfuk")
 IsEnemy = true
 
-[node name="SettingsButtons" type="HBoxContainer" parent="Root/BottomBar"]
+[node name="SettingsButtons" type="HBoxContainer" parent="Root/BottomBar" unique_id=527990928]
 visible = false
 layout_mode = 2
 theme_override_constants/separation = 16
 alignment = 1
 
-[node name="SaveButton" type="Button" parent="Root/BottomBar/SettingsButtons"]
+[node name="SaveButton" type="Button" parent="Root/BottomBar/SettingsButtons" unique_id=194696897]
 custom_minimum_size = Vector2(220, 72)
 layout_mode = 2
 size_flags_vertical = 4
@@ -627,7 +645,7 @@ theme_type_variation = &"LobbyButton"
 theme_override_font_sizes/font_size = 28
 text = "Save"
 
-[node name="CancelButton" type="Button" parent="Root/BottomBar/SettingsButtons"]
+[node name="CancelButton" type="Button" parent="Root/BottomBar/SettingsButtons" unique_id=1985339749]
 custom_minimum_size = Vector2(220, 72)
 layout_mode = 2
 size_flags_vertical = 4

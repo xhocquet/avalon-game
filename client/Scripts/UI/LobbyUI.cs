@@ -109,6 +109,7 @@ public partial class LobbyUI : Control, IViewHud {
   private void BindPages() {
     const string tabs = "Root/TopBar/Margin/Row/MiddleColumn/Center/Tabs";
     var lobbyPage = GetNode<Control>("Root/Columns");
+    var bottomBar = GetNode<Control>("Root/BottomBar");
     var lobbyFooter = GetNode<Control>("Root/BottomBar/Margin");
     var vaultPage = GetNode<Control>("%VaultPage");
     var settingsPage = GetNode<Control>("%SettingsPage");
@@ -129,11 +130,16 @@ public partial class LobbyUI : Control, IViewHud {
     GetNode<Button>($"{tabs}/Play").Toggled += selected => {
       lobbyPage.Visible = selected;
       lobbyFooter.Visible = selected;
+      bottomBar.Visible = selected;
     };
-    GetNode<Button>($"{tabs}/Vault").Toggled += selected => vaultPage.Visible = selected;
+    GetNode<Button>($"{tabs}/Vault").Toggled += selected => {
+      vaultPage.Visible = selected;
+      bottomBar.Visible = !selected;
+    };
     GetNode<Button>($"{tabs}/Settings").Toggled += selected => {
       settingsPage.Visible = selected;
       settingsFooter.Visible = selected;
+      bottomBar.Visible = selected;
     };
   }
 

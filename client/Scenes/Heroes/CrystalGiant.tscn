@@ -6,10 +6,14 @@
 
 [node name="CrystalKnight" unique_id=189552492 instance=ExtResource("1_t5jg0")]
 script = ExtResource("2_hero")
-WalkAnimationOverride = "CrystalGiant_Walk"
-IdleAnimationOverride = "CrystalGiant_Idle"
-AttackAnimationOverride = "CrystalGiant_Attack"
+WalkAnimationOverride = "walk"
+IdleAnimationOverride = "idle"
+AttackAnimationOverride = "attack"
+DeathAnimationOverride = "death"
 AttackContactTime = 0.583
+
+[node name="AnimationPlayer" parent="." index="1"]
+autoplay = &""
 
 [node name="SelectionIndicator" parent="." index="2" unique_id=2143077504 instance=ExtResource("2_73r7p")]
 transform = Transform3D(1.4, 0, 0, 0, 1.4, 0, 0, 0, 1.4, 0, 0.04, 0)

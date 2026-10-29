@@ -16,6 +16,7 @@ public partial class HeroEntity : TeamEntityViewNode, IPlayerView, IAttackableVi
 
   [Export] public string WalkAnimationOverride { get; set; } = "";
   [Export] public string IdleAnimationOverride { get; set; } = "";
+  [Export] public string DeathAnimationOverride { get; set; } = "";
   // Empty rigs use the debug fallback.
   [Export] public string AttackAnimationOverride { get; set; } = "";
   [Export] public Godot.Collections.Dictionary<int, string> SkillAnimationOverrides { get; set; } = new();
@@ -34,6 +35,7 @@ public partial class HeroEntity : TeamEntityViewNode, IPlayerView, IAttackableVi
 
   private string WalkAnim => string.IsNullOrEmpty(WalkAnimationOverride) ? AnimWalk : WalkAnimationOverride;
   private string IdleAnim => string.IsNullOrEmpty(IdleAnimationOverride) ? AnimIdle : IdleAnimationOverride;
+  private string DeathAnim => string.IsNullOrEmpty(DeathAnimationOverride) ? AnimDeath : DeathAnimationOverride;
   private bool HasAttackAnim => _anim != null && !string.IsNullOrEmpty(AttackAnimationOverride)
                                 && _anim.HasAnimation(AttackAnimationOverride);
 
@@ -92,8 +94,8 @@ public partial class HeroEntity : TeamEntityViewNode, IPlayerView, IAttackableVi
         walkAnim.LoopMode = Animation.LoopModeEnum.Linear;
       }
 
-      if (_anim.HasAnimation(AnimDeath)) {
-        var deathAnim = _anim.GetAnimation(AnimDeath);
+      if (_anim.HasAnimation(DeathAnim)) {
+        var deathAnim = _anim.GetAnimation(DeathAnim);
         deathAnim.LoopMode = Animation.LoopModeEnum.None;
       }
 
@@ -143,7 +145,7 @@ public partial class HeroEntity : TeamEntityViewNode, IPlayerView, IAttackableVi
       _isAttacking = false;
       _skillAnimation = "";
       _anim.SpeedScale = 1.0f;
-      PlayOrStop(_isDead ? AnimDeath : IdleAnim);
+      PlayOrStop(_isDead ? DeathAnim : IdleAnim);
     }
 
     if (_isDead)
