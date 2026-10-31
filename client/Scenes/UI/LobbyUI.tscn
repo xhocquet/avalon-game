@@ -9,7 +9,7 @@
 [ext_resource type="PackedScene" path="res://Scenes/UI/VaultPage.tscn" id="12_vault"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/SettingsPage.tscn" id="13_settings"]
 [ext_resource type="PackedScene" uid="uid://duyqka540kv7v" path="res://Scenes/UI/ChampionPreview.tscn" id="14_preview"]
-[ext_resource type="Theme" path="res://Resources/UI/LobbyActionButtonTheme.tres" id="15_action_button_theme"]
+[ext_resource type="Theme" uid="uid://db4evk5ue67dn" path="res://Resources/UI/LobbyActionButtonTheme.tres" id="15_action_button_theme"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_top_bar"]
 content_margin_left = 2.0
@@ -437,7 +437,7 @@ theme_type_variation = &"LobbyButton"
 theme_override_font_sizes/font_size = 36
 text = "Nav Playground"
 
-[node name="TexturePlaygroundButton" type="Button" parent="Root/HomePage/RightColumn"]
+[node name="TexturePlaygroundButton" type="Button" parent="Root/HomePage/RightColumn" unique_id=268822425]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 120)
 layout_mode = 2

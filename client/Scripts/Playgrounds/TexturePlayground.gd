@@ -13,6 +13,7 @@ var sky_index := 0
 var ground_label: Label
 var sky_label: Label
 var scale_input: SpinBox
+var target_input: OptionButton
 var original_ground: ShaderMaterial
 var blended_ground: ShaderMaterial
 var environment: Environment
@@ -97,14 +98,15 @@ func _build_ui() -> void:
 	box.add_theme_constant_override("separation", 8)
 	margin.add_child(box)
 	_label(box, "GROUND & SKY", 19)
-	var targets := OptionButton.new()
+	target_input = OptionButton.new()
+	target_input.focus_mode = Control.FOCUS_NONE
 	for title in ["Whole ground", "Splatmap: paths (red)", "Splatmap: grass (green)", "Splatmap: stone (blue)"]:
-		targets.add_item(title)
-	targets.item_selected.connect(func(index: int):
+		target_input.add_item(title)
+	target_input.item_selected.connect(func(index: int):
 		target = index
 		scale_input.set_value_no_signal(repeats[target])
 		_refresh_ground())
-	box.add_child(targets)
+	box.add_child(target_input)
 	ground_label = _selector(box, func(): _cycle_ground(-1), func(): _cycle_ground(1))
 	scale_input = _number(box, "Tiles across 100 m", 0.25, 400.0, 0.25, 10.0)
 	scale_input.value_changed.connect(func(value: float):
@@ -164,6 +166,8 @@ func _number(parent: Node, title: String, minimum: float, maximum: float, step: 
 	var label := _label(row, title, 14)
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var input := SpinBox.new()
+	input.focus_mode = Control.FOCUS_NONE
+	input.get_line_edit().focus_mode = Control.FOCUS_CLICK
 	input.min_value = minimum
 	input.max_value = maximum
 	input.step = step
@@ -216,6 +220,8 @@ func _refresh_ground() -> void:
 				texture = load(entry[map])
 			else:
 				var color := Color(0.5, 0.5, 1) if map == "normal" else Color.WHITE
+				if map == "height":
+					color = Color(0.5, 0.5, 0.5)
 				var image := Image.create(1, 1, false, Image.FORMAT_RGB8)
 				image.fill(color)
 				texture = ImageTexture.create_from_image(image)
@@ -247,6 +253,18 @@ func _reset_camera() -> void:
 	camera.rotation_degrees = Vector3(pitch, yaw, 0)
 
 
+func _input(event: InputEvent) -> void:
+	if not event is InputEventKey:
+		return
+	if event.physical_keycode in [KEY_W, KEY_A, KEY_S, KEY_D, KEY_Q, KEY_E]:
+		var focused := get_viewport().gui_get_focus_owner()
+		if focused != null:
+			focused.release_focus()
+		get_viewport().set_input_as_handled()
+	elif event.is_action("ui_focus_next") or event.is_action("ui_focus_prev") or event.is_action("ui_left") or event.is_action("ui_right") or event.is_action("ui_up") or event.is_action("ui_down"):
+		get_viewport().set_input_as_handled()
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if event.pressed else Input.MOUSE_MODE_VISIBLE
@@ -259,8 +277,6 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _process(delta: float) -> void:
-	if get_viewport().gui_get_focus_owner() is LineEdit:
-		return
 	var direction := Vector3(
 		float(Input.is_physical_key_pressed(KEY_D)) - float(Input.is_physical_key_pressed(KEY_A)),
 		float(Input.is_physical_key_pressed(KEY_E)) - float(Input.is_physical_key_pressed(KEY_Q)),

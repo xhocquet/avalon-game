@@ -1,71 +1,37 @@
 [gd_scene format=3 uid="uid://clk3ykagonl6k"]
 
-[ext_resource type="Shader" uid="uid://dme5a40ljtsc5" path="res://Scenes/World/Sky.gdshader" id="1_3a4wv"]
+[ext_resource type="Texture2D" path="res://Assets/Props/SkyTests/Puffy_Sky-Evening_03-1024x512.png" id="1_evening_sky"]
 [ext_resource type="Shader" uid="uid://dkl23k2monqos" path="res://Scenes/World/WorldSplatmap.gdshader" id="1_kuxid"]
 [ext_resource type="Material" uid="uid://cowspplyfkffa" path="res://addons/constructive_telegraphs/resources/con_telegraph_next_pass.tres" id="1_telegraph"]
-[ext_resource type="Texture2D" uid="uid://8e5e6xh3shr0" path="res://Assets/Props/Ground/Grass1/Grass007_2K-JPG_Color.jpg" id="2_7n4rk"]
+[ext_resource type="Texture2D" path="res://Assets/Props/GroundTests/gravel_brown_s42.png" id="2_gravel"]
+[ext_resource type="Texture2D" path="res://Assets/Props/Ground/texture6/ground_0044_color_2k.jpg" id="2_gr6albedo"]
+[ext_resource type="Texture2D" path="res://Assets/Props/Ground/texture6/ground_0044_normal_opengl_2k.png" id="2_gr6normal"]
+[ext_resource type="Texture2D" path="res://Assets/Props/Ground/texture6/ground_0044_ao_2k.jpg" id="2_gr6ao"]
+[ext_resource type="Texture2D" path="res://Assets/Props/Ground/texture6/ground_0044_roughness_2k.jpg" id="2_gr6rough"]
+[ext_resource type="Texture2D" path="res://Assets/Props/Ground/texture6/ground_0044_height_2k.png" id="2_gr6height"]
 [ext_resource type="Texture2D" uid="uid://cnaqlf624yxyb" path="res://Assets/Props/Ground/texture3/ground_0013_color_2k.jpg" id="2_gr3albedo"]
 [ext_resource type="Texture2D" uid="uid://dqfh7hn7y4ydd" path="res://Assets/Props/Ground/texture3/ground_0013_ao_2k.jpg" id="2_gr3ao"]
 [ext_resource type="Texture2D" uid="uid://c6vp8tq02lrah" path="res://Assets/Props/Ground/texture3/ground_0013_height_2k.png" id="2_gr3height"]
 [ext_resource type="Texture2D" uid="uid://btkxvfpn5tpy8" path="res://Assets/Props/Ground/texture3/ground_0013_normal_opengl_2k.png" id="2_gr3normal"]
 [ext_resource type="Texture2D" uid="uid://vkfdijmbudqu" path="res://Assets/Props/Ground/texture3/ground_0013_roughness_2k.jpg" id="2_gr3rough"]
-[ext_resource type="Texture2D" uid="uid://dd3clnn2hyvhu" path="res://Assets/Props/Ground/Grass1/Grass007_2K-JPG_AmbientOcclusion.jpg" id="4_jclsg"]
 [ext_resource type="PackedScene" uid="uid://27ja1dxjwmub" path="res://Scenes/Objects/Turret2.tscn" id="5_li7mh"]
 [ext_resource type="PackedScene" uid="uid://qjurpo3ywmsk" path="res://Scenes/Objects/Container2.tscn" id="6_ayvj0"]
-[ext_resource type="Texture2D" uid="uid://c6fefxvkvhr0t" path="res://Assets/Props/Ground/Grass1/Grass007_2K-JPG_Displacement.jpg" id="6_lqys3"]
 [ext_resource type="PackedScene" uid="uid://c4gqw5blm3y8s" path="res://Scenes/Objects/Spawn.tscn" id="7_2wqcu"]
 [ext_resource type="PackedScene" uid="uid://wxcpmxcd41gy" path="res://Scenes/Objects/Bush.tscn" id="7_87yka"]
 [ext_resource type="PackedScene" uid="uid://chagof3hsa6jp" path="res://Scenes/Objects/FirTreeSmall.tscn" id="7_ayvj0"]
 [ext_resource type="PackedScene" uid="uid://c4um04dyla66r" path="res://Scenes/Objects/Fountain.tscn" id="7_kuxid"]
 [ext_resource type="PackedScene" uid="uid://be6nrf0b8j4l0" path="res://Scenes/Objects/RockA.tscn" id="8_kjd5s"]
-[ext_resource type="Texture2D" uid="uid://ckih7rb46i3n1" path="res://Assets/Props/Ground/Grass1/Grass007_2K-JPG_NormalGL.jpg" id="8_qs546"]
 [ext_resource type="PackedScene" uid="uid://do0rarfh4frcx" path="res://Scenes/Objects/Shop2.tscn" id="9_jvdyq"]
 [ext_resource type="PackedScene" uid="uid://lsvs8a7urkca" path="res://Scenes/Objects/RockC.tscn" id="9_p7pgw"]
-[ext_resource type="Texture2D" uid="uid://c07674roea6ag" path="res://Assets/Props/Ground/Grass1/Grass007_2K-JPG_Roughness.jpg" id="10_41ig8"]
 [ext_resource type="Texture2D" uid="uid://dyaeoq1mqg00e" path="res://Assets/Props/Ground/splatmap.jpg" id="12_jclsg"]
-[ext_resource type="Texture2D" uid="uid://bhri4xhnx2dw7" path="res://Assets/Props/Ground/texture4/ground_0034_color_2k.jpg" id="13_gr4albedo"]
-[ext_resource type="Texture2D" uid="uid://0hxrtfig6d7" path="res://Assets/Props/Ground/texture4/ground_0034_ao_2k.jpg" id="13_gr4ao"]
-[ext_resource type="Texture2D" uid="uid://igitibmmi60p" path="res://Assets/Props/Ground/texture4/ground_0034_height_2k.png" id="13_gr4height"]
-[ext_resource type="Texture2D" uid="uid://dd5b5uto3lljf" path="res://Assets/Props/Ground/texture4/ground_0034_normal_opengl_2k.png" id="13_gr4normal"]
-[ext_resource type="Texture2D" uid="uid://cicwmpbpcvjpm" path="res://Assets/Props/Ground/texture4/ground_0034_roughness_2k.jpg" id="13_gr4rough"]
 [ext_resource type="PackedScene" uid="uid://3ded1f06hab5" path="res://Scenes/Objects/WaterBottle.tscn" id="23_qs546"]
 [ext_resource type="PackedScene" uid="uid://cuh0tkyxt3hv" path="res://Scenes/FX/HexGate.tscn" id="29_3a4wv"]
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_dngt1"]
-shader = ExtResource("1_3a4wv")
-shader_parameter/day_top_color = Color(0.1, 0.6, 1, 1)
-shader_parameter/day_bottom_color = Color(0.4, 0.8, 1, 1)
-shader_parameter/sunset_top_color = Color(0.7, 0.75, 1, 1)
-shader_parameter/sunset_bottom_color = Color(1, 0.5, 0.7, 1)
-shader_parameter/night_top_color = Color(0.02, 0, 0.04, 1)
-shader_parameter/night_bottom_color = Color(0.1, 0, 0.2, 1)
-shader_parameter/horizon_color = Color(0, 0.7, 0.8, 1)
-shader_parameter/horizon_blur = 0.05
-shader_parameter/sun_color = Color(10, 8, 1, 1)
-shader_parameter/sun_sunset_color = Color(10, 0, 0, 1)
-shader_parameter/sun_size = 0.2
-shader_parameter/sun_blur = 10.0
-shader_parameter/moon_color = Color(1, 0.95, 0.7, 1)
-shader_parameter/moon_size = 0.06
-shader_parameter/moon_blur = 0.1
-shader_parameter/clouds_edge_color = Color(0.8, 0.8, 0.98, 1)
-shader_parameter/clouds_top_color = Color(1, 1, 1, 1)
-shader_parameter/clouds_middle_color = Color(0.92, 0.92, 0.98, 1)
-shader_parameter/clouds_bottom_color = Color(0.83, 0.83, 0.94, 1)
-shader_parameter/clouds_speed = 2.0
-shader_parameter/clouds_direction = 0.2
-shader_parameter/clouds_scale = 1.0
-shader_parameter/clouds_cutoff = 0.3
-shader_parameter/clouds_fuzziness = 0.5
-shader_parameter/clouds_weight = 0.0
-shader_parameter/clouds_blur = 0.25
-shader_parameter/stars_speed = 1.0
-shader_parameter/stars_scale = 1.0
-shader_parameter/stars_opacity = 1.0
-shader_parameter/overwritten_time = 0.0
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_evening"]
+panorama = ExtResource("1_evening_sky")
 
 [sub_resource type="Sky" id="Sky_t46wp"]
-sky_material = SubResource("ShaderMaterial_dngt1")
+sky_material = SubResource("PanoramaSkyMaterial_evening")
 
 [sub_resource type="Environment" id="Environment_ofdpw"]
 background_mode = 2
@@ -80,29 +46,50 @@ sample_partition_type = 2
 cell_size = 0.1
 agent_max_slope = 0.02
 
+[sub_resource type="Gradient" id="Gradient_white"]
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1)
+
+[sub_resource type="GradientTexture1D" id="Texture_white"]
+gradient = SubResource("Gradient_white")
+width = 1
+
+[sub_resource type="Gradient" id="Gradient_flat_normal"]
+colors = PackedColorArray(0.5, 0.5, 1, 1, 0.5, 0.5, 1, 1)
+
+[sub_resource type="GradientTexture1D" id="Texture_flat_normal"]
+gradient = SubResource("Gradient_flat_normal")
+width = 1
+
+[sub_resource type="Gradient" id="Gradient_mid_height"]
+colors = PackedColorArray(0.5, 0.5, 0.5, 1, 0.5, 0.5, 0.5, 1)
+
+[sub_resource type="GradientTexture1D" id="Texture_mid_height"]
+gradient = SubResource("Gradient_mid_height")
+width = 1
+
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ng1ea"]
 render_priority = 0
 next_pass = ExtResource("1_telegraph")
 shader = ExtResource("1_kuxid")
 shader_parameter/splatmap = ExtResource("12_jclsg")
 shader_parameter/blend_sharpness = 0.3
-shader_parameter/albedo_r = ExtResource("2_gr3albedo")
-shader_parameter/normal_r = ExtResource("2_gr3normal")
-shader_parameter/ao_r = ExtResource("2_gr3ao")
-shader_parameter/roughness_r = ExtResource("2_gr3rough")
-shader_parameter/height_r = ExtResource("2_gr3height")
+shader_parameter/albedo_r = ExtResource("2_gravel")
+shader_parameter/normal_r = SubResource("Texture_flat_normal")
+shader_parameter/ao_r = SubResource("Texture_white")
+shader_parameter/roughness_r = SubResource("Texture_white")
+shader_parameter/height_r = SubResource("Texture_mid_height")
 shader_parameter/resolution_r = 10.0
-shader_parameter/albedo_g = ExtResource("2_7n4rk")
-shader_parameter/normal_g = ExtResource("8_qs546")
-shader_parameter/ao_g = ExtResource("4_jclsg")
-shader_parameter/roughness_g = ExtResource("10_41ig8")
-shader_parameter/height_g = ExtResource("6_lqys3")
+shader_parameter/albedo_g = ExtResource("2_gr3albedo")
+shader_parameter/normal_g = ExtResource("2_gr3normal")
+shader_parameter/ao_g = ExtResource("2_gr3ao")
+shader_parameter/roughness_g = ExtResource("2_gr3rough")
+shader_parameter/height_g = ExtResource("2_gr3height")
 shader_parameter/resolution_g = 5.0
-shader_parameter/albedo_b = ExtResource("13_gr4albedo")
-shader_parameter/normal_b = ExtResource("13_gr4normal")
-shader_parameter/ao_b = ExtResource("13_gr4ao")
-shader_parameter/roughness_b = ExtResource("13_gr4rough")
-shader_parameter/height_b = ExtResource("13_gr4height")
+shader_parameter/albedo_b = ExtResource("2_gr6albedo")
+shader_parameter/normal_b = ExtResource("2_gr6normal")
+shader_parameter/ao_b = ExtResource("2_gr6ao")
+shader_parameter/roughness_b = ExtResource("2_gr6rough")
+shader_parameter/height_b = ExtResource("2_gr6height")
 shader_parameter/resolution_b = 10.0
 shader_parameter/ground_color = Color(0, 0, 0, 1)
 
