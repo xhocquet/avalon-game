@@ -1,3 +1,4 @@
+- Extract gold from tiny UI, need to make it easier to focus on. Pull it out, maybe we make it a shop button too. Feeling iffy on the old school WC3 shop UI at this point.
 
 - **Assist gold.** `GoldRulesAsset.GoldPerAssist` (50) is authored but nothing reads it. Assists need a
 damage-participation window per victim before a payout has anything to key off — `Health.LastDamagerUnitId` only remembers the fatal hit, so the killer is the only actor a death can currently credit.
