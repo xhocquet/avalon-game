@@ -57,6 +57,7 @@ horizontal_scroll_mode = 0
 [node name="Margin" type="MarginContainer" parent="Sections/HeroesPanel/Column/Scroll"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 8
@@ -67,6 +68,7 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 16
+alignment = 1
 
 [node name="Viewer" type="VBoxContainer" parent="Sections"]
 layout_mode = 2
@@ -81,13 +83,6 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_section")
 [node name="Column" type="VBoxContainer" parent="Sections/Viewer/ModelPanel"]
 layout_mode = 2
 theme_override_constants/separation = 4
-
-[node name="HeroName" type="Label" parent="Sections/Viewer/ModelPanel/Column"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 28
-text = "Hairy Wizards"
-horizontal_alignment = 1
 
 [node name="Preview" parent="Sections/Viewer/ModelPanel/Column" instance=ExtResource("2_preview")]
 unique_name_in_owner = true

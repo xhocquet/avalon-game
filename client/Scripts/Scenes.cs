@@ -7,6 +7,8 @@ internal static class Scenes {
   public const string World = "res://Scenes/World/World.tscn";
   public const string NavPlayground = "res://Scenes/Playgrounds/NavPlayground.tscn";
   public const string CombatPlayground = "res://Scenes/Playgrounds/CombatPlayground.tscn";
+  public const string Sandbox = "res://Scenes/Playgrounds/Sandbox.tscn";
+  public const string TexturePlayground = "res://Scenes/Playgrounds/TexturePlayground.tscn";
   public const string CombatArena = "res://Scenes/Playgrounds/CombatArena.tscn";
   public const string Container = "res://Scenes/Objects/Container2.tscn";
   public const string Turret = "res://Scenes/Objects/Turret2.tscn";

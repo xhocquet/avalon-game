@@ -33,6 +33,11 @@ quickplay id="combat-playground" *args:
     dotnet build .\client\Meesles.Avalon.Client.csproj
     & "{{ godot_console }}" --path ".\client" -- --quickplay --gametype={{ id }} {{ args }}
 
+# Ground and sky texture preview with a free camera.
+[group('play')]
+texture-playground:
+    & "{{ godot_console }}" --path ".\client" "res://Scenes/Playgrounds/TexturePlayground.tscn"
+
 # CPU trace + flame graph; close the game and wait for the trace to finish saving.
 [group('play')]
 quickplay-profile id="combat-playground" *args:

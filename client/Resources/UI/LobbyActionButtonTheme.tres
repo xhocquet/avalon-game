@@ -1,0 +1,63 @@
+[gd_resource type="Theme" format=3 uid="uid://db4evk5ue67dn"]
+
+[ext_resource type="Texture2D" uid="uid://crcuohsvmifr6" path="res://Assets/UI/button_concept3.png" id="1_button"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_disabled"]
+content_margin_left = 16.0
+content_margin_top = 12.0
+content_margin_right = 16.0
+content_margin_bottom = 12.0
+texture = ExtResource("1_button")
+texture_margin_left = 14.0
+texture_margin_top = 14.0
+texture_margin_right = 14.0
+texture_margin_bottom = 14.0
+modulate_color = Color(0.7, 0.7, 0.7, 0.85)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_hover"]
+content_margin_left = 16.0
+content_margin_top = 12.0
+content_margin_right = 16.0
+content_margin_bottom = 12.0
+texture = ExtResource("1_button")
+texture_margin_left = 14.0
+texture_margin_top = 14.0
+texture_margin_right = 14.0
+texture_margin_bottom = 14.0
+modulate_color = Color(1.08, 1.08, 1.08, 1)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_pressed"]
+content_margin_left = 16.0
+content_margin_top = 12.0
+content_margin_right = 16.0
+content_margin_bottom = 12.0
+texture = ExtResource("1_button")
+texture_margin_left = 14.0
+texture_margin_top = 14.0
+texture_margin_right = 14.0
+texture_margin_bottom = 14.0
+modulate_color = Color(0.85, 0.85, 0.85, 1)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_normal"]
+content_margin_left = 16.0
+content_margin_top = 12.0
+content_margin_right = 16.0
+content_margin_bottom = 12.0
+texture = ExtResource("1_button")
+texture_margin_left = 14.0
+texture_margin_top = 14.0
+texture_margin_right = 14.0
+texture_margin_bottom = 14.0
+
+[resource]
+Label/colors/font_color = Color(0.12, 0.09, 0.07, 1)
+LobbyButton/base_type = &"Button"
+LobbyButton/colors/font_color = Color(0.12, 0.09, 0.07, 1)
+LobbyButton/colors/font_disabled_color = Color(0.25, 0.22, 0.19, 1)
+LobbyButton/colors/font_hover_color = Color(0.12, 0.09, 0.07, 1)
+LobbyButton/colors/font_pressed_color = Color(0.12, 0.09, 0.07, 1)
+LobbyButton/styles/disabled = SubResource("StyleBoxTexture_disabled")
+LobbyButton/styles/hover = SubResource("StyleBoxTexture_hover")
+LobbyButton/styles/hover_pressed = SubResource("StyleBoxTexture_pressed")
+LobbyButton/styles/normal = SubResource("StyleBoxTexture_normal")
+LobbyButton/styles/pressed = SubResource("StyleBoxTexture_pressed")

@@ -1,5 +1,6 @@
 [gd_scene format=3 uid="uid://klsya8v6joam"]
 
+[ext_resource type="PackedScene" path="res://Scenes/Camera3D.tscn" id="camera"]
 [ext_resource type="Shader" uid="uid://dme5a40ljtsc5" path="res://Scenes/World/sky.gdshader" id="1_7ykkm"]
 [ext_resource type="Shader" uid="uid://dkl23k2monqos" path="res://Scenes/World/WorldSplatmap.gdshader" id="2_wau1u"]
 [ext_resource type="Texture2D" uid="uid://bhri4xhnx2dw7" path="res://Assets/Props/Ground/texture4/ground_0034_color_2k.jpg" id="3_chqrk"]
@@ -307,6 +308,10 @@ shader_parameter/edge_width = 2.5
 [sub_resource type="QuadMesh" id="QuadMesh_ipf0h"]
 
 [node name="World2" type="Node3D" unique_id=1910615875]
+
+[node name="Camera3D" parent="." instance=ExtResource("camera")]
+position = Vector3(0, 18, 12)
+current = true
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1782293992]
 environment = SubResource("Environment_ofdpw")

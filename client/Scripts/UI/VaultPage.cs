@@ -7,7 +7,6 @@ namespace Meesles.Avalon;
 public partial class VaultPage : Control {
   private readonly List<Button> _heroButtons = [];
   private ChampionPreview _preview;
-  private Label _heroName;
   private Label _animationName;
   private Button _previousAnimation;
   private Button _nextAnimation;
@@ -16,7 +15,6 @@ public partial class VaultPage : Control {
 
   public override void _Ready() {
     _preview = GetNode<ChampionPreview>("%Preview");
-    _heroName = GetNode<Label>("%HeroName");
     _animationName = GetNode<Label>("%AnimationName");
     _previousAnimation = GetNode<Button>("%PreviousAnimation");
     _nextAnimation = GetNode<Button>("%NextAnimation");
@@ -62,7 +60,6 @@ public partial class VaultPage : Control {
   private void SelectHero(int index) {
     var def = FactionCatalog.FactionDefs[index];
     _heroButtons[index].ButtonPressed = true;
-    _heroName.Text = def.Name;
     _preview.ShowFaction(def.Id);
     _animations = Array.FindAll(_preview.GetAnimationNames(), name =>
       !name.Equals("RESET", StringComparison.OrdinalIgnoreCase));

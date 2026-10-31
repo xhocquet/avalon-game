@@ -10,8 +10,6 @@ using xpTURN.Klotho.Network;
 namespace Meesles.Avalon;
 
 public partial class LobbyUI : Control, IViewHud {
-  private const int SlotsPerSide = 3;
-
   private readonly List<Button> _factionCards = [];
   private readonly List<(NinePatchRect Frame, Texture2D DefaultTexture)> _factionFrames = [];
   private readonly Dictionary<int, Texture2D> _factionPortraits = new();
@@ -19,7 +17,7 @@ public partial class LobbyUI : Control, IViewHud {
   // playerId -> factionId, fed by LobbyGameNode from the LobbyPlayerConfig broadcast. Slots with no
   // entry yet (config still in flight, or an empty slot) fall back to the placeholder portrait.
   private readonly Dictionary<int, int> _playerFactions = new();
-  private readonly PlayerSlot[] _slots = new PlayerSlot[SlotsPerSide * 2];
+  private readonly PlayerSlot[] _slots = new PlayerSlot[4];
 
   private GridContainer _factionGrid;
   private ChampionPreview _championPreview;
@@ -58,6 +56,8 @@ public partial class LobbyUI : Control, IViewHud {
 
   // The "Start" button a local game type shows instead of Join/Ready.
   public event Action OnStartLocalClicked;
+  public event Action OnSandboxClicked;
+  public event Action OnTexturePlaygroundClicked;
 
   public override void _Ready() {
     const string bottom = "Root/BottomBar/Margin/Row";
@@ -77,8 +77,7 @@ public partial class LobbyUI : Control, IViewHud {
     _championPreview = GetNode<ChampionPreview>("%ChampionPreview");
 
     for (var i = 0; i < _slots.Length; i++) {
-      var side = i < SlotsPerSide ? "LeftColumn/Allies" : "RightColumn/Enemies";
-      var row = $"{bottom}/{side}/Slots/Slot{i % SlotsPerSide}/Margin/Row";
+      var row = $"%PlayerSlots/Slot{i}/Margin/Row";
       _slots[i] = new PlayerSlot {
         Portrait = GetNode<TextureRect>($"{row}/PortraitFrame/Portrait"),
         Name = GetNode<Label>($"{row}/Info/NameLabel"),
@@ -99,6 +98,10 @@ public partial class LobbyUI : Control, IViewHud {
     _disconnectButton.Pressed += () => OnDisconnectClicked?.Invoke();
     _readyButton.Pressed += HandleReadyPressed;
     _startButton.Pressed += () => OnStartLocalClicked?.Invoke();
+    GetNode<Button>("%CombatPlaygroundButton").Pressed += () => StartLocalGame("combat-playground");
+    GetNode<Button>("%NavPlaygroundButton").Pressed += () => StartLocalGame("nav-playground");
+    GetNode<Button>("%SandboxButton").Pressed += () => OnSandboxClicked?.Invoke();
+    GetNode<Button>("%TexturePlaygroundButton").Pressed += () => OnTexturePlaygroundClicked?.Invoke();
 
     BindPages();
     BindFactionCards();
@@ -108,39 +111,38 @@ public partial class LobbyUI : Control, IViewHud {
 
   private void BindPages() {
     const string tabs = "Root/TopBar/Margin/Row/MiddleColumn/Center/Tabs";
+    var homePage = GetNode<Control>("%HomePage");
     var lobbyPage = GetNode<Control>("Root/Columns");
-    var bottomBar = GetNode<Control>("Root/BottomBar");
-    var lobbyFooter = GetNode<Control>("Root/BottomBar/Margin");
-    var vaultPage = GetNode<Control>("%VaultPage");
-    var settingsPage = GetNode<Control>("%SettingsPage");
-    var settingsFooter = GetNode<Control>("Root/BottomBar/SettingsButtons");
-    var settingsPanel = settingsPage.GetNode<Control>("SettingsPanel");
-    var heroPanel = GetNode<Control>("Root/Columns/MiddleColumn");
+    var homeControls = homePage.GetNode<Control>("LeftColumn/Content");
+    lobbyPage.GetNode<Control>("LeftColumn").CustomMinimumSize =
+      new Vector2(homeControls.GetCombinedMinimumSize().X, 0);
 
-    void UpdateSettingsWidth() {
-      var halfWidth = Mathf.Min(heroPanel.Size.X, settingsPage.Size.X / 2);
-      settingsPanel.OffsetLeft = -halfWidth;
-      settingsPanel.OffsetRight = halfWidth;
+    foreach (var page in new[] { "Home", "Vault", "Settings" })
+      GetNode<Button>($"{tabs}/{page}").Toggled += selected => {
+        if (selected) ShowPage(page);
+      };
+    ShowPage("Home");
+  }
+
+  public void ShowLobby() {
+    ShowPage("Lobby");
+  }
+
+  private void ShowPage(string page) {
+    GetNode<Control>("%HomePage").Visible = page == "Home";
+    GetNode<Control>("Root/Columns").Visible = page == "Lobby";
+    GetNode<Control>("Root/BottomBar/Margin").Visible = page == "Lobby";
+    GetNode<Control>("%VaultPage").Visible = page == "Vault";
+    GetNode<Control>("%SettingsPage").Visible = page == "Settings";
+    GetNode<Control>("Root/BottomBar/SettingsButtons").Visible = page == "Settings";
+    GetNode<Control>("Root/BottomBar").Visible = page is "Lobby" or "Settings";
+
+    const string tabs = "Root/TopBar/Margin/Row/MiddleColumn/Center/Tabs";
+    foreach (var name in new[] { "Home", "Vault", "Settings" }) {
+      var button = GetNode<Button>($"{tabs}/{name}");
+      button.SetPressedNoSignal(page == name);
+      button.GetNode<Control>("SelectedBorder").Visible = page == name;
     }
-
-    heroPanel.Resized += UpdateSettingsWidth;
-    settingsPage.Resized += UpdateSettingsWidth;
-    UpdateSettingsWidth();
-
-    GetNode<Button>($"{tabs}/Play").Toggled += selected => {
-      lobbyPage.Visible = selected;
-      lobbyFooter.Visible = selected;
-      bottomBar.Visible = selected;
-    };
-    GetNode<Button>($"{tabs}/Vault").Toggled += selected => {
-      vaultPage.Visible = selected;
-      bottomBar.Visible = !selected;
-    };
-    GetNode<Button>($"{tabs}/Settings").Toggled += selected => {
-      settingsPage.Visible = selected;
-      settingsFooter.Visible = selected;
-      bottomBar.Visible = selected;
-    };
   }
 
   // -------------------------------------------------------------------- game type selection
@@ -149,6 +151,11 @@ public partial class LobbyUI : Control, IViewHud {
   public void SetGameType(string id) {
     GameTypeSelection.SelectedGameTypeId = id;
     ApplySelectedGameType(id);
+  }
+
+  private void StartLocalGame(string id) {
+    SetGameType(id);
+    OnStartLocalClicked?.Invoke();
   }
 
   // A local game type has no server to join and no roster to ready up against, so the connection
@@ -276,7 +283,8 @@ public partial class LobbyUI : Control, IViewHud {
 
   public void SetConnected(bool connected, int roomId = 0) {
     _isConnected = connected;
-    _joinButton.Disabled = connected;
+    _joinButton.Disabled = false;
+    _joinButton.Text = connected ? "Return to Lobby" : "Join";
     _disconnectButton.Disabled = !connected;
     _roomId = connected ? roomId : null;
     if (!connected) _countdownSeconds = null;
@@ -335,7 +343,7 @@ public partial class LobbyUI : Control, IViewHud {
     if (localPlayerId > 0) _playerFactions[localPlayerId] = FactionSelection.SelectedFactionId;
 
     ClearSlots();
-    var enemyIndex = SlotsPerSide;
+    var enemyIndex = 1;
     var localShown = false;
 
     foreach (var p in players) {

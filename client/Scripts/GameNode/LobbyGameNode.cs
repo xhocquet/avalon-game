@@ -84,6 +84,8 @@ public partial class LobbyGameNode : GameNode {
     LobbyUi.OnUnreadyClicked += OnUnready;
     LobbyUi.OnFactionSelected += OnFactionSelected;
     LobbyUi.OnStartLocalClicked += OnStartLocal;
+    LobbyUi.OnSandboxClicked += () => GetTree().ChangeSceneToFile(Scenes.Sandbox);
+    LobbyUi.OnTexturePlaygroundClicked += () => GetTree().ChangeSceneToFile(Scenes.TexturePlayground);
     LobbyUi.SetInitialHost(ServerConfig.Host, ServerConfig.Port);
     LobbyUi.SetReadyEnabled(false);
 
@@ -129,7 +131,11 @@ public partial class LobbyGameNode : GameNode {
   }
 
   private void OnJoin() {
-    if (_session != null || _joining) return;
+    if (_session != null) {
+      LobbyUi.ShowLobby();
+      return;
+    }
+    if (_joining) return;
     _joining = true;
 
     _flowSetup.ClaimedDisplayName = PlayerProfile.PlayerName;
@@ -188,6 +194,8 @@ public partial class LobbyGameNode : GameNode {
     LobbyUi.SetPhase(_session.Phase);
     LobbyUi.SetConnected(true);
     LobbyUi.SetReadyEnabled(true);
+    LobbyUi.SyncPlayers(_session.NetworkService.Players, _session.NetworkService.LocalPlayerId);
+    LobbyUi.ShowLobby();
   }
 
   private void OnFactionSelected(int _) {
