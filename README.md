@@ -1,4 +1,4 @@
-- Extract gold from tiny UI, need to make it easier to focus on. Pull it out, maybe we make it a shop button too. Feeling iffy on the old school WC3 shop UI at this point.
+Auto-attack orientation - is orientation part of the sim? Should we ensure facing towards the autoattack target in sim, or just rotate the model client side? I feel like direction becomes important for skills like Casseopia's stone statue thing, where it only affects you
 
 - **Assist gold.** `GoldRulesAsset.GoldPerAssist` (50) is authored but nothing reads it. Assists need a
 damage-participation window per victim before a payout has anything to key off — `Health.LastDamagerUnitId` only remembers the fatal hit, so the killer is the only actor a death can currently credit.
@@ -14,7 +14,7 @@ silently fails to apply. The struct is at the 128-byte ceiling so it can't just 
 
 ## Klotho follow-ups
 
-- Desync diagnosis: Klotho now keeps a 60-tick hash history by default and probes peers automatically on a desync, narrowing it to the first divergent tick/component/system. Avalon already inherits this default; no code needed. It will matter the first time a real multiplayer desync occurs.
+- Desync diagnosis: Klotho now keeps a 60-tick hash history by default and probes peers automatically on a desync, narrowing it to the first divergent tick/component/system. Avalon already inherits this default; no code needed. It will matter the first time a real multiplayer desync occurs.what
 
 - Component-memory report: enable `ComponentMemoryPeakSampling` temporarily on the server when sizing the 1,024-entity component stores. Klotho reports peak live component counts at shutdown, which gives evidence for safe `ComponentMaxCountOverrides`. Useful before raising player/minion limits.
 

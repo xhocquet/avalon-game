@@ -226,9 +226,9 @@ public partial class GameUI : CanvasLayer, IViewHud {
     _manaBarLabel = GetNode<Label>($"{bottomBar}/Vbox/ManaBar/ManaBarLabel");
     var statsRoot = GetNodeOrNull<Control>(
       $"{bottomBar}/Vbox/MainSection/StatsPanelFrame/StatsList");
-    _levelLabel = statsRoot?.GetNodeOrNull<Label>("LevelLabel");
-    _goldLabel = statsRoot?.GetNodeOrNull<Label>("GoldLabel");
-    _resourcesLabel = statsRoot?.GetNodeOrNull<Label>("ResourcesLabel");
+    _levelLabel = GetNode<Label>("%LevelLabel");
+    _goldLabel = GetNode<Label>("%GoldLabel");
+    _resourcesLabel = GetNode<Label>("%ResourceLabel");
     _attackDamageLabel = statsRoot?.GetNodeOrNull<Label>("CombatStatList/AttackDamageValue");
     _attackSpeedLabel = statsRoot?.GetNodeOrNull<Label>("CombatStatList/AttackSpeedValue");
     _armorLabel = statsRoot?.GetNodeOrNull<Label>("CombatStatList/ArmorValue");
@@ -249,8 +249,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
     _resultReturnButton = GetNodeOrNull<Button>("DefaultUI/ResultPanel/Content/Footer/ReturnButton");
     if (_resultReturnButton != null)
       _resultReturnButton.Pressed += OnReturnToLobbyPressed;
-    _minimapViewport =
-      GetNodeOrNull<SubViewport>($"{bottomBar}/MinimapFrame/MinimapContainer/MinimapViewport");
+    _minimapViewport = GetNode<SubViewport>("%MinimapViewport");
     _portraitTexture = GetNodeOrNull<TextureRect>(
       $"{bottomBar}/Vbox/MainSection/PortraitAndXp/PortraitTexture");
 
@@ -381,12 +380,12 @@ public partial class GameUI : CanvasLayer, IViewHud {
 
   private void SetGoldText(int gold) {
     if (_goldLabel != null)
-      _goldLabel.Text = $"Gold {(gold < 0 ? 0 : gold)}"; // a rollback can shrink gold under what's in flight
+      _goldLabel.Text = $"{(gold < 0 ? 0 : gold)} G"; // a rollback can shrink gold under what's in flight
   }
 
   private void SetResourcesText(int resources) {
     if (_resourcesLabel != null)
-      _resourcesLabel.Text = $"Resources {resources}";
+      _resourcesLabel.Text = $"{resources} Res.";
   }
 
   private void UpdateLocalPlayerStats(Frame frame) {
@@ -438,7 +437,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
   // progress through the current level only: the span between this level's threshold and the next.
   public void SetPlayerExperience(int level, int experience, XpRulesAsset rules) {
     if (_levelLabel != null)
-      _levelLabel.Text = $"Level {level}";
+      _levelLabel.Text = $"{level}";
 
     if (_xpBar == null || _xpBarFill == null || rules == null) return;
 

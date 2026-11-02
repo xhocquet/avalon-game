@@ -9,7 +9,9 @@ script = ExtResource("2_hero")
 WalkAnimationOverride = "walk"
 IdleAnimationOverride = "idle"
 DeathAnimationOverride = "death"
+DeathAnimationSpeed = 2.0
 AttackAnimationOverride = "attack"
+AttackContactTime = 0.583
 
 [node name="AnimationPlayer" parent="." index="1"]
 autoplay = &""

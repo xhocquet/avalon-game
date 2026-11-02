@@ -17,6 +17,7 @@ public partial class HeroEntity : TeamEntityViewNode, IPlayerView, IAttackableVi
   [Export] public string WalkAnimationOverride { get; set; } = "";
   [Export] public string IdleAnimationOverride { get; set; } = "";
   [Export] public string DeathAnimationOverride { get; set; } = "";
+  [Export] public float DeathAnimationSpeed { get; set; } = 1.0f;
   // Empty rigs use the debug fallback.
   [Export] public string AttackAnimationOverride { get; set; } = "";
   [Export] public Godot.Collections.Dictionary<int, string> SkillAnimationOverrides { get; set; } = new();
@@ -144,7 +145,7 @@ public partial class HeroEntity : TeamEntityViewNode, IPlayerView, IAttackableVi
       _isMoving = false;
       _isAttacking = false;
       _skillAnimation = "";
-      _anim.SpeedScale = 1.0f;
+      _anim.SpeedScale = _isDead ? DeathAnimationSpeed : 1.0f;
       PlayOrStop(_isDead ? DeathAnim : IdleAnim);
     }
 

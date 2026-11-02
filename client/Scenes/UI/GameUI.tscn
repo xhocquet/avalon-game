@@ -6,7 +6,6 @@
 [ext_resource type="Texture2D" uid="uid://d1qivwnkvrbob" path="res://Assets/Placeholders/brown-swirl.webp" id="4_brown"]
 [ext_resource type="Texture2D" uid="uid://ccdswr4rnqhwo" path="res://Assets/Placeholders/red-swirl.webp" id="5_skill"]
 [ext_resource type="Texture2D" uid="uid://dtwrx5vouadx3" path="res://Assets/Placeholders/purple-swirl.webp" id="6_action"]
-[ext_resource type="Texture2D" uid="uid://ceovv176pphu8" path="res://Assets/UI/PanelBorderGreyDetail.png" id="8_selection_border"]
 [ext_resource type="Texture2D" uid="uid://b6ghwu1go2tju" path="res://Assets/UI/PanelBorderBrownCompact.png" id="9_minimap_frame"]
 [ext_resource type="Texture2D" uid="uid://4m0ncay541cq" path="res://Assets/UI/PanelGreyBoltsDarkCompact.png" id="10_stats_frame"]
 [ext_resource type="Texture2D" uid="uid://7id8nsq0deiy" path="res://Assets/UI/PanelBorderBrownDetailCompact.png" id="11_portrait_frame"]
@@ -18,13 +17,13 @@ font_size = 32
 outline_size = 2
 outline_color = Color(0, 0, 0, 1)
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_selection_rectangle"]
-texture = ExtResource("8_selection_border")
-texture_margin_left = 8.0
-texture_margin_top = 8.0
-texture_margin_right = 8.0
-texture_margin_bottom = 8.0
-draw_center = false
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_selection_rectangle"]
+bg_color = Color(0.25, 0.75, 0.95, 0.15)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.25, 0.75, 0.95, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_result"]
 content_margin_left = 28.0
@@ -86,6 +85,15 @@ horizontal_alignment = 1
 
 [node name="HealthBars" parent="DefaultUI" unique_id=1496569716 instance=ExtResource("3_healthbars")]
 layout_mode = 1
+BarWidth = null
+BarHeight = null
+BarWorldYOffset = null
+BarScreenOffsetY = null
+BackgroundColor = null
+FrameColor = null
+TeamOneFillColor = null
+TeamTwoFillColor = null
+NeutralFillColor = null
 
 [node name="SelectionRectangle" type="Panel" parent="DefaultUI" unique_id=1215130715]
 layout_mode = 1
@@ -94,7 +102,7 @@ offset_top = 80.0
 offset_right = 260.0
 offset_bottom = 180.0
 mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxTexture_selection_rectangle")
+theme_override_styles/panel = SubResource("StyleBoxFlat_selection_rectangle")
 
 [node name="ResultPanel" type="Panel" parent="DefaultUI" unique_id=1868577759]
 visible = false
@@ -191,7 +199,54 @@ layout_mode = 2
 theme_override_constants/separation = 0
 alignment = 1
 
-[node name="MinimapFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/Panels" unique_id=483298295]
+[node name="VBoxContainer" type="VBoxContainer" parent="DefaultUI/BottomBar/Panels" unique_id=1408941373]
+layout_mode = 2
+theme_override_constants/separation = -2
+
+[node name="MoneyContainer" type="NinePatchRect" parent="DefaultUI/BottomBar/Panels/VBoxContainer" unique_id=1237573665]
+custom_minimum_size = Vector2(250, 40)
+layout_mode = 2
+texture = ExtResource("10_stats_frame")
+region_rect = Rect2(0, 0, 96, 96)
+patch_margin_left = 16
+patch_margin_top = 16
+patch_margin_right = 16
+patch_margin_bottom = 16
+
+[node name="HBoxContainer" type="HBoxContainer" parent="DefaultUI/BottomBar/Panels/VBoxContainer/MoneyContainer" unique_id=104325848]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="GoldLabel" type="Label" parent="DefaultUI/BottomBar/Panels/VBoxContainer/MoneyContainer/HBoxContainer" unique_id=524849014]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.95, 0.84, 0.44, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 24
+text = "0 G"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ResourceLabel" type="Label" parent="DefaultUI/BottomBar/Panels/VBoxContainer/MoneyContainer/HBoxContainer" unique_id=1863901225]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.6583883, 0.8938926, 0.90690726, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 24
+text = "0 Res."
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MinimapFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/Panels/VBoxContainer" unique_id=483298295]
 custom_minimum_size = Vector2(250, 250)
 layout_mode = 2
 size_flags_vertical = 8
@@ -202,14 +257,15 @@ patch_margin_top = 16
 patch_margin_right = 16
 patch_margin_bottom = 16
 
-[node name="MinimapContainer" type="SubViewportContainer" parent="DefaultUI/BottomBar/Panels/MinimapFrame" unique_id=2135502074]
+[node name="MinimapContainer" type="SubViewportContainer" parent="DefaultUI/BottomBar/Panels/VBoxContainer/MinimapFrame" unique_id=2135502074]
 layout_mode = 0
 offset_left = 8.0
 offset_top = 8.0
 offset_right = 228.0
 offset_bottom = 228.0
 
-[node name="MinimapViewport" type="SubViewport" parent="DefaultUI/BottomBar/Panels/MinimapFrame/MinimapContainer" unique_id=1352555608]
+[node name="MinimapViewport" type="SubViewport" parent="DefaultUI/BottomBar/Panels/VBoxContainer/MinimapFrame/MinimapContainer" unique_id=1352555608]
+unique_name_in_owner = true
 handle_input_locally = false
 size = Vector2i(234, 234)
 render_target_update_mode = 4
@@ -221,6 +277,8 @@ theme_override_constants/separation = 0
 
 [node name="BuffMarginContainer" type="MarginContainer" parent="DefaultUI/BottomBar/Panels/Vbox" unique_id=1272668631]
 layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_right = 4
 theme_override_constants/margin_bottom = 4
 
 [node name="BuffContainer" type="HBoxContainer" parent="DefaultUI/BottomBar/Panels/Vbox/BuffMarginContainer" unique_id=337556673]
@@ -331,6 +389,33 @@ patch_margin_top = 16
 patch_margin_right = 16
 patch_margin_bottom = 16
 
+[node name="LevelLabelMargin" type="MarginContainer" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/PortraitAndXp/PortraitTexture" unique_id=371508563]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -18.0
+offset_top = -45.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 6
+
+[node name="LevelLabel" type="Label" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/PortraitAndXp/PortraitTexture/LevelLabelMargin" unique_id=416459685]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+theme_override_colors/font_color = Color(1.978, 0.731, 0.164, 1)
+theme_override_colors/font_outline_color = Color(0.11188675, 0.29159835, 0.2121512, 1)
+theme_override_constants/outline_size = 12
+theme_override_font_sizes/font_size = 32
+text = "1"
+horizontal_alignment = 2
+vertical_alignment = 2
+
 [node name="XpBar" type="ColorRect" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/PortraitAndXp" unique_id=790217363]
 custom_minimum_size = Vector2(12, 0)
 layout_mode = 2
@@ -364,25 +449,6 @@ offset_right = 162.0
 offset_bottom = 213.0
 size_flags_vertical = 0
 theme_override_constants/separation = 2
-
-[node name="LevelLabel" type="Label" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/StatsPanelFrame/StatsList" unique_id=115914617]
-layout_mode = 2
-size_flags_horizontal = 0
-theme_override_font_sizes/font_size = 14
-text = "Level 1"
-horizontal_alignment = 1
-
-[node name="GoldLabel" type="Label" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/StatsPanelFrame/StatsList" unique_id=524849014]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.95, 0.84, 0.44, 1)
-theme_override_font_sizes/font_size = 12
-text = "Gold 0"
-
-[node name="ResourcesLabel" type="Label" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/StatsPanelFrame/StatsList" unique_id=624266928]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.62, 0.85, 0.95, 1)
-theme_override_font_sizes/font_size = 12
-text = "Resources 0"
 
 [node name="CombatStatList" type="GridContainer" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/StatsPanelFrame/StatsList" unique_id=1845512187]
 layout_mode = 2

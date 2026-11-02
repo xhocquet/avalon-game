@@ -14,7 +14,7 @@
     "AttackDamagePerLevel": 3.2,
     "AttackRange": 1.25,
     "AttackSpeedRatio": 0.644,
-    "AttackWindup": 0.23,
+    "AttackWindup": 0.20833,
     "BaseArmor": 47,
     "BaseAttackDamage": 55,
     "BaseAttackSpeed": 0.644,

@@ -10,6 +10,7 @@ WalkAnimationOverride = "walk"
 IdleAnimationOverride = "standing_relax"
 AttackAnimationOverride = "attack"
 DeathAnimationOverride = "death"
+DeathAnimationSpeed = 2.0
 AttackContactTime = 0.583
 
 [node name="AnimationPlayer" parent="." index="1"]
