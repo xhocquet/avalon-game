@@ -51,11 +51,6 @@ public class SkillBarController {
   private static readonly Color LockedShroudColor = new(0.04f, 0.04f, 0.06f, 0.4f);
   private static readonly Color DimmedIconColor = new(0.72f, 0.72f, 0.78f, 1f);
 
-  // Border shown on the cells that can actually take a point, so "go spend it" points at the slots that
-  // will accept it rather than at the whole bar.
-  private const int UpgradeHintBorderWidth = 3;
-  private static readonly Color UpgradeHintBorderColor = new(0.98f, 0.82f, 0.22f, 1f);
-
   // Strip pinned to the bottom edge of a slot the local hero cannot cast, naming the reason the fill
   // does not already show. Its own dim background so the text stays legible over any slot colour or icon.
   private const float BlockStripHeight = 15f;
@@ -254,7 +249,7 @@ public class SkillBarController {
     var blockStrip = CreateBlockStrip();
     rect.AddChild(blockStrip);
 
-    var upgradeHint = CreateUpgradeHint();
+    var upgradeHint = ActionGridOutline.Create("UpgradeHint");
     rect.AddChild(upgradeHint);
 
     var label = new Label {
@@ -303,22 +298,6 @@ public class SkillBarController {
     label.AddThemeColorOverride("font_outline_color", new Color(0f, 0f, 0f));
     label.AddThemeConstantOverride("outline_size", 3);
     return label;
-  }
-
-  // Border-only stylebox over the cell's fill: transparent background, so the slot colour underneath
-  // still reads through.
-  private static Panel CreateUpgradeHint() {
-    var style = new StyleBoxFlat { BgColor = new Color(0f, 0f, 0f, 0f), BorderColor = UpgradeHintBorderColor };
-    style.SetBorderWidthAll(UpgradeHintBorderWidth);
-
-    var panel = new Panel {
-      Name = "UpgradeHint",
-      MouseFilter = Control.MouseFilterEnum.Ignore,
-      Visible = false
-    };
-    panel.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-    panel.AddThemeStyleboxOverride("panel", style);
-    return panel;
   }
 
   // The cast hotkey pinned to the cell's top-left, so the Q/W/E/R binding is visible without a tooltip.

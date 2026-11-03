@@ -96,6 +96,7 @@ public class ActionBarController {
       var buyable = ShopController.CanPurchase(ref frame, playerId, item.ItemId, pendingGold, pendingItems);
       item.Button.Disabled = !buyable;
       item.Button.Modulate = buyable ? Colors.White : new Color(1f, 1f, 1f, 0.4f);
+      item.PurchaseHint.Visible = buyable;
     }
   }
 
@@ -135,8 +136,10 @@ public class ActionBarController {
       button.Pressed += () => _onPurchase?.Invoke(itemId);
 
       AddCostBadge(button, cost);
+      var purchaseHint = ActionGridOutline.Create("PurchaseHint");
+      button.AddChild(purchaseHint);
       _grid.AddChild(button);
-      _buttons.Add(new ItemButton(itemId, button));
+      _buttons.Add(new ItemButton(itemId, button, purchaseHint));
     }
 
     for (var i = count; i < _slotCapacity; i++)
@@ -214,8 +217,9 @@ public class ActionBarController {
     };
   }
 
-  private readonly struct ItemButton(int itemId, TextureButton button) {
+  private readonly struct ItemButton(int itemId, TextureButton button, Panel purchaseHint) {
     public readonly int ItemId = itemId;
     public readonly TextureButton Button = button;
+    public readonly Panel PurchaseHint = purchaseHint;
   }
 }

@@ -1,5 +1,3 @@
-Auto-attack orientation - is orientation part of the sim? Should we ensure facing towards the autoattack target in sim, or just rotate the model client side? I feel like direction becomes important for skills like Casseopia's stone statue thing, where it only affects you
-
 - **Assist gold.** `GoldRulesAsset.GoldPerAssist` (50) is authored but nothing reads it. Assists need a
 damage-participation window per victim before a payout has anything to key off — `Health.LastDamagerUnitId` only remembers the fatal hit, so the killer is the only actor a death can currently credit.
 

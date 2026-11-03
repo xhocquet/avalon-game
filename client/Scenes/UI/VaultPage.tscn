@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" path="res://Scenes/UI/ChampionPreview.tscn" id="2_preview"]
 [ext_resource type="Texture2D" path="res://Assets/UI/PanelBorderBrown.png" id="3_border"]
 [ext_resource type="Theme" path="res://Resources/UI/LobbyButtonTheme.tres" id="4_theme"]
+[ext_resource type="Theme" path="res://Resources/UI/LobbyActionButtonTheme.tres" id="5_action_theme"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_section"]
 content_margin_left = 16.0
@@ -67,6 +68,7 @@ theme_override_constants/margin_bottom = 8
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+theme = ExtResource("5_action_theme")
 theme_override_constants/separation = 16
 alignment = 1
 

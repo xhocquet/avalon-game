@@ -4,6 +4,9 @@
 [ext_resource type="Script" uid="uid://cvasfy5yhl8gr" path="res://Scripts/Entities/HeroEntity.cs" id="2_hero"]
 [ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="2_j0xg8"]
 
+[ext_resource type="PackedScene" path="res://Scenes/UI/MinimapHeroMarker.tscn" id="20_minimap"]
+[ext_resource type="Texture2D" path="res://Assets/Portraits/Minimap/Skinwalker.webp" id="21_minimap_portrait"]
+
 [node name="Skinwalker" unique_id=212024309 instance=ExtResource("1_olqw1")]
 script = ExtResource("2_hero")
 WalkAnimationOverride = "walk"
@@ -19,3 +22,6 @@ autoplay = &""
 
 [node name="SelectionIndicator" parent="." index="2" unique_id=2143077504 instance=ExtResource("2_j0xg8")]
 transform = Transform3D(0.85, 0, 0, 0, 0.85, 0, 0, 0, 0.85, 0, 0.04, 0)
+
+[node name="MinimapMarker" parent="." index="3" instance=ExtResource("20_minimap")]
+Portrait = ExtResource("21_minimap_portrait")

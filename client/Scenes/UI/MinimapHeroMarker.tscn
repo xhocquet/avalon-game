@@ -1,0 +1,32 @@
+[gd_scene format=3 uid="uid://bw6nrf2agdrdd"]
+
+[ext_resource type="Script" uid="uid://dt0pi0nixuysl" path="res://Scripts/UI/MinimapHeroMarker.cs" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://dc0topnlsqxjd" path="res://Assets/Portraits/Minimap/CrystalWarrior.webp" id="2_hnd1n"]
+[ext_resource type="Shader" uid="uid://dq0x5kj3xp5no" path="res://Resources/UI/MinimapHeroMarker.gdshader" id="2_shader"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hnd1n"]
+resource_local_to_scene = true
+render_priority = 10
+shader = ExtResource("2_shader")
+shader_parameter/portrait = ExtResource("2_hnd1n")
+shader_parameter/team_color = Color(0.14, 0.72, 1, 1)
+shader_parameter/portrait_radius = 0.35
+shader_parameter/border_width = 0.028
+shader_parameter/rim_width = 0.012
+shader_parameter/glow_width = 0.065
+shader_parameter/glow_opacity = 0.45
+
+[sub_resource type="QuadMesh" id="QuadMesh_marker"]
+size = Vector2(10, 10)
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_hnd1n"]
+load_path = "res://.godot/imported/Snailhead.webp-add4fa386ad53582411707a88535453a.s3tc.ctex"
+
+[node name="MinimapMarker" type="MeshInstance3D" unique_id=1041807869]
+layers = 2
+material_override = SubResource("ShaderMaterial_hnd1n")
+cast_shadow = 0
+extra_cull_margin = 10.0
+mesh = SubResource("QuadMesh_marker")
+script = ExtResource("1_script")
+Portrait = SubResource("CompressedTexture2D_hnd1n")

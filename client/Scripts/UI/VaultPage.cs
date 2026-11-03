@@ -26,28 +26,12 @@ public partial class VaultPage : Control {
     foreach (var def in FactionCatalog.FactionDefs) {
       var button = new Button {
         Text = def.Name,
-        CustomMinimumSize = new Vector2(0, 56),
-        ThemeTypeVariation = "LobbyButton",
+        CustomMinimumSize = new Vector2(0, 86),
+        ThemeTypeVariation = "LobbyNavButton",
         ToggleMode = true,
         ButtonGroup = group
       };
       button.AddThemeFontSizeOverride("font_size", 24);
-      var border = new NinePatchRect {
-        Texture = GD.Load<Texture2D>("res://Assets/UI/PanelBorderBrown.png"),
-        ShowBehindParent = true,
-        MouseFilter = MouseFilterEnum.Ignore,
-        DrawCenter = false,
-        PatchMarginLeft = 32,
-        PatchMarginTop = 32,
-        PatchMarginRight = 32,
-        PatchMarginBottom = 32,
-        Visible = false
-      };
-      button.AddChild(border);
-      border.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
-      border.OffsetLeft = border.OffsetTop = -8;
-      border.OffsetRight = border.OffsetBottom = 8;
-      button.Toggled += selected => border.Visible = selected;
       var index = _heroButtons.Count;
       button.Pressed += () => SelectHero(index);
       column.AddChild(button);

@@ -170,94 +170,36 @@ grow_vertical = 2
 [node name="Tabs" type="HBoxContainer" parent="Root/TopBar/Margin/Row/MiddleColumn/Center" unique_id=318899877]
 layout_mode = 2
 size_flags_vertical = 4
+theme = ExtResource("15_action_button_theme")
 theme_override_constants/separation = 16
 
 [node name="Home" type="Button" parent="Root/TopBar/Margin/Row/MiddleColumn/Center/Tabs" unique_id=944050248]
-custom_minimum_size = Vector2(160, 72)
+custom_minimum_size = Vector2(160, 86)
 layout_mode = 2
-theme_type_variation = &"LobbyButton"
+theme_type_variation = &"LobbyNavButton"
 theme_override_font_sizes/font_size = 28
 toggle_mode = true
 button_pressed = true
 button_group = SubResource("ButtonGroup_nav")
 text = "Home"
 
-[node name="SelectedBorder" type="NinePatchRect" parent="Root/TopBar/Margin/Row/MiddleColumn/Center/Tabs/Home" unique_id=773466965]
-show_behind_parent = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -8.0
-offset_top = -8.0
-offset_right = 8.0
-offset_bottom = 8.0
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("10_section_panel")
-draw_center = false
-patch_margin_left = 32
-patch_margin_top = 32
-patch_margin_right = 32
-patch_margin_bottom = 32
-
 [node name="Vault" type="Button" parent="Root/TopBar/Margin/Row/MiddleColumn/Center/Tabs" unique_id=1989374001]
-custom_minimum_size = Vector2(160, 72)
+custom_minimum_size = Vector2(160, 86)
 layout_mode = 2
-theme_type_variation = &"LobbyButton"
+theme_type_variation = &"LobbyNavButton"
 theme_override_font_sizes/font_size = 28
 toggle_mode = true
 button_group = SubResource("ButtonGroup_nav")
 text = "Vault"
 
-[node name="SelectedBorder" type="NinePatchRect" parent="Root/TopBar/Margin/Row/MiddleColumn/Center/Tabs/Vault" unique_id=687925588]
-visible = false
-show_behind_parent = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -8.0
-offset_top = -8.0
-offset_right = 8.0
-offset_bottom = 8.0
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("10_section_panel")
-draw_center = false
-patch_margin_left = 32
-patch_margin_top = 32
-patch_margin_right = 32
-patch_margin_bottom = 32
-
 [node name="Settings" type="Button" parent="Root/TopBar/Margin/Row/MiddleColumn/Center/Tabs" unique_id=1582386903]
-custom_minimum_size = Vector2(160, 72)
+custom_minimum_size = Vector2(160, 86)
 layout_mode = 2
-theme_type_variation = &"LobbyButton"
+theme_type_variation = &"LobbyNavButton"
 theme_override_font_sizes/font_size = 28
 toggle_mode = true
 button_group = SubResource("ButtonGroup_nav")
 text = "Settings"
-
-[node name="SelectedBorder" type="NinePatchRect" parent="Root/TopBar/Margin/Row/MiddleColumn/Center/Tabs/Settings" unique_id=1595801267]
-visible = false
-show_behind_parent = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -8.0
-offset_top = -8.0
-offset_right = 8.0
-offset_bottom = 8.0
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("10_section_panel")
-draw_center = false
-patch_margin_left = 32
-patch_margin_top = 32
-patch_margin_right = 32
-patch_margin_bottom = 32
 
 [node name="RightColumn" type="Control" parent="Root/TopBar/Margin/Row" unique_id=1195033427]
 layout_mode = 2
@@ -382,25 +324,24 @@ placeholder_text = "Port"
 
 [node name="JoinRow" type="HBoxContainer" parent="Root/HomePage/LeftColumn/Content/LeftColumn/Margin/VBox" unique_id=541631024]
 layout_mode = 2
+theme = ExtResource("15_action_button_theme")
 theme_override_constants/separation = 16
 
 [node name="JoinButton" type="Button" parent="Root/HomePage/LeftColumn/Content/LeftColumn/Margin/VBox/JoinRow" unique_id=291804523]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 56)
+custom_minimum_size = Vector2(0, 86)
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 4.0
 theme_type_variation = &"LobbyButton"
 theme_override_font_sizes/font_size = 24
 text = "Join"
 
 [node name="DisconnectButton" type="Button" parent="Root/HomePage/LeftColumn/Content/LeftColumn/Margin/VBox/JoinRow" unique_id=1029939699]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 56)
+custom_minimum_size = Vector2(0, 86)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_type_variation = &"LobbyButton"
-theme_override_colors/font_color = Color(1, 0.65, 0.65, 1)
 theme_override_font_sizes/font_size = 24
 disabled = true
 text = "Disconnect"
@@ -465,26 +406,31 @@ theme_override_font_sizes/font_size = 24
 text = "Players"
 horizontal_alignment = 1
 
-[node name="PlayerSlots" type="VBoxContainer" parent="Root/Columns/LeftColumn" unique_id=1777955607]
+[node name="PlayerListMargin" type="MarginContainer" parent="Root/Columns/LeftColumn"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_right = 24
+
+[node name="PlayerSlots" type="VBoxContainer" parent="Root/Columns/LeftColumn/PlayerListMargin" unique_id=1777955607]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="Slot0" parent="Root/Columns/LeftColumn/PlayerSlots" unique_id=964675532 instance=ExtResource("8_player_slot")]
+[node name="Slot0" parent="Root/Columns/LeftColumn/PlayerListMargin/PlayerSlots" unique_id=964675532 instance=ExtResource("8_player_slot")]
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_5k2t4")
 
-[node name="Slot1" parent="Root/Columns/LeftColumn/PlayerSlots" unique_id=852608862 instance=ExtResource("8_player_slot")]
+[node name="Slot1" parent="Root/Columns/LeftColumn/PlayerListMargin/PlayerSlots" unique_id=852608862 instance=ExtResource("8_player_slot")]
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_d1mtf")
 IsEnemy = true
 
-[node name="Slot2" parent="Root/Columns/LeftColumn/PlayerSlots" unique_id=1857587373 instance=ExtResource("8_player_slot")]
+[node name="Slot2" parent="Root/Columns/LeftColumn/PlayerListMargin/PlayerSlots" unique_id=1857587373 instance=ExtResource("8_player_slot")]
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_jx2p3")
 IsEnemy = true
 
-[node name="Slot3" parent="Root/Columns/LeftColumn/PlayerSlots" unique_id=1202960098 instance=ExtResource("8_player_slot")]
+[node name="Slot3" parent="Root/Columns/LeftColumn/PlayerListMargin/PlayerSlots" unique_id=1202960098 instance=ExtResource("8_player_slot")]
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_rgy4g")
 IsEnemy = true
@@ -626,8 +572,12 @@ theme_override_font_sizes/font_size = 28
 text = "Ready"
 horizontal_alignment = 1
 
-[node name="StatusLabel" type="Label" parent="Root/BottomBar/Margin/Row/MiddleColumn/Center/Buttons/ReadyButton/Content" unique_id=576487050]
+[node name="ReadyStatusLabel" type="Label" parent="Root/BottomBar/Margin/Row/MiddleColumn/Center/Buttons" unique_id=576487050]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.96, 0.91, 0.8, 1)
 theme_override_font_sizes/font_size = 13
 text = "Not connected"
 horizontal_alignment = 1
@@ -678,7 +628,3 @@ theme_override_font_sizes/font_size = 24
 text = "RESULT"
 horizontal_alignment = 1
 vertical_alignment = 1
-
-[connection signal="toggled" from="Root/TopBar/Margin/Row/MiddleColumn/Center/Tabs/Home" to="Root/TopBar/Margin/Row/MiddleColumn/Center/Tabs/Home/SelectedBorder" method="set_visible"]
-[connection signal="toggled" from="Root/TopBar/Margin/Row/MiddleColumn/Center/Tabs/Vault" to="Root/TopBar/Margin/Row/MiddleColumn/Center/Tabs/Vault/SelectedBorder" method="set_visible"]
-[connection signal="toggled" from="Root/TopBar/Margin/Row/MiddleColumn/Center/Tabs/Settings" to="Root/TopBar/Margin/Row/MiddleColumn/Center/Tabs/Settings/SelectedBorder" method="set_visible"]

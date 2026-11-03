@@ -18,6 +18,50 @@ public class AttackWindupTests {
   private const float WindupSeconds = 0.16f; // 10 ticks at the harness's 16ms
   private const int WindupTicks = 10;
 
+  [Theory]
+  [InlineData(1, 0, 1, 0)]
+  [InlineData(-1, 0, -1, 0)]
+  [InlineData(0, 1, 0, 1)]
+  [InlineData(0, -1, 0, -1)]
+  [InlineData(0, 0, 0, 1)]
+  public void WindupStart_FacesTheTargetWithoutMoving(int x, int z, int forwardX, int forwardZ) {
+    var harness = SimHarness.CreateInitialized();
+    var attacker = SpawnDuel(harness, WindupSeconds);
+    var frame = harness.Frame;
+    var targets = frame.Filter<Minion, Team, TransformComponent>();
+    while (targets.Next(out var target)) {
+      if (frame.GetReadOnly<Team>(target).TeamId == 2)
+        frame.Get<TransformComponent>(target).Position =
+          new FPVector3(FP64.FromInt(x), FP64.One, FP64.FromInt(z));
+    }
+
+    RunAndCollect(harness, ticks: 1).Should().Contain(e => e.Event is AttackWindupStartedEvent);
+
+    var transform = frame.GetReadOnly<TransformComponent>(attacker);
+    transform.Position.Should().Be(FPVector3.Zero);
+    FP64.Sin(transform.Rotation).ToFloat().Should().BeApproximately(forwardX, 0.001f);
+    FP64.Cos(transform.Rotation).ToFloat().Should().BeApproximately(forwardZ, 0.001f);
+  }
+
+  [Fact]
+  public void ActiveWindup_DoesNotKeepTurningTowardTheTarget() {
+    var harness = SimHarness.CreateInitialized();
+    var attacker = SpawnDuel(harness, WindupSeconds);
+    RunAndCollect(harness, ticks: 1);
+    harness.Frame.GetReadOnly<Combat>(attacker).WindupReleaseTick.Should().BePositive();
+    var facing = harness.Frame.GetReadOnly<TransformComponent>(attacker).Rotation;
+    var targets = harness.Frame.Filter<Minion, Team, TransformComponent>();
+    while (targets.Next(out var target)) {
+      if (harness.Frame.GetReadOnly<Team>(target).TeamId == 2)
+        harness.Frame.Get<TransformComponent>(target).Position =
+          new FPVector3(FP64.Zero, FP64.Zero, FP64.One);
+    }
+
+    RunAndCollect(harness, ticks: 1);
+
+    harness.Frame.GetReadOnly<TransformComponent>(attacker).Rotation.Should().Be(facing);
+  }
+
   [Fact]
   public void TheSwingLeadsTheHitByTheAuthoredWindup() {
     var harness = SimHarness.CreateInitialized();

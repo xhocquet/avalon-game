@@ -41,7 +41,6 @@ public partial class LobbyUI : Control, IViewHud {
   private Label _status;
   private SessionPhase _phase = SessionPhase.None;
   private double? _countdownSeconds;
-  private int? _roomId;
 
   public string Host => _ipField?.Text?.Trim();
   public int Port => int.TryParse(_portField?.Text, out var p) ? p : ServerConfig.Port;
@@ -67,7 +66,7 @@ public partial class LobbyUI : Control, IViewHud {
     _portField = GetNode<LineEdit>("%PortField");
     _buttonContent = GetNode<VBoxContainer>($"{bottom}/MiddleColumn/Center/Buttons/ReadyButton/Content");
     _buttonTitle = _buttonContent.GetNode<Label>("Title");
-    _status = _buttonContent.GetNode<Label>("StatusLabel");
+    _status = GetNode<Label>("%ReadyStatusLabel");
     _startButton = GetNode<Button>($"{bottom}/MiddleColumn/Center/Buttons/StartButton");
     _joinButton = GetNode<Button>("%JoinButton");
     _disconnectButton = GetNode<Button>("%DisconnectButton");
@@ -141,7 +140,6 @@ public partial class LobbyUI : Control, IViewHud {
     foreach (var name in new[] { "Home", "Vault", "Settings" }) {
       var button = GetNode<Button>($"{tabs}/{name}");
       button.SetPressedNoSignal(page == name);
-      button.GetNode<Control>("SelectedBorder").Visible = page == name;
     }
   }
 
@@ -270,7 +268,6 @@ public partial class LobbyUI : Control, IViewHud {
   public void SetLobbyMode() {
     _nameField.Editable = true;
     _phase = SessionPhase.None;
-    _roomId = null;
     _countdownSeconds = null;
     SetLocalReady(false);
     UpdateStatus();
@@ -286,7 +283,6 @@ public partial class LobbyUI : Control, IViewHud {
     _joinButton.Disabled = false;
     _joinButton.Text = connected ? "Return to Lobby" : "Join";
     _disconnectButton.Disabled = !connected;
-    _roomId = connected ? roomId : null;
     if (!connected) _countdownSeconds = null;
     // The name is claimed in the join handshake, so edits after joining would never reach the roster.
     // Lock the field rather than letting it drift out of sync with what other players see.
@@ -326,7 +322,6 @@ public partial class LobbyUI : Control, IViewHud {
       SessionPhase.Disconnected => "Disconnected",
       _ => _phase.ToString()
     };
-    if (_roomId is int roomId) text = $"#{roomId} · {text}";
     if (_phase == SessionPhase.Countdown && _countdownSeconds is double seconds)
       text = $"{text} · {seconds:0.0}s";
     _status.Text = text;

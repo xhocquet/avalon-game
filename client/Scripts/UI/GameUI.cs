@@ -254,7 +254,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
       $"{bottomBar}/Vbox/MainSection/PortraitAndXp/PortraitTexture");
 
     var actionGrid = GetNodeOrNull<GridContainer>(
-      $"{bottomBar}/ActionPanel/ActionGrid");
+      "%ActionGrid");
     _shopCatalog = ShopItemCatalog.CreateDefault();
     _skillCatalog = SkillCatalog.CreateDefault();
     _buffBar = new BuffBarController(GetNodeOrNull<HBoxContainer>(
@@ -579,6 +579,15 @@ public partial class GameUI : CanvasLayer, IViewHud {
   // duplicate geometry needed.
   private void SetupMinimap() {
     if (_minimapViewport == null) return;
+
+    var actionColumn = GetNode<Control>("DefaultUI/BottomBar/Panels/VBoxContainer");
+    var minimapFrame = _minimapViewport.GetParent().GetParent<Control>();
+    void ResizeMinimap() {
+      var side = actionColumn.GetCombinedMinimumSize().Y;
+      minimapFrame.CustomMinimumSize = new Vector2(side, side);
+    }
+    actionColumn.MinimumSizeChanged += ResizeMinimap;
+    ResizeMinimap();
 
     _minimapCamera = new Camera3D {
       Name = "MinimapCamera",

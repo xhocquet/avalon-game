@@ -14,7 +14,7 @@ public abstract partial class TeamEntityViewNode : EntityViewNode, ISelectableTe
   protected int TeamId { get; private set; } = -1;
 
   public override void _Ready() {
-    if (Godot.Engine.IsEditorHint() || GetNodeOrNull<Sprite3D>("MinimapMarker") != null)
+    if (Godot.Engine.IsEditorHint() || GetNodeOrNull<Node3D>("MinimapMarker") != null)
       return;
 
     AddChild(new Sprite3D {
@@ -33,9 +33,11 @@ public abstract partial class TeamEntityViewNode : EntityViewNode, ISelectableTe
 
   protected void SetTeam(int teamId) {
     TeamId = teamId;
-    var marker = GetNodeOrNull<Sprite3D>("MinimapMarker");
-    if (marker != null)
-      marker.Modulate = TeamPalette.Default.ForTeam(teamId);
+    var marker = GetNodeOrNull<Node3D>("MinimapMarker");
+    if (marker is MinimapHeroMarker portrait)
+      portrait.SetTeamColor(TeamPalette.Default.ForTeam(teamId));
+    else if (marker is Sprite3D sprite)
+      sprite.Modulate = TeamPalette.Default.ForTeam(teamId);
     GetNodeOrNull<SelectionIndicator>(SelectionIndicatorNode)?.SetTeamId(TeamId);
   }
 
