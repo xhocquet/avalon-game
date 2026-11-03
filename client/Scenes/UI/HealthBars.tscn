@@ -1,6 +1,9 @@
 [gd_scene format=3 uid="uid://7rejd1vlpq5"]
 
 [ext_resource type="Script" uid="uid://d0eqr0mp6qh1e" path="res://Scripts/UI/HealthBars.cs" id="1_script"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/HealthBars/MinionHealthBar.tscn" id="2_minion"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/HealthBars/TurretHealthBar.tscn" id="3_turret"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/HealthBars/HeroHealthBar.tscn" id="4_hero"]
 
 [node name="HealthBars" type="ColorRect" unique_id=1565208972]
 anchors_preset = 15
@@ -11,3 +14,6 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0, 0, 0, 0)
 script = ExtResource("1_script")
+MinionBarScene = ExtResource("2_minion")
+TurretBarScene = ExtResource("3_turret")
+HeroBarScene = ExtResource("4_hero")

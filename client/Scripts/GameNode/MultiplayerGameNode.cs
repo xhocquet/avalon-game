@@ -158,6 +158,7 @@ public partial class MultiplayerGameNode : GameNode {
     SimLog.BindStage(() => engine.IsResimulation);
     Input.BindEngine(engine);
     BindDebugConsole(engine, _camera);
+    BindHealthBarNames(_session);
     _view.Initialize(_session.Engine, CreateFactory(), _pool);
     _view.PlayerViews.OnLocalViewRegistered += OnLocalViewRegistered;
     _view.PlayerViews.OnLocalViewUnregistered += OnLocalViewUnregistered;

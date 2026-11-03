@@ -42,6 +42,7 @@ public partial class HeroStatsAsset : IDataAsset, IUnitStatsAsset {
   [KlothoOrder(28)] public FP64 GameplayRadius;
   [KlothoOrder(29)] public FP64 SelectionRadius; // View-only
   [KlothoOrder(30)] public FP64 PathingRadius;
+  [KlothoOrder(31)] public FP64 HealthBarHeight = FP64.FromFloat(2.6f); // World-space offset
 
   FP64 IUnitStatsAsset.BaseHealth => BaseHealth;
   FP64 IUnitStatsAsset.BaseMana => BaseMana;

@@ -1,6 +1,7 @@
 [
   {
     "$type": "Meesles.Avalon.Sim.Assets.MinionStatsAsset",
+    "HealthBarHeight": 1.5,
     "AcquisitionRange": 7.0,
     "Armor": 0,
     "AssetId": 103,

@@ -5,11 +5,11 @@
 [ext_resource type="PackedScene" path="res://Scenes/UI/PlayerSlot.tscn" id="8_player_slot"]
 [ext_resource type="Script" uid="uid://ds7r8e1ewsity" path="res://Scripts/UI/DisconnectButton.cs" id="9_disconnect"]
 [ext_resource type="Texture2D" uid="uid://55n0fc0fgtoa" path="res://Assets/UI/PanelBorderBrown.png" id="10_section_panel"]
-[ext_resource type="Theme" uid="uid://bbcbaf401pdy7" path="res://Resources/UI/LobbyButtonTheme.tres" id="11_button_theme"]
+[ext_resource type="Theme" uid="uid://bbcbaf401pdy7" path="res://Assets/UI/LobbyButtonTheme.tres" id="11_button_theme"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/VaultPage.tscn" id="12_vault"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/SettingsPage.tscn" id="13_settings"]
 [ext_resource type="PackedScene" uid="uid://duyqka540kv7v" path="res://Scenes/UI/ChampionPreview.tscn" id="14_preview"]
-[ext_resource type="Theme" uid="uid://db4evk5ue67dn" path="res://Resources/UI/LobbyActionButtonTheme.tres" id="15_action_button_theme"]
+[ext_resource type="Theme" uid="uid://db4evk5ue67dn" path="res://Assets/UI/LobbyActionButtonTheme.tres" id="15_action_button_theme"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_top_bar"]
 content_margin_left = 2.0

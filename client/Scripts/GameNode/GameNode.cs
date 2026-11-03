@@ -44,6 +44,15 @@ public abstract partial class GameNode : Node {
 
   protected virtual void StopSessionForSceneExit() { }
 
+  protected void BindHealthBarNames(KlothoSession session) {
+    GameUi.GetNode<HealthBars>("DefaultUI/HealthBars").ResolvePlayerName = playerId => {
+      if (playerId == session.LocalPlayerId) return Client.Scripts.GameState.PlayerProfile.PlayerName;
+      foreach (var player in session.Players)
+        if (player.PlayerId == playerId && !string.IsNullOrWhiteSpace(player.DisplayName)) return player.DisplayName;
+      return $"Player {playerId}";
+    };
+  }
+
   // Validate scene roots before adding them to the pool.
   protected bool TryPrewarm(IGodotEntityViewPool pool, PackedScene scene, int count, string label) {
     if (scene == null) {

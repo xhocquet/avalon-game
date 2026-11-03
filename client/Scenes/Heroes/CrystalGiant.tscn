@@ -3,24 +3,38 @@
 [ext_resource type="PackedScene" path="res://Scenes/Heroes/Presentation/CrystalGiant.tscn" id="1_t5jg0"]
 [ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="2_73r7p"]
 [ext_resource type="Script" uid="uid://cvasfy5yhl8gr" path="res://Scripts/Entities/HeroEntity.cs" id="2_hero"]
+[ext_resource type="Shader" uid="uid://dq0x5kj3xp5no" path="res://Assets/FX/Shaders/MinimapHeroMarker.gdshader" id="5_8c5sq"]
+[ext_resource type="PackedScene" uid="uid://bw6nrf2agdrdd" path="res://Scenes/UI/MinimapHeroMarker.tscn" id="20_minimap"]
+[ext_resource type="Texture2D" uid="uid://dc0topnlsqxjd" path="res://Assets/Portraits/Minimap/CrystalWarrior.webp" id="21_minimap_portrait"]
 
-[ext_resource type="PackedScene" path="res://Scenes/UI/MinimapHeroMarker.tscn" id="20_minimap"]
-[ext_resource type="Texture2D" path="res://Assets/Portraits/Minimap/CrystalWarrior.webp" id="21_minimap_portrait"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_55l53"]
+resource_local_to_scene = true
+render_priority = 10
+shader = ExtResource("5_8c5sq")
+shader_parameter/portrait = ExtResource("21_minimap_portrait")
+shader_parameter/team_color = Color(0.14, 0.72, 1, 1)
+shader_parameter/portrait_radius = 0.35
+shader_parameter/border_width = 0.028
+shader_parameter/rim_width = 0.012
+shader_parameter/glow_width = 0.065
+shader_parameter/glow_opacity = 0.45
 
 [node name="CrystalKnight" unique_id=189552492 instance=ExtResource("1_t5jg0")]
 script = ExtResource("2_hero")
 WalkAnimationOverride = "walk"
 IdleAnimationOverride = "standing_relax"
-AttackAnimationOverride = "attack"
 DeathAnimationOverride = "death"
 DeathAnimationSpeed = 2.0
+AttackAnimationOverride = "attack"
 AttackContactTime = 0.583
 
-[node name="AnimationPlayer" parent="." index="1"]
+[node name="AnimationPlayer" parent="." index="1" unique_id=73329763]
 autoplay = &""
 
 [node name="SelectionIndicator" parent="." index="2" unique_id=2143077504 instance=ExtResource("2_73r7p")]
 transform = Transform3D(1.4, 0, 0, 0, 1.4, 0, 0, 0, 1.4, 0, 0.04, 0)
 
-[node name="MinimapMarker" parent="." index="3" instance=ExtResource("20_minimap")]
+[node name="MinimapMarker" parent="." index="3" unique_id=968560832 instance=ExtResource("20_minimap")]
+visible = false
+material_override = SubResource("ShaderMaterial_55l53")
 Portrait = ExtResource("21_minimap_portrait")

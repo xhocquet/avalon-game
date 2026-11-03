@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/UnitHealthBar.cs" id="1"]
+
+[node name="TurretHealthBar" type="Control"]
+mouse_filter = 2
+script = ExtResource("1")
+Tier = 1
+BarWidth = 86.0
+HealthHeight = 10.0
+HealthPerChunk = 100.0

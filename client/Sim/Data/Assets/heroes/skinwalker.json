@@ -8,6 +8,7 @@
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.HeroStatsAsset",
+    "HealthBarHeight": 2.6,
     "AcquisitionRange": 4.0,
     "ArmorPerLevel": 4.7,
     "AssetId": 403,

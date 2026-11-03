@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/UnitHealthBar.cs" id="1"]
+
+[node name="MinionHealthBar" type="Control"]
+mouse_filter = 2
+script = ExtResource("1")
+Tier = 0
+BarWidth = 54.0
+HealthHeight = 6.0
+HealthPerChunk = 100.0

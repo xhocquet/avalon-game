@@ -5,7 +5,7 @@ namespace Meesles.Avalon.Client;
 [Tool, GlobalClass]
 public partial class TeamPalette : Resource {
   private static TeamPalette _default;
-  public static TeamPalette Default => _default ??= GD.Load<TeamPalette>("res://Resources/UI/TeamPalette.tres");
+  public static TeamPalette Default => _default ??= GD.Load<TeamPalette>("res://Assets/UI/TeamPalette.tres");
 
   private Color _teamOne;
   private Color _teamTwo;

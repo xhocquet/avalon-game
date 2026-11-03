@@ -18,6 +18,7 @@ public partial class MinionStatsAsset : IDataAsset, IUnitStatsAsset {
   [KlothoOrder(8)] public FP64 AcquisitionRange;
   [KlothoOrder(9)] public FP64 GameplayRadius;
   [KlothoOrder(10)] public FP64 PathingRadius;
+  [KlothoOrder(11)] public FP64 HealthBarHeight = FP64.FromFloat(1.5f); // World-space offset
 
   FP64 IUnitStatsAsset.BaseHealth => Health;
   FP64 IUnitStatsAsset.BaseMana => FP64.Zero; // No skills to spend it on

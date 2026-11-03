@@ -28,6 +28,7 @@
     "CritDamage": 1.75,
     "GameplayRadius": 0.8,
     "HealthPerLevel": 112,
+    "HealthBarHeight": 4.1,
     "HealthRegenPerLevel": 1.0,
     "MagicResistPerLevel": 2.05,
     "ManaPerLevel": 45,

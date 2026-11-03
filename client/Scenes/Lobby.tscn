@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cb2larfrucr2e" path="res://Scripts/GameNode/LobbyGameNode.cs" id="1_game"]
 [ext_resource type="PackedScene" uid="uid://ds0laytwwjog8" path="res://Scenes/UI/LobbyUI.tscn" id="2_hud"]
-[ext_resource type="Material" path="res://Resources/UI/LobbyBackground.tres" id="3_background"]
+[ext_resource type="Material" path="res://Assets/UI/LobbyBackground.tres" id="3_background"]
 
 [node name="Lobby" type="Node" unique_id=594575185]
 script = ExtResource("1_game")

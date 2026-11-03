@@ -15,6 +15,7 @@ public partial class TurretEntity : TeamEntityViewNode, IAttackableView, INamedV
 
   [Export] public float SelectPickRadius { get; set; } = 1.2f;
   [Export] public float SelectPickHeight { get; set; } = 4.5f;
+  [Export] public float HealthBarHeight { get; set; } = 4.9f;
 
   private MeshInstance3D _loadingIndicator;
   private ShaderMaterial _loadingIndicatorMaterial;

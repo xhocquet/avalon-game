@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dt0pi0nixuysl" path="res://Scripts/UI/MinimapHeroMarker.cs" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://dc0topnlsqxjd" path="res://Assets/Portraits/Minimap/CrystalWarrior.webp" id="2_hnd1n"]
-[ext_resource type="Shader" uid="uid://dq0x5kj3xp5no" path="res://Resources/UI/MinimapHeroMarker.gdshader" id="2_shader"]
+[ext_resource type="Shader" uid="uid://dq0x5kj3xp5no" path="res://Assets/FX/Shaders/MinimapHeroMarker.gdshader" id="2_shader"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_hnd1n"]
 resource_local_to_scene = true

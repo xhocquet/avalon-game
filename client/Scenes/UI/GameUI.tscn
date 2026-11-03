@@ -85,15 +85,6 @@ horizontal_alignment = 1
 
 [node name="HealthBars" parent="DefaultUI" unique_id=1496569716 instance=ExtResource("3_healthbars")]
 layout_mode = 1
-BarWidth = null
-BarHeight = null
-BarWorldYOffset = null
-BarScreenOffsetY = null
-BackgroundColor = null
-FrameColor = null
-TeamOneFillColor = null
-TeamTwoFillColor = null
-NeutralFillColor = null
 
 [node name="SelectionRectangle" type="Panel" parent="DefaultUI" unique_id=1215130715]
 layout_mode = 1

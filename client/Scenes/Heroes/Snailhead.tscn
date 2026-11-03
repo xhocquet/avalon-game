@@ -3,9 +3,21 @@
 [ext_resource type="PackedScene" path="res://Scenes/Heroes/Presentation/SnailHead.tscn" id="1_6ayvj"]
 [ext_resource type="Script" uid="uid://cvasfy5yhl8gr" path="res://Scripts/Entities/HeroEntity.cs" id="2_hero"]
 [ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="2_lk2n3"]
+[ext_resource type="Shader" uid="uid://dq0x5kj3xp5no" path="res://Assets/FX/Shaders/MinimapHeroMarker.gdshader" id="5_8rdqe"]
+[ext_resource type="PackedScene" uid="uid://bw6nrf2agdrdd" path="res://Scenes/UI/MinimapHeroMarker.tscn" id="20_minimap"]
+[ext_resource type="Texture2D" uid="uid://ckswo7ccqibr6" path="res://Assets/Portraits/Minimap/Snailhead.webp" id="21_minimap_portrait"]
 
-[ext_resource type="PackedScene" path="res://Scenes/UI/MinimapHeroMarker.tscn" id="20_minimap"]
-[ext_resource type="Texture2D" path="res://Assets/Portraits/Minimap/Snailhead.webp" id="21_minimap_portrait"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_8rdqe"]
+resource_local_to_scene = true
+render_priority = 10
+shader = ExtResource("5_8rdqe")
+shader_parameter/portrait = ExtResource("21_minimap_portrait")
+shader_parameter/team_color = Color(0.14, 0.72, 1, 1)
+shader_parameter/portrait_radius = 0.35
+shader_parameter/border_width = 0.028
+shader_parameter/rim_width = 0.012
+shader_parameter/glow_width = 0.065
+shader_parameter/glow_opacity = 0.45
 
 [node name="Player" unique_id=765539556 instance=ExtResource("1_6ayvj")]
 script = ExtResource("2_hero")
@@ -14,11 +26,16 @@ IdleAnimationOverride = "idle"
 DeathAnimationOverride = "death"
 AttackAnimationOverride = "attack"
 
-[node name="AnimationPlayer" parent="." index="1"]
+[node name="Armature" parent="." index="0" unique_id=1591086972]
+transform = Transform3D(-1.3113416e-07, 0, -3, 0, 3, 0, 3, 0, -1.3113416e-07, 0, 0, 0)
+
+[node name="AnimationPlayer" parent="." index="1" unique_id=1571526738]
 autoplay = &""
 
 [node name="SelectionIndicator" parent="." index="2" unique_id=2143077504 instance=ExtResource("2_lk2n3")]
 transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, 0, 0.04, 0)
 
-[node name="MinimapMarker" parent="." index="3" instance=ExtResource("20_minimap")]
+[node name="MinimapMarker" parent="." index="3" unique_id=1022676988 instance=ExtResource("20_minimap")]
+visible = false
+material_override = SubResource("ShaderMaterial_8rdqe")
 Portrait = ExtResource("21_minimap_portrait")

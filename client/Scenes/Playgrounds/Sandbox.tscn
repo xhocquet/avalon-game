@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://klsya8v6joam"]
 
-[ext_resource type="PackedScene" path="res://Scenes/Camera3D.tscn" id="camera"]
-[ext_resource type="Shader" uid="uid://dme5a40ljtsc5" path="res://Scenes/World/sky.gdshader" id="1_7ykkm"]
+[ext_resource type="Texture2D" uid="uid://bprx6c1lwd1p6" path="res://Assets/Props/SkyTests/Puffy_Sky-Evening_03-1024x512.png" id="2_cap0c"]
 [ext_resource type="Shader" uid="uid://dkl23k2monqos" path="res://Scenes/World/WorldSplatmap.gdshader" id="2_wau1u"]
 [ext_resource type="Texture2D" uid="uid://bhri4xhnx2dw7" path="res://Assets/Props/Ground/texture4/ground_0034_color_2k.jpg" id="3_chqrk"]
 [ext_resource type="Texture2D" uid="uid://8e5e6xh3shr0" path="res://Assets/Props/Ground/Grass1/Grass007_2K-JPG_Color.jpg" id="4_yvjgh"]
@@ -84,46 +83,18 @@
 [ext_resource type="PackedScene" path="res://Scenes/FX/FireOrange.tscn" id="81_wk3q0"]
 [ext_resource type="PackedScene" path="res://Scenes/FX/TeleportBlue.tscn" id="82_ks1u0"]
 [ext_resource type="PackedScene" uid="uid://80mcbhomjk3l" path="res://Scenes/FX/HotSpring.tscn" id="83_wk3q0"]
+[ext_resource type="PackedScene" uid="uid://bhs1kmrnawwhu" path="res://Scenes/Camera3D.tscn" id="camera"]
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_dngt1"]
-shader = ExtResource("1_7ykkm")
-shader_parameter/day_top_color = Color(0.1, 0.6, 1, 1)
-shader_parameter/day_bottom_color = Color(0.4, 0.8, 1, 1)
-shader_parameter/sunset_top_color = Color(0.7, 0.75, 1, 1)
-shader_parameter/sunset_bottom_color = Color(1, 0.5, 0.7, 1)
-shader_parameter/night_top_color = Color(0.02, 0, 0.04, 1)
-shader_parameter/night_bottom_color = Color(0.1, 0, 0.2, 1)
-shader_parameter/horizon_color = Color(0.47495562, 0.6565569, 0.736541, 1)
-shader_parameter/horizon_blur = 0.01999999955296
-shader_parameter/sun_color = Color(10, 8, 1, 1)
-shader_parameter/sun_sunset_color = Color(10, 0, 0, 1)
-shader_parameter/sun_size = 0.2
-shader_parameter/sun_blur = 10.0
-shader_parameter/moon_color = Color(1, 0.95, 0.7, 1)
-shader_parameter/moon_size = 0.06
-shader_parameter/moon_blur = 0.1
-shader_parameter/clouds_edge_color = Color(0.8, 0.8, 0.98, 1)
-shader_parameter/clouds_top_color = Color(1, 1, 1, 1)
-shader_parameter/clouds_middle_color = Color(0.92, 0.92, 0.98, 1)
-shader_parameter/clouds_bottom_color = Color(0.83, 0.83, 0.94, 1)
-shader_parameter/clouds_speed = 2.0
-shader_parameter/clouds_direction = 0.2
-shader_parameter/clouds_scale = 1.0
-shader_parameter/clouds_cutoff = 0.3
-shader_parameter/clouds_fuzziness = 0.5
-shader_parameter/clouds_weight = 0.0
-shader_parameter/clouds_blur = 0.25
-shader_parameter/stars_speed = 1.0
-shader_parameter/stars_scale = 1.0
-shader_parameter/stars_opacity = 1.0
-shader_parameter/overwritten_time = 0.0
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_qnf5a"]
+panorama = ExtResource("2_cap0c")
 
 [sub_resource type="Sky" id="Sky_t46wp"]
-sky_material = SubResource("ShaderMaterial_dngt1")
+sky_material = SubResource("PanoramaSkyMaterial_qnf5a")
 
-[sub_resource type="Environment" id="Environment_ofdpw"]
+[sub_resource type="Environment" id="Environment_wc1yv"]
 background_mode = 2
 sky = SubResource("Sky_t46wp")
+ssil_enabled = true
 fog_light_energy = 0.1
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_ayvj0"]
@@ -309,17 +280,17 @@ shader_parameter/edge_width = 2.5
 
 [node name="World2" type="Node3D" unique_id=1910615875]
 
-[node name="Camera3D" parent="." instance=ExtResource("camera")]
-position = Vector3(0, 18, 12)
-current = true
+[node name="Camera3D" parent="." unique_id=2047050113 instance=ExtResource("camera")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 18, 12)
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1782293992]
-environment = SubResource("Environment_ofdpw")
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=817226705]
+environment = SubResource("Environment_wc1yv")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="WorldEnvironment" unique_id=647415988]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="WorldEnvironment" unique_id=860715785]
 transform = Transform3D(1, 0, 0, 0, -0.008726474, 0.9999619, 0, -0.9999619, -0.008726474, 0, 14, 8)
+light_energy = 0.5
 shadow_enabled = true
-directional_shadow_mode = 1
+directional_shadow_blend_splits = true
 
 [node name="NavigationRegion3D" type="NavigationRegion3D" parent="." unique_id=235732599]
 navigation_mesh = SubResource("NavigationMesh_ayvj0")
@@ -494,10 +465,10 @@ transform = Transform3D(-0.07231559, 0, 0.9973818, 0, 1, 0, -0.9973818, 0, -0.07
 transform = Transform3D(0.999238, 0, -0.039033152, 0, 1, 0, 0.039033152, 0, 0.999238, -9.056003, -0.012310982, -15.02817)
 
 [node name="Snailhead" parent="." unique_id=765539556 instance=ExtResource("29_7ykkm")]
-transform = Transform3D(0.9795085, 0, 0.20140274, 0, 1, 0, -0.20140274, 0, 0.9795085, -10.178606, 0.1004715, -14.467575)
+transform = Transform3D(-0.19565517, 0, 0.98067284, 0, 1, 0, -0.98067284, 0, -0.19565517, -10.178606, 0.1004715, -14.467575)
 
 [node name="EyeSwirl" parent="." unique_id=2050480386 instance=ExtResource("38_o2o48")]
-transform = Transform3D(0.96756035, -0.008826386, -0.25248578, 0.010043462, 0.9999432, 0.003531951, 0.25244027, -0.0059532067, 0.96759415, -10.130425, -0.014511824, -13.140893)
+transform = Transform3D(0.96756035, -0.008826386, -0.25248578, 0.010043462, 0.9999432, 0.003531951, 0.25244027, -0.0059532067, 0.96759415, -10.135251, -0.0032918453, -13.141881)
 
 [node name="DeathSnail" parent="." unique_id=1985152823 instance=ExtResource("39_gwvee")]
 transform = Transform3D(0.99614435, 0, 0.087729484, 0, 1, 0, -0.087729484, 0, 0.99614435, -9.359143, 0.045428038, -13.886556)
@@ -509,7 +480,7 @@ transform = Transform3D(-0.48538953, 0, 0.87429804, 0, 1, 0, -0.87429804, 0, -0.
 transform = Transform3D(0.4619498, 0, 0.8869061, 0, 1, 0, -0.8869061, 0, 0.4619498, -10.511819, 0.019338608, -11.753307)
 
 [node name="PatchRat" parent="." unique_id=516344692 instance=ExtResource("42_otmnd")]
-transform = Transform3D(-0.6620578, 0, -0.74945277, 0, 1, 0, 0.74945277, 0, -0.6620578, -8.69523, -2.3841858e-07, -14.147077)
+transform = Transform3D(0.5723893, 0, 0.81998205, 0, 1, 0, -0.81998205, 0, 0.5723893, -8.18669, -2.3841858e-07, -14.502189)
 
 [node name="MetaballicExplosionAir" parent="." unique_id=1127523286 instance=ExtResource("44_xwlof")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.590704, 2.92714, 14.502872)

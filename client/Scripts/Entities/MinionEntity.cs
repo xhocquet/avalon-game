@@ -23,6 +23,7 @@ public partial class MinionEntity : TeamEntityViewNode, IAttackableView {
 
   [Export] public float SelectPickRadius { get; set; } = 0.5f;
   [Export] public float SelectPickHeight { get; set; } = 1.2f;
+  [Export] public float HealthBarHeight { get; set; } = -1f; // Negative uses the stats asset.
 
   private AnimationPlayer _anim;
   private bool _isMoving;

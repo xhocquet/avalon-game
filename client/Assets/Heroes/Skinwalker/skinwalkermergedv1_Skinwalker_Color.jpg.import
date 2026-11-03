@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://guag5d6dm14g"
-path="res://.godot/imported/skinwalkermergedv1_Skinwalker_Color.jpg-7c05a661a34a6f38f58d51ffbb180429.ctex"
+path.s3tc="res://.godot/imported/skinwalkermergedv1_Skinwalker_Color.jpg-7c05a661a34a6f38f58d51ffbb180429.s3tc.ctex"
+path.etc2="res://.godot/imported/skinwalkermergedv1_Skinwalker_Color.jpg-7c05a661a34a6f38f58d51ffbb180429.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "0498de88b67773171dc52fcad55e0466"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://Assets/Heroes/Skinwalker/skinwalkermergedv1_Skinwalker_Color.jpg"
-dest_files=["res://.godot/imported/skinwalkermergedv1_Skinwalker_Color.jpg-7c05a661a34a6f38f58d51ffbb180429.ctex"]
+dest_files=["res://.godot/imported/skinwalkermergedv1_Skinwalker_Color.jpg-7c05a661a34a6f38f58d51ffbb180429.s3tc.ctex", "res://.godot/imported/skinwalkermergedv1_Skinwalker_Color.jpg-7c05a661a34a6f38f58d51ffbb180429.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0
