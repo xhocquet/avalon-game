@@ -62,8 +62,8 @@ public class RespawnSystem : ISystem {
       return;
 
     var victimTeamId = frame.GetReadOnly<Team>(entity).TeamId;
-    ExperienceController.AwardForKill(ref frame, killer, SimulationSetup.PlayerUnitTypeId, victimTeamId);
-    GoldController.AwardForKill(ref frame, killer, SimulationSetup.PlayerUnitTypeId, victimTeamId);
+    RewardNotifications.AwardKill(ref frame, killer, SimulationSetup.PlayerUnitTypeId, victimTeamId,
+      frame.GetReadOnly<TransformComponent>(entity).Position);
     MatchStatsController.RecordKill(ref frame, killer, SimulationSetup.PlayerUnitTypeId, victimTeamId);
   }
 

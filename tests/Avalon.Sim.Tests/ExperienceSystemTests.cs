@@ -107,6 +107,7 @@ public class ExperienceSystemTests {
     EntityRef hero = harness.FindHero(1);
     int victimTeamId = frame.GetReadOnly<Team>(harness.FindHero(2)).TeamId;
     EntityRef victim = SpawnMinion(ref frame, victimTeamId);
+    var victimPosition = frame.GetReadOnly<TransformComponent>(victim).Position;
     ref var victimHealth = ref frame.Get<Health>(victim);
     victimHealth.Current = 0;
     victimHealth.LastDamagerUnitId = frame.GetReadOnly<UnitIdentity>(hero).UnitId;
@@ -117,7 +118,13 @@ public class ExperienceSystemTests {
 
     new DeathSystem().Update(ref frame);
 
-    var evt = collector.Collected[0].Should().BeOfType<UnitDiedEvent>().Subject;
+    collector.Count.Should().Be(2);
+    var reward = collector.Collected[0].Should().BeOfType<RewardGainedEvent>().Subject;
+    reward.TeamId.Should().Be(frame.GetReadOnly<Team>(hero).TeamId);
+    reward.Gold.Should().Be(frame.AssetRegistry.Get<GoldRulesAsset>().GoldPerMinionKill);
+    reward.Xp.Should().Be(frame.AssetRegistry.Get<XpRulesAsset>().XpPerMinionKill);
+    reward.Position.Should().Be(victimPosition);
+    var evt = collector.Collected[1].Should().BeOfType<UnitDiedEvent>().Subject;
     evt.DestroyerUnitId.Should().Be(frame.GetReadOnly<UnitIdentity>(hero).UnitId);
     evt.DestroyerUnitTypeId.Should().Be(SimulationSetup.PlayerUnitTypeId);
   }

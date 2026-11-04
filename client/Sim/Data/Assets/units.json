@@ -7,7 +7,7 @@
     "AssetId": 103,
     "AttackDamage": 12,
     "AttackRange": 1.0,
-    "AttackSpeed": 1.25,
+    "AttackSpeed": 0.75,
     "AttackWindup": 0.1667,
     "GameplayRadius": 0.48,
     "Health": 477,

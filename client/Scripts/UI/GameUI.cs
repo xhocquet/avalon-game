@@ -17,6 +17,24 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private readonly List<IDisposable> _eventSubscriptions = new();
   private Label _announceLabel;
   private Tween _announceTween;
+  private Label _pingLabel;
+  private ColorRect _damageGlow;
+  private Tween _damageTween;
+  private int _localUnitId;
+
+  public void SetPing(int milliseconds) {
+    _pingLabel.Visible = milliseconds >= 0;
+    _pingLabel.Text = $"{milliseconds} ms";
+  }
+
+  private void OnLocalDamage(AttackHitEvent evt) {
+    if (evt.TargetUnitId != _localUnitId || _localUnitId == 0 || evt.Damage.ToFloat() <= 0) return;
+    _damageTween?.Kill();
+    _damageTween = CreateTween();
+    _damageTween.TweenProperty(_damageGlow, "modulate:a", 1f, 0.12);
+    _damageTween.TweenInterval(0.6);
+    _damageTween.TweenProperty(_damageGlow, "modulate:a", 0f, 1.8);
+  }
 
   private SimEventHub _events;
   private Label _focusTargetLabel;
@@ -135,6 +153,9 @@ public partial class GameUI : CanvasLayer, IViewHud {
   }
 
   public void SetLocalPlayerId(int? playerId) {
+    _localUnitId = 0;
+    _damageTween?.Kill();
+    if (_damageGlow != null) _damageGlow.Modulate = new Color(1, 1, 1, 0);
     _localPlayerId = playerId is int id && id >= 0 ? id : null;
     // Session boundary - in-flight upgrades and buys from the previous one are void.
     PredictedSkills.Clear();
@@ -216,6 +237,31 @@ public partial class GameUI : CanvasLayer, IViewHud {
   }
 
   public override void _Ready() {
+    var overlay = new Control { Name = "FeedbackOverlay", MouseFilter = Control.MouseFilterEnum.Ignore };
+    AddChild(overlay);
+    overlay.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+    _damageGlow = new ColorRect {
+      Name = "DamageGlow",
+      MouseFilter = Control.MouseFilterEnum.Ignore,
+      Material = new ShaderMaterial { Shader = GD.Load<Shader>("res://Assets/FX/Shaders/DamageVignette.gdshader") },
+      Modulate = new Color(1, 1, 1, 0)
+    };
+    overlay.AddChild(_damageGlow);
+    _damageGlow.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+    _pingLabel = new Label {
+      Name = "Ping",
+      Visible = false,
+      MouseFilter = Control.MouseFilterEnum.Ignore,
+      HorizontalAlignment = HorizontalAlignment.Right
+    };
+    overlay.AddChild(_pingLabel);
+    _pingLabel.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.TopRight);
+    _pingLabel.OffsetLeft = -150;
+    _pingLabel.OffsetRight = -16;
+    _pingLabel.OffsetTop = 54;
+    _pingLabel.AddThemeFontSizeOverride("font_size", 18);
+    _pingLabel.AddThemeConstantOverride("outline_size", 4);
+    _pingLabel.AddThemeColorOverride("font_outline_color", Colors.Black);
     ProcessMode = ProcessModeEnum.Always;
     SetProcessInput(true);
 
@@ -291,6 +337,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
   public override void _ExitTree() {
     UnbindSimEvents();
     _announceTween?.Kill();
+    _damageTween?.Kill();
   }
 
   // Called by the owning GameNode once a session's engine is attached. GameUI is one of many UI
@@ -307,6 +354,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
     _eventSubscriptions.Add(hub.OnConfirmed<PlayerDiedEvent>(OnPlayerDied));
     _eventSubscriptions.Add(hub.OnConfirmed<PlayerRespawnedEvent>(OnPlayerRespawned));
     _eventSubscriptions.Add(hub.OnConfirmed<HeroLeveledUpEvent>(OnHeroLeveledUp));
+    _eventSubscriptions.Add(hub.OnConfirmed<AttackHitEvent>(OnLocalDamage));
   }
 
   private void UnbindSimEvents() {
@@ -389,6 +437,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
       if (hero.PlayerId != localId) continue;
 
       ref readonly var health = ref frame.GetReadOnly<Health>(entity);
+      _localUnitId = UnitLookup.GetUnitId(ref frame, entity);
       ref readonly var stats = ref frame.GetReadOnly<Stats>(entity);
       SetPlayerHealth(health.Current.ToFloat(), stats.MaxHealth.ToFloat());
       SetPlayerMana(health.Mana.ToFloat(), stats.MaxMana.ToFloat());

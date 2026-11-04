@@ -7,6 +7,26 @@ public partial class SelectionIndicator : Node3D {
   private StandardMaterial3D _material;
 
   private MeshInstance3D _ring;
+  private MeshInstance3D _pointer;
+
+  public void EnableHeroPointer() {
+    if (_pointer == null) {
+      var mesh = new ImmediateMesh();
+      mesh.SurfaceBegin(Mesh.PrimitiveType.Triangles);
+      mesh.SurfaceAddVertex(new Vector3(-0.13f, 0.04f, 0.7f));
+      mesh.SurfaceAddVertex(new Vector3(0, 0.04f, 1.02f));
+      mesh.SurfaceAddVertex(new Vector3(0.13f, 0.04f, 0.7f));
+      mesh.SurfaceEnd();
+      _pointer = new MeshInstance3D {
+        Name = "FacingPointer",
+        Mesh = mesh,
+        MaterialOverride = _material,
+        CastShadow = GeometryInstance3D.ShadowCastingSetting.Off
+      };
+      AddChild(_pointer);
+      if (_material != null) _material.CullMode = BaseMaterial3D.CullModeEnum.Disabled;
+    }
+  }
 
   public override void _Ready() {
     _ring = GetNodeOrNull<MeshInstance3D>("Ring");

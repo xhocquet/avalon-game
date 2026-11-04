@@ -34,7 +34,12 @@ public class PickupSystem : ISystem {
 
         ref readonly var pickup = ref frame.GetReadOnly<Pickup>(pickupEntity);
         ref var resources = ref frame.Get<Resources>(collector.Entity);
+        var before = resources.CountOf(pickup.TypeAssetId);
         resources.Add(pickup.TypeAssetId, pickup.Amount);
+        var gained = resources.CountOf(pickup.TypeAssetId) - before;
+        if (gained > 0)
+          RewardNotifications.Raise(ref frame, collector.Entity, collector.Position,
+            resourceTypeId: pickup.TypeAssetId, resourceAmount: gained);
 
         _collected.Add(pickupEntity);
         break;

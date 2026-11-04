@@ -2,6 +2,7 @@ using FluentAssertions;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using Meesles.Avalon.Sim.Factories;
+using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 using Xunit;
@@ -41,8 +42,16 @@ public class PickupSystemTests {
     var heroEntity = FindHero(ref frame, playerId: 1);
     var heroPosition = frame.GetReadOnly<TransformComponent>(heroEntity).Position;
     SpawnPickupAt(ref frame, heroPosition, AssetIds.PickupTypeWater, amount: 7);
-
-    harness.Tick();
+    var collector = new EventCollector();
+    collector.BeginTick(1);
+    frame.EventRaiser = collector;
+    new PickupSystem().Update(ref frame);
+    collector.Count.Should().Be(1);
+    var reward = collector.Collected[0].Should().BeOfType<RewardGainedEvent>().Subject;
+    reward.TeamId.Should().Be(frame.GetReadOnly<Team>(heroEntity).TeamId);
+    reward.ResourceTypeId.Should().Be(AssetIds.PickupTypeWater);
+    reward.ResourceAmount.Should().Be(7);
+    reward.Position.Should().Be(heroPosition);
 
     frame = harness.Frame;
     heroEntity = FindHero(ref frame, playerId: 1);

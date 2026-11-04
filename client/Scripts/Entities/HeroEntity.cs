@@ -123,6 +123,7 @@ public partial class HeroEntity : TeamEntityViewNode, IPlayerView, IAttackableVi
     if (live != null && live.Has<OwnerComponent>(EntityRef))
       OwnerId = live.GetReadOnly<OwnerComponent>(EntityRef).OwnerId;
     BindTeam(frame);
+    GetNodeOrNull<SelectionIndicator>("SelectionIndicator")?.EnableHeroPointer();
   }
 
   public override void OnDeactivate() {

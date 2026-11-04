@@ -32,8 +32,9 @@ public class DeathSystemTests {
     system.Update(ref frame);
 
     UnitLookup.TryGetEntityByUnitId(ref frame, unitId, out _).Should().BeFalse();
-    collector.Count.Should().Be(1);
-    var evt = collector.Collected[0].Should().BeOfType<CrystalDestroyedEvent>().Subject;
+    collector.Count.Should().Be(2);
+    collector.Collected[0].Should().BeOfType<RewardGainedEvent>();
+    var evt = collector.Collected[1].Should().BeOfType<CrystalDestroyedEvent>().Subject;
     evt.Tick.Should().Be(7);
     evt.UnitId.Should().Be(unitId);
     evt.CrystalId.Should().Be(crystalId);
@@ -114,8 +115,9 @@ public class DeathSystemTests {
     system.Update(ref frame);
 
     UnitLookup.TryGetEntityByUnitId(ref frame, unitId, out _).Should().BeFalse();
-    collector.Count.Should().Be(1);
-    var evt = collector.Collected[0].Should().BeOfType<TurretDestroyedEvent>().Subject;
+    collector.Count.Should().Be(2);
+    collector.Collected[0].Should().BeOfType<RewardGainedEvent>();
+    var evt = collector.Collected[1].Should().BeOfType<TurretDestroyedEvent>().Subject;
     evt.Tick.Should().Be(7);
     evt.UnitId.Should().Be(unitId);
     evt.DestroyerUnitId.Should().Be(destroyerUnitId);

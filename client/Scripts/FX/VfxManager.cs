@@ -1,7 +1,11 @@
 using System;
+using System.Collections.Generic;
 using Godot;
 using Meesles.Avalon.Client.Scripts.Interfaces;
 using Meesles.Avalon.Sim;
+using Meesles.Avalon.Sim.Assets;
+using Meesles.Avalon.Sim.Components;
+using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.Godot;
 
@@ -34,10 +38,16 @@ public class VfxManager {
   private IDisposable _crystalDestroyedSub;
   private EntityViewUpdaterNode _view;
   private Mesh _attackLineMesh;
+  private IKlothoEngine _engine;
+  private IDisposable _rewardSub;
+  private PackedScene _hairballScene;
+  private readonly Dictionary<int, AutoAttackHairball> _hairballs = new();
 
-  public void Attach(SimEventHub events, EntityViewUpdaterNode view) {
+  public void Attach(SimEventHub events, EntityViewUpdaterNode view, IKlothoEngine engine) {
     Detach();
     _view = view;
+    _engine = engine;
+    _rewardSub = events.OnConfirmed<RewardGainedEvent>(HandleReward);
     _attackLineMesh = DebugAttackLine.CreateMesh();
     // OnFx, not OnPredicted: a local host verifies every tick, so nothing arrives on the predicted
     // stream there and VFX subscribed to it play only in networked matches. A mispredicted flash is
@@ -53,6 +63,12 @@ public class VfxManager {
   }
 
   public void Detach() {
+    _rewardSub?.Dispose();
+    _rewardSub = null;
+    foreach (var ball in _hairballs.Values)
+      if (GodotObject.IsInstanceValid(ball)) ball.QueueFree();
+    _hairballs.Clear();
+    _engine = null;
     _attackWindupSub?.Dispose();
     _attackWindupSub = null;
     _attackCanceledSub?.Dispose();
@@ -82,6 +98,16 @@ public class VfxManager {
     var attackerPos = attackerView?.GlobalPosition ?? evt.AttackerPosition.ToVector3();
     var targetPos = targetView?.GlobalPosition ?? evt.TargetPosition.ToVector3();
     var windupSeconds = evt.WindupSeconds.ToFloat();
+    var frame = _engine?.PredictedFrame.Frame;
+    if (attackerView != null && frame != null && frame.Has<Hero>(attackerView.EntityRef) &&
+        frame.GetReadOnly<Hero>(attackerView.EntityRef).HeroStatsAssetId == AssetIds.HeroHairyWizard) {
+      ClearHairball(evt.AttackerUnitId);
+      _hairballScene ??= GD.Load<PackedScene>(SkillEffectCatalog.HairballScenePath);
+      var ball = new AutoAttackHairball();
+      _view.AddChild(ball);
+      ball.Start(_hairballScene, attackerPos, targetPos, targetView, windupSeconds);
+      _hairballs[evt.AttackerUnitId] = ball;
+    }
 
     // The debug line stands in for rigs that have no attack clip yet.
     if (attackerView is not IAttackableView attacker ||
@@ -90,11 +116,33 @@ public class VfxManager {
   }
 
   private void HandleAttackWindupCanceled(AttackWindupCanceledEvent evt) {
+    ClearHairball(evt.AttackerUnitId);
     if (_view == null) return;
 
     if (_view.ViewsByUnitId.TryGetValue(evt.AttackerUnitId, out var attackerView) &&
         attackerView is IAttackableView attacker)
       attacker.OnAttackCanceledVfx();
+  }
+
+  private void ClearHairball(int attackerId) {
+    if (_hairballs.Remove(attackerId, out var ball) && GodotObject.IsInstanceValid(ball)) ball.QueueFree();
+  }
+
+  private void HandleReward(RewardGainedEvent evt) {
+    var frame = _engine?.VerifiedFrame.Frame ?? _engine?.PredictedFrame.Frame;
+    if (_view == null || frame == null ||
+        !UnitLookup.TryGetPlayerTeamId(ref frame, _engine.LocalPlayerId, out var teamId) || evt.TeamId != teamId) return;
+    var position = evt.Position.ToVector3();
+    if (evt.Gold > 0)
+      _view.AddChild(DamageNumber.CreateReward($"+{evt.Gold}g", position, new Color(1, 0.85f, 0.2f)));
+    if (evt.Xp > 0) {
+      var xp = DamageNumber.CreateReward($"+{evt.Xp} XP", position, Colors.White, compact: true);
+      if (evt.Gold > 0) xp.Offset = new Vector2(0, -76);
+      _view.AddChild(xp);
+    }
+    if (evt.ResourceAmount > 0)
+      _view.AddChild(DamageNumber.CreateReward($"+{evt.ResourceAmount} " +
+        (evt.ResourceTypeId == AssetIds.PickupTypeWater ? "Water" : "Resource"), position, new Color(0.35f, 0.85f, 1)));
   }
 
   private void HandleAttackHit(AttackHitEvent evt) {
@@ -107,8 +155,10 @@ public class VfxManager {
     var attackerPos = attackerView?.GlobalPosition ?? evt.AttackerPosition.ToVector3();
     var targetPos = targetView?.GlobalPosition ?? evt.TargetPosition.ToVector3();
 
-    var number = DamageNumber.Create(evt.Damage.ToFloat(), targetPos, evt.IsCrit != 0);
-    _view.AddChild(number);
+    var frame = _engine?.PredictedFrame.Frame ?? _engine?.VerifiedFrame.Frame;
+    if (frame != null && UnitLookup.TryGetPlayerHero(ref frame, _engine.LocalPlayerId, out var hero) &&
+        UnitLookup.GetUnitId(ref frame, hero) == evt.AttackerUnitId)
+      _view.AddChild(DamageNumber.Create(evt.Damage.ToFloat(), targetPos, evt.IsCrit != 0));
 
     if (targetView is IAttackableView target)
       target.OnHitVfx(evt.Damage.ToFloat(), attackerPos);

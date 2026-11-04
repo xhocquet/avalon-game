@@ -16,6 +16,16 @@ public partial class DamageNumber : Label3D {
 
   private Vector3 _spawnPosition;
   private float _elapsed;
+  private float _duration = Duration;
+
+  public static DamageNumber CreateReward(string text, Vector3 position, Color color, bool compact = false) {
+    var popup = Create(text, position + Vector3.Up * 0.8f, false);
+    popup._spawnPosition = position + Vector3.Up * (HeadOffsetY + 0.8f);
+    popup._duration = 1.8f;
+    popup.FontSize = compact ? NormalFontSize : 64;
+    popup.Modulate = color;
+    return popup;
+  }
 
   public static DamageNumber Create(float damage, Vector3 targetPosition, bool isCrit) {
     return Create(
@@ -53,7 +63,7 @@ public partial class DamageNumber : Label3D {
 
   public override void _Process(double delta) {
     _elapsed += (float)delta;
-    if (_elapsed >= Duration) {
+    if (_elapsed >= _duration) {
       QueueFree();
       return;
     }
@@ -62,7 +72,7 @@ public partial class DamageNumber : Label3D {
 
     // Hold the number solid for the first half, then fade - a linear fade from t=0 makes the peak
     // damage spike the hardest thing to read.
-    var alpha = Mathf.Clamp(2f - 2f * (_elapsed / Duration), 0f, 1f);
+    var alpha = Mathf.Clamp(2f - 2f * (_elapsed / _duration), 0f, 1f);
     Modulate = Modulate with { A = alpha };
     OutlineModulate = OutlineModulate with { A = alpha * 0.7f };
   }

@@ -24,5 +24,7 @@ public static class SimulationEventTypeIds {
   public const int AttackWindupCanceled = 121;
   public const int SkillTrailSegmentSpawned = 122;
 
-  // Next free id: 123
+  public const int RewardGained = 123;
+
+  // Next free id: 124
 }

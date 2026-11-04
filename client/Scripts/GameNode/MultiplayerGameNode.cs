@@ -43,6 +43,7 @@ public partial class MultiplayerGameNode : GameNode {
   private SkillTelegraphManager _telegraphs;
   private LiteNetLibTransport _transport;
   private bool _verified;
+  private double _pingRefresh;
   private VfxManager _vfx;
   private EntityViewUpdaterNode _view;
   private ViewCallbacks _viewCallbacks;
@@ -166,7 +167,7 @@ public partial class MultiplayerGameNode : GameNode {
     _events.Attach(_session.Engine);
     BindTeamBaseCleanup(_events);
     _vfx = new VfxManager();
-    _vfx.Attach(_events, _view);
+    _vfx.Attach(_events, _view, engine);
     _telegraphs = new SkillTelegraphManager();
     _telegraphs.Attach(_events, _view, engine, this);
     _skillEffects ??= new SkillEffectsManager();
@@ -247,7 +248,12 @@ public partial class MultiplayerGameNode : GameNode {
     _camera?.SetFollowTarget(null);
   }
 
-  public override void _Process(double _) {
+  public override void _Process(double delta) {
+    _pingRefresh -= delta;
+    if (_pingRefresh <= 0) {
+      GameUi.SetPing(_transport?.RoundTripTimeMs ?? -1);
+      _pingRefresh = 5;
+    }
     if (_joining && _joinTask != null) {
       if (_joinTask.IsFaulted) {
         _logger.KError($"[Client] join failed (server running?): {_joinTask.Exception?.GetBaseException().Message}");

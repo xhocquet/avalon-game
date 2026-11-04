@@ -95,7 +95,7 @@ public partial class SingleplayerGameNode : GameNode {
     _events.Attach(_session.Engine);
     BindTeamBaseCleanup(_events);
     _vfx = new VfxManager();
-    _vfx.Attach(_events, _view);
+    _vfx.Attach(_events, _view, engine);
     _telegraphs = new SkillTelegraphManager();
     _telegraphs.Attach(_events, _view, engine, this);
     _skillEffects ??= new SkillEffectsManager();
