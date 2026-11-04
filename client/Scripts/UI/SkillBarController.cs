@@ -8,9 +8,7 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon;
 
-// Owns the first four cells of GameUI's ActionGrid, one per SkillSlot in slot order. ActionBarController
-// owns everything after them (see its reservedLeadingCells) - these two share one GridContainer, split by
-// index, so this controller builds its cells once and never adds or removes a child afterwards.
+// Owns the four persistent skill slots in GameUI.
 //
 // Each cell is a coloured rect with the skill's current rank centred on it, and a flat transparent Button
 // on top that spends a point. Two independent cues: the fill is the slot colour while the skill can be
@@ -21,6 +19,7 @@ namespace Meesles.Avalon;
 // bottom edge. The sim re-checks both gates when the command lands, so a cell that is briefly optimistic
 // is harmless.
 public class SkillBarController {
+  private static readonly StyleBoxFlat IconBorder = GD.Load<StyleBoxFlat>("res://Assets/UI/SkillIconBorder.tres");
   private const float CellSize = 54f;
   private const float BadgePadding = 4f;
   private static Texture2D EmptySlotTexture => GD.Load<Texture2D>("res://Assets/Placeholders/red-swirl.webp");
@@ -195,12 +194,12 @@ public class SkillBarController {
     return $"{name}\n{cooldown}{blurb}";
   }
 
-  // The .tscn authors placeholder cells into ActionGrid; drop them all and lay down the four skill cells
-  // first, so ActionBarController's reserved-cell count lines up with our indices.
+  // Replace skill placeholders while preserving the authored passive icon.
   private void Build() {
     if (_grid == null) return;
 
     foreach (var child in _grid.GetChildren()) {
+      if (child.Name == "PassiveIcon") continue;
       _grid.RemoveChild(child);
       child.QueueFree();
     }
@@ -249,7 +248,12 @@ public class SkillBarController {
     var blockStrip = CreateBlockStrip();
     rect.AddChild(blockStrip);
 
-    var upgradeHint = ActionGridOutline.Create("UpgradeHint");
+    var border = new Panel { Name = "Border", MouseFilter = Control.MouseFilterEnum.Ignore };
+    border.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+    border.AddThemeStyleboxOverride("panel", IconBorder);
+    rect.AddChild(border);
+
+    var upgradeHint = ActionGridOutline.Create("UpgradeHint", IconBorder.BorderColor);
     rect.AddChild(upgradeHint);
 
     var label = new Label {

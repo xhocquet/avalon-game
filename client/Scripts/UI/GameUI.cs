@@ -39,6 +39,8 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private Label _moveSpeedLabel;
   private Label _attackRangeLabel;
   private Label _healthRegenLabel;
+  private TextureButton _statsButton;
+  private PanelContainer _statsPopup;
   private int? _localPlayerId;
   private Label _resultLabel;
   private Label _resultReasonLabel;
@@ -50,6 +52,8 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private Control _tabUi;
 
   private ActionBarController _actionBar;
+  private Meesles.Avalon.Client.ActionGridPopup _actionPopup;
+  public bool IsActionPopupOpen => _actionPopup?.Visible == true;
   private SkillBarController _skillBar;
   private BuffBarController _buffBar;
   private InventoryPanelController _inventoryPanel;
@@ -136,12 +140,14 @@ public partial class GameUI : CanvasLayer, IViewHud {
     PredictedSkills.Clear();
     PredictedPurchases.Clear();
     _buffBar?.Clear();
+    SetContextShop(null);
   }
 
   public void ShowResult(MatchResult result) {
     if (_resultLabel != null) _resultLabel.Text = MatchResultText.Headline(result, _localPlayerId);
     if (_resultReasonLabel != null) _resultReasonLabel.Text = MatchResultText.Reason(result);
     BuildScoreboard(result);
+    SetContextShop(null);
     if (_resultPanel != null) _resultPanel.Visible = true;
     if (_resultReturnButton != null) {
       _resultReturnButton.Disabled = false;
@@ -218,14 +224,20 @@ public partial class GameUI : CanvasLayer, IViewHud {
     _tabUi = GetNode<Control>("TabUI");
     _scoreboardScoreLabel = GetNode<Label>("TabUI/ScoreboardPanel/ResultPanelFrame/Header/ScoreLabel");
     const string bottomBar = "DefaultUI/BottomBar/Panels";
-    _healthBar = GetNode<ColorRect>($"{bottomBar}/Vbox/HealthBar");
-    _healthBarFill = GetNode<ColorRect>($"{bottomBar}/Vbox/HealthBar/HealthBarFill");
-    _healthBarLabel = GetNode<Label>($"{bottomBar}/Vbox/HealthBar/HealthBarLabel");
-    _manaBar = GetNode<ColorRect>($"{bottomBar}/Vbox/ManaBar");
-    _manaBarFill = GetNode<ColorRect>($"{bottomBar}/Vbox/ManaBar/ManaBarFill");
-    _manaBarLabel = GetNode<Label>($"{bottomBar}/Vbox/ManaBar/ManaBarLabel");
-    var statsRoot = GetNodeOrNull<Control>(
-      $"{bottomBar}/Vbox/MainSection/StatsPanelFrame/StatsList");
+    _healthBar = GetNode<ColorRect>("%HealthBar");
+    _healthBarFill = GetNode<ColorRect>("%HealthBarFill");
+    _healthBarLabel = GetNode<Label>("%HealthBarLabel");
+    _manaBar = GetNode<ColorRect>("%ManaBar");
+    _manaBarFill = GetNode<ColorRect>("%ManaBarFill");
+    _manaBarLabel = GetNode<Label>("%ManaBarLabel");
+    _statsButton = GetNode<TextureButton>("%StatsButton");
+    _statsPopup = GetNode<PanelContainer>("%StatsPopup");
+    _statsPopup.AddThemeStyleboxOverride("panel", _statsButton.GetThemeStylebox("panel", "TooltipPanel"));
+    _statsButton.Pressed += () => {
+      _statsPopup.Visible = !_statsPopup.Visible;
+      if (_statsPopup.Visible) PositionStatsPopup();
+    };
+    var statsRoot = _statsPopup.GetNode<Control>("StatsList");
     _levelLabel = GetNode<Label>("%LevelLabel");
     _goldLabel = GetNode<Label>("%GoldLabel");
     _resourcesLabel = GetNode<Label>("%ResourceLabel");
@@ -237,10 +249,8 @@ public partial class GameUI : CanvasLayer, IViewHud {
     _moveSpeedLabel = statsRoot?.GetNodeOrNull<Label>("CombatStatList/MoveSpeedValue");
     _attackRangeLabel = statsRoot?.GetNodeOrNull<Label>("CombatStatList/AttackRangeValue");
     _healthRegenLabel = statsRoot?.GetNodeOrNull<Label>("CombatStatList/HealthRegenerationValue");
-    _xpBar = GetNodeOrNull<ColorRect>(
-      $"{bottomBar}/Vbox/MainSection/PortraitAndXp/XpBar");
-    _xpBarFill = GetNodeOrNull<ColorRect>(
-      $"{bottomBar}/Vbox/MainSection/PortraitAndXp/XpBar/XpBarFill");
+    _xpBar = GetNode<ColorRect>("%XpBar");
+    _xpBarFill = GetNode<ColorRect>("%XpBarFill");
     _selectionRectangle = GetNode<Control>("DefaultUI/SelectionRectangle");
     _resultPanel = GetNodeOrNull<Panel>("DefaultUI/ResultPanel");
     _resultLabel = GetNodeOrNull<Label>("DefaultUI/ResultPanel/Content/ResultLabel");
@@ -251,24 +261,23 @@ public partial class GameUI : CanvasLayer, IViewHud {
       _resultReturnButton.Pressed += OnReturnToLobbyPressed;
     _minimapViewport = GetNode<SubViewport>("%MinimapViewport");
     _portraitTexture = GetNodeOrNull<TextureRect>(
-      $"{bottomBar}/Vbox/MainSection/PortraitAndXp/PortraitTexture");
+      "%PortraitTexture");
 
     var actionGrid = GetNodeOrNull<GridContainer>(
-      "%ActionGrid");
+      "%SkillGrid");
     _shopCatalog = ShopItemCatalog.CreateDefault();
     _skillCatalog = SkillCatalog.CreateDefault();
     _buffBar = new BuffBarController(GetNodeOrNull<HBoxContainer>(
       $"{bottomBar}/Vbox/BuffMarginContainer/BuffContainer"), _skillCatalog);
 
-    // Order matters: the skill bar claims the grid's leading cells, then the action bar is told how many
-    // to leave alone. Building them the other way round would let the action bar clear the skill cells.
     _skillBar = new SkillBarController(actionGrid, _skillCatalog, slot => SkillUpgradeRequested?.Invoke(slot),
       PredictedSkills);
-    _actionBar = new ActionBarController(actionGrid, _shopCatalog, itemId => PurchaseRequested?.Invoke(itemId),
-      SkillBarController.SlotCount, PredictedPurchases);
+    _actionPopup = GetNode<Meesles.Avalon.Client.ActionGridPopup>("%ActionGridPopup");
+    _actionBar = new ActionBarController(_actionPopup, _shopCatalog, itemId => PurchaseRequested?.Invoke(itemId),
+      PredictedPurchases);
 
     var itemPanel = GetNodeOrNull<GridContainer>(
-      $"{bottomBar}/Vbox/MainSection/ItemFrame/ItemPanel");
+      "%ItemPanel");
     _inventoryPanel = new InventoryPanelController(itemPanel, _shopCatalog, PredictedPurchases);
 
     SetSelectionRectangle(null);
@@ -331,6 +340,24 @@ public partial class GameUI : CanvasLayer, IViewHud {
   }
 
   public override void _Input(InputEvent @event) {
+    if (IsActionPopupOpen) return;
+    if (_statsPopup.Visible) {
+      if (@event is InputEventKey { Pressed: true, Keycode: Key.Escape }) {
+        _statsPopup.Hide();
+        GetViewport().SetInputAsHandled();
+        return;
+      }
+      if (@event is InputEventMouseButton popupMouse &&
+          _statsPopup.GetGlobalRect().HasPoint(popupMouse.Position)) {
+        GetViewport().SetInputAsHandled();
+        return;
+      }
+      if (@event is InputEventMouseButton { Pressed: true } mouse &&
+          !_statsPopup.GetGlobalRect().HasPoint(mouse.Position) &&
+          !_statsButton.GetGlobalRect().HasPoint(mouse.Position))
+        _statsPopup.Hide();
+    }
+
     if (UiFocus.IsTypingInTextField(GetViewport()))
       return;
 
@@ -338,6 +365,19 @@ public partial class GameUI : CanvasLayer, IViewHud {
       if (_tabUi != null) _tabUi.Visible = key.Pressed;
       GetViewport().SetInputAsHandled();
     }
+  }
+
+  public override void _Process(double delta) {
+    if (_statsPopup.Visible) PositionStatsPopup();
+  }
+
+  private void PositionStatsPopup() {
+    _statsPopup.Size = _statsPopup.GetCombinedMinimumSize();
+    var bounds = GetViewport().GetVisibleRect();
+    var position = _statsButton.GlobalPosition - new Vector2(0, _statsPopup.Size.Y + 6);
+    position.X = Mathf.Clamp(position.X, bounds.Position.X, Mathf.Max(bounds.Position.X, bounds.End.X - _statsPopup.Size.X));
+    position.Y = Mathf.Clamp(position.Y, bounds.Position.Y, Mathf.Max(bounds.Position.Y, bounds.End.Y - _statsPopup.Size.Y));
+    _statsPopup.GlobalPosition = position.Round();
   }
 
   private void UpdateLocalPlayerHealth(Frame frame) {
@@ -505,10 +545,10 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private Texture2D PortraitPlaceholder =>
     _portraitPlaceholder ??= GD.Load<Texture2D>("res://Assets/Portraits/TODO.png");
 
-  // InputCapture reports which shop (if any) is currently selected for inspection. The action bar
-  // re-evaluates proximity every frame, so we just store the reference here.
+  // A new selection also reopens a dismissed shop popup.
   public void SetContextShop(ShopEntity shop) {
     _contextShop = shop;
+    _actionBar?.ResetContext();
   }
 
   public void SetSelectionRectangle(Rect2? rectangle) {
@@ -579,15 +619,6 @@ public partial class GameUI : CanvasLayer, IViewHud {
   // duplicate geometry needed.
   private void SetupMinimap() {
     if (_minimapViewport == null) return;
-
-    var actionColumn = GetNode<Control>("DefaultUI/BottomBar/Panels/VBoxContainer");
-    var minimapFrame = _minimapViewport.GetParent().GetParent<Control>();
-    void ResizeMinimap() {
-      var side = actionColumn.GetCombinedMinimumSize().Y;
-      minimapFrame.CustomMinimumSize = new Vector2(side, side);
-    }
-    actionColumn.MinimumSizeChanged += ResizeMinimap;
-    ResizeMinimap();
 
     _minimapCamera = new Camera3D {
       Name = "MinimapCamera",

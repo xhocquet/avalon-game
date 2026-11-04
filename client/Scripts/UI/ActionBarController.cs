@@ -10,52 +10,35 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon;
 
-// Drives the contextual ActionGrid in GameUI. It's meant to host a flexible assortment of actions
-// depending on what the player has selected; the first (and only, for now) context is the shop.
-//
-// When the player has their own team's shop selected AND their hero is in range of it, the grid fills
-// with one buy button per shop item; otherwise it empties. The grid is rebuilt only on the
-// hidden<->shown transition — while shown it just refreshes each item's buyability (enabled/greyed)
-// every frame.
-//
-// Both the visibility test and the per-button state run through ShopController — the same rules
-// PurchaseItemCommand is judged by — rather than re-deriving them here. Range in particular: the
-// ShopEntity node's transform comes from World.tscn and the sim's from the MapLayoutAsset Shop marker,
-// so measuring against the node would enable a button the sim then silently rejects wherever the two
-// disagree.
+// Owns the contextual shop popup and refreshes purchase availability from the sim.
 public class ActionBarController {
   private const float CellSize = 54f;
-  private const int RowCount = 4;
+  private const int SlotCapacity = 12;
   private static Texture2D EmptySlotTexture => GD.Load<Texture2D>("res://Assets/Placeholders/purple-swirl.webp");
 
   private readonly List<ItemButton> _buttons = new();
   private readonly ShopItemCatalog _catalog;
   private readonly GridContainer _grid;
+  private readonly ActionGridPopup _popup;
   private readonly Action<int> _onPurchase;
   private readonly PredictedPurchaseState _predicted;
 
-  // Leading cells owned by another controller (SkillBarController's four skill slots). Everything from
-  // this index on is ours to clear and rebuild; anything before it we never touch.
-  private readonly int _reservedLeadingCells;
-
-  // Spacers laid before our first cell so the buy grid always begins on a fresh row under the skill
-  // row, whatever the reserved count and column count work out to. 0 when the skills already fill a row.
-  private readonly int _leadingRowPad;
-  private readonly int _slotCapacity;
   private bool _shown;
 
-  public ActionBarController(GridContainer grid, ShopItemCatalog catalog, Action<int> onPurchase,
-    int reservedLeadingCells = 0, PredictedPurchaseState predicted = null) {
-    _grid = grid;
+  public ActionBarController(ActionGridPopup popup, ShopItemCatalog catalog, Action<int> onPurchase,
+    PredictedPurchaseState predicted = null) {
+    _popup = popup;
+    _grid = popup.Grid;
     _catalog = catalog;
     _onPurchase = onPurchase;
     _predicted = predicted;
-    _reservedLeadingCells = reservedLeadingCells;
-    var columns = _grid?.Columns ?? 0;
-    _leadingRowPad = columns > 0 ? (columns - _reservedLeadingCells % columns) % columns : 0;
-    _slotCapacity = Math.Max(0, columns * RowCount - _reservedLeadingCells - _leadingRowPad);
+    _popup.Hide();
     ClearGrid();
     FillEmptySlots();
+  }
+
+  public void ResetContext() {
+    Hide();
   }
 
   // Called every HUD sync (GameUI.SyncFromFrame). Decides whether the shop actions should be
@@ -84,6 +67,7 @@ public class ActionBarController {
     if (!_shown) {
       Build(frame);
       _shown = true;
+      _popup.Show();
     }
 
     // ShopController.CanPurchase is the same predicate the sim judges the command by, so a greyed button
@@ -101,6 +85,7 @@ public class ActionBarController {
   }
 
   private void Hide() {
+    _popup.Hide();
     if (!_shown) return;
 
     ClearGrid();
@@ -109,15 +94,12 @@ public class ActionBarController {
     _shown = false;
   }
 
-  // Catalog order is stable. A full four-row grid reserves twelve action cells after the skill row.
+  // Catalog order is stable across popup opens.
   private void Build(Frame frame) {
     ClearGrid();
     _buttons.Clear();
 
-    for (var i = 0; i < _leadingRowPad; i++)
-      _grid.AddChild(CreateEmptySlot());
-
-    var count = Math.Min(ShopItemCatalog.ItemDefs.Length, _slotCapacity);
+    var count = Math.Min(ShopItemCatalog.ItemDefs.Length, SlotCapacity);
     for (var i = 0; i < count; i++) {
       var def = ShopItemCatalog.ItemDefs[i];
       var data = _catalog.Resolve(def.Id);
@@ -142,7 +124,7 @@ public class ActionBarController {
       _buttons.Add(new ItemButton(itemId, button, purchaseHint));
     }
 
-    for (var i = count; i < _slotCapacity; i++)
+    for (var i = count; i < SlotCapacity; i++)
       _grid.AddChild(CreateEmptySlot());
   }
 
@@ -187,22 +169,20 @@ public class ActionBarController {
     return false;
   }
 
-  // Remove every cell we own immediately (RemoveChild, not just QueueFree, so the grid never holds
-  // the old and new cells together for a frame). Callers repopulate right after. Iterated back to front
-  // so removals don't shift the indices still to be visited.
+  // Detach cells immediately before repopulating.
   private void ClearGrid() {
     if (_grid == null) return;
-    for (var i = _grid.GetChildCount() - 1; i >= _reservedLeadingCells; i--) {
+    for (var i = _grid.GetChildCount() - 1; i >= 0; i--) {
       var child = _grid.GetChild(i);
       _grid.RemoveChild(child);
       child.QueueFree();
     }
   }
 
-  // Fill the four-row grid with non-interactive placeholders while no shop is in context.
+  // Keep twelve cells when the catalog has fewer items.
   private void FillEmptySlots() {
     if (_grid == null) return;
-    for (var i = 0; i < _leadingRowPad + _slotCapacity; i++)
+    for (var i = 0; i < SlotCapacity; i++)
       _grid.AddChild(CreateEmptySlot());
   }
 

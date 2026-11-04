@@ -3,10 +3,10 @@ using Godot;
 namespace Meesles.Avalon;
 
 internal static class ActionGridOutline {
-  public static Panel Create(string name) {
+  public static Panel Create(string name, Color? borderColor = null) {
     var style = new StyleBoxFlat {
       BgColor = new Color(0f, 0f, 0f, 0f),
-      BorderColor = new Color(1f, 0.25f, 0.08f, 1f)
+      BorderColor = borderColor ?? new Color(1f, 0.25f, 0.08f, 1f)
     };
     style.SetBorderWidthAll(3);
 

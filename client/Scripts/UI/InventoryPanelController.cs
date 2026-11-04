@@ -14,6 +14,7 @@ namespace Meesles.Avalon;
 // allocation-free (just an int[] compare) and survive rollback: a corrected count simply repaints.
 public class InventoryPanelController {
   private const float CellSize = 58f;
+  private static readonly StyleBoxFlat IconBorder = GD.Load<StyleBoxFlat>("res://Assets/UI/ItemIconBorder.tres");
   private static Texture2D EmptySlotTexture => GD.Load<Texture2D>("res://Assets/Placeholders/brown-swirl.webp");
 
   private readonly ShopItemCatalog _catalog;
@@ -103,6 +104,7 @@ public class InventoryPanelController {
         TooltipText = count > 1 ? $"{data.DisplayName}\nQuantity: {count}" : data.DisplayName
       };
 
+      AddBorder(icon);
       if (count > 1)
         AddCountBadge(icon, count);
 
@@ -150,7 +152,7 @@ public class InventoryPanelController {
   }
 
   private static TextureRect CreateEmptySlot() {
-    return new TextureRect {
+    var icon = new TextureRect {
       Name = "Empty",
       CustomMinimumSize = new Vector2(CellSize, CellSize),
       MouseFilter = Control.MouseFilterEnum.Ignore,
@@ -158,5 +160,14 @@ public class InventoryPanelController {
       ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
       StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered
     };
+    AddBorder(icon);
+    return icon;
+  }
+
+  private static void AddBorder(TextureRect icon) {
+    var border = new Panel { Name = "Border", MouseFilter = Control.MouseFilterEnum.Ignore };
+    border.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+    border.AddThemeStyleboxOverride("panel", IconBorder);
+    icon.AddChild(border);
   }
 }

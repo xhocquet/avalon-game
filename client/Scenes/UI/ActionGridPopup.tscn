@@ -1,0 +1,125 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Scripts/UI/ActionGridPopup.cs" id="1_script"]
+[ext_resource type="Texture2D" path="res://Assets/Placeholders/purple-swirl.webp" id="6_action"]
+
+[ext_resource type="StyleBox" path="res://Assets/UI/ActionGridPanel.tres" id="16_grid_panel"]
+
+[node name="ActionGridPopup" type="Control"]
+visible = false
+z_index = 10
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Container" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -125.0
+offset_top = -95.0
+offset_right = 125.0
+offset_bottom = 95.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+theme_override_styles/panel = ExtResource("16_grid_panel")
+
+[node name="ActionGrid" type="GridContainer" parent="Container"]
+layout_mode = 2
+mouse_filter = 0
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
+columns = 4
+
+[node name="ColorRect5" type="TextureRect" parent="Container/ActionGrid" unique_id=247330112]
+custom_minimum_size = Vector2(54, 54)
+layout_mode = 2
+texture = ExtResource("6_action")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="ColorRect6" type="TextureRect" parent="Container/ActionGrid" unique_id=2128561064]
+custom_minimum_size = Vector2(54, 54)
+layout_mode = 2
+texture = ExtResource("6_action")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="ColorRect7" type="TextureRect" parent="Container/ActionGrid" unique_id=757895957]
+custom_minimum_size = Vector2(54, 54)
+layout_mode = 2
+texture = ExtResource("6_action")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="ColorRect8" type="TextureRect" parent="Container/ActionGrid" unique_id=1052040432]
+custom_minimum_size = Vector2(54, 54)
+layout_mode = 2
+texture = ExtResource("6_action")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="ColorRect9" type="TextureRect" parent="Container/ActionGrid" unique_id=1317634379]
+custom_minimum_size = Vector2(54, 54)
+layout_mode = 2
+texture = ExtResource("6_action")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="ColorRect10" type="TextureRect" parent="Container/ActionGrid" unique_id=1230175847]
+custom_minimum_size = Vector2(54, 54)
+layout_mode = 2
+texture = ExtResource("6_action")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="ColorRect11" type="TextureRect" parent="Container/ActionGrid" unique_id=1329078521]
+custom_minimum_size = Vector2(54, 54)
+layout_mode = 2
+texture = ExtResource("6_action")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="ColorRect12" type="TextureRect" parent="Container/ActionGrid" unique_id=762819458]
+custom_minimum_size = Vector2(54, 54)
+layout_mode = 2
+texture = ExtResource("6_action")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="ColorRect13" type="TextureRect" parent="Container/ActionGrid" unique_id=551952867]
+custom_minimum_size = Vector2(54, 54)
+layout_mode = 2
+texture = ExtResource("6_action")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="ColorRect14" type="TextureRect" parent="Container/ActionGrid" unique_id=1408463387]
+custom_minimum_size = Vector2(54, 54)
+layout_mode = 2
+texture = ExtResource("6_action")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="ColorRect15" type="TextureRect" parent="Container/ActionGrid" unique_id=376219139]
+custom_minimum_size = Vector2(54, 54)
+layout_mode = 2
+texture = ExtResource("6_action")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="ColorRect16" type="TextureRect" parent="Container/ActionGrid" unique_id=80963509]
+custom_minimum_size = Vector2(54, 54)
+layout_mode = 2
+texture = ExtResource("6_action")
+expand_mode = 1
+stretch_mode = 6
+

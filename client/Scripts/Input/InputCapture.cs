@@ -332,6 +332,10 @@ public class InputCapture : IDisposable {
 
   public void HandleUnhandledInput(InputEvent @event) {
     if (_camera == null || MatchEnded) return;
+    if (_gameUI?.IsActionPopupOpen == true) {
+      CancelSkillAim();
+      return;
+    }
 
     switch (@event) {
       case InputEventKey { Echo: false, Pressed: true, CtrlPressed: true } upgradeKey
@@ -371,10 +375,7 @@ public class InputCapture : IDisposable {
     }
   }
 
-  // Same result as clicking your own shop: it becomes the sole selection, which is what puts the buy
-  // grid in the action bar. Range is asked of ShopController rather than measured against the ShopEntity
-  // node for the reason ActionBarController does the same — the node's transform comes from World.tscn
-  // and the sim's from the Shop map marker, and the key must not open a grid the sim would refuse.
+  // Select the team's shop using the sim's range check.
   private void OpenTeamShop() {
     var frame = _engine?.PredictedFrame.Frame;
     if (frame == null) return;
@@ -892,7 +893,7 @@ public class InputCapture : IDisposable {
   // Only applied when the shop is sole selected
   private void UpdateContextShop() {
     var shop = _selectedViews.Count == 1 && _selectedViews[0] is ShopEntity s ? s : null;
-    if (ReferenceEquals(shop, _contextShop)) return;
+    if (ReferenceEquals(shop, _contextShop) && (shop == null || _gameUI?.IsActionPopupOpen == true)) return;
 
     _contextShop = shop;
     _gameUI?.SetContextShop(shop);

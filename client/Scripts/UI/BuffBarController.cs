@@ -6,6 +6,7 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon;
 
 public sealed class BuffBarController {
+  private static readonly StyleBox IconBorder = GD.Load<StyleBox>("res://Assets/UI/ItemIconBorder.tres");
   private static readonly Color ShroudColor = new(0.04f, 0.04f, 0.06f, 0.7f);
   private readonly HBoxContainer _container;
   private readonly SkillCatalog _catalog;
@@ -85,6 +86,10 @@ public sealed class BuffBarController {
     shroud.SetAnchorsPreset(Control.LayoutPreset.FullRect);
     shroud.AnchorTop = 1f;
     icon.AddChild(shroud);
+    var border = new Panel { Name = "Border", MouseFilter = Control.MouseFilterEnum.Ignore };
+    border.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+    border.AddThemeStyleboxOverride("panel", IconBorder);
+    icon.AddChild(border);
     _container.AddChild(icon);
     var cell = new Cell(icon, shroud);
     _cells.Add(cell);
