@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://bbvdly6vma5mr" path="res://Scenes/World/WorldEnvironment.tscn" id="1_env"]
 [ext_resource type="Material" uid="uid://cowspplyfkffa" path="res://addons/constructive_telegraphs/resources/con_telegraph_next_pass.tres" id="1_telegraph"]
-[ext_resource type="Shader" uid="uid://drbvqj4wsvdbh" path="res://Scenes/Playgrounds/grid.gdshader" id="2_grid"]
+[ext_resource type="Shader" uid="uid://drbvqj4wsvdbh" path="res://Assets/FX/Shaders/grid.gdshader" id="2_grid"]
 [ext_resource type="PackedScene" uid="uid://27ja1dxjwmub" path="res://Scenes/Objects/Turret2.tscn" id="5_turret"]
 [ext_resource type="PackedScene" uid="uid://qjurpo3ywmsk" path="res://Scenes/Objects/Container2.tscn" id="6_crystal"]
 [ext_resource type="PackedScene" uid="uid://c4gqw5blm3y8s" path="res://Scenes/Objects/Spawn.tscn" id="7_spawn"]

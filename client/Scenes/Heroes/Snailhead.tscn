@@ -2,9 +2,9 @@
 
 [ext_resource type="PackedScene" path="res://Scenes/Heroes/Presentation/SnailHead.tscn" id="1_6ayvj"]
 [ext_resource type="Script" uid="uid://cvasfy5yhl8gr" path="res://Scripts/Entities/HeroEntity.cs" id="2_hero"]
-[ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="2_lk2n3"]
+[ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/FX/SelectionIndicator.tscn" id="2_lk2n3"]
 [ext_resource type="Shader" uid="uid://dq0x5kj3xp5no" path="res://Assets/FX/Shaders/MinimapHeroMarker.gdshader" id="5_8rdqe"]
-[ext_resource type="PackedScene" uid="uid://bw6nrf2agdrdd" path="res://Scenes/UI/MinimapHeroMarker.tscn" id="20_minimap"]
+[ext_resource type="PackedScene" uid="uid://bw6nrf2agdrdd" path="res://Scenes/UI/Icons/MinimapHeroMarker.tscn" id="20_minimap"]
 [ext_resource type="Texture2D" uid="uid://ckswo7ccqibr6" path="res://Assets/Portraits/Minimap/Snailhead.webp" id="21_minimap_portrait"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_8rdqe"]

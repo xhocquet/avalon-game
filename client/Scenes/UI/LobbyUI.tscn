@@ -8,7 +8,7 @@
 [ext_resource type="Theme" uid="uid://bbcbaf401pdy7" path="res://Assets/UI/LobbyButtonTheme.tres" id="11_button_theme"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/VaultPage.tscn" id="12_vault"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/SettingsPage.tscn" id="13_settings"]
-[ext_resource type="PackedScene" uid="uid://duyqka540kv7v" path="res://Scenes/UI/ChampionPreview.tscn" id="14_preview"]
+[ext_resource type="PackedScene" uid="uid://duyqka540kv7v" path="res://Scenes/UI/ChampionPreviews/ChampionPreview.tscn" id="14_preview"]
 [ext_resource type="Theme" uid="uid://db4evk5ue67dn" path="res://Assets/UI/LobbyActionButtonTheme.tres" id="15_action_button_theme"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_top_bar"]

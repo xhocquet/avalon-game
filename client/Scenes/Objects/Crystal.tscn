@@ -3,7 +3,7 @@
 [ext_resource type="PackedScene" uid="uid://ck44yj5h17mi7" path="res://Assets/Props/Rock/RockC.glb" id="1_1vww1"]
 [ext_resource type="Material" uid="uid://fkhkir6t1hml" path="res://Assets/Props/Crystal/M_crystal_blue.tres" id="2_fclne"]
 [ext_resource type="Script" uid="uid://fk316437yd4p" path="res://Scripts/Entities/CrystalEntity.cs" id="3_cjs85"]
-[ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="4_indicator"]
+[ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/FX/SelectionIndicator.tscn" id="4_indicator"]
 [ext_resource type="Script" uid="uid://jt4rwdk0j6k6" path="res://Scripts/Editor/SimMarkerNode.cs" id="5_simmarker"]
 
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_ycsjC"]

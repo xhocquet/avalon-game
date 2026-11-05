@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bc25aomqihvw"]
 
-[ext_resource type="PackedScene" uid="uid://cfnlx2ce8ke6k" path="res://Scenes/UI/HudIcon.tscn" id="1_icon"]
+[ext_resource type="PackedScene" uid="uid://cfnlx2ce8ke6k" path="res://Scenes/UI/Icons/HudIcon.tscn" id="1_icon"]
 [ext_resource type="Script" uid="uid://eoxovsrbkufk" path="res://Scripts/UI/TooltipTextureRect.cs" id="2_tooltip"]
 [ext_resource type="Texture2D" uid="uid://d1qivwnkvrbob" path="res://Assets/Placeholders/brown-swirl.webp" id="3_empty"]
 [ext_resource type="StyleBox" uid="uid://b6q4gb7v7vvw5" path="res://Assets/UI/ItemIconBorder.tres" id="4_border"]

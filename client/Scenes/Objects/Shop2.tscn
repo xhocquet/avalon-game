@@ -3,7 +3,7 @@
 [ext_resource type="PackedScene" uid="uid://dnnh2as2avq1v" path="res://Assets/Props/Shop2/Shop2.tscn" id="1_model"]
 [ext_resource type="Script" uid="uid://dilg6w34afyeg" path="res://Scripts/Entities/ShopEntity.cs" id="2_shop"]
 [ext_resource type="Script" uid="uid://jt4rwdk0j6k6" path="res://Scripts/Editor/SimMarkerNode.cs" id="3_marker"]
-[ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="4_indicator"]
+[ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/FX/SelectionIndicator.tscn" id="4_indicator"]
 
 [node name="Shop2" unique_id=1296436874 instance=ExtResource("1_model")]
 script = ExtResource("2_shop")

@@ -1,10 +1,10 @@
 [gd_scene format=3 uid="uid://4xrcsx6mwcqp"]
 
 [ext_resource type="Script" uid="uid://5fl0dgt2expw" path="res://Scripts/GameNode/MultiplayerGameNode.cs" id="1_game"]
-[ext_resource type="PackedScene" uid="uid://bhs1kmrnawwhu" path="res://Scenes/Camera3D.tscn" id="4_camera"]
+[ext_resource type="PackedScene" uid="uid://bhs1kmrnawwhu" path="res://Scenes/World/Camera3D.tscn" id="4_camera"]
 [ext_resource type="PackedScene" uid="uid://bu5kshfajfcmv" path="res://Scenes/UI/GameUI.tscn" id="5_gameui"]
 [ext_resource type="PackedScene" uid="uid://clk3ykagonl6k" path="res://Scenes/World/World.tscn" id="6_world"]
-[ext_resource type="PackedScene" uid="uid://dy487k8tlwknf" path="res://Scenes/UI/Crosshair.tscn" id="7_ofdpw"]
+[ext_resource type="PackedScene" uid="uid://dy487k8tlwknf" path="res://Scenes/FX/Crosshair.tscn" id="7_ofdpw"]
 
 [node name="Multiplayer" type="Node" unique_id=1309111642]
 script = ExtResource("1_game")

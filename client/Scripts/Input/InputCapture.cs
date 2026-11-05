@@ -110,6 +110,7 @@ public class InputCapture : IDisposable {
     // we turn that into a pending PurchaseItemCommand that SimCallbacks.OnPollInput sends next tick.
     if (_gameUI != null) {
       _gameUI.PurchaseRequested = QueuePurchase;
+      _gameUI.ShopOpenRequested = OpenTeamShop;
       _gameUI.SkillUpgradeRequested = QueueSkillUpgrade;
       _gameUI.SkillCastRequested = QueueSkillCast;
     }

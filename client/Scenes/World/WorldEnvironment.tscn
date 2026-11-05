@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bbvdly6vma5mr"]
 
-[ext_resource type="Shader" path="res://Scenes/World/Sky.gdshader" id="1_rm2go"]
-[ext_resource type="PackedScene" uid="uid://viinxjf0q77b" path="res://Scenes/DirectionalLight3D.tscn" id="2_dngt1"]
+[ext_resource type="Shader" path="res://Assets/FX/Shaders/sky.gdshader" id="1_rm2go"]
+[ext_resource type="PackedScene" uid="uid://viinxjf0q77b" path="res://Scenes/World/DirectionalLight3D.tscn" id="2_dngt1"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_dngt1"]
 shader = ExtResource("1_rm2go")

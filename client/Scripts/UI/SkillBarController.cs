@@ -19,7 +19,7 @@ namespace Meesles.Avalon;
 // bottom edge. The sim re-checks both gates when the command lands, so a cell that is briefly optimistic
 // is harmless.
 public class SkillBarController {
-  private static readonly PackedScene HudIconScene = GD.Load<PackedScene>("res://Scenes/UI/HudIcon.tscn");
+  private static readonly PackedScene HudIconScene = GD.Load<PackedScene>("res://Scenes/UI/Icons/HudIcon.tscn");
   private const float CellSize = 54f;
   private static Texture2D EmptySlotTexture => GD.Load<Texture2D>("res://Assets/Placeholders/red-swirl.webp");
   public const int SlotCount = Skills.MaxSlots;

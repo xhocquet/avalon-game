@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://qjurpo3ywmsk"]
 
 [ext_resource type="PackedScene" uid="uid://bnt8tb5b8bnu7" path="res://Assets/Props/Container2/Gemini_Generated_Image_3bi8rc3_Colorful_crate_cart_with_wooden_wheels_Prism_31_a4cd323e.glb" id="1_4xxri"]
-[ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="2_7uqqd"]
+[ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/FX/SelectionIndicator.tscn" id="2_7uqqd"]
 [ext_resource type="Script" uid="uid://jt4rwdk0j6k6" path="res://Scripts/Editor/SimMarkerNode.cs" id="3_ehktp"]
 [ext_resource type="PackedScene" uid="uid://bxr3wurwhllji" path="res://Scenes/Objects/Tent.tscn" id="4_yumw0"]
 [ext_resource type="Script" uid="uid://dlfhfroalx5qf" path="res://Scripts/Entities/ContainerEntity.cs" id="5_entity"]

@@ -31,7 +31,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
     if (evt.TargetUnitId != _localUnitId || _localUnitId == 0 || evt.Damage.ToFloat() <= 0) return;
     _damageTween?.Kill();
     _damageTween = CreateTween();
-    _damageTween.TweenProperty(_damageGlow, "modulate:a", 1f, 0.12);
+    _damageTween.TweenProperty(_damageGlow, "modulate:a", 0.25f, 0.12);
     _damageTween.TweenInterval(0.6);
     _damageTween.TweenProperty(_damageGlow, "modulate:a", 0f, 1.8);
   }
@@ -83,6 +83,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
   // Set by InputCapture.BindGameUI: raised when the player clicks a shop buy button. InputCapture
   // turns the invocation into a PurchaseItemCommand.
   public Action<int> PurchaseRequested { get; set; }
+  public Action ShopOpenRequested { get; set; }
 
   // Same wiring for the skill tree: the argument is a SkillSlot index. SkillBarController raises the
   // upgrade one when a skill cell is clicked; nothing raises the cast one yet.
@@ -266,11 +267,11 @@ public partial class GameUI : CanvasLayer, IViewHud {
     ProcessMode = ProcessModeEnum.Always;
     SetProcessInput(true);
 
-    _timerLabel = GetNode<Label>("DefaultUI/Timer");
+    _timerLabel = GetNode<Label>("DefaultUI/MatchTimerLabel");
     _focusTargetLabel = GetNodeOrNull<Label>("DefaultUI/Focus");
     _tabUi = GetNode<Control>("TabUI");
     _scoreboardScoreLabel = GetNode<Label>("TabUI/ScoreboardPanel/ResultPanelFrame/Header/ScoreLabel");
-    const string bottomBar = "DefaultUI/BottomBar/Panels";
+    const string bottomBar = "DefaultUI/BottomBar/HudColumns";
     _healthBar = GetNode<ColorRect>("%HealthBar");
     _healthBarFill = GetNode<ColorRect>("%HealthBarFill");
     _healthBarLabel = GetNode<Label>("%HealthBarLabel");
@@ -287,6 +288,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
     var statsRoot = _statsPopup.GetNode<Control>("StatsList");
     _levelLabel = GetNode<Label>("%LevelLabel");
     _goldLabel = GetNode<Label>("%GoldLabel");
+    GetNode<Button>("%GoldButton").Pressed += () => ShopOpenRequested?.Invoke();
     _resourcesLabel = GetNode<Label>("%ResourceLabel");
     _attackDamageLabel = statsRoot?.GetNodeOrNull<Label>("CombatStatList/AttackDamageValue");
     _attackSpeedLabel = statsRoot?.GetNodeOrNull<Label>("CombatStatList/AttackSpeedValue");
@@ -315,7 +317,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
     _shopCatalog = ShopItemCatalog.CreateDefault();
     _skillCatalog = SkillCatalog.CreateDefault();
     _buffBar = new BuffBarController(GetNodeOrNull<HBoxContainer>(
-      $"{bottomBar}/Vbox/BuffMarginContainer/BuffContainer"), _skillCatalog);
+      $"{bottomBar}/HeroAndInventoryColumn/BuffMarginContainer/BuffContainer"), _skillCatalog);
 
     _skillBar = new SkillBarController(actionGrid, _skillCatalog, slot => SkillUpgradeRequested?.Invoke(slot),
       PredictedSkills);

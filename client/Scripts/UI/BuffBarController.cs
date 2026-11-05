@@ -6,7 +6,7 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon;
 
 public sealed class BuffBarController {
-  private static readonly PackedScene IconScene = GD.Load<PackedScene>("res://Scenes/UI/BuffIcon.tscn");
+  private static readonly PackedScene IconScene = GD.Load<PackedScene>("res://Scenes/UI/Icons/BuffIcon.tscn");
   private readonly HBoxContainer _container;
   private readonly SkillCatalog _catalog;
   private readonly List<StatusEffect> _effects = new(32);

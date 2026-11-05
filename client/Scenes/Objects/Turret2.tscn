@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://dmqqg8dn7oe2e" path="res://Assets/Props/Turret2/3b3b0a6a48b849d6.glb" id="1_w6etq"]
 [ext_resource type="Script" uid="uid://cohxjlrjee2gr" path="res://Scripts/Entities/TurretEntity.cs" id="2_entity"]
-[ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="3_indicator"]
+[ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/FX/SelectionIndicator.tscn" id="3_indicator"]
 [ext_resource type="Script" uid="uid://jt4rwdk0j6k6" path="res://Scripts/Editor/SimMarkerNode.cs" id="4_marker"]
 [ext_resource type="Shader" uid="uid://1vr58k1171gu" path="res://Assets/FX/Shaders/CircleLoading.gdshader" id="5_loading"]
 

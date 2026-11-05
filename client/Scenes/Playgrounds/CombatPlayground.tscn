@@ -1,10 +1,10 @@
 [gd_scene format=3 uid="uid://dq2xj7v1yl3km"]
 
 [ext_resource type="Script" uid="uid://byevh55k3m8nn" path="res://Scripts/GameNode/SingleplayerGameNode.cs" id="1_game"]
-[ext_resource type="PackedScene" uid="uid://bhs1kmrnawwhu" path="res://Scenes/Camera3D.tscn" id="5_camera"]
+[ext_resource type="PackedScene" uid="uid://bhs1kmrnawwhu" path="res://Scenes/World/Camera3D.tscn" id="5_camera"]
 [ext_resource type="PackedScene" uid="uid://bu5kshfajfcmv" path="res://Scenes/UI/GameUI.tscn" id="4_gameui"]
-[ext_resource type="PackedScene" uid="uid://dy487k8tlwknf" path="res://Scenes/UI/Crosshair.tscn" id="8_crosshair"]
-[ext_resource type="PackedScene" uid="uid://b7dbgcnsl0con" path="res://Scenes/UI/DebugConsole.tscn" id="9_console"]
+[ext_resource type="PackedScene" uid="uid://dy487k8tlwknf" path="res://Scenes/FX/Crosshair.tscn" id="8_crosshair"]
+[ext_resource type="PackedScene" uid="uid://b7dbgcnsl0con" path="res://Scenes/UI/Modals/DebugConsole.tscn" id="9_console"]
 
 [node name="CombatPlayground" type="Node"]
 script = ExtResource("1_game")

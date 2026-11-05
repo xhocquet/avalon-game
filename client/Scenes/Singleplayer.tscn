@@ -2,8 +2,8 @@
 
 [ext_resource type="Script" uid="uid://byevh55k3m8nn" path="res://Scripts/GameNode/SingleplayerGameNode.cs" id="1_game"]
 [ext_resource type="PackedScene" uid="uid://bu5kshfajfcmv" path="res://Scenes/UI/GameUI.tscn" id="4_gameui"]
-[ext_resource type="PackedScene" uid="uid://bhs1kmrnawwhu" path="res://Scenes/Camera3D.tscn" id="5_camera"]
-[ext_resource type="PackedScene" uid="uid://dy487k8tlwknf" path="res://Scenes/UI/Crosshair.tscn" id="8_crosshair"]
+[ext_resource type="PackedScene" uid="uid://bhs1kmrnawwhu" path="res://Scenes/World/Camera3D.tscn" id="5_camera"]
+[ext_resource type="PackedScene" uid="uid://dy487k8tlwknf" path="res://Scenes/FX/Crosshair.tscn" id="8_crosshair"]
 
 [node name="Singleplayer" type="Node" unique_id=1024759278]
 script = ExtResource("1_game")

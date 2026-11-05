@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://clk3ykagonl6k"]
 
 [ext_resource type="Texture2D" path="res://Assets/Props/SkyTests/Puffy_Sky-Evening_03-1024x512.png" id="1_evening_sky"]
-[ext_resource type="Shader" uid="uid://dkl23k2monqos" path="res://Scenes/World/WorldSplatmap.gdshader" id="1_kuxid"]
+[ext_resource type="Shader" uid="uid://dkl23k2monqos" path="res://Assets/FX/Shaders/WorldSplatmap.gdshader" id="1_kuxid"]
 [ext_resource type="Material" uid="uid://cowspplyfkffa" path="res://addons/constructive_telegraphs/resources/con_telegraph_next_pass.tres" id="1_telegraph"]
 [ext_resource type="Texture2D" path="res://Assets/Props/GroundTests/gravel_brown_s42.png" id="2_gravel"]
 [ext_resource type="Texture2D" path="res://Assets/Props/Ground/texture6/ground_0044_color_2k.jpg" id="2_gr6albedo"]

@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://klsya8v6joam"]
 
 [ext_resource type="Texture2D" uid="uid://bprx6c1lwd1p6" path="res://Assets/Props/SkyTests/Puffy_Sky-Evening_03-1024x512.png" id="2_cap0c"]
-[ext_resource type="Shader" uid="uid://dkl23k2monqos" path="res://Scenes/World/WorldSplatmap.gdshader" id="2_wau1u"]
+[ext_resource type="Shader" uid="uid://dkl23k2monqos" path="res://Assets/FX/Shaders/WorldSplatmap.gdshader" id="2_wau1u"]
 [ext_resource type="Texture2D" uid="uid://bhri4xhnx2dw7" path="res://Assets/Props/Ground/texture4/ground_0034_color_2k.jpg" id="3_chqrk"]
 [ext_resource type="Texture2D" uid="uid://8e5e6xh3shr0" path="res://Assets/Props/Ground/Grass1/Grass007_2K-JPG_Color.jpg" id="4_yvjgh"]
 [ext_resource type="Texture2D" uid="uid://cnaqlf624yxyb" path="res://Assets/Props/Ground/texture3/ground_0013_color_2k.jpg" id="5_futp8"]
@@ -83,7 +83,7 @@
 [ext_resource type="PackedScene" path="res://Scenes/FX/FireOrange.tscn" id="81_wk3q0"]
 [ext_resource type="PackedScene" path="res://Scenes/FX/TeleportBlue.tscn" id="82_ks1u0"]
 [ext_resource type="PackedScene" uid="uid://80mcbhomjk3l" path="res://Scenes/FX/HotSpring.tscn" id="83_wk3q0"]
-[ext_resource type="PackedScene" uid="uid://bhs1kmrnawwhu" path="res://Scenes/Camera3D.tscn" id="camera"]
+[ext_resource type="PackedScene" uid="uid://bhs1kmrnawwhu" path="res://Scenes/World/Camera3D.tscn" id="camera"]
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_qnf5a"]
 panorama = ExtResource("2_cap0c")

@@ -3,18 +3,18 @@
 [ext_resource type="Script" uid="uid://cye43qws5a5eo" path="res://Scripts/UI/GameUI.cs" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://cwknw6nvw5ukx" path="res://Assets/Portraits/Factions/AllHairWizards/hero.webp" id="3_xkiwj"]
 [ext_resource type="Texture2D" uid="uid://d1qivwnkvrbob" path="res://Assets/Placeholders/brown-swirl.webp" id="4_brown"]
-[ext_resource type="PackedScene" path="res://Scenes/UI/ActionGridPopup.tscn" id="6_action_popup"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/Modals/ActionGridPopup.tscn" id="6_action_popup"]
 [ext_resource type="Texture2D" uid="uid://b6ghwu1go2tju" path="res://Assets/UI/PanelBorderBrownCompact.png" id="9_minimap_frame"]
 [ext_resource type="Texture2D" uid="uid://4m0ncay541cq" path="res://Assets/UI/PanelGreyBoltsDarkCompact.png" id="10_stats_frame"]
 [ext_resource type="Script" uid="uid://cyrmetdw45b6y" path="res://Scripts/UI/MinimapEditorPreview.cs" id="15_minimap_preview"]
 [ext_resource type="StyleBox" path="res://Assets/UI/ActionGridPanel.tres" id="16_grid_panel"]
 [ext_resource type="StyleBox" path="res://Assets/UI/SkillIconBorder.tres" id="17_skill_border"]
-[ext_resource type="PackedScene" uid="uid://cfnlx2ce8ke6k" path="res://Scenes/UI/HudIcon.tscn" id="20_skill_icon"]
-[ext_resource type="PackedScene" uid="uid://bc25aomqihvw" path="res://Scenes/UI/ItemIcon.tscn" id="21_item_icon"]
-[ext_resource type="PackedScene" path="res://Scenes/UI/ResultPanel.tscn" id="22_result_panel"]
-[ext_resource type="PackedScene" path="res://Scenes/UI/TabUI.tscn" id="23_tab_ui"]
-[ext_resource type="PackedScene" path="res://Scenes/UI/StatsPopup.tscn" id="24_stats_popup"]
-[ext_resource type="PackedScene" path="res://Scenes/UI/BuffIcon.tscn" id="25_buff_icon"]
+[ext_resource type="PackedScene" uid="uid://cfnlx2ce8ke6k" path="res://Scenes/UI/Icons/HudIcon.tscn" id="20_skill_icon"]
+[ext_resource type="PackedScene" uid="uid://bc25aomqihvw" path="res://Scenes/UI/Icons/ItemIcon.tscn" id="21_item_icon"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/Modals/ResultPanel.tscn" id="22_result_panel"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/Modals/TabUI.tscn" id="23_tab_ui"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/Modals/StatsPopup.tscn" id="24_stats_popup"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/Icons/BuffIcon.tscn" id="25_buff_icon"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_ie3ut"]
 font_size = 32
@@ -53,7 +53,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Timer" type="Label" parent="DefaultUI" unique_id=1400288027]
+[node name="MatchTimerLabel" type="Label" parent="DefaultUI" unique_id=1400288027]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -90,30 +90,30 @@ grow_vertical = 0
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxEmpty_71wt1")
 
-[node name="Panels" type="HBoxContainer" parent="DefaultUI/BottomBar" unique_id=819904861]
+[node name="HudColumns" type="HBoxContainer" parent="DefaultUI/BottomBar" unique_id=819904861]
 layout_mode = 2
 theme_override_constants/separation = 0
 alignment = 1
 
-[node name="VBoxContainer" type="VBoxContainer" parent="DefaultUI/BottomBar/Panels" unique_id=1408941373]
+[node name="VitalsAndSkillsColumn" type="VBoxContainer" parent="DefaultUI/BottomBar/HudColumns" unique_id=1408941373]
 layout_mode = 2
 size_flags_vertical = 8
 theme_override_constants/separation = 0
 
-[node name="HealthBar" type="ColorRect" parent="DefaultUI/BottomBar/Panels/VBoxContainer" unique_id=1590907484]
+[node name="HealthBar" type="ColorRect" parent="DefaultUI/BottomBar/HudColumns/VitalsAndSkillsColumn" unique_id=1590907484]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 24)
 layout_mode = 2
 color = Color(0.35, 0.55, 0.25, 0.9)
 
-[node name="HealthBarFill" type="ColorRect" parent="DefaultUI/BottomBar/Panels/VBoxContainer/HealthBar" unique_id=442099186]
+[node name="HealthBarFill" type="ColorRect" parent="DefaultUI/BottomBar/HudColumns/VitalsAndSkillsColumn/HealthBar" unique_id=442099186]
 unique_name_in_owner = true
 layout_mode = 0
 offset_right = 270.2
 offset_bottom = 24.0
 color = Color(0.45, 0.75, 0.3, 0.95)
 
-[node name="HealthBarLabel" type="Label" parent="DefaultUI/BottomBar/Panels/VBoxContainer/HealthBar" unique_id=2012157574]
+[node name="HealthBarLabel" type="Label" parent="DefaultUI/BottomBar/HudColumns/VitalsAndSkillsColumn/HealthBar" unique_id=2012157574]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -129,7 +129,7 @@ text = "HP 80 / 100"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Border" type="Panel" parent="DefaultUI/BottomBar/Panels/VBoxContainer/HealthBar" unique_id=2135139940]
+[node name="Border" type="Panel" parent="DefaultUI/BottomBar/HudColumns/VitalsAndSkillsColumn/HealthBar" unique_id=2135139940]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -141,20 +141,20 @@ rotation = -0.0015643457
 mouse_filter = 2
 theme_override_styles/panel = ExtResource("17_skill_border")
 
-[node name="ManaBar" type="ColorRect" parent="DefaultUI/BottomBar/Panels/VBoxContainer" unique_id=247257436]
+[node name="ManaBar" type="ColorRect" parent="DefaultUI/BottomBar/HudColumns/VitalsAndSkillsColumn" unique_id=247257436]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 24)
 layout_mode = 2
 color = Color(0.16, 0.29, 0.52, 0.9)
 
-[node name="ManaBarFill" type="ColorRect" parent="DefaultUI/BottomBar/Panels/VBoxContainer/ManaBar" unique_id=1499543141]
+[node name="ManaBarFill" type="ColorRect" parent="DefaultUI/BottomBar/HudColumns/VitalsAndSkillsColumn/ManaBar" unique_id=1499543141]
 unique_name_in_owner = true
 layout_mode = 0
 offset_right = 231.2
 offset_bottom = 24.0
 color = Color(0.28, 0.55, 0.9, 0.95)
 
-[node name="ManaBarLabel" type="Label" parent="DefaultUI/BottomBar/Panels/VBoxContainer/ManaBar" unique_id=1990341478]
+[node name="ManaBarLabel" type="Label" parent="DefaultUI/BottomBar/HudColumns/VitalsAndSkillsColumn/ManaBar" unique_id=1990341478]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -170,7 +170,7 @@ text = "MP 0 / 0"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Border" type="Panel" parent="DefaultUI/BottomBar/Panels/VBoxContainer/ManaBar" unique_id=1616381240]
+[node name="Border" type="Panel" parent="DefaultUI/BottomBar/HudColumns/VitalsAndSkillsColumn/ManaBar" unique_id=1616381240]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -181,78 +181,78 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/panel = ExtResource("17_skill_border")
 
-[node name="SkillPanel" type="PanelContainer" parent="DefaultUI/BottomBar/Panels/VBoxContainer" unique_id=18603463]
+[node name="SkillPanel" type="PanelContainer" parent="DefaultUI/BottomBar/HudColumns/VitalsAndSkillsColumn" unique_id=18603463]
 layout_mode = 2
 theme_override_styles/panel = ExtResource("16_grid_panel")
 
-[node name="SkillGrid" type="GridContainer" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel" unique_id=1782610011]
+[node name="SkillGrid" type="GridContainer" parent="DefaultUI/BottomBar/HudColumns/VitalsAndSkillsColumn/SkillPanel" unique_id=1782610011]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/h_separation = 4
 columns = 5
 
-[node name="PassiveIcon" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid" unique_id=1528245098 instance=ExtResource("20_skill_icon")]
+[node name="PassiveIcon" parent="DefaultUI/BottomBar/HudColumns/VitalsAndSkillsColumn/SkillPanel/SkillGrid" unique_id=1528245098 instance=ExtResource("20_skill_icon")]
 custom_minimum_size = Vector2(43.2, 43.2)
 layout_mode = 2
 size_flags_vertical = 8
 mouse_filter = 2
 texture = ExtResource("4_brown")
 
-[node name="Border" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid/PassiveIcon" index="0" unique_id=1045063515]
+[node name="Border" parent="DefaultUI/BottomBar/HudColumns/VitalsAndSkillsColumn/SkillPanel/SkillGrid/PassiveIcon" index="0" unique_id=1045063515]
 visible = false
 
-[node name="UpgradeHint" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid/PassiveIcon" index="1" unique_id=1602585339]
+[node name="UpgradeHint" parent="DefaultUI/BottomBar/HudColumns/VitalsAndSkillsColumn/SkillPanel/SkillGrid/PassiveIcon" index="1" unique_id=1602585339]
 visible = false
 
-[node name="Number" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid/PassiveIcon" index="2" unique_id=652395529]
+[node name="Number" parent="DefaultUI/BottomBar/HudColumns/VitalsAndSkillsColumn/SkillPanel/SkillGrid/PassiveIcon" index="2" unique_id=652395529]
 visible = false
 
-[node name="Hotkey" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid/PassiveIcon" index="3" unique_id=1529545902]
+[node name="Hotkey" parent="DefaultUI/BottomBar/HudColumns/VitalsAndSkillsColumn/SkillPanel/SkillGrid/PassiveIcon" index="3" unique_id=1529545902]
 visible = false
 
-[node name="SkillQ" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid" unique_id=1222214380 instance=ExtResource("20_skill_icon")]
+[node name="SkillQ" parent="DefaultUI/BottomBar/HudColumns/VitalsAndSkillsColumn/SkillPanel/SkillGrid" unique_id=1222214380 instance=ExtResource("20_skill_icon")]
 layout_mode = 2
 
-[node name="SkillW" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid" unique_id=694550106 instance=ExtResource("20_skill_icon")]
+[node name="SkillW" parent="DefaultUI/BottomBar/HudColumns/VitalsAndSkillsColumn/SkillPanel/SkillGrid" unique_id=694550106 instance=ExtResource("20_skill_icon")]
 layout_mode = 2
 
-[node name="SkillE" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid" unique_id=351577467 instance=ExtResource("20_skill_icon")]
+[node name="SkillE" parent="DefaultUI/BottomBar/HudColumns/VitalsAndSkillsColumn/SkillPanel/SkillGrid" unique_id=351577467 instance=ExtResource("20_skill_icon")]
 layout_mode = 2
 
-[node name="SkillR" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid" unique_id=1886554080 instance=ExtResource("20_skill_icon")]
+[node name="SkillR" parent="DefaultUI/BottomBar/HudColumns/VitalsAndSkillsColumn/SkillPanel/SkillGrid" unique_id=1886554080 instance=ExtResource("20_skill_icon")]
 layout_mode = 2
 
-[node name="Vbox" type="VBoxContainer" parent="DefaultUI/BottomBar/Panels" unique_id=1085130530]
+[node name="HeroAndInventoryColumn" type="VBoxContainer" parent="DefaultUI/BottomBar/HudColumns" unique_id=1085130530]
 layout_mode = 2
 size_flags_vertical = 8
 theme_override_constants/separation = 0
 
-[node name="BuffMarginContainer" type="MarginContainer" parent="DefaultUI/BottomBar/Panels/Vbox" unique_id=1272668631]
+[node name="BuffMarginContainer" type="MarginContainer" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn" unique_id=1272668631]
 layout_mode = 2
 theme_override_constants/margin_left = 4
 theme_override_constants/margin_right = 4
 theme_override_constants/margin_bottom = 4
 
-[node name="BuffContainer" type="HBoxContainer" parent="DefaultUI/BottomBar/Panels/Vbox/BuffMarginContainer" unique_id=337556673]
+[node name="BuffContainer" type="HBoxContainer" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/BuffMarginContainer" unique_id=337556673]
 layout_mode = 2
 
-[node name="BuffIcon1" parent="DefaultUI/BottomBar/Panels/Vbox/BuffMarginContainer/BuffContainer" unique_id=1344061431 instance=ExtResource("25_buff_icon")]
+[node name="BuffIcon1" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/BuffMarginContainer/BuffContainer" unique_id=1344061431 instance=ExtResource("25_buff_icon")]
 layout_mode = 2
 
-[node name="BuffIcon2" parent="DefaultUI/BottomBar/Panels/Vbox/BuffMarginContainer/BuffContainer" unique_id=968597310 instance=ExtResource("25_buff_icon")]
+[node name="BuffIcon2" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/BuffMarginContainer/BuffContainer" unique_id=968597310 instance=ExtResource("25_buff_icon")]
 layout_mode = 2
 
-[node name="BuffIcon3" parent="DefaultUI/BottomBar/Panels/Vbox/BuffMarginContainer/BuffContainer" unique_id=1519490981 instance=ExtResource("25_buff_icon")]
+[node name="BuffIcon3" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/BuffMarginContainer/BuffContainer" unique_id=1519490981 instance=ExtResource("25_buff_icon")]
 layout_mode = 2
 
-[node name="BuffIcon4" parent="DefaultUI/BottomBar/Panels/Vbox/BuffMarginContainer/BuffContainer" unique_id=525650775 instance=ExtResource("25_buff_icon")]
+[node name="BuffIcon4" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/BuffMarginContainer/BuffContainer" unique_id=525650775 instance=ExtResource("25_buff_icon")]
 layout_mode = 2
 
-[node name="MainSection" type="HBoxContainer" parent="DefaultUI/BottomBar/Panels/Vbox" unique_id=983779099]
+[node name="PortraitAndInventoryRow" type="HBoxContainer" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn" unique_id=983779099]
 layout_mode = 2
 theme_override_constants/separation = 0
 
-[node name="PortraitFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection" unique_id=1028571949]
+[node name="PortraitFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/PortraitAndInventoryRow" unique_id=1028571949]
 custom_minimum_size = Vector2(180, 221)
 layout_mode = 2
 texture = ExtResource("9_minimap_frame")
@@ -263,7 +263,7 @@ patch_margin_top = 8
 patch_margin_right = 8
 patch_margin_bottom = 8
 
-[node name="PortraitTexture" type="TextureRect" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/PortraitFrame" unique_id=510151728]
+[node name="PortraitTexture" type="TextureRect" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/PortraitAndInventoryRow/PortraitFrame" unique_id=510151728]
 unique_name_in_owner = true
 clip_contents = true
 layout_mode = 1
@@ -281,7 +281,7 @@ texture = ExtResource("3_xkiwj")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="LevelLabelMargin" type="MarginContainer" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/PortraitFrame" unique_id=371508563]
+[node name="LevelLabelMargin" type="MarginContainer" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/PortraitAndInventoryRow/PortraitFrame" unique_id=371508563]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -295,7 +295,7 @@ grow_vertical = 0
 theme_override_constants/margin_right = 22
 theme_override_constants/margin_bottom = 4
 
-[node name="LevelLabel" type="Label" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/PortraitFrame/LevelLabelMargin" unique_id=416459685]
+[node name="LevelLabel" type="Label" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/PortraitAndInventoryRow/PortraitFrame/LevelLabelMargin" unique_id=416459685]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 8
@@ -308,7 +308,7 @@ text = "1"
 horizontal_alignment = 2
 vertical_alignment = 2
 
-[node name="StatsButton" type="TextureButton" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/PortraitFrame" unique_id=702939060]
+[node name="StatsButton" type="TextureButton" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/PortraitAndInventoryRow/PortraitFrame" unique_id=702939060]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 2
@@ -326,7 +326,7 @@ texture_normal = ExtResource("4_brown")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="Frame" type="Panel" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/PortraitFrame/StatsButton" unique_id=162092459]
+[node name="StatsButtonBorder" type="Panel" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/PortraitAndInventoryRow/PortraitFrame/StatsButton" unique_id=162092459]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -336,7 +336,7 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_stats_border")
 
-[node name="XpBar" type="ColorRect" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/PortraitFrame" unique_id=790217363]
+[node name="XpBar" type="ColorRect" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/PortraitAndInventoryRow/PortraitFrame" unique_id=790217363]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(12, 0)
 layout_mode = 1
@@ -353,7 +353,7 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0.6, 0.54901963, 0.2509804, 0.9019608)
 
-[node name="XpBarFill" type="ColorRect" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/PortraitFrame/XpBar" unique_id=1432411203]
+[node name="XpBarFill" type="ColorRect" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/PortraitAndInventoryRow/PortraitFrame/XpBar" unique_id=1432411203]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = -1
@@ -365,7 +365,7 @@ grow_vertical = 0
 mouse_filter = 2
 color = Color(0.7921569, 0.7490196, 0.3019608, 0.9490196)
 
-[node name="LeftBorder" type="ColorRect" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/PortraitFrame/XpBar" unique_id=357804035]
+[node name="LeftBorder" type="ColorRect" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/PortraitAndInventoryRow/PortraitFrame/XpBar" unique_id=357804035]
 layout_mode = 1
 anchors_preset = 9
 anchor_bottom = 1.0
@@ -374,12 +374,12 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0.68, 0.46, 0.24, 1)
 
-[node name="ItemColumn" type="VBoxContainer" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection" unique_id=383414437]
+[node name="ItemColumn" type="VBoxContainer" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/PortraitAndInventoryRow" unique_id=383414437]
 layout_mode = 2
 size_flags_vertical = 8
 theme_override_constants/separation = 0
 
-[node name="MoneyContainer" type="NinePatchRect" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn" unique_id=1237573665]
+[node name="GoldFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/PortraitAndInventoryRow/ItemColumn" unique_id=1237573665]
 custom_minimum_size = Vector2(131, 32)
 layout_mode = 2
 texture = ExtResource("10_stats_frame")
@@ -389,18 +389,33 @@ patch_margin_top = 16
 patch_margin_right = 16
 patch_margin_bottom = 16
 
-[node name="HBoxContainer" type="HBoxContainer" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/MoneyContainer" unique_id=104325848]
+[node name="GoldButton" type="Button" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/PortraitAndInventoryRow/ItemColumn/GoldFrame"]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+tooltip_text = "Open shop"
+flat = true
+
+[node name="GoldContent" type="HBoxContainer" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/PortraitAndInventoryRow/ItemColumn/GoldFrame" unique_id=104325848]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 alignment = 1
 
-[node name="GoldLabel" type="Label" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/MoneyContainer/HBoxContainer" unique_id=524849014]
+[node name="GoldLabel" type="Label" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/PortraitAndInventoryRow/ItemColumn/GoldFrame/GoldContent" unique_id=524849014]
 unique_name_in_owner = true
 layout_mode = 2
+mouse_filter = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.95, 0.84, 0.44, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
@@ -410,7 +425,7 @@ text = "0 G"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ItemFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn" unique_id=1320626103]
+[node name="ItemFrame" type="NinePatchRect" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/PortraitAndInventoryRow/ItemColumn" unique_id=1320626103]
 custom_minimum_size = Vector2(131, 194)
 layout_mode = 2
 size_flags_horizontal = 4
@@ -422,7 +437,7 @@ patch_margin_top = 16
 patch_margin_right = 16
 patch_margin_bottom = 16
 
-[node name="ItemPanel" type="GridContainer" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/ItemFrame" unique_id=1803907707]
+[node name="ItemPanel" type="GridContainer" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/PortraitAndInventoryRow/ItemColumn/ItemFrame" unique_id=1803907707]
 unique_name_in_owner = true
 layout_mode = 0
 offset_left = 6.0
@@ -433,22 +448,22 @@ theme_override_constants/h_separation = 4
 theme_override_constants/v_separation = 4
 columns = 2
 
-[node name="Item1" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/ItemFrame/ItemPanel" unique_id=237132654 instance=ExtResource("21_item_icon")]
+[node name="Item1" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/PortraitAndInventoryRow/ItemColumn/ItemFrame/ItemPanel" unique_id=237132654 instance=ExtResource("21_item_icon")]
 layout_mode = 2
 
-[node name="Item2" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/ItemFrame/ItemPanel" unique_id=2126021869 instance=ExtResource("21_item_icon")]
+[node name="Item2" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/PortraitAndInventoryRow/ItemColumn/ItemFrame/ItemPanel" unique_id=2126021869 instance=ExtResource("21_item_icon")]
 layout_mode = 2
 
-[node name="Item3" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/ItemFrame/ItemPanel" unique_id=1733614632 instance=ExtResource("21_item_icon")]
+[node name="Item3" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/PortraitAndInventoryRow/ItemColumn/ItemFrame/ItemPanel" unique_id=1733614632 instance=ExtResource("21_item_icon")]
 layout_mode = 2
 
-[node name="Item4" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/ItemFrame/ItemPanel" unique_id=1803609899 instance=ExtResource("21_item_icon")]
+[node name="Item4" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/PortraitAndInventoryRow/ItemColumn/ItemFrame/ItemPanel" unique_id=1803609899 instance=ExtResource("21_item_icon")]
 layout_mode = 2
 
-[node name="Item5" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/ItemFrame/ItemPanel" unique_id=212047987 instance=ExtResource("21_item_icon")]
+[node name="Item5" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/PortraitAndInventoryRow/ItemColumn/ItemFrame/ItemPanel" unique_id=212047987 instance=ExtResource("21_item_icon")]
 layout_mode = 2
 
-[node name="Item6" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/ItemFrame/ItemPanel" unique_id=371002932 instance=ExtResource("21_item_icon")]
+[node name="Item6" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/PortraitAndInventoryRow/ItemColumn/ItemFrame/ItemPanel" unique_id=371002932 instance=ExtResource("21_item_icon")]
 layout_mode = 2
 
 [node name="ResourcesPanel" type="PanelContainer" parent="DefaultUI" unique_id=1629241704]
@@ -492,7 +507,7 @@ patch_margin_top = 16
 patch_margin_right = 16
 patch_margin_bottom = 16
 
-[node name="EditorPreview" type="Control" parent="DefaultUI/MinimapFrame" unique_id=1797407202]
+[node name="MinimapEditorPreview" type="Control" parent="DefaultUI/MinimapFrame" unique_id=1797407202]
 z_index = 1
 layout_mode = 1
 anchors_preset = 15
@@ -531,8 +546,7 @@ unique_name_in_owner = true
 layout_mode = 1
 
 [node name="StatsPopup" parent="DefaultUI" unique_id=1425467676 instance=ExtResource("24_stats_popup")]
-unique_name_in_owner = true
 
 [node name="TabUI" parent="." unique_id=313774460 instance=ExtResource("23_tab_ui")]
 
-[editable path="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid/PassiveIcon"]
+[editable path="DefaultUI/BottomBar/HudColumns/VitalsAndSkillsColumn/SkillPanel/SkillGrid/PassiveIcon"]

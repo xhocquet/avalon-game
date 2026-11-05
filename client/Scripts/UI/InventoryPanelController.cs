@@ -13,7 +13,7 @@ namespace Meesles.Avalon;
 // The grid is rebuilt only when the owned-item counts actually change, so steady-state syncs are
 // allocation-free (just an int[] compare) and survive rollback: a corrected count simply repaints.
 public class InventoryPanelController {
-  private static readonly PackedScene ItemIconScene = GD.Load<PackedScene>("res://Scenes/UI/ItemIcon.tscn");
+  private static readonly PackedScene ItemIconScene = GD.Load<PackedScene>("res://Scenes/UI/Icons/ItemIcon.tscn");
 
   private readonly ShopItemCatalog _catalog;
   private readonly int[] _counts = new int[ShopItemCatalog.ItemDefs.Length];

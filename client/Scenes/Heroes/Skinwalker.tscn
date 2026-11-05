@@ -2,9 +2,9 @@
 
 [ext_resource type="PackedScene" path="res://Scenes/Heroes/Presentation/Skinwalker.tscn" id="1_olqw1"]
 [ext_resource type="Script" uid="uid://cvasfy5yhl8gr" path="res://Scripts/Entities/HeroEntity.cs" id="2_hero"]
-[ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/UI/SelectionIndicator.tscn" id="2_j0xg8"]
+[ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/FX/SelectionIndicator.tscn" id="2_j0xg8"]
 [ext_resource type="Shader" uid="uid://dq0x5kj3xp5no" path="res://Assets/FX/Shaders/MinimapHeroMarker.gdshader" id="5_nmaaq"]
-[ext_resource type="PackedScene" uid="uid://bw6nrf2agdrdd" path="res://Scenes/UI/MinimapHeroMarker.tscn" id="20_minimap"]
+[ext_resource type="PackedScene" uid="uid://bw6nrf2agdrdd" path="res://Scenes/UI/Icons/MinimapHeroMarker.tscn" id="20_minimap"]
 [ext_resource type="Texture2D" uid="uid://cdj0oiyt16nom" path="res://Assets/Portraits/Minimap/Skinwalker.webp" id="21_minimap_portrait"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_uqyyj"]
