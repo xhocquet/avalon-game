@@ -34,6 +34,11 @@ public static class Visibility {
       if (CanSee(map, origin, position, range, CombatRange.GameplayRadiusOf(ref frame, source), targetRadius))
         return true;
     }
+    if (map != null)
+      for (var i = 0; i < map.MarkerCount; i++)
+        if (map.MarkerTeams[i] == teamId && CanSee(map, map.MarkerPositions[i].ToXZ(), position,
+              rules.RangeForMarker(map.MarkerTypes[i]), FP64.Zero, targetRadius))
+          return true;
     return false;
   }
 
@@ -65,6 +70,15 @@ public static class Visibility {
       var sourceWalkable = map == null || map.SightGeometry.IsWalkable(position);
       RasterizeSource(map, position, range, radius, sourceWalkable, origin, size, width, height, pixels);
     }
+    if (map != null)
+      for (var i = 0; i < map.MarkerCount; i++) {
+        var range = rules.RangeForMarker(map.MarkerTypes[i]);
+        if (map.MarkerTeams[i] != teamId || range <= FP64.Zero)
+          continue;
+        var position = map.MarkerPositions[i].ToXZ();
+        RasterizeSource(map, position, range, FP64.Zero, map.SightGeometry.IsWalkable(position),
+          origin, size, width, height, pixels);
+      }
   }
 
   internal static void RasterizeSource(MapLayoutAsset map, FPVector2 position, FP64 range, FP64 radius,

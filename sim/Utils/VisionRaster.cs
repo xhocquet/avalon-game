@@ -28,6 +28,13 @@ public sealed class VisionRaster {
       _sources.Add(new Source(position, rules.RangeFor(frame.GetReadOnly<UnitIdentity>(entity).UnitTypeId),
         CombatRange.GameplayRadiusOf(ref frame, entity), map.SightGeometry.IsWalkable(position)));
     }
+    for (var i = 0; i < map.MarkerCount; i++) {
+      var range = rules.RangeForMarker(map.MarkerTypes[i]);
+      if (map.MarkerTeams[i] != teamId || range <= FP64.Zero)
+        continue;
+      var position = map.MarkerPositions[i].ToXZ();
+      _sources.Add(new Source(position, range, FP64.Zero, map.SightGeometry.IsWalkable(position)));
+    }
   }
 
   public void Render(int width, int height, byte[] pixels) {

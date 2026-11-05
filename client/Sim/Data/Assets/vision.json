@@ -5,6 +5,8 @@
     "HeroRange": 18.0,
     "MinionRange": 12.0,
     "TurretRange": 18.0,
-    "CrystalRange": 18.0
+    "CrystalRange": 18.0,
+    "ShopRange": 18.0,
+    "SpawnPointRange": 18.0
   }
 ]

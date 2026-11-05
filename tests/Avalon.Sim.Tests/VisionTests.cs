@@ -5,6 +5,7 @@ using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Commands;
 using Meesles.Avalon.Sim.Components;
 using Meesles.Avalon.Sim.Factories;
+using Meesles.Avalon.Sim.Navigation;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
@@ -13,6 +14,98 @@ using Xunit;
 namespace Meesles.Avalon.Sim.Tests;
 
 public class VisionTests {
+  [Theory]
+  [InlineData(SimulationSetup.PlayerUnitTypeId)]
+  [InlineData(SimulationSetup.MinionUnitTypeId)]
+  [InlineData(SimulationSetup.TurretUnitTypeId)]
+  [InlineData(SimulationSetup.CrystalUnitTypeId)]
+  public void EveryLivingUnitTypeSharesVisionWithItsTeam(int unitTypeId) {
+    var frame = CreateFrame();
+    var position = new FPVector3(FP64.FromInt(-20), FP64.Zero, FP64.Zero);
+    var source = unitTypeId switch {
+      SimulationSetup.PlayerUnitTypeId => HeroFactory.Spawn(ref frame,
+        new HeroStatsAsset(AssetIds.HeroHairyWizard) { BaseHealth = FP64.FromInt(100) },
+        new MatchRulesAsset(AssetIds.MatchRules), position, 7, 1, SimulationSetup.DefaultFactionId),
+      SimulationSetup.MinionUnitTypeId => MinionFactory.Spawn(ref frame,
+        new MinionStatsAsset(AssetIds.MinionStats) { Health = FP64.FromInt(100) }, position, FP64.Zero, 1, 0),
+      SimulationSetup.TurretUnitTypeId => TurretFactory.Spawn(ref frame,
+        new TurretStatsAsset(AssetIds.TurretStats) { Health = FP64.FromInt(100) }, position, 1, 1),
+      _ => CrystalFactory.Spawn(ref frame,
+        new CrystalStatsAsset(AssetIds.CrystalStats) { Health = FP64.FromInt(100) }, position, 1)
+    };
+    var target = Spawn(ref frame, 2, -15, 0);
+    var rules = frame.AssetRegistry.Get<VisionRulesAsset>();
+    Visibility.IsPositionVisible(ref frame, 1, Point(-20, 0) - Point(rules.RangeFor(unitTypeId).ToInt() + 1, 0))
+      .Should().BeFalse();
+    AssertSharedVision(ref frame, target, true);
+    frame.Get<Health>(source).Current = FP64.Zero;
+    AssertSharedVision(ref frame, target, false);
+  }
+
+  [Theory]
+  [InlineData(MapMarkerType.Shop, true)]
+  [InlineData(MapMarkerType.SpawnPoint, true)]
+  [InlineData(MapMarkerType.Crystal, false)]
+  [InlineData(MapMarkerType.Turret, false)]
+  [InlineData(MapMarkerType.Oasis, false)]
+  [InlineData(MapMarkerType.Pickup, false)]
+  public void OnlyPermanentTeamBuildingsGiveVisionFromMapMarkers(MapMarkerType type, bool visible) {
+    var frame = CreateFrame();
+    var map = frame.AssetRegistry.Get<MapLayoutAsset>();
+    map.MarkerTypes = [(int)type];
+    map.MarkerTeams = [1];
+    map.MarkerPositions = [new FPVector3(FP64.FromInt(-20), FP64.Zero, FP64.Zero)];
+    var target = Spawn(ref frame, 2, -15, 0);
+    AssertSharedVision(ref frame, target, visible);
+    Visibility.IsPositionVisible(ref frame, 1, Point(-39, 0)).Should().BeFalse();
+    map.MarkerTeams[0] = 3;
+    AssertSharedVision(ref frame, target, false, visible);
+  }
+
+  private static void AssertSharedVision(ref Frame frame, EntityRef target, bool visible, bool thirdTeamVisible = false) {
+    Visibility.IsUnitVisible(ref frame, 1, target).Should().Be(visible);
+    Visibility.IsUnitVisible(ref frame, 3, target).Should().Be(thirdTeamVisible);
+    foreach (var spatial in new UnitSpatialIndex[] { null, new() }) {
+      spatial?.Update(ref frame);
+      new VisionSystem(spatial).Update(ref frame);
+      frame.GetReadOnly<UnitVisibility>(target).Teams.Should().Be(2UL | (visible ? 1UL : 0) | (thirdTeamVisible ? 4UL : 0));
+    }
+    var map = frame.AssetRegistry.Get<MapLayoutAsset>();
+    map.VisionOrigin = Point(-40, -20);
+    map.VisionSize = Point(40, 40);
+    var pixels = new byte[1600];
+    Visibility.Rasterize(ref frame, 1, map.VisionOrigin, map.VisionSize, 40, 40, pixels);
+    (pixels[20 * 40 + 25] != 0).Should().Be(visible);
+    var raster = new VisionRaster();
+    raster.Capture(ref frame, 1, map);
+    var captured = new byte[1600];
+    raster.Render(40, 40, captured);
+    captured.Should().Equal(pixels);
+  }
+
+  [Theory]
+  [InlineData(MapMarkerType.Shop)]
+  [InlineData(MapMarkerType.SpawnPoint)]
+  public void PermanentBuildingVisionRespectsWalls(MapMarkerType type) {
+    var frame = CreateFrame();
+    var map = frame.AssetRegistry.Get<MapLayoutAsset>();
+    map.MarkerTypes = [(int)type];
+    map.MarkerTeams = [1];
+    map.MarkerPositions = [FPVector3.Zero];
+    var target = Spawn(ref frame, 2, 4, 0);
+    Visibility.IsUnitVisible(ref frame, 1, target).Should().BeFalse();
+    new VisionSystem().Update(ref frame);
+    frame.GetReadOnly<UnitVisibility>(target).Teams.Should().Be(2);
+    map.VisionOrigin = Point(-10, -10);
+    map.VisionSize = Point(20, 20);
+    var pixels = new byte[400];
+    var raster = new VisionRaster();
+    raster.Capture(ref frame, 1, map);
+    raster.Render(20, 20, pixels);
+    pixels[10 * 20 + 14].Should().Be(0);
+    pixels[10 * 20 + 10].Should().Be(255);
+  }
+
   [Theory]
   [InlineData(-6, 8, -6, 2, true)]
   [InlineData(-6, -8, -6, -14, true)]
@@ -202,6 +295,7 @@ public class VisionTests {
     IDataAssetRegistryBuilder builder = new DataAssetRegistry();
     builder.RegisterRange(new IDataAsset[] {
       new VisionRulesAsset(AssetIds.VisionRules),
+      new NavigationTuningAsset(AssetIds.NavigationTuning),
       new CombatRulesAsset(AssetIds.CombatRules) { TargetGridCellSize = FP64.FromInt(10) },
       new MapLayoutAsset(AssetIds.MapLayout) { SightEdges = edges.ToArray(), VisionCellSize = FP64.FromInt(4) }
     });
