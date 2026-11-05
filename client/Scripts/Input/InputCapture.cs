@@ -67,6 +67,7 @@ public class InputCapture : IDisposable {
 
   public Vector3 SingleplayerTarget => _singleplayerMoveTarget?.GlobalPosition ?? Vector3.Zero;
   public bool HasSingleplayerTarget { get; private set; }
+  public event Action<int> ItemInvocationRequested;
 
   public void Dispose() {
     CursorManager.Instance?.SetWorldCursor(WorldCursor.Default);
@@ -79,6 +80,7 @@ public class InputCapture : IDisposable {
     _pendingUpgradeSkillCommands.Clear();
     _pendingDebugCommands.Clear();
     _pendingCastSkillCommand = null;
+    ItemInvocationRequested = null;
     _contextShop = null;
     _camera = null;
     _gameUI?.SetSelectionRectangle(null);
@@ -247,6 +249,11 @@ public class InputCapture : IDisposable {
     };
   }
 
+  public void RequestItemInvocation(int slot) {
+    if (slot < 0 || slot >= 6 || MatchEnded) return;
+    ItemInvocationRequested?.Invoke(slot); // Future sim command handler receives the zero-based grid slot.
+  }
+
   // Asked against the predicted frame with the sim's own predicate, so a dead hero, an unlearned slot or
   // one still cooling never costs a round trip. The sim judges the command again when it lands - this
   // only skips the ones already known to fail. Without an engine bound (or before the hero exists) the
@@ -338,6 +345,12 @@ public class InputCapture : IDisposable {
     }
 
     switch (@event) {
+      case InputEventKey { Echo: false, Pressed: true } itemKey
+        when TryGetItemHotkeySlot(itemKey.Keycode, out var itemSlot):
+        if (_camera.IsGodmode) return;
+        RequestItemInvocation(itemSlot);
+        return;
+
       case InputEventKey { Echo: false, Pressed: true, CtrlPressed: true } upgradeKey
         when TryGetSkillHotkeySlot(upgradeKey.Keycode, out var upgradeSlot):
         if (_camera.IsGodmode) return;
@@ -458,6 +471,13 @@ public class InputCapture : IDisposable {
         slot = -1;
         return false;
     }
+  }
+
+  private static bool TryGetItemHotkeySlot(Key keycode, out int slot) {
+    slot = (int)keycode - (int)Key.Key1;
+    if (slot >= 0 && slot < 6) return true;
+    slot = -1;
+    return false;
   }
 
   // RTS world input is driven from the _Input phase (GameNode._Input), which runs before Control

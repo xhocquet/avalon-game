@@ -12,6 +12,8 @@
 [ext_resource type="Script" uid="uid://cyrmetdw45b6y" path="res://Scripts/UI/MinimapEditorPreview.cs" id="15_minimap_preview"]
 [ext_resource type="StyleBox" path="res://Assets/UI/ActionGridPanel.tres" id="16_grid_panel"]
 [ext_resource type="StyleBox" path="res://Assets/UI/SkillIconBorder.tres" id="17_skill_border"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/HudIcon.tscn" id="20_skill_icon"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/ItemIcon.tscn" id="21_item_icon"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_ie3ut"]
 font_size = 32
@@ -296,92 +298,31 @@ layout_mode = 2
 theme_override_constants/h_separation = 4
 columns = 5
 
-[node name="PassiveIcon" type="TextureRect" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid" unique_id=1528245098]
+[node name="PassiveIcon" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid" unique_id=1528245098 instance=ExtResource("20_skill_icon")]
 custom_minimum_size = Vector2(43.2, 43.2)
-layout_mode = 2
 size_flags_vertical = 8
 mouse_filter = 2
 texture = ExtResource("4_brown")
-expand_mode = 1
-stretch_mode = 6
 
-[node name="Border" type="Panel" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid/PassiveIcon" unique_id=1248653441]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = ExtResource("17_skill_border")
+[node name="Border" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid/PassiveIcon" index="0"]
+visible = false
 
-[node name="ColorRect" type="TextureRect" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid" unique_id=1222214380]
-custom_minimum_size = Vector2(54, 54)
-layout_mode = 2
-texture = ExtResource("5_skill")
-expand_mode = 1
-stretch_mode = 6
+[node name="UpgradeHint" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid/PassiveIcon" index="1"]
+visible = false
 
-[node name="Border" type="Panel" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid/ColorRect" unique_id=1250707616]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = ExtResource("17_skill_border")
+[node name="Number" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid/PassiveIcon" index="2"]
+visible = false
 
-[node name="ColorRect2" type="TextureRect" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid" unique_id=694550106]
-custom_minimum_size = Vector2(54, 54)
-layout_mode = 2
-texture = ExtResource("5_skill")
-expand_mode = 1
-stretch_mode = 6
+[node name="Hotkey" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid/PassiveIcon" index="3"]
+visible = false
 
-[node name="Border" type="Panel" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid/ColorRect2" unique_id=1477141843]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = ExtResource("17_skill_border")
+[node name="SkillQ" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid" unique_id=1222214380 instance=ExtResource("20_skill_icon")]
 
-[node name="ColorRect3" type="TextureRect" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid" unique_id=351577467]
-custom_minimum_size = Vector2(54, 54)
-layout_mode = 2
-texture = ExtResource("5_skill")
-expand_mode = 1
-stretch_mode = 6
+[node name="SkillW" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid" unique_id=694550106 instance=ExtResource("20_skill_icon")]
 
-[node name="Border" type="Panel" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid/ColorRect3" unique_id=931255580]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = ExtResource("17_skill_border")
+[node name="SkillE" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid" unique_id=351577467 instance=ExtResource("20_skill_icon")]
 
-[node name="ColorRect4" type="TextureRect" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid" unique_id=1886554080]
-custom_minimum_size = Vector2(54, 54)
-layout_mode = 2
-texture = ExtResource("5_skill")
-expand_mode = 1
-stretch_mode = 6
-
-[node name="Border" type="Panel" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid/ColorRect4" unique_id=260405643]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = ExtResource("17_skill_border")
+[node name="SkillR" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid" unique_id=1886554080 instance=ExtResource("20_skill_icon")]
 
 [node name="Vbox" type="VBoxContainer" parent="DefaultUI/BottomBar/Panels" unique_id=1085130530]
 layout_mode = 2
@@ -505,14 +446,12 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -70.0
-offset_top = -51.0
-offset_right = -24.0
-offset_bottom = -6.0
+offset_left = -46.0
+offset_top = -45.0
 grow_horizontal = 0
 grow_vertical = 0
-theme_override_constants/margin_right = 6
-theme_override_constants/margin_bottom = 0
+theme_override_constants/margin_right = 22
+theme_override_constants/margin_bottom = 4
 
 [node name="LevelLabel" type="Label" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/PortraitFrame/LevelLabelMargin" unique_id=416459685]
 unique_name_in_owner = true
@@ -652,107 +591,17 @@ theme_override_constants/h_separation = 4
 theme_override_constants/v_separation = 4
 columns = 2
 
-[node name="ColorRect" type="TextureRect" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/ItemFrame/ItemPanel" unique_id=237132654]
-custom_minimum_size = Vector2(58, 58)
-layout_mode = 2
-texture = ExtResource("4_brown")
-expand_mode = 1
-stretch_mode = 6
+[node name="Item1" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/ItemFrame/ItemPanel" unique_id=237132654 instance=ExtResource("21_item_icon")]
 
-[node name="Border" type="Panel" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/ItemFrame/ItemPanel/ColorRect" unique_id=724746898]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = ExtResource("14_item_border")
+[node name="Item2" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/ItemFrame/ItemPanel" unique_id=2126021869 instance=ExtResource("21_item_icon")]
 
-[node name="ColorRect2" type="TextureRect" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/ItemFrame/ItemPanel" unique_id=2126021869]
-custom_minimum_size = Vector2(58, 58)
-layout_mode = 2
-texture = ExtResource("4_brown")
-expand_mode = 1
-stretch_mode = 6
+[node name="Item3" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/ItemFrame/ItemPanel" unique_id=1733614632 instance=ExtResource("21_item_icon")]
 
-[node name="Border" type="Panel" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/ItemFrame/ItemPanel/ColorRect2" unique_id=207043382]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = ExtResource("14_item_border")
+[node name="Item4" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/ItemFrame/ItemPanel" unique_id=1803609899 instance=ExtResource("21_item_icon")]
 
-[node name="ColorRect3" type="TextureRect" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/ItemFrame/ItemPanel" unique_id=1733614632]
-custom_minimum_size = Vector2(58, 58)
-layout_mode = 2
-texture = ExtResource("4_brown")
-expand_mode = 1
-stretch_mode = 6
+[node name="Item5" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/ItemFrame/ItemPanel" unique_id=212047987 instance=ExtResource("21_item_icon")]
 
-[node name="Border" type="Panel" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/ItemFrame/ItemPanel/ColorRect3" unique_id=1337090682]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = ExtResource("14_item_border")
-
-[node name="ColorRect4" type="TextureRect" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/ItemFrame/ItemPanel" unique_id=1803609899]
-custom_minimum_size = Vector2(58, 58)
-layout_mode = 2
-texture = ExtResource("4_brown")
-expand_mode = 1
-stretch_mode = 6
-
-[node name="Border" type="Panel" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/ItemFrame/ItemPanel/ColorRect4" unique_id=1318459238]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = ExtResource("14_item_border")
-
-[node name="ColorRect5" type="TextureRect" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/ItemFrame/ItemPanel" unique_id=212047987]
-custom_minimum_size = Vector2(58, 58)
-layout_mode = 2
-texture = ExtResource("4_brown")
-expand_mode = 1
-stretch_mode = 6
-
-[node name="Border" type="Panel" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/ItemFrame/ItemPanel/ColorRect5" unique_id=689630731]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = ExtResource("14_item_border")
-
-[node name="ColorRect6" type="TextureRect" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/ItemFrame/ItemPanel" unique_id=371002932]
-custom_minimum_size = Vector2(58, 58)
-layout_mode = 2
-texture = ExtResource("4_brown")
-expand_mode = 1
-stretch_mode = 6
-
-[node name="Border" type="Panel" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/ItemFrame/ItemPanel/ColorRect6" unique_id=1629554220]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = ExtResource("14_item_border")
+[node name="Item6" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/ItemFrame/ItemPanel" unique_id=371002932 instance=ExtResource("21_item_icon")]
 
 [node name="ResourcesPanel" type="PanelContainer" parent="DefaultUI" unique_id=1629241704]
 layout_mode = 1
@@ -772,7 +621,7 @@ theme_override_colors/font_color = Color(0.6583883, 0.8938926, 0.90690726, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 24
-text = "0 Res."
+text = "0 Resources"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -1070,3 +919,5 @@ color = Color(0.2, 0.12, 0.14, 0.85)
 custom_minimum_size = Vector2(0, 80)
 layout_mode = 2
 color = Color(0.2, 0.12, 0.14, 0.85)
+
+[editable path="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid/PassiveIcon"]

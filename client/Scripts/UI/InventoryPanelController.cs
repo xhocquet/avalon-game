@@ -13,9 +13,7 @@ namespace Meesles.Avalon;
 // The grid is rebuilt only when the owned-item counts actually change, so steady-state syncs are
 // allocation-free (just an int[] compare) and survive rollback: a corrected count simply repaints.
 public class InventoryPanelController {
-  private const float CellSize = 58f;
-  private static readonly StyleBoxFlat IconBorder = GD.Load<StyleBoxFlat>("res://Assets/UI/ItemIconBorder.tres");
-  private static Texture2D EmptySlotTexture => GD.Load<Texture2D>("res://Assets/Placeholders/brown-swirl.webp");
+  private static readonly PackedScene ItemIconScene = GD.Load<PackedScene>("res://Scenes/UI/ItemIcon.tscn");
 
   private readonly ShopItemCatalog _catalog;
   private readonly int[] _counts = new int[ShopItemCatalog.ItemDefs.Length];
@@ -88,45 +86,25 @@ public class InventoryPanelController {
     for (var i = 0; i < _counts.Length; i++) {
       var count = _counts[i];
       if (count <= 0) {
-        _grid.AddChild(CreateEmptySlot());
+        _grid.AddChild(CreateEmptySlot(i));
         continue;
       }
 
       var def = ShopItemCatalog.ItemDefs[i];
       var data = _catalog.Resolve(def.Id);
 
-      var icon = new TooltipTextureRect {
-        Name = $"Item_{def.Id}",
-        CustomMinimumSize = new Vector2(CellSize, CellSize),
-        Texture = data.IconTexture,
-        ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-        StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
-        TooltipText = count > 1 ? $"{data.DisplayName}\nQuantity: {count}" : data.DisplayName
-      };
-
-      AddBorder(icon);
-      if (count > 1)
-        AddCountBadge(icon, count);
+      var icon = ItemIconScene.Instantiate<TooltipTextureRect>();
+      icon.Name = $"Item_{def.Id}";
+      icon.Texture = data.IconTexture;
+      icon.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;
+      icon.TooltipText = count > 1 ? $"{data.DisplayName}\nQuantity: {count}" : data.DisplayName;
+      icon.GetNode<Label>("Hotkey").Text = (i + 1).ToString();
+      var number = icon.GetNode<Label>("Number");
+      number.Text = $"x{count}";
+      number.Visible = count > 1;
 
       _grid.AddChild(icon);
     }
-  }
-
-  // "xN" pinned to the cell's bottom-right, outlined so it reads over any icon (mirrors the shop
-  // grid's cost badge).
-  private static void AddCountBadge(TextureRect icon, int count) {
-    var label = new Label {
-      Name = "Count",
-      Text = $"x{count}",
-      MouseFilter = Control.MouseFilterEnum.Ignore,
-      HorizontalAlignment = HorizontalAlignment.Right,
-      VerticalAlignment = VerticalAlignment.Bottom
-    };
-    label.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-    label.AddThemeFontSizeOverride("font_size", 13);
-    label.AddThemeColorOverride("font_outline_color", new Color(0f, 0f, 0f));
-    label.AddThemeConstantOverride("outline_size", 3);
-    icon.AddChild(label);
   }
 
   // Remove every current cell immediately (RemoveChild, not just QueueFree, so the grid never holds
@@ -148,26 +126,14 @@ public class InventoryPanelController {
       return;
 
     for (var i = 0; i < _counts.Length; i++)
-      _grid.AddChild(CreateEmptySlot());
+      _grid.AddChild(CreateEmptySlot(i));
   }
 
-  private static TextureRect CreateEmptySlot() {
-    var icon = new TextureRect {
-      Name = "Empty",
-      CustomMinimumSize = new Vector2(CellSize, CellSize),
-      MouseFilter = Control.MouseFilterEnum.Ignore,
-      Texture = EmptySlotTexture,
-      ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-      StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered
-    };
-    AddBorder(icon);
+  private static TextureRect CreateEmptySlot(int slot) {
+    var icon = ItemIconScene.Instantiate<TooltipTextureRect>();
+    icon.Name = "Empty";
+    icon.MouseFilter = Control.MouseFilterEnum.Ignore;
+    icon.GetNode<Label>("Hotkey").Text = (slot + 1).ToString();
     return icon;
-  }
-
-  private static void AddBorder(TextureRect icon) {
-    var border = new Panel { Name = "Border", MouseFilter = Control.MouseFilterEnum.Ignore };
-    border.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-    border.AddThemeStyleboxOverride("panel", IconBorder);
-    icon.AddChild(border);
   }
 }

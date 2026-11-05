@@ -23,6 +23,7 @@ size = Vector2(10, 10)
 load_path = "res://.godot/imported/Snailhead.webp-add4fa386ad53582411707a88535453a.s3tc.ctex"
 
 [node name="MinimapMarker" type="MeshInstance3D" unique_id=1041807869]
+visible = false
 layers = 2
 material_override = SubResource("ShaderMaterial_hnd1n")
 cast_shadow = 0

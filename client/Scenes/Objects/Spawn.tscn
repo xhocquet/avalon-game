@@ -13,4 +13,5 @@ metadata/_custom_type_script = "uid://jt4rwdk0j6k6"
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1196437526]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5218291, 0)
+layers = 4
 mesh = SubResource("CapsuleMesh_6kgpn")

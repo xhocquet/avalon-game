@@ -8,6 +8,8 @@ namespace Meesles.Avalon.Client.Scripts.Entities;
 public partial class CrystalEntity : TeamEntityViewNode, IAttackableView, INamedView {
   private const string UnitsGroup = "units";
   public virtual string DisplayName => "Crystal";
+  protected override Texture2D MinimapIcon => GD.Load<Texture2D>("res://Assets/Portraits/Minimap/Base.webp");
+  protected override float MinimapPixelSize => 0.15f;
 
   [Export] public float SelectPickRadius { get; set; } = -1.0f;
   [Export] public float SelectPickHeight { get; set; } = -1.0f;

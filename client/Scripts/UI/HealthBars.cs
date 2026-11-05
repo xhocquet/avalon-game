@@ -20,6 +20,7 @@ public partial class HealthBars : ColorRect {
   [Export] public Color NeutralFillColor { get; set; } = TeamPalette.Default.Neutral;
 
   public Func<int, string> ResolvePlayerName { get; set; }
+  public Func<int, string> ResolvePlayerNotice { get; set; }
 
   private readonly Dictionary<ulong, UnitHealthBar> _bars = new();
   private readonly HashSet<ulong> _seen = new();
@@ -54,7 +55,8 @@ public partial class HealthBars : ColorRect {
         ref readonly var hero = ref frame.GetReadOnly<Hero>(entity);
         height = frame.AssetRegistry.Get<HeroStatsAsset>(hero.HeroStatsAssetId).HealthBarHeight.ToFloat();
         level = frame.Has<Experience>(entity) ? frame.GetReadOnly<Experience>(entity).Level : 1;
-        playerName = ResolvePlayerName?.Invoke(hero.PlayerId) ?? $"Player {hero.PlayerId}";
+        playerName = ResolvePlayerNotice?.Invoke(hero.PlayerId)
+          ?? ResolvePlayerName?.Invoke(hero.PlayerId) ?? $"Player {hero.PlayerId}";
       }
       else if (view is MinionEntity minion) {
         height = minion.HealthBarHeight >= 0f ? minion.HealthBarHeight

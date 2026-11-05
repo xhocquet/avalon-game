@@ -1,0 +1,69 @@
+[gd_scene format=3 uid="uid://cfnlx2ce8ke6k"]
+
+[ext_resource type="StyleBox" uid="uid://c84cthq3xmk3m" path="res://Assets/UI/SkillUpgradeBorder.tres" id="1_border"]
+[ext_resource type="Texture2D" uid="uid://ccdswr4rnqhwo" path="res://Assets/Placeholders/red-swirl.webp" id="5_skill"]
+[ext_resource type="StyleBox" path="res://Assets/UI/SkillIconBorder.tres" id="17_skill_border"]
+[ext_resource type="LabelSettings" uid="uid://mqkpo4vy5135" path="res://Assets/UI/HotkeyLabel.tres" id="18_hotkey"]
+[ext_resource type="LabelSettings" uid="uid://g1ix2aykl1rq" path="res://Assets/UI/SkillRankLabel.tres" id="19_rank"]
+
+[node name="HudIcon" type="TextureRect" unique_id=1839271247]
+custom_minimum_size = Vector2(54, 54)
+texture = ExtResource("5_skill")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Border" type="Panel" parent="." unique_id=1045063515]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = ExtResource("17_skill_border")
+
+[node name="UpgradeHint" type="Panel" parent="." unique_id=1602585339]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = 1.0
+offset_right = -1.0
+offset_bottom = -1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = ExtResource("1_border")
+
+[node name="Number" type="Label" parent="." unique_id=652395529]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 3.0
+offset_top = -1.0
+offset_right = -5.0
+offset_bottom = -9.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "0"
+label_settings = ExtResource("19_rank")
+
+[node name="Hotkey" type="Label" parent="." unique_id=1529545902]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -12.0
+offset_top = -18.0
+offset_right = -2.0
+offset_bottom = -1.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "Q"
+label_settings = ExtResource("18_hotkey")
+horizontal_alignment = 2
+vertical_alignment = 2

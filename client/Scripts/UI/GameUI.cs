@@ -318,6 +318,8 @@ public partial class GameUI : CanvasLayer, IViewHud {
 
     _skillBar = new SkillBarController(actionGrid, _skillCatalog, slot => SkillUpgradeRequested?.Invoke(slot),
       PredictedSkills);
+    GetNode<HealthBars>("DefaultUI/HealthBars").ResolvePlayerNotice = playerId =>
+      playerId == _localPlayerId && _skillBar.HasAvailableUpgrade ? "Upgrade skill!" : null;
     _actionPopup = GetNode<Meesles.Avalon.Client.ActionGridPopup>("%ActionGridPopup");
     _actionBar = new ActionBarController(_actionPopup, _shopCatalog, itemId => PurchaseRequested?.Invoke(itemId),
       PredictedPurchases);
@@ -448,7 +450,10 @@ public partial class GameUI : CanvasLayer, IViewHud {
   // Runs before the shop and item controllers paint, so the optimistic buys they read have already
   // been aged or retired against this frame.
   private void UpdateLocalPlayerInventory(Frame frame) {
-    if (_localPlayerId is not int localId) return;
+    if (_localPlayerId is not int localId) {
+      SetResourcesText(frame, 0);
+      return;
+    }
 
     var filter = frame.Filter<Hero, Inventory>();
     while (filter.Next(out var entity)) {
@@ -460,11 +465,12 @@ public partial class GameUI : CanvasLayer, IViewHud {
         PredictedPurchases.Observe(def.Id, inventory.CountOf(def.Id));
 
       SetGoldText(inventory.Gold - PredictedPurchases.PendingGold);
-      SetResourcesText(frame.Has<Resources>(entity)
+      SetResourcesText(frame, frame.Has<Resources>(entity)
         ? frame.GetReadOnly<Resources>(entity).Total
         : 0);
       return;
     }
+    SetResourcesText(frame, 0);
   }
 
   private void SetGoldText(int gold) {
@@ -472,9 +478,22 @@ public partial class GameUI : CanvasLayer, IViewHud {
       _goldLabel.Text = $"{(gold < 0 ? 0 : gold)} G"; // a rollback can shrink gold under what's in flight
   }
 
-  private void SetResourcesText(int resources) {
-    if (_resourcesLabel != null)
-      _resourcesLabel.Text = $"{resources} Res.";
+  private void SetResourcesText(Frame frame, int resources) {
+    if (_resourcesLabel == null) return;
+
+    var resourceTypeId = 0;
+    var filter = frame.Filter<Oasis>();
+    while (filter.Next(out var entity)) {
+      var typeId = frame.GetReadOnly<Oasis>(entity).PickupTypeAssetId;
+      if (resourceTypeId != 0 && resourceTypeId != typeId) {
+        resourceTypeId = 0;
+        break;
+      }
+      resourceTypeId = typeId;
+    }
+
+    var name = resourceTypeId == AssetIds.PickupTypeWater ? "Water" : "Resources";
+    _resourcesLabel.Text = $"{resources} {name}";
   }
 
   private void UpdateLocalPlayerStats(Frame frame) {

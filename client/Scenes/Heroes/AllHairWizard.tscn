@@ -30,6 +30,5 @@ AttackContactTime = 0.583
 transform = Transform3D(1.3, 0, 0, 0, 1.3, 0, 0, 0, 1.3, 0, 0.04, 0)
 
 [node name="MinimapMarker" parent="." index="3" unique_id=461349925 instance=ExtResource("20_minimap")]
-visible = false
 material_override = SubResource("ShaderMaterial_sacqk")
 Portrait = ExtResource("21_minimap_portrait")

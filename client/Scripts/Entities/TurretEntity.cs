@@ -12,6 +12,8 @@ public partial class TurretEntity : TeamEntityViewNode, IAttackableView, INamedV
   private const string AoeColorParam = "aoe_color";
 
   public string DisplayName => "Turret";
+  protected override Texture2D MinimapIcon => GD.Load<Texture2D>("res://Assets/Portraits/Minimap/Turret.webp");
+  protected override float MinimapPixelSize => 0.05f;
 
   [Export] public float SelectPickRadius { get; set; } = 1.2f;
   [Export] public float SelectPickHeight { get; set; } = 4.5f;

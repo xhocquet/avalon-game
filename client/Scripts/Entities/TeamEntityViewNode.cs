@@ -9,25 +9,53 @@ namespace Meesles.Avalon.Client.Scripts.Entities;
 public abstract partial class TeamEntityViewNode : EntityViewNode, ISelectableTeamView {
   private const string SelectionIndicatorNode = "SelectionIndicator";
   private const uint MinimapLayer = 1u << 1;
+  private const uint WorldOnlyLayer = 1u << 2;
   private const float RotationBlendRate = 37.5f;
-  private static Texture2D MinimapIcon => GD.Load<Texture2D>("res://Assets/UI/TargetCursor.png");
+  protected virtual Texture2D MinimapIcon => GD.Load<Texture2D>("res://Assets/UI/TargetCursor.png");
+  protected virtual float MinimapPixelSize => 0.15f;
   private Quaternion _displayedRotation;
   private bool _hasDisplayedRotation;
 
   protected int TeamId { get; private set; } = -1;
 
   public override void _Ready() {
-    if (Godot.Engine.IsEditorHint() || GetNodeOrNull<Node3D>("MinimapMarker") != null)
+    if (Godot.Engine.IsEditorHint())
+      return;
+
+    SetWorldOnlyLayers(this);
+    if (GetNodeOrNull<Node3D>("MinimapMarker") != null)
       return;
 
     AddChild(new Sprite3D {
       Name = "MinimapMarker",
       Texture = MinimapIcon,
       Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
-      PixelSize = 0.15f,
+      PixelSize = MinimapPixelSize,
       NoDepthTest = true,
       Layers = MinimapLayer
     });
+
+    for (var ancestor = GetParent(); ancestor != null; ancestor = ancestor.GetParent()) {
+      var name = ancestor.Name.ToString();
+      if (name.StartsWith("Team", System.StringComparison.Ordinal) &&
+          int.TryParse(name[4..], out var teamId)) {
+        SetTeam(teamId);
+        return;
+      }
+    }
+
+    SetTeam(TeamId);
+  }
+
+  private static void SetWorldOnlyLayers(Node node) {
+    if (node.Name == "MinimapMarker")
+      return;
+
+    if (node is GeometryInstance3D geometry)
+      geometry.Layers = (geometry.Layers & ~1u) | WorldOnlyLayer;
+
+    foreach (var child in node.GetChildren())
+      SetWorldOnlyLayers(child);
   }
 
   public bool TeamMatches(int teamId) {

@@ -17,6 +17,7 @@ public partial class MinimapHeroMarker : MeshInstance3D {
   }
 
   public override void _Ready() {
+    Visible = !Godot.Engine.IsEditorHint();
     ApplyPortrait();
   }
 

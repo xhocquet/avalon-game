@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://bc25aomqihvw"]
+
+[ext_resource type="PackedScene" uid="uid://cfnlx2ce8ke6k" path="res://Scenes/UI/HudIcon.tscn" id="1_icon"]
+[ext_resource type="Script" uid="uid://eoxovsrbkufk" path="res://Scripts/UI/TooltipTextureRect.cs" id="2_tooltip"]
+[ext_resource type="Texture2D" uid="uid://d1qivwnkvrbob" path="res://Assets/Placeholders/brown-swirl.webp" id="3_empty"]
+[ext_resource type="StyleBox" uid="uid://b6q4gb7v7vvw5" path="res://Assets/UI/ItemIconBorder.tres" id="4_border"]
+
+[node name="ItemIcon" unique_id=173725713 instance=ExtResource("1_icon")]
+custom_minimum_size = Vector2(58, 58)
+texture = ExtResource("3_empty")
+script = ExtResource("2_tooltip")
+
+[node name="Border" parent="." index="0" unique_id=1045063515]
+theme_override_styles/panel = ExtResource("4_border")
+
+[node name="UpgradeHint" parent="." index="1" unique_id=1602585339]
+visible = false
+
+[node name="Number" parent="." index="2" unique_id=652395529]
+visible = false
+text = ""
+
+[node name="Hotkey" parent="." index="3" unique_id=1529545902]
+offset_left = -10.0
+offset_top = -17.0
+offset_right = -3.0
+offset_bottom = 0.0
+text = "1"

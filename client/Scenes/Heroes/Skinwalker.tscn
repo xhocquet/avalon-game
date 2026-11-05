@@ -36,6 +36,5 @@ autoplay = &""
 transform = Transform3D(0.85, 0, 0, 0, 0.85, 0, 0, 0, 0.85, 0, 0.04, 0)
 
 [node name="MinimapMarker" parent="." index="3" unique_id=2107453410 instance=ExtResource("20_minimap")]
-visible = false
 material_override = SubResource("ShaderMaterial_uqyyj")
 Portrait = ExtResource("21_minimap_portrait")

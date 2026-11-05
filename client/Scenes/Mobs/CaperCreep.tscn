@@ -33,4 +33,4 @@ bones/15/rotation = Quaternion(2.8098558e-15, -2.1284922e-08, -0.48694232, 0.873
 autoplay = &"SwayingIdle"
 
 [node name="SelectionIndicator" parent="." index="2" unique_id=2143077504 instance=ExtResource("2_6t0u1")]
-transform = Transform3D(0.9, 0, 0, 0, 0.9, 0, 0, 0, 0.9, 0, 0.04, 0)
+transform = Transform3D(0.6, 0, 0, 0, 0.6, 0, 0, 0, 0.6, 0, 0.04, 0)

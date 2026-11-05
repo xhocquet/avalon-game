@@ -11,11 +11,11 @@ IdleAnimationOverride = "CrystalTurtle_Idle"
 AttackAnimationOverride = "CrystalTurtle_Attack"
 AttackContactTime = 0.458
 
-[node name="CrystalTurtle_Rig" parent="." index="0" unique_id=82867267]
+[node name="CrystalTurtle_Rig" parent="." index="0" unique_id=1907270072]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 0.29706025, 0)
 
-[node name="AnimationPlayer" parent="." index="1" unique_id=194010388]
+[node name="AnimationPlayer" parent="." index="1" unique_id=2029705848]
 autoplay = &"CrystalTurtle_Idle"
 
 [node name="SelectionIndicator" parent="." index="2" unique_id=2143077504 instance=ExtResource("2_3ka08")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04, 0)
+transform = Transform3D(0.6, 0, 0, 0, 0.6, 0, 0, 0, 0.6, 0, 0.04, 0)

@@ -19,9 +19,8 @@ namespace Meesles.Avalon;
 // bottom edge. The sim re-checks both gates when the command lands, so a cell that is briefly optimistic
 // is harmless.
 public class SkillBarController {
-  private static readonly StyleBoxFlat IconBorder = GD.Load<StyleBoxFlat>("res://Assets/UI/SkillIconBorder.tres");
+  private static readonly PackedScene HudIconScene = GD.Load<PackedScene>("res://Scenes/UI/HudIcon.tscn");
   private const float CellSize = 54f;
-  private const float BadgePadding = 4f;
   private static Texture2D EmptySlotTexture => GD.Load<Texture2D>("res://Assets/Placeholders/red-swirl.webp");
   public const int SlotCount = Skills.MaxSlots;
 
@@ -63,6 +62,14 @@ public class SkillBarController {
   private readonly GridContainer _grid;
   private readonly Action<int> _onUpgrade;
   private readonly PredictedSkillState _predicted;
+
+  public bool HasAvailableUpgrade {
+    get {
+      foreach (var cell in _cells)
+        if (cell?.CanUpgrade == true) return true;
+      return false;
+    }
+  }
 
   public SkillBarController(GridContainer grid, SkillCatalog catalog, Action<int> onUpgrade,
     PredictedSkillState predicted) {
@@ -215,13 +222,9 @@ public class SkillBarController {
       Color = InactiveColor
     };
 
-    var icon = new TextureRect {
-      Name = "Icon",
-      MouseFilter = Control.MouseFilterEnum.Ignore,
-      Texture = EmptySlotTexture,
-      ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-      StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered
-    };
+    var icon = HudIconScene.Instantiate<TextureRect>();
+    icon.Name = "Icon";
+    icon.MouseFilter = Control.MouseFilterEnum.Ignore;
     icon.SetAnchorsPreset(Control.LayoutPreset.FullRect);
     rect.AddChild(icon);
 
@@ -234,7 +237,8 @@ public class SkillBarController {
     };
     fill.SetAnchorsPreset(Control.LayoutPreset.FullRect);
     fill.AnchorTop = 1f;
-    rect.AddChild(fill);
+    icon.AddChild(fill);
+    icon.MoveChild(fill, 0);
 
     // Flat and textless, so it contributes only input and the hover/pressed highlight; the rect behind it
     // and the label above it do the drawing.
@@ -242,38 +246,18 @@ public class SkillBarController {
     button.SetAnchorsPreset(Control.LayoutPreset.FullRect);
     var captured = slot;
     button.Pressed += () => _onUpgrade?.Invoke(captured);
-    rect.AddChild(button);
+    icon.AddChild(button);
+    icon.MoveChild(button, 1);
 
     // Above the fill and button so its background reads, below the rank label and upgrade border.
     var blockStrip = CreateBlockStrip();
-    rect.AddChild(blockStrip);
+    icon.AddChild(blockStrip);
+    icon.MoveChild(blockStrip, 2);
 
-    var border = new Panel { Name = "Border", MouseFilter = Control.MouseFilterEnum.Ignore };
-    border.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-    border.AddThemeStyleboxOverride("panel", IconBorder);
-    rect.AddChild(border);
-
-    var upgradeHint = ActionGridOutline.Create("UpgradeHint", IconBorder.BorderColor);
-    rect.AddChild(upgradeHint);
-
-    var label = new Label {
-      Name = "Rank",
-      Text = "0",
-      MouseFilter = Control.MouseFilterEnum.Ignore,
-      HorizontalAlignment = HorizontalAlignment.Center,
-      VerticalAlignment = VerticalAlignment.Center
-    };
-    label.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-    label.OffsetLeft = BadgePadding;
-    label.OffsetTop = BadgePadding;
-    label.OffsetRight = -BadgePadding;
-    label.OffsetBottom = -BadgePadding;
-    label.AddThemeFontSizeOverride("font_size", 20);
-    label.AddThemeColorOverride("font_outline_color", new Color(0f, 0f, 0f));
-    label.AddThemeConstantOverride("outline_size", 3);
-    rect.AddChild(label);
-
-    AddHotkeyBadge(rect, slot);
+    var upgradeHint = icon.GetNode<Panel>("UpgradeHint");
+    upgradeHint.Visible = false;
+    var label = icon.GetNode<Label>("Number");
+    icon.GetNode<Label>("Hotkey").Text = HotkeyLabels[slot];
     _grid.AddChild(rect);
     return new Cell(fill, icon, label, button, upgradeHint, blockStrip);
   }
@@ -304,27 +288,6 @@ public class SkillBarController {
     return label;
   }
 
-  // The cast hotkey pinned to the cell's top-left, so the Q/W/E/R binding is visible without a tooltip.
-  // Mirrors the shop grid's cost badge. Kept in slot order alongside InputCapture.TryGetSkillHotkeySlot.
-  private static void AddHotkeyBadge(ColorRect rect, int slot) {
-    var badge = new Label {
-      Name = "Hotkey",
-      Text = HotkeyLabels[slot],
-      MouseFilter = Control.MouseFilterEnum.Ignore,
-      HorizontalAlignment = HorizontalAlignment.Left,
-      VerticalAlignment = VerticalAlignment.Top
-    };
-    badge.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-    badge.OffsetLeft = BadgePadding;
-    badge.OffsetTop = BadgePadding;
-    badge.OffsetRight = -BadgePadding;
-    badge.OffsetBottom = -BadgePadding;
-    badge.AddThemeFontSizeOverride("font_size", 12);
-    badge.AddThemeColorOverride("font_outline_color", new Color(0f, 0f, 0f));
-    badge.AddThemeConstantOverride("outline_size", 3);
-    rect.AddChild(badge);
-  }
-
   private sealed class Cell(ColorRect fill, TextureRect icon, Label label, Button button, Panel upgradeHint,
     Label blockStrip) {
     public readonly Button Button = button;
@@ -349,18 +312,13 @@ public class SkillBarController {
       _fill.AnchorBottom = 1f;
     }
 
-    // The rank stays in the bottom-right over either authored art or the fallback.
     public void SetIcon(Texture2D texture) {
       _icon.Texture = texture ?? EmptySlotTexture;
       _icon.Visible = true;
-
-      Label.HorizontalAlignment = HorizontalAlignment.Right;
-      Label.VerticalAlignment = VerticalAlignment.Bottom;
-      Label.AddThemeFontSizeOverride("font_size", 14);
     }
 
     public void SetIconDim(Color color) {
-      if (_icon.Visible) _icon.Modulate = color;
+      if (_icon.Visible) _icon.SelfModulate = color;
     }
 
     public void SetBlockText(string text) {
