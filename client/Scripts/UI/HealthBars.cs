@@ -9,10 +9,10 @@ using xpTURN.Klotho.Godot;
 
 namespace Meesles.Avalon;
 
-public partial class HealthBars : ColorRect {
-  [Export] public PackedScene MinionBarScene { get; set; }
-  [Export] public PackedScene TurretBarScene { get; set; }
-  [Export] public PackedScene HeroBarScene { get; set; }
+public partial class HealthBars : Control {
+  [Export] public PackedScene MinionBarScene { get; set; } = GD.Load<PackedScene>("res://Scenes/UI/HealthBars/MinionHealthBar.tscn");
+  [Export] public PackedScene TurretBarScene { get; set; } = GD.Load<PackedScene>("res://Scenes/UI/HealthBars/TurretHealthBar.tscn");
+  [Export] public PackedScene HeroBarScene { get; set; } = GD.Load<PackedScene>("res://Scenes/UI/HealthBars/HeroHealthBar.tscn");
   [Export] public float BarWorldYOffset { get; set; } = 1.5f;
   [Export] public float BarScreenOffsetY { get; set; } = -10f;
   [Export] public Color TeamOneFillColor { get; set; } = TeamPalette.Default.TeamOne;
@@ -23,12 +23,16 @@ public partial class HealthBars : ColorRect {
   public Func<int, string> ResolvePlayerNotice { get; set; }
 
   private readonly Dictionary<ulong, UnitHealthBar> _bars = new();
+  private readonly Dictionary<UnitHealthBar.BarTier, Stack<UnitHealthBar>> _idle = new() {
+    [UnitHealthBar.BarTier.Minion] = new(),
+    [UnitHealthBar.BarTier.Turret] = new(),
+    [UnitHealthBar.BarTier.Hero] = new()
+  };
   private readonly HashSet<ulong> _seen = new();
   private readonly List<ulong> _removed = new();
 
   public override void _Ready() {
     MouseFilter = MouseFilterEnum.Ignore;
-    Color = Colors.Transparent;
   }
 
   public override void _Process(double delta) {
@@ -73,24 +77,49 @@ public partial class HealthBars : ColorRect {
 
       var key = view.GetInstanceId();
       _seen.Add(key);
-      if (!_bars.TryGetValue(key, out var bar)) {
-        bar = (isHero ? HeroBarScene : isTurret ? TurretBarScene : MinionBarScene).Instantiate<UnitHealthBar>();
-        AddChild(bar);
-        _bars.Add(key, bar);
+      var tier = isHero ? UnitHealthBar.BarTier.Hero
+        : isTurret ? UnitHealthBar.BarTier.Turret : UnitHealthBar.BarTier.Minion;
+      if (_bars.TryGetValue(key, out var bar) && bar.Tier != tier) {
+        ReturnBar(bar);
+        bar = null;
+      }
+      if (bar == null) {
+        bar = RentBar(tier);
+        _bars[key] = bar;
       }
       var teamId = frame.Has<Team>(entity) ? frame.GetReadOnly<Team>(entity).TeamId : 0;
       var color = teamId == 1 ? TeamOneFillColor : teamId == 2 ? TeamTwoFillColor : NeutralFillColor;
       bar.Position = (point + new Vector2(-bar.BarWidth * 0.5f, BarScreenOffsetY)).Round();
       bar.SetState(health.Current.ToFloat(), maxHealth, health.Mana.ToFloat(), stats.MaxMana.ToFloat(), level,
         playerName, color);
+      bar.Show();
     }
 
     _removed.Clear();
     foreach (var (key, bar) in _bars) {
       if (_seen.Contains(key)) continue;
-      bar.QueueFree();
+      ReturnBar(bar);
       _removed.Add(key);
     }
     foreach (var key in _removed) _bars.Remove(key);
+  }
+
+  private UnitHealthBar RentBar(UnitHealthBar.BarTier tier) {
+    var pool = _idle[tier];
+    if (pool.Count > 0) return pool.Pop();
+    var scene = tier switch {
+      UnitHealthBar.BarTier.Hero => HeroBarScene,
+      UnitHealthBar.BarTier.Turret => TurretBarScene,
+      _ => MinionBarScene
+    };
+    var bar = scene.Instantiate<UnitHealthBar>();
+    bar.Hide();
+    AddChild(bar);
+    return bar;
+  }
+
+  private void ReturnBar(UnitHealthBar bar) {
+    bar.Hide();
+    _idle[bar.Tier].Push(bar);
   }
 }

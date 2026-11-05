@@ -1,19 +1,20 @@
 [gd_scene format=3 uid="uid://bu5kshfajfcmv"]
 
 [ext_resource type="Script" uid="uid://cye43qws5a5eo" path="res://Scripts/UI/GameUI.cs" id="1_script"]
-[ext_resource type="PackedScene" uid="uid://7rejd1vlpq5" path="res://Scenes/UI/HealthBars.tscn" id="3_healthbars"]
 [ext_resource type="Texture2D" uid="uid://cwknw6nvw5ukx" path="res://Assets/Portraits/Factions/AllHairWizards/hero.webp" id="3_xkiwj"]
 [ext_resource type="Texture2D" uid="uid://d1qivwnkvrbob" path="res://Assets/Placeholders/brown-swirl.webp" id="4_brown"]
-[ext_resource type="Texture2D" uid="uid://ccdswr4rnqhwo" path="res://Assets/Placeholders/red-swirl.webp" id="5_skill"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/ActionGridPopup.tscn" id="6_action_popup"]
 [ext_resource type="Texture2D" uid="uid://b6ghwu1go2tju" path="res://Assets/UI/PanelBorderBrownCompact.png" id="9_minimap_frame"]
 [ext_resource type="Texture2D" uid="uid://4m0ncay541cq" path="res://Assets/UI/PanelGreyBoltsDarkCompact.png" id="10_stats_frame"]
-[ext_resource type="StyleBox" uid="uid://b6q4gb7v7vvw5" path="res://Assets/UI/ItemIconBorder.tres" id="14_item_border"]
 [ext_resource type="Script" uid="uid://cyrmetdw45b6y" path="res://Scripts/UI/MinimapEditorPreview.cs" id="15_minimap_preview"]
 [ext_resource type="StyleBox" path="res://Assets/UI/ActionGridPanel.tres" id="16_grid_panel"]
 [ext_resource type="StyleBox" path="res://Assets/UI/SkillIconBorder.tres" id="17_skill_border"]
-[ext_resource type="PackedScene" path="res://Scenes/UI/HudIcon.tscn" id="20_skill_icon"]
-[ext_resource type="PackedScene" path="res://Scenes/UI/ItemIcon.tscn" id="21_item_icon"]
+[ext_resource type="PackedScene" uid="uid://cfnlx2ce8ke6k" path="res://Scenes/UI/HudIcon.tscn" id="20_skill_icon"]
+[ext_resource type="PackedScene" uid="uid://bc25aomqihvw" path="res://Scenes/UI/ItemIcon.tscn" id="21_item_icon"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/ResultPanel.tscn" id="22_result_panel"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/TabUI.tscn" id="23_tab_ui"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/StatsPopup.tscn" id="24_stats_popup"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/BuffIcon.tscn" id="25_buff_icon"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_ie3ut"]
 font_size = 32
@@ -28,22 +29,6 @@ border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.25, 0.75, 0.95, 1)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_result"]
-content_margin_left = 28.0
-content_margin_top = 22.0
-content_margin_right = 28.0
-content_margin_bottom = 22.0
-bg_color = Color(0.06, 0.07, 0.08, 0.92)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.72, 0.55, 0.22, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_71wt1"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_stats_border"]
@@ -54,22 +39,6 @@ border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.68, 0.46, 0.24, 1)
 anti_aliasing = false
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_scoreboard"]
-content_margin_left = 16.0
-content_margin_top = 16.0
-content_margin_right = 16.0
-content_margin_bottom = 16.0
-bg_color = Color(0.08, 0.08, 0.12, 0.94)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.72, 0.55, 0.22, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
 
 [node name="GameUI" type="CanvasLayer" unique_id=1765081607 groups=["game_ui"]]
 process_mode = 3
@@ -95,9 +64,6 @@ text = "0:00"
 label_settings = SubResource("LabelSettings_ie3ut")
 horizontal_alignment = 1
 
-[node name="HealthBars" parent="DefaultUI" unique_id=1496569716 instance=ExtResource("3_healthbars")]
-layout_mode = 1
-
 [node name="SelectionRectangle" type="Panel" parent="DefaultUI" unique_id=1215130715]
 layout_mode = 1
 offset_left = 80.0
@@ -107,80 +73,7 @@ offset_bottom = 180.0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_selection_rectangle")
 
-[node name="ResultPanel" type="Panel" parent="DefaultUI" unique_id=1868577759]
-visible = false
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -320.0
-offset_top = -170.0
-offset_right = 320.0
-offset_bottom = 170.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_result")
-
-[node name="ResultPanelFrame" type="NinePatchRect" parent="DefaultUI/ResultPanel" unique_id=255529693]
-custom_minimum_size = Vector2(250, 250)
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_vertical = 8
-texture = ExtResource("9_minimap_frame")
-draw_center = false
-region_rect = Rect2(0, 0, 96, 96)
-patch_margin_left = 16
-patch_margin_top = 16
-patch_margin_right = 16
-patch_margin_bottom = 16
-
-[node name="Content" type="VBoxContainer" parent="DefaultUI/ResultPanel/ResultPanelFrame" unique_id=165017334]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 28.0
-offset_top = 22.0
-offset_right = -22.0
-offset_bottom = -22.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/separation = 10
-
-[node name="ResultLabel" type="Label" parent="DefaultUI/ResultPanel/ResultPanelFrame/Content" unique_id=215544872]
-layout_mode = 2
-theme_override_font_sizes/font_size = 34
-text = "Game Over"
-horizontal_alignment = 1
-
-[node name="ReasonLabel" type="Label" parent="DefaultUI/ResultPanel/ResultPanelFrame/Content" unique_id=1491511166]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.72, 0.73, 0.76, 1)
-theme_override_font_sizes/font_size = 16
-horizontal_alignment = 1
-
-[node name="Scoreboard" type="GridContainer" parent="DefaultUI/ResultPanel/ResultPanelFrame/Content" unique_id=1221855290]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/h_separation = 18
-theme_override_constants/v_separation = 6
-columns = 8
-
-[node name="Footer" type="HBoxContainer" parent="DefaultUI/ResultPanel/ResultPanelFrame/Content" unique_id=927001777]
-layout_mode = 2
-alignment = 1
-
-[node name="ReturnButton" type="Button" parent="DefaultUI/ResultPanel/ResultPanelFrame/Content/Footer" unique_id=740524483]
-custom_minimum_size = Vector2(200, 38)
-layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "Return to Lobby"
+[node name="ResultPanel" parent="DefaultUI" unique_id=1868577759 instance=ExtResource("22_result_panel")]
 
 [node name="BottomBar" type="PanelContainer" parent="DefaultUI" unique_id=829745707]
 layout_mode = 1
@@ -300,29 +193,34 @@ columns = 5
 
 [node name="PassiveIcon" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid" unique_id=1528245098 instance=ExtResource("20_skill_icon")]
 custom_minimum_size = Vector2(43.2, 43.2)
+layout_mode = 2
 size_flags_vertical = 8
 mouse_filter = 2
 texture = ExtResource("4_brown")
 
-[node name="Border" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid/PassiveIcon" index="0"]
+[node name="Border" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid/PassiveIcon" index="0" unique_id=1045063515]
 visible = false
 
-[node name="UpgradeHint" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid/PassiveIcon" index="1"]
+[node name="UpgradeHint" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid/PassiveIcon" index="1" unique_id=1602585339]
 visible = false
 
-[node name="Number" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid/PassiveIcon" index="2"]
+[node name="Number" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid/PassiveIcon" index="2" unique_id=652395529]
 visible = false
 
-[node name="Hotkey" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid/PassiveIcon" index="3"]
+[node name="Hotkey" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid/PassiveIcon" index="3" unique_id=1529545902]
 visible = false
 
 [node name="SkillQ" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid" unique_id=1222214380 instance=ExtResource("20_skill_icon")]
+layout_mode = 2
 
 [node name="SkillW" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid" unique_id=694550106 instance=ExtResource("20_skill_icon")]
+layout_mode = 2
 
 [node name="SkillE" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid" unique_id=351577467 instance=ExtResource("20_skill_icon")]
+layout_mode = 2
 
 [node name="SkillR" parent="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid" unique_id=1886554080 instance=ExtResource("20_skill_icon")]
+layout_mode = 2
 
 [node name="Vbox" type="VBoxContainer" parent="DefaultUI/BottomBar/Panels" unique_id=1085130530]
 layout_mode = 2
@@ -338,73 +236,17 @@ theme_override_constants/margin_bottom = 4
 [node name="BuffContainer" type="HBoxContainer" parent="DefaultUI/BottomBar/Panels/Vbox/BuffMarginContainer" unique_id=337556673]
 layout_mode = 2
 
-[node name="ColorRect" type="TextureRect" parent="DefaultUI/BottomBar/Panels/Vbox/BuffMarginContainer/BuffContainer" unique_id=1344061431]
-custom_minimum_size = Vector2(34, 34)
+[node name="BuffIcon1" parent="DefaultUI/BottomBar/Panels/Vbox/BuffMarginContainer/BuffContainer" unique_id=1344061431 instance=ExtResource("25_buff_icon")]
 layout_mode = 2
-texture = ExtResource("5_skill")
-expand_mode = 1
-stretch_mode = 6
 
-[node name="Border" type="Panel" parent="DefaultUI/BottomBar/Panels/Vbox/BuffMarginContainer/BuffContainer/ColorRect" unique_id=220740120]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = ExtResource("14_item_border")
-
-[node name="ColorRect2" type="TextureRect" parent="DefaultUI/BottomBar/Panels/Vbox/BuffMarginContainer/BuffContainer" unique_id=968597310]
-custom_minimum_size = Vector2(34, 34)
+[node name="BuffIcon2" parent="DefaultUI/BottomBar/Panels/Vbox/BuffMarginContainer/BuffContainer" unique_id=968597310 instance=ExtResource("25_buff_icon")]
 layout_mode = 2
-texture = ExtResource("5_skill")
-expand_mode = 1
-stretch_mode = 6
 
-[node name="Border" type="Panel" parent="DefaultUI/BottomBar/Panels/Vbox/BuffMarginContainer/BuffContainer/ColorRect2" unique_id=1042188190]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = ExtResource("14_item_border")
-
-[node name="ColorRect3" type="TextureRect" parent="DefaultUI/BottomBar/Panels/Vbox/BuffMarginContainer/BuffContainer" unique_id=1519490981]
-custom_minimum_size = Vector2(34, 34)
+[node name="BuffIcon3" parent="DefaultUI/BottomBar/Panels/Vbox/BuffMarginContainer/BuffContainer" unique_id=1519490981 instance=ExtResource("25_buff_icon")]
 layout_mode = 2
-texture = ExtResource("5_skill")
-expand_mode = 1
-stretch_mode = 6
 
-[node name="Border" type="Panel" parent="DefaultUI/BottomBar/Panels/Vbox/BuffMarginContainer/BuffContainer/ColorRect3" unique_id=446871146]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = ExtResource("14_item_border")
-
-[node name="ColorRect4" type="TextureRect" parent="DefaultUI/BottomBar/Panels/Vbox/BuffMarginContainer/BuffContainer" unique_id=525650775]
-custom_minimum_size = Vector2(34, 34)
+[node name="BuffIcon4" parent="DefaultUI/BottomBar/Panels/Vbox/BuffMarginContainer/BuffContainer" unique_id=525650775 instance=ExtResource("25_buff_icon")]
 layout_mode = 2
-texture = ExtResource("5_skill")
-expand_mode = 1
-stretch_mode = 6
-
-[node name="Border" type="Panel" parent="DefaultUI/BottomBar/Panels/Vbox/BuffMarginContainer/BuffContainer/ColorRect4" unique_id=321981151]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_styles/panel = ExtResource("14_item_border")
 
 [node name="MainSection" type="HBoxContainer" parent="DefaultUI/BottomBar/Panels/Vbox" unique_id=983779099]
 layout_mode = 2
@@ -592,16 +434,22 @@ theme_override_constants/v_separation = 4
 columns = 2
 
 [node name="Item1" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/ItemFrame/ItemPanel" unique_id=237132654 instance=ExtResource("21_item_icon")]
+layout_mode = 2
 
 [node name="Item2" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/ItemFrame/ItemPanel" unique_id=2126021869 instance=ExtResource("21_item_icon")]
+layout_mode = 2
 
 [node name="Item3" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/ItemFrame/ItemPanel" unique_id=1733614632 instance=ExtResource("21_item_icon")]
+layout_mode = 2
 
 [node name="Item4" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/ItemFrame/ItemPanel" unique_id=1803609899 instance=ExtResource("21_item_icon")]
+layout_mode = 2
 
 [node name="Item5" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/ItemFrame/ItemPanel" unique_id=212047987 instance=ExtResource("21_item_icon")]
+layout_mode = 2
 
 [node name="Item6" parent="DefaultUI/BottomBar/Panels/Vbox/MainSection/ItemColumn/ItemFrame/ItemPanel" unique_id=371002932 instance=ExtResource("21_item_icon")]
+layout_mode = 2
 
 [node name="ResourcesPanel" type="PanelContainer" parent="DefaultUI" unique_id=1629241704]
 layout_mode = 1
@@ -682,242 +530,9 @@ render_target_update_mode = 4
 unique_name_in_owner = true
 layout_mode = 1
 
-[node name="StatsPopup" type="PanelContainer" parent="DefaultUI" unique_id=1425467676]
+[node name="StatsPopup" parent="DefaultUI" unique_id=1425467676 instance=ExtResource("24_stats_popup")]
 unique_name_in_owner = true
-visible = false
-z_index = 100
-custom_minimum_size = Vector2(210, 0)
-layout_mode = 0
 
-[node name="StatsList" type="VBoxContainer" parent="DefaultUI/StatsPopup" unique_id=378172912]
-layout_mode = 2
-size_flags_vertical = 0
-theme_override_constants/separation = 2
-
-[node name="CombatStatList" type="GridContainer" parent="DefaultUI/StatsPopup/StatsList" unique_id=1845512187]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/h_separation = 12
-theme_override_constants/v_separation = 1
-columns = 2
-
-[node name="AttackDamageName" type="Label" parent="DefaultUI/StatsPopup/StatsList/CombatStatList" unique_id=533840266]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
-theme_override_font_sizes/font_size = 12
-text = "Attack Damage"
-
-[node name="AttackDamageValue" type="Label" parent="DefaultUI/StatsPopup/StatsList/CombatStatList" unique_id=1258306735]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
-theme_override_font_sizes/font_size = 12
-text = "0"
-horizontal_alignment = 2
-
-[node name="ArmorName" type="Label" parent="DefaultUI/StatsPopup/StatsList/CombatStatList" unique_id=953846660]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
-theme_override_font_sizes/font_size = 12
-text = "Armor"
-
-[node name="ArmorValue" type="Label" parent="DefaultUI/StatsPopup/StatsList/CombatStatList" unique_id=395450711]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
-theme_override_font_sizes/font_size = 12
-text = "0"
-horizontal_alignment = 2
-
-[node name="AttackSpeedName" type="Label" parent="DefaultUI/StatsPopup/StatsList/CombatStatList" unique_id=1275669662]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
-theme_override_font_sizes/font_size = 12
-text = "Attack Speed"
-
-[node name="AttackSpeedValue" type="Label" parent="DefaultUI/StatsPopup/StatsList/CombatStatList" unique_id=1863231120]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
-theme_override_font_sizes/font_size = 12
-text = "0.00"
-horizontal_alignment = 2
-
-[node name="MagicResistanceName" type="Label" parent="DefaultUI/StatsPopup/StatsList/CombatStatList" unique_id=828195054]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
-theme_override_font_sizes/font_size = 12
-text = "Magic Resistance"
-
-[node name="MagicResistanceValue" type="Label" parent="DefaultUI/StatsPopup/StatsList/CombatStatList" unique_id=1292983968]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
-theme_override_font_sizes/font_size = 12
-text = "0"
-horizontal_alignment = 2
-
-[node name="CriticalChanceName" type="Label" parent="DefaultUI/StatsPopup/StatsList/CombatStatList" unique_id=321595306]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
-theme_override_font_sizes/font_size = 12
-text = "Critical Chance"
-
-[node name="CriticalChanceValue" type="Label" parent="DefaultUI/StatsPopup/StatsList/CombatStatList" unique_id=1877355314]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
-theme_override_font_sizes/font_size = 12
-text = "0%"
-horizontal_alignment = 2
-
-[node name="MoveSpeedName" type="Label" parent="DefaultUI/StatsPopup/StatsList/CombatStatList" unique_id=1312186121]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
-theme_override_font_sizes/font_size = 12
-text = "Move Speed"
-
-[node name="MoveSpeedValue" type="Label" parent="DefaultUI/StatsPopup/StatsList/CombatStatList" unique_id=1993652811]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
-theme_override_font_sizes/font_size = 12
-text = "0"
-horizontal_alignment = 2
-
-[node name="AttackRangeName" type="Label" parent="DefaultUI/StatsPopup/StatsList/CombatStatList" unique_id=1566453333]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
-theme_override_font_sizes/font_size = 12
-text = "Attack Range"
-
-[node name="AttackRangeValue" type="Label" parent="DefaultUI/StatsPopup/StatsList/CombatStatList" unique_id=931899604]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
-theme_override_font_sizes/font_size = 12
-text = "0"
-horizontal_alignment = 2
-
-[node name="HealthRegenerationName" type="Label" parent="DefaultUI/StatsPopup/StatsList/CombatStatList" unique_id=366414974]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
-theme_override_font_sizes/font_size = 12
-text = "Health Regen"
-
-[node name="HealthRegenerationValue" type="Label" parent="DefaultUI/StatsPopup/StatsList/CombatStatList" unique_id=855349498]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
-theme_override_font_sizes/font_size = 12
-text = "0.0/5s"
-horizontal_alignment = 2
-
-[node name="TabUI" type="Control" parent="." unique_id=313774460]
-visible = false
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="Dim" type="ColorRect" parent="TabUI" unique_id=1726730214]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-color = Color(0, 0, 0, 0.4)
-
-[node name="ScoreboardPanel" type="Panel" parent="TabUI" unique_id=116203776]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -500.0
-offset_top = -325.0
-offset_right = 500.0
-offset_bottom = 325.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_scoreboard")
-
-[node name="ResultPanelFrame" type="NinePatchRect" parent="TabUI/ScoreboardPanel" unique_id=260553265]
-custom_minimum_size = Vector2(250, 250)
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_vertical = 8
-texture = ExtResource("9_minimap_frame")
-draw_center = false
-region_rect = Rect2(0, 0, 96, 96)
-patch_margin_left = 16
-patch_margin_top = 16
-patch_margin_right = 16
-patch_margin_bottom = 16
-
-[node name="Header" type="PanelContainer" parent="TabUI/ScoreboardPanel/ResultPanelFrame" unique_id=485918300]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_top = 24.0
-offset_bottom = 52.0
-grow_horizontal = 2
-
-[node name="ScoreLabel" type="Label" parent="TabUI/ScoreboardPanel/ResultPanelFrame/Header" unique_id=730195306]
-layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "0 / 0"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Body" type="HBoxContainer" parent="TabUI/ScoreboardPanel/ResultPanelFrame" unique_id=1874149714]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 16.0
-offset_top = 108.0
-offset_right = -16.0
-offset_bottom = -16.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/separation = 2
-
-[node name="TeamLeft" type="VBoxContainer" parent="TabUI/ScoreboardPanel/ResultPanelFrame/Body" unique_id=1329728721]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 4
-
-[node name="PlayerRow0" type="ColorRect" parent="TabUI/ScoreboardPanel/ResultPanelFrame/Body/TeamLeft" unique_id=1709655708]
-custom_minimum_size = Vector2(0, 80)
-layout_mode = 2
-color = Color(0.12, 0.14, 0.2, 0.85)
-
-[node name="PlayerRow1" type="ColorRect" parent="TabUI/ScoreboardPanel/ResultPanelFrame/Body/TeamLeft" unique_id=672225406]
-custom_minimum_size = Vector2(0, 80)
-layout_mode = 2
-color = Color(0.12, 0.14, 0.2, 0.85)
-
-[node name="Divider" type="ColorRect" parent="TabUI/ScoreboardPanel/ResultPanelFrame/Body" unique_id=1803236308]
-custom_minimum_size = Vector2(2, 0)
-layout_mode = 2
-color = Color(0.25, 0.22, 0.18, 0.9)
-
-[node name="TeamRight" type="VBoxContainer" parent="TabUI/ScoreboardPanel/ResultPanelFrame/Body" unique_id=241500946]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 4
-
-[node name="PlayerRow0" type="ColorRect" parent="TabUI/ScoreboardPanel/ResultPanelFrame/Body/TeamRight" unique_id=1563996344]
-custom_minimum_size = Vector2(0, 80)
-layout_mode = 2
-color = Color(0.2, 0.12, 0.14, 0.85)
-
-[node name="PlayerRow1" type="ColorRect" parent="TabUI/ScoreboardPanel/ResultPanelFrame/Body/TeamRight" unique_id=2127285868]
-custom_minimum_size = Vector2(0, 80)
-layout_mode = 2
-color = Color(0.2, 0.12, 0.14, 0.85)
+[node name="TabUI" parent="." unique_id=313774460 instance=ExtResource("23_tab_ui")]
 
 [editable path="DefaultUI/BottomBar/Panels/VBoxContainer/SkillPanel/SkillGrid/PassiveIcon"]

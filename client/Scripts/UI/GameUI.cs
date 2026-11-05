@@ -73,6 +73,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private Meesles.Avalon.Client.ActionGridPopup _actionPopup;
   public bool IsActionPopupOpen => _actionPopup?.Visible == true;
   private SkillBarController _skillBar;
+  public HealthBars HealthBars { get; private set; }
   private BuffBarController _buffBar;
   private InventoryPanelController _inventoryPanel;
   private ShopItemCatalog _shopCatalog;
@@ -299,10 +300,10 @@ public partial class GameUI : CanvasLayer, IViewHud {
     _xpBarFill = GetNode<ColorRect>("%XpBarFill");
     _selectionRectangle = GetNode<Control>("DefaultUI/SelectionRectangle");
     _resultPanel = GetNodeOrNull<Panel>("DefaultUI/ResultPanel");
-    _resultLabel = GetNodeOrNull<Label>("DefaultUI/ResultPanel/Content/ResultLabel");
-    _resultReasonLabel = GetNodeOrNull<Label>("DefaultUI/ResultPanel/Content/ReasonLabel");
-    _resultScoreboard = GetNodeOrNull<GridContainer>("DefaultUI/ResultPanel/Content/Scoreboard");
-    _resultReturnButton = GetNodeOrNull<Button>("DefaultUI/ResultPanel/Content/Footer/ReturnButton");
+    _resultLabel = GetNodeOrNull<Label>("DefaultUI/ResultPanel/ResultPanelFrame/Content/ResultLabel");
+    _resultReasonLabel = GetNodeOrNull<Label>("DefaultUI/ResultPanel/ResultPanelFrame/Content/ReasonLabel");
+    _resultScoreboard = GetNodeOrNull<GridContainer>("DefaultUI/ResultPanel/ResultPanelFrame/Content/Scoreboard");
+    _resultReturnButton = GetNodeOrNull<Button>("DefaultUI/ResultPanel/ResultPanelFrame/Content/Footer/ReturnButton");
     if (_resultReturnButton != null)
       _resultReturnButton.Pressed += OnReturnToLobbyPressed;
     _minimapViewport = GetNode<SubViewport>("%MinimapViewport");
@@ -318,7 +319,12 @@ public partial class GameUI : CanvasLayer, IViewHud {
 
     _skillBar = new SkillBarController(actionGrid, _skillCatalog, slot => SkillUpgradeRequested?.Invoke(slot),
       PredictedSkills);
-    GetNode<HealthBars>("DefaultUI/HealthBars").ResolvePlayerNotice = playerId =>
+    HealthBars = new HealthBars { Name = "HealthBars" };
+    var defaultUi = GetNode<Control>("DefaultUI");
+    defaultUi.AddChild(HealthBars);
+    defaultUi.MoveChild(HealthBars, 1);
+    HealthBars.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+    HealthBars.ResolvePlayerNotice = playerId =>
       playerId == _localPlayerId && _skillBar.HasAvailableUpgrade ? "Upgrade skill!" : null;
     _actionPopup = GetNode<Meesles.Avalon.Client.ActionGridPopup>("%ActionGridPopup");
     _actionBar = new ActionBarController(_actionPopup, _shopCatalog, itemId => PurchaseRequested?.Invoke(itemId),

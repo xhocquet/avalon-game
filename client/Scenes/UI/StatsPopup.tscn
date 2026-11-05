@@ -1,0 +1,125 @@
+[gd_scene format=3]
+
+[node name="StatsPopup" type="PanelContainer" unique_id=1425467676]
+unique_name_in_owner = true
+visible = false
+z_index = 100
+custom_minimum_size = Vector2(210, 0)
+layout_mode = 0
+
+[node name="StatsList" type="VBoxContainer" parent="." unique_id=378172912]
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_constants/separation = 2
+
+[node name="CombatStatList" type="GridContainer" parent="StatsList" unique_id=1845512187]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 1
+columns = 2
+
+[node name="AttackDamageName" type="Label" parent="StatsList/CombatStatList" unique_id=533840266]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
+theme_override_font_sizes/font_size = 12
+text = "Attack Damage"
+
+[node name="AttackDamageValue" type="Label" parent="StatsList/CombatStatList" unique_id=1258306735]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
+theme_override_font_sizes/font_size = 12
+text = "0"
+horizontal_alignment = 2
+
+[node name="ArmorName" type="Label" parent="StatsList/CombatStatList" unique_id=953846660]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
+theme_override_font_sizes/font_size = 12
+text = "Armor"
+
+[node name="ArmorValue" type="Label" parent="StatsList/CombatStatList" unique_id=395450711]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
+theme_override_font_sizes/font_size = 12
+text = "0"
+horizontal_alignment = 2
+
+[node name="AttackSpeedName" type="Label" parent="StatsList/CombatStatList" unique_id=1275669662]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
+theme_override_font_sizes/font_size = 12
+text = "Attack Speed"
+
+[node name="AttackSpeedValue" type="Label" parent="StatsList/CombatStatList" unique_id=1863231120]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
+theme_override_font_sizes/font_size = 12
+text = "0.00"
+horizontal_alignment = 2
+
+[node name="MagicResistanceName" type="Label" parent="StatsList/CombatStatList" unique_id=828195054]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
+theme_override_font_sizes/font_size = 12
+text = "Magic Resistance"
+
+[node name="MagicResistanceValue" type="Label" parent="StatsList/CombatStatList" unique_id=1292983968]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
+theme_override_font_sizes/font_size = 12
+text = "0"
+horizontal_alignment = 2
+
+[node name="CriticalChanceName" type="Label" parent="StatsList/CombatStatList" unique_id=321595306]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
+theme_override_font_sizes/font_size = 12
+text = "Critical Chance"
+
+[node name="CriticalChanceValue" type="Label" parent="StatsList/CombatStatList" unique_id=1877355314]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
+theme_override_font_sizes/font_size = 12
+text = "0%"
+horizontal_alignment = 2
+
+[node name="MoveSpeedName" type="Label" parent="StatsList/CombatStatList" unique_id=1312186121]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
+theme_override_font_sizes/font_size = 12
+text = "Move Speed"
+
+[node name="MoveSpeedValue" type="Label" parent="StatsList/CombatStatList" unique_id=1993652811]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
+theme_override_font_sizes/font_size = 12
+text = "0"
+horizontal_alignment = 2
+
+[node name="AttackRangeName" type="Label" parent="StatsList/CombatStatList" unique_id=1566453333]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
+theme_override_font_sizes/font_size = 12
+text = "Attack Range"
+
+[node name="AttackRangeValue" type="Label" parent="StatsList/CombatStatList" unique_id=931899604]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
+theme_override_font_sizes/font_size = 12
+text = "0"
+horizontal_alignment = 2
+
+[node name="HealthRegenerationName" type="Label" parent="StatsList/CombatStatList" unique_id=366414974]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
+theme_override_font_sizes/font_size = 12
+text = "Health Regen"
+
+[node name="HealthRegenerationValue" type="Label" parent="StatsList/CombatStatList" unique_id=855349498]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.83, 0.85, 0.89, 1)
+theme_override_font_sizes/font_size = 12
+text = "0.0/5s"
+horizontal_alignment = 2
+

@@ -6,8 +6,7 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon;
 
 public sealed class BuffBarController {
-  private static readonly StyleBox IconBorder = GD.Load<StyleBox>("res://Assets/UI/ItemIconBorder.tres");
-  private static readonly Color ShroudColor = new(0.04f, 0.04f, 0.06f, 0.7f);
+  private static readonly PackedScene IconScene = GD.Load<PackedScene>("res://Scenes/UI/BuffIcon.tscn");
   private readonly HBoxContainer _container;
   private readonly SkillCatalog _catalog;
   private readonly List<StatusEffect> _effects = new(32);
@@ -68,28 +67,10 @@ public sealed class BuffBarController {
   }
 
   private Cell CreateCell() {
-    var icon = new TextureRect {
-      Name = $"BuffIcon_{_cells.Count}",
-      CustomMinimumSize = _cellSize,
-      SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin,
-      SizeFlagsVertical = Control.SizeFlags.ShrinkCenter,
-      MouseFilter = Control.MouseFilterEnum.Ignore,
-      ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-      StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered
-    };
-    var shroud = new ColorRect {
-      Name = "LifetimeShroud",
-      Color = ShroudColor,
-      MouseFilter = Control.MouseFilterEnum.Ignore,
-      Visible = false
-    };
-    shroud.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-    shroud.AnchorTop = 1f;
-    icon.AddChild(shroud);
-    var border = new Panel { Name = "Border", MouseFilter = Control.MouseFilterEnum.Ignore };
-    border.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-    border.AddThemeStyleboxOverride("panel", IconBorder);
-    icon.AddChild(border);
+    var icon = IconScene.Instantiate<TextureRect>();
+    icon.Name = $"BuffIcon_{_cells.Count}";
+    icon.CustomMinimumSize = _cellSize;
+    var shroud = icon.GetNode<ColorRect>("LifetimeShroud");
     _container.AddChild(icon);
     var cell = new Cell(icon, shroud);
     _cells.Add(cell);
