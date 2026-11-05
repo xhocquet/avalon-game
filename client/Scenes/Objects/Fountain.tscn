@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://cjj40prnipu4v" path="res://Scripts/Entities/StaticSelectableProp.cs" id="2_prop"]
 [ext_resource type="PackedScene" uid="uid://80mcbhomjk3l" path="res://Scenes/FX/HotSpring.tscn" id="3_mnioi"]
 [ext_resource type="PackedScene" uid="uid://c8kx0oasis001" path="res://Scenes/Objects/Oasis.tscn" id="4_bq713"]
+[ext_resource type="Texture2D" path="res://Assets/Portraits/Minimap/Fountain.webp" id="5_minimap"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_uu4dh"]
 radius = 0.015136719
@@ -36,3 +37,10 @@ height = 0.05
 radius = 0.0
 affect_navigation_mesh = true
 carve_navigation_mesh = true
+
+[node name="MinimapMarker" type="Sprite3D" parent="." index="5"]
+layers = 2
+billboard = 1
+no_depth_test = true
+pixel_size = 0.000125
+texture = ExtResource("5_minimap")

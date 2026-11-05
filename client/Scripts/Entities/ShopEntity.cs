@@ -11,6 +11,8 @@ public partial class ShopEntity : TeamEntityViewNode, INamedView {
   public const string ShopsGroup = "shops";
 
   public string DisplayName => "Shop";
+  protected override Texture2D MinimapIcon => GD.Load<Texture2D>("res://Assets/Portraits/Minimap/Shop.webp");
+  protected override float MinimapPixelSize => 0.05f;
 
   // Static shops get their team from World.tscn.
   [Export] public int Team { get; set; } = -1;
