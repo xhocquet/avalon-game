@@ -887,10 +887,23 @@ public class InputCapture : IDisposable {
   private void UpdateFocusPortrait() {
     if (_gameUI == null) return;
 
+    var heroView = GetSelectedHeroView();
+    var minionCount = 0;
+    MinionEntity firstMinion = null;
+    foreach (var selected in _selectedViews) {
+      if (selected is not MinionEntity minion) continue;
+      minionCount++;
+      firstMinion ??= minion;
+    }
+    Texture2D minionPortrait = null;
+    if (minionCount > 1 && _factions != null
+        && TryResolveFactionId(firstMinion, out var minionFactionId))
+      minionPortrait = _factions.Resolve(minionFactionId).MinionPortraitTexture;
+    _gameUI.SetSelectedMinions(minionCount, minionPortrait);
+
     UpdateContextShop();
 
     // Prefer the player's hero portrait
-    var heroView = GetSelectedHeroView();
     var view = heroView ?? (_selectedViews.Count > 0 ? _selectedViews[0] : null);
 
     // Fallback to the placeholder image when no faction portrait is available.

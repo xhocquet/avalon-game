@@ -181,7 +181,7 @@ public partial class LobbyGameNode : GameNode {
     if (!gameType.IsLocal) return;
 
     _logger.KInformation($"[Client] starting local game type '{gameType.Id}' -> {gameType.GameScenePath}");
-    GetTree().ChangeSceneToFile(gameType.GameScenePath);
+    LoadingScreen.Begin(this, gameType);
   }
 
   private void OnSessionReady() {
@@ -297,21 +297,21 @@ public partial class LobbyGameNode : GameNode {
     if (_handoffStarted) return;
     _handoffStarted = true;
 
-    MultiplayerSessionHandoff.Store(new MultiplayerSessionHandoff {
-      Logger = _logger,
-      LoggerFactory = LoggerFactory,
-      Transport = _transport,
-      Flow = _flow,
-      Session = _session,
-      SimulationCallbacks = _simulationCallbacks,
-      ViewCallbacks = _viewCallbacks,
-      Driver = _driver,
-      SimulationConfig = _simCfg,
-      SessionConfig = _sesCfg
-    });
-    LoggerFactory = null;
-
-    GetTree().ChangeSceneToFile(Scenes.Multiplayer);
+    LoadingScreen.Begin(this, GameTypeCatalog.Resolve(GameTypeCatalog.DefaultId), () => {
+      MultiplayerSessionHandoff.Store(new MultiplayerSessionHandoff {
+        Logger = _logger,
+        LoggerFactory = LoggerFactory,
+        Transport = _transport,
+        Flow = _flow,
+        Session = _session,
+        SimulationCallbacks = _simulationCallbacks,
+        ViewCallbacks = _viewCallbacks,
+        Driver = _driver,
+        SimulationConfig = _simCfg,
+        SessionConfig = _sesCfg
+      });
+      LoggerFactory = null;
+    }, () => _handoffStarted = false);
   }
 
   public override void _ExitTree() {

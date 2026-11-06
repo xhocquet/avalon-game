@@ -19,6 +19,8 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private Tween _announceTween;
   private Label _pingLabel;
   private ColorRect _damageGlow;
+  private ColorRect _deathTint;
+  private LoadingBar _respawnBar;
   private Tween _damageTween;
   private int _localUnitId;
 
@@ -107,6 +109,8 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private Camera3D _minimapCamera;
   private VisionRenderer _visionRenderer;
   private TextureRect _portraitTexture;
+  private Label _selectedMinionCount;
+  private TextureRect _selectedMinionPortrait;
   private Texture2D _portraitPlaceholder;
   [Export] public float FocusRingRadiusPx { get; set; } = 52.0f;
   [Export] public float FocusRingWidthPx { get; set; } = 2.5f;
@@ -158,6 +162,9 @@ public partial class GameUI : CanvasLayer, IViewHud {
     _localUnitId = 0;
     _damageTween?.Kill();
     if (_damageGlow != null) _damageGlow.Modulate = new Color(1, 1, 1, 0);
+    if (_deathTint != null) _deathTint.Hide();
+    if (_respawnBar != null) _respawnBar.Hide();
+    SetSelectedMinions(0, null);
     _localPlayerId = playerId is int id && id >= 0 ? id : null;
     // Session boundary - in-flight upgrades and buys from the previous one are void.
     PredictedSkills.Clear();
@@ -239,6 +246,8 @@ public partial class GameUI : CanvasLayer, IViewHud {
   }
 
   public override void _Ready() {
+    _deathTint = GetNode<ColorRect>("%DeathTint");
+    _respawnBar = GetNode<LoadingBar>("%RespawnBar");
     var overlay = new Control { Name = "FeedbackOverlay", MouseFilter = Control.MouseFilterEnum.Ignore };
     AddChild(overlay);
     overlay.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
@@ -311,6 +320,9 @@ public partial class GameUI : CanvasLayer, IViewHud {
     _minimapViewport = GetNode<SubViewport>("%MinimapViewport");
     _portraitTexture = GetNodeOrNull<TextureRect>(
       "%PortraitTexture");
+    _selectedMinionCount = GetNode<Label>("%SelectedMinionCount");
+    _selectedMinionPortrait = GetNode<TextureRect>("%SelectedMinionPortrait");
+    SetSelectedMinions(0, null);
 
     var actionGrid = GetNodeOrNull<GridContainer>(
       "%SkillGrid");
@@ -439,6 +451,8 @@ public partial class GameUI : CanvasLayer, IViewHud {
   }
 
   private void UpdateLocalPlayerHealth(Frame frame) {
+    _deathTint.Visible = false;
+    _respawnBar.Visible = false;
     if (_localPlayerId is not int localId) return;
 
     var filter = frame.Filter<Hero, Health, Stats>();
@@ -448,6 +462,16 @@ public partial class GameUI : CanvasLayer, IViewHud {
 
       ref readonly var health = ref frame.GetReadOnly<Health>(entity);
       _localUnitId = UnitLookup.GetUnitId(ref frame, entity);
+      _deathTint.Visible = frame.Has<PendingRespawn>(entity);
+      if (_deathTint.Visible) {
+        var remainingTicks = frame.GetReadOnly<PendingRespawn>(entity).RemainingTicks;
+        var rules = frame.AssetRegistry.Get<MatchRulesAsset>();
+        var totalTicks = TickMath.MsToTicksCeil(ref frame, rules?.RespawnDelayMs ?? 0);
+        var seconds = remainingTicks * TickMath.DeltaTimeMs(ref frame) / 1000.0;
+        _respawnBar.SetProgress(totalTicks > 0 ? remainingTicks / (double)totalTicks : 0,
+          $"Respawning in {seconds:0.0}s");
+        _respawnBar.Visible = true;
+      }
       ref readonly var stats = ref frame.GetReadOnly<Stats>(entity);
       SetPlayerHealth(health.Current.ToFloat(), stats.MaxHealth.ToFloat());
       SetPlayerMana(health.Mana.ToFloat(), stats.MaxMana.ToFloat());
@@ -616,6 +640,13 @@ public partial class GameUI : CanvasLayer, IViewHud {
       _portraitTexture.Texture = resolved;
       _portraitTexture.Visible = resolved != null;
     }
+  }
+
+  public void SetSelectedMinions(int count, Texture2D portrait) {
+    if (_selectedMinionPortrait == null) return;
+    _selectedMinionPortrait.Visible = count > 1;
+    _selectedMinionPortrait.Texture = portrait ?? PortraitPlaceholder;
+    _selectedMinionCount.Text = $"x{count}";
   }
 
   private Texture2D PortraitPlaceholder =>

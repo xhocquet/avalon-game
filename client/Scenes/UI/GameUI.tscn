@@ -15,6 +15,8 @@
 [ext_resource type="PackedScene" path="res://Scenes/UI/Modals/TabUI.tscn" id="23_tab_ui"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/Modals/StatsPopup.tscn" id="24_stats_popup"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/Icons/BuffIcon.tscn" id="25_buff_icon"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/LoadingBar.tscn" id="26_loading_bar"]
+[ext_resource type="Texture2D" uid="uid://bd2agxgtwgkoi" path="res://Assets/Portraits/Factions/AllHairWizards/minion.webp" id="27_minion_portrait"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_ie3ut"]
 font_size = 32
@@ -45,11 +47,38 @@ process_mode = 3
 layer = 10
 script = ExtResource("1_script")
 
+[node name="DeathTint" type="ColorRect" parent="." unique_id=1084116465]
+unique_name_in_owner = true
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.12, 0.16, 0.22, 0.28)
+
 [node name="DefaultUI" type="Control" parent="." unique_id=451884308]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="RespawnBar" parent="DefaultUI" unique_id=1105191049 instance=ExtResource("26_loading_bar")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.65
+anchor_right = 0.5
+anchor_bottom = 0.65
+offset_left = -160.0
+offset_top = -16.0
+offset_right = 160.0
+offset_bottom = 16.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -281,6 +310,55 @@ texture = ExtResource("3_xkiwj")
 expand_mode = 1
 stretch_mode = 6
 
+[node name="SelectedMinions" type="VBoxContainer" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/PortraitAndInventoryRow/PortraitFrame" unique_id=869670610]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -63.0
+offset_top = 11.0
+offset_right = -13.0
+offset_bottom = 87.0
+grow_horizontal = 0
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="SelectedMinionPortrait" type="TextureRect" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/PortraitAndInventoryRow/PortraitFrame/SelectedMinions" unique_id=65686705]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(28, 38.68421)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+texture = ExtResource("27_minion_portrait")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Border" type="Panel" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/PortraitAndInventoryRow/PortraitFrame/SelectedMinions/SelectedMinionPortrait" unique_id=1590259414]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = ExtResource("17_skill_border")
+
+[node name="SelectedMinionCount" type="Label" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/PortraitAndInventoryRow/PortraitFrame/SelectedMinions/SelectedMinionPortrait" unique_id=2047572766]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 1.0
+offset_top = 22.0
+offset_right = 28.0
+offset_bottom = 45.0
+size_flags_horizontal = 4
+size_flags_vertical = 0
+mouse_filter = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 13
+text = "x99"
+horizontal_alignment = 1
+
 [node name="LevelLabelMargin" type="MarginContainer" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/PortraitAndInventoryRow/PortraitFrame" unique_id=371508563]
 layout_mode = 1
 anchors_preset = 3
@@ -389,7 +467,7 @@ patch_margin_top = 16
 patch_margin_right = 16
 patch_margin_bottom = 16
 
-[node name="GoldButton" type="Button" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/PortraitAndInventoryRow/ItemColumn/GoldFrame"]
+[node name="GoldButton" type="Button" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/PortraitAndInventoryRow/ItemColumn/GoldFrame" unique_id=504649994]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -397,9 +475,9 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+tooltip_text = "Open shop"
 focus_mode = 0
 mouse_default_cursor_shape = 2
-tooltip_text = "Open shop"
 flat = true
 
 [node name="GoldContent" type="HBoxContainer" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/PortraitAndInventoryRow/ItemColumn/GoldFrame" unique_id=104325848]
@@ -415,7 +493,6 @@ alignment = 1
 [node name="GoldLabel" type="Label" parent="DefaultUI/BottomBar/HudColumns/HeroAndInventoryColumn/PortraitAndInventoryRow/ItemColumn/GoldFrame/GoldContent" unique_id=524849014]
 unique_name_in_owner = true
 layout_mode = 2
-mouse_filter = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.95, 0.84, 0.44, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)

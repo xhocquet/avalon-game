@@ -25,6 +25,15 @@ public class SkillEffectCatalog {
   public const string SnailheadMoltBuffScenePath = "res://Scenes/FX/Heroes/Snailhead/SnailheadMoltBuff.tscn";
   public const string VenomousSlobberScenePath = "res://Scenes/FX/Heroes/Snailhead/VenomousSlobber.tscn";
 
+  public static readonly string[] ScenePaths = [
+    CrystalBulletScenePath, CrystalGiantHardenScenePath, CrystalGiantSpikyPunchScenePath,
+    ChargeCircleScenePath, ChrysalisBurstScenePath, HairballScenePath, AllHairWizardStrangleScenePath,
+    AllHairWizardCloseShaveScenePath, AllHairWizardBadHairDayScenePath, PickleKnightSlipNSlideScenePath,
+    PickleKnightRefreshScenePath, PickleKnightDoubleDipScenePath, PickleKnightExploosionScenePath,
+    SkinwalkerEatToSurviveScenePath, SkinwalkerSprintScenePath, SkinwalkerDailyPracticeScenePath,
+    SnailTrailScenePath, SnailheadSwivelEyesScenePath, SnailheadMoltBuffScenePath, VenomousSlobberScenePath
+  ];
+
   private static readonly HashSet<int> ProjectileEffects = [
     AssetIds.SkillCrystalGiantTertiary,
     AssetIds.SkillHairyWizardPrimary
