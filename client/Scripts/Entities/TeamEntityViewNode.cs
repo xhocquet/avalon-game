@@ -15,6 +15,13 @@ public abstract partial class TeamEntityViewNode : EntityViewNode, ISelectableTe
   protected virtual float MinimapPixelSize => 0.15f;
   private Quaternion _displayedRotation;
   private bool _hasDisplayedRotation;
+  private HoverOutline _hoverOutline;
+
+  public bool IsHovered => _hoverOutline?.IsHighlighted == true;
+
+  public void SetHovered(bool hovered) {
+    _hoverOutline?.SetHighlighted(hovered);
+  }
 
   protected int TeamId { get; private set; } = -1;
 
@@ -23,6 +30,7 @@ public abstract partial class TeamEntityViewNode : EntityViewNode, ISelectableTe
       return;
 
     SetWorldOnlyLayers(this);
+    _hoverOutline = new HoverOutline(this);
     if (GetNodeOrNull<Node3D>("MinimapMarker") != null)
       return;
 
@@ -87,6 +95,7 @@ public abstract partial class TeamEntityViewNode : EntityViewNode, ISelectableTe
   }
 
   protected void BindTeam(FrameRef frame) {
+    SetHovered(false);
     _hasDisplayedRotation = false;
     var live = frame.Frame;
     var teamId = live != null && live.Has<Team>(EntityRef)
@@ -96,6 +105,7 @@ public abstract partial class TeamEntityViewNode : EntityViewNode, ISelectableTe
   }
 
   protected void ClearTeam() {
+    SetHovered(false);
     _hasDisplayedRotation = false;
     SetTeam(-1);
   }

@@ -64,12 +64,14 @@ public class InputCapture : IDisposable {
   private ShopEntity _contextShop;
   private Node3D _singleplayerMoveTarget;
   private EntityViewUpdaterNode _viewRoot;
+  private TeamEntityViewNode _hoveredView;
 
   public Vector3 SingleplayerTarget => _singleplayerMoveTarget?.GlobalPosition ?? Vector3.Zero;
   public bool HasSingleplayerTarget { get; private set; }
   public event Action<int> ItemInvocationRequested;
 
   public void Dispose() {
+    SetHoveredView(null);
     CursorManager.Instance?.SetWorldCursor(WorldCursor.Default);
     ClearSelectedViews();
     CancelSkillAim();
@@ -161,6 +163,7 @@ public class InputCapture : IDisposable {
   // Per-frame while a skill key is held, so the preview tracks the cursor and the moving caster, and
   // appears the moment a slot that was cooling becomes castable mid-hold.
   public void CaptureInput() {
+    UpdateHover();
     UpdateWorldCursor();
     if (_aimingSlot < 0) return;
 
@@ -994,6 +997,38 @@ public class InputCapture : IDisposable {
     if (view == null || !GodotObject.IsInstanceValid(view)) return;
     var indicator = view.GetNodeOrNull<SelectionIndicator>("SelectionIndicator");
     indicator?.SetSelected(selected);
+  }
+
+  private void SetHoveredView(TeamEntityViewNode view) {
+    if (ReferenceEquals(_hoveredView, view) && (view == null || view.IsHovered)) return;
+    if (GodotObject.IsInstanceValid(_hoveredView)) _hoveredView.SetHovered(false);
+    _hoveredView = view;
+    _hoveredView?.SetHovered(true);
+  }
+
+  private void UpdateHover() {
+    if (_camera == null || MatchEnded || _camera.IsGodmode || _isDraggingSelection ||
+        _gameUI?.IsActionPopupOpen == true) {
+      SetHoveredView(null);
+      return;
+    }
+
+    var viewport = _camera.GetViewport();
+    if (viewport.GuiGetHoveredControl() is BaseButton or LineEdit or TextEdit ||
+        !viewport.GetVisibleRect().HasPoint(viewport.GetMousePosition())) {
+      SetHoveredView(null);
+      return;
+    }
+
+    SetHoveredView(PickView(viewport.GetMousePosition(), IsHoverableUnitView) as TeamEntityViewNode);
+  }
+
+  private static bool IsHoverableUnitView(EntityViewNode view) {
+    if (view is not TeamEntityViewNode || view.Engine == null) return false;
+    var frame = view.Engine.PredictedFrame.Frame;
+    return frame != null && frame.Entities.IsAlive(view.EntityRef) &&
+           frame.Has<UnitIdentity>(view.EntityRef) && !frame.Has<PendingRespawn>(view.EntityRef) &&
+           (!frame.Has<Health>(view.EntityRef) || frame.GetReadOnly<Health>(view.EntityRef).IsAlive);
   }
 
   private void UpdateWorldCursor() {

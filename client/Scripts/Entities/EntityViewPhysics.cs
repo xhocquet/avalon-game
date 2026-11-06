@@ -70,7 +70,7 @@ internal static class EntityViewPhysics {
     }
   }
 
-  // Ignore the flat selection decal when deriving the capsule.
+  // Model bounds only; minimap markers and selection decals have separate scales.
   private static bool TryGetLocalAabb(Node3D root, out Aabb aabb) {
     aabb = default;
     var rootInverse = root.GlobalTransform.AffineInverse();
@@ -80,10 +80,10 @@ internal static class EntityViewPhysics {
   }
 
   private static void CollectLocalAabb(Node node, Transform3D rootInverse, ref Aabb aabb, ref bool has) {
-    if (node is SelectionIndicator)
+    if (node is SelectionIndicator or GpuParticles3D or CpuParticles3D || node.Name == "MinimapMarker")
       return;
 
-    if (node is VisualInstance3D visual && visual.Visible) {
+    if (node is MeshInstance3D visual && visual.Visible) {
       var toRoot = rootInverse * visual.GlobalTransform;
       var box = TransformAabb(toRoot, visual.GetAabb());
       aabb = has ? aabb.Merge(box) : box;
