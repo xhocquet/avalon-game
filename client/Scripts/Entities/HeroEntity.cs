@@ -25,9 +25,6 @@ public partial class HeroEntity : TeamEntityViewNode, IPlayerView, IAttackableVi
   // Contact time keeps the clip aligned to the sim damage tick.
   [Export] public float AttackContactTime { get; set; }
 
-  [Export] public float SelectPickRadius { get; set; } = -1.0f;
-  [Export] public float SelectPickHeight { get; set; } = -1.0f;
-
   private AnimationPlayer _anim;
   private bool _isDead;
   private bool _isMoving;
@@ -86,7 +83,7 @@ public partial class HeroEntity : TeamEntityViewNode, IPlayerView, IAttackableVi
 
   public override void OnInitialize() {
     EntityViewPhysics.DisableGodotCollision(this);
-    EntityViewPhysics.AddSelectionCollider(this, SelectPickRadius, SelectPickHeight);
+    EntityViewPhysics.AddSelectionCollider(this);
 
     _anim = GetNodeOrNull<AnimationPlayer>("AnimationPlayer");
     if (_anim != null) {

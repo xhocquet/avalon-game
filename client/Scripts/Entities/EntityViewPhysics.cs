@@ -17,8 +17,11 @@ internal static class EntityViewPhysics {
   }
 
   public static void AddSelectionCollider(EntityViewNode view, float worldRadius = 0f, float worldHeight = 0f) {
-    if (view == null || view.HasNode(SelectionColliderName))
+    if (view == null) return;
+    if (view.GetNodeOrNull<Area3D>(SelectionColliderName) is { } authoredArea) {
+      ConfigureSelectionArea(authoredArea);
       return;
+    }
 
     var haveOverrides = worldRadius > 0f && worldHeight > 0f;
     var aabb = new Aabb();
@@ -42,13 +45,9 @@ internal static class EntityViewPhysics {
 
     var area = new Area3D {
       Name = SelectionColliderName,
-      CollisionLayer = SelectionLayer,
-      CollisionMask = 0,
-      Monitoring = false,
-      Monitorable = true,
-      InputRayPickable = false,
       Position = center
     };
+    ConfigureSelectionArea(area);
     area.AddChild(new CollisionShape3D {
       Shape = new CapsuleShape3D { Radius = radius, Height = height }
     });
@@ -68,6 +67,14 @@ internal static class EntityViewPhysics {
         }
       });
     }
+  }
+
+  private static void ConfigureSelectionArea(Area3D area) {
+    area.CollisionLayer = SelectionLayer;
+    area.CollisionMask = 0;
+    area.Monitoring = false;
+    area.Monitorable = true;
+    area.InputRayPickable = false;
   }
 
   // Model bounds only; minimap markers and selection decals have separate scales.
@@ -102,6 +109,8 @@ internal static class EntityViewPhysics {
   }
 
   private static void DisableGodotCollisionRecursive(Node node) {
+    if (node is Area3D && node.Name == SelectionColliderName) return;
+
     if (node is CollisionObject3D collisionObject) {
       collisionObject.CollisionLayer = 0;
       collisionObject.CollisionMask = 0;

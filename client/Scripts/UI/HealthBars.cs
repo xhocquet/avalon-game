@@ -51,7 +51,7 @@ public partial class HealthBars : Control {
       if (!health.IsAlive || maxHealth <= 0f) continue;
 
       var isHero = frame.Has<Hero>(entity);
-      var isTurret = frame.Has<Turret>(entity);
+      var isStructure = frame.Has<Turret>(entity) || frame.Has<Crystal>(entity);
       var height = BarWorldYOffset;
       var level = 1;
       var playerName = "";
@@ -78,7 +78,7 @@ public partial class HealthBars : Control {
       var key = view.GetInstanceId();
       _seen.Add(key);
       var tier = isHero ? UnitHealthBar.BarTier.Hero
-        : isTurret ? UnitHealthBar.BarTier.Turret : UnitHealthBar.BarTier.Minion;
+        : isStructure ? UnitHealthBar.BarTier.Turret : UnitHealthBar.BarTier.Minion;
       if (_bars.TryGetValue(key, out var bar) && bar.Tier != tier) {
         ReturnBar(bar);
         bar = null;
