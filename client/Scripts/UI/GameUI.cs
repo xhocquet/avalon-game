@@ -20,7 +20,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private Label _pingLabel;
   private ColorRect _damageGlow;
   private ColorRect _deathTint;
-  private LoadingBar _respawnBar;
+  private LoadingBar _timerBar;
   private Tween _damageTween;
   private int _localUnitId;
 
@@ -163,7 +163,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
     _damageTween?.Kill();
     if (_damageGlow != null) _damageGlow.Modulate = new Color(1, 1, 1, 0);
     if (_deathTint != null) _deathTint.Hide();
-    if (_respawnBar != null) _respawnBar.Hide();
+    if (_timerBar != null) _timerBar.Hide();
     SetSelectedMinions(0, null);
     _localPlayerId = playerId is int id && id >= 0 ? id : null;
     // Session boundary - in-flight upgrades and buys from the previous one are void.
@@ -247,7 +247,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
 
   public override void _Ready() {
     _deathTint = GetNode<ColorRect>("%DeathTint");
-    _respawnBar = GetNode<LoadingBar>("%RespawnBar");
+    _timerBar = GetNode<LoadingBar>("%TimerBar");
     var overlay = new Control { Name = "FeedbackOverlay", MouseFilter = Control.MouseFilterEnum.Ignore };
     AddChild(overlay);
     overlay.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
@@ -452,7 +452,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
 
   private void UpdateLocalPlayerHealth(Frame frame) {
     _deathTint.Visible = false;
-    _respawnBar.Visible = false;
+    _timerBar.Visible = false;
     if (_localPlayerId is not int localId) return;
 
     var filter = frame.Filter<Hero, Health, Stats>();
@@ -463,20 +463,49 @@ public partial class GameUI : CanvasLayer, IViewHud {
       ref readonly var health = ref frame.GetReadOnly<Health>(entity);
       _localUnitId = UnitLookup.GetUnitId(ref frame, entity);
       _deathTint.Visible = frame.Has<PendingRespawn>(entity);
-      if (_deathTint.Visible) {
-        var remainingTicks = frame.GetReadOnly<PendingRespawn>(entity).RemainingTicks;
-        var rules = frame.AssetRegistry.Get<MatchRulesAsset>();
-        var totalTicks = TickMath.MsToTicksCeil(ref frame, rules?.RespawnDelayMs ?? 0);
-        var seconds = remainingTicks * TickMath.DeltaTimeMs(ref frame) / 1000.0;
-        _respawnBar.SetProgress(totalTicks > 0 ? remainingTicks / (double)totalTicks : 0,
-          $"Respawning in {seconds:0.0}s");
-        _respawnBar.Visible = true;
-      }
+      UpdateLocalPlayerTimer(frame, entity);
       ref readonly var stats = ref frame.GetReadOnly<Stats>(entity);
       SetPlayerHealth(health.Current.ToFloat(), stats.MaxHealth.ToFloat());
       SetPlayerMana(health.Mana.ToFloat(), stats.MaxMana.ToFloat());
       return;
     }
+  }
+
+  private void UpdateLocalPlayerTimer(Frame frame, EntityRef entity) {
+    if (frame.Has<PendingRespawn>(entity)) {
+      var remainingTicks = frame.GetReadOnly<PendingRespawn>(entity).RemainingTicks;
+      var rules = frame.AssetRegistry.Get<MatchRulesAsset>();
+      ShowTimer(frame, remainingTicks, rules?.RespawnDelayMs ?? 0, "Respawning in");
+      return;
+    }
+
+    if (frame.Has<SkillChannel>(entity)) {
+      ref readonly var channel = ref frame.GetReadOnly<SkillChannel>(entity);
+      if (channel.IsActive && channel.SourceId == AssetIds.SkillSnailheadUltimate &&
+          frame.AssetRegistry.TryGet<SkillAsset>(channel.SourceId, out var skill)) {
+        ShowTimer(frame, channel.CompleteTick - frame.Tick,
+          skill.ChargeDurationMsAtRank(channel.Rank), _skillCatalog.Resolve(channel.SourceId).Name);
+        return;
+      }
+    }
+
+    if (frame.Has<SkillCharge>(entity)) {
+      ref readonly var charge = ref frame.GetReadOnly<SkillCharge>(entity);
+      if (charge.IsCharging &&
+          charge.SourceId is AssetIds.SkillHairyWizardUltimate or AssetIds.SkillCrystalGiantUltimate &&
+          frame.AssetRegistry.TryGet<SkillAsset>(charge.SourceId, out var skill)) {
+        ShowTimer(frame, charge.DetonateTick - frame.Tick,
+          skill.ChargeDurationMs, _skillCatalog.Resolve(charge.SourceId).Name);
+      }
+    }
+  }
+
+  private void ShowTimer(Frame frame, int remainingTicks, int durationMs, string caption) {
+    var totalTicks = TickMath.MsToTicksCeil(ref frame, durationMs);
+    var seconds = Math.Max(0, remainingTicks) * TickMath.DeltaTimeMs(ref frame) / 1000.0;
+    _timerBar.SetProgress(totalTicks > 0 ? remainingTicks / (double)totalTicks : 0,
+      $"{caption} {seconds:0.0}s");
+    _timerBar.Visible = remainingTicks > 0;
   }
 
   // Runs before the shop and item controllers paint, so the optimistic buys they read have already

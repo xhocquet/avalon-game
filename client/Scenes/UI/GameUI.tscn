@@ -66,7 +66,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="RespawnBar" parent="DefaultUI" unique_id=1105191049 instance=ExtResource("26_loading_bar")]
+[node name="TimerBar" parent="DefaultUI" unique_id=1105191049 instance=ExtResource("26_loading_bar")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 1
