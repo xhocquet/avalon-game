@@ -205,5 +205,3 @@ func run_game():
     await settle()
     print("STENCIL_GAME_CHECKS: failures=",failures)
     quit(1 if failures else 0)
-
-

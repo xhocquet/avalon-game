@@ -11,4 +11,3 @@ source_file="res://Assets/FX/StencilOutline/shaders/jump_flood.glsl"
 dest_files=["res://.godot/imported/jump_flood.glsl-f2b3a7386620cbe23974dc212455b0d1.res"]
 
 [params]
-
