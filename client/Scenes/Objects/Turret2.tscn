@@ -30,7 +30,7 @@ MarkerType = 3
 [node name="SelectionIndicator" parent="." index="2" unique_id=1760968681 instance=ExtResource("3_indicator")]
 transform = Transform3D(2, 0, 0, 0, 1.5, 0, 0, 0, 2, 0, 0.06259564, 0)
 
-[node name="LoadingIndicator" type="MeshInstance3D" parent="." index="3" unique_id=1525892773]
+[node name="LoadingIndicator" type="MeshInstance3D" parent="." index="3" unique_id=1525892773 groups=["hover_outline_exclude"]]
 transform = Transform3D(1.2, 0, 0, 0, 0.22, 0, 0, 0, 1.2, -0.0015563965, 0.005756378, -0.003035307)
 visible = false
 mesh = SubResource("PlaneMesh_loading")

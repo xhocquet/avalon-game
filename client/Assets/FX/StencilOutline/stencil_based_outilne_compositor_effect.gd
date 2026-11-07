@@ -1,7 +1,11 @@
 # Adapted from dmlary/godot-stencil-based-outline-compositor-effect (MIT).
 extends CompositorEffect
 class_name StencilBasedOutlineCompositorEffect
-@export var outline_color := Color.GOLD
+@export var team_colors: Array[Color] = [Color.GREEN, Color.SKY_BLUE, Color.RED]
+@export_range(0.0, 1.0) var selection_opacity := 0.5
+@export_range(0.0, 1.0) var hover_opacity := 1.0
+var selection_active := false
+var hover_active := false
 @export_range(0.5, 16.0) var outline_width := 2.0
 @export_range(0.0, 1.0) var glow_opacity := 0.4
 @export_range(0, 181) var thickness : int= 8 :
@@ -12,8 +16,6 @@ class_name StencilBasedOutlineCompositorEffect
         while value > 0:
             value = value >> 1
             _passes += 1
-@export var stencil_value := 1
-@export var stencil_mask := 1
 var _passes := 4
 var _shader_dir = get_script().get_path().get_base_dir() + "/shaders/"
 var jf_shader_file = _shader_dir + "jump_flood.glsl"
@@ -24,7 +26,7 @@ var rd: RenderingDevice
 var sc_shader: RID
 var sc_uniform_set: RID
 var sc_framebuffer: RID
-var sc_pipeline: RID
+var sc_pipelines: Array[RID] = []
 var do_shader: RID
 var do_pipeline: RID
 var scdo_vertex_format : int
@@ -132,29 +134,24 @@ func _build_sc_pipeline():
     var blend := RDPipelineColorBlendState.new()
     var blend_attachment := RDPipelineColorBlendStateAttachment.new()
     blend.attachments.push_back(blend_attachment)
-    var stencil_state = RDPipelineDepthStencilState.new()
-    stencil_state.enable_stencil = true
-    stencil_state.front_op_compare = RenderingDevice.COMPARE_OP_EQUAL
-    stencil_state.front_op_compare_mask = stencil_mask
-    stencil_state.front_op_reference = stencil_value
-    stencil_state.front_op_fail = RenderingDevice.STENCIL_OP_KEEP
-    stencil_state.front_op_pass = RenderingDevice.STENCIL_OP_KEEP
-    stencil_state.back_op_compare = RenderingDevice.COMPARE_OP_EQUAL
-    stencil_state.back_op_compare_mask = stencil_mask
-    stencil_state.back_op_reference = stencil_value
-    stencil_state.back_op_fail = RenderingDevice.STENCIL_OP_KEEP
-    stencil_state.back_op_pass = RenderingDevice.STENCIL_OP_KEEP
-    sc_pipeline = rd.render_pipeline_create(
-        sc_shader,
-        format,
-        scdo_vertex_format,
-        RenderingDevice.RENDER_PRIMITIVE_TRIANGLES,
-        RDPipelineRasterizationState.new(),
-        RDPipelineMultisampleState.new(),
-        stencil_state,
-        blend,
-    )
-    assert(sc_pipeline.is_valid())
+    sc_pipelines.clear()
+    for layer in 2:
+        for team in 3:
+            var bit = 4 if layer == 0 else 8
+            var state = RDPipelineDepthStencilState.new()
+            state.enable_stencil = true
+            state.front_op_compare = RenderingDevice.COMPARE_OP_EQUAL
+            state.front_op_compare_mask = 3 | bit
+            state.front_op_reference = team | bit
+            state.back_op_compare = RenderingDevice.COMPARE_OP_EQUAL
+            state.back_op_compare_mask = 3 | bit
+            state.back_op_reference = team | bit
+            var pipeline = rd.render_pipeline_create(sc_shader, format, scdo_vertex_format,
+                RenderingDevice.RENDER_PRIMITIVE_TRIANGLES, RDPipelineRasterizationState.new(),
+                RDPipelineMultisampleState.new(), state, blend)
+            assert(pipeline.is_valid())
+            sc_pipelines.append(pipeline)
+
 func _build_do_pipeline():
     if do_shader.is_valid():
         rd.free_rid(do_shader)
@@ -269,6 +266,12 @@ func _render_callback(_p_effect_callback_type, p_render_data):
         _build_sc_pipeline()
         _build_jf_pipeline()
         _build_do_pipeline()
+    if selection_active:
+        _draw_layer(0)
+    if hover_active:
+        _draw_layer(1)
+
+func _draw_layer(layer: int):
     var draw_list := rd.draw_list_begin(
         sc_framebuffer,
         RenderingDevice.DRAW_CLEAR_COLOR_0,
@@ -277,10 +280,15 @@ func _render_callback(_p_effect_callback_type, p_render_data):
         0,
         Rect2(),
         RenderingDevice.OPAQUE_PASS)
-    rd.draw_list_bind_render_pipeline(draw_list, sc_pipeline)
     rd.draw_list_bind_vertex_array(draw_list, scdo_vertex_array)
     rd.draw_list_bind_uniform_set(draw_list, sc_uniform_set, 0)
-    rd.draw_list_draw(draw_list, false, 3)
+    for team in 3:
+        rd.draw_list_bind_render_pipeline(draw_list, sc_pipelines[layer * 3 + team])
+        var seed_params = PackedByteArray()
+        seed_params.resize(16)
+        seed_params.encode_u32(0, team)
+        rd.draw_list_set_push_constant(draw_list, seed_params, seed_params.size())
+        rd.draw_list_draw(draw_list, false, 3)
     rd.draw_list_end()
     @warning_ignore("integer_division")
     var x_groups : int = (resolution.x - 1) / 8 + 1
@@ -314,14 +322,17 @@ func _render_callback(_p_effect_callback_type, p_render_data):
     var uniform_set = UniformSetCacheRD.get_cache(do_shader, 0, [src_uniform, dest_uniform])
     assert(uniform_set.is_valid())
     var do_push_constant = PackedByteArray()
-    do_push_constant.resize(32)
-    do_push_constant.encode_float(0, outline_color.r)
-    do_push_constant.encode_float(4, outline_color.g)
-    do_push_constant.encode_float(8, outline_color.b)
-    do_push_constant.encode_float(12, outline_color.a)
-    do_push_constant.encode_u32(16, thickness**2)
-    do_push_constant.encode_float(20, outline_width)
-    do_push_constant.encode_float(24, glow_opacity)
+    do_push_constant.resize(64)
+    for team in 3:
+        var color = team_colors[team].srgb_to_linear()
+        do_push_constant.encode_float(team * 16, color.r)
+        do_push_constant.encode_float(team * 16 + 4, color.g)
+        do_push_constant.encode_float(team * 16 + 8, color.b)
+        do_push_constant.encode_float(team * 16 + 12, color.a)
+    do_push_constant.encode_u32(48, thickness**2)
+    do_push_constant.encode_float(52, outline_width)
+    do_push_constant.encode_float(56, glow_opacity)
+    do_push_constant.encode_float(60, selection_opacity if layer == 0 else hover_opacity)
 
     compute_list = rd.compute_list_begin()
     rd.compute_list_bind_compute_pipeline(compute_list, do_pipeline)

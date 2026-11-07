@@ -33,7 +33,7 @@ void main() {
             ivec2 offset_pos = clamp(
                     pos + offset, ivec2(0,0), image_size-1);
             vec2 nearest_pos = imageLoad(u_src_image, offset_pos).rg;
-            vec2 pos_delta = pos - nearest_pos;
+            vec2 pos_delta = pos - vec2(mod(nearest_pos.x, float(image_size.x)), nearest_pos.y);
             float dist = dot(pos_delta, pos_delta);
             if (nearest_pos.x != -1 && dist < best_dist) {
                 best_dist = dist;

@@ -4,7 +4,8 @@
 
 [resource]
 script = ExtResource("1")
-outline_color = Color(1, 0, 0, 1)
+selection_opacity = 0.5
+hover_opacity = 1.0
 thickness = 8
 outline_width = 2.0
 glow_opacity = 0.4

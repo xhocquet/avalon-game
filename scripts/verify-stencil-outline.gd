@@ -34,7 +34,7 @@ func interior_changes(on: Image, off: Image, mask: Image) -> int:
     for y in mask.get_height():
         for x in mask.get_width():
             var nearest=mask.get_pixel(x,y)
-            if nearest.r!=x or nearest.g!=y:
+            if fmod(nearest.r,float(mask.get_width()))!=x or nearest.g!=y:
                 continue
             var a=on.get_pixel(x,y)
             var b=off.get_pixel(x,y)
@@ -42,13 +42,14 @@ func interior_changes(on: Image, off: Image, mask: Image) -> int:
                 count+=1
     return count
 
-func outline_center(frame: Image) -> float:
+func outline_center(frame: Image, baseline: Image) -> float:
     var total=0
     var count=0
     for y in frame.get_height():
         for x in frame.get_width():
             var color=frame.get_pixel(x,y)
-            if color.r>0.4 and color.g<0.05 and color.b<0.05:
+            var before=baseline.get_pixel(x,y)
+            if max(abs(color.r-before.r),max(abs(color.g-before.g),abs(color.b-before.b)))>0.05:
                 total+=x
                 count+=1
     return float(total)/max(count,1)
@@ -84,13 +85,18 @@ func run():
     existing.enabled=false
     original_compositor.compositor_effects=[existing]
     camera.compositor=original_compositor
-    var paths=["Heroes/PickleKnight","Heroes/SnailHead","Heroes/Skinwalker","Heroes/CrystalGiant","Heroes/AllHairWizard","Mobs/CaperCreep"]
+    var paths=["Heroes/PickleKnight","Heroes/SnailHead","Heroes/Skinwalker","Heroes/CrystalGiant","Heroes/AllHairWizard","Objects/Turret2","Mobs/CaperCreep"]
     var last=null
     var first=null
     var renderer=null
     for path in paths:
         var view=load("res://Scenes/"+path+".tscn").instantiate()
         world.add_child(view)
+        if path=="Objects/Turret2":
+            view.OnInitialize()
+            var ring=view.get_node("LoadingIndicator")
+            ring.visible=true
+            check(ring.is_in_group("hover_outline_exclude"),"turret cooldown ring must be excluded from the outline")
         if first==null:
             first=view
         var animation=view.get_node_or_null("AnimationPlayer")
@@ -128,13 +134,16 @@ func run():
     first.visible=true
     first.position.x=-1.5
     last.position.x=1.5
+    last.SetHovered(false)
+    await settle()
+    var baseline=snapshot()
     first.SetHovered(true)
     await settle()
-    check(outline_center(snapshot())<320,"first target must be outlined")
+    check(outline_center(snapshot(),baseline)<320,"first target must be outlined")
     first.SetHovered(false)
     last.SetHovered(true)
     await RenderingServer.frame_post_draw
-    check(outline_center(snapshot())>320,"switch must not retain the previous target")
+    check(outline_center(snapshot(),baseline)>320,"switch must not retain the previous target")
     first.visible=false
     last.position.x=0
     last.SetHovered(true)
@@ -190,13 +199,15 @@ func run_game():
     camera.set_process(false)
     camera.position=hero.global_position+Vector3(0,3,4)
     camera.look_at(hero.global_position+Vector3.UP)
+    hero.SetSelected(true)
     hero.SetHovered(true)
     await settle()
     check(camera.compositor.compositor_effects[-1].enabled,"live hero must enable stencil")
     snapshot().save_png("user://stencil-game.png")
     hero.SetHovered(false)
     await settle()
-    check(not camera.compositor.compositor_effects[-1].enabled,"unhover must disable stencil")
+    check(camera.compositor.compositor_effects[-1].selection_active,"unhover must preserve selected hero outline")
+    check(not camera.compositor.compositor_effects[-1].hover_active,"unhover must disable hover layer")
     snapshot().save_png("user://stencil-game-off.png")
     hero.SetHovered(true)
     hero.OnDeactivate()

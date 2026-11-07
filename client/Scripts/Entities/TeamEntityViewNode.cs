@@ -18,6 +18,11 @@ public abstract partial class TeamEntityViewNode : EntityViewNode, ISelectableTe
   private HoverOutline _hoverOutline;
 
   public bool IsHovered => _hoverOutline?.IsHighlighted == true;
+  public bool IsSelected => _hoverOutline?.IsSelected == true;
+
+  public void SetSelected(bool selected) {
+    _hoverOutline?.SetSelected(selected);
+  }
 
   public void SetHovered(bool hovered) {
     _hoverOutline?.SetHighlighted(hovered);
@@ -86,6 +91,7 @@ public abstract partial class TeamEntityViewNode : EntityViewNode, ISelectableTe
 
   protected void SetTeam(int teamId) {
     TeamId = teamId;
+    _hoverOutline?.SetTeam(teamId);
     var marker = GetNodeOrNull<Node3D>("MinimapMarker");
     if (marker is MinimapHeroMarker portrait)
       portrait.SetTeamColor(TeamPalette.Default.ForTeam(teamId));
@@ -95,6 +101,7 @@ public abstract partial class TeamEntityViewNode : EntityViewNode, ISelectableTe
   }
 
   protected void BindTeam(FrameRef frame) {
+    SetSelected(false);
     SetHovered(false);
     _hasDisplayedRotation = false;
     var live = frame.Frame;
@@ -105,6 +112,7 @@ public abstract partial class TeamEntityViewNode : EntityViewNode, ISelectableTe
   }
 
   protected void ClearTeam() {
+    SetSelected(false);
     SetHovered(false);
     _hasDisplayedRotation = false;
     SetTeam(-1);

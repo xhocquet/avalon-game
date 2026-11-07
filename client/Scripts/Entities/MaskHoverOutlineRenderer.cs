@@ -60,6 +60,8 @@ public partial class MaskHoverOutlineRenderer : Node {
     SetProcess(false);
   }
 
+  public void SetColor(Color color) => _outlineMaterial.SetShaderParameter("outline_color", color);
+
   public void ShowTarget(Node3D target, IReadOnlyList<MeshInstance3D> meshes) {
     _target = target;
     _sources = meshes;

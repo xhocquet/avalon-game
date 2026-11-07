@@ -995,6 +995,7 @@ public class InputCapture : IDisposable {
 
   private static void SetSelectionIndicator(EntityViewNode view, bool selected) {
     if (view == null || !GodotObject.IsInstanceValid(view)) return;
+    if (view is TeamEntityViewNode unit) unit.SetSelected(selected);
     var indicator = view.GetNodeOrNull<SelectionIndicator>("SelectionIndicator");
     indicator?.SetSelected(selected);
   }

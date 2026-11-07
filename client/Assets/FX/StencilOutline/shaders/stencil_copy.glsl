@@ -13,9 +13,12 @@ layout (location = 0) out vec4 frag_color;
 layout (set = 0, binding = 0) uniform FrameData {
     vec2 resolution;
 };
+layout(push_constant, std430) uniform Params {
+    uint team;
+} params;
 
 void main() {
     // adjust position so it matches GlobalInvocationID in compute shaders
     vec2 pos = gl_FragCoord.xy - 0.5;
-    frag_color = vec4(pos, 0, 1);
+    frag_color = vec4(pos.x + float(params.team) * resolution.x, pos.y, 0, 1);
 }
