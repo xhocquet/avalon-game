@@ -1,4 +1,5 @@
 extends SceneTree
+# Compatibility renderer or AVALON_HOVER_OUTLINE=mask.
 
 var failures=0
 
@@ -96,7 +97,7 @@ func run():
         var active=camera.get_node("HoverOutlineRenderer")
         check(renderer==null or renderer==active,"target switches must reuse the renderer")
         renderer=active
-        var mask=renderer.get_node("SilhouetteMask")
+        var mask=renderer.get_node("../MaskFallback/SilhouetteMask")
         check(mask.size==Vector2i(320,240),"mask must be half resolution")
         var on=snapshot()
         var silhouette=mask.get_texture().get_image()
@@ -116,7 +117,7 @@ func run():
     last.position.x=1.5
     first.SetHovered(true)
     await RenderingServer.frame_post_draw
-    var mask=renderer.get_node("SilhouetteMask")
+    var mask=renderer.get_node("../MaskFallback/SilhouetteMask")
     check(mask_center(mask.get_texture().get_image())<mask.size.x*0.5,"first target must render immediately")
     first.SetHovered(false)
     last.SetHovered(true)
@@ -140,9 +141,9 @@ func run():
     await settle()
     root.size=Vector2i(800,600)
     await settle()
-    check(renderer.get_node("SilhouetteMask").size==Vector2i(400,300),"mask must follow viewport resizing")
+    check(renderer.get_node("../MaskFallback/SilhouetteMask").size==Vector2i(400,300),"mask must follow viewport resizing")
     last.queue_free()
     await settle()
-    check(renderer.get_node("SilhouetteMask").render_target_update_mode==SubViewport.UPDATE_DISABLED,"freed target must stop rendering")
+    check(renderer.get_node("../MaskFallback/SilhouetteMask").render_target_update_mode==SubViewport.UPDATE_DISABLED,"freed target must stop rendering")
     print("HOVER_MASK_CHECKS: failures=",failures)
     quit(1 if failures else 0)
