@@ -14,7 +14,7 @@ internal sealed class HoverOutline {
 
   public HoverOutline(Node3D root) {
     _root = root;
-    CollectMeshes(root);
+    CollectMeshes(root, _meshes);
   }
 
   public void SetHighlighted(bool highlighted) {
@@ -39,11 +39,7 @@ internal sealed class HoverOutline {
     if (IsHighlighted || IsSelected) {
       var camera = _root.GetViewport().GetCamera3D();
       if (camera == null) return;
-      _renderer = camera.GetNodeOrNull<HoverOutlineRenderer>("HoverOutlineRenderer");
-      if (_renderer == null) {
-        _renderer = new HoverOutlineRenderer { Name = "HoverOutlineRenderer" };
-        camera.AddChild(_renderer);
-      }
+      _renderer = HoverOutlineRenderer.ForCamera(camera);
       _renderer.SetTarget(_root, _meshes, _teamId, IsSelected, IsHighlighted);
     }
     else if (GodotObject.IsInstanceValid(_renderer)) {
@@ -51,12 +47,12 @@ internal sealed class HoverOutline {
     }
   }
 
-  private void CollectMeshes(Node node) {
+  internal static void CollectMeshes(Node node, List<MeshInstance3D> meshes) {
     if (node is SelectionIndicator or GpuParticles3D or CpuParticles3D ||
         node.Name == "MinimapMarker" || node.Name == "SelectionPickArea" ||
         node.IsInGroup("hover_outline_exclude")) return;
 
-    if (node is MeshInstance3D mesh) _meshes.Add(mesh);
-    foreach (var child in node.GetChildren()) CollectMeshes(child);
+    if (node is MeshInstance3D mesh) meshes.Add(mesh);
+    foreach (var child in node.GetChildren()) CollectMeshes(child, meshes);
   }
 }

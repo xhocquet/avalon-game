@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Godot;
+using Meesles.Avalon.Client.Scripts.Entities;
 using Meesles.Avalon.Client.Scripts.View;
 
 namespace Meesles.Avalon;
@@ -66,6 +67,18 @@ public partial class LoadingScreen : CanvasLayer {
       if (sceneError != Error.Ok) throw new InvalidOperationException($"Scene change: {sceneError}");
       await ToSignal(tree, SceneTree.SignalName.SceneChanged);
       await DrawFrame();
+      var camera = tree.CurrentScene.GetViewport().GetCamera3D();
+      if (camera != null) {
+        var previews = new List<PackedScene>();
+        foreach (var faction in FactionCatalog.FactionDefs) {
+          previews.Add(GD.Load<PackedScene>(faction.HeroScenePath));
+          previews.Add(GD.Load<PackedScene>(faction.MinionScenePath));
+        }
+        previews.Add(GD.Load<PackedScene>(Scenes.Turret));
+        previews.Add(GD.Load<PackedScene>(Scenes.Crystal));
+        previews.Add(GD.Load<PackedScene>(Scenes.Container));
+        await HoverOutlineRenderer.ForCamera(camera).PrewarmAsync(previews, fraction => SetProgress(95 + fraction * 4));
+      }
       SetProgress(100);
       await DrawFrame();
       QueueFree();
@@ -110,8 +123,10 @@ public partial class LoadingScreen : CanvasLayer {
       Add(faction.MinionPortraitTexturePath);
     }
     foreach (var path in SkillEffectCatalog.ScenePaths) Add(path);
+    foreach (var path in HoverOutlineRenderer.PreloadPaths) Add(path);
     Add(Scenes.Container);
     Add(Scenes.Turret);
+    Add(Scenes.Crystal);
     Add(Scenes.WaterBottle);
     Add(Scenes.Oasis);
     Add(gameType.WorldScenePath);

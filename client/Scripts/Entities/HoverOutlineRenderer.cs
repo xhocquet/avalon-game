@@ -1,9 +1,78 @@
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Godot;
 
 namespace Meesles.Avalon.Client.Scripts.Entities;
 
 public partial class HoverOutlineRenderer : Node {
+  internal const string EffectPath = "res://Assets/FX/StencilOutline/HoverStencilOutline.tres";
+  internal static readonly string[] PreloadPaths = {
+    "res://Assets/FX/StencilOutline/shaders/stencil_copy.glsl",
+    "res://Assets/FX/StencilOutline/shaders/jump_flood.glsl",
+    "res://Assets/FX/StencilOutline/shaders/draw_outline.glsl",
+    "res://Assets/UI/TeamPalette.tres",
+    EffectPath
+  };
+
+  public bool IsPrewarmed { get; private set; }
+  public int MaterialVariantCount => _materials.Count;
+  private Task _prewarmTask;
+
+  public static HoverOutlineRenderer ForCamera(Camera3D camera) {
+    var renderer = camera.GetNodeOrNull<HoverOutlineRenderer>("HoverOutlineRenderer");
+    if (renderer != null) return renderer;
+    renderer = new HoverOutlineRenderer { Name = "HoverOutlineRenderer" };
+    camera.AddChild(renderer);
+    return renderer;
+  }
+
+  public Task PrewarmAsync(IReadOnlyList<PackedScene> scenes, Action<double> progress = null) {
+    return _prewarmTask ??= PrewarmScenes(scenes, progress);
+  }
+
+  private async Task PrewarmScenes(IReadOnlyList<PackedScene> scenes, Action<double> progress) {
+    if (_effect == null || DisplayServer.GetName() == "headless") return;
+    var holder = new Node3D {
+      Name = "OutlinePrewarm",
+      Position = new Vector3(0, -0.05f, -Mathf.Max(2f, _camera.Near + 1f)),
+      Scale = Vector3.One * 0.02f,
+      ProcessMode = ProcessModeEnum.Disabled
+    };
+    _camera.AddChild(holder);
+    try {
+      for (var i = 0; i < scenes.Count; i++) {
+        var preview = scenes[i].Instantiate<Node3D>();
+        holder.AddChild(preview);
+        var meshes = new List<MeshInstance3D>();
+        HoverOutline.CollectMeshes(preview, meshes);
+        try {
+          await DrawPrewarmFrame();
+          for (var team = 0; team < 3; team++) {
+            for (var state = 1; state <= 3; state++) {
+              SetTarget(preview, meshes, team, (state & 1) != 0, (state & 2) != 0);
+              await DrawPrewarmFrame();
+              await DrawPrewarmFrame();
+              progress?.Invoke((i + (team * 3 + state) / 9.0) / scenes.Count);
+            }
+          }
+        }
+        finally {
+          HideTarget(preview);
+          preview.Free();
+        }
+      }
+      IsPrewarmed = true;
+    }
+    finally {
+      holder.Free();
+    }
+  }
+
+  private async Task DrawPrewarmFrame() {
+    await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+    await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+  }
   private sealed class Target {
     public bool Selected;
     public bool Hovered;
@@ -26,7 +95,7 @@ public partial class HoverOutlineRenderer : Node {
       SetProcess(false);
       return;
     }
-    _effect = (CompositorEffect)GD.Load<CompositorEffect>("res://Assets/FX/StencilOutline/HoverStencilOutline.tres").Duplicate();
+    _effect = (CompositorEffect)GD.Load<CompositorEffect>(EffectPath).Duplicate();
     _effect.Enabled = false;
     _effect.Set("team_colors", new Godot.Collections.Array<Color> {
       TeamPalette.Default.ForTeam(-1), TeamPalette.Default.ForTeam(1), TeamPalette.Default.ForTeam(2)
@@ -129,11 +198,13 @@ public partial class HoverOutlineRenderer : Node {
     if (_activeCompositor != null) {
       _activeCompositor.CompositorEffects = new Godot.Collections.Array<CompositorEffect>();
       _activeCompositor.Dispose();
+      _activeCompositor = null;
     }
     if (_effect != null) {
       _effect.Enabled = false;
       _effect.Call("release_resources");
       _effect.Dispose();
+      _effect = null;
     }
     _materials.Clear();
     _unsupportedMaterials.Clear();
