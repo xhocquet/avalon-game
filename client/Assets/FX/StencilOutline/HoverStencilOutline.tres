@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 selection_opacity = 0.5
-hover_opacity = 1.0
-thickness = 8
-outline_width = 2.0
-glow_opacity = 0.4
+hover_opacity = 0.75
+thickness = 12
+outline_width = 5.0
+glow_opacity = 0.55

@@ -18,14 +18,11 @@ public partial class HoverOutlineRenderer : Node {
   private Compositor _compositor;
   private Compositor _activeCompositor;
   private CompositorEffect _effect;
-  private MaskHoverOutlineRenderer _fallback;
 
   public override void _Ready() {
     _camera = GetParent<Camera3D>();
-    if (OS.GetEnvironment("AVALON_HOVER_OUTLINE") == "mask" ||
-        RenderingServer.GetCurrentRenderingMethod() != "forward_plus" || GetViewport().Msaa3D != Viewport.Msaa.Disabled) {
-      _fallback = new MaskHoverOutlineRenderer { Name = "MaskFallback" };
-      _camera.AddChild(_fallback);
+    if (RenderingServer.GetCurrentRenderingMethod() != "forward_plus" || GetViewport().Msaa3D != Viewport.Msaa.Disabled) {
+      GD.PushWarning("Unit outlines require Forward+ with MSAA disabled.");
       SetProcess(false);
       return;
     }
@@ -45,14 +42,6 @@ public partial class HoverOutlineRenderer : Node {
   }
 
   public void SetTarget(Node3D target, IReadOnlyList<MeshInstance3D> meshes, int teamId, bool selected, bool hovered) {
-    if (_fallback != null) {
-      if (hovered) {
-        _fallback.SetColor(TeamPalette.Default.ForTeam(teamId));
-        _fallback.ShowTarget(target, meshes);
-      }
-      else _fallback.HideTarget(target);
-      return;
-    }
     if (_effect == null) return;
     if (_targets.Remove(target, out var previous)) Restore(previous);
     if (selected || hovered) {
@@ -121,7 +110,6 @@ public partial class HoverOutlineRenderer : Node {
 
   public void HideTarget(Node3D target) {
     if (target == null) return;
-    if (GodotObject.IsInstanceValid(_fallback)) _fallback.HideTarget(target);
     if (_targets.Remove(target, out var state)) Restore(state);
     if (_effect != null) UpdateLayers();
   }
@@ -136,7 +124,6 @@ public partial class HoverOutlineRenderer : Node {
   public override void _ExitTree() {
     foreach (var state in _targets.Values) Restore(state);
     _targets.Clear();
-    if (GodotObject.IsInstanceValid(_fallback)) _fallback.QueueFree();
     if (_activeCompositor != null && GodotObject.IsInstanceValid(_camera) && _camera.Compositor == _activeCompositor)
       _camera.Compositor = _compositor;
     if (_activeCompositor != null) {
