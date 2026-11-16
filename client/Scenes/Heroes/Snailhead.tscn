@@ -29,6 +29,7 @@ WalkAnimationOverride = "walk"
 IdleAnimationOverride = "idle"
 DeathAnimationOverride = "death"
 AttackAnimationOverride = "attack"
+AttackContactTime = 0.75
 
 [node name="Armature" parent="." index="0" unique_id=1591086972]
 transform = Transform3D(-1.3113416e-07, 0, -3, 0, 3, 0, 3, 0, -1.3113416e-07, 0, 0, 0)

@@ -29,6 +29,7 @@ WalkAnimationOverride = "walk"
 IdleAnimationOverride = "idle"
 DeathAnimationOverride = "death"
 AttackAnimationOverride = "attack"
+AttackContactTime = 0.75
 SkillAnimationOverrides = Dictionary[int, String]({
 513: "run"
 })
