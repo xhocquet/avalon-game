@@ -50,8 +50,8 @@ public class TargetAcquisitionSystem(UnitSpatialIndex spatial = null) : ISystem 
     var bestDistanceSq = FP64.MaxValue;
     var bestUnitId = int.MaxValue;
 
-    // Apply priority, team, and health rules after the exact XZ query.
-    (spatial ?? _standaloneIndex).Grid.QueryRadius(attackerPosition.ToXZ(), radius, _nearbyCandidates);
+    var teamId = frame.GetReadOnly<Team>(attacker).TeamId;
+    (spatial ?? _standaloneIndex).Grid.QueryRadius(attackerPosition.ToXZ(), radius, _nearbyCandidates, teamId);
 
     for (var i = 0; i < _nearbyCandidates.Count; i++) {
       var candidate = _nearbyCandidates[i];
@@ -62,10 +62,9 @@ public class TargetAcquisitionSystem(UnitSpatialIndex spatial = null) : ISystem 
       if (priority == int.MaxValue)
         continue;
 
-      if (!CombatTargeting.IsHostileAndAlive(ref frame, attacker, candidate))
+      if (!CombatTargeting.IsHostileAndAlive(ref frame, teamId, candidate))
         continue;
 
-      var teamId = frame.GetReadOnly<Team>(attacker).TeamId;
       if (spatial != null && frame.Has<UnitVisibility>(candidate)) {
         if ((frame.GetReadOnly<UnitVisibility>(candidate).Teams & Visibility.TeamBit(teamId)) == 0)
           continue;

@@ -12,6 +12,7 @@ public sealed class UnitSpatialIndex : ISystem {
     Grid.Clear();
     var units = frame.Filter<UnitIdentity, Team, Health, TransformComponent>();
     while (units.Next(out var entity))
-      Grid.Insert(entity, frame.GetReadOnly<TransformComponent>(entity).Position.ToXZ());
+      Grid.Insert(entity, frame.GetReadOnly<TransformComponent>(entity).Position.ToXZ(),
+        frame.GetReadOnly<Team>(entity).TeamId);
   }
 }

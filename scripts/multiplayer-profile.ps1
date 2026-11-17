@@ -4,7 +4,8 @@ param(
     [string]$Faction2 = '200',
     [string]$Godot = 'C:\Users\meesles\Coding\Godot-4.6-mono\Godot_v4.6.3-stable_mono_win64.exe',
     [switch]$SkipBuild,
-    [switch]$ManualInput
+    [switch]$ManualInput,
+    [switch]$SkipTrace
 )
 
 $ErrorActionPreference = 'Stop'
@@ -23,7 +24,7 @@ function Start-Logged($name, $exe, $arguments, $windowStyle = 'Hidden') {
 }
 
 try {
-    if (-not (Get-Command dotnet-trace -ErrorAction SilentlyContinue)) { throw 'dotnet-trace is required.' }
+    if (-not $SkipTrace -and -not (Get-Command dotnet-trace -ErrorAction SilentlyContinue)) { throw 'dotnet-trace is required.' }
     if (-not $SkipBuild) {
         foreach ($project in @('server/Server.csproj', 'client/Meesles.Avalon.Client.csproj')) {
             & dotnet build (Join-Path $repoRoot $project)
@@ -52,12 +53,14 @@ try {
         $processes += $client
         Start-Sleep -Seconds 2
     }
-    foreach ($i in 0..2) {
-        $name = @('server', 'client1', 'client2')[$i]
-        $collector = Start-Logged "$name.collector" 'dotnet-trace' @('collect', '--process-id', $processes[$i].Id,
-            '--providers', $providers, '--duration', $traceDuration,
-            '--output', (Join-Path $output "$name.nettrace"), '--format', 'Speedscope')
-        $collectors += $collector
+    if (-not $SkipTrace) {
+        foreach ($i in 0..2) {
+            $name = @('server', 'client1', 'client2')[$i]
+            $collector = Start-Logged "$name.collector" 'dotnet-trace' @('collect', '--process-id', $processes[$i].Id,
+                '--providers', $providers, '--duration', $traceDuration,
+                '--output', (Join-Path $output "$name.nettrace"), '--format', 'Speedscope')
+            $collectors += $collector
+        }
     }
     $deadline = [DateTime]::UtcNow.AddSeconds($Seconds + 60)
     while (@($collectors | Where-Object { -not $_.HasExited }).Count -gt 0) {

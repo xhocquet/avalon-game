@@ -10,7 +10,13 @@ namespace Meesles.Avalon.Sim.Navigation;
 ///   Deterministic XZ broad-phase. Queries walk cell coordinates, never dictionary order.
 /// </summary>
 public class SpatialHashGrid {
-  private readonly Dictionary<(int x, int z), List<(EntityRef Entity, FPVector2 Position)>> _cells = new();
+  private struct Cell {
+    public List<(EntityRef Entity, FPVector2 Position, int TeamId)> Entries;
+    public int TeamId; // First inserted team.
+    public bool MixedTeams;
+  }
+
+  private readonly Dictionary<(int x, int z), Cell> _cells = new();
   private readonly FP64 _inverseCellSize;
 
   public SpatialHashGrid(FP64 cellSize) {
@@ -23,26 +29,34 @@ public class SpatialHashGrid {
   /// <summary>Returns cells to the pool.</summary>
   public void Clear() {
     foreach (var cell in _cells.Values)
-      ListPool<(EntityRef Entity, FPVector2 Position)>.Return(cell);
+      ListPool<(EntityRef Entity, FPVector2 Position, int TeamId)>.Return(cell.Entries);
 
     _cells.Clear();
   }
 
   /// <summary>Inserts an entity for proximity queries.</summary>
-  public void Insert(EntityRef entity, FPVector2 positionXZ) {
+  public void Insert(EntityRef entity, FPVector2 positionXZ, int teamId = 0) {
     var key = CellKey(positionXZ);
     if (!_cells.TryGetValue(key, out var cell)) {
-      cell = ListPool<(EntityRef Entity, FPVector2 Position)>.Get();
+      cell = new Cell {
+        Entries = ListPool<(EntityRef Entity, FPVector2 Position, int TeamId)>.Get(),
+        TeamId = teamId
+      };
+      _cells[key] = cell;
+    }
+    else if (!cell.MixedTeams && cell.TeamId != teamId) {
+      cell.MixedTeams = true;
       _cells[key] = cell;
     }
 
-    cell.Add((entity, positionXZ));
+    cell.Entries.Add((entity, positionXZ, teamId));
   }
 
   /// <summary>
   ///   Fills results with entities at or within radius. Includes the query origin.
+  ///   An optional team is excluded before distance checks.
   /// </summary>
-  public void QueryRadius(FPVector2 center, FP64 radius, List<EntityRef> results) {
+  public void QueryRadius(FPVector2 center, FP64 radius, List<EntityRef> results, int? excludedTeam = null) {
     results.Clear();
     if (radius <= FP64.Zero)
       return;
@@ -57,11 +71,16 @@ public class SpatialHashGrid {
       for (var z = minZ; z <= maxZ; z++) {
         if (!_cells.TryGetValue((x, z), out var cell))
           continue;
+        if (excludedTeam.HasValue && !cell.MixedTeams && cell.TeamId == excludedTeam.Value)
+          continue;
 
-        for (var i = 0; i < cell.Count; i++) {
-          var delta = cell[i].Position - center;
+        var entries = cell.Entries;
+        for (var i = 0; i < entries.Count; i++) {
+          if (excludedTeam.HasValue && entries[i].TeamId == excludedTeam.Value)
+            continue;
+          var delta = entries[i].Position - center;
           if (delta.sqrMagnitude <= radiusSq)
-            results.Add(cell[i].Entity);
+            results.Add(entries[i].Entity);
         }
       }
   }

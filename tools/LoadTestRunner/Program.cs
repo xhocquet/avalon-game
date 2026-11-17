@@ -10,7 +10,6 @@ using Meesles.Avalon.Sim.Navigation;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
-using xpTURN.Klotho.Logging;
 
 int totalTicks = args.Length > 0 && int.TryParse(args[0], out var t) ? t : 10_000;
 const int reportInterval = 500;
@@ -26,11 +25,12 @@ var navigation = LoadNavigationRuntime(assetRegistry);
 var simulation = new EcsSimulation(maxEntities, maxRollbackTicks, deltaTimeMs, assetRegistry: assetRegistry);
 SimulationSetup.RegisterSystems(simulation, navigation);
 simulation.Initialize();
+if (Array.IndexOf(args, "--system-perf") >= 0)
+    simulation.EnableSystemPerfMonitor(warmupExecutions: 120);
 
 var frame = simulation.Frame;
 SimulationSetup.InitializeWorld(ref frame, maxPlayers);
 
-var timingLogger = new TimingCapture();
 var wallClock = Stopwatch.StartNew();
 
 Console.WriteLine($"Running {totalTicks} ticks...");
@@ -57,16 +57,13 @@ for (int tick = 0; tick < totalTicks; tick++) {
     int entityCount = simulation.Frame.Entities.Count;
     int minionCount = CountComponents<Minion>(simulation.Frame);
 
-    simulation.LogSystemTimings(timingLogger, $"tick-{tick + 1}", KLogLevel.Information);
-
     Console.WriteLine($"  tick {tick + 1,6}  {elapsedMs,10:F1}ms  entities={entityCount}  minions={minionCount}  hash={simulation.GetStateHash()}");
 }
 
 wallClock.Stop();
 Console.WriteLine($"\nTotal: {wallClock.Elapsed.TotalSeconds:F2}s for {totalTicks} ticks ({wallClock.Elapsed.TotalMilliseconds / totalTicks:F3} ms/tick)");
 Console.WriteLine("\nPer-system timings:");
-foreach (string line in timingLogger.Lines)
-    Console.WriteLine($"  {line}");
+Console.WriteLine(simulation.AppendSystemPerfLog() ?? "Pass --system-perf to record per-system time and allocations.");
 
 static int CountComponents<TComponent>(Frame frame) where TComponent : unmanaged, IComponent {
     int count = 0;
@@ -90,10 +87,4 @@ static NavigationRuntime LoadNavigationRuntime(IDataAssetRegistry assets) {
     string navPath = Path.Combine(AppContext.BaseDirectory, "Data", "NavigationRegion3D.NavMeshData.bytes");
     return NavigationRuntime.FromBytes(File.ReadAllBytes(navPath), logger: null,
         assets.Get<NavigationTuningAsset>());
-}
-
-class TimingCapture : IKLogger {
-    public readonly List<string> Lines = new();
-    public bool IsEnabled(KLogLevel level) => true;
-    public void Log(KLogLevel level, string message, Exception exception) => Lines.Add(message);
 }

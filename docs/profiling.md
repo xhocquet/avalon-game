@@ -21,6 +21,8 @@ presentation are not measured. Draw completion does not imply screen presentatio
 
 Summarize a capture with `python scripts/analyze-input-latency.py <capture-folder>`.
 The launcher generates the report automatically when Python is available.
+Add `-SkipTrace` to collect the same frame/input timings without EventPipe sampling
+or allocation events; use this as a control for profiler overhead.
 
 `responsiveness.html` is a standalone interactive report; `responsiveness.json`
 contains the same budget statistics and rolling 10-second windows for comparisons.
@@ -110,3 +112,14 @@ just quickplay-profile combat-playground -Headless -QuitAfter 240 --faction=201 
 ```
 
 `QuitAfter` counts rendered frames, not simulation ticks. Omit it for interactive testing.
+
+For a standalone simulation benchmark with per-system time and allocation totals:
+
+```powershell
+dotnet run --project tools/LoadTestRunner -- 10000 --system-perf
+```
+
+The system monitor excludes the first 120 executions of each system from steady
+totals. Omit `--system-perf` for wall-clock timing without per-system instrumentation.
+This runner uses 16 ms simulation ticks and the authored navigation tuning; it
+does not measure rendering, prediction or multiplayer reconciliation.
