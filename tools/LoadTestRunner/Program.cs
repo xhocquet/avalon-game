@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using Meesles.Avalon;
 using Meesles.Avalon.Sim;
+using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using Meesles.Avalon.Sim.Navigation;
 using xpTURN.Klotho.Core;
@@ -21,7 +22,7 @@ const int deltaTimeMs = 16;
 WarmupRegistry.RunAll();
 
 var assetRegistry = LoadAssetRegistry();
-var navigation = LoadNavigationRuntime();
+var navigation = LoadNavigationRuntime(assetRegistry);
 var simulation = new EcsSimulation(maxEntities, maxRollbackTicks, deltaTimeMs, assetRegistry: assetRegistry);
 SimulationSetup.RegisterSystems(simulation, navigation);
 simulation.Initialize();
@@ -85,9 +86,10 @@ static IDataAssetRegistry LoadAssetRegistry() {
     return builder.Build();
 }
 
-static NavigationRuntime LoadNavigationRuntime() {
+static NavigationRuntime LoadNavigationRuntime(IDataAssetRegistry assets) {
     string navPath = Path.Combine(AppContext.BaseDirectory, "Data", "NavigationRegion3D.NavMeshData.bytes");
-    return NavigationRuntime.FromBytes(File.ReadAllBytes(navPath), logger: null);
+    return NavigationRuntime.FromBytes(File.ReadAllBytes(navPath), logger: null,
+        assets.Get<NavigationTuningAsset>());
 }
 
 class TimingCapture : IKLogger {

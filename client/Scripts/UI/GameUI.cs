@@ -691,12 +691,14 @@ public partial class GameUI : CanvasLayer, IViewHud {
     if (_selectionRectangle == null) return;
     if (rectangle == null) {
       _selectionRectangle.Visible = false;
+      InputLatencyProbe.Active?.RecordRectangle(null);
       return;
     }
 
     _selectionRectangle.Visible = true;
     _selectionRectangle.Position = rectangle.Value.Position;
     _selectionRectangle.Size = rectangle.Value.Size;
+    InputLatencyProbe.Active?.RecordRectangle(rectangle);
   }
 
   private void SetupTabUi() {

@@ -6,9 +6,12 @@ var last_click := -1
 var rows := PackedStringArray(["seconds,phase,frame_ms,wall_ms,process_ms,physics_ms,draw_calls"])
 var output := ""
 var duration := 60.0
+var manual_input := false
 
 func _initialize() -> void:
 	for arg in OS.get_cmdline_user_args():
+		if arg == "--profile-manual-input":
+			manual_input = true
 		if arg.begins_with("--profile-output="):
 			output = arg.trim_prefix("--profile-output=")
 		if arg.begins_with("--profile-seconds="):
@@ -21,13 +24,13 @@ func _process(delta: float) -> bool:
 	var now := Time.get_ticks_usec()
 	var wall_ms := delta * 1000.0 if previous_usec == 0 else (now - previous_usec) / 1000.0
 	previous_usec = now
-	elapsed += delta
-	var phase := "idle" if elapsed < 12.0 else "movement"
+	elapsed += wall_ms / 1000.0
+	var phase := "manual" if manual_input else ("idle" if elapsed < 12.0 else "movement")
 	rows.append("%.6f,%s,%.3f,%.3f,%.3f,%.3f,%d" % [elapsed, phase, delta * 1000.0, wall_ms,
 		Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0,
 		Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0,
 		Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME)])
-	if elapsed >= 12.0:
+	if elapsed >= 12.0 and not manual_input:
 		var step := int((elapsed - 12.0) / 3.0)
 		if step != last_click:
 			last_click = step

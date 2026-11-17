@@ -17,7 +17,8 @@ namespace Meesles.Avalon.Server {
     private Room _room;
 
     public void RegisterSystems(EcsSimulation simulation) {
-      SimulationSetup.RegisterSystems(simulation, NavigationRuntime.FromBytes(_navMeshBytes, _logger));
+      SimulationSetup.RegisterSystems(simulation, NavigationRuntime.FromBytes(_navMeshBytes, _logger,
+        simulation.Frame.AssetRegistry.Get<NavigationTuningAsset>()));
       _resultSaver = new MatchResultSaveSystem(_logger, ResolveRoster);
       simulation.AddSystem(_resultSaver, SystemPhase.LateUpdate);
     }

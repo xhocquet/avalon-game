@@ -30,7 +30,8 @@ public class SimCallbacks(
 
   public void RegisterSystems(EcsSimulation simulation) {
     SimulationSetup.RegisterSystems(
-      simulation, NavigationRuntime.FromBytes(navMeshBytes, logger)
+      simulation, NavigationRuntime.FromBytes(navMeshBytes, logger,
+        simulation.Frame.AssetRegistry.Get<NavigationTuningAsset>())
     );
   }
 

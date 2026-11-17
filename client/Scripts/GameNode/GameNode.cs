@@ -171,6 +171,7 @@ public abstract partial class GameNode : Node {
   }
 
   public override void _Input(InputEvent @event) {
+    InputLatencyProbe.Active?.RecordInput(@event);
     if (DebugConsole != null && DebugConsole.HandleInput(@event))
       return;
 

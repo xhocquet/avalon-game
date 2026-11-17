@@ -3,7 +3,8 @@ param(
     [string]$Faction1 = '202',
     [string]$Faction2 = '200',
     [string]$Godot = 'C:\Users\meesles\Coding\Godot-4.6-mono\Godot_v4.6.3-stable_mono_win64.exe',
-    [switch]$SkipBuild
+    [switch]$SkipBuild,
+    [switch]$ManualInput
 )
 
 $ErrorActionPreference = 'Stop'
@@ -15,8 +16,8 @@ $collectors = @()
 $providers = 'Microsoft-DotNETCore-SampleProfiler:0x0:5,Microsoft-Windows-DotNETRuntime:0x2080019:5'
 $traceDuration = [TimeSpan]::FromSeconds($Seconds - 5).ToString('dd\:hh\:mm\:ss')
 
-function Start-Logged($name, $exe, $arguments) {
-    Start-Process -FilePath $exe -ArgumentList $arguments -WorkingDirectory $repoRoot -WindowStyle Hidden `
+function Start-Logged($name, $exe, $arguments, $windowStyle = 'Hidden') {
+    Start-Process -FilePath $exe -ArgumentList $arguments -WorkingDirectory $repoRoot -WindowStyle $windowStyle `
         -RedirectStandardOutput (Join-Path $output "$name.out.log") `
         -RedirectStandardError (Join-Path $output "$name.err.log") -PassThru
 }
@@ -36,10 +37,18 @@ try {
     Start-Sleep -Seconds 3
     for ($i = 1; $i -le 2; $i++) {
         $faction = if ($i -eq 1) { $Faction1 } else { $Faction2 }
-        $client = Start-Logged "client$i" $Godot @('--path', (Join-Path $repoRoot 'client'),
-            '--resolution', '1000x650', '--max-fps', '60', '--script', (Join-Path $PSScriptRoot 'profile-movement.gd'),
+        $resolution = if ($ManualInput) { '1600x900' } else { '1000x650' }
+        $clientArguments = @('--path', (Join-Path $repoRoot 'client'),
+            '--resolution', $resolution, '--max-fps', '60', '--script', (Join-Path $PSScriptRoot 'profile-movement.gd'),
             '--', '--quickplay', "--faction=$faction", "--profile-seconds=$Seconds",
             "--profile-output=$(Join-Path $output "client$i.frames.csv")")
+        $style = 'Hidden'
+        if ($ManualInput) {
+            $style = 'Normal'
+            $clientArguments += '--profile-manual-input'
+            $clientArguments += "--input-latency-output=$(Join-Path $output "client$i.latency.csv")"
+        }
+        $client = Start-Logged "client$i" $Godot $clientArguments $style
         $processes += $client
         Start-Sleep -Seconds 2
     }
@@ -65,7 +74,17 @@ try {
     foreach ($i in 1..2) {
         if (-not (Test-Path (Join-Path $output "client$i.frames.csv"))) { throw "Client $i did not finish its movement run." }
         $log = Get-Content (Join-Path $output "client$i.out.log") -Raw
-        if ($log -notmatch 'Send MoveCommand' -or $log -notmatch '=== CLIENT OK ===') { throw "Client $i did not verify and send movement." }
+        if ($log -notmatch '=== CLIENT OK ===') { throw "Client $i did not verify." }
+        if ($ManualInput) {
+            if ($log -notmatch '\[InputLatency\] Saved' -or -not (Test-Path (Join-Path $output "client$i.latency.csv"))) {
+                throw "Client $i did not finish its input latency capture."
+            }
+        }
+        elseif ($log -notmatch 'Send MoveCommand') { throw "Client $i did not send movement." }
+    }
+    if ($ManualInput -and (Get-Command python -ErrorAction SilentlyContinue)) {
+        & python (Join-Path $PSScriptRoot 'analyze-input-latency.py') $output
+        if ($LASTEXITCODE -ne 0) { throw 'Input latency analysis failed.' }
     }
     Write-Host "[profile] Complete: $output"
 }

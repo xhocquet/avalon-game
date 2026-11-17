@@ -55,6 +55,7 @@
     "AvoidanceGridCellSize": 5.0,
     "AvoidanceSpread": 1,
     "AvoidanceTimeHorizon": 2.0,
+    "CollisionResolveIterations": 1,
     "BlockedSpeed": 2.5,
     "BlockedZone": 3.0,
     "FlowFieldArrivalDist": 0.3,

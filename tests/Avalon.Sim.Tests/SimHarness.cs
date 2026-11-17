@@ -32,11 +32,14 @@ public class SimHarness {
     int maxEntities = DefaultMaxEntities,
     int maxRollbackTicks = DefaultMaxRollbackTicks,
     int deltaTimeMs = DefaultDeltaTimeMs,
-    bool spawnHeroesNow = true) {
+    bool spawnHeroesNow = true,
+    int? collisionResolveIterations = null) {
     WarmupRegistry.RunAll();
 
     var assetRegistry = LoadAssetRegistry();
-    var navigation = LoadNavigationRuntime();
+    if (collisionResolveIterations is { } passes)
+      assetRegistry.Get<Assets.NavigationTuningAsset>().CollisionResolveIterations = passes;
+    var navigation = LoadNavigationRuntime(assetRegistry);
     var simulation = new EcsSimulation(
       maxEntities,
       maxRollbackTicks,
@@ -211,11 +214,12 @@ public class SimHarness {
     return builder.Build();
   }
 
-  private static NavigationRuntime LoadNavigationRuntime() {
+  private static NavigationRuntime LoadNavigationRuntime(IDataAssetRegistry assets) {
     string navPath = Path.Combine(AppContext.BaseDirectory, "Data", "NavigationRegion3D.NavMeshData.bytes");
     if (!File.Exists(navPath))
       throw new FileNotFoundException("Shared navigation mesh was not copied to the test output.", navPath);
 
-    return NavigationRuntime.FromBytes(File.ReadAllBytes(navPath), logger: null);
+    return NavigationRuntime.FromBytes(File.ReadAllBytes(navPath), logger: null,
+      assets.Get<Assets.NavigationTuningAsset>());
   }
 }

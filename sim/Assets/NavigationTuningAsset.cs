@@ -32,4 +32,5 @@ public partial class NavigationTuningAsset : IDataAsset {
 
   [KlothoOrder(14)] public FP64 AvoidanceTimeHorizon; // ORCA lookahead in seconds
   [KlothoOrder(15)] public FP64 AccelerationFactor; // Controls
+  [KlothoOrder(16)] public int CollisionResolveIterations = 1;
 }

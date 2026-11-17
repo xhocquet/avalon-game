@@ -9,18 +9,22 @@ namespace Meesles.Avalon.Sim.Tests;
 
 public class NavCollisionBroadphaseTests {
   [Theory]
-  [InlineData(0, 0)]
-  [InlineData(1, 1)]
-  [InlineData(2, 2)]
-  [InlineData(32, 3)]
-  [InlineData(64, 4)]
-  [InlineData(72, 5)]
-  [InlineData(64, 6)]
-  [InlineData(64, 7)]
-  [InlineData(64, 8)]
-  public void Correction_MatchesAllPairsBitForBit(int count, int seed) {
-    var actual = SimHarness.CreateInitialized();
-    var expected = SimHarness.CreateInitialized();
+  [InlineData(0, 0, 1)]
+  [InlineData(1, 1, 1)]
+  [InlineData(2, 2, 1)]
+  [InlineData(32, 3, 1)]
+  [InlineData(64, 4, 1)]
+  [InlineData(72, 5, 1)]
+  [InlineData(64, 6, 1)]
+  [InlineData(64, 7, 1)]
+  [InlineData(64, 8, 1)]
+  [InlineData(64, 4, 4)]
+  [InlineData(64, 6, 4)]
+  [InlineData(64, 7, 4)]
+  public void Correction_MatchesAllPairsBitForBit(int count, int seed, int passes) {
+    var actual = SimHarness.CreateInitialized(collisionResolveIterations: passes);
+    var expected = SimHarness.CreateInitialized(collisionResolveIterations: passes);
+    actual.Navigation.AgentSystem.Tuning.CollisionResolveIterations.Should().Be(passes);
     var actualFrame = actual.Frame;
     var expectedFrame = expected.Frame;
     var random = new Random(seed);

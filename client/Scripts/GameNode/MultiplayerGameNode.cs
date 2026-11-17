@@ -65,6 +65,7 @@ public partial class MultiplayerGameNode : GameNode {
       AdoptHandoff(handoff);
     else
       StartDirectJoinFallback();
+    InputLatencyProbe.Attach(this, _driver);
   }
 
   private void AdoptHandoff(MultiplayerSessionHandoff handoff) {

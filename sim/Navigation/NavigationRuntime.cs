@@ -1,3 +1,4 @@
+using Meesles.Avalon.Sim.Assets;
 using xpTURN.Klotho.Deterministic.Navigation;
 using xpTURN.Klotho.Logging;
 
@@ -24,14 +25,16 @@ public class NavigationRuntime {
   public FPNavAgentSystem AgentSystem { get; }
   public FlowFieldCache FlowFields { get; }
 
-  public static NavigationRuntime FromBytes(byte[] bytes, IKLogger logger) {
+  public static NavigationRuntime FromBytes(byte[] bytes, IKLogger logger, NavigationTuningAsset settings = null) {
+    settings ??= new NavigationTuningAsset(AssetIds.NavigationTuning);
+    var tuning = new FPNavTuning(collisionResolveIterations: settings.CollisionResolveIterations);
     var navMesh = FPNavMeshSerializer.Deserialize(bytes);
-    var query = new FPNavMeshQuery(navMesh, logger);
-    var pathfinder = new FPNavMeshPathfinder(navMesh, query, logger);
-    var funnel = new FPNavMeshFunnel(navMesh, query, logger);
+    var query = new FPNavMeshQuery(navMesh, logger, tuning);
+    var pathfinder = new FPNavMeshPathfinder(navMesh, query, logger, tuning);
+    var funnel = new FPNavMeshFunnel(navMesh, query, logger, tuning);
     // NavigationAgentSystem applies frame-specific ORCA tuning.
-    var avoidance = new FPNavAvoidance();
-    var agentSystem = new FPNavAgentSystem(navMesh, query, pathfinder, funnel, logger);
+    var avoidance = new FPNavAvoidance(tuning);
+    var agentSystem = new FPNavAgentSystem(navMesh, query, pathfinder, funnel, logger, tuning);
     agentSystem.SetAvoidance(avoidance);
     var flowFields = new FlowFieldCache(navMesh);
 
