@@ -14,6 +14,41 @@ using Xunit;
 namespace Meesles.Avalon.Sim.Tests;
 
 public class VisionTests {
+  [Fact]
+  public void CapturedRasterDetectsUnchangedInputsAndMatchesFreshOutput() {
+    var frame = CreateFrame();
+    var source = Spawn(ref frame, 1, 0, 0);
+    var map = frame.AssetRegistry.Get<MapLayoutAsset>();
+    map.VisionOrigin = Point(-10, -10);
+    map.VisionSize = Point(20, 20);
+    var raster = new VisionRaster();
+    var actual = new byte[400];
+    var expected = new byte[400];
+    raster.Capture(ref frame, 1, map).Should().BeTrue();
+    raster.Render(20, 20, actual);
+    raster.Capture(ref frame, 1, map).Should().BeFalse();
+    System.Array.Clear(actual);
+    raster.Render(20, 20, actual);
+    Visibility.Rasterize(ref frame, 1, map.VisionOrigin, map.VisionSize, 20, 20, expected);
+    actual.Should().Equal(expected);
+
+    foreach (var x in new[] { 4, 0, -4 }) {
+      frame.Get<TransformComponent>(source).Position = new FPVector3(FP64.FromInt(x), FP64.Zero, FP64.Zero);
+      raster.Capture(ref frame, 1, map).Should().BeTrue();
+      raster.Render(20, 20, actual);
+      Visibility.Rasterize(ref frame, 1, map.VisionOrigin, map.VisionSize, 20, 20, expected);
+      actual.Should().Equal(expected);
+    }
+    frame.Get<Health>(source).Current = FP64.Zero;
+    raster.Capture(ref frame, 1, map).Should().BeTrue();
+    raster.Render(20, 20, actual);
+    actual.Should().OnlyContain(pixel => pixel == 0);
+    map.VisionOrigin = Point(-20, -20);
+    raster.Capture(ref frame, 1, map).Should().BeTrue();
+    raster.Capture(ref frame, 2, map).Should().BeTrue();
+    raster.Render(10, 10, new byte[100]);
+  }
+
   [Theory]
   [InlineData(1)]
   [InlineData(2)]
@@ -161,7 +196,8 @@ public class VisionTests {
       frame.GetReadOnly<UnitVisibility>(target).Teams.Should().Be(enabled ? 3UL : 2UL);
       Visibility.Rasterize(ref frame, 1, map.VisionOrigin, map.VisionSize, 20, 20, pixels);
       pixels[10 * 20 + 14].Should().Be(enabled ? (byte)255 : (byte)0);
-      raster.Capture(ref frame, 1, map);
+      raster.Capture(ref frame, 1, map).Should().BeTrue();
+      raster.Capture(ref frame, 1, map).Should().BeFalse();
       var captured = new byte[400];
       raster.Render(20, 20, captured);
       captured.Should().Equal(pixels);

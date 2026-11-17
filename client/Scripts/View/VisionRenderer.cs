@@ -78,7 +78,10 @@ public partial class VisionRenderer : MeshInstance3D {
       Visible = false;
     _teamId = teamId;
     _nextUpdate = now + 100;
-    _raster.Capture(ref frame, teamId, map);
+    if (!_raster.Capture(ref frame, teamId, map)) {
+      Visible = true;
+      return;
+    }
     _renderTask = Task.Run(RenderRaster);
   }
 
