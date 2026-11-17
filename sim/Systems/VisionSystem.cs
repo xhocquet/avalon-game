@@ -31,23 +31,25 @@ public sealed class VisionSystem(UnitSpatialIndex spatial = null) : ISystem {
         continue;
       var origin = frame.GetReadOnly<TransformComponent>(source).Position.ToXZ();
       var range = rules.RangeFor(frame.GetReadOnly<UnitIdentity>(source).UnitTypeId);
-      var bit = Visibility.TeamBit(frame.GetReadOnly<Team>(source).TeamId);
+      var teamId = frame.GetReadOnly<Team>(source).TeamId;
       var radius = CombatRange.GameplayRadiusOf(ref frame, source);
-      Reveal(ref frame, map, origin, range, radius, bit);
+      Reveal(ref frame, map, origin, range, radius, teamId, revealedTeams);
     }
     if (map != null)
       for (var i = 0; i < map.MarkerCount; i++)
         Reveal(ref frame, map, map.MarkerPositions[i].ToXZ(), rules.RangeForMarker(map.MarkerTypes[i]),
-          FP64.Zero, Visibility.TeamBit(map.MarkerTeams[i]));
+          FP64.Zero, map.MarkerTeams[i], revealedTeams);
   }
 
-  private void Reveal(ref Frame frame, MapLayoutAsset map, FPVector2 origin, FP64 range, FP64 radius, ulong bit) {
-    if (range <= FP64.Zero || bit == 0)
+  private void Reveal(ref Frame frame, MapLayoutAsset map, FPVector2 origin, FP64 range, FP64 radius,
+    int teamId, ulong revealedTeams) {
+    var bit = Visibility.TeamBit(teamId);
+    if (range <= FP64.Zero || bit == 0 || (revealedTeams & bit) != 0)
       return;
-    var sourceWalkable = map == null || map.SightGeometry.IsWalkable(origin);
+    bool? sourceWalkable = null;
     _candidates.Clear();
     if (spatial != null)
-      spatial.Grid.QueryRadius(origin, range, _candidates);
+      spatial.Grid.QueryRadius(origin, range, _candidates, teamId);
     else {
       var all = frame.Filter<UnitIdentity, Team, Health, TransformComponent>();
       while (all.Next(out var target))
@@ -57,6 +59,7 @@ public sealed class VisionSystem(UnitSpatialIndex spatial = null) : ISystem {
       ref var visibility = ref frame.Get<UnitVisibility>(target);
       if ((visibility.Teams & bit) != 0)
         continue;
+      sourceWalkable ??= map == null || map.SightGeometry.IsWalkable(origin);
       var position = frame.GetReadOnly<TransformComponent>(target).Position.ToXZ();
       if (Visibility.CanSee(map, origin, position, range, radius, CombatRange.GameplayRadiusOf(ref frame, target),
             sourceWalkable))

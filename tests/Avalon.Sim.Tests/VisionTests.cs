@@ -15,6 +15,29 @@ namespace Meesles.Avalon.Sim.Tests;
 
 public class VisionTests {
   [Theory]
+  [InlineData(1)]
+  [InlineData(2)]
+  [InlineData(3)]
+  public void IndexedVisionMatchesUnfilteredReference(int seed) {
+    var frame = CreateFrame();
+    var random = new System.Random(seed);
+    var units = new List<EntityRef>();
+    for (var i = 0; i < 80; i++) {
+      var unit = Spawn(ref frame, i % 4, random.Next(-30, 31), random.Next(-30, 31));
+      if (i % 7 == 0) frame.Get<Health>(unit).Current = FP64.Zero;
+      units.Add(unit);
+    }
+    new VisionSystem().Update(ref frame);
+    var expected = new ulong[units.Count];
+    for (var i = 0; i < units.Count; i++) expected[i] = frame.GetReadOnly<UnitVisibility>(units[i]).Teams;
+    var spatial = new UnitSpatialIndex();
+    spatial.Update(ref frame);
+    new VisionSystem(spatial).Update(ref frame);
+    for (var i = 0; i < units.Count; i++)
+      frame.GetReadOnly<UnitVisibility>(units[i]).Teams.Should().Be(expected[i]);
+  }
+
+  [Theory]
   [InlineData(SimulationSetup.PlayerUnitTypeId)]
   [InlineData(SimulationSetup.MinionUnitTypeId)]
   [InlineData(SimulationSetup.TurretUnitTypeId)]
