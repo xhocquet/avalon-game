@@ -19,8 +19,14 @@ public partial class VisionRenderer : MeshInstance3D {
   private ulong _nextUpdate;
   private int _teamId;
   private Task _renderTask;
+  private bool _headless;
 
   public override void _Ready() {
+    _headless = DisplayServer.GetName() == "headless";
+    if (_headless) {
+      Visible = false;
+      return;
+    }
     _image = Image.CreateFromData(TextureSize, TextureSize, false, Image.Format.R8, _pixels);
     _texture = ImageTexture.CreateFromImage(_image);
     _material = new ShaderMaterial { Shader = GD.Load<Shader>("res://Scripts/View/Vision.gdshader") };
@@ -38,6 +44,8 @@ public partial class VisionRenderer : MeshInstance3D {
   }
 
   public void Sync(Frame frame, int? playerId) {
+    if (_headless)
+      return;
     if (!playerId.HasValue || !UnitLookup.TryGetPlayerTeamId(ref frame, playerId.Value, out var teamId) ||
         !frame.AssetRegistry.TryGet<MapLayoutAsset>(out var map) || map.VisionSize.x.RawValue <= 0 ||
         map.VisionSize.y.RawValue <= 0) {
