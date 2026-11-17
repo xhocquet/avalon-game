@@ -12,6 +12,23 @@ using Xunit;
 namespace Meesles.Avalon.Sim.Tests;
 
 public class TeamSpatialFilterTests {
+  [Fact]
+  public void RebuildingChangingCellSetsDoesNotRetainPriorEntries() {
+    var grid = new SpatialHashGrid(FP64.FromInt(5));
+    var result = new List<EntityRef>();
+    foreach (var count in new[] { 20, 1, 0, 30, 5, 0, 10 }) {
+      grid.Clear();
+      var expected = new List<EntityRef>();
+      for (var i = 0; i < count; i++) {
+        var entity = new EntityRef(i + count * 100, 1);
+        grid.Insert(entity, Point(i * 5 - 50, i % 3 * 5), i % 2 + 1);
+        expected.Add(entity);
+      }
+      grid.QueryRadius(Point(0, 0), FP64.FromInt(200), result);
+      result.Should().BeEquivalentTo(expected);
+    }
+  }
+
   [Theory]
   [InlineData(0)]
   [InlineData(1)]

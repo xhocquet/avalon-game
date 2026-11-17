@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
@@ -17,6 +16,7 @@ public class SpatialHashGrid {
   }
 
   private readonly Dictionary<(int x, int z), Cell> _cells = new();
+  private readonly Stack<List<(EntityRef Entity, FPVector2 Position, int TeamId)>> _spareCells = new();
   private readonly FP64 _inverseCellSize;
 
   public SpatialHashGrid(FP64 cellSize) {
@@ -28,8 +28,10 @@ public class SpatialHashGrid {
 
   /// <summary>Returns cells to the pool.</summary>
   public void Clear() {
-    foreach (var cell in _cells.Values)
-      ListPool<(EntityRef Entity, FPVector2 Position, int TeamId)>.Return(cell.Entries);
+    foreach (var cell in _cells.Values) {
+      cell.Entries.Clear();
+      _spareCells.Push(cell.Entries);
+    }
 
     _cells.Clear();
   }
@@ -39,7 +41,7 @@ public class SpatialHashGrid {
     var key = CellKey(positionXZ);
     if (!_cells.TryGetValue(key, out var cell)) {
       cell = new Cell {
-        Entries = ListPool<(EntityRef Entity, FPVector2 Position, int TeamId)>.Get(),
+        Entries = _spareCells.Count > 0 ? _spareCells.Pop() : new List<(EntityRef, FPVector2, int)>(),
         TeamId = teamId
       };
       _cells[key] = cell;
