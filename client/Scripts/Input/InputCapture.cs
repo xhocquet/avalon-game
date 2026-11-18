@@ -49,6 +49,7 @@ public class InputCapture : IDisposable {
   private GameUI _gameUI;
   private bool _isDraggingSelection;
   private bool _isLeftButtonDown;
+  private bool _isMinimapDragging;
   private int _localTeamId = 1;
   private AttackCommand _pendingAttackCommand;
   private MoveCommand _pendingMoveCommand;
@@ -71,6 +72,7 @@ public class InputCapture : IDisposable {
   public event Action<int> ItemInvocationRequested;
 
   public void Dispose() {
+    _isMinimapDragging = false;
     SetHoveredView(null);
     CursorManager.Instance?.SetWorldCursor(WorldCursor.Default);
     ClearSelectedViews();
@@ -348,6 +350,11 @@ public class InputCapture : IDisposable {
       return;
     }
 
+    if (HandleMinimapInput(@event)) {
+      _camera.GetViewport().SetInputAsHandled();
+      return;
+    }
+
     switch (@event) {
       case InputEventKey { Echo: false, Pressed: true } itemKey
         when TryGetItemHotkeySlot(itemKey.Keycode, out var itemSlot):
@@ -390,6 +397,37 @@ public class InputCapture : IDisposable {
         HandleRightClick(rightClick);
         return;
     }
+  }
+
+  private bool HandleMinimapInput(InputEvent input) {
+    if (_gameUI == null) return false;
+    if (_isMinimapDragging) {
+      if (input is InputEventMouseButton { ButtonIndex: MouseButton.Left, Pressed: false }) {
+        _isMinimapDragging = false;
+        return true;
+      }
+      if (input is InputEventMouseMotion motion) {
+        if ((motion.ButtonMask & MouseButtonMask.Left) == 0) {
+          _isMinimapDragging = false;
+          return true;
+        }
+        if (_gameUI.TryGetMinimapWorldPosition(motion.Position, true, out var dragTarget))
+          _camera.CenterOnGround(dragTarget);
+        return true;
+      }
+    }
+    if (input is not InputEventMouseButton { Pressed: true } click ||
+        click.ButtonIndex is not (MouseButton.Left or MouseButton.Right) ||
+        !_gameUI.TryGetMinimapWorldPosition(click.Position, false, out var target)) return false;
+    if (click.ButtonIndex == MouseButton.Left) {
+      _isMinimapDragging = true;
+      _camera.CenterOnGround(target);
+    }
+    else {
+      CancelSkillAim();
+      QueueMoveTo(ResolveMoveTarget(target));
+    }
+    return true;
   }
 
   // Select the team's shop using the sim's range check.
@@ -1015,7 +1053,7 @@ public class InputCapture : IDisposable {
     }
 
     var viewport = _camera.GetViewport();
-    if (viewport.GuiGetHoveredControl() is BaseButton or LineEdit or TextEdit ||
+    if (viewport.GuiGetHoveredControl() is BaseButton or LineEdit or TextEdit or Meesles.Avalon.Client.MinimapView ||
         !viewport.GetVisibleRect().HasPoint(viewport.GetMousePosition())) {
       SetHoveredView(null);
       return;
@@ -1040,6 +1078,11 @@ public class InputCapture : IDisposable {
 
     var viewport = _camera.GetViewport();
     if (viewport.GuiGetHoveredControl() is BaseButton or LineEdit or TextEdit) return;
+
+    if (_gameUI?.TryGetMinimapWorldPosition(viewport.GetMousePosition(), false, out _) == true) {
+      CursorManager.Instance?.SetWorldCursor(WorldCursor.Default);
+      return;
+    }
 
     var mousePosition = viewport.GetMousePosition();
     var cursor = TryGetAttackableUnitIdAt(mousePosition, out _)

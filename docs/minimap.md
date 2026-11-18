@@ -8,3 +8,5 @@ The HUD draws a saved terrain image and live 2D icons. It has no 3D viewport or 
 - Icons: existing `MinimapMarker` resources supply textures, team colors, and sizes. The HUD projects visible markers into the same rectangle; hero portraits retain their circular border. Pooled/hidden entities follow their existing visibility.
 - Fog: the overlay reuses `VisionRenderer`'s filtered mask and world bounds. It does not rasterize another mask.
 - HUD inspection: `GameUI/DefaultUI/MinimapFrame/Minimap` shows the saved texture in the editor. Runtime creates its icon controls and fog overlay. Other maps without a saved image use a plain background and their own ground bounds.
+
+Left-click or left-drag the minimap to center the camera, leaving follow/lock mode. Drags clamp to the image edges and stop on release. Right-click issues the normal selected-unit move order (or the local hero fallback), using nav snapping and the normal destination marker. Minimap input does not start world selection or attack units beneath the HUD.

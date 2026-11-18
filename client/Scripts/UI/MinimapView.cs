@@ -86,6 +86,17 @@ public partial class MinimapView : Control {
     else DrawRect(rect, new Color(0.12f, 0.17f, 0.14f));
   }
 
+  public bool TryGetWorldPosition(Vector2 screenPosition, bool clamp, out Vector3 position) {
+    position = default;
+    if (!IsVisibleInTree() || !GodotObject.IsInstanceValid(_bounds) || _bounds.Ground == null ||
+        Size.X <= 0 || Size.Y <= 0) return false;
+    var local = GetGlobalTransformWithCanvas().AffineInverse() * screenPosition;
+    if (!clamp && !new Rect2(Vector2.Zero, Size).HasPoint(local)) return false;
+    var uv = (local / Size).Clamp(Vector2.Zero, Vector2.One);
+    position = _bounds.UvToWorld(uv);
+    return true;
+  }
+
   public void SyncVision(VisionRenderer vision) {
     if (_fog == null || _bounds?.Ground == null) return;
     _fog.Visible = vision.Visible && vision.MinimapTexture != null;

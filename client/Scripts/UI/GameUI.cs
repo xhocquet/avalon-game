@@ -114,6 +114,11 @@ public partial class GameUI : CanvasLayer, IViewHud {
   [Export] public float FocusRingWidthPx { get; set; } = 2.5f;
   [Export] public Color FocusRingColor { get; set; } = new(0.88f, 0.72f, 0.22f, 0.92f);
 
+  public bool TryGetMinimapWorldPosition(Vector2 screenPosition, bool clamp, out Vector3 position) {
+    position = default;
+    return _minimap != null && _minimap.TryGetWorldPosition(screenPosition, clamp, out position);
+  }
+
   public void SyncFromFrame(Frame frame) {
     if (_visionRenderer == null) {
       _visionRenderer = new VisionRenderer { Name = "VisionRenderer" };

@@ -133,6 +133,15 @@ public partial class CameraController : Camera3D {
     else ProcessFree(dt);
   }
 
+  public void CenterOnGround(Vector3 position) {
+    if (IsGodmode) return;
+    _isCameraLocked = false;
+    _isFocusHeld = false;
+    _mode = CameraMode.Free;
+    EndMousePan();
+    GlobalPosition = CameraPosForTarget(position);
+  }
+
   public Vector3? ScreenToGround(Vector2 screenPos) {
     var origin = ProjectRayOrigin(screenPos);
     var dir = ProjectRayNormal(screenPos);
