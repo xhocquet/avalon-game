@@ -1,9 +1,75 @@
 # Client profiling
 
+For rendering CPU/GPU timings with manual input:
+
+```powershell
+just multiplayer-profile-render
+just multiplayer-profile-render 180
+```
+
+These use the existing server + two-client capture with `-RenderTimings` enabled.
+GPU timestamp measurement and the additional viewport queries are opt-in; the
+existing capture commands retain their previous overhead. The flag also works
+with automated movement or `-SkipTrace` through `scripts/multiplayer-profile.ps1`.
+
+Each client writes `clientN.render.csv` alongside its frame/input CSVs. It contains
+per-viewport rendering CPU/GPU milliseconds, global CPU frame setup, and visible
+draw-call/primitive/object counts. The main viewport and minimap are measured
+separately; later SubViewports added beneath the match scene are registered too.
+The CSV uses the input probe's clock and records observation frame numbers. GPU
+measurements are the latest available and can lag the observation; they are not
+guaranteed to describe the same frame as a wall-clock sample. Zero/unavailable
+CPU or GPU measurements are omitted from report percentiles.
+
+`responsiveness.html` includes a rendering timeline and viewport selector.
+`responsiveness.json` includes per-viewport timing statistics and global CPU setup
+statistics. CPU and GPU times overlap; do not add them. Global CPU setup is counted
+once per observation, not once per viewport. A wall-clock draw interval remains
+distinct from these rendering measurements. Headless clients cannot measure GPU work.
+
+To open an editor and connect the first client to its debugger:
+
+```powershell
+just multiplayer-profile-editor
+just multiplayer-profile-editor 180
+```
+
+This opens a new editor using debug-server port 6017, plus the same two rendered
+clients. Client 1 connects with `--remote-debug` and prints rendering-pass profiles to `client1.out.log` with
+`--gpu-profile`. Client 2 stays standalone. The editor remains open after the timed
+clients close so its debugger results can be inspected. The extra editor/debugger
+work affects timings; use a standalone render capture as the comparison.
+
+Godot 4.6 has no CLI switch to select/open the Visual Profiler tab. In the editor,
+open **Debugger > Visual Profiler > Start**. Its **Autostart** checkbox can start
+subsequent connected sessions. The launcher does not pass `--profiling`: the current
+build rejects its request for the unavailable `scripts` profiler. Use the Visual
+Profiler rather than the standard script profiler for these rendering captures.
+For a different port, invoke the script with `-EditorDebugger -EditorDebugPort <port>`
+and the other desired capture flags. An occupied debugger port fails explicitly;
+existing editor processes are not reused or stopped.
+
+To measure one rendered game instance:
+
+```powershell
+just multiplayer-profile-render-single
+just multiplayer-profile-editor-single
+```
+
+Both accept a duration, e.g. `just multiplayer-profile-render-single 180`. Client 1
+is rendered and measured; client 2 is a hidden headless peer capped at 30 FPS. The
+peer meets the server's two-player minimum without a second game renderer. It
+still runs simulation/networking and consumes CPU. Its frame CSV and logs are saved,
+but it produces no render/latency CSV. `--profile-peer` keeps it alive beyond the
+normal headless self-check until the timed capture finishes. Existing integration
+clients still quit after their self-check. The editor variant also runs the editor,
+which can use GPU resources; use the render-only variant as the cleaner comparison.
+
 For manual selection-drag latency measurements:
 
 ```powershell
-pwsh -NoProfile -File scripts/multiplayer-profile.ps1 -ManualInput -Seconds 180
+just multiplayer-profile-manual
+just multiplayer-profile-manual 180
 ```
 
 Drag selections yourself in either client; press F8 to bookmark a moment of lag.
@@ -116,7 +182,8 @@ just quickplay-profile combat-playground -Headless -QuitAfter 240 --faction=201 
 For a standalone simulation benchmark with per-system time and allocation totals:
 
 ```powershell
-dotnet run --project tools/LoadTestRunner -- 10000 --system-perf
+just benchmark
+just benchmark 20000
 ```
 
 The system monitor excludes the first 120 executions of each system from steady

@@ -83,7 +83,26 @@ def read_capture(path):
                        max(0, end - start - session - draw), ticks])
     return {"name": path.name.removesuffix(".latency.csv"), "anchor": anchor,
             "frames": frames, "inputs": inputs,
-            "markers": [r["time"] / 1000 for r in rows if r["kind"] == "marker"]}
+            "markers": [r["time"] / 1000 for r in rows if r["kind"] == "marker"],
+            "rendering": read_render_capture(path.with_name(path.name.removesuffix(".latency.csv") + ".render.csv"), anchor)}
+
+
+def read_render_capture(path, anchor):
+    if not path.exists():
+        return []
+    with path.open(encoding="utf-8-sig") as stream:
+        render_anchor = stream.readline().strip()
+        if render_anchor.split(";")[0] != anchor.split(";")[0]:
+            raise ValueError(f"Render/input clock anchors disagree: {path}")
+        result = []
+        for row in csv.DictReader(stream):
+            cpu, gpu = float(row["cpu_ms"]), float(row["gpu_ms"])
+            result.append([int(row["usec"]) / 1e6, int(row["observed_process_frame"]),
+                           int(row["observed_drawn_frame"]), row["viewport"],
+                           cpu if cpu > 0 else None, gpu if gpu > 0 else None,
+                           float(row["setup_cpu_ms"]), int(row["draw_calls"]),
+                           int(row["primitives"]), int(row["objects"])])
+    return result
 
 
 def summarize(capture, frame_budget, feedback_budget, warmup):
@@ -96,11 +115,22 @@ def summarize(capture, frame_budget, feedback_budget, warmup):
         recent_inputs = [i[1] for i in inputs if second - 10 <= i[0] < second]
         windows.append({"end_seconds": second, "frames": distribution(recent_frames, frame_budget),
                         "feedback": distribution(recent_inputs, feedback_budget)})
+    rendering = [r for r in capture.get("rendering", []) if r[0] >= warmup]
+    viewports = {}
+    for name in sorted({r[3] for r in rendering}):
+        samples = [r for r in rendering if r[3] == name]
+        viewports[name] = {"cpu": distribution([r[4] for r in samples if r[4] is not None], frame_budget),
+                           "gpu": distribution([r[5] for r in samples if r[5] is not None], frame_budget),
+                           "observations": len(samples), "peak_draw_calls": max(r[7] for r in samples),
+                           "peak_primitives": max(r[8] for r in samples), "peak_objects": max(r[9] for r in samples)}
+    setup = {r[0]: r[6] for r in rendering}
     return {"client": capture["name"], "warmup_seconds": warmup,
             "frame_budget_ms": frame_budget, "feedback_budget_ms": feedback_budget,
             "frames": distribution([f[2] for f in frames], frame_budget),
             "feedback": distribution([i[1] for i in inputs], feedback_budget),
-            "rolling_10_seconds": windows}
+            "rolling_10_seconds": windows,
+            "rendering": {"viewports": viewports, "frame_setup_cpu": distribution(list(setup.values()), frame_budget),
+                          "alignment": "Latest available measurements at observation time; GPU values may lag. CPU/GPU times are not additive."}}
 
 
 def write_report(paths, output, frame_budget=1000 / 60, feedback_budget=1000 / 30, warmup=5):

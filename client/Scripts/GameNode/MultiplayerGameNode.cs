@@ -288,7 +288,9 @@ public partial class MultiplayerGameNode : GameNode {
       _logger.KInformation($"[Client] auto-join tick={_session.Engine.CurrentTick} viewNodes={n}");
       if (n >= 1) _logger.KInformation($"=== CLIENT OK ===");
       else _logger.KError($"=== CLIENT FAILED (viewNodes={n}) ===");
-      if (DisplayServer.GetName() == "headless") GetTree().Quit(n >= 1 ? 0 : 1);
+      if (DisplayServer.GetName() == "headless" &&
+          System.Array.IndexOf(OS.GetCmdlineUserArgs(), "--profile-peer") < 0)
+        GetTree().Quit(n >= 1 ? 0 : 1);
     }
   }
 

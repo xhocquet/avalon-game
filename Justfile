@@ -26,6 +26,36 @@ quickplay-multiplayer ticks="0" faction1="200" faction2="201":
 multiplayer-profile seconds="60":
     pwsh -NoProfile -File .\scripts\multiplayer-profile.ps1 -Seconds {{ seconds }} -Godot "{{ godot_exe }}"
 
+# Two rendered clients with manual input and separate server/client traces.
+[group('play')]
+multiplayer-profile-manual seconds="60" faction1="200" faction2="201":
+    pwsh -NoProfile -File .\scripts\multiplayer-profile.ps1 -ManualInput -Seconds {{ seconds }} \
+      -Faction1 {{ faction1 }} -Faction2 {{ faction2 }} -Godot "{{ godot_exe }}"
+
+# Manual capture with per-viewport rendering CPU/GPU timings.
+[group('play')]
+multiplayer-profile-render seconds="60" faction1="200" faction2="201":
+    pwsh -NoProfile -File .\scripts\multiplayer-profile.ps1 -ManualInput -RenderTimings -Seconds {{ seconds }} \
+      -Faction1 {{ faction1 }} -Faction2 {{ faction2 }} -Godot "{{ godot_exe }}"
+
+# Open an editor and attach client 1; client 2 runs standalone.
+[group('play')]
+multiplayer-profile-editor seconds="60" faction1="200" faction2="201":
+    pwsh -NoProfile -File .\scripts\multiplayer-profile.ps1 -ManualInput -RenderTimings -EditorDebugger -Seconds {{ seconds }} \
+      -Faction1 {{ faction1 }} -Faction2 {{ faction2 }} -Godot "{{ godot_exe }}"
+
+# One rendered client plus a headless peer to meet the match's two-player minimum.
+[group('play')]
+multiplayer-profile-render-single seconds="60" faction1="200" faction2="201":
+    pwsh -NoProfile -File .\scripts\multiplayer-profile.ps1 -ManualInput -RenderTimings -SingleRenderedClient -Seconds {{ seconds }} \
+      -Faction1 {{ faction1 }} -Faction2 {{ faction2 }} -Godot "{{ godot_exe }}"
+
+# One rendered client attached to a new editor, plus a headless peer.
+[group('play')]
+multiplayer-profile-editor-single seconds="60" faction1="200" faction2="201":
+    pwsh -NoProfile -File .\scripts\multiplayer-profile.ps1 -ManualInput -RenderTimings -EditorDebugger -SingleRenderedClient -Seconds {{ seconds }} \
+      -Faction1 {{ faction1 }} -Faction2 {{ faction2 }} -Godot "{{ godot_exe }}"
+
 # Local playground straight into a match. `just quickplay nav-playground`, or add cheat args:
 # `just quickplay combat-playground --allcheats`
 [group('play')]
@@ -73,6 +103,11 @@ loadtest ticks="1000":
     dotnet test .\tests\Avalon.Sim.Tests\Avalon.Sim.Tests.csproj \
       --filter "DisplayName~RunLoadTest(totalTicks: {{ ticks }})" \
       -l "console;verbosity=detailed"
+
+# Standalone simulation benchmark with per-system timings and allocations.
+[group('test')]
+benchmark ticks="10000":
+    dotnet run --project .\tools\LoadTestRunner -- {{ ticks }} --system-perf
 
 # Load test with dotnet-trace flame graph
 [group('test')]

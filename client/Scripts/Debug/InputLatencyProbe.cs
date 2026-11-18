@@ -18,9 +18,13 @@ public partial class InputLatencyProbe : Node {
   private ulong _sessionStart;
   private int _tickStart;
   private bool _recording;
+  private List<RenderSample> _renderSamples;
+  private readonly List<(Viewport View, Rid Rid, string Name)> _renderViewports = new();
 
   private readonly record struct Sample(ulong Usec, ulong Frame, string Kind, double X, double Y,
     double Width, double Height, int Tick, double DurationMs);
+  private readonly record struct RenderSample(ulong Usec, ulong Frame, int DrawnFrame, string Viewport,
+    double CpuMs, double GpuMs, double SetupCpuMs, int DrawCalls, int Primitives, int Objects);
 
   public static void Attach(Node parent, GodotSessionDriver driver) {
     foreach (var arg in OS.GetCmdlineUserArgs()) {
@@ -41,6 +45,15 @@ public partial class InputLatencyProbe : Node {
     _driver.PostSessionUpdate += EndSession;
     RenderingServer.FramePreDraw += BeforeDraw;
     RenderingServer.FramePostDraw += AfterDraw;
+    if (Array.IndexOf(OS.GetCmdlineUserArgs(), "--render-timings") >= 0 && DisplayServer.GetName() != "headless") {
+      _renderSamples = new List<RenderSample>(8192);
+      RegisterViewport(GetViewport(), "main");
+      var children = GetParent().FindChildren("*", "SubViewport", true, false);
+      foreach (var child in children)
+        if (child is Viewport viewport) RegisterViewport(viewport, viewport.GetPath());
+      GetTree().NodeAdded += OnNodeAdded;
+      GD.Print($"[RenderTiming] Enabled for {_renderViewports.Count} viewports; debugger_active={EngineDebugger.IsActive()}");
+    }
     GD.Print($"[InputLatency] Recording manual input to {_output}");
   }
 
@@ -74,7 +87,44 @@ public partial class InputLatencyProbe : Node {
       durationMs: (Time.GetTicksUsec() - _sessionStart) / 1000.0);
 
   private void BeforeDraw() => Add("draw_start");
-  private void AfterDraw() => Add("draw_end");
+  private void AfterDraw() {
+    Add("draw_end");
+    if (_renderSamples == null || !_recording) return;
+    if (_renderSamples.Count >= 1000000) { _recording = false; return; }
+    var now = Time.GetTicksUsec() - _origin;
+    var frame = Engine.GetProcessFrames();
+    var drawn = Engine.GetFramesDrawn();
+    var setup = RenderingServer.GetFrameSetupTimeCpu();
+    for (var i = _renderViewports.Count - 1; i >= 0; i--) {
+      var entry = _renderViewports[i];
+      if (!GodotObject.IsInstanceValid(entry.View) || !entry.View.IsInsideTree()) {
+        _renderViewports.RemoveAt(i);
+        continue;
+      }
+      _renderSamples.Add(new RenderSample(now, frame, drawn, entry.Name,
+        RenderingServer.ViewportGetMeasuredRenderTimeCpu(entry.Rid),
+        RenderingServer.ViewportGetMeasuredRenderTimeGpu(entry.Rid), setup,
+        RenderingServer.ViewportGetRenderInfo(entry.Rid, RenderingServer.ViewportRenderInfoType.Visible,
+          RenderingServer.ViewportRenderInfo.DrawCallsInFrame),
+        RenderingServer.ViewportGetRenderInfo(entry.Rid, RenderingServer.ViewportRenderInfoType.Visible,
+          RenderingServer.ViewportRenderInfo.PrimitivesInFrame),
+        RenderingServer.ViewportGetRenderInfo(entry.Rid, RenderingServer.ViewportRenderInfoType.Visible,
+          RenderingServer.ViewportRenderInfo.ObjectsInFrame)));
+    }
+  }
+
+  private void OnNodeAdded(Node node) {
+    if (node is SubViewport viewport && GetParent().IsAncestorOf(node))
+      RegisterViewport(viewport, viewport.GetPath());
+  }
+
+  private void RegisterViewport(Viewport viewport, string name) {
+    var rid = viewport.GetViewportRid();
+    foreach (var entry in _renderViewports)
+      if (entry.Rid == rid) return;
+    RenderingServer.ViewportSetMeasureRenderTime(rid, true);
+    _renderViewports.Add((viewport, rid, name));
+  }
 
   private void Add(string kind, double x = 0, double y = 0, double width = 0, double height = 0,
     int tick = -1, double durationMs = 0) {
@@ -91,6 +141,13 @@ public partial class InputLatencyProbe : Node {
     _driver.PostSessionUpdate -= EndSession;
     RenderingServer.FramePreDraw -= BeforeDraw;
     RenderingServer.FramePostDraw -= AfterDraw;
+    if (_renderSamples != null) {
+      GetTree().NodeAdded -= OnNodeAdded;
+      foreach (var entry in _renderViewports)
+        if (GodotObject.IsInstanceValid(entry.View) && entry.View.IsInsideTree())
+          RenderingServer.ViewportSetMeasureRenderTime(entry.Rid, false);
+      WriteRenderSamples();
+    }
     Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(_output))!);
     using var writer = new StreamWriter(_output);
     writer.WriteLine($"# utc_origin={_utcOrigin:O}; clock=Godot.Time.GetTicksUsec; origin_usec={_origin}");
@@ -98,5 +155,19 @@ public partial class InputLatencyProbe : Node {
     foreach (var s in _samples)
       writer.WriteLine(FormattableString.Invariant($"{s.Usec},{s.Frame},{s.Kind},{s.X},{s.Y},{s.Width},{s.Height},{s.Tick},{s.DurationMs:F3}"));
     GD.Print($"[InputLatency] Saved {_samples.Count} samples to {_output}");
+  }
+
+  private void WriteRenderSamples() {
+    var output = _output.EndsWith(".latency.csv", StringComparison.Ordinal)
+      ? _output[..^".latency.csv".Length] + ".render.csv" : _output + ".render.csv";
+    Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output))!);
+    using var writer = new StreamWriter(output);
+    writer.WriteLine($"# utc_origin={_utcOrigin:O}; origin_usec={_origin}; alignment=latest_available; GPU measurements may lag observation");
+    writer.WriteLine("usec,observed_process_frame,observed_drawn_frame,viewport,cpu_ms,gpu_ms,setup_cpu_ms,draw_calls,primitives,objects");
+    foreach (var s in _renderSamples) {
+      var name = "\"" + s.Viewport.Replace("\"", "\"\"") + "\"";
+      writer.WriteLine(FormattableString.Invariant($"{s.Usec},{s.Frame},{s.DrawnFrame},{name},{s.CpuMs:F6},{s.GpuMs:F6},{s.SetupCpuMs:F6},{s.DrawCalls},{s.Primitives},{s.Objects}"));
+    }
+    GD.Print($"[RenderTiming] Saved {_renderSamples.Count} viewport samples to {output}");
   }
 }
