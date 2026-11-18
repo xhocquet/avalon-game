@@ -4,6 +4,7 @@ namespace Meesles.Avalon.Client;
 
 [Tool]
 public partial class MinimapHeroMarker : MeshInstance3D {
+  public Color TeamColor { get; private set; } = Colors.White;
   private Texture2D _portrait;
   private ShaderMaterial _material;
 
@@ -37,6 +38,7 @@ public partial class MinimapHeroMarker : MeshInstance3D {
   }
 
   public void SetTeamColor(Color color) {
+    TeamColor = color;
     MarkerMaterial?.SetShaderParameter("team_color", color);
   }
 }

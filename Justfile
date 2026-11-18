@@ -10,6 +10,11 @@ godmode := "false"
 default:
     @just --list
 
+# Bake the ground material inside the minimap bounds to its saved texture.
+[group('assets')]
+bake-minimap:
+    & "{{ godot_console }}" --path client --rendering-method gl_compatibility --script ../scripts/bake-minimap.gd
+
 # Multiplayer: Server + 2 clients
 [group('play')]
 play:

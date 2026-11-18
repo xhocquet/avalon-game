@@ -9,6 +9,7 @@ param(
     [switch]$RenderTimings,
     [switch]$EditorDebugger,
     [switch]$SingleRenderedClient,
+    [string]$Resolution,
     [ValidateRange(1024, 65535)][int]$EditorDebugPort = 6017
 )
 
@@ -57,10 +58,10 @@ try {
     for ($i = 1; $i -le 2; $i++) {
         $headlessPeer = $SingleRenderedClient -and $i -eq 2
         $faction = if ($i -eq 1) { $Faction1 } else { $Faction2 }
-        $resolution = if ($ManualInput) { '1600x900' } else { '1000x650' }
+        $clientResolution = if ($Resolution) { $Resolution } elseif ($ManualInput) { '1600x900' } else { '1000x650' }
         $clientFps = if ($headlessPeer) { '30' } else { '60' }
         $clientArguments = @('--path', (Join-Path $repoRoot 'client'),
-            '--resolution', $resolution, '--max-fps', $clientFps, '--script', (Join-Path $PSScriptRoot 'profile-movement.gd'))
+            '--resolution', $clientResolution, '--max-fps', $clientFps, '--script', (Join-Path $PSScriptRoot 'profile-movement.gd'))
         if ($headlessPeer) { $clientArguments += '--headless' }
         if ($EditorDebugger -and $i -eq 1) {
             $clientArguments += @('--remote-debug', $debugUri, '--gpu-profile')

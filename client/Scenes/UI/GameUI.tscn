@@ -6,7 +6,7 @@
 [ext_resource type="PackedScene" path="res://Scenes/UI/Modals/ActionGridPopup.tscn" id="6_action_popup"]
 [ext_resource type="Texture2D" uid="uid://b6ghwu1go2tju" path="res://Assets/UI/PanelBorderBrownCompact.png" id="9_minimap_frame"]
 [ext_resource type="Texture2D" uid="uid://4m0ncay541cq" path="res://Assets/UI/PanelGreyBoltsDarkCompact.png" id="10_stats_frame"]
-[ext_resource type="Script" uid="uid://cyrmetdw45b6y" path="res://Scripts/UI/MinimapEditorPreview.cs" id="15_minimap_preview"]
+[ext_resource type="Script" path="res://Scripts/UI/MinimapView.cs" id="15_minimap_preview"]
 [ext_resource type="StyleBox" path="res://Assets/UI/ActionGridPanel.tres" id="16_grid_panel"]
 [ext_resource type="StyleBox" path="res://Assets/UI/SkillIconBorder.tres" id="17_skill_border"]
 [ext_resource type="PackedScene" uid="uid://cfnlx2ce8ke6k" path="res://Scenes/UI/Icons/HudIcon.tscn" id="20_skill_icon"]
@@ -584,39 +584,21 @@ patch_margin_top = 16
 patch_margin_right = 16
 patch_margin_bottom = 16
 
-[node name="MinimapEditorPreview" type="Control" parent="DefaultUI/MinimapFrame" unique_id=1797407202]
-z_index = 1
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 8.0
-offset_top = 8.0
-offset_right = -8.0
-offset_bottom = -8.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-script = ExtResource("15_minimap_preview")
-
-[node name="MinimapContainer" type="SubViewportContainer" parent="DefaultUI/MinimapFrame" unique_id=2135502074]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 8.0
-offset_top = 8.0
-offset_right = -8.0
-offset_bottom = -8.0
-grow_horizontal = 2
-grow_vertical = 2
-stretch = true
-
-[node name="MinimapViewport" type="SubViewport" parent="DefaultUI/MinimapFrame/MinimapContainer" unique_id=1352555608]
+[node name="Minimap" type="Control" parent="DefaultUI/MinimapFrame"]
 unique_name_in_owner = true
-handle_input_locally = false
-size = Vector2i(244, 244)
-render_target_update_mode = 4
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+clip_contents = true
+script = ExtResource("15_minimap_preview")
 
 [node name="ActionGridPopup" parent="DefaultUI" unique_id=1287773153 instance=ExtResource("6_action_popup")]
 unique_name_in_owner = true

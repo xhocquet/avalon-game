@@ -14,8 +14,10 @@ with automated movement or `-SkipTrace` through `scripts/multiplayer-profile.ps1
 
 Each client writes `clientN.render.csv` alongside its frame/input CSVs. It contains
 per-viewport rendering CPU/GPU milliseconds, global CPU frame setup, and visible
-draw-call/primitive/object counts. The main viewport and minimap are measured
-separately; later SubViewports added beneath the match scene are registered too.
+draw-call/primitive/object counts. Each active viewport is measured separately;
+later SubViewports added beneath the match scene are registered too. The texture
+minimap is ordinary 2D UI included in the main viewport, so it has no separate
+viewport timing. See [minimap](minimap.md) for bounds and image baking.
 The CSV uses the input probe's clock and records observation frame numbers. GPU
 measurements are the latest available and can lag the observation; they are not
 guaranteed to describe the same frame as a wall-clock sample. Zero/unavailable

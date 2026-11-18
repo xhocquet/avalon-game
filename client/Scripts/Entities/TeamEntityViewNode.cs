@@ -34,19 +34,19 @@ public abstract partial class TeamEntityViewNode : EntityViewNode, ISelectableTe
     if (Godot.Engine.IsEditorHint())
       return;
 
+    AddToGroup("minimap_entities");
     SetWorldOnlyLayers(this);
     _hoverOutline = new HoverOutline(this);
-    if (GetNodeOrNull<Node3D>("MinimapMarker") != null)
-      return;
-
-    AddChild(new Sprite3D {
-      Name = "MinimapMarker",
-      Texture = MinimapIcon,
-      Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
-      PixelSize = MinimapPixelSize,
-      NoDepthTest = true,
-      Layers = MinimapLayer
-    });
+    if (GetNodeOrNull<Node3D>("MinimapMarker") == null) {
+      AddChild(new Sprite3D {
+        Name = "MinimapMarker",
+        Texture = MinimapIcon,
+        Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
+        PixelSize = MinimapPixelSize,
+        NoDepthTest = true,
+        Layers = MinimapLayer
+      });
+    }
 
     for (var ancestor = GetParent(); ancestor != null; ancestor = ancestor.GetParent()) {
       var name = ancestor.Name.ToString();

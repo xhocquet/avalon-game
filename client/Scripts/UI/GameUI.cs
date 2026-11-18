@@ -13,7 +13,6 @@ using xpTURN.Klotho.Network;
 namespace Meesles.Avalon;
 
 public partial class GameUI : CanvasLayer, IViewHud {
-  private const uint WorldAndMinimapLayers = (1u << 0) | (1u << 1);
   private readonly List<IDisposable> _eventSubscriptions = new();
   private Label _announceLabel;
   private Tween _announceTween;
@@ -105,8 +104,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
   public PredictedPurchaseState PredictedPurchases { get; } = new();
 
   private Label _timerLabel;
-  private SubViewport _minimapViewport;
-  private Camera3D _minimapCamera;
+  private Meesles.Avalon.Client.MinimapView _minimap;
   private VisionRenderer _visionRenderer;
   private TextureRect _portraitTexture;
   private Label _selectedMinionCount;
@@ -116,10 +114,6 @@ public partial class GameUI : CanvasLayer, IViewHud {
   [Export] public float FocusRingWidthPx { get; set; } = 2.5f;
   [Export] public Color FocusRingColor { get; set; } = new(0.88f, 0.72f, 0.22f, 0.92f);
 
-  // Covers the World.tscn ground plane (100x100, centered at origin).
-  [Export] public float MinimapOrthoSize { get; set; } = 100.0f;
-  [Export] public float MinimapHeight { get; set; } = 60.0f;
-
   public void SyncFromFrame(Frame frame) {
     if (_visionRenderer == null) {
       _visionRenderer = new VisionRenderer { Name = "VisionRenderer" };
@@ -127,6 +121,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
     }
 
     _visionRenderer.Sync(frame, _localPlayerId);
+    _minimap?.SyncVision(_visionRenderer);
     if (_scoreboardScoreLabel != null)
       _scoreboardScoreLabel.Text = FormatLiveScores(frame);
 
@@ -317,7 +312,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
     _resultReturnButton = GetNodeOrNull<Button>("DefaultUI/ResultPanel/ResultPanelFrame/Content/Footer/ReturnButton");
     if (_resultReturnButton != null)
       _resultReturnButton.Pressed += OnReturnToLobbyPressed;
-    _minimapViewport = GetNode<SubViewport>("%MinimapViewport");
+    _minimap = GetNode<Meesles.Avalon.Client.MinimapView>("%Minimap");
     _portraitTexture = GetNodeOrNull<TextureRect>(
       "%PortraitTexture");
     _selectedMinionCount = GetNode<Label>("%SelectedMinionCount");
@@ -352,7 +347,6 @@ public partial class GameUI : CanvasLayer, IViewHud {
     if (_resultPanel != null) _resultPanel.Visible = false;
     SetupTabUi();
     SetupAnnouncement();
-    SetupMinimap();
     SetFocusPortrait(null);
   }
 
@@ -750,26 +744,6 @@ public partial class GameUI : CanvasLayer, IViewHud {
     _announceTween = CreateTween();
     _announceTween.TweenInterval(1.6);
     _announceTween.TweenProperty(_announceLabel, "modulate:a", 0f, 0.9);
-  }
-
-  // SubViewport inherits its parent viewport's World3D by default (own_world_3d = false), so
-  // dropping an orthogonal top-down camera into it renders the same World scene live - no
-  // duplicate geometry needed.
-  private void SetupMinimap() {
-    if (_minimapViewport == null) return;
-
-    _minimapCamera = new Camera3D {
-      Name = "MinimapCamera",
-      Current = true,
-      Projection = Camera3D.ProjectionType.Orthogonal,
-      Size = MinimapOrthoSize,
-      Near = 1.0f,
-      Far = MinimapHeight + 50.0f,
-      Position = new Vector3(0f, MinimapHeight, 0f),
-      RotationDegrees = new Vector3(-90f, 0f, 0f),
-      CullMask = WorldAndMinimapLayers
-    };
-    _minimapViewport.AddChild(_minimapCamera);
   }
 
   private void SetTimerText(string text) {

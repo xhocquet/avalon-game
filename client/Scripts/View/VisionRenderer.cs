@@ -16,6 +16,9 @@ public partial class VisionRenderer : MeshInstance3D {
   private ImageTexture _texture;
   private VisionTextureFilter _filter;
   private ShaderMaterial _material;
+  public Texture2D MinimapTexture { get; private set; }
+  public Vector2 MinimapOrigin { get; private set; }
+  public Vector2 MinimapSize { get; private set; }
   private ulong _nextUpdate;
   private int _teamId;
   private Task _renderTask;
@@ -32,14 +35,15 @@ public partial class VisionRenderer : MeshInstance3D {
     _material = new ShaderMaterial { Shader = GD.Load<Shader>("res://Scripts/View/Vision.gdshader") };
     _filter = new VisionTextureFilter { Name = "VisionTextureFilter" };
     AddChild(_filter);
-    _material.SetShaderParameter("vision_texture", _filter.Initialize(_texture));
+    MinimapTexture = _filter.Initialize(_texture);
+    _material.SetShaderParameter("vision_texture", MinimapTexture);
     _material.RenderPriority = 120;
     Mesh = new QuadMesh { Size = new Vector2(2, 2) };
     MaterialOverride = _material;
     CastShadow = ShadowCastingSetting.Off;
     IgnoreOcclusionCulling = true;
     CustomAabb = new Aabb(new Vector3(-10000, -10000, -10000), new Vector3(20000, 20000, 20000));
-    Layers = 1; // Both world and minimap cameras render this pass.
+    Layers = 1;
     Visible = false;
   }
 
@@ -75,6 +79,8 @@ public partial class VisionRenderer : MeshInstance3D {
         _image.SetData(TextureSize, TextureSize, false, Image.Format.R8, _pixels);
         _texture.Update(_image);
         _filter.Refresh();
+        MinimapOrigin = new Vector2(map.VisionOrigin.x.ToFloat(), map.VisionOrigin.y.ToFloat());
+        MinimapSize = new Vector2(map.VisionSize.x.ToFloat(), map.VisionSize.y.ToFloat());
         _material.SetShaderParameter("vision_origin", new Vector2(map.VisionOrigin.x.ToFloat(), map.VisionOrigin.y.ToFloat()));
         _material.SetShaderParameter("vision_size", new Vector2(map.VisionSize.x.ToFloat(), map.VisionSize.y.ToFloat()));
         Visible = true;

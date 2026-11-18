@@ -27,6 +27,9 @@
 [ext_resource type="PackedScene" uid="uid://3ded1f06hab5" path="res://Scenes/Objects/WaterBottle.tscn" id="23_qs546"]
 [ext_resource type="PackedScene" uid="uid://cuh0tkyxt3hv" path="res://Scenes/FX/HexGate.tscn" id="29_3a4wv"]
 
+[ext_resource type="Script" path="res://Scripts/UI/MinimapBounds.cs" id="minimap_bounds"]
+[ext_resource type="Texture2D" path="res://Assets/UI/Minimap/avalon.png" id="minimap_texture"]
+
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_evening"]
 panorama = ExtResource("1_evening_sky")
 
@@ -114,6 +117,11 @@ navigation_mesh = SubResource("NavigationMesh_ayvj0")
 [node name="GroundMesh" type="MeshInstance3D" parent="NavigationRegion3D" unique_id=52655680]
 mesh = SubResource("PlaneMesh_ground")
 skeleton = NodePath("../..")
+
+[node name="MinimapGuides" type="Node3D" parent="NavigationRegion3D/GroundMesh" node_paths=PackedStringArray("Ground")]
+script = ExtResource("minimap_bounds")
+Ground = NodePath("..")
+Texture = ExtResource("minimap_texture")
 
 [node name="Team1" type="Node3D" parent="NavigationRegion3D" unique_id=746784653]
 
