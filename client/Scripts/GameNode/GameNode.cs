@@ -159,6 +159,7 @@ public abstract partial class GameNode : Node {
   protected void BindNavigationToInput() {
     var navMesh = FPNavMeshSerializer.Deserialize(LoadNavigationMeshBytes());
     Input.BindNavigation(navMesh, new FPNavMeshQuery(navMesh, null));
+    GameUi.BindMinimapNavigation(navMesh);
   }
 
   // Remove authored props for teams pruned by the sim.

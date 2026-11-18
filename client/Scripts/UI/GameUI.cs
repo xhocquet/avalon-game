@@ -114,6 +114,8 @@ public partial class GameUI : CanvasLayer, IViewHud {
   [Export] public float FocusRingWidthPx { get; set; } = 2.5f;
   [Export] public Color FocusRingColor { get; set; } = new(0.88f, 0.72f, 0.22f, 0.92f);
 
+  public void BindMinimapNavigation(xpTURN.Klotho.Deterministic.Navigation.FPNavMesh mesh) => _minimap.BindNavigation(mesh);
+
   public bool TryGetMinimapWorldPosition(Vector2 screenPosition, bool clamp, out Vector3 position) {
     position = default;
     return _minimap != null && _minimap.TryGetWorldPosition(screenPosition, clamp, out position);
@@ -127,6 +129,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
 
     _visionRenderer.Sync(frame, _localPlayerId);
     _minimap?.SyncVision(_visionRenderer);
+    _minimap?.SyncPath(frame, _localPlayerId);
     if (_scoreboardScoreLabel != null)
       _scoreboardScoreLabel.Text = FormatLiveScores(frame);
 

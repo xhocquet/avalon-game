@@ -18,6 +18,8 @@
 [ext_resource type="PackedScene" path="res://Scenes/UI/LoadingBar.tscn" id="26_loading_bar"]
 [ext_resource type="Texture2D" uid="uid://bd2agxgtwgkoi" path="res://Assets/Portraits/Factions/AllHairWizards/minion.webp" id="27_minion_portrait"]
 
+[ext_resource type="Script" path="res://Scripts/UI/MinimapPath.cs" id="minimap_path"]
+
 [sub_resource type="LabelSettings" id="LabelSettings_ie3ut"]
 font_size = 32
 outline_size = 2
@@ -599,6 +601,24 @@ grow_vertical = 2
 mouse_filter = 0
 clip_contents = true
 script = ExtResource("15_minimap_preview")
+
+[node name="PlayerPath" type="Control" parent="DefaultUI/MinimapFrame/Minimap"]
+z_index = 11
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("minimap_path")
+
+[node name="ViewportFootprint" type="Line2D" parent="DefaultUI/MinimapFrame/Minimap"]
+z_index = 20
+points = PackedVector2Array(80, 90, 164, 90, 150, 150, 94, 150, 80, 90)
+width = 1.0
+default_color = Color(1, 1, 1, 0.85)
+antialiased = true
 
 [node name="ActionGridPopup" parent="DefaultUI" unique_id=1287773153 instance=ExtResource("6_action_popup")]
 unique_name_in_owner = true
