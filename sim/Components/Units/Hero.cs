@@ -3,7 +3,7 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Components;
 
-[KlothoComponent(ComponentIds.Hero)]
+[KlothoComponent(ComponentIds.Hero, MaxCount = SimulationCapacity.PlayerSlots)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public partial struct Hero(int playerId, int heroStatsAssetId) : IComponent {
   public int PlayerId = playerId;

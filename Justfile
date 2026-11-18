@@ -109,6 +109,11 @@ loadtest ticks="1000":
 benchmark ticks="10000":
     dotnet run --project .\tools\LoadTestRunner -- {{ ticks }} --system-perf
 
+# Component capacities, live counts, and reserved heap bytes after a simulation run.
+[group('test')]
+memory ticks="1000":
+    dotnet run --project .\tools\LoadTestRunner -- {{ ticks }} --memory-report=TestResults/latest/component-memory.html
+
 # Load test with dotnet-trace flame graph
 [group('test')]
 loadtest-profile ticks="10000":
@@ -137,6 +142,12 @@ sync-klotho:
     Copy-Item -Force "{{ klotho_src }}\bin\Debug\net8.0\{{ klotho_dll }}" \
       ".\client\addons\klotho\lib\{{ klotho_dll }}"
     Write-Host "Klotho runtime DLL synced."
+
+[group('build')]
+sync-klotho-generator:
+    dotnet build .\vendor\Klotho\Tools\KlothoGenerator\KlothoGenerator.csproj -c Release
+    Copy-Item -Force .\vendor\Klotho\Tools\KlothoGenerator\bin\Release\netstandard2.0\KlothoGenerator.dll \
+      .\client\addons\klotho\Analyzers\KlothoGenerator.dll
 
 [group('build')]
 clean:

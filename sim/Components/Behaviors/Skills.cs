@@ -12,7 +12,7 @@ namespace Meesles.Avalon.Sim.Components;
 //
 // SkillAssetIds is copied off HeroStatsAsset at spawn rather than looked up per access, so the cast path
 // never has to reach the asset registry to find out which skills a hero owns.
-[KlothoComponent(ComponentIds.Skills)]
+[KlothoComponent(ComponentIds.Skills, MaxCount = SimulationCapacity.PlayerSlots)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public unsafe partial struct Skills : IComponent {
   public const int MaxSlots = 4;

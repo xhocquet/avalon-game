@@ -5,7 +5,7 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon.Sim.Components;
 
 // Temporary indicator of a resource flying through the air from an oasis
-[KlothoComponent(ComponentIds.OasisResourceLanding)]
+[KlothoComponent(ComponentIds.OasisResourceLanding, MaxCount = SimulationCapacity.OasisSlots)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public partial struct OasisResourceLanding : IComponent {
   public int PickupId;

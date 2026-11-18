@@ -8,7 +8,7 @@ namespace Meesles.Avalon.Sim.Components;
 // from Inventory because that struct already sits near the 128-byte component ceiling.
 // Fixed buffer for the same reason as Inventory.ItemAssetIds - components must be
 // unmanaged and blittable.
-[KlothoComponent(ComponentIds.Resources)]
+[KlothoComponent(ComponentIds.Resources, MaxCount = SimulationCapacity.PlayerSlots)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public unsafe partial struct Resources : IComponent {
   public fixed int Counts[PickupTypes.MaxTypes];

@@ -3,8 +3,8 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Components;
 
-// Neutral resource fountain ejecting Pickups on a cooldown (see OasisSpawnSystem).
-[KlothoComponent(ComponentIds.Oasis)]
+// One live neutral fountain; spawned pickups are separate entities.
+[KlothoComponent(ComponentIds.Oasis, MaxCount = SimulationCapacity.OasisSlots)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public partial struct Oasis : IComponent {
   public int OasisId;

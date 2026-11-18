@@ -3,6 +3,7 @@ using Godot;
 using Meesles.Avalon.Client;
 using Meesles.Avalon.Client.Scripts;
 using Meesles.Avalon.Client.Scripts.GameState;
+using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Events;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.ECS;
@@ -56,7 +57,7 @@ public partial class LobbyGameNode : GameNode {
       UsePrediction = true,
       EnableErrorCorrection = true
     };
-    _sesCfg = new SessionConfig { MaxPlayers = 4, MinPlayers = 2, CountdownDurationMs = CountdownMs };
+    _sesCfg = new SessionConfig { MaxPlayers = SimulationCapacity.PlayerSlots, MinPlayers = 2, CountdownDurationMs = CountdownMs };
 
     InitializeSharedNodes();
     LobbyUi.SetLobbyMode();

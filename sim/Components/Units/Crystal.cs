@@ -3,7 +3,7 @@ using xpTURN.Klotho.ECS;
 
 namespace Meesles.Avalon.Sim.Components;
 
-[KlothoComponent(ComponentIds.Crystal)]
+[KlothoComponent(ComponentIds.Crystal, MaxCount = SimulationCapacity.CrystalSlots)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public partial struct Crystal : IComponent {
   public int CrystalId;

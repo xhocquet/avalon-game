@@ -5,7 +5,7 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon.Sim.Components;
 
 // Temporary indicator of an oasis about to spawn a resource
-[KlothoComponent(ComponentIds.OasisEjectPending)]
+[KlothoComponent(ComponentIds.OasisEjectPending, MaxCount = SimulationCapacity.OasisSlots)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public partial struct OasisEjectPending : IComponent {
   public int PickupId;

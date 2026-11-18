@@ -35,7 +35,8 @@ public class OasisSpawnSystem : ISystem {
 
       oasis.SpawnCooldownRemainingMs += rules.OasisSpawnIntervalMs;
 
-      if (frame.Filter<Pickup>().Count >= rules.MaxGroundPickups)
+      var pickupCount = frame.Filter<Pickup>().Count;
+      if (pickupCount >= rules.MaxGroundPickups || pickupCount >= SimulationCapacity.PickupSlots)
         continue;
 
       ref readonly var transform = ref frame.GetReadOnly<TransformComponent>(entity);

@@ -82,8 +82,10 @@ public static class SimulationSetup {
 
   // spawnHeroesNow: use default factions or selected ones
   public static void InitializeWorld(ref Frame frame, int maxPlayers, bool spawnHeroesNow = false) {
-    UnitLookup.InitializeUnitIds(ref frame);
+    SimulationCapacity.ValidatePlayerCount(maxPlayers);
     frame.AssetRegistry.TryGet<MapLayoutAsset>(out var layout);
+    SimulationCapacity.ValidateMapLayout(layout);
+    UnitLookup.InitializeUnitIds(ref frame);
 
     var playerIds = GetPlayerIds(ref frame, maxPlayers);
     var structureTeams = spawnHeroesNow ? BuildRosterTeamIds(playerIds.Count) : GetAuthoredTeamIds(layout);

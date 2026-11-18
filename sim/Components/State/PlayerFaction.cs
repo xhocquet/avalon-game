@@ -4,7 +4,7 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon.Sim.Components;
 
 // Record of player faction selection, written during match setup by SelectFactionCommand.
-[KlothoComponent(ComponentIds.PlayerFaction)]
+[KlothoComponent(ComponentIds.PlayerFaction, MaxCount = SimulationCapacity.PlayerSlots)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public partial struct PlayerFaction : IComponent {
   public int PlayerId;

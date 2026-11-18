@@ -4,7 +4,7 @@ using xpTURN.Klotho.ECS;
 namespace Meesles.Avalon.Sim.Components;
 
 // Marker WaveSpawnSystem spawns minion waves from.
-[KlothoComponent(ComponentIds.SpawnPoint)]
+[KlothoComponent(ComponentIds.SpawnPoint, MaxCount = SimulationCapacity.SpawnPointSlots)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public partial struct SpawnPoint : IComponent {
   public int SpawnPointId;

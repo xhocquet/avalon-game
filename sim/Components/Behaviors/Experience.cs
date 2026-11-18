@@ -8,7 +8,7 @@ namespace Meesles.Avalon.Sim.Components;
 // the running total into levels and the stat gains each one grants.
 // Experience is lifetime XP earned, never spent and never reset by death, so the level thresholds in
 // XpRulesAsset are cumulative rather than per-level.
-[KlothoComponent(ComponentIds.Experience)]
+[KlothoComponent(ComponentIds.Experience, MaxCount = SimulationCapacity.PlayerSlots)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public partial struct Experience() : IComponent {
   public int Level = 1;

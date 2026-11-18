@@ -64,6 +64,9 @@ wallClock.Stop();
 Console.WriteLine($"\nTotal: {wallClock.Elapsed.TotalSeconds:F2}s for {totalTicks} ticks ({wallClock.Elapsed.TotalMilliseconds / totalTicks:F3} ms/tick)");
 Console.WriteLine("\nPer-system timings:");
 Console.WriteLine(simulation.AppendSystemPerfLog() ?? "Pass --system-perf to record per-system time and allocations.");
+foreach (var arg in args)
+  if (arg == "--memory-report" || arg.StartsWith("--memory-report=", StringComparison.Ordinal))
+    ComponentMemoryReport.Write(simulation.Frame, arg == "--memory-report" ? null : arg["--memory-report=".Length..]);
 
 static int CountComponents<TComponent>(Frame frame) where TComponent : unmanaged, IComponent {
     int count = 0;

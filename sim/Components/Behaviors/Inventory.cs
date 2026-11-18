@@ -10,7 +10,7 @@ namespace Meesles.Avalon.Sim.Components;
 // struct is snapshotted via a raw heap memcpy for rollback, and the generated codec walks the fixed
 // buffer for hashing/serialization (see HFSMState for the same pattern). Buffer size keeps the
 // struct under the 128-byte component ceiling: 4 ints + MaxItems*4 = 112B.
-[KlothoComponent(ComponentIds.Inventory)]
+[KlothoComponent(ComponentIds.Inventory, MaxCount = SimulationCapacity.PlayerSlots)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public unsafe partial struct Inventory : IComponent {
   // Repeatable buys stack, so each purchase appends another entry - this caps how many a hero may own.

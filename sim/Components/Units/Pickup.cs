@@ -5,7 +5,7 @@ namespace Meesles.Avalon.Sim.Components;
 
 // Neutral, collectable resource pickup. Like Oasis, carries no Team/Health/UnitId so it stays
 // invisible to TargetAcquisitionSystem/DamageSystem; PickupSystem collects it by proximity only.
-[KlothoComponent(ComponentIds.Pickup)]
+[KlothoComponent(ComponentIds.Pickup, MaxCount = SimulationCapacity.PickupSlots)]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public partial struct Pickup : IComponent {
   public int PickupId;

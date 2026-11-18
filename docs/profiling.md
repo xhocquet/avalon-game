@@ -190,3 +190,53 @@ The system monitor excludes the first 120 executions of each system from steady
 totals. Omit `--system-perf` for wall-clock timing without per-system instrumentation.
 This runner uses 16 ms simulation ticks and the authored navigation tuning; it
 does not measure rendering, prediction or multiplayer reconciliation.
+
+Inspect component memory reservations and live counts:
+
+```powershell
+just memory
+just memory 5000
+```
+
+This uses the standalone two-player fixture and writes
+`TestResults/latest/component-memory.html`, plus console tables grouped by
+responsibility. Groups have reserved-byte subtotals and heap shares; groups and
+their components are ordered by reserved size. HTML groups can be collapsed.
+Reporting categories are defined once in `ComponentMemoryReport.GroupFor`; they
+do not change component namespaces, network IDs or heap layout.
+`live` is the count at the final tick; `slots` is the maximum
+concurrent component count. Empty slots are headroom, not evidence that a
+component can be removed. Sparse indices remain sized to `MaxEntities` even for
+capped components.
+
+`SimulationCapacity.PlayerSlots` defines the process-wide player maximum shared
+by local and networked modes. Hero-only components use it through
+`KlothoComponent.MaxCount`; startup rejects a larger roster. Shared components
+such as health, stats and navigation retain the full entity capacity. Raising
+the supported player maximum requires changing this bound and deploying matching
+client/server builds. Klotho freezes its storage layout process-wide, so capacities
+cannot safely follow the current connected-player count or change between modes.
+
+Shared reservation limits live in [`SimulationCapacity`](../sim/SimulationCapacity.cs):
+
+| Bound | Components | Invariant |
+|---|---|---|
+| `PlayerSlots` | `Player`, `Hero`, `PlayerFaction`, `Inventory`, `Experience`, `Respawns`, `Skills`, `Resources` | At most one of each per player; heroes survive death and respawn in place. |
+| `OasisSlots` | `Oasis`, `OasisEjectPending`, `OasisResourceLanding` | At most one live fountain per match; pending/flight state lives on the fountain. |
+| `TurretSlots = TurretsPerPlayer * PlayerSlots` | `Turret` | At most five turrets per player/team. |
+| `CrystalSlots = CrystalsPerPlayer * PlayerSlots` | `Crystal` | At most one base per player/team. |
+| `SpawnPointSlots = SpawnPointsPerPlayer * PlayerSlots` | `SpawnPoint` | At most one spawn point per player/team. |
+| `PickupSlots` | `Pickup` | At most 128 ground pickups; oasis spawning respects this bound and the authored `MaxGroundPickups`. |
+
+`Oasis` stores match-instance state, not a fountain type definition. `Pickup` is
+separate: each resource landed by the oasis becomes its own pickup entity.
+Maps may omit the oasis; initialization rejects more oasis markers than
+`OasisSlots` before creating world entities. A storage cap of one does not make
+these components Klotho singletons or change how the oasis filter finds them.
+Map validation also checks structure counts per team and against the process-wide
+capacity. Networked initialization can temporarily create every authored team's
+structures before pruning inactive teams, so storage follows the supported player
+maximum rather than the connected roster size.
+
+After changing generator source, `just sync-klotho-generator` rebuilds and copies
+the packaged analyzer used by client, server and test builds.

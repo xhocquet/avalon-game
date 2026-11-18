@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using Meesles.Avalon.Server;
+using Meesles.Avalon.Sim;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.LiteNetLib;
@@ -30,6 +31,7 @@ var simConfig = SimulationConfigLoader.Load(args, logger);
 var sessionConfig = SessionConfigLoader.Load(args, logger);
 int tickIntervalMs = simConfig.TickIntervalMs;
 int maxPlayers = sessionConfig.MaxPlayers;
+SimulationCapacity.ValidatePlayerCount(maxPlayers);
 
 // Shared sim DataAssets (.bytes), copied from client/Sim/Data next to the executable under Data/.
 var assetPath = Path.Combine(AppContext.BaseDirectory, "Data", "Assets.bytes");
