@@ -6,9 +6,10 @@
 [ext_resource type="PackedScene" path="res://Scenes/UI/Modals/ActionGridPopup.tscn" id="6_action_popup"]
 [ext_resource type="Texture2D" uid="uid://b6ghwu1go2tju" path="res://Assets/UI/PanelBorderBrownCompact.png" id="9_minimap_frame"]
 [ext_resource type="Texture2D" uid="uid://4m0ncay541cq" path="res://Assets/UI/PanelGreyBoltsDarkCompact.png" id="10_stats_frame"]
-[ext_resource type="Script" path="res://Scripts/UI/MinimapView.cs" id="15_minimap_preview"]
+[ext_resource type="Script" uid="uid://546783yxe25d" path="res://Scripts/UI/MinimapView.cs" id="15_minimap_preview"]
 [ext_resource type="StyleBox" path="res://Assets/UI/ActionGridPanel.tres" id="16_grid_panel"]
-[ext_resource type="StyleBox" path="res://Assets/UI/SkillIconBorder.tres" id="17_skill_border"]
+[ext_resource type="StyleBox" uid="uid://brua1yc8myyja" path="res://Assets/UI/SkillIconBorder.tres" id="17_skill_border"]
+[ext_resource type="Shader" uid="uid://dqq2xr44qj125" path="res://Assets/FX/Shaders/MatchTickerPortrait.gdshader" id="19_qf2hn"]
 [ext_resource type="PackedScene" uid="uid://cfnlx2ce8ke6k" path="res://Scenes/UI/Icons/HudIcon.tscn" id="20_skill_icon"]
 [ext_resource type="PackedScene" uid="uid://bc25aomqihvw" path="res://Scenes/UI/Icons/ItemIcon.tscn" id="21_item_icon"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/Modals/ResultPanel.tscn" id="22_result_panel"]
@@ -17,8 +18,11 @@
 [ext_resource type="PackedScene" path="res://Scenes/UI/Icons/BuffIcon.tscn" id="25_buff_icon"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/LoadingBar.tscn" id="26_loading_bar"]
 [ext_resource type="Texture2D" uid="uid://bd2agxgtwgkoi" path="res://Assets/Portraits/Factions/AllHairWizards/minion.webp" id="27_minion_portrait"]
-
-[ext_resource type="Script" path="res://Scripts/UI/MinimapPath.cs" id="minimap_path"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/MatchTickerRow.tscn" id="28_ticker_row"]
+[ext_resource type="Texture2D" uid="uid://cbynewshg5k00" path="res://Assets/Portraits/Minimap/PickleKnight.webp" id="29_ticker_pickle"]
+[ext_resource type="Texture2D" uid="uid://dc0topnlsqxjd" path="res://Assets/Portraits/Minimap/CrystalWarrior.webp" id="30_ticker_crystal"]
+[ext_resource type="Texture2D" uid="uid://beyr1uc27gjmt" path="res://Assets/Portraits/Minimap/AllHairWizard.webp" id="31_ticker_wizard"]
+[ext_resource type="Script" uid="uid://c72853l2pt3e0" path="res://Scripts/UI/MinimapPath.cs" id="minimap_path"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_ie3ut"]
 font_size = 32
@@ -43,6 +47,56 @@ border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.68, 0.46, 0.24, 1)
 anti_aliasing = false
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_idymm"]
+resource_local_to_scene = true
+shader = ExtResource("19_qf2hn")
+shader_parameter/team_color = Color(0.25, 0.75, 0.95, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2u8p5"]
+resource_local_to_scene = true
+shader = ExtResource("19_qf2hn")
+shader_parameter/team_color = Color(0.95, 0.35, 0.28, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_lb3ge"]
+resource_local_to_scene = true
+shader = ExtResource("19_qf2hn")
+shader_parameter/team_color = Color(0.25, 0.75, 0.95, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_5cc8m"]
+resource_local_to_scene = true
+shader = ExtResource("19_qf2hn")
+shader_parameter/team_color = Color(0.95, 0.35, 0.28, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_lbn0y"]
+resource_local_to_scene = true
+shader = ExtResource("19_qf2hn")
+shader_parameter/team_color = Color(0.25, 0.75, 0.95, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_3cswd"]
+resource_local_to_scene = true
+shader = ExtResource("19_qf2hn")
+shader_parameter/team_color = Color(0.95, 0.35, 0.28, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_oq6br"]
+resource_local_to_scene = true
+shader = ExtResource("19_qf2hn")
+shader_parameter/team_color = Color(0.25, 0.75, 0.95, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_1ehl4"]
+resource_local_to_scene = true
+shader = ExtResource("19_qf2hn")
+shader_parameter/team_color = Color(0.95, 0.35, 0.28, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_3tjsu"]
+resource_local_to_scene = true
+shader = ExtResource("19_qf2hn")
+shader_parameter/team_color = Color(0.25, 0.75, 0.95, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_obiy7"]
+resource_local_to_scene = true
+shader = ExtResource("19_qf2hn")
+shader_parameter/team_color = Color(0.95, 0.35, 0.28, 1)
 
 [node name="GameUI" type="CanvasLayer" unique_id=1765081607 groups=["game_ui"]]
 process_mode = 3
@@ -97,10 +151,10 @@ horizontal_alignment = 1
 
 [node name="SelectionRectangle" type="Panel" parent="DefaultUI" unique_id=1215130715]
 layout_mode = 1
-offset_left = 80.0
-offset_top = 80.0
-offset_right = 260.0
-offset_bottom = 180.0
+offset_left = 722.0
+offset_top = 350.0
+offset_right = 1009.0
+offset_bottom = 526.0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_selection_rectangle")
 
@@ -354,7 +408,6 @@ offset_right = 28.0
 offset_bottom = 45.0
 size_flags_horizontal = 4
 size_flags_vertical = 0
-mouse_filter = 2
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 13
@@ -586,8 +639,9 @@ patch_margin_top = 16
 patch_margin_right = 16
 patch_margin_bottom = 16
 
-[node name="Minimap" type="Control" parent="DefaultUI/MinimapFrame"]
+[node name="Minimap" type="Control" parent="DefaultUI/MinimapFrame" unique_id=1706018958]
 unique_name_in_owner = true
+clip_contents = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -598,11 +652,9 @@ offset_right = -8.0
 offset_bottom = -8.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 0
-clip_contents = true
 script = ExtResource("15_minimap_preview")
 
-[node name="PlayerPath" type="Control" parent="DefaultUI/MinimapFrame/Minimap"]
+[node name="PlayerPath" type="Control" parent="DefaultUI/MinimapFrame/Minimap" unique_id=1638663025]
 z_index = 11
 layout_mode = 1
 anchors_preset = 15
@@ -613,7 +665,7 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("minimap_path")
 
-[node name="ViewportFootprint" type="Line2D" parent="DefaultUI/MinimapFrame/Minimap"]
+[node name="ViewportFootprint" type="Line2D" parent="DefaultUI/MinimapFrame/Minimap" unique_id=1594476349]
 z_index = 20
 points = PackedVector2Array(80, 90, 164, 90, 150, 150, 94, 150, 80, 90)
 width = 1.0
@@ -626,6 +678,105 @@ layout_mode = 1
 
 [node name="StatsPopup" parent="DefaultUI" unique_id=1425467676 instance=ExtResource("24_stats_popup")]
 
+[node name="MatchTickerPanel" type="PanelContainer" parent="DefaultUI" unique_id=1809215722]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 16.0
+offset_top = 80.0
+offset_right = 416.0
+offset_bottom = 344.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_71wt1")
+
+[node name="Rows" type="VBoxContainer" parent="DefaultUI/MatchTickerPanel" unique_id=770762740]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="DeathEvent" parent="DefaultUI/MatchTickerPanel/Rows" unique_id=1810582317 instance=ExtResource("28_ticker_row")]
+layout_mode = 2
+
+[node name="ActorPortrait" parent="DefaultUI/MatchTickerPanel/Rows/DeathEvent/Content/Participants" index="0"]
+material = SubResource("ShaderMaterial_idymm")
+
+[node name="TargetPortrait" parent="DefaultUI/MatchTickerPanel/Rows/DeathEvent/Content/Participants" index="3"]
+material = SubResource("ShaderMaterial_2u8p5")
+
+[node name="DeathEvent2" parent="DefaultUI/MatchTickerPanel/Rows" unique_id=108886878 instance=ExtResource("28_ticker_row")]
+layout_mode = 2
+
+[node name="ActorPortrait" parent="DefaultUI/MatchTickerPanel/Rows/DeathEvent2/Content/Participants" index="0"]
+material = SubResource("ShaderMaterial_lb3ge")
+texture = ExtResource("29_ticker_pickle")
+
+[node name="ActorName" parent="DefaultUI/MatchTickerPanel/Rows/DeathEvent2/Content/Participants" index="1"]
+text = "Pickle Knight"
+
+[node name="TargetPortrait" parent="DefaultUI/MatchTickerPanel/Rows/DeathEvent2/Content/Participants" index="3"]
+material = SubResource("ShaderMaterial_5cc8m")
+texture = ExtResource("30_ticker_crystal")
+
+[node name="TargetName" parent="DefaultUI/MatchTickerPanel/Rows/DeathEvent2/Content/Participants" index="4"]
+text = "Crystal Warrior"
+
+[node name="DeathEvent3" parent="DefaultUI/MatchTickerPanel/Rows" unique_id=936400199 instance=ExtResource("28_ticker_row")]
+layout_mode = 2
+
+[node name="ActorPortrait" parent="DefaultUI/MatchTickerPanel/Rows/DeathEvent3/Content/Participants" index="0"]
+material = SubResource("ShaderMaterial_lbn0y")
+texture = ExtResource("31_ticker_wizard")
+
+[node name="ActorName" parent="DefaultUI/MatchTickerPanel/Rows/DeathEvent3/Content/Participants" index="1"]
+text = "Hairy Wizard"
+
+[node name="TargetPortrait" parent="DefaultUI/MatchTickerPanel/Rows/DeathEvent3/Content/Participants" index="3"]
+material = SubResource("ShaderMaterial_3cswd")
+
+[node name="TurretDestroyedEvent" parent="DefaultUI/MatchTickerPanel/Rows" unique_id=1161414615 instance=ExtResource("28_ticker_row")]
+layout_mode = 2
+
+[node name="ActorPortrait" parent="DefaultUI/MatchTickerPanel/Rows/TurretDestroyedEvent/Content/Participants" index="0"]
+material = SubResource("ShaderMaterial_oq6br")
+texture = ExtResource("29_ticker_pickle")
+
+[node name="ActorName" parent="DefaultUI/MatchTickerPanel/Rows/TurretDestroyedEvent/Content/Participants" index="1"]
+visible = false
+
+[node name="EventText" parent="DefaultUI/MatchTickerPanel/Rows/TurretDestroyedEvent/Content/Participants" index="2"]
+text = "Turret destroyed."
+
+[node name="TargetPortrait" parent="DefaultUI/MatchTickerPanel/Rows/TurretDestroyedEvent/Content/Participants" index="3"]
+visible = false
+material = SubResource("ShaderMaterial_1ehl4")
+
+[node name="TargetName" parent="DefaultUI/MatchTickerPanel/Rows/TurretDestroyedEvent/Content/Participants" index="4"]
+visible = false
+
+[node name="PlayerDefeatedEvent" parent="DefaultUI/MatchTickerPanel/Rows" unique_id=1576022729 instance=ExtResource("28_ticker_row")]
+layout_mode = 2
+
+[node name="ActorPortrait" parent="DefaultUI/MatchTickerPanel/Rows/PlayerDefeatedEvent/Content/Participants" index="0"]
+material = SubResource("ShaderMaterial_3tjsu")
+texture = ExtResource("29_ticker_pickle")
+
+[node name="ActorName" parent="DefaultUI/MatchTickerPanel/Rows/PlayerDefeatedEvent/Content/Participants" index="1"]
+text = "PlayerX"
+
+[node name="EventText" parent="DefaultUI/MatchTickerPanel/Rows/PlayerDefeatedEvent/Content/Participants" index="2"]
+text = "defeated!"
+
+[node name="TargetPortrait" parent="DefaultUI/MatchTickerPanel/Rows/PlayerDefeatedEvent/Content/Participants" index="3"]
+visible = false
+material = SubResource("ShaderMaterial_obiy7")
+
+[node name="TargetName" parent="DefaultUI/MatchTickerPanel/Rows/PlayerDefeatedEvent/Content/Participants" index="4"]
+visible = false
+
 [node name="TabUI" parent="." unique_id=313774460 instance=ExtResource("23_tab_ui")]
 
 [editable path="DefaultUI/BottomBar/HudColumns/VitalsAndSkillsColumn/SkillPanel/SkillGrid/PassiveIcon"]
+[editable path="DefaultUI/MatchTickerPanel/Rows/DeathEvent"]
+[editable path="DefaultUI/MatchTickerPanel/Rows/DeathEvent2"]
+[editable path="DefaultUI/MatchTickerPanel/Rows/DeathEvent3"]
+[editable path="DefaultUI/MatchTickerPanel/Rows/TurretDestroyedEvent"]
+[editable path="DefaultUI/MatchTickerPanel/Rows/PlayerDefeatedEvent"]
