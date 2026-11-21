@@ -5,6 +5,8 @@ namespace Meesles.Avalon;
 public partial class UnitHealthBar : Control {
   public enum BarTier { Minion, Turret, Hero }
 
+  public CharacterNameMessages NameMessages { get; } = new();
+
   [Export] public BarTier Tier { get; set; }
   [Export] public float BarWidth { get; set; } = 54f;
   [Export] public float HealthHeight { get; set; } = 6f;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Godot;
 using Meesles.Avalon.Client;
 using Meesles.Avalon.Client.Scripts.Entities;
+using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Godot;
@@ -20,7 +21,7 @@ public partial class HealthBars : Control {
   [Export] public Color NeutralFillColor { get; set; } = TeamPalette.Default.Neutral;
 
   public Func<int, string> ResolvePlayerName { get; set; }
-  public Func<int, string> ResolvePlayerNotice { get; set; }
+  public Func<int, bool> HasAvailableSkillUpgrade { get; set; }
 
   private readonly Dictionary<ulong, UnitHealthBar> _bars = new();
   private readonly Dictionary<UnitHealthBar.BarTier, Stack<UnitHealthBar>> _idle = new() {
@@ -30,6 +31,17 @@ public partial class HealthBars : Control {
   };
   private readonly HashSet<ulong> _seen = new();
   private readonly List<ulong> _removed = new();
+  private readonly Dictionary<int, double> _cleansedUntil = new();
+  private readonly List<int> _expiredCleanses = new();
+
+  public void ShowCleansed(int unitId) {
+    if (unitId > 0) _cleansedUntil[unitId] = Time.GetTicksMsec() / 1000.0 + 1.0;
+  }
+
+  public void ClearMessages() {
+    _cleansedUntil.Clear();
+    foreach (var bar in _bars.Values) bar.NameMessages.Reset();
+  }
 
   public override void _Ready() {
     MouseFilter = MouseFilterEnum.Ignore;
@@ -39,6 +51,11 @@ public partial class HealthBars : Control {
     _seen.Clear();
     var cam = GetViewport().GetCamera3D();
     var viewport = GetViewport().GetVisibleRect();
+    var messageTime = Time.GetTicksMsec() / 1000.0;
+    _expiredCleanses.Clear();
+    foreach (var (unitId, expiry) in _cleansedUntil)
+      if (messageTime >= expiry) _expiredCleanses.Add(unitId);
+    foreach (var unitId in _expiredCleanses) _cleansedUntil.Remove(unitId);
     foreach (var node in GetTree().GetNodesInGroup("units")) {
       if (cam == null || node is not EntityViewNode view || !view.IsVisibleInTree()) continue;
       var frame = view.Engine?.PredictedFrame.Frame;
@@ -55,12 +72,13 @@ public partial class HealthBars : Control {
       var height = BarWorldYOffset;
       var level = 1;
       var playerName = "";
+      var hasSkillUpgrade = false;
       if (isHero) {
         ref readonly var hero = ref frame.GetReadOnly<Hero>(entity);
         height = frame.AssetRegistry.Get<HeroStatsAsset>(hero.HeroStatsAssetId).HealthBarHeight.ToFloat();
         level = frame.Has<Experience>(entity) ? frame.GetReadOnly<Experience>(entity).Level : 1;
-        playerName = ResolvePlayerNotice?.Invoke(hero.PlayerId)
-          ?? ResolvePlayerName?.Invoke(hero.PlayerId) ?? $"Player {hero.PlayerId}";
+        hasSkillUpgrade = HasAvailableSkillUpgrade?.Invoke(hero.PlayerId) ?? false;
+        playerName = ResolvePlayerName?.Invoke(hero.PlayerId) ?? $"Player {hero.PlayerId}";
       }
       else if (view is MinionEntity minion) {
         height = minion.HealthBarHeight >= 0f ? minion.HealthBarHeight
@@ -89,6 +107,10 @@ public partial class HealthBars : Control {
       }
       var teamId = frame.Has<Team>(entity) ? frame.GetReadOnly<Team>(entity).TeamId : 0;
       var color = teamId == 1 ? TeamOneFillColor : teamId == 2 ? TeamTwoFillColor : NeutralFillColor;
+      if (isHero) {
+        _cleansedUntil.TryGetValue(UnitLookup.GetUnitId(ref frame, entity), out var cleansedUntil);
+        playerName = bar.NameMessages.Resolve(frame, entity, hasSkillUpgrade, playerName, messageTime, cleansedUntil);
+      }
       bar.Position = (point + new Vector2(-bar.BarWidth * 0.5f, BarScreenOffsetY)).Round();
       bar.SetState(health.Current.ToFloat(), maxHealth, health.Mana.ToFloat(), stats.MaxMana.ToFloat(), level,
         playerName, color);
@@ -120,6 +142,7 @@ public partial class HealthBars : Control {
 
   private void ReturnBar(UnitHealthBar bar) {
     bar.Hide();
+    bar.NameMessages.Reset();
     _idle[bar.Tier].Push(bar);
   }
 }

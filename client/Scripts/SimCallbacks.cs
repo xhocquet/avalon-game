@@ -1,3 +1,4 @@
+using System;
 using Godot;
 using Meesles.Avalon.Client.Scripts.GameState;
 using Meesles.Avalon.Client.Scripts.View;
@@ -15,7 +16,8 @@ namespace Meesles.Avalon.Client;
 public class SimCallbacks(
   InputCapture input,
   byte[] navMeshBytes,
-  IKLogger logger) : ISimulationCallbacks {
+  IKLogger logger,
+  Action<Frame> initializeExtras = null) : ISimulationCallbacks {
   private const int CheatSendTick = 60;
   private const int CheatRetryIntervalTicks = 30;
   private const int CheatMaxAttempts = 10;
@@ -54,6 +56,7 @@ public class SimCallbacks(
     }
 
     SimulationSetup.InitializeWorld(engine, engine.SessionConfig.MaxPlayers);
+    initializeExtras?.Invoke(engine.PredictedFrame.Frame);
 
     GD.Print("[SimCallbacks] Post-init entity positions:");
     var postFrame = engine.PredictedFrame.Frame;

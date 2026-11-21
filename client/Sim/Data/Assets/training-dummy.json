@@ -1,0 +1,15 @@
+[
+  {
+    "$type": "Meesles.Avalon.Sim.Assets.HeroStatsAsset",
+    "_Name": "Training Dummy",
+    "AssetId": 405,
+    "BaseHealth": 20000,
+    "BaseMana": 200,
+    "BaseArmor": 30,
+    "BaseMagicResist": 30,
+    "GameplayRadius": 0.65,
+    "PathingRadius": 0.3,
+    "SelectionRadius": 1.0,
+    "HealthBarHeight": 3.0
+  }
+]

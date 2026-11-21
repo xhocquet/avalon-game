@@ -15,6 +15,12 @@ fov = 58.0
 
 [node name="GameUI" parent="." instance=ExtResource("4_gameui")]
 
+[node name="TrainingDummy" type="Marker3D" parent="."]
+position = Vector3(-18, 0, 18)
+
+[node name="AllyTrainingDummy" type="Marker3D" parent="."]
+position = Vector3(-22, 0, 18)
+
 [node name="DebugConsole" parent="." instance=ExtResource("9_console")]
 
 [node name="Crosshair" parent="." instance=ExtResource("8_crosshair")]

@@ -10,8 +10,10 @@ public static class TeamRegistry {
     teamIds.Clear();
 
     var filter = frame.Filter<Hero, Team>();
-    while (filter.Next(out var entity))
+    while (filter.Next(out var entity)) {
+      if (frame.GetReadOnly<Hero>(entity).PlayerId < 0) continue;
       AddTeam(teamIds, frame.GetReadOnly<Team>(entity).TeamId);
+    }
   }
 
   public static void AddTeam(List<int> teamIds, int teamId) {

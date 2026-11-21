@@ -12,6 +12,10 @@ public partial class CrystalDestroyedEvent : SimulationEvent {
   [KlothoOrder(3)] public int DestroyerUnitId;
   [KlothoOrder(4)] public int DestroyerTeamId;
   [KlothoOrder(5)] public FPVector3 Position;
+  [KlothoOrder(6)] public int DestroyerPlayerId;
+  [KlothoOrder(7)] public int DestroyerFactionId;
+  [KlothoOrder(8)] public int PlayerId;
+  [KlothoOrder(9)] public int FactionId;
 
   public override EventMode Mode => EventMode.Synced;
 }

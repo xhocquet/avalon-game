@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Godot;
 using Meesles.Avalon.Client.Scripts.Entities;
 using Meesles.Avalon.Client.Scripts.Interfaces;
@@ -20,6 +21,7 @@ public partial class GameUI : CanvasLayer, IViewHud {
   private ColorRect _damageGlow;
   private ColorRect _deathTint;
   private LoadingBar _timerBar;
+  private readonly StatusEffectTimerController _statusEffectTimers = new();
   private Tween _damageTween;
   private int _localUnitId;
 
@@ -38,6 +40,8 @@ public partial class GameUI : CanvasLayer, IViewHud {
   }
 
   private SimEventHub _events;
+  private Label _matchTimelineDebug;
+  private Meesles.Avalon.Client.MatchTickerController _matchTicker;
   private Label _focusTargetLabel;
   private ColorRect _healthBar;
   private ColorRect _healthBarFill;
@@ -251,6 +255,12 @@ public partial class GameUI : CanvasLayer, IViewHud {
   public override void _Ready() {
     _deathTint = GetNode<ColorRect>("%DeathTint");
     _timerBar = GetNode<LoadingBar>("%TimerBar");
+    _statusEffectTimers.Enable(StatusEffectKind.Silence, "Silenced");
+    _statusEffectTimers.Enable(StatusEffectKind.Snare, "Snared");
+    _statusEffectTimers.EnableDebuff(StatType.Armor, "Weakened");
+    _statusEffectTimers.EnableDebuff(StatType.MagicResist, "Weakened");
+    _statusEffectTimers.EnableDebuff(StatType.MoveSpeed, "Slowed");
+    _statusEffectTimers.Enable(StatusEffectKind.DamageOverTime, "Damage over time");
     var overlay = new Control { Name = "FeedbackOverlay", MouseFilter = Control.MouseFilterEnum.Ignore };
     AddChild(overlay);
     overlay.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
@@ -280,6 +290,9 @@ public partial class GameUI : CanvasLayer, IViewHud {
     SetProcessInput(true);
 
     _timerLabel = GetNode<Label>("DefaultUI/MatchTimerLabel");
+    _matchTimelineDebug = GetNode<Label>("%MatchTimelineDebug");
+    _matchTimelineDebug.Hide();
+    _matchTicker = new(GetNode<VBoxContainer>("%MatchTickerPanel/Rows"));
     _focusTargetLabel = GetNodeOrNull<Label>("DefaultUI/Focus");
     _tabUi = GetNode<Control>("TabUI");
     _scoreboardScoreLabel = GetNode<Label>("TabUI/ScoreboardPanel/ResultPanelFrame/Header/ScoreLabel");
@@ -341,8 +354,8 @@ public partial class GameUI : CanvasLayer, IViewHud {
     defaultUi.AddChild(HealthBars);
     defaultUi.MoveChild(HealthBars, 1);
     HealthBars.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
-    HealthBars.ResolvePlayerNotice = playerId =>
-      playerId == _localPlayerId && _skillBar.HasAvailableUpgrade ? "Upgrade skill!" : null;
+    HealthBars.HasAvailableSkillUpgrade = playerId =>
+      playerId == _localPlayerId && _skillBar.HasAvailableUpgrade;
     _actionPopup = GetNode<Meesles.Avalon.Client.ActionGridPopup>("%ActionGridPopup");
     _actionBar = new ActionBarController(_actionPopup, _shopCatalog, itemId => PurchaseRequested?.Invoke(itemId),
       PredictedPurchases);
@@ -373,19 +386,48 @@ public partial class GameUI : CanvasLayer, IViewHud {
     _events = hub;
     if (hub == null) return;
 
+    hub.Timeline.ResolvePlayerName = HealthBars.ResolvePlayerName;
+    _matchTicker.Bind(hub.Timeline);
+
+    hub.Timeline.Changed += RefreshMatchTimeline;
+    RefreshMatchTimeline();
+
     _eventSubscriptions.Add(hub.OnConfirmed<CrystalDestroyedEvent>(OnCrystalDestroyed));
     _eventSubscriptions.Add(hub.OnConfirmed<TurretDestroyedEvent>(OnTurretDestroyed));
     _eventSubscriptions.Add(hub.OnConfirmed<PlayerDiedEvent>(OnPlayerDied));
     _eventSubscriptions.Add(hub.OnConfirmed<PlayerRespawnedEvent>(OnPlayerRespawned));
     _eventSubscriptions.Add(hub.OnConfirmed<HeroLeveledUpEvent>(OnHeroLeveledUp));
     _eventSubscriptions.Add(hub.OnConfirmed<AttackHitEvent>(OnLocalDamage));
+    _eventSubscriptions.Add(hub.OnConfirmed<UnitCleansedEvent>(evt => HealthBars.ShowCleansed(evt.UnitId)));
   }
 
   private void UnbindSimEvents() {
+    HealthBars?.ClearMessages();
+    _matchTicker?.Bind(null);
+    if (_events != null) _events.Timeline.Changed -= RefreshMatchTimeline;
     foreach (var sub in _eventSubscriptions)
       sub.Dispose();
     _eventSubscriptions.Clear();
     _events = null;
+    if (_matchTimelineDebug != null) _matchTimelineDebug.Text = "Match timeline — waiting for confirmed events";
+  }
+
+  private void RefreshMatchTimeline() {
+    if (_matchTimelineDebug == null || _events == null) return;
+    var entries = _events.Timeline.Entries;
+    var text = new StringBuilder($"Match timeline — {entries.Count} confirmed events");
+    for (var i = Math.Max(0, entries.Count - 10); i < entries.Count; i++) {
+      var entry = entries[i];
+      var description = entry.Kind switch {
+        Meesles.Avalon.Client.MatchTimelineKind.PlayerDefeated => $"P{entry.PlayerId} defeated! (unit {entry.UnitId}, team {entry.TeamId})",
+        Meesles.Avalon.Client.MatchTimelineKind.TurretDestroyed => $"Turret {entry.UnitId} destroyed by unit {entry.DestroyerUnitId}",
+        Meesles.Avalon.Client.MatchTimelineKind.CrystalDestroyed => $"Crystal {entry.UnitId} destroyed by unit {entry.DestroyerUnitId} (team {entry.TeamId})",
+        Meesles.Avalon.Client.MatchTimelineKind.MatchEnded => $"Match ended: winner team {entry.TeamId}, reason {(MatchEndReason)entry.Reason}",
+        _ => entry.Kind.ToString()
+      };
+      text.Append($"\n#{entry.Sequence} [tick {entry.Tick}] {description}");
+    }
+    _matchTimelineDebug.Text = text.ToString();
   }
 
   private void OnCrystalDestroyed(CrystalDestroyedEvent evt) {
@@ -478,6 +520,13 @@ public partial class GameUI : CanvasLayer, IViewHud {
       var remainingTicks = frame.GetReadOnly<PendingRespawn>(entity).RemainingTicks;
       var rules = frame.AssetRegistry.Get<MatchRulesAsset>();
       ShowTimer(frame, remainingTicks, rules?.RespawnDelayMs ?? 0, "Respawning in");
+      return;
+    }
+
+    if (_statusEffectTimers.TryResolve(frame, entity, out var statusTimer)) {
+      _timerBar.SetProgress(statusTimer.RemainingFraction,
+        $"{statusTimer.Caption} {statusTimer.RemainingSeconds:0.0}s");
+      _timerBar.Show();
       return;
     }
 

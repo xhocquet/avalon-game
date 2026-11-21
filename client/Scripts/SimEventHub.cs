@@ -30,6 +30,8 @@ namespace Meesles.Avalon;
 // which is why VFX subscribed to OnPredicted alone were silently dead in singleplayer and the
 // playgrounds. OnFx takes both and de-duplicates, so client-side feedback plays in either.
 public class SimEventHub {
+  public Meesles.Avalon.Client.MatchTimeline Timeline { get; } = new();
+
   // How many ticks of dispatched-event keys to remember. Only has to outlive the window in which the
   // same event could reach both streams, which is one rollback at most.
   private const int FxDedupeTicks = 256;
@@ -58,10 +60,12 @@ public class SimEventHub {
       Dispatch(_predicted, evt);
     };
     _onConfirmed = (_, evt) => {
+      Timeline.RecordConfirmed(evt);
       DispatchFx(evt);
       Dispatch(_confirmed, evt);
     };
     _onSynced = (_, evt) => {
+      Timeline.RecordConfirmed(evt);
       DispatchFx(evt);
       Dispatch(_confirmed, evt);
     };
@@ -84,6 +88,7 @@ public class SimEventHub {
     _onPredicted = _onConfirmed = _onSynced = _onCanceled = null;
     _fxDispatched.Clear();
     _fxPrunedThroughTick = 0;
+    Timeline.Clear();
   }
 
   public IDisposable OnFx<T>(Action<T> handler) where T : SimulationEvent {

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Godot;
+using Meesles.Avalon.Client.Scripts.Entities;
 using Meesles.Avalon.Client.Scripts.View;
 
 namespace Meesles.Avalon.Client;
@@ -7,8 +8,16 @@ namespace Meesles.Avalon.Client;
 [Tool]
 public partial class MinimapView : Control {
   [Export] public Texture2D PreviewTexture { get; set; } = GD.Load<Texture2D>("res://Assets/UI/Minimap/avalon.png");
+  [Export] public float MinionDotDiameter { get; set; } = 4f;
   private MinimapBounds _bounds;
-  private readonly Dictionary<Node3D, TextureRect> _icons = new();
+  private readonly Dictionary<Node3D, Control> _icons = new();
+  private readonly StyleBoxFlat _dotStyle = new() {
+    BgColor = Colors.White,
+    CornerRadiusTopLeft = 32,
+    CornerRadiusTopRight = 32,
+    CornerRadiusBottomLeft = 32,
+    CornerRadiusBottomRight = 32
+  };
   private readonly List<Node3D> _removed = new();
   private Line2D _viewportFootprint;
   private MinimapPath _path;
@@ -49,24 +58,39 @@ public partial class MinimapView : Control {
       var marker = entity.GetNodeOrNull<Node3D>("MinimapMarker");
       if (marker == null) continue;
       if (!_icons.TryGetValue(marker, out var icon)) {
-        icon = new TextureRect { MouseFilter = MouseFilterEnum.Ignore, ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, ZIndex = 12 };
-        if (marker is MinimapHeroMarker hero) {
-          icon.Texture = hero.Portrait;
-          icon.Material = new ShaderMaterial { Shader = GD.Load<Shader>("res://Assets/FX/Shaders/MinimapPortrait.gdshader") };
-          icon.ZIndex = 13;
+        if (entity is MinionEntity) {
+          var dot = new Panel();
+          dot.AddThemeStyleboxOverride("panel", _dotStyle);
+          icon = dot;
         }
-        else if (marker is Sprite3D sprite) icon.Texture = sprite.Texture;
+        else {
+          var texture = new TextureRect { ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize };
+          if (marker is MinimapHeroMarker hero) {
+            texture.Texture = hero.Portrait;
+            texture.Material = new ShaderMaterial { Shader = GD.Load<Shader>("res://Assets/FX/Shaders/MinimapPortrait.gdshader") };
+          }
+          else if (marker is Sprite3D sprite) texture.Texture = sprite.Texture;
+          icon = texture;
+        }
+        icon.MouseFilter = MouseFilterEnum.Ignore;
+        icon.ZIndex = marker is MinimapHeroMarker ? 13 : 12;
         AddChild(icon);
         _icons.Add(marker, icon);
       }
       var uv = _bounds.WorldToUv(marker.GlobalPosition);
       icon.Visible = marker.IsVisibleInTree() && new Rect2(Vector2.Zero, Vector2.One).HasPoint(uv);
       if (!icon.Visible) continue;
+      if (entity is MinionEntity) {
+        icon.Size = Vector2.One * MinionDotDiameter;
+        icon.Modulate = ((Sprite3D)marker).Modulate;
+        icon.Position = uv * Size - icon.Size / 2;
+        continue;
+      }
       Vector2 worldSize;
       if (marker is MinimapHeroMarker heroMarker) {
         worldSize = ((QuadMesh)heroMarker.Mesh).Size;
         ((ShaderMaterial)icon.Material).SetShaderParameter("team_color", heroMarker.TeamColor);
-        icon.Texture = heroMarker.Portrait;
+        ((TextureRect)icon).Texture = heroMarker.Portrait;
       }
       else {
         var sprite = (Sprite3D)marker;

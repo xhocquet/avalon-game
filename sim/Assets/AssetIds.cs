@@ -42,7 +42,8 @@ public static class AssetIds {
   public const int HeroCrystalGiant = 402;
   public const int HeroSkinwalker = 403;
   public const int HeroPickleKnight = 404;
-  // Next free hero id: 405
+  public const int HeroTrainingDummy = 405;
+  // Next free hero id: 406
 
   // Four skills per hero, in slot order. Keep this hero-major order aligned with the hero block.
   public const int SkillHairyWizardPrimary = 500;

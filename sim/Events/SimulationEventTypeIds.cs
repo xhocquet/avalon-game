@@ -26,5 +26,7 @@ public static class SimulationEventTypeIds {
 
   public const int RewardGained = 123;
 
-  // Next free id: 124
+  public const int UnitCleansed = 124;
+
+  // Next free id: 125
 }

@@ -2,6 +2,7 @@ using System;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
 using Meesles.Avalon.Sim.Heroes;
+using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
 
@@ -105,6 +106,12 @@ public static class BuffsController {
     SnareController.Clear(ref frame, entity);
     DamageOverTimeController.Clear(ref frame, entity);
     SilenceController.Clear(ref frame, entity);
+    var unitId = UnitLookup.GetUnitId(ref frame, entity);
+    if (frame.EventRaiser != null && unitId > 0) {
+      var evt = EventPool.Get<UnitCleansedEvent>();
+      evt.UnitId = unitId;
+      frame.EventRaiser.RaiseEvent(evt);
+    }
   }
 
   // Removes all buffs; used on death

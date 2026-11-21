@@ -23,27 +23,27 @@ public class FactionCatalog {
       "res://Scenes/Heroes/AllHairWizard.tscn",
       "res://Scenes/Mobs/SwirlyEye.tscn",
       "res://Assets/Portraits/Factions/AllHairWizards/hero.webp",
-      "res://Assets/Portraits/Factions/AllHairWizards/minion.webp"),
+      "res://Assets/Portraits/Factions/AllHairWizards/minion.webp", "res://Assets/Portraits/Minimap/AllHairWizard.webp"),
     new(FactionSnailheadsId, "Snailheads",
       "res://Scenes/Heroes/SnailHead.tscn",
       "res://Scenes/Mobs/DeathSnail.tscn",
       "res://Assets/Portraits/Factions/Snailheads/hero.webp",
-      "res://Assets/Portraits/Factions/Snailheads/minion.webp"),
+      "res://Assets/Portraits/Factions/Snailheads/minion.webp", "res://Assets/Portraits/Minimap/Snailhead.webp"),
     new(FactionCrystalWarriorsId, "Crystal Warriors",
       "res://Scenes/Heroes/CrystalGiant.tscn",
       "res://Scenes/Mobs/CrystalTurtle.tscn",
       "res://Assets/Portraits/Factions/CrystalWarriors/hero.webp",
-      "res://Assets/Portraits/Factions/CrystalWarriors/minion.webp"),
+      "res://Assets/Portraits/Factions/CrystalWarriors/minion.webp", "res://Assets/Portraits/Minimap/CrystalWarrior.webp"),
     new(FactionSkinwalkerTribeId, "Skinwalker Tribe",
       "res://Scenes/Heroes/Skinwalker.tscn",
       "res://Scenes/Mobs/PatchRat.tscn",
       "res://Assets/Portraits/Factions/Skinwalkers/hero.webp",
-      "res://Assets/Portraits/Factions/Skinwalkers/minion.webp"),
+      "res://Assets/Portraits/Factions/Skinwalkers/minion.webp", "res://Assets/Portraits/Minimap/Skinwalker.webp"),
     new(FactionPickleKnightsId, "Pickle Knights",
       "res://Scenes/Heroes/PickleKnight.tscn",
       "res://Scenes/Mobs/CaperCreep.tscn",
       "res://Assets/Portraits/Factions/PickleKnights/hero.webp",
-      "res://Assets/Portraits/Factions/PickleKnights/minion.webp")
+      "res://Assets/Portraits/Factions/PickleKnights/minion.webp", "res://Assets/Portraits/Minimap/PickleKnight.webp")
   ];
 
   private readonly Dictionary<int, FactionData> _byId = new();
@@ -102,7 +102,8 @@ public class FactionCatalog {
     string heroScenePath,
     string minionScenePath,
     string heroPortraitTexturePath,
-    string minionPortraitTexturePath) {
+    string minionPortraitTexturePath,
+    string minimapPortraitTexturePath) {
     public readonly int Id = id;
     public readonly string Name = name;
     public readonly string HeroScenePath = heroScenePath;
@@ -111,6 +112,7 @@ public class FactionCatalog {
     public readonly string MinionScenePath = minionScenePath;
     public readonly string HeroPortraitTexturePath = heroPortraitTexturePath;
     public readonly string MinionPortraitTexturePath = minionPortraitTexturePath;
+    public readonly string MinimapPortraitTexturePath = minimapPortraitTexturePath;
   }
 
   public class FactionData {

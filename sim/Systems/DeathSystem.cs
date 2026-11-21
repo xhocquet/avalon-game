@@ -46,6 +46,8 @@ public class DeathSystem : ISystem {
         destroyer.UnitId,
         destroyer.UnitTypeId,
         destroyer.TeamId,
+        destroyer.PlayerId,
+        destroyer.FactionId,
         position,
         frame.Has<Crystal>(entity),
         frame.Has<Crystal>(entity) ? frame.GetReadOnly<Crystal>(entity).CrystalId : 0,
@@ -69,13 +71,19 @@ public class DeathSystem : ISystem {
     if (frame.EventRaiser == null)
       return;
 
+    var owner = dead.IsCrystal || dead.IsTurret ? ResolveTeamOwner(ref frame, dead.TeamId) : default;
+
     if (dead.IsCrystal) {
       var evt = EventPool.Get<CrystalDestroyedEvent>();
       evt.UnitId = dead.UnitId;
       evt.CrystalId = dead.CrystalId;
+      evt.PlayerId = owner.Entity.IsValid ? owner.PlayerId : UnitLookup.NoPlayerId;
+      evt.FactionId = owner.FactionId;
       evt.TeamId = dead.TeamId;
       evt.DestroyerUnitId = dead.DestroyerUnitId;
       evt.DestroyerTeamId = dead.DestroyerTeamId;
+      evt.DestroyerPlayerId = dead.DestroyerPlayerId;
+      evt.DestroyerFactionId = dead.DestroyerFactionId;
       evt.Position = dead.Position;
       frame.EventRaiser.RaiseEvent(evt);
       return;
@@ -83,9 +91,15 @@ public class DeathSystem : ISystem {
 
     if (dead.IsTurret) {
       var evt = EventPool.Get<TurretDestroyedEvent>();
+      evt.PlayerId = owner.Entity.IsValid ? owner.PlayerId : UnitLookup.NoPlayerId;
+      evt.FactionId = owner.FactionId;
       evt.UnitId = dead.UnitId;
       evt.DestroyerUnitId = dead.DestroyerUnitId;
       evt.Position = dead.Position;
+      evt.TeamId = dead.TeamId;
+      evt.DestroyerTeamId = dead.DestroyerTeamId;
+      evt.DestroyerPlayerId = dead.DestroyerPlayerId;
+      evt.DestroyerFactionId = dead.DestroyerFactionId;
       frame.EventRaiser.RaiseEvent(evt);
       return;
     }
@@ -108,13 +122,23 @@ public class DeathSystem : ISystem {
     return ResolveUnitContext(ref frame, destroyer);
   }
 
+  private static UnitContext ResolveTeamOwner(ref Frame frame, int teamId) {
+    var heroes = frame.Filter<Hero, Team>();
+    while (heroes.Next(out var entity))
+      if (frame.GetReadOnly<Team>(entity).TeamId == teamId)
+        return ResolveUnitContext(ref frame, entity);
+    return default;
+  }
+
   private static UnitContext ResolveUnitContext(ref Frame frame, EntityRef entity) {
     var teamId = frame.Has<Team>(entity) ? frame.GetReadOnly<Team>(entity).TeamId : 0;
     return new UnitContext(
       entity,
       UnitLookup.GetUnitId(ref frame, entity),
       UnitLookup.GetUnitTypeId(ref frame, entity),
-      teamId);
+      teamId,
+      UnitLookup.GetControllerPlayerId(ref frame, entity),
+      frame.Has<Hero>(entity) && frame.Has<Faction>(entity) ? frame.GetReadOnly<Faction>(entity).FactionId : 0);
   }
 
   private readonly struct DeadUnitSnapshot(
@@ -126,6 +150,8 @@ public class DeathSystem : ISystem {
     int destroyerUnitId,
     int destroyerUnitTypeId,
     int destroyerTeamId,
+    int destroyerPlayerId,
+    int destroyerFactionId,
     FPVector3 position,
     bool isCrystal,
     int crystalId,
@@ -140,16 +166,20 @@ public class DeathSystem : ISystem {
     public readonly int DestroyerUnitId = destroyerUnitId;
     public readonly int DestroyerUnitTypeId = destroyerUnitTypeId;
     public readonly int DestroyerTeamId = destroyerTeamId;
+    public readonly int DestroyerPlayerId = destroyerPlayerId;
+    public readonly int DestroyerFactionId = destroyerFactionId;
     public readonly FPVector3 Position = position;
     public readonly bool IsCrystal = isCrystal;
     public readonly int CrystalId = crystalId;
     public readonly bool IsTurret = isTurret;
   }
 
-  private readonly struct UnitContext(EntityRef entity, int unitId, int unitTypeId, int teamId) {
+  private readonly struct UnitContext(EntityRef entity, int unitId, int unitTypeId, int teamId, int playerId, int factionId) {
     public readonly EntityRef Entity = entity;
     public readonly int UnitId = unitId;
     public readonly int UnitTypeId = unitTypeId;
     public readonly int TeamId = teamId;
+    public readonly int PlayerId = playerId;
+    public readonly int FactionId = factionId;
   }
 }

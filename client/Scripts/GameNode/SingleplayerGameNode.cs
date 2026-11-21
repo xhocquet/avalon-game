@@ -5,8 +5,10 @@ using Meesles.Avalon.Client.Scripts.View;
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
+using Meesles.Avalon.Sim.Factories;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
+using xpTURN.Klotho.ECS;
 using xpTURN.Klotho.Godot;
 using xpTURN.Klotho.LiteNetLib;
 using xpTURN.Klotho.Network;
@@ -60,7 +62,7 @@ public partial class SingleplayerGameNode : GameNode {
     _transport = new LiteNetLibTransport(logger, connectionKey: ConnectionKey);
     _flow = new KlothoSessionFlow(
       new KlothoFlowSetupBuilder((s, ss) =>
-          new SessionCallbacks(new SimCallbacks(Input, navMeshBytes, logger), _viewCallbacks))
+          new SessionCallbacks(new SimCallbacks(Input, navMeshBytes, logger, InitializeTrainingDummies), _viewCallbacks))
         .WithLogger(logger)
         .WithTransport(_transport)
         .WithAssetRegistry(registry)
@@ -88,6 +90,14 @@ public partial class SingleplayerGameNode : GameNode {
     Input.BindEngine(engine);
     BindDebugConsole(engine, _camera);
     BindHealthBarNames(_session);
+    if (HasNode("TrainingDummy") || HasNode("AllyTrainingDummy")) {
+      var resolveName = GameUi.HealthBars.ResolvePlayerName;
+      GameUi.HealthBars.ResolvePlayerName = playerId => playerId switch {
+        TrainingDummyFactory.PlayerId => "Training Dummy",
+        TrainingDummyFactory.AllyPlayerId => "Ally Dummy",
+        _ => resolveName(playerId)
+      };
+    }
     _view.Initialize(_session.Engine, CreateFactory(), _pool);
     _view.PlayerViews.OnLocalViewRegistered += OnLocalViewRegistered;
     _view.PlayerViews.OnLocalViewUnregistered += OnLocalViewUnregistered;
@@ -108,6 +118,16 @@ public partial class SingleplayerGameNode : GameNode {
     GameUi.SetLocalPlayerId(_session.LocalPlayerId);
     GameUi.HideResult();
     _session.SetReady(true);
+  }
+
+  private void InitializeTrainingDummies(Frame frame) {
+    var marker = GetNodeOrNull<Marker3D>("TrainingDummy");
+    if (marker != null)
+      TrainingDummyFactory.Spawn(ref frame, marker.GlobalPosition.ToFPVector3(), 2, AssetIds.FactionCrystalWarriors);
+    var allyMarker = GetNodeOrNull<Marker3D>("AllyTrainingDummy");
+    if (allyMarker != null)
+      TrainingDummyFactory.Spawn(ref frame, allyMarker.GlobalPosition.ToFPVector3(), 1,
+        AssetIds.FactionPickleKnights, TrainingDummyFactory.AllyPlayerId);
   }
 
   private void StopSession() {

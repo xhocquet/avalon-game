@@ -9,6 +9,8 @@ using xpTURN.Klotho.Deterministic.Navigation;
 namespace Meesles.Avalon.Client.Scripts.Entities;
 
 public partial class MinionEntity : TeamEntityViewNode, IAttackableView {
+  protected override Texture2D MinimapIcon => null;
+
   private const string UnitsGroup = "units";
   private const string AnimRun = "Run";
   private const string AnimIdle = "Stand";

@@ -52,6 +52,13 @@ public class RespawnSystem : ISystem {
       evt.UnitId = unit.UnitId;
       evt.Position = transform.Position;
       evt.RespawnDelayTicks = delayTicks;
+      evt.FactionId = frame.Has<Faction>(entity) ? frame.GetReadOnly<Faction>(entity).FactionId : 0;
+      evt.DestroyerUnitId = frame.GetReadOnly<Health>(entity).LastDamagerUnitId;
+      var hasDestroyer = UnitLookup.TryGetEntityByUnitId(ref frame, evt.DestroyerUnitId, out var destroyer);
+      evt.DestroyerPlayerId = hasDestroyer ? UnitLookup.GetControllerPlayerId(ref frame, destroyer) : UnitLookup.NoPlayerId;
+      evt.DestroyerTeamId = hasDestroyer && frame.Has<Team>(destroyer) ? frame.GetReadOnly<Team>(destroyer).TeamId : 0;
+      evt.DestroyerFactionId = hasDestroyer && frame.Has<Hero>(destroyer) && frame.Has<Faction>(destroyer)
+        ? frame.GetReadOnly<Faction>(destroyer).FactionId : 0;
       frame.EventRaiser.RaiseEvent(evt);
     }
   }
