@@ -26,6 +26,8 @@ public class AttackIntentSystem(NavigationRuntime navigation = null) : ISystem {
 
   // False means the order is spent and its AttackTargetUnitId comes off after the loop.
   private bool UpdateAttacker(ref Frame frame, EntityRef attacker) {
+    if (SkillCasting.IsActive(ref frame, attacker))
+      return true;
     if (!frame.Has<Combat>(attacker)) {
       LogAttackState(ref frame, attacker, 0, "cleared_no_combat");
       return false;

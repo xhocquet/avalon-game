@@ -12,6 +12,7 @@ public static class ChargeController {
     if (sourceId == 0 || delayTicks <= 0 || radius <= FP64.Zero)
       return false;
 
+    AttackPhases.CancelWindup(ref frame, entity);
     if (!frame.Has<SkillCharge>(entity))
       frame.Add(entity, new SkillCharge());
 

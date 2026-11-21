@@ -33,6 +33,8 @@ public class TargetAcquisitionSystem(UnitSpatialIndex spatial = null) : ISystem 
   }
 
   private static bool CanAcquireTargets(ref Frame frame, EntityRef entity) {
+    if (SkillCasting.IsActive(ref frame, entity))
+      return false;
     if (frame.Has<UnitMoveTarget>(entity))
       return false;
 

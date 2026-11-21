@@ -16,6 +16,7 @@ public static class ChannelController {
     if (durationTicks <= 0)
       return false;
 
+    AttackPhases.CancelWindup(ref frame, caster);
     if (!frame.Has<SkillChannel>(caster))
       frame.Add(caster, new SkillChannel());
 

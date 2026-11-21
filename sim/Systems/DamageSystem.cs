@@ -14,12 +14,18 @@ public class DamageSystem : ISystem {
     // Resolve pending swings even after their intent is gone.
     var swinging = frame.Filter<Combat>();
     while (swinging.Next(out var attacker)) {
+      if (SkillCasting.IsActive(ref frame, attacker)) {
+        AttackPhases.CancelWindup(ref frame, attacker);
+        continue;
+      }
       if (frame.GetReadOnly<Combat>(attacker).WindupReleaseTick != 0)
         ResolveSwing(ref frame, attacker);
     }
 
     var engaged = frame.Filter<Combat, Team, AttackTargetUnitId>();
     while (engaged.Next(out var attacker)) {
+      if (SkillCasting.IsActive(ref frame, attacker))
+        continue;
       ref readonly var combat = ref frame.GetReadOnly<Combat>(attacker);
       if (combat.WindupReleaseTick == 0 && combat.CooldownRemainingTicks == 0 && combat.TargetUnitId != 0)
         StartSwing(ref frame, attacker);
@@ -71,8 +77,7 @@ public class DamageSystem : ISystem {
 
     if (!TryResolveTarget(ref frame, attacker, targetUnitId, out var target) ||
         !CombatRange.IsWithinReach(ref frame, attacker, target, out _, out _)) {
-      ClearSwing(ref frame, attacker);
-      AttackPhases.RaiseWindupCanceled(ref frame, attacker, targetUnitId, attackHitId);
+      AttackPhases.CancelWindup(ref frame, attacker);
       LogDamageState(ref frame, attacker, targetUnitId, "windup_canceled");
       return;
     }
@@ -89,19 +94,11 @@ public class DamageSystem : ISystem {
     var damage = DamageController.ApplyDamage(ref frame, attacker, target, attackDamage,
       DamageType.Physical, canCrit: true, attackHitId: attackHitId);
 
-    ClearSwing(ref frame, attacker);
+    AttackPhases.ClearWindup(ref frame, attacker);
 
     LogDamageState(ref frame, attacker, targetUnitId,
       $"damage={damage} health={healthBefore}->{frame.GetReadOnly<Health>(target).Current} " +
       $"cooldown={frame.GetReadOnly<Combat>(attacker).CooldownRemainingTicks}");
-  }
-
-  // Cooldown is paid on the swing, even if the hit misses.
-  private static void ClearSwing(ref Frame frame, EntityRef attacker) {
-    ref var combat = ref frame.Get<Combat>(attacker);
-    combat.WindupReleaseTick = 0;
-    combat.WindupAttackHitId = 0;
-    combat.WindupTargetUnitId = 0;
   }
 
   private bool TryResolveTarget(ref Frame frame, EntityRef attacker, int targetUnitId,

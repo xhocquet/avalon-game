@@ -1,3 +1,4 @@
+using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Math;
 using xpTURN.Klotho.ECS;
@@ -7,6 +8,23 @@ namespace Meesles.Avalon.Sim;
 // Raises AttackWindupStartedEvent and AttackWindupCanceledEvent
 // AttackHitEvent, is raised by DamageController to support skills
 public static class AttackPhases {
+  public static void ClearWindup(ref Frame frame, EntityRef attacker) {
+    ref var combat = ref frame.Get<Combat>(attacker);
+    combat.WindupReleaseTick = 0;
+    combat.WindupAttackHitId = 0;
+    combat.WindupTargetUnitId = 0;
+  }
+
+  public static void CancelWindup(ref Frame frame, EntityRef attacker) {
+    if (!frame.Has<Combat>(attacker)) return;
+    ref readonly var combat = ref frame.GetReadOnly<Combat>(attacker);
+    if (combat.WindupReleaseTick == 0) return;
+    var targetUnitId = combat.WindupTargetUnitId;
+    var attackHitId = combat.WindupAttackHitId;
+    ClearWindup(ref frame, attacker);
+    RaiseWindupCanceled(ref frame, attacker, targetUnitId, attackHitId);
+  }
+
   public static void RaiseWindupStarted(ref Frame frame, EntityRef attacker, EntityRef target,
     int targetUnitId, int attackHitId, int windupTicks) {
     if (frame.EventRaiser == null)
