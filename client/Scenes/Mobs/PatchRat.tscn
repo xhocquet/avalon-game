@@ -3,20 +3,20 @@
 [ext_resource type="PackedScene" uid="uid://csvm1uhwspkob" path="res://Assets/Mobs/PatchRat/walking rat.glb" id="1_fq5py"]
 [ext_resource type="PackedScene" uid="uid://bsdb5pil0xicl" path="res://Scenes/FX/SelectionIndicator.tscn" id="2_3yxmi"]
 [ext_resource type="Script" uid="uid://drxwt8mq0b2k8" path="res://Scripts/Entities/MinionEntity.cs" id="3_minion"]
-[ext_resource type="AnimationLibrary" uid="uid://cim2rk28grt7i" path="res://Assets/Mobs/PatchRat/IdleAnimations.tres" id="5_idle"]
 
 [node name="PatchRat" unique_id=516344692 instance=ExtResource("1_fq5py")]
 script = ExtResource("3_minion")
-WalkAnimationOverride = "preset_quadruped_walk"
-IdleAnimationOverride = "Locomotion/Idle"
-metadata/_edit_pinned_properties_ = [&"WalkAnimationOverride", &"IdleAnimationOverride"]
+WalkAnimationOverride = "Run"
+IdleAnimationOverride = "Idle"
+AttackAnimationOverride = "Attack"
+AttackContactTime = 0.5833333
+metadata/_edit_pinned_properties_ = [&"WalkAnimationOverride", &"IdleAnimationOverride", &"AttackAnimationOverride", &"AttackContactTime"]
 
-[node name="Armature" parent="." index="0" unique_id=636783516]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0.42341468, 0)
+[node name="Rat_Rig" parent="." index="0"]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0.38628325, 0)
 
-[node name="AnimationPlayer" parent="." index="1" unique_id=1173404499]
-libraries/Locomotion = ExtResource("5_idle")
-autoplay = &"Locomotion/Idle"
+[node name="AnimationPlayer" parent="." index="1"]
+autoplay = &"Idle"
 
 [node name="SelectionIndicator" parent="." index="2" unique_id=2143077504 instance=ExtResource("2_3yxmi")]
 transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0.04, 0)
