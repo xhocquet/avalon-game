@@ -21,7 +21,6 @@ public class WaveSpawnSystem : ISystem {
 
   public void Update(ref Frame frame) {
     var rules = frame.AssetRegistry.Get<WaveRulesAsset>();
-    var stats = frame.AssetRegistry.Get<MinionStatsAsset>();
     if (rules.SpawnIntervalTicks <= 0 || rules.MinionsPerWave <= 0 || rules.MinionSpacing <= FP64.Zero) return;
 
     var rel = frame.Tick - rules.FirstWaveDelayTicks;
@@ -39,8 +38,28 @@ public class WaveSpawnSystem : ISystem {
       _sources.Add((transform.Position, team.TeamId));
     }
 
-    foreach (var source in _sources)
-      SpawnWave(ref frame, rules, stats, source.Position, source.TeamId, waveId);
+    foreach (var source in _sources) {
+      var factionId = ResolveFactionId(ref frame, source.TeamId);
+      var faction = frame.AssetRegistry.Get<FactionAsset>(factionId);
+      var stats = frame.AssetRegistry.Get<MinionStatsAsset>(faction.MinionStatsAssetId);
+      SpawnWave(ref frame, rules, stats, factionId, source.Position, source.TeamId, waveId);
+    }
+  }
+
+  private static int ResolveFactionId(ref Frame frame, int teamId) {
+    var slots = frame.Filter<PlayerFaction>();
+    while (slots.Next(out var slot)) {
+      ref readonly var pick = ref frame.GetReadOnly<PlayerFaction>(slot);
+      if (pick.TeamId == teamId)
+        return pick.FactionId;
+    }
+
+    var heroes = frame.Filter<Hero, Faction, Team>();
+    while (heroes.Next(out var hero))
+      if (frame.GetReadOnly<Team>(hero).TeamId == teamId)
+        return frame.GetReadOnly<Faction>(hero).FactionId;
+
+    return SimulationSetup.DefaultFactionId;
   }
 
   // Insert spawned minions so later slots see them.
@@ -59,7 +78,7 @@ public class WaveSpawnSystem : ISystem {
     }
   }
 
-  private void SpawnWave(ref Frame frame, WaveRulesAsset rules, MinionStatsAsset stats, FPVector3 origin,
+  private void SpawnWave(ref Frame frame, WaveRulesAsset rules, MinionStatsAsset stats, int factionId, FPVector3 origin,
     int teamId, int waveId) {
     var count = rules.MinionsPerWave;
 
@@ -70,6 +89,7 @@ public class WaveSpawnSystem : ISystem {
       SeekFreeSlot(ref frame, ref cursor, origin, teamId, rules.MinionSpacing);
       var position = cursor.GetPosition(origin, rules.MinionSpacing);
       var minion = MinionFactory.Spawn(ref frame, stats, position, GetSpawnFacing(origin, position), teamId, waveId);
+      frame.Add(minion, new Faction(factionId));
       _occupancyGrid.Insert(minion, position.ToXZ());
       cursor.Advance();
     }

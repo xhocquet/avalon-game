@@ -19,6 +19,10 @@ public static class AssetIds {
   public const int GoldRules = 118;
   public const int VisionRules = 119;
 
+  // Faction-specific minions.
+  public const int SwirlyEyeMinionStats = 700;
+  // Next free minion stats id: 701
+
   // Factions.
   public const int FactionHairyWizards = 200;
   public const int FactionSnailheads = 201;

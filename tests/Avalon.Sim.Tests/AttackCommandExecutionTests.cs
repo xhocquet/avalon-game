@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Commands;
 using Meesles.Avalon.Sim.Components;
 using Meesles.Avalon.Sim.Factories;
@@ -567,6 +568,7 @@ public class AttackCommandExecutionTests {
   }
 
   private static (UnitSnapshot Source, UnitSnapshot Target) SpawnFirstWave(SimHarness harness) {
+    harness.AssetRegistry.Get<FactionAsset>(SimulationSetup.DefaultFactionId).MinionStatsAssetId = AssetIds.MinionStats;
     var rules = harness.AssetRegistry.Get<Meesles.Avalon.Sim.Assets.WaveRulesAsset>();
     for (int tick = 0; tick <= rules.FirstWaveDelayTicks; tick++)
       harness.Tick();

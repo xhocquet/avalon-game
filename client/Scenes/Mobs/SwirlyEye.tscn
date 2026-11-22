@@ -6,19 +6,16 @@
 
 [node name="Minion" unique_id=2050480386 instance=ExtResource("1_b1to5")]
 script = ExtResource("2_nr8yw")
+WalkAnimationOverride = "run"
+IdleAnimationOverride = "idle"
+AttackAnimationOverride = "attack"
+AttackContactTime = 0.45833334
 
-[node name="Armature" parent="." index="0" unique_id=614863133]
-transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 0, 0.052888036, 0)
+[node name="SwirlyEyeRig" parent="." index="0"]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 0)
 
-[node name="Skeleton3D" parent="Armature" index="0" unique_id=1902076970]
-bones/2/rotation = Quaternion(-0.013106903, 0.041085936, 0.9518099, -0.30364135)
-bones/3/rotation = Quaternion(-0.04763698, -0.0045998986, -0.12012323, 0.9916048)
-bones/4/rotation = Quaternion(-0.093129724, -0.09398459, 0.67777944, 0.7232626)
-bones/5/rotation = Quaternion(0.10950934, -0.024628336, 0.15794869, 0.9810471)
-bones/6/rotation = Quaternion(-0.008490303, -0.03147737, 0.9649828, 0.2602793)
-bones/7/rotation = Quaternion(0.042219616, -0.0009191678, -0.77149785, 0.6348289)
-bones/8/rotation = Quaternion(0.0319489, 0.06579116, 0.6070707, 0.7912749)
-bones/9/rotation = Quaternion(-0.05449833, 0.028035268, 0.30728787, 0.94964105)
+[node name="AnimationPlayer" parent="." index="1"]
+autoplay = &"idle"
 
-[node name="SelectionIndicator" parent="." index="1" unique_id=1272106412 instance=ExtResource("3_sj0n2")]
+[node name="SelectionIndicator" parent="." index="2" unique_id=1272106412 instance=ExtResource("3_sj0n2")]
 transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0.04, 0)

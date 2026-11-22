@@ -5,7 +5,7 @@ using xpTURN.Klotho.Serialization;
 namespace Meesles.Avalon.Sim.Assets;
 
 // Minions do not level.
-[KlothoDataAsset(AssetIds.TypeIds.MinionStats, AssetId = AssetIds.MinionStats, Key = "MinionStats")]
+[KlothoDataAsset(AssetIds.TypeIds.MinionStats, AssetId = AssetIds.MinionStats)]
 public partial class MinionStatsAsset : IDataAsset, IUnitStatsAsset {
   [KlothoOrder(0)] public FP64 Health;
   [KlothoOrder(1)] public FP64 Armor;

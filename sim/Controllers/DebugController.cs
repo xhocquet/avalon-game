@@ -168,7 +168,8 @@ public static class DebugController {
       teamId = ResolveOpposingTeam(ref frame, playerTeamId);
 
     factionId = ResolveSpawnFaction(ref frame, playerId, teamId, factionId);
-    var stats = frame.AssetRegistry.Get<MinionStatsAsset>();
+    var faction = frame.AssetRegistry.Get<FactionAsset>(factionId);
+    var stats = frame.AssetRegistry.Get<MinionStatsAsset>(faction.MinionStatsAssetId);
     var spacing = frame.AssetRegistry.Get<WaveRulesAsset>().MinionSpacing;
     for (var i = 0; i < MinionsPerSpawn; i++) {
       var offset = RingOffset(i, spacing);

@@ -4,7 +4,7 @@
     "_Name": "Hairy Wizards",
     "AssetId": 200,
     "HeroStatsAssetId": 400,
-    "MinionStatsAssetId": 103
+    "MinionStatsAssetId": 700
   },
   {
     "$type": "Meesles.Avalon.Sim.Assets.HeroStatsAsset",
