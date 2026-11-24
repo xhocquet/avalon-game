@@ -69,7 +69,10 @@ public partial class MinimapView : Control {
             texture.Texture = hero.Portrait;
             texture.Material = new ShaderMaterial { Shader = GD.Load<Shader>("res://Assets/FX/Shaders/MinimapPortrait.gdshader") };
           }
-          else if (marker is Sprite3D sprite) texture.Texture = sprite.Texture;
+          else if (marker is Sprite3D sprite) {
+            texture.Texture = sprite.Texture;
+            texture.Material = new ShaderMaterial { Shader = GD.Load<Shader>("res://Assets/FX/Shaders/MinimapIconTint.gdshader") };
+          }
           icon = texture;
         }
         icon.MouseFilter = MouseFilterEnum.Ignore;
@@ -96,7 +99,7 @@ public partial class MinimapView : Control {
         var sprite = (Sprite3D)marker;
         var scale = sprite.GlobalBasis.Scale.Abs();
         worldSize = sprite.Texture.GetSize() * sprite.PixelSize * new Vector2(scale.X, scale.Y);
-        icon.Modulate = sprite.Modulate;
+        ((ShaderMaterial)icon.Material).SetShaderParameter("team_color", sprite.Modulate);
       }
       var groundSize = _bounds.Ground.GetAabb().Size * _bounds.Ground.GlobalBasis.Scale.Abs();
       icon.Size = worldSize / new Vector2(groundSize.X, groundSize.Z) * Size;

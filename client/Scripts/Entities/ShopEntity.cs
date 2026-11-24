@@ -12,7 +12,7 @@ public partial class ShopEntity : TeamEntityViewNode, INamedView {
 
   public string DisplayName => "Shop";
   protected override Texture2D MinimapIcon => GD.Load<Texture2D>("res://Assets/Portraits/Minimap/Shop.webp");
-  protected override float MinimapPixelSize => 0.05f;
+  protected override float MinimapPixelSize => 0.075f;
 
   // Static shops get their team from World.tscn.
   [Export] public int Team { get; set; } = -1;

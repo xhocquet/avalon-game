@@ -10,7 +10,7 @@
 radius = 0.015136719
 height = 0.05
 
-[node name="model" unique_id=73074752 instance=ExtResource("1_uu4dh")]
+[node name="model" unique_id=73074752 groups=["minimap_entities"] instance=ExtResource("1_uu4dh")]
 transform = Transform3D(100, 0, 0, 0, 100, 0, 0, 0, 100, 0, 0, 0)
 script = ExtResource("2_prop")
 PropName = "Fountain"
@@ -42,5 +42,5 @@ carve_navigation_mesh = true
 layers = 2
 billboard = 1
 no_depth_test = true
-pixel_size = 0.000125
+pixel_size = 0.0000772
 texture = ExtResource("5_minimap")
