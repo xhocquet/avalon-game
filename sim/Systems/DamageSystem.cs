@@ -52,7 +52,8 @@ public class DamageSystem : ISystem {
     combat.WindupTargetUnitId = targetUnitId;
     combat.WindupReleaseTick = frame.Tick + windupTicks;
 
-    if (frame.Has<TransformComponent>(attacker) && frame.Has<TransformComponent>(target)) {
+    if (!frame.Has<Turret>(attacker) && frame.Has<TransformComponent>(attacker) &&
+        frame.Has<TransformComponent>(target)) {
       ref var transform = ref frame.Get<TransformComponent>(attacker);
       var direction = frame.GetReadOnly<TransformComponent>(target).Position - transform.Position;
       direction.y = FP64.Zero;

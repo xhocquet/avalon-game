@@ -166,7 +166,7 @@ public partial class MultiplayerGameNode : GameNode {
     _view.PlayerViews.OnLocalViewUnregistered += OnLocalViewUnregistered;
     _events = new SimEventHub();
     _events.Attach(_session.Engine);
-    BindTeamBaseCleanup(_events);
+    BindTeamBaseCleanup(_events, engine);
     _vfx = new VfxManager();
     _vfx.Attach(_events, _view, engine);
     _telegraphs = new SkillTelegraphManager();
@@ -250,6 +250,7 @@ public partial class MultiplayerGameNode : GameNode {
   }
 
   public override void _Process(double delta) {
+    base._Process(delta);
     _pingRefresh -= delta;
     if (_pingRefresh <= 0) {
       GameUi.SetPing(_transport?.RoundTripTimeMs ?? -1);

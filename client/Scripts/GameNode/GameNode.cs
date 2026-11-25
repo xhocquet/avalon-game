@@ -3,6 +3,8 @@ using System.Diagnostics;
 using System.IO;
 using Godot;
 using Meesles.Avalon.Sim;
+using Meesles.Avalon.Sim.Assets;
+using Meesles.Avalon.Sim.Components;
 using xpTURN.Klotho.Core;
 using xpTURN.Klotho.Deterministic.Navigation;
 using xpTURN.Klotho.ECS;
@@ -18,6 +20,8 @@ public abstract partial class GameNode : Node {
   protected InputCapture Input;
   protected LobbyUI LobbyUi;
   protected IKLoggerFactory LoggerFactory;
+  private IKlothoEngine _teamCleanupEngine;
+  private bool _teamCleanupComplete;
 
   // Skip entities whose view scene has an invalid root.
   protected readonly HashSet<PackedScene> BrokenViewScenes = [];
@@ -163,8 +167,27 @@ public abstract partial class GameNode : Node {
   }
 
   // Remove authored props for teams pruned by the sim.
-  protected void BindTeamBaseCleanup(SimEventHub events) {
+  protected void BindTeamBaseCleanup(SimEventHub events, IKlothoEngine engine) {
+    _teamCleanupEngine = engine;
+    _teamCleanupComplete = false;
     events.OnConfirmed<TeamPrunedEvent>(evt => FreeTeamBase(evt.TeamId));
+  }
+
+  public override void _Process(double delta) {
+    if (_teamCleanupComplete) return;
+    var frame = _teamCleanupEngine?.VerifiedFrame.Frame;
+    if (frame == null || !frame.TryGetSingleton<MatchSetupState>(out var setup) ||
+        frame.GetReadOnly<MatchSetupState>(setup).TeamlessPruned == 0 ||
+        !frame.AssetRegistry.TryGet<MapLayoutAsset>(out var map)) return;
+
+    var survivingTeams = new HashSet<int>();
+    var crystals = frame.Filter<Crystal, Team>();
+    while (crystals.Next(out var entity))
+      survivingTeams.Add(frame.GetReadOnly<Team>(entity).TeamId);
+    for (var i = 0; i < map.MarkerCount; i++)
+      if (map.MarkerTypes[i] == (int)MapMarkerType.Crystal && !survivingTeams.Contains(map.MarkerTeams[i]))
+        FreeTeamBase(map.MarkerTeams[i]);
+    _teamCleanupComplete = true;
   }
 
   private void FreeTeamBase(int teamId) {

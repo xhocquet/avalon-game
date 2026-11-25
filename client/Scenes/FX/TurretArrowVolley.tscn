@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/FX/TurretArrowVolley.cs" id="1_script"]
+[ext_resource type="PackedScene" path="res://Scenes/FX/Arrow.tscn" id="2_arrow"]
+
+[node name="TurretArrowVolley" type="Node3D"]
+top_level = true
+script = ExtResource("1_script")
+ArrowScene = ExtResource("2_arrow")

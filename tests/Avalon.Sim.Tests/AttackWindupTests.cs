@@ -44,6 +44,30 @@ public class AttackWindupTests {
   }
 
   [Fact]
+  public void TurretAttacks_PreserveFacingAsTargetMoves() {
+    var harness = SimHarness.CreateInitialized();
+    var attacker = SpawnDuel(harness, WindupSeconds);
+    var frame = harness.Frame;
+    frame.Remove<Minion>(attacker);
+    frame.Add(attacker, new Turret { TurretId = 101 });
+    frame.Get<UnitIdentity>(attacker).UnitTypeId = SimulationSetup.TurretUnitTypeId;
+    var facing = FP64.FromFloat(0.35f);
+    frame.Get<TransformComponent>(attacker).Rotation = facing;
+
+    var log = RunAndCollect(harness, ticks: 130, onTick: (h, tick) => {
+      h.Frame.GetReadOnly<TransformComponent>(attacker).Rotation.Should().Be(facing);
+      var targets = h.Frame.Filter<Minion, TransformComponent>();
+      while (targets.Next(out var target))
+        h.Frame.Get<TransformComponent>(target).Position = tick < 30
+          ? new FPVector3(FP64.One, FP64.Zero, FP64.Zero)
+          : new FPVector3(FP64.Zero, FP64.Zero, FP64.One);
+    });
+
+    log.Count(e => e.Event is AttackHitEvent).Should().BeGreaterThanOrEqualTo(2);
+    frame.GetReadOnly<TransformComponent>(attacker).Rotation.Should().Be(facing);
+  }
+
+  [Fact]
   public void ActiveWindup_DoesNotKeepTurningTowardTheTarget() {
     var harness = SimHarness.CreateInitialized();
     var attacker = SpawnDuel(harness, WindupSeconds);

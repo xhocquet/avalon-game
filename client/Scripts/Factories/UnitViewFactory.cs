@@ -21,13 +21,13 @@ public class UnitViewFactory(
   private readonly HashSet<int> _reportedFactionIds = [];
 
   public override ViewFlags GetViewFlags(Frame frame, EntityRef entity) {
-    return FindPlacedContainer(frame, entity) != null
-      ? base.GetViewFlags(frame, entity) | ViewFlags.DisableUpdate
-      : base.GetViewFlags(frame, entity);
+    var flags = base.GetViewFlags(frame, entity);
+    if (FindPlacedStructure(frame, entity) == null) return flags;
+    return flags | (frame.Has<Turret>(entity) ? ViewFlags.DisablePositionUpdate : ViewFlags.DisableUpdate);
   }
 
   public override EntityViewNode Create(Frame frame, EntityRef entity, BindBehaviour behaviour, ViewFlags flags) {
-    var placed = FindPlacedContainer(frame, entity);
+    var placed = FindPlacedStructure(frame, entity);
     if (placed != null) {
       var transform = placed.GlobalTransform;
       placed.GetParent().RemoveChild(placed);
@@ -39,18 +39,19 @@ public class UnitViewFactory(
     return base.Create(frame, entity, behaviour, flags);
   }
 
-  private ContainerEntity FindPlacedContainer(Frame frame, EntityRef entity) {
-    return world != null && frame.Has<Crystal>(entity) && frame.Has<TransformComponent>(entity)
-      ? FindContainer(world, frame.GetReadOnly<TransformComponent>(entity).Position.ToVector3())
+  private EntityViewNode FindPlacedStructure(Frame frame, EntityRef entity) {
+    return world != null && (frame.Has<Crystal>(entity) || frame.Has<Turret>(entity)) && frame.Has<TransformComponent>(entity)
+      ? FindStructure(world, frame.GetReadOnly<TransformComponent>(entity).Position.ToVector3(), frame.Has<Turret>(entity))
       : null;
   }
 
-  private static ContainerEntity FindContainer(Node node, Vector3 position) {
-    if (node is ContainerEntity container && container.GlobalPosition.DistanceSquaredTo(position) < 0.01f)
-      return container;
+  private static EntityViewNode FindStructure(Node node, Vector3 position, bool turret) {
+    if (node is EntityViewNode view && (turret ? view is TurretEntity : view is ContainerEntity) &&
+        view.GlobalPosition.DistanceSquaredTo(position) < 0.01f)
+      return view;
 
     foreach (var child in node.GetChildren()) {
-      var found = FindContainer(child, position);
+      var found = FindStructure(child, position, turret);
       if (found != null)
         return found;
     }

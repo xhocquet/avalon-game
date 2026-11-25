@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Godot;
+using Meesles.Avalon.Client.Scripts.Entities;
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
 using Meesles.Avalon.Sim.Components;
@@ -66,6 +67,9 @@ public partial class VisionRenderer : MeshInstance3D {
         ? (frame.GetReadOnly<UnitVisibility>(view.EntityRef).Teams & Visibility.TeamBit(teamId)) != 0
         : Visibility.IsUnitVisible(ref frame, teamId, view.EntityRef));
     }
+    foreach (var node in GetTree().GetNodesInGroup(ShopEntity.ShopsGroup))
+      if (node is ShopEntity shop)
+        shop.SyncMap(frame, map, teamId, noFog);
     if (noFog) {
       Visible = false;
       return;

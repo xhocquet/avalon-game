@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Godot;
+using Meesles.Avalon.Client.Scripts.Entities;
 using Meesles.Avalon.Client.Scripts.Interfaces;
 using Meesles.Avalon.Sim;
 using Meesles.Avalon.Sim.Assets;
@@ -108,6 +109,9 @@ public class VfxManager {
       ball.Start(_hairballScene, attackerPos, targetPos, targetView, windupSeconds);
       _hairballs[evt.AttackerUnitId] = ball;
     }
+
+    if (attackerView is TurretEntity turret && turret.PlayArrowVolley(targetPos, windupSeconds, targetView))
+      return;
 
     // The debug line stands in for rigs that have no attack clip yet.
     if (attackerView is not IAttackableView attacker ||

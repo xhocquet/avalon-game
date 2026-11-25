@@ -103,7 +103,7 @@ public partial class SingleplayerGameNode : GameNode {
     _view.PlayerViews.OnLocalViewUnregistered += OnLocalViewUnregistered;
     _events = new SimEventHub();
     _events.Attach(_session.Engine);
-    BindTeamBaseCleanup(_events);
+    BindTeamBaseCleanup(_events, engine);
     _vfx = new VfxManager();
     _vfx.Attach(_events, _view, engine);
     _telegraphs = new SkillTelegraphManager();
